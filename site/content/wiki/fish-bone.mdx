@@ -1,0 +1,118 @@
+---
+slug: fish-bone
+title: Fish Bone
+type: item
+categories: [items/carryables]
+objects: [oFishBone]
+lede: >-
+  The Fish Bone is a carryable item in Spelunky Classic, left by a Piranha or a Dead Fish out of the water,
+  that breaks on the first monster it hits.
+infobox:
+  image: { sprite: sFishBone, alt: "A tiny white fish skeleton, its spine and ribs" }
+  kind: carryable
+  effect: { text: "Thrown, hurts a monster and breaks", cite: objects/oItem/step.gml:256-363 }
+  damage: { stat: fish-bone.damage }
+relations:
+  related: [piranha, dead-fish, arrow, throwing]
+clips: [fish-bone/piranha]
+faq:
+  - q: Where do you find Fish Bones in Spelunky Classic?
+    a: >-
+      Wherever a [[piranha|Piranha]] or a [[dead-fish|Dead Fish]] ends up out of the water: one whose middle
+      isn't in water turns into a Fish Bone at once. Level generation makes none, and the level editor has no
+      tile for one.
+  - q: What does a Fish Bone do in Spelunky Classic?
+    a: >-
+      Nothing in the player's hands. Moving faster than 2 pixels a step, thrown or falling, it takes
+      <Stat id="fish-bone.damage" /> from the monster nearest it and breaks, as an [[arrow|arrow]] does.
+  - q: Can a Fish Bone hurt the player in Spelunky Classic?
+    a: >-
+      No. The player's code checks for fast arrows and rocks only, so a Fish Bone flying at him does nothing.
+      It can hurt a [[damsel|Damsel]].
+  - q: Does killing a Piranha leave a Fish Bone in Spelunky Classic?
+    a: >-
+      No. A Piranha that dies leaves only blood, and a Dead Fish three plain bones; a Fish Bone is what a
+      living one turns into when its water is gone.
+sources:
+  - objects/oFishBone/create.gml
+  - objects/oFishBone/step.gml
+  - objects/oFishBone/alarm_2.gml
+  - objects/oItem/step.gml
+  - objects/oPiranha/step.gml
+  - objects/oDeadFish/step.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.14, date: 2026-10-29 }
+---
+
+A Fish Bone is what's left of a [[piranha|Piranha]] or a [[dead-fish|Dead Fish]] that ends up out of the
+water, which happens when the water drains away around it. It can be picked up and thrown like a
+[[rock|Rock]], and hurts a monster as an [[arrow|arrow]] does, breaking as it hits.
+
+## Usage
+
+<Clip id="fish-bone/piranha" />
+
+A Fish Bone is picked up and thrown as any item is: crouching over it with empty hands, the attack key lifts
+it, and the attack key throws it, at 8 pixels a step plus the player's speed, rising at 3
+<Cite gml="objects/oPlayer1/step.gml:1203-1214" /> <Cite gml="scripts/scrUseItem.gml:605-646" />. It moves
+by the code all items share: its own lighter gravity, 0.2, lasts its first step, and then it falls 0.6
+pixels a step faster each step, as items do, bouncing off walls and floors <Cite
+gml="objects/oFishBone/create.gml:6" /> <Cite gml="objects/oItem/step.gml:84-111" />
+<Cite gml="objects/oItem/step.gml:160-170" />. It turns to point the way it's flying
+<Cite gml="objects/oFishBone/step.gml:3-25" />.
+
+While it moves faster than 2 pixels a step, across or down, and touches a monster, it takes
+<Stat id="fish-bone.damage" /> from the monster nearest it ([[nearest-enemy]]) and is destroyed; a Caveman,
+a Hawkman, a Mantrap, a Yeti or a Vampire is also stunned. It's destroyed even when the monster's own rules
+spare it the hit, as a Caveman's do while it's stunned, so it breaks on the first monster it reaches. Only an
+invincible monster or a [[magma-man|Magma Man]] lets it fly on. A [[damsel|Damsel]] it hits loses 1 hit
+point, and the bone is destroyed too <Cite
+gml="objects/oItem/step.gml:256-363" /> <Cite gml="objects/oItem/step.gml:365-398" />
+<Cite quirk="1" />. Unlike a Rock or an arrow, it can't hurt the player: his own code checks only for those
+two <Cite gml="objects/oPlayer1/step.gml:1513-1565" />.
+
+In the clip, the player drops a bomb beside a pool and runs back. The explosion breaks the pool's side,
+the water drains away, and the Piranha in it turns into a Fish Bone. He picks the bone up, jumps out of the
+pool and throws it at a [[snake|Snake]], which it kills, breaking <Cite clip="fish-bone/piranha" />.
+
+## Locations
+
+[[level-generation|Level generation]] makes no Fish Bones, and the [[level-editor|level editor]] has no tile
+for one. They come from:
+
+- **[[piranha|Piranhas]].** One whose middle isn't in water turns into a Fish Bone at once
+  <Cite gml="objects/oPiranha/step.gml:136-140" />.
+- **[[dead-fish|Dead Fish]]**, the same way, while they're on the screen
+  <Cite gml="objects/oDeadFish/step.gml:1-3" /> <Cite gml="objects/oDeadFish/step.gml:70-74" />.
+
+Both live only in water, so it takes the water draining for either to leave it: a block next to water that
+breaks lets the water beside it go, and the rest of the pool follows over the next few steps
+<Cite gml="objects/oSolid/destroy.gml:35" /> <Cite gml="objects/oGame/step.gml:49-104" />. A Piranha that's
+killed leaves only blood, and a Dead Fish three plain bones, not a Fish Bone
+<Cite gml="objects/oPiranha/step.gml:3-13" /> <Cite gml="objects/oDeadFish/step.gml:5-18" />.
+
+## Interactions
+
+- **[[bomb|Bombs]].** An explosion destroys a Fish Bone, as it does an arrow, a Jar or a Skull
+  <Cite gml="objects/oExplosion/collision_oItem.gml:1-5" />.
+- **[[lava|Lava]].** A Fish Bone that touches lava stops and sinks, and is destroyed once it's under the
+  surface <Cite gml="objects/oItem/step.gml:160-185" />.
+- **The screen.** It moves only while it's within 16 pixels of the screen
+  <Cite gml="objects/oItem/step.gml:1-3" /> <Cite quirk="1" />.
+- **Exits.** Carried through a level's exit, it's in the player's hands on the next level; while he holds
+  it, the HUD shows it in the box for the held item <Cite gml="objects/oPlayer1/step.gml:842-850" />
+  <Cite gml="scripts/scrHoldItem.gml:37" /> <Cite gml="scripts/scrDrawHUD.gml:84" />.
+
+## Tips
+
+- A Fish Bone breaks on the first monster it hits, hurt or not, so it's good for one throw, where a Rock
+  can be thrown again.
+- It can't hurt the player, so one thrown at a wall beside him and bouncing back is harmless.
+
+## Trivia
+
+- The code that lets a thrown monster hurt the monsters it hits ends by destroying the thrown one if its
+  name is "Arrow" or "Fish Bone", a line copied from the items' code; no monster has either name
+  <Cite gml="objects/oEnemy/step.gml:264" />. The Jar's and the Skull's own steps keep the same line, which
+  never holds for them either <Cite gml="objects/oJar/step.gml:143-144" />
+<Cite gml="objects/oSkull/step.gml:141-142" /> <Cite quirk="1" />.

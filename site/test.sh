@@ -486,7 +486,8 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<th scope="row">Object</th><td><span><code>oSnake</code></span></td>' \
   '<th scope="row">Found in</th><td><ul class="relation-links"><li><a id="base-ui-' \
   'href="/wiki/mines" data-slug="mines" class="wikilink">The Mines</a></li><li><a id="base-ui-' \
-  'href="/wiki/snake-pit" data-slug="snake-pit" class="wikilink">Snake pit</a></li><li><span class="wikilink-new" data-slug="tutorial" title="This page hasn&#x27;t been written yet">Tutorial</span></li>' \
+  'href="/wiki/snake-pit" data-slug="snake-pit" class="wikilink">Snake pit</a></li><li><a id="base-ui-' \
+  'href="/wiki/tutorial" data-slug="tutorial" class="wikilink">Tutorial</a></li>' \
   '<div class="wiki-page"><nav class="toc-rail" id="toc-rail" aria-labelledby="toc-rail-title"><p class="toc-title" id="toc-rail-title">Contents</p><ol><li><a href="#behaviour">Behaviour</a></li>' \
   '<li><a href="#what-links-here">What links here</a></li></ol></nav><article>' \
   '<nav class="toc" id="toc" aria-labelledby="toc-title" data-closed=""><p class="toc-title" id="toc-title">Contents</p><button type="button" tabindex="0" aria-expanded="false" class="toc-toggle">Contents</button><div data-closed="" hidden=""' \
@@ -520,12 +521,14 @@ lacks 'muted=""' 'aria-current="location"' 'Verified against the spelunky.ai por
 contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does a Snake do in Spelunky Classic?</dt>' \
   '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much damage does a Snake do in Spelunky Classic?","acceptedAnswer":{"@type":"Answer","text":"1 heart per bite.' \
   '<link rel="alternate" type="text/markdown" href="https://spelunky.ai/wiki/snake.md"/>'
-# Its links and relations (src/wiki/build/relations.ts): red links to the planned pages it links, Found in
-# in the infobox, Damaged by under See also with its citations, and What links here.
-contains '<span class="wikilink-new" data-slug="tutorial" title="This page hasn&#x27;t been written yet">Tutorial</span>' \
+# Its links and relations (src/wiki/build/relations.ts): links to the pages it links, none of them a red link
+# now that every planned page is written, Found in in the infobox, Damaged by under See also with its
+# citations, and What links here.
+contains 'href="/wiki/tutorial" data-slug="tutorial" class="wikilink">Tutorial</a>' \
   '<div class="heading heading-2"><h2 id="see-also">See also</h2>' '<dt>Damaged by</dt>' \
   'href="/wiki/stomping" data-slug="stomping" class="wikilink">Stomping</a><sup class="cite"><a href="#cite-' \
   '<h2 id="what-links-here">What links here</h2>' '<ul class="links-here"><li><a id="base-ui-' 'data-slug="bat" class="wikilink">Bat</a></li>'
+lacks 'class="wikilink-new"'
 # Its header's search box (src/wiki/search-box.tsx): a form for /wiki?q= without scripts, Base UI's combobox
 # with them, whose list is in a chunk of its own (below), and its status, there from the start.
 contains '<form role="search" class="search-box" action="/wiki" method="get"><label id="' 'class="visually-hidden">Search the wiki</label>' \
@@ -697,9 +700,8 @@ contains '<title>Weapons – Spelunky Classic fan wiki</title>' \
   '<a class="card-body" href="/wiki/whip">'
 check "$site/wiki/items/weapons/" 307 "location: /wiki/items/weapons"
 check "$site/wiki/items/carryables" 200 "$no_cache"
-contains '<span class="card-title">Bomb Bag</span><span class="card-status">Not written yet</span>' \
-  '<a class="card-body" href="/wiki/rock">'
-lacks '<meta name="robots" content="noindex"/>'
+contains '<a class="card-body" href="/wiki/fish-bone">' '<a class="card-body" href="/wiki/rock">'
+lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'
 check "$site/wiki/treasure" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/diamond">' '<a class="card-body" href="/wiki/golden-idol">'
 lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'
@@ -707,16 +709,17 @@ check "$site/wiki/traps" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/spikes">'
 lacks '<meta name="robots" content="noindex"/>'
 check "$site/wiki/places" 200 "$no_cache"
-contains '<span class="card-title">Tutorial</span><span class="card-status">Not written yet</span>' \
+contains '<a class="card-body" href="/wiki/tutorial">' \
   '<a class="card-body" href="/wiki/mines">' '<a class="card-body" href="/wiki/kalis-altar">' \
   'role="group" aria-label="Found in" class="hub-choices">' 'aria-pressed="false">The Ice Caves</button>'
-lacks '<meta name="robots" content="noindex"/>'
-# A place page's navbox groups the places by area, as the hub filters them, the areas' own pages last, as Areas.
+lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'
+# A place page's navbox groups the places by area, as the hub filters them, then the areas' own pages, as
+# Areas, and last the one part of no area, the Tutorial, as Other.
 check "$site/wiki/snake-pit" 200 "$no_cache"
 contains '<nav class="navbox" aria-labelledby="navbox-places"><p class="navbox-title" id="navbox-places"><a href="/wiki/places">Places</a></p><dl><div><dt>The Mines</dt><dd><ul><li>' \
   '<li><strong aria-current="page">Snake pit</strong></li></ul></dd></div><div><dt>The Jungle</dt>' \
-  '<div><dt>Areas</dt><dd><ul><li><a id="base-ui-' 'href="/wiki/mines" data-slug="mines">The Mines</a></li><li><a id="base-ui-'
-lacks '<dt>Other</dt>'
+  '<div><dt>Areas</dt><dd><ul><li><a id="base-ui-' 'href="/wiki/mines" data-slug="mines">The Mines</a></li><li><a id="base-ui-' \
+  '<div><dt>Other</dt><dd><ul><li><a id="base-ui-' 'href="/wiki/tutorial" data-slug="tutorial">Tutorial</a></li></ul></dd></div>'
 check "$site/wiki/shops" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/general-store">' '<a class="card-body" href="/wiki/dice-house">'
 lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'

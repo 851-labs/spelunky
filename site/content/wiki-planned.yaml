@@ -18,6 +18,3 @@
 # pages it involves, checked as its page's `related` will be, which the hub filters by, and a one-sentence
 # lede, plain text, from its docs/quirks.md row (docs/wiki-style.md, "Red links"). The page takes both over.
 # Each is on one line.
-
-fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
-tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }

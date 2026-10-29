@@ -1,0 +1,118 @@
+---
+slug: bomb-bag
+title: Bomb Bag
+type: item
+categories: [items/equipment]
+objects: [oBombBag]
+aliases: [bag-of-bombs]
+hatnote: "For the box of twelve, see [[bomb-box]]."
+lede: >-
+  The Bomb Bag is an item in Spelunky Classic that adds <Stat id="bomb-bag.bombs" /> to the player's count
+  when he takes it; shops sell it from <Stat id="bomb-bag.price" />.
+infobox:
+  image: { sprite: sBombBag, alt: "A brown sack tied at the neck, marked with a white letter B" }
+  kind: equipment
+  effect: { text: "Three more bombs", cite: objects/oPlayer1/step.gml:2020-2034 }
+  price: { stat: bomb-bag.price }
+relations:
+  sold_in: [general-store, bomb-shop, weapon-shop]
+  found_in:
+    - mines
+    - jungle
+    - ice-caves
+    - temple
+    - { slug: tutorial, cite: objects/oPlayer1/step.gml:616, note: "In its Crate" }
+  related: [bombs-and-ropes, bomb, bomb-box, rope-pile, crate]
+clips: [bombs-and-ropes/pickups, bomb-shop/buy]
+faq:
+  - q: How many bombs are in a Bomb Bag in Spelunky Classic?
+    a: >-
+      <Stat id="bomb-bag.bombs" bare />. The pickup message says "YOU GOT 3 MORE BOMBS!", and the count can't
+      go past <Stat id="bomb.max" bare />. A [[bomb-box|Bomb Box]] holds <Stat id="bomb-box.bombs" bare />.
+  - q: How much does a Bomb Bag cost in Spelunky Classic?
+    a: >-
+      <Stat id="bomb-bag.price" /> on level 2, the first with shops, and 10% of that more on each level after
+      it, up to <Stat id="bomb-bag.price-by-level" at="15" /> on level 15. General Stores, Bomb Shops and
+      Weapon Shops sell it.
+  - q: Where do you find Bomb Bags in Spelunky Classic?
+    a: >-
+      In shops, and in [[crate|Crates]]: once every rarer item's roll fails, a Crate holds a Bomb Bag or a
+      [[rope-pile|Rope Pile]] at even odds. The Crate in the [[tutorial|Tutorial]] always holds one.
+  - q: Do you have to carry a Bomb Bag in Spelunky Classic?
+    a: >-
+      No. A free one is used up as soon as the player touches it, adding its bombs to his count; only one for
+      sale stays in his hands until he pays for it or carries it out of the shop.
+sources:
+  - objects/oBombBag/create.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrStealItem.gml
+  - scripts/scrShopItemsGen.gml
+verified: { port: v0.1.14, date: 2026-10-29 }
+---
+
+A Bomb Bag isn't kept: taking one adds its <Stat id="bomb-bag.bombs" bare /> [[bomb|bombs]] to the count beside
+the bomb icon at the top of the screen, and the bag is gone ([[bombs-and-ropes]] has how the count works).
+The [[general-store|General Store]], the [[bomb-shop|Bomb Shop]] and the [[weapon-shop|Weapon Shop]] sell it,
+and [[crate|Crates]] hold it more often than anything but a [[rope-pile|Rope Pile]].
+
+## Effect
+
+<Clip id="bombs-and-ropes/pickups" />
+
+A free Bomb Bag is taken as soon as the player touches it, unless he's dead or stunned or the bag is inside
+a block: his bombs go up by <Stat id="bomb-bag.bombs" bare />, a flashing "+BOMB" rises from where the bag was, and the
+message "YOU GOT 3 MORE BOMBS!" shows <Cite gml="objects/oPlayer1/step.gml:2020-2034" />. Paying for one, or
+carrying one out of its shop, does the same <Cite gml="scripts/scrStealItem.gml:68-79" />. A count above
+<Stat id="bomb.max" bare /> is cut back to <Stat id="bomb.max" bare /> at the start of his next step
+<Cite gml="objects/oPlayer1/step.gml:10-11" />. In the clip, the player walks over a Bomb Bag, a Rope Pile and
+a [[bomb-box|Bomb Box]], and his bombs go from 4 to 7 at the bag <Cite clip="bombs-and-ropes/pickups" />.
+
+<Clip id="bomb-shop/buy" />
+
+One for sale is picked up as any ware is, and stays in the player's hands: the
+[[shopkeeper|Shopkeeper]] names it "A BAG OF 3 BOMBS" and its price, and the pay key buys it
+<Cite gml="objects/oBombBag/create.gml:6-8" /> <Cite gml="objects/oPlayer1/step.gml:1359-1389" />. In the
+second clip, the player picks one up in a Bomb Shop on level 2, pays $2,500, and his bombs go from 4 to 7
+<Cite clip="bomb-shop/buy" />.
+
+## Obtaining
+
+| Source | Chance | |
+| --- | --- | --- |
+| [[general-store\|General Store]] | 1 in 3 for each ware, once the rolls for a [[mattock\|Mattock]], [[climbing-gloves\|Climbing Gloves]] and a [[compass\|Compass]] fail | <Cite gml="scripts/scrShopItemsGen.gml:156-176" /> |
+| [[bomb-shop\|Bomb Shop]] | 3 in 5 for each ware, or 3 in 4 once the level has a [[paste\|Paste]] | <Cite gml="scripts/scrShopItemsGen.gml:24-35" /> |
+| [[weapon-shop\|Weapon Shop]] | 1 in 4 for each try, once the rolls before it fail, and every ware whose twenty tries find no weapon the level hasn't got | <Cite gml="scripts/scrShopItemsGen.gml:36-67" /> |
+| A [[crate\|Crate]] | 1 in 2, once every other item's roll, from a [[jetpack\|Jetpack]]'s 1 in 500 to a [[parachute\|Parachute]]'s 1 in 10, fails | <Cite gml="objects/oPlayer1/step.gml:617-636" /> |
+| The [[tutorial\|Tutorial]]'s Crate | Always | <Cite gml="objects/oPlayer1/step.gml:616" /> |
+
+Each shop adds 10% of the base price for each level past the second
+<Cite gml="scripts/scrShopItemsGen.gml:179-191" />. Shops are made from level 2 on
+<Cite gml="scripts/scrLevelGen.gml:240" />, and level 16, [[olmecs-lair|Olmec's Lair]], has none:
+
+| Area | 1st level | 2nd level | 3rd level | 4th level |
+| --- | --- | --- | --- | --- |
+| [[mines\|The Mines]] | — | <Stat id="bomb-bag.price-by-level" at="2" /> | <Stat id="bomb-bag.price-by-level" at="3" /> | <Stat id="bomb-bag.price-by-level" at="4" /> |
+| [[jungle\|The Jungle]] | <Stat id="bomb-bag.price-by-level" at="5" /> | <Stat id="bomb-bag.price-by-level" at="6" /> | <Stat id="bomb-bag.price-by-level" at="7" /> | <Stat id="bomb-bag.price-by-level" at="8" /> |
+| [[ice-caves\|The Ice Caves]] | <Stat id="bomb-bag.price-by-level" at="9" /> | <Stat id="bomb-bag.price-by-level" at="10" /> | <Stat id="bomb-bag.price-by-level" at="11" /> | <Stat id="bomb-bag.price-by-level" at="12" /> |
+| [[temple\|The Temple]] | <Stat id="bomb-bag.price-by-level" at="13" /> | <Stat id="bomb-bag.price-by-level" at="14" /> | <Stat id="bomb-bag.price-by-level" at="15" /> | — |
+
+A Crate's item appears where the player stands as he opens it, so a Bomb Bag out of one is taken at once
+<Cite gml="objects/oPlayer1/step.gml:612-616" />. Bomb Bags aren't among the items buried in blocks, the
+[[dice-house|Dice House]]'s prizes or [[kalis-favour|Kali]]'s gifts
+<Cite gml="scripts/scrGenerateItem.gml:47-89" /> <Cite gml="scripts/scrGetFavorMsg.gml:85-105" />. In custom
+levels, it's the [[level-editor|level editor]]'s tile `.` <Cite gml="scripts/scrCreateTileObj.gml:297-302" />.
+
+Carrying one out of a shop without paying adds its bombs and angers the Shopkeeper, as with any ware
+([[general-store#stealing]]) <Cite gml="objects/oPlayer1/step.gml:541-557" />.
+
+## Interactions
+
+- **[[bomb|Bombs]].** An explosion throws a Bomb Bag aside, as it does most items, and knocks one out of
+  the player's hands <Cite gml="objects/oExplosion/collision_oItem.gml:30-46" />. The bag's bombs don't go
+  off.
+- **Being stunned.** A stunned player doesn't take a bag he's lying on until he gets up
+  <Cite gml="objects/oPlayer1/step.gml:2020" />.
+
+## Tips
+
+- Near the cap, a bag adds what it can: at 97 bombs, one takes the count to 99, and the third bomb is lost.

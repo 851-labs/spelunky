@@ -580,6 +580,13 @@ object = "oSkull"
 templates = ["thrown"]
 
 [[entity]]
+slug = "fish-bone"
+name = "Fish Bone"
+kind = "item"
+object = "oFishBone"
+templates = ["thrown"]
+
+[[entity]]
 slug = "crate"
 name = "Crate"
 kind = "item"
