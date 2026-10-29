@@ -143,6 +143,10 @@ The Whip's crack and its wind-up only push a Yeti back: they hurt it only when t
 Machete's and a Mattock's do and the Whip's doesn't <Cite gml="objects/oYeti/collision_oWhipPre.gml:1-31" />
 <Cite gml="objects/oWhip/create.gml:5" /> <Cite gml="objects/oSlash/create.gml:6" />.
 
+Rounding a stomp's steps up means one landed while the player is still rising, before he has fallen a step,
+takes nothing, though it stuns the Yeti ([[yeti-stomp-rising]]) <Cite quirk="1" />
+<Cite replay="fidelity/replays/enemy-yeti-stomp-rising.txt" />.
+
 When its hit points run out, a Yeti dies and leaves its body, which can be picked up and thrown
 <Cite gml="objects/oYeti/step.gml:21-24" /> <Cite gml="objects/oYeti/step.gml:176-193" />. Yetis killed count
 toward the player's kills, and the screen between levels draws a Yeti icon for each

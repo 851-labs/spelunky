@@ -63,7 +63,7 @@ stops there.
 
 Each step the player touches a Smash Trap, he loses 10 hearts, is thrown toward it (and down, if it was sliding
 down) and drops whatever he holds <Cite gml="objects/oPlayer1/step.gml:1649-1668" />. Being thrown toward a
-solid block, he isn't knocked clear of it <Cite quirk="1" />
+solid block, he isn't knocked clear of it ([[smash-trap-random-throw]]) <Cite quirk="1" />
 <Cite replay="fidelity/replays/trap-smash-crush.txt" />. Nothing spaces out the hits, so a player who stays
 against it is hit on every step, and each hit he survives is counted in the end-of-game statistics' smash trap
 row as well as the one that kills him <Cite quirk="1" />. If the trap slides
@@ -109,7 +109,8 @@ Smash Traps are also in the Sun challenge room, a bonus room <Cite room="rSun" /
 ## Trivia
 
 - The trap picks a random direction when it's made, which only matters if the player touches it before its
-  first slide sets one: the hit throws him down if the random direction was down, one time in four. Touching
+  first slide sets one: the hit throws him down if the random direction was down, one time in four
+  ([[smash-trap-random-throw]]). Touching
   it without setting it off takes coming at it from outside its row and column, as by brushing its corner while
   dropping past it <Cite gml="objects/oSmashTrap/create.gml:25-29" /> <Cite gml="objects/oPlayer1/step.gml:1658-1661" />
   <Cite quirk="1" /> <Cite replay="fidelity/replays/trap-smash-random-throw.txt" />.

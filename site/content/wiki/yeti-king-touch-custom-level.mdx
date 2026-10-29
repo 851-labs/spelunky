@@ -1,0 +1,99 @@
+---
+slug: yeti-king-touch-custom-level
+title: The Yeti King's harmless touch in custom levels
+type: quirk
+categories: [quirks]
+aliases: [harmless-touch, custom-level-touch]
+card: { sprite: sYetiKingLeft }
+lede: >-
+  The Yeti King's harmless touch in custom levels is a quirk of Spelunky Classic in which the Yeti King's touch
+  takes no hearts in a custom level.
+quirk:
+  status: GML + Oracle
+  where: objects/oYetiKing/collision_oCharacter.gml:16-31
+  pinned_by: fidelity/replays/enemy-yeti-king-custom-level-touch.txt
+  entry: "1"
+  rows:
+    - The Yeti King's touch costs nothing in a custom level, and its kill is tallied there all the same.
+relations:
+  related: [yeti-king, level-editor]
+clips: [quirks/yeti-king-touch-custom-level]
+faq:
+  - q: Why doesn't the Yeti King hurt the player in a custom level?
+    a: >-
+      The check that keeps custom levels out of the death tally also guards the [[yeti-king|Yeti King]]'s
+      damage. In a [[level-editor|custom level]], its touch knocks the player back and makes him blink, but
+      takes none of his hearts.
+  - q: Does killing the Yeti King in a custom level count?
+    a: >-
+      Yes. Its kill goes into the lifetime tally the end-of-game statistics keep, which no other monster's kill
+      in a custom level does.
+  - q: Do other monsters hurt the player in a custom level?
+    a: >-
+      Yes. Every other monster's touch takes its hearts in a custom level too, and only leaves the death out of
+      the statistics.
+sources:
+  - objects/oYetiKing/collision_oCharacter.gml
+  - objects/oYetiKing/step.gml
+  - scripts/isRealLevel.gml
+  - objects/oYeti/collision_oCharacter.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+The game keeps custom levels out of its statistics with a check, "is this one of the game's own levels?", put
+around each tally. Around the [[yeti-king|Yeti King]]'s touch, it went around the damage too, so in a custom
+level the touch takes nothing. Around its kill, it was left out, so that kill is tallied even there.
+
+## What happens
+
+In a custom level the player walks into the Yeti King twice: it knocks him back and he blinks, but he keeps all
+four hearts. A bomb then kills it, and the kill still goes into the lifetime tally
+<Cite clip="quirks/yeti-king-touch-custom-level" />.
+
+<Clip id="quirks/yeti-king-touch-custom-level" />
+
+## Why
+
+The Yeti King's touch knocks the player back and makes him invincible for 30 steps, then takes its 2 hearts
+only on one of the game's own levels:
+
+```gml objects/oYetiKing/collision_oCharacter.gml:16-31
+else if (other.invincible == 0)
+{
+    other.blink = 30
+    other.invincible = 30
+    if (other.y < y)
+        other.yVel = -6
+    if (other.x < x)
+        other.xVel = -6
+    else
+        other.xVel = 6
+    
+    if (global.plife > 0 and isRealLevel())
+    {
+        global.plife -= 2;
+        if (global.plife <= 0) global.enemyDeaths[14] += 1;
+    }
+```
+
+`isRealLevel` is, as its own comment has it, "Only used for stat-checking atm.": it's true in the game's level
+rooms and Olmec's <Cite gml="scripts/isRealLevel.gml:4-8" />. Every other monster's touch takes its hearts first
+and checks it only for the tally, as a Yeti's does <Cite gml="objects/oYeti/collision_oCharacter.gml:35-39" />. The
+Yeti King's kill is the other way round: its step adds it to `enemyKills[14]`, the lifetime tally of the
+statistics' YETI KING row, without `isRealLevel()` <Cite gml="objects/oYetiKing/step.gml:41-46" />. Every other
+monster's kill but Olmec's, which only his lair has, skips that tally outside the game's own levels
+<Cite quirk="1" />.
+
+## Reproducing it
+
+Make a custom level with the level editor's `Y`, and walk into it: it knocks the player back, and he keeps his
+hearts. The level editor's test does the same. The replay of the clip's staged scene, on a custom level, walks
+into the Yeti King twice, and the player keeps his 4 hearts; a bomb kills it, and `enemyKills[14]` becomes 1
+<Cite replay="fidelity/replays/enemy-yeti-king-custom-level-touch.txt" />. On a real level, in a Yeti lair, the
+same touch takes him from 4 hearts to 2 <Cite replay="fidelity/replays/enemy-yeti-king-swat-seed-47.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the player's hearts and the tally. No option
+turns it off.

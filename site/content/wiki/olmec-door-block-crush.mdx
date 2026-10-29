@@ -1,0 +1,101 @@
+---
+slug: olmec-door-block-crush
+title: Crushes in Olmec's lair counted as Olmec's
+type: quirk
+categories: [quirks]
+aliases: [door-block-crush, crushed-by-the-exit]
+card: { sprite: sBlock }
+lede: >-
+  Crushes in Olmec's lair counted as Olmec's is a quirk of Spelunky Classic in which any crush in Olmec's lair
+  is tallied as a death by Olmec.
+quirk:
+  status: GML + Oracle
+  where: objects/oPlayer1/step.gml:1493-1501
+  pinned_by: fidelity/replays/olmec-door-block-crush-seed-1.txt
+  entry: "1"
+  rows:
+    - In Olmec's lair, any crush is Olmec's.
+relations:
+  related: [olmec, olmecs-lair]
+clips: [quirks/olmec-door-block-crush]
+faq:
+  - q: Can the exit door crush you in Olmec's Lair?
+    a: >-
+      The block under it can. When [[olmec|Olmec]] dies, a block of stone appears under the lair's exit door if
+      the floor there is gone, so a player who has blown it out with a bomb and stands in its place is crushed,
+      with however many hearts he has.
+  - q: Why is a crush in Olmec's Lair counted as a death by Olmec?
+    a: >-
+      The game tallies a crush by the room it happens in, not by what did it. Every crush in
+      [[olmecs-lair|Olmec's Lair]] goes in the statistics' OLMEC row, and every crush anywhere else in their
+      CRUSHED row.
+  - q: Do the statistics count it on a custom level?
+    a: >-
+      No. A crush on a custom level is counted in neither row: the game tallies deaths only on its own levels.
+sources:
+  - objects/oPlayer1/step.gml
+  - objects/oFinalBoss/step.gml
+  - scripts/scrWriteStats.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+The end-of-game statistics count deaths by what caused them, and a crush, the player's middle inside
+something solid, has its own row. In [[olmecs-lair|Olmec's Lair]] it doesn't: every crush there is counted
+against [[olmec|Olmec]], even one he has nothing to do with.
+
+## What happens
+
+A bomb has blown out the floor under the exit door of Olmec's Lair, and the player jumps the pit onto the
+block left below it. Olmec, sinking in the lava off the screen, dies, and a new block appears under the door,
+around the player's middle: he's crushed, and the game counts the death against Olmec
+<Cite clip="quirks/olmec-door-block-crush" />.
+
+<Clip id="quirks/olmec-door-block-crush" />
+
+## Why
+
+The player's step crushes him whenever his middle is inside a solid, and picks the row of the statistics by
+the room:
+
+```gml objects/oPlayer1/step.gml:1493-1503
+if (collision_point(x, y, oSolid, 0, 0))
+{
+    if (global.plife > 0)
+    {
+        if (isRealLevel())
+        {
+            if (isRoom("rOlmec")) global.enemyDeaths[22] += 1;
+            else global.miscDeaths[2] += 1;
+        }
+    }
+    global.plife -= 99;
+```
+
+`enemyDeaths[22]` is the OLMEC row, `miscDeaths[2]` the CRUSHED row <Cite gml="scripts/scrWriteStats.gml:138" />
+<Cite gml="scripts/scrWriteStats.gml:159" />. Olmec's slam is the usual crush in his lair, and is his. But when
+he dies, the lair's door becomes its exit, with a block of stone under it if there's no floor there:
+
+```gml objects/oFinalBoss/step.gml:8-12
+    if (not collision_point(640, 560, oSolid, 0, 0))
+    {
+        brick = instance_create(640, 560, oTemple);
+        with brick { invincible = true; }
+    }
+```
+
+A player standing where it appears is crushed by it, and the death is still Olmec's <Cite quirk="1" />.
+
+## Reproducing it
+
+Blow out the floor under the exit door before Olmec dies, and stand in the hole, where the block under the
+door goes, as he drowns. The replay, with seed 1, keeps Olmec alive in the lava by the left wall, runs across
+the lair as he starts to sink, and drops a bomb by the exit door. Its blast blows out the floor under the door,
+and the player jumps onto the block below, his middle at (651, 568). Olmec dies, the block under the door
+crushes him, and the OLMEC row counts it, not CRUSHED
+<Cite replay="fidelity/replays/olmec-door-block-crush-seed-1.txt" />. Olmec's own crush is in another replay
+<Cite replay="fidelity/replays/enemy-olmec-crush-seed-1.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins both tallies. No option turns it off.

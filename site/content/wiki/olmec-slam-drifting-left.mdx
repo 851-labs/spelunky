@@ -1,0 +1,82 @@
+---
+slug: olmec-slam-drifting-left
+title: Olmec not slamming while drifting left
+type: quirk
+categories: [quirks]
+aliases: [slam-overshoot, drifting-left]
+card: { sprite: sOlmecDebris }
+lede: >-
+  Olmec not slamming while drifting left is a quirk of Spelunky Classic in which Olmec drifting left fast
+  passes over the player without stopping to slam.
+quirk:
+  status: GML + Oracle
+  where: objects/oOlmec/step.gml:92-131
+  pinned_by: fidelity/replays/ending-seed-1.txt
+  entry: "1"
+  rows:
+    - Olmec doesn't stop to slam while drifting left.
+relations:
+  related: [olmec, olmecs-lair]
+clips: [quirks/olmec-slam-drifting-left]
+faq:
+  - q: Why does Olmec sometimes fly over the player without slamming?
+    a: >-
+      [[olmec|Olmec]] stops over the player to slam only while his drift to the left is slower than a pixel a
+      step. Drifting left any faster, he passes over the player and stops once his drift slows down again.
+  - q: Does it matter which side of Olmec the player is on?
+    a: >-
+      Yes. A hop toward a player on his left can carry him past before he stops, while one toward a player on
+      his right stops over him at once, at any speed.
+  - q: How fast does Olmec drift?
+    a: >-
+      His drift speeds up by a quarter of a pixel a step to 2 and slows down again, and he moves twice that, so
+      up to 4 pixels a step. He stops over a player on his left only while it's slower than 1.
+sources:
+  - objects/oOlmec/step.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+[[olmec|Olmec]] fights by hopping toward the player and stopping in the air over him, to slam down on him.
+The check that stops him treats left and right differently: drifting right, he stops over the player at once;
+drifting left at half his top speed or more, he passes over him.
+
+## What happens
+
+Olmec hops and drifts left over the player without stopping, and stops to slam only once his drift has slowed.
+On his next hop he drifts right and stops over the player at once <Cite clip="quirks/olmec-slam-drifting-left" />.
+
+<Clip id="quirks/olmec-slam-drifting-left" />
+
+## Why
+
+In the air after a hop, Olmec's drift, `xVel`, goes up by 0.25 a step toward the player to 2 and back down
+again <Cite gml="objects/oOlmec/step.gml:104-119" />. On every step he tests whether to stop and slam:
+
+```gml objects/oOlmec/step.gml:121-129
+        if ((not oPlayer1.active and yVel >= 0) or
+            (oPlayer1.y > y and abs(oPlayer1.x - (x+32)) < 32 and xVel > -1))
+        {
+            status = PREPARE;
+            yVel = 0;
+            xVel = 0;
+            myGrav = 0;
+            counter = 20;
+        }
+```
+
+The player has to be below Olmec's top and within 32 pixels of his middle, and `xVel` greater than -1. A drift
+to the right always passes that last test, but a drift to the left of -1 or faster, half his top drift or more,
+fails it, so he goes on over the player <Cite quirk="1" />.
+
+## Reproducing it
+
+Stand on Olmec's left as he hops: a fast drift toward the player carries him over without stopping. The
+replay of a whole game with seed 1 shows both sides: on one hop he drifts left over the player for 8 steps, his
+`xVel` -2 at the fastest, and stops only once it's back to -0.75. On his next he drifts right and stops over the
+player at once, with an `xVel` of 2 <Cite replay="fidelity/replays/ending-seed-1.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins his drift and the step he stops. No option
+turns it off.

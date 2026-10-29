@@ -80,7 +80,7 @@ cut from one run that beats him with seed 1 <Cite replay="fidelity/replays/endin
 
 6. **If he reaches the lava by the left wall, stay to his right.** There, his checks for lava test a point inside
    the wall, so he sits in it unharmed until a hop drifts him off the wall, which it does only toward a player
-   past his right side ([[olmec#defeating|Olmec's death in the lava]]) <Cite quirk="1" />. Off the wall, he stops, sinks and dies
+   past his right side ([[olmec-lava-left-wall]]) <Cite quirk="1" />. Off the wall, he stops, sinks and dies
    <Cite gml="objects/oOlmec/step.gml:35-43" />. In the clip, his last slam takes him into the lava by the wall,
    where he sits for two seconds; he starts to sink only when he hops out and drifts toward the player
    <Cite clip="quirks/olmec-lava-left-wall" />.
@@ -103,7 +103,7 @@ cut from one run that beats him with seed 1 <Cite replay="fidelity/replays/endin
   [[snake|Snake]], [[frog|Frog]] or [[fire-frog|Fire Frog]] where it lands ([[olmec#yellow-balls|Olmec's yellow balls]]), so the
   shaft fills with monsters as the fight goes on.
 - Drifting left at half his top speed or more, Olmec passes over the player without stopping; drifting right,
-  he stops at any speed ([[olmec#hops-and-slams|his hops and slams]]) <Cite quirk="1" />.
+  he stops at any speed ([[olmec-slam-drifting-left]]) <Cite quirk="1" />.
 - Bombs and weapons do nothing to Olmec <Cite gml="objects/oOlmec/create.gml:8" />.
 - There's no time limit: the [[ghost|Ghost]] never comes to the lair <Cite gml="objects/oGame/step.gml:23-47" />.
 
@@ -119,5 +119,5 @@ cut from one run that beats him with seed 1 <Cite replay="fidelity/replays/endin
   the wall, and he stays in the lava without drowning (step 6). In one run, a player on a rope above him keeps him there
   through two hops <Cite replay="fidelity/replays/olmec-door-block-crush-seed-1.txt" />.
 - **Standing where the floor under the door was.** If a bomb has blown it out, the block of stone that appears
-  there when Olmec dies crushes a player standing in its place ([[olmec#damage|Olmec's damage]])
+  there when Olmec dies crushes a player standing in its place, and counts as Olmec's ([[olmec-door-block-crush]])
   <Cite gml="objects/oFinalBoss/step.gml:8-12" /> <Cite replay="fidelity/replays/olmec-door-block-crush-seed-1.txt" />.

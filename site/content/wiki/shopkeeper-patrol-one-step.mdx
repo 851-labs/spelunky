@@ -1,0 +1,103 @@
+---
+slug: shopkeeper-patrol-one-step
+title: The Shopkeeper's one-step patrol
+type: quirk
+categories: [quirks]
+aliases: [patrol-shuffle, one-step-walk]
+card: { sprite: sShopRunLeft }
+lede: >-
+  The Shopkeeper's one-step patrol is a quirk of Spelunky Classic in which a patrolling Shopkeeper's every walk
+  ends on its first step, so he shuffles about.
+quirk:
+  status: GML + Oracle
+  where: objects/oShopkeeper/step.gml:283-336
+  pinned_by: fidelity/replays/enemy-shopkeeper-patrol-one-step.txt
+  entry: "1"
+  rows:
+    - A patrolling Shopkeeper's walk lasts one step.
+relations:
+  related: [shopkeeper]
+clips: [quirks/shopkeeper-patrol-one-step]
+faq:
+  - q: Why does the Shopkeeper shuffle back and forth at the exit?
+    a: >-
+      A [[shopkeeper|Shopkeeper]] on patrol stops walking wherever there's no wall beside his head. The same
+      test in an Alien's walk also needs no floor ahead, so it turns only at a ledge; the Shopkeeper's has no
+      such half, so in open ground every walk ends on its first step, and he coasts about 10 pixels to a halt.
+  - q: When does a Shopkeeper patrol?
+    a: >-
+      On the levels after a theft, or after the player has killed a Shopkeeper: one waits at the exit, and a
+      shop's Shopkeeper patrols rather than stands. The level editor's Shopkeeper patrols too.
+  - q: Do other monsters' walks stop like this?
+    a: >-
+      No. The [[alien|Alien]]'s and the [[mantrap|Mantrap]]'s walks have the same test with the floor ahead
+      added, and turn only at a ledge.
+sources:
+  - objects/oShopkeeper/step.gml
+  - scripts/scrInitLevel.gml
+  - scripts/scrCreateTileObj.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+A [[shopkeeper|Shopkeeper]] waiting for a thief is on patrol: he stands, walks a little way, and stands again.
+The test that ends his walk is the one an Alien turns at a ledge by, without its half that looks for a floor
+ahead, so out in the open no walk lasts more than a step: he shuffles rather than walks.
+
+## What happens
+
+A Shopkeeper on patrol in open ground sets off walking, but his walk's check for a wall ahead sends him back to
+patrolling on the very next step. He coasts about 10 pixels to a stop, waits, and shuffles again, every second or so
+<Cite clip="quirks/shopkeeper-patrol-one-step" />.
+
+<Clip id="quirks/shopkeeper-patrol-one-step" />
+
+## Why
+
+On patrol, a Shopkeeper counts down 20 to 50 steps on the ground, then sets off walking a random way
+<Cite gml="objects/oShopkeeper/step.gml:283-298" />. His walk goes back to patrolling when there's no solid
+beside his head, a pixel to his left or right:
+
+```gml objects/oShopkeeper/step.gml:309-328
+    if (facing == LEFT)
+    {
+        if (not collision_point(x-1, y, oSolid, -1, -1))
+        {
+            status = PATROL;
+            counter = rand(20,50);
+            xVel = 0;
+        }
+        xVel = -1.5;
+    }
+    else
+    {
+        if (not collision_point(x+16, y, oSolid, -1, -1))
+        {
+            status = PATROL;
+            counter = rand(20,50);
+            xVel = 0;
+        }
+        xVel = 1.5;
+    }
+```
+
+The same lines in the [[alien|Alien]]'s and the [[mantrap|Mantrap]]'s walks also test the floor in front,
+`y+16`, where they turn at a ledge <Cite gml="objects/oAlien/step.gml:49-58" />
+<Cite gml="objects/oManTrap/step.gml:60-69" />. Without it, in open ground nothing is beside his head, so every
+walk ends on its first step. That step still sets `xVel` to 1.5 after the test, and his friction takes 0.1 a step
+off it, so he coasts to a halt over about ten steps <Cite gml="objects/oShopkeeper/step.gml:531-533" />
+<Cite quirk="1" />.
+
+## Reproducing it
+
+Steal from a shop, or kill a Shopkeeper, and go on to the next level: the Shopkeeper at its exit shuffles in
+place <Cite gml="scripts/scrInitLevel.gml:245-255" />, and so does a shop's Shopkeeper there, who patrols rather
+than stands <Cite gml="objects/oShopkeeper/step.gml:121-124" />. The level editor's `!` is a Shopkeeper on patrol
+<Cite gml="scripts/scrCreateTileObj.gml:151-155" />, and the replay of the clip's staged scene, on a custom level,
+puts one in a flat room. In 300 steps he sets off ten times, and every walk lasts one step; after one, his speed
+is 1.4, and it's gone ten steps later <Cite replay="fidelity/replays/enemy-shopkeeper-patrol-one-step.txt" />. A
+thief's next level shows the same <Cite replay="fidelity/replays/shop-seed-3-thief-next-level.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins every walk. No option turns it off.

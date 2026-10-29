@@ -63,12 +63,14 @@ function standIn(media) {
     });
   frame("sTitle", 128, 16, [150, 140, 100, 255]);
   frame("sStandLeft", 16, 16, [200, 120, 40, 255]);
-  // The pages' sprites' sprite.json are test.sh's: just their first frames, the Snake's green.
+  // The pages' sprites' sprite.json are test.sh's: each of their frames, as a page's card can show any
+  // (`card: { sprite, frame }`), the Snake's green.
   for (const { meta } of JSON.parse(readFileSync(join(media, "sprites/index.json"), "utf8")).sprites) {
-    const file = JSON.parse(readFileSync(join(media, "sprites", meta), "utf8")).frames[0]?.file;
-    if (!file || existsSync(join(media, "sprites", file))) continue;
-    const colour = file.startsWith("sSnakeWalkL/") ? [60, 160, 40, 255] : [120, 120, 160, 255];
-    writePng(join(media, "sprites", file), image(16, 16, (x, y) => (y > 6 ? colour : null)));
+    for (const { file } of JSON.parse(readFileSync(join(media, "sprites", meta), "utf8")).frames) {
+      if (!file || existsSync(join(media, "sprites", file))) continue;
+      const colour = file.startsWith("sSnakeWalkL/") ? [60, 160, 40, 255] : [120, 120, 160, 255];
+      writePng(join(media, "sprites", file), image(16, 16, (x, y) => (y > 6 ? colour : null)));
+    }
   }
 
   function sprite(name, meta, files) {

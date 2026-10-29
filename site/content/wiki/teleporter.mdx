@@ -71,7 +71,7 @@ change <Cite clip="teleporter/snake" />.
 With down held and the player not crouching, the key does nothing <Cite gml="scripts/scrUseItem.gml:400-425" />.
 The Teleporter sets no wait of its own between uses, but a sideways use only picks a new spot once the wait
 another weapon's shot starts has run out; inside it, the player is moved to the spot its last use
-picked <Cite gml="scripts/scrUseItem.gml:433-447" />, or to where he last stood holding a ware he hadn't paid
+picked ([[teleporter-old-target]]) <Cite gml="scripts/scrUseItem.gml:433-447" />, or to where he last stood holding a ware he hadn't paid
 for, a readied bomb arrow or pressing the pay key, as the game's check for a shop writes the same
 spot <Cite gml="scripts/isInShop.gml:7-8" /> <Cite gml="objects/oPlayer1/step.gml:543-545" />. If none of these has set it on the level, the game
 stops with an error <Cite gml="scripts/scrUseItem.gml:449" /> <Cite quirk="1" />.
