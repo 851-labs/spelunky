@@ -291,7 +291,7 @@ fn check_media(
         };
         let got: serde_json::Value =
             serde_json::from_str(&text).map_err(|e| format!("{}: {e}", path.display()))?;
-        let want = serde_json::to_value(clip_meta(repo, clip, *size, Rendered::default()))
+        let want = serde_json::to_value(clip_meta(repo, clip, source, *size, Rendered::default()))
             .map_err(|e| e.to_string())?;
         for (key, value) in want.as_object().into_iter().flatten() {
             if !RENDERED_FIELDS.contains(&key.as_str()) && got.get(key) != Some(value) {
@@ -405,6 +405,10 @@ struct ClipMeta {
     from: u64,
     to: u64,
     frames: u64,
+    /// The replay's frame the clip starts on (a scene's `files.replay`, or `source.replay`): `from`, past a
+    /// scene's boot and load from the title's menu ([`harness::clip::SCENE_START`]), for playing the clip in
+    /// the game from its first frame.
+    replay_from: u64,
     fps: u64,
     /// In seconds.
     duration: f64,
@@ -613,9 +617,15 @@ fn collect_metas(dir: &Path, out: &mut Vec<serde_json::Value>) -> Result<(), Str
     Ok(())
 }
 
-/// The clip.json a render of `clip` writes, given its picture's `size` in the program's pixels and what the
-/// render found.
-fn clip_meta(repo: &Path, clip: &Clip, (gw, gh): (u32, u32), rendered: Rendered) -> ClipMeta {
+/// The clip.json a render of `clip` writes, given what it plays, its picture's `size` in the program's pixels
+/// and what the render found.
+fn clip_meta(
+    repo: &Path,
+    clip: &Clip,
+    source: &Source,
+    (gw, gh): (u32, u32),
+    rendered: Rendered,
+) -> ClipMeta {
     let spec = &clip.spec;
     let rel = |name: &str| format!("{}/{name}", clip.id);
     let count = spec.to - spec.from + 1;
@@ -633,6 +643,7 @@ fn clip_meta(repo: &Path, clip: &Clip, (gw, gh): (u32, u32), rendered: Rendered)
         from: spec.from,
         to: spec.to,
         frames: count,
+        replay_from: clip.run_frames(source).0,
         fps: FPS,
         duration: count as f64 / FPS as f64,
         width: gw * spec.scale,
@@ -771,6 +782,7 @@ fn render(
     let meta = clip_meta(
         repo,
         clip,
+        source,
         size,
         Rendered {
             frames_hash,

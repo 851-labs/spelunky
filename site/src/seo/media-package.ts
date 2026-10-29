@@ -48,14 +48,11 @@ export interface MediaPackage {
 
 export interface PackageClip extends MediaClip {
   webm: string;
-  // A scene's replay and its frame the clip starts on, for playing the clip in the game (src/wiki/live-clip.tsx);
+  // A scene's replay and its frame the clip starts on (clip.json's `replay_from`), for playing the clip in the
+  // game (src/wiki/live-clip.tsx);
   // null for a clip of a committed replay, which the media haven't got.
   live: { replay: string; from: number } | null;
 }
-
-// A scene's replay boots the game and loads the scene's level from the title's menu, so the scene's frame 0,
-// which its spec's `from` counts from, is the replay's 241 (crates/harness's clip::SCENE_START).
-const SCENE_START = 241;
 
 export interface PackageSprite {
   // In game pixels.
@@ -100,9 +97,11 @@ export function readMediaPackage(dir: string, url: string, date: string, log: st
       // newer uploadDate tells search engines it is.
       date: [changed.get(mp4), changed.get(webm)].filter((d) => d !== undefined).sort().at(-1) ?? date,
       webm,
+      // The replay's frame, `replay_from`, not the spec's `from`, which counts from the scene's first: the replay
+      // boots the game and loads the scene's level from the title's menu before it.
       live:
         clip.source?.kind === "scene"
-          ? { replay: string(clip.files?.replay, `${where}: files.replay`), from: SCENE_START + frame(clip.from, `${where}: from`) }
+          ? { replay: string(clip.files?.replay, `${where}: files.replay`), from: frame(clip.replay_from, `${where}: replay_from`) }
           : null,
     };
   }
