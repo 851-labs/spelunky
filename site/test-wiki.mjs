@@ -17,6 +17,8 @@ import { buildSearchIndex, matchingSections, searchWiki } from "./src/wiki/searc
 import { START_JUDGE_MS, START_MS, leadGoal, newStartup, timeStartup } from "./src/wiki/live-clip-startup.ts";
 
 const here = (path) => new URL(path, import.meta.url).pathname;
+// The commit the pages' links to the repo's files are pinned to (repo.ts), a stand-in's.
+const COMMIT = "0123456789abcdef0123456789abcdef01234567";
 const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) => ({
   contentDir,
   statsFile: here("content/wiki-data/stats.json"),
@@ -25,6 +27,8 @@ const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) =>
   clipsDir: here("../wiki/clips"),
   relationsSpec: here("../wiki/data/relations.toml"),
   quirksFile: here("../docs/quirks.md"),
+  repoDir: here(".."),
+  commit: COMMIT,
   media: null,
   sourceDir: null,
   liveClips: null,
@@ -456,6 +460,87 @@ try {
     const whereRow = tableRow("Where", "[`objects/oJar/collision_oWhip.gml:1-21`](https://spelunky.ai/wiki/source/objects/oJar/collision_oWhip#L1-L21)");
     if (!whereRow.test(md.get("wiki/double-whip.md") ?? "")) fail("source links: double-whip.md's Where");
     if (failures === 0) console.log("ok   source links: citations link to the lines the media's gml/ has");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+// Every reference links somewhere (docs/wiki-style.md, "Citing the code"): a replay to it on GitHub at the
+// build's commit, and to the page's clips cut from it; a quirk citation to its row, by the row's opening, at the
+// quirk page that names it or else on GitHub, or to its section as a whole; a quirk box's replay and rows. On
+// the page and in its twin.
+{
+  const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
+  try {
+    const content = join(dir, "content");
+    mkdirSync(content);
+    const jarRow = "A whipped Jar rolls its contents twice.";
+    const nearestRow = "instance_nearest measures to instances' positions";
+    // The double whip cites its own row; the Snake the double whip's (twice, by two openings: one note), a §5
+    // row, §1 as a whole, two replays (one its Rock clip's) and a clip.
+    writeFileSync(join(content, "double-whip.mdx"), quirkPage.replace("It hits twice.", 'It hits twice <Cite quirk="1" />.'));
+    const snakeCites = `\nIt rolls twice <Cite quirk="1" row="${jarRow}" /> <Cite quirk="1" row="A whipped Jar rolls" />, nearest <Cite quirk="5" row="${nearestRow}" />, oddly <Cite quirk="1" />, and hit <Cite replay="fidelity/replays/action-throw-rock-snake.txt" /> <Cite replay="fidelity/replays/mines-seed-1.txt" /> <Cite clip="snake/stomp" />.\n`;
+    writeFileSync(join(content, "snake.mdx"), readFileSync(here("content/wiki/snake.mdx"), "utf8") + snakeCites);
+    const planned = join(dir, "planned.yaml");
+    writeFileSync(planned, snakePlanned);
+    const wiki = await loadWiki(options(content, planned));
+    for (const error of wiki.errors) fail(`reference links: ${error}`);
+    // The rows' lines, as docs/quirks.md has them now.
+    const quirksLines = readFileSync(here("../docs/quirks.md"), "utf8").split("\n");
+    const lineOf = (text) => quirksLines.findIndex((l) => l.replaceAll("**", "").replaceAll("`", "").startsWith(`| ${text}`)) + 1;
+    const blob = `https://github.com/851-labs/spelunky/blob/${COMMIT}`;
+    const rowUrl = (text) => `${blob}/docs/quirks.md?plain=1#L${lineOf(text)}`;
+    const section1 = `${blob}/docs/quirks.md#1-bugs-and-leftovers-in-the-11-source`;
+    const page = (slug) => wiki.pages.find((p) => p.meta.slug === slug);
+    const refs = (slug, kind) => page(slug)?.meta.references.filter((ref) => ref.kind === kind) ?? [];
+    const json = (value) => JSON.stringify(value);
+    const quirkRefs = refs("snake", "quirk");
+    if (quirkRefs.length !== 3) fail(`reference links: the Snake has ${quirkRefs.length} quirk notes, not 3`);
+    const [jar, nearest, whole] = quirkRefs.map((ref) => ref.quirk);
+    if (json(jar) !== json({ section: "Bugs and leftovers in the 1.1 source", href: rowUrl(jarRow), rows: [{ name: jarRow, href: rowUrl(jarRow), page: { slug: "double-whip", title: "Double whip" } }] })) {
+      fail(`reference links: the Snake's Jar row is ${json(jar)}`);
+    }
+    if (nearest?.rows[0]?.href !== rowUrl("instance_nearest measures") || nearest.rows[0].page || !nearest.href.endsWith("/docs/quirks.md#5-runner-frame-instances-and-events")) {
+      fail(`reference links: the Snake's §5 row is ${json(nearest)}`);
+    }
+    if (whole?.rows.length !== 0 || whole.href !== section1) fail(`reference links: the Snake's §1 citation is ${json(whole)}`);
+    // A quirk page's citation of its own section is its rows', which link to GitHub, not to itself.
+    const own = refs("double-whip", "quirk")[0]?.quirk;
+    if (json(own?.rows) !== json([{ name: jarRow, href: rowUrl(jarRow) }])) fail(`reference links: the double whip's own rows are ${json(own?.rows)}`);
+    const replays = refs("snake", "replay");
+    const rock = replays.find((ref) => ref.target.endsWith("action-throw-rock-snake.txt"));
+    if (rock?.href !== `${blob}/fidelity/replays/action-throw-rock-snake.txt` || json(rock.clips) !== json([{ id: "snake/thrown-rock", title: page("snake").meta.clips.find((c) => c.id === "snake/thrown-rock").title }])) {
+      fail(`reference links: the Snake's Rock replay is ${json(rock)}`);
+    }
+    const mines = replays.find((ref) => ref.target.endsWith("mines-seed-1.txt"));
+    if (mines?.href !== `${blob}/fidelity/replays/mines-seed-1.txt` || mines.clips) fail(`reference links: the Snake's mines replay is ${json(mines)}`);
+    const box = page("double-whip")?.meta.quirk;
+    if (box?.pinnedHref !== `${blob}/fidelity/replays/item-jar-whip-rolls-twice.txt` || json(box.rowHrefs) !== json([rowUrl(jarRow)])) {
+      fail(`reference links: the double whip's box is ${json(box)}`);
+    }
+    const md = markdownFiles(wiki.pages);
+    const snakeMd = md.get("wiki/snake.md") ?? "";
+    for (const line of [
+      `[“${jarRow}”](https://spelunky.ai/wiki/double-whip), [docs/quirks.md §1](${rowUrl(jarRow)})`,
+      `[docs/quirks.md §1, Bugs and leftovers in the 1.1 source](${section1})`,
+      `Replay [\`fidelity/replays/action-throw-rock-snake.txt\`](${blob}/fidelity/replays/action-throw-rock-snake.txt), which the clip [`,
+      `](https://spelunky.ai/wiki/snake#clip-snake-thrown-rock) plays`,
+      `Clip [snake/stomp](https://spelunky.ai/wiki/snake#clip-snake-stomp)`,
+    ]) {
+      if (!snakeMd.includes(line)) fail(`reference links: snake.md hasn't got ${line}`);
+    }
+    const whipMd = md.get("wiki/double-whip.md") ?? "";
+    if (!whipMd.includes(`[“${jarRow}”](${rowUrl(jarRow)}), [docs/quirks.md §1](${section1})`)) fail("reference links: double-whip.md's own row");
+    if (!tableRow("Pinned by", `[\`fidelity/replays/item-jar-whip-rolls-twice.txt\`](${blob}/fidelity/replays/item-jar-whip-rolls-twice.txt)`).test(whipMd)) {
+      fail("reference links: double-whip.md's Pinned by");
+    }
+    if (!whipMd.includes(`: [“${jarRow}”](${rowUrl(jarRow)})`)) fail("reference links: double-whip.md's Rows");
+    // Nothing in References is left without a link.
+    for (const ref of wiki.pages.flatMap((p) => p.meta.references)) {
+      if (ref.kind === "replay" && !ref.href) fail(`reference links: replay ${ref.target} has no link`);
+      if (ref.kind === "quirk" && (!ref.quirk?.href || ref.quirk.rows.some((row) => !row.href))) fail(`reference links: quirk ${ref.target} has no link`);
+    }
+    if (failures === 0) console.log("ok   reference links: replays and quirk rows link to GitHub, the clips and the quirk pages");
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -905,6 +990,18 @@ const cases = [
   // A quirk page names its rows as docs/quirks.md has them, in a section it has.
   ["a quirk row docs/quirks.md hasn't got", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("rolls its contents twice", "rolls three times") }, 'quirk.rows: no row of docs/quirks.md §1 starts "A whipped Jar rolls three times."'],
   ["a quirk section docs/quirks.md hasn't got", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace('entry: "1"', 'entry: "42"') }, "quirk.entry: docs/quirks.md has no section 42"],
+  // A citation names a replay the repo has, and a quirk section and row docs/quirks.md has (one row, by its
+  // opening); a quirk box's replay is one too, and a row has one page.
+  ["a replay the repo hasn't got", { "snake.mdx": `${source}\nIt <Cite replay="fidelity/replays/no-such-replay.txt" />.\n` }, '<Cite replay="fidelity/replays/no-such-replay.txt">: the repo has no such replay'],
+  ["a replay that isn't a committed replay's path", { "snake.mdx": `${source}\nIt <Cite replay="replays/snake.txt" />.\n` }, "a committed replay's path"],
+  ["a quirk citation's row docs/quirks.md hasn't got", { "snake.mdx": `${source}\nIt <Cite quirk="1" row="Snakes bite twice." />.\n` }, 'no row of docs/quirks.md §1 starts "Snakes bite twice."'],
+  ["a quirk citation's row that starts several", { "snake.mdx": `${source}\nIt <Cite quirk="1" row="The" />.\n` }, 'rows of docs/quirks.md §1 start "The" (lines '],
+  ["a quirk citation's section docs/quirks.md hasn't got", { "snake.mdx": `${source}\nIt <Cite quirk="42" />.\n` }, '<Cite quirk="42">: docs/quirks.md has no section 42'],
+  ["a row on a citation that isn't a quirk's", { "snake.mdx": `${source}\nIt <Cite gml="objects/oSnake/step.gml:41-54" row="A whipped Jar" />.\n` }, "only a quirk citation names a row="],
+  ["a quirk box's replay the repo hasn't got", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("item-jar-whip-rolls-twice.txt", "no-such-replay.txt") }, "quirk.pinned_by: fidelity/replays/no-such-replay.txt: the repo has no such replay"],
+  ["a quirk box's file the repo hasn't got", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("fidelity/replays/item-jar-whip-rolls-twice.txt", "crates/game/tests/no_such_test.rs") }, "quirk.pinned_by: crates/game/tests/no_such_test.rs: the repo has no such file"],
+  ["a row a quirk page names twice", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("    - A whipped Jar rolls its contents twice.", "    - A whipped Jar rolls its contents twice.\n    - A whipped Jar rolls its contents twice. oJar's collision with oWhip plays the break sound, makes a smoke puff and 3 rubble pieces and rolls the chain of gold, gems, a Spider and a Snake, then calls instance_destroy().") }, "quirk.rows: two of them name docs/quirks.md line "],
+  ["a row two quirk pages name", { "snake.mdx": source, "double-whip.mdx": quirkPage, "double-lash.mdx": quirkPage.replaceAll("double-whip", "double-lash").replaceAll("Double whip", "Double lash") }, "names docs/quirks.md line "],
   ["a quirk row that isn't a sentence", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("rolls its contents twice.", "rolls") }, "a row's opening: a sentence or more"],
   ["a row that isn't a number", { "snake.mdx": `${source}\nIt costs <Stat id="spectacles.price-by-level" at="five" />.\n` }, 'at= is a whole number, not "five"'],
 ];
@@ -1022,4 +1119,4 @@ if (failures > 0) {
   console.error(`site/test-wiki.mjs: ${failures} failed`);
   process.exit(1);
 }
-console.log(`site/test-wiki.mjs: all ${cases.length + 7} passed`);
+console.log(`site/test-wiki.mjs: all ${cases.length + 8} passed`);

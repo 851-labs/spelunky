@@ -17,8 +17,8 @@ import { wikiMediaPlugin } from "./src/seo/media-package.ts";
 const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/", "/wiki/og/"];
 
 // The wiki's pages (docs/wiki-style.md, "The pipeline"), the stats they cite and the relations they're
-// checked against, the pages planned but not written, and the clip and relations specs and docs/quirks.md,
-// which are the repo's.
+// checked against, the pages planned but not written, and the clip and relations specs, docs/quirks.md and the
+// replays, which are the repo's.
 const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
 // build.sh's: wiki/media, or test.sh's stand-in (docs/web-deploy.md, "Wiki media").
 const MEDIA = process.env.WIKI_MEDIA_DIR
@@ -40,6 +40,9 @@ const WIKI = {
   clipsDir: here("../wiki/clips"),
   relationsSpec: here("../wiki/data/relations.toml"),
   quirksFile: here("../docs/quirks.md"),
+  repoDir: here(".."),
+  // build.sh's: the commit it builds, which the pages' links to the repo's files are pinned to.
+  commit: process.env.WIKI_COMMIT || "main",
   media: MEDIA,
   sourceDir: SOURCE_DIR,
   // build.sh's, when the web build it puts at /play/ can be embedded, and when it seeks, plays on phones, plays the

@@ -101,7 +101,8 @@ playSound(global.sndHit);
 Its collision with the wind-up (`oWhipPre`, which lasts 3 steps) is the same code
 <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" /> <Cite gml="objects/oWhipPre/create.gml:3-5" />. A
 Megamouth (<Stat id="megamouth.hp" />) and the [[alien-boss|Alien Boss]] (<Stat id="alien-boss.hp" />) have
-no whip code of their own, so they take every step's hit <Cite quirk="1" />.
+no whip code of their own, so they take every step's hit
+<Cite quirk="1" row="A whip swing hurts a monster on every step it touches it." />.
 
 The monsters that limit the whip do it in their own collision with `oWhip`, the crack: the Giant Spider with
 a wait (`whipped`) <Cite gml="objects/oGiantSpider/collision_oWhip.gml:1-7" />, the Tomb Lord with the wait
@@ -110,11 +111,12 @@ Whip never passes (only a hit that punctures hurts it, and the Whip's doesn't)
 <Cite gml="objects/oYetiKing/collision_oWhip.gml:1-16" />, and the [[magma-man|Magma Man]] by only playing a
 sound <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" />. None of them has a collision with `oWhipPre`,
 so the wind-up runs the shared code instead, with no wait and no test. A Magma Man's hit points are its life,
-which runs out by itself, so the wind-up takes 3 steps off it <Cite quirk="1" />.
+which runs out by itself, so the wind-up takes 3 steps off it
+<Cite quirk="1" row="The Magma Man's whip does nothing, but the wind-up hurts it." />.
 
 The [[machete|Machete]] and the [[mattock|Mattock]] swing kinds of whip (children of `oWhip` and `oWhipPre`),
-so their slashes and wind-ups do the same, 2 a step; a Mattock swing makes its wind-up twice
-<Cite quirk="1" />.
+so their slashes and wind-ups do the same, 2 a step <Cite quirk="1" row="A whip swing hurts a monster on every step it touches it." />;
+a Mattock swing makes its wind-up twice <Cite quirk="1" row="The Mattock makes its wind-up twice a swing." />.
 
 ## Reproducing it
 

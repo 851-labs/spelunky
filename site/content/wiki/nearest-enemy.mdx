@@ -76,7 +76,8 @@ else if (abs(xVel) > 2 or abs(yVel) > 2)
 `collision_rectangle` tests the monsters' collision boxes, but `instance_nearest` measures to their
 positions, and most monsters' position is their sprite's top left corner. An item touching one monster's
 right side can be nearer the next one's corner, and that one is hurt. The test for invincibility is the
-nearest one's too, so an invincible monster beside the one hit spares it <Cite quirk="1" />. The
+nearest one's too, so an invincible monster beside the one hit spares it
+<Cite quirk="1" row="A fast thrown item hurts the nearest enemy, not the one it hit." />. The
 [[jar|Jar]], the [[skull|Skull]] and the dice have their own copies of the code, with the same pick
 <Cite gml="objects/oJar/step.gml:106-108" /> <Cite gml="objects/oSkull/step.gml:104-106" />.
 
@@ -96,13 +97,13 @@ else if (collision_rectangle(x-8, y, x+8, y+8, oEnemy, 0, 0))
 
 So a live enemy beside a stunned one can keep the stunned one on the ground. Items come first, with the same
 pick, and collecting treasure does it as well <Cite gml="objects/oPlayer1/step.gml:1206-1209" />
-<Cite quirk="1" />.
+<Cite quirk="1" row="Picking up a stunned enemy takes the nearest enemy, not the one under the player." />.
 
 The pick works the other way too. The player's check for an [[arrow|arrow]] hitting him finds one touching
 him, then tests the nearest arrow's speed, so a fast arrow does nothing while a slow one lies nearer
 <Cite gml="objects/oPlayer1/step.gml:1513-1516" />, and the shared monster code's check for a
 [[spear-trap|Spear Trap]]'s spears reads the nearest spears' frame <Cite gml="objects/oEnemy/step.gml:76-79" />
-<Cite quirk="1" />.
+<Cite quirk="1" row="The arrow and spear checks take the nearest one, not the one touching." />.
 
 ## Reproducing it
 
@@ -117,5 +118,5 @@ Rock kills the Spider, and without the Caveman, the player lifts the Yeti.
 
 The spelunky.ai port reproduces it exactly: the three rows are in docs/quirks.md's list of the 1.1 source's bugs
 <Cite quirk="1" />, and `instance_nearest` measures as GameMaker 8 does, to positions
-<Cite quirk="5" />. The arrows' and spears' version is read in the code and not yet in a replay, as it needs
+<Cite quirk="5" row="instance_nearest measures to instances' positions, not their boxes" />. The arrows' and spears' version is read in the code and not yet in a replay, as it needs
 two at once. No option turns it off.

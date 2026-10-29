@@ -173,6 +173,8 @@ async function check(dist, site, media, mediaUrl) {
     clipsDir: here("../wiki/clips"),
     relationsSpec: here("../wiki/data/relations.toml"),
     quirksFile: here("../docs/quirks.md"),
+    repoDir: here(".."),
+    commit: "main",
     media: { dir: media, url: mediaUrl, date: "2026-10-27T00:00:00Z", log: null },
     sourceDir: join(media, "gml"),
   };
