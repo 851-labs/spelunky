@@ -14,7 +14,8 @@
 // (the game is megabytes), and a device the player finds can't keep up, or can't get to the clip's first frame
 // in time. And where the game plays the clip unlike its video: /play/ is a release, the media are rendered from the
 // main branch, and a fix there since the release can change the clip (`state`, build.sh's WIKI_LIVE_STATE: the game
-// reports its state at the clip's first frame). That won't change on another try, so Play live goes.
+// reports its state at the clip's first frame, and WIKI_LIVE_STATES: it runs the clip through first, and reports its
+// states at each of its frames). That won't change on another try, so Play live goes.
 import { Button } from "@base-ui/react/button";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
@@ -43,11 +44,14 @@ export interface LiveClipProps {
   // The game's state at the clip's first frame, which the game's must be (live-clip-player.tsx), or null when the
   // game doesn't report it.
   state: string | null;
+  // The game's states at each of the clip's frames, which the game's must be, or null when the game doesn't run the
+  // clip through and report them.
+  states: string | null;
   // The video.
   children: ReactNode;
 }
 
-export function LiveClip({ title, width, height, poster, replay, from, seek, phones, progress, state: firstState, children }: LiveClipProps) {
+export function LiveClip({ title, width, height, poster, replay, from, seek, phones, progress, state: firstState, states, children }: LiveClipProps) {
   // The player, once its chunk is in: until then, and if it can't load, the video stays.
   const [Player, setPlayer] = useState<typeof LiveClipPlayer | null>(null);
   const [state, setState] = useState<"idle" | "loading" | "failed" | Slow | "unlike">("idle");
@@ -66,6 +70,7 @@ export function LiveClip({ title, width, height, poster, replay, from, seek, pho
         seek={seek}
         progress={progress}
         state={firstState}
+        states={states}
         onClose={() => setPlayer(null)}
         onSlow={(slow) => {
           setPlayer(null);

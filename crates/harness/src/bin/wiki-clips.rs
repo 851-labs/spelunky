@@ -172,12 +172,12 @@ fn run() -> Result<bool, String> {
                 std::fs::write(&path, &source.text)
                     .map_err(|e| format!("{}: {e}", path.display()))?;
             }
-            let (size, state_hash) = check(&clip, &source, programs.of(&source)?, sounds.clone())?;
+            let (size, states) = check(&clip, &source, programs.of(&source)?, sounds.clone())?;
             Ok(Checked {
                 clip,
                 source,
                 size,
-                state_hash,
+                states,
             })
         });
         let line = match &result {
@@ -224,8 +224,17 @@ struct Checked {
     source: Source,
     /// Its picture in the program's own pixels ([`check`]).
     size: (u32, u32),
-    /// The game's state at its first frame, with a replay to play it from ([`ClipMeta::state_hash`]).
-    state_hash: Option<String>,
+    /// The game's states over its frames, with a replay to play it from.
+    states: Option<States>,
+}
+
+/// The game's states over a clip's frames, as `gm::World::frame_hash` hashes them.
+#[derive(Clone, Copy, PartialEq, Eq)]
+struct States {
+    /// At its first frame ([`ClipMeta::state_hash`]).
+    first: u64,
+    /// At each of its frames, first to last ([`ClipMeta::states_hash`]).
+    through: u64,
 }
 
 /// The programs' assets: the game's, and the settings program's (`<assets>/config`), loaded for the first
@@ -355,19 +364,27 @@ fn check_media(
 /// What size its picture is in the program's own pixels: the game's 320x240, or the settings program's
 /// window, whose view ports draw at their own resolution, twice the views' (sprites and backgrounds show
 /// detail finer than a room pixel), and whose size differs between its rooms (rInit's 416x600,
-/// rKeyConfig's 320x240), so its clips each stay in rooms of one size. And the game's state at the clip's
-/// first frame, for a clip with a replay to play it from ([`ClipMeta::state_hash`]).
+/// rKeyConfig's 320x240), so its clips each stay in rooms of one size. And the game's states over the clip's
+/// frames, for a clip with a replay to play it from ([`States`]).
 fn check(
     clip: &Clip,
     source: &Source,
     assets: Arc<gm::Assets>,
     sounds: Arc<game::audio::SoundBank>,
-) -> Result<((u32, u32), Option<String>), String> {
+) -> Result<((u32, u32), Option<States>), String> {
     let (first, last) = clip.run_frames(source);
     let mut watcher = Watcher::new(&source.story);
     let mut sizes = std::collections::BTreeSet::new();
     let live = clip.live_replay(source).is_some();
-    let mut state_hash = None;
+    // The embed runs the clip through to the replay's end before showing it, and holds its states to these:
+    // so the replay it plays must end with the clip.
+    if live && clip.spec.replay.is_none() && source.replay.len() != last + 1 {
+        return Err(format!(
+            "the scene's replay has {} frames, but the clip ends at its frame {last}",
+            source.replay.len()
+        ));
+    }
+    let mut hashes = Vec::new();
     let summary = run_replay_watched(
         &source.replay,
         assets,
@@ -379,8 +396,8 @@ fn check(
         },
         &mut |frame, w| {
             watcher.frame(frame, w);
-            if live && frame == first {
-                state_hash = Some(format!("{:016x}", w.frame_hash()));
+            if live && (first..=last).contains(&frame) {
+                hashes.push(w.frame_hash());
             }
             if source.settings && frame >= first {
                 sizes.insert(w.window_size());
@@ -397,18 +414,26 @@ fn check(
     if !failed.is_empty() {
         return Err(format!("story facts failed: {}", failed.join("; ")));
     }
-    // The run got to the clip's last frame, so past its first: a page with no state to hold the game to would
-    // fail its build.
-    if live && state_hash.is_none() {
-        return Err(format!(
-            "the run never showed the clip's first frame, {first}"
-        ));
-    }
+    // The run got to the clip's last frame, so it showed them all: a page with no states to hold the game to
+    // would fail its build.
+    let states = match hashes[..] {
+        [] if !live => None,
+        [first_hash, ..] if hashes.len() as u64 == last - first + 1 => Some(States {
+            first: first_hash,
+            through: trace::canon::hash_frames(&hashes),
+        }),
+        _ => {
+            return Err(format!(
+                "the run showed {} of the clip's frames {first} to {last}",
+                hashes.len()
+            ));
+        }
+    };
     if !source.settings {
-        return Ok((GAME_SIZE, state_hash));
+        return Ok((GAME_SIZE, states));
     }
     match Vec::from_iter(sizes)[..] {
-        [size] => Ok((size, state_hash)),
+        [size] => Ok((size, states)),
         ref sizes => Err(format!(
             "the clip's rooms have windows of {} sizes ({sizes:?}): a clip is one size",
             sizes.len()
@@ -441,6 +466,12 @@ struct ClipMeta {
     /// it doesn't.
     #[serde(skip_serializing_if = "Option::is_none")]
     state_hash: Option<String>,
+    /// The game's states after each of the replay's frames from `replay_from` to its last, the clip's, as
+    /// `trace::canon::hash_frames` of their `gm::World::frame_hash`: none for the settings program's, too. The
+    /// web build runs the clip through, unshown, before showing it, and the page checks it got these, so a
+    /// release that plays the clip's own frames unlike its video, from the same first state, shows the video.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    states_hash: Option<String>,
     fps: u64,
     /// In seconds.
     duration: f64,
@@ -656,7 +687,7 @@ fn clip_meta(repo: &Path, checked: &Checked, rendered: Rendered) -> ClipMeta {
         clip,
         source,
         size: (gw, gh),
-        state_hash,
+        states,
     } = checked;
     let spec = &clip.spec;
     let rel = |name: &str| format!("{}/{name}", clip.id);
@@ -676,7 +707,8 @@ fn clip_meta(repo: &Path, checked: &Checked, rendered: Rendered) -> ClipMeta {
         to: spec.to,
         frames: count,
         replay_from: clip.run_frames(source).0,
-        state_hash: state_hash.clone(),
+        state_hash: states.map(|s| format!("{:016x}", s.first)),
+        states_hash: states.map(|s| format!("{:016x}", s.through)),
         fps: FPS,
         duration: count as f64 / FPS as f64,
         width: gw * spec.scale,
@@ -728,7 +760,7 @@ fn render(
         clip,
         source,
         size,
-        state_hash,
+        states,
     }: &Checked,
     ffmpeg: &str,
     assets: Arc<gm::Assets>,
@@ -777,24 +809,32 @@ fn render(
     if !output.status.success() {
         return Err(format!("{}: the app failed ({})", clip.id, output.status));
     }
-    // The page's live play holds the web build's game to `state_hash`, and that game is the app's: so the
-    // app's run must get there too, or every page would show the video rather than the game.
+    // The page's live play holds the web build's game to `state_hash` and `states_hash`, and that game is the
+    // app's: so the app's run must get there too, or every page would show the video rather than the game.
     let stdout = String::from_utf8_lossy(&output.stdout);
-    let prefix = format!("state at frame {first}: ");
+    let first_prefix = format!("state at frame {first}: ");
+    let through_prefix = format!("states from frame {first} to {last}: ");
+    let ours = |l: &str| l.starts_with(&first_prefix) || l.starts_with(&through_prefix);
     // Whatever else the app says, as it would have said it.
     let said: String = (stdout.lines())
-        .filter(|l| !l.starts_with(&prefix))
+        .filter(|l| !ours(l))
         .map(|l| format!("{l}\n"))
         .collect();
     write_stdout(&said)?;
-    if let Some(want) = state_hash {
-        let got = stdout.lines().find_map(|l| l.strip_prefix(&prefix));
-        if got != Some(want.as_str()) {
-            return Err(format!(
-                "{}: the app's game is at state {} at the clip's first frame, not the check's {want}",
-                clip.id,
-                got.unwrap_or("(none)")
-            ));
+    if let Some(States { first: f, through }) = states {
+        for (prefix, want, what) in [
+            (&first_prefix, f, "at the clip's first frame"),
+            (&through_prefix, through, "through the clip's frames"),
+        ] {
+            let want = format!("{want:016x}");
+            let got = stdout.lines().find_map(|l| l.strip_prefix(prefix.as_str()));
+            if got != Some(want.as_str()) {
+                return Err(format!(
+                    "{}: the app's game's state {what} is {}, not the check's {want}",
+                    clip.id,
+                    got.unwrap_or("(none)")
+                ));
+            }
         }
     }
     let mut frames = Vec::new();

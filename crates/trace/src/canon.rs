@@ -245,8 +245,9 @@ pub fn encode_frame(out: &mut Vec<u8>, f: &Frame) {
 }
 
 /// A fixed 64-bit hash: replay fingerprints' (`harness::fingerprint`), and the wiki clips' state at their
-/// first frame (`gm::World::frame_hash`). It's defined here, not the platform's `Hasher`, so what's committed
-/// stays the same across Rust releases and targets, native and wasm32 (gm's tests pin it, and run on both).
+/// first frame (`gm::World::frame_hash`) and through their frames ([`hash_frames`]). It's defined here, not
+/// the platform's `Hasher`, so what's committed stays the same across Rust releases and targets, native and
+/// wasm32 (gm's tests pin it, and run on both).
 /// Four lanes, each starting from its own seed and the length, take turns at the 8-byte little-endian words
 /// (in 32-byte blocks, the last zero-padded), mixing each in by xor, multiply and rotate; then the lanes are
 /// folded together and MurmurHash3's finalizer applied. Each step is a bijection of a lane, so two inputs of
@@ -286,4 +287,12 @@ pub fn hash(bytes: &[u8]) -> u64 {
         block(&b);
     }
     fmix(lanes.iter().fold(len, |h, &lane| mix(h, fmix(lane))))
+}
+
+/// A run of frames' states as one [`hash`]: each frame's own (`gm::World::frame_hash`), in order, as 8-byte
+/// little-endian words. The wiki clips' state through their frames, first to last, which the web build's embed
+/// checks before showing a clip (docs/wiki-media.md, "The states through the clip").
+pub fn hash_frames(hashes: &[u64]) -> u64 {
+    let bytes: Vec<u8> = hashes.iter().flat_map(|h| h.to_le_bytes()).collect();
+    hash(&bytes)
 }

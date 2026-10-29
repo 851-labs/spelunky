@@ -34,8 +34,9 @@
 //! rendered as far as F's pixels need them (`app::unrendered`). `--notice-frames N` burns the
 //! copyright notice the window shows at a session's start into the first N of them, since a clip from
 //! later in a session wouldn't have it (`scripts/wiki-clips`, `docs/wiki-license.md`). It prints the
-//! game's state at frame F (`gm::World::frame_hash`), which `wiki-clips` checks is what its own run of the
-//! replay reaches: the state the web build's embed reports there, a run of the game like this one.
+//! game's state at frame F (`gm::World::frame_hash`), and its states from there to the last frame
+//! (`trace::canon::hash_frames`), which `wiki-clips` checks are what its own run of the replay reaches: the
+//! states the web build's embed reports, a run of the game like this one.
 //!
 //! The preview (`--preview`, with `--room NAME` and `--view X,Y`) shows a room's placed instances without
 //! running anything; the arrow keys pan.
@@ -900,6 +901,8 @@ mod native {
         // The frames before the first shot are only rendered as far as the first one's pixels need them.
         let mut unrendered = Unrendered::new();
         let mut events = Vec::new();
+        // The game's state at each frame shot, for `trace::canon::hash_frames`.
+        let mut hashes = Vec::new();
         for f in 0..end {
             if play.ended() {
                 break;
@@ -909,10 +912,14 @@ mod native {
                 events.extend(r.frame_events(f));
             }
             play.tick(&events, &mut frame)?;
-            if args.capture_from == Some(f)
+            if args.capture_from.is_some_and(|from| f >= from)
                 && let Some(game) = play.game()
             {
-                println!("state at frame {f}: {:016x}", game.world().frame_hash());
+                let hash = game.world().frame_hash();
+                if hashes.is_empty() {
+                    println!("state at frame {f}: {hash:016x}");
+                }
+                hashes.push(hash);
             }
             if args.capture_from.is_some_and(|from| f < from) {
                 unrendered.push(std::mem::take(&mut frame), |frame| renderer.render(frame));
@@ -931,7 +938,14 @@ mod native {
                 save_screenshot(&renderer, &out.join(format!("{f:06}.png")), scale)?;
             }
         }
-        if args.capture_from.is_some() {
+        if let Some(from) = args.capture_from {
+            if !hashes.is_empty() {
+                let last = from + hashes.len() as u64 - 1;
+                println!(
+                    "states from frame {from} to {last}: {:016x}",
+                    trace::canon::hash_frames(&hashes)
+                );
+            }
             return Ok(());
         }
         save_screenshot(&renderer, out, scale)?;

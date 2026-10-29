@@ -3,8 +3,8 @@
 // where its replay is (crates/app's web::listen_to_embedder and tell_embedder):
 //
 //   page to game  "spelunky:pause", "spelunky:play", "spelunky:take-control", { spelunky: "seek", frame }
-//   game to page  { spelunky: "playback", ready, paused, live, ended, frame, frames, lead, state }, from its start,
-//                 before its downloads
+//   game to page  { spelunky: "playback", ready, paused, live, ended, frame, frames, lead, state, states }, from
+//                 its start, before its downloads
 //                 { spelunky: "error", error }
 //
 // The game runs the replay's frames before the clip's unshown, as fast as they go, and says it's ready on the
@@ -22,12 +22,16 @@
 // (`onSlow`, live-clip.tsx), which the frames a seeking game reports tell. It goes back before showing the game
 // when the game isn't at the clip's state at its first frame (`state`, clip.json's `state_hash`, which a game that
 // says so reports as it gets there, build.sh's WIKI_LIVE_STATE): /play/ is a release, and the clip's video is
-// from the main branch, which may have changed how the game plays it since (`onUnlike`).
+// from the main branch, which may have changed how the game plays it since (`onUnlike`). Or at its states through
+// the clip's frames (`states`, clip.json's `states_hash`, build.sh's WIKI_LIVE_STATES): a game that says so runs the
+// clip through, unshown, before going back to show its first frame, so a change to how it plays the clip's own
+// frames shows before the poster lifts too. Its `lead` then counts the clip's frames as well, up to the replay's
+// length.
 import { Progress } from "@base-ui/react/progress";
 import { Slider } from "@base-ui/react/slider";
 import { Toolbar } from "@base-ui/react/toolbar";
 import { useEffect, useRef, useState } from "react";
-import { newStartup, timeStartup } from "./live-clip-startup";
+import { leadGoal, newStartup, timeStartup } from "./live-clip-startup";
 import type { Startup, StartupReport } from "./live-clip-startup";
 
 interface Playback {
@@ -43,6 +47,9 @@ interface Playback {
   lead?: number;
   // Its state at the clip's first frame, once it's run it (16 hex digits): a game that says so reports it.
   state?: string | null;
+  // Its states at each of the clip's frames, once it's run them through, before the first shows (16 hex digits): a
+  // game that says so reports them.
+  states?: string | null;
 }
 
 type Engine =
@@ -83,6 +90,9 @@ export interface LiveClipPlayerProps {
   progress: boolean;
   // The game's state at the clip's first frame, which it reports, or null when it doesn't.
   state: string | null;
+  // The game's states at each of the clip's frames, which it runs through first and reports, or null when it
+  // doesn't.
+  states: string | null;
   // Back to the video.
   onClose: () => void;
   // Back to the video, as the device can't keep up (`slow`) or can't get to the clip's first frame in time
@@ -94,7 +104,7 @@ export interface LiveClipPlayerProps {
 
 export type Slow = "slow" | "late";
 
-export function LiveClipPlayer({ title, width, height, poster, replay, from, seek, progress, state, onClose, onSlow, onUnlike }: LiveClipPlayerProps) {
+export function LiveClipPlayer({ title, width, height, poster, replay, from, seek, progress, state, states, onClose, onSlow, onUnlike }: LiveClipPlayerProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [engine, setEngine] = useState<Engine>({ kind: "loading" });
   // A new iframe each time, for Restart without seeking.
@@ -119,8 +129,10 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
   const counting = () => inView.current && document.visibilityState === "visible";
   const slow = useRef(onSlow);
   slow.current = onSlow;
+  const allStates = useRef(states);
+  allStates.current = states;
   const timeStart = (report: StartupReport | null) => {
-    if (timeStartup(startup.current, report, counting(), from, performance.now())) slow.current("late");
+    if (timeStartup(startup.current, report, counting(), leadGoal(from, allStates.current, report), performance.now())) slow.current("late");
   };
   const unlike = useRef(onUnlike);
   unlike.current = onUnlike;
@@ -155,9 +167,12 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
       if (event.origin !== location.origin || event.source !== frame.current?.contentWindow) return;
       const data = event.data;
       if (data?.spelunky === "playback") {
-        // Ready is the clip's first frame showing, by when the game has its state there (or none, a replay that
-        // ended before it): before the poster's lifted, so the reader never sees a game unlike the clip.
-        if (data.ready && firstState.current !== null && data.state !== firstState.current) {
+        // Ready is the clip's first frame showing, by when the game has its state there, and its states through
+        // the clip if it runs it through first (or none, a replay that ended before it): before the poster's
+        // lifted, so the reader never sees a game unlike the clip.
+        const unlikeFirst = firstState.current !== null && data.state !== firstState.current;
+        const unlikeThrough = allStates.current !== null && data.states !== allStates.current;
+        if (data.ready && (unlikeFirst || unlikeThrough)) {
           unlike.current();
           return;
         }
@@ -229,7 +244,7 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
         {covered && (
           <div className="clip-engine-cover" style={poster ? { backgroundImage: `url("${poster}")` } : undefined}>
             {progress ? (
-              <Progress.Root className="clip-progress" value={lead} max={from}>
+              <Progress.Root className="clip-progress" value={lead} max={leadGoal(from, states, playback)}>
                 <Progress.Label className="clip-progress-label">Starting the game…</Progress.Label>
                 <Progress.Track className="clip-progress-track">
                   <Progress.Indicator className="clip-progress-indicator" />

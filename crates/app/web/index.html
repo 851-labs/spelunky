@@ -26,6 +26,12 @@
      then does site/build.sh have the page check it, and show the video where this build plays the clip unlike
      it, as a release from before a fix on the main branch, which the media are rendered from, can. -->
 <meta name="spelunky-embed-state" content="1">
+<!-- And it runs the clip's frames through, unshown, before showing the first, and reports the game's states at
+     them (the playback report's `states`, app::window::Playback::states), which the page checks against the
+     clip's clip.json (`states_hash`) before the poster lifts. Its `lead` then counts the clip's frames too, up
+     to the replay's length. Only then does site/build.sh have the page check them, which catches a build that
+     plays the clip's own frames unlike its video from the same first state. -->
+<meta name="spelunky-embed-states" content="1">
 <title>Spelunky Classic (unofficial mod) - Spelunky (c) 2008, 2009 Derek Yu and Mossmouth, LLC</title>
 <style>
   html, body { margin: 0; height: 100%; background: #000; color: #ccc; font: 14px system-ui, sans-serif; }

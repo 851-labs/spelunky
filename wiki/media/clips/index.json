@@ -37,6 +37,7 @@
       },
       "spec": "wiki/clips/alien-boss/bomb.toml",
       "state_hash": "0679fcf3fd7e10ab",
+      "states_hash": "cd5493107795b406",
       "title": "Alien Boss bombed",
       "to": 229,
       "width": 640
@@ -72,6 +73,7 @@
       },
       "spec": "wiki/clips/alien-boss/psychic.toml",
       "state_hash": "52adfe3571c5148b",
+      "states_hash": "46806a061219309f",
       "title": "Alien Boss psychic wave",
       "to": 259,
       "width": 640
@@ -107,6 +109,7 @@
       },
       "spec": "wiki/clips/alien-boss/whip.toml",
       "state_hash": "c0d91d76daaf8eaa",
+      "states_hash": "e400f42ec2cf3ee5",
       "title": "Alien Boss whipped",
       "to": 149,
       "width": 640
@@ -142,6 +145,7 @@
       },
       "spec": "wiki/clips/alien/parachute.toml",
       "state_hash": "2606acf2244d04fd",
+      "states_hash": "702f8730ba221238",
       "title": "Alien parachute",
       "to": 2089,
       "width": 640
@@ -177,6 +181,7 @@
       },
       "spec": "wiki/clips/alien/stomp.toml",
       "state_hash": "9ed01e85e442c872",
+      "states_hash": "e21009ab2358d38e",
       "title": "Alien stomped",
       "to": 119,
       "width": 640
@@ -212,6 +217,7 @@
       },
       "spec": "wiki/clips/ankh-shop/visit.toml",
       "state_hash": "da47e456f86d37a2",
+      "states_hash": "47510c55b01198b1",
       "title": "The Black Market's Ankh Shop",
       "to": 1476,
       "width": 640
@@ -247,6 +253,7 @@
       },
       "spec": "wiki/clips/ankh/revive.toml",
       "state_hash": "9ae2577852bd3a46",
+      "states_hash": "4145db8dcd7a6489",
       "title": "Ankh revival",
       "to": 1599,
       "width": 640
@@ -282,6 +289,7 @@
       },
       "spec": "wiki/clips/arrow-trap/dark.toml",
       "state_hash": "a9a670a40cbdcd55",
+      "states_hash": "3804078e43a88ecb",
       "title": "Lit arrow trap",
       "to": 2345,
       "width": 640
@@ -317,6 +325,7 @@
       },
       "spec": "wiki/clips/arrow-trap/fire.toml",
       "state_hash": "620b5debb63ab200",
+      "states_hash": "46d283e9f85095d9",
       "title": "Arrow trap",
       "to": 99,
       "width": 640
@@ -352,6 +361,7 @@
       },
       "spec": "wiki/clips/arrow-trap/miss.toml",
       "state_hash": "63829a51f1a3d195",
+      "states_hash": "cef707012f592886",
       "title": "Arrow trap firing short",
       "to": 99,
       "width": 640
@@ -387,6 +397,7 @@
       },
       "spec": "wiki/clips/arrow/trap.toml",
       "state_hash": "2c5cf98a1cc04b69",
+      "states_hash": "a7f1683318841c1a",
       "title": "Arrow trap",
       "to": 1789,
       "width": 640
@@ -422,6 +433,7 @@
       },
       "spec": "wiki/clips/ball-and-chain/drag.toml",
       "state_hash": "496e05e1fdb9800c",
+      "states_hash": "24db13b7c7dc5540",
       "title": "Ball and chain",
       "to": 2649,
       "width": 640
@@ -457,6 +469,7 @@
       },
       "spec": "wiki/clips/bat/jump-kill.toml",
       "state_hash": "0d46f632df7d2534",
+      "states_hash": "27bffbac65be32a8",
       "title": "Bat killed from below",
       "to": 1109,
       "width": 640
@@ -492,6 +505,7 @@
       },
       "spec": "wiki/clips/bat/swoop.toml",
       "state_hash": "26dde200c284fd28",
+      "states_hash": "48ae031d9c0ddea9",
       "title": "Bat swoop",
       "to": 139,
       "width": 640
@@ -527,6 +541,7 @@
       },
       "spec": "wiki/clips/beating-olmec/dig.toml",
       "state_hash": "bb3217213ddd92af",
+      "states_hash": "227c928c74c6a025",
       "title": "Olmec digging down",
       "to": 4340,
       "width": 640
@@ -562,6 +577,7 @@
       },
       "spec": "wiki/clips/beating-olmec/lure.toml",
       "state_hash": "a38c1c8a5dcb348f",
+      "states_hash": "69cb6f53a83be161",
       "title": "Luring Olmec",
       "to": 2790,
       "width": 640
@@ -597,6 +613,7 @@
       },
       "spec": "wiki/clips/big-emerald/tutorial.toml",
       "state_hash": "3da93b89d5b71e9b",
+      "states_hash": "b350971021388625",
       "title": "The Tutorial's big gems",
       "to": 1010,
       "width": 640
@@ -632,6 +649,7 @@
       },
       "spec": "wiki/clips/big-ruby/chest.toml",
       "state_hash": "d782a9a9369ef32a",
+      "states_hash": "481c337e842abee8",
       "title": "A big ruby from a Chest",
       "to": 1094,
       "width": 640
@@ -667,6 +685,7 @@
       },
       "spec": "wiki/clips/big-sapphire/bomb.toml",
       "state_hash": "440882b80ef4dfcf",
+      "states_hash": "ddb3dcf0ea782c17",
       "title": "A big sapphire bombed out of the rock",
       "to": 259,
       "width": 640
@@ -702,6 +721,7 @@
       },
       "spec": "wiki/clips/black-market-route/bomb.toml",
       "state_hash": "2a2123a7d0281946",
+      "states_hash": "9aece0dd88e45957",
       "title": "A bomb in a Black Market shop",
       "to": 1239,
       "width": 640
@@ -737,6 +757,7 @@
       },
       "spec": "wiki/clips/black-market/entrance.toml",
       "state_hash": "2851b5060cfdf0e1",
+      "states_hash": "fe74edd91138d85a",
       "title": "The Black Market's hidden door",
       "to": 1180,
       "width": 640
@@ -772,6 +793,7 @@
       },
       "spec": "wiki/clips/black-market/walk.toml",
       "state_hash": "2aa4ccad1b989cb8",
+      "states_hash": "703e95c5b80c8b8a",
       "title": "Through the Black Market",
       "to": 1590,
       "width": 640
@@ -807,6 +829,7 @@
       },
       "spec": "wiki/clips/bomb-shop/buy.toml",
       "state_hash": "97ac9b0423ae6362",
+      "states_hash": "48c86ac134165a4b",
       "title": "Buying bombs in a Bomb Shop",
       "to": 1989,
       "width": 640
@@ -842,6 +865,7 @@
       },
       "spec": "wiki/clips/bomb/brick.toml",
       "state_hash": "ff13743b9281e5a7",
+      "states_hash": "9beed78d95215d4c",
       "title": "Bomb breaking bricks",
       "to": 729,
       "width": 640
@@ -877,6 +901,7 @@
       },
       "spec": "wiki/clips/bomb/chain.toml",
       "state_hash": "b8a1451c95058377",
+      "states_hash": "0db5a6ae2d5d1e41",
       "title": "Bomb chain",
       "to": 1549,
       "width": 640
@@ -912,6 +937,7 @@
       },
       "spec": "wiki/clips/bomb/throw.toml",
       "state_hash": "43da84e0c6130376",
+      "states_hash": "cf44f6f41e260307",
       "title": "Bomb thrown at a snake",
       "to": 1574,
       "width": 640
@@ -947,6 +973,7 @@
       },
       "spec": "wiki/clips/bombs-and-ropes/pickups.toml",
       "state_hash": "ffad2bd73cac32a5",
+      "states_hash": "02a79e7a09445aed",
       "title": "Bombs and ropes picked up",
       "to": 269,
       "width": 640
@@ -982,6 +1009,7 @@
       },
       "spec": "wiki/clips/boulder/crush.toml",
       "state_hash": "473beeabac1893fc",
+      "states_hash": "8d369e88971ba550",
       "title": "Boulder",
       "to": 900,
       "width": 640
@@ -1017,6 +1045,7 @@
       },
       "spec": "wiki/clips/boulder/outrun.toml",
       "state_hash": "7c8dcf61604013a0",
+      "states_hash": "7ead4f628a57ea85",
       "title": "Outrunning the boulder",
       "to": 1070,
       "width": 640
@@ -1052,6 +1081,7 @@
       },
       "spec": "wiki/clips/bow/arrow.toml",
       "state_hash": "0dcbe0707e50617c",
+      "states_hash": "23b7ef55cda84ba1",
       "title": "Bow and arrows",
       "to": 159,
       "width": 640
@@ -1087,6 +1117,7 @@
       },
       "spec": "wiki/clips/bow/bomb-arrow.toml",
       "state_hash": "421e410ee4559763",
+      "states_hash": "29345ee3779fae66",
       "title": "Bomb arrow",
       "to": 209,
       "width": 640
@@ -1122,6 +1153,7 @@
       },
       "spec": "wiki/clips/cape/glide.toml",
       "state_hash": "2f4141fc8dd7b7b1",
+      "states_hash": "1360d066fb78c833",
       "title": "Cape glide",
       "to": 1809,
       "width": 640
@@ -1157,6 +1189,7 @@
       },
       "spec": "wiki/clips/caveman/charge.toml",
       "state_hash": "26c2c394537bda10",
+      "states_hash": "16f860ab2dd0177b",
       "title": "Caveman charge",
       "to": 179,
       "width": 640
@@ -1192,6 +1225,7 @@
       },
       "spec": "wiki/clips/caveman/ledge.toml",
       "state_hash": "33a6b8172f509956",
+      "states_hash": "5c9051ab06a245e2",
       "title": "Caveman off a ledge",
       "to": 89,
       "width": 640
@@ -1227,6 +1261,7 @@
       },
       "spec": "wiki/clips/caveman/stun.toml",
       "state_hash": "c4459031579c58c5",
+      "states_hash": "696231302d3052dd",
       "title": "Caveman stunned",
       "to": 399,
       "width": 640
@@ -1262,6 +1297,7 @@
       },
       "spec": "wiki/clips/ceiling-trap/crush.toml",
       "state_hash": "dcd9d6bb93f9bcfc",
+      "states_hash": "cdb7c53f985600f6",
       "title": "Ceiling trap",
       "to": 1430,
       "width": 640
@@ -1297,6 +1333,7 @@
       },
       "spec": "wiki/clips/chest/open.toml",
       "state_hash": "d312a853e2400cc2",
+      "states_hash": "d16189e6dae3f145",
       "title": "Chest opened",
       "to": 759,
       "width": 640
@@ -1332,6 +1369,7 @@
       },
       "spec": "wiki/clips/city-of-gold-route/ankh.toml",
       "state_hash": "2a6a75aaee335860",
+      "states_hash": "e1c9cc8337003334",
       "title": "Taking the Ankh",
       "to": 1500,
       "width": 640
@@ -1367,6 +1405,7 @@
       },
       "spec": "wiki/clips/city-of-gold-route/carry.toml",
       "state_hash": "5bad78713c4dda8d",
+      "states_hash": "bfb6d3691160f133",
       "title": "Carrying the Sceptre to level 14",
       "to": 6560,
       "width": 640
@@ -1402,6 +1441,7 @@
       },
       "spec": "wiki/clips/city-of-gold-route/sceptre.toml",
       "state_hash": "c49db0bfda69ae16",
+      "states_hash": "4957e803f70eabd3",
       "title": "The Sceptre on level 13",
       "to": 6060,
       "width": 640
@@ -1437,6 +1477,7 @@
       },
       "spec": "wiki/clips/city-of-gold/arrival.toml",
       "state_hash": "ec609cd88292c405",
+      "states_hash": "c694e34ab92d1a61",
       "title": "Arriving in the City of Gold",
       "to": 6995,
       "width": 640
@@ -1472,6 +1513,7 @@
       },
       "spec": "wiki/clips/city-of-gold/to-olmec.toml",
       "state_hash": "69ceccdcf812c941",
+      "states_hash": "4956d2c8d4b02000",
       "title": "From the City of Gold to Olmec's Lair",
       "to": 7700,
       "width": 640
@@ -1507,6 +1549,7 @@
       },
       "spec": "wiki/clips/city-of-gold/xoc-statue.toml",
       "state_hash": "4f53ba16f6b10c2f",
+      "states_hash": "ad13d10bd1345911",
       "title": "The Lady Xoc statue",
       "to": 7200,
       "width": 640
@@ -1542,6 +1585,7 @@
       },
       "spec": "wiki/clips/climbing-gloves/climb.toml",
       "state_hash": "9c37744ddf9b01bf",
+      "states_hash": "1e7ced6ca16b5059",
       "title": "Climbing Gloves wall climb",
       "to": 359,
       "width": 640
@@ -1577,6 +1621,7 @@
       },
       "spec": "wiki/clips/clothing-shop/theft.toml",
       "state_hash": "7e8433e4aa7f3cb4",
+      "states_hash": "e9c2c9a918759f03",
       "title": "Shoplifting from a Clothing Shop",
       "to": 999,
       "width": 640
@@ -1612,6 +1657,7 @@
       },
       "spec": "wiki/clips/compass/arrow.toml",
       "state_hash": "26039307c5289a28",
+      "states_hash": "845b18c77ca2d921",
       "title": "Compass arrow",
       "to": 1059,
       "width": 640
@@ -1647,6 +1693,7 @@
       },
       "spec": "wiki/clips/controls/pause.toml",
       "state_hash": "93c45c71d32de50d",
+      "states_hash": "77d7479515b679ef",
       "title": "Pausing",
       "to": 999,
       "width": 640
@@ -1682,6 +1729,7 @@
       },
       "spec": "wiki/clips/crate/open.toml",
       "state_hash": "3286a00be4b54ec1",
+      "states_hash": "e93607b92c01b273",
       "title": "Crate opened",
       "to": 119,
       "width": 640
@@ -1717,6 +1765,7 @@
       },
       "spec": "wiki/clips/crate/rope.toml",
       "state_hash": "e28deb37b4f26b65",
+      "states_hash": "e04496e26a57ec6c",
       "title": "Crate opened into ropes",
       "to": 99,
       "width": 640
@@ -1752,6 +1801,7 @@
       },
       "spec": "wiki/clips/credits/caravan.toml",
       "state_hash": "77850dfbe735aebd",
+      "states_hash": "01e5e5c6fcd5f3df",
       "title": "The credits after a win",
       "to": 7437,
       "width": 640
@@ -1787,6 +1837,7 @@
       },
       "spec": "wiki/clips/credits/ride-off.toml",
       "state_hash": "349985bf4afe77f3",
+      "states_hash": "8b44e34bca77c26f",
       "title": "The end of the credits",
       "to": 8392,
       "width": 640
@@ -1822,6 +1873,7 @@
       },
       "spec": "wiki/clips/credits/title-rope.toml",
       "state_hash": "3e2153b10d616845",
+      "states_hash": "df1781be8e916707",
       "title": "The credits after the title's rope",
       "to": 1299,
       "width": 640
@@ -1857,6 +1909,7 @@
       },
       "spec": "wiki/clips/crystal-skull/ghost.toml",
       "state_hash": "da653e0528753457",
+      "states_hash": "4d9293054939cd83",
       "title": "Crystal skull and the ghost",
       "to": 1159,
       "width": 640
@@ -1892,6 +1945,7 @@
       },
       "spec": "wiki/clips/damage/invincible.toml",
       "state_hash": "464803db3997d52d",
+      "states_hash": "55975361072cf251",
       "title": "Invincible after a bite",
       "to": 219,
       "width": 640
@@ -1927,6 +1981,7 @@
       },
       "spec": "wiki/clips/damage/long-drop.toml",
       "state_hash": "3ae883f49bb754e0",
+      "states_hash": "44f873a5a883cfcb",
       "title": "Long drop",
       "to": 179,
       "width": 640
@@ -1962,6 +2017,7 @@
       },
       "spec": "wiki/clips/damsel/rescue.toml",
       "state_hash": "ad46c98f92d61d45",
+      "states_hash": "a1b6eaf655270567",
       "title": "Damsel rescued",
       "to": 1129,
       "width": 640
@@ -1997,6 +2053,7 @@
       },
       "spec": "wiki/clips/damsel/sacrifice.toml",
       "state_hash": "48defe95e1cc4e0a",
+      "states_hash": "f1e2def31689b034",
       "title": "Damsel sacrificed to Kali",
       "to": 1199,
       "width": 640
@@ -2032,6 +2089,7 @@
       },
       "spec": "wiki/clips/damsel/throw.toml",
       "state_hash": "b15c5a305d01cdb5",
+      "states_hash": "f77425f2eb0d8a4f",
       "title": "Damsel whipped and thrown",
       "to": 299,
       "width": 640
@@ -2067,6 +2125,7 @@
       },
       "spec": "wiki/clips/dark-level/arrival.toml",
       "state_hash": "499e0eaac09f5ebe",
+      "states_hash": "2780dca66f2778fa",
       "title": "A dark level",
       "to": 2139,
       "width": 640
@@ -2102,6 +2161,7 @@
       },
       "spec": "wiki/clips/dead-fish/bite.toml",
       "state_hash": "b22442ed5f440267",
+      "states_hash": "f5c2a56d2b55ff58",
       "title": "Dead Fish bite",
       "to": 1245,
       "width": 640
@@ -2137,6 +2197,7 @@
       },
       "spec": "wiki/clips/dead-fish/stomp.toml",
       "state_hash": "440d040c256cb30d",
+      "states_hash": "7cd5dac5119278f8",
       "title": "Dead Fish stomped",
       "to": 899,
       "width": 640
@@ -2172,6 +2233,7 @@
       },
       "spec": "wiki/clips/diamond/ghost.toml",
       "state_hash": "f3d0ec6ac6f395ad",
+      "states_hash": "b1c0c807bf58177e",
       "title": "A big sapphire becomes a diamond",
       "to": 8760,
       "width": 640
@@ -2207,6 +2269,7 @@
       },
       "spec": "wiki/clips/dice-house/cheat.toml",
       "state_hash": "eea6fcc7db6a0f4a",
+      "states_hash": "ad36a92c3e4e3849",
       "title": "Cheating at the Dice House",
       "to": 2710,
       "width": 640
@@ -2242,6 +2305,7 @@
       },
       "spec": "wiki/clips/dice-house/seven.toml",
       "state_hash": "3d2123429cd9f7c4",
+      "states_hash": "60fdbc68552ad692",
       "title": "Rolling a seven at the Dice House",
       "to": 2515,
       "width": 640
@@ -2277,6 +2341,7 @@
       },
       "spec": "wiki/clips/dice-house/win.toml",
       "state_hash": "e3270881bb2e468e",
+      "states_hash": "cad3bcce4be277e1",
       "title": "Winning at the Dice House",
       "to": 2290,
       "width": 640
@@ -2312,6 +2377,7 @@
       },
       "spec": "wiki/clips/endings/tally.toml",
       "state_hash": "68b7340c6d3d76bf",
+      "states_hash": "8f31103d72e48257",
       "title": "You made it!",
       "to": 6837,
       "width": 640
@@ -2347,6 +2413,7 @@
       },
       "spec": "wiki/clips/endings/volcano.toml",
       "state_hash": "5142bbecc715e6a5",
+      "states_hash": "19579db81851c1be",
       "title": "The volcano",
       "to": 6259,
       "width": 640
@@ -2382,6 +2449,7 @@
       },
       "spec": "wiki/clips/fire-frog/explode.toml",
       "state_hash": "eff982b8da72570a",
+      "states_hash": "df86c29642782507",
       "title": "Fire frog explodes",
       "to": 199,
       "width": 640
@@ -2417,6 +2485,7 @@
       },
       "spec": "wiki/clips/fire-frog/water.toml",
       "state_hash": "e17e398daacfc580",
+      "states_hash": "499e06c3808da078",
       "title": "Fire frog in water",
       "to": 179,
       "width": 640
@@ -2452,6 +2521,7 @@
       },
       "spec": "wiki/clips/flooded-level/crossing.toml",
       "state_hash": "b6ade023618d759c",
+      "states_hash": "9d6f5baa12e3e7e1",
       "title": "Across a flooded level",
       "to": 1560,
       "width": 640
@@ -2487,6 +2557,7 @@
       },
       "spec": "wiki/clips/flooded-level/megamouth.toml",
       "state_hash": "734c5b864646ab49",
+      "states_hash": "ce93f96fc321d56c",
       "title": "The Megamouth in its lake",
       "to": 1405,
       "width": 640
@@ -2522,6 +2593,7 @@
       },
       "spec": "wiki/clips/frog/jump.toml",
       "state_hash": "7a96a2ff39d95951",
+      "states_hash": "05ea632c015abdf1",
       "title": "Frog jump",
       "to": 149,
       "width": 640
@@ -2557,6 +2629,7 @@
       },
       "spec": "wiki/clips/general-store/buy.toml",
       "state_hash": "3caf8f57aabcc40a",
+      "states_hash": "ff97c9e2afe641c0",
       "title": "Buying in a General Store",
       "to": 1849,
       "width": 640
@@ -2592,6 +2665,7 @@
       },
       "spec": "wiki/clips/general-store/theft.toml",
       "state_hash": "8de71ec4ce1d4cce",
+      "states_hash": "3f6192f21af14cbe",
       "title": "Shoplifting from a General Store",
       "to": 1989,
       "width": 640
@@ -2627,6 +2701,7 @@
       },
       "spec": "wiki/clips/general-store/waiting-shopkeeper.toml",
       "state_hash": "5119951a91860e30",
+      "states_hash": "791bbb32ee67f2a5",
       "title": "A shopkeeper waiting by the exit",
       "to": 1975,
       "width": 640
@@ -2662,6 +2737,7 @@
       },
       "spec": "wiki/clips/ghost-timer/warning.toml",
       "state_hash": "263d9b48be5b37fa",
+      "states_hash": "cfe3f691f47a1e93",
       "title": "The ghost's warning",
       "to": 7779,
       "width": 640
@@ -2697,6 +2773,7 @@
       },
       "spec": "wiki/clips/ghost/touch.toml",
       "state_hash": "a355c4158f9c6d7a",
+      "states_hash": "c761ab56c3ddbd79",
       "title": "Ghost",
       "to": 8879,
       "width": 640
@@ -2732,6 +2809,7 @@
       },
       "spec": "wiki/clips/giant-spider/bomb.toml",
       "state_hash": "725f5127cbe8704d",
+      "states_hash": "6a2f43a54d2866bf",
       "title": "Giant spider bombed",
       "to": 259,
       "width": 640
@@ -2767,6 +2845,7 @@
       },
       "spec": "wiki/clips/giant-spider/drop.toml",
       "state_hash": "88ffb986bc12f4db",
+      "states_hash": "0bf4778a9d0f95d6",
       "title": "Giant spider drop",
       "to": 179,
       "width": 640
@@ -2802,6 +2881,7 @@
       },
       "spec": "wiki/clips/giant-spider/web.toml",
       "state_hash": "f68a36ae4ff1adcb",
+      "states_hash": "d0a93d01de8ea54a",
       "title": "Giant spider web shot",
       "to": 269,
       "width": 640
@@ -2837,6 +2917,7 @@
       },
       "spec": "wiki/clips/giant-spider/wind-up.toml",
       "state_hash": "ae3a9e7380460807",
+      "states_hash": "5dd49eac1b5a562a",
       "title": "Giant spider and the whip's wind-up",
       "to": 89,
       "width": 640
@@ -2872,6 +2953,7 @@
       },
       "spec": "wiki/clips/gold-bar/tutorial.toml",
       "state_hash": "542af6794590dfc7",
+      "states_hash": "21c9c7f66a09b28d",
       "title": "Gold bars collected",
       "to": 864,
       "width": 640
@@ -2907,6 +2989,7 @@
       },
       "spec": "wiki/clips/gold-chunk/mattock.toml",
       "state_hash": "07e4400997c16e69",
+      "states_hash": "96d6359bd0f7ac7e",
       "title": "Gold dug out with a mattock",
       "to": 1925,
       "width": 640
@@ -2942,6 +3025,7 @@
       },
       "spec": "wiki/clips/gold-nugget/shopkeeper.toml",
       "state_hash": "2e416c4afe6e8a22",
+      "states_hash": "cd935914c737b228",
       "title": "Shopkeeper's gold nuggets",
       "to": 1504,
       "width": 640
@@ -2977,6 +3061,7 @@
       },
       "spec": "wiki/clips/golden-idol/boulder.toml",
       "state_hash": "473beeabac1893fc",
+      "states_hash": "25442dcccf4bdf67",
       "title": "Golden idol's boulder",
       "to": 839,
       "width": 640
@@ -3012,6 +3097,7 @@
       },
       "spec": "wiki/clips/golden-idol/exit.toml",
       "state_hash": "7c8dcf61604013a0",
+      "states_hash": "c261986458cf092b",
       "title": "Golden idol carried out",
       "to": 1109,
       "width": 640
@@ -3047,6 +3133,7 @@
       },
       "spec": "wiki/clips/hawkman/ceiling.toml",
       "state_hash": "b0e448afb493e3c5",
+      "states_hash": "ff134458855b16bc",
       "title": "Hawkman bite",
       "to": 119,
       "width": 640
@@ -3082,6 +3169,7 @@
       },
       "spec": "wiki/clips/hawkman/throw.toml",
       "state_hash": "abdfb4f9f91c46d2",
+      "states_hash": "865ee36cd6c8c677",
       "title": "Hawkman throw",
       "to": 199,
       "width": 640
@@ -3117,6 +3205,7 @@
       },
       "spec": "wiki/clips/hawkman/whip.toml",
       "state_hash": "4df8b879fcdbd5b8",
+      "states_hash": "e78365dd8ecd9a90",
       "title": "Hawkman whipped",
       "to": 299,
       "width": 640
@@ -3152,6 +3241,7 @@
       },
       "spec": "wiki/clips/hedjet/dark-level.toml",
       "state_hash": "6dbccd4c26db45f1",
+      "states_hash": "0a393ea36a65675d",
       "title": "Hedjet on a dark level",
       "to": 6480,
       "width": 640
@@ -3187,6 +3277,7 @@
       },
       "spec": "wiki/clips/hedjet/gold-door.toml",
       "state_hash": "3e2ae350acaf88c4",
+      "states_hash": "bd0583fe1268cf6b",
       "title": "Gold door",
       "to": 6760,
       "width": 640
@@ -3222,6 +3313,7 @@
       },
       "spec": "wiki/clips/hedjet/moai.toml",
       "state_hash": "ed44b570e772287d",
+      "states_hash": "044616c934cb610c",
       "title": "Hedjet in the Moai",
       "to": 5580,
       "width": 640
@@ -3257,6 +3349,7 @@
       },
       "spec": "wiki/clips/ice-caves/from-jungle.toml",
       "state_hash": "76927ffd14925cd5",
+      "states_hash": "7d51687d475ad09f",
       "title": "From the Jungle to the Ice Caves",
       "to": 4479,
       "width": 640
@@ -3292,6 +3385,7 @@
       },
       "spec": "wiki/clips/jar/throw.toml",
       "state_hash": "1e32092c20ef41a4",
+      "states_hash": "70f34f7d6ab5f5a4",
       "title": "Jar thrown at a snake",
       "to": 769,
       "width": 640
@@ -3327,6 +3421,7 @@
       },
       "spec": "wiki/clips/jar/whip.toml",
       "state_hash": "e5d66b9fd758326d",
+      "states_hash": "809c6c63406409d8",
       "title": "Jar whipped open",
       "to": 119,
       "width": 640
@@ -3362,6 +3457,7 @@
       },
       "spec": "wiki/clips/jetpack/fly.toml",
       "state_hash": "c3e57f692ff94a75",
+      "states_hash": "2c97d77fa9e5fc1d",
       "title": "Jetpack flight",
       "to": 1759,
       "width": 640
@@ -3397,6 +3493,7 @@
       },
       "spec": "wiki/clips/jetpack/soft-landing.toml",
       "state_hash": "94367831b7d3893e",
+      "states_hash": "f02c31b3bae841b3",
       "title": "Jetpack thrust breaks a long fall",
       "to": 391,
       "width": 640
@@ -3432,6 +3529,7 @@
       },
       "spec": "wiki/clips/jungle/from-mines.toml",
       "state_hash": "5e59817fef6b2404",
+      "states_hash": "73790f52750bf1c5",
       "title": "From the Mines to the Jungle",
       "to": 4499,
       "width": 640
@@ -3467,6 +3565,7 @@
       },
       "spec": "wiki/clips/jungle/shortcut.toml",
       "state_hash": "22d07e0642bf1605",
+      "states_hash": "40f012671042f55b",
       "title": "The level 5 shortcut",
       "to": 860,
       "width": 640
@@ -3502,6 +3601,7 @@
       },
       "spec": "wiki/clips/kali/ghost.toml",
       "state_hash": "0b18694736400088",
+      "states_hash": "e2ed4c6b5ea274ac",
       "title": "Kali's third punishment",
       "to": 3532,
       "width": 640
@@ -3537,6 +3637,7 @@
       },
       "spec": "wiki/clips/kali/spiders.toml",
       "state_hash": "aaf6fbbccb15ff8f",
+      "states_hash": "c31f6b45903cb20f",
       "title": "Six more spiders",
       "to": 9062,
       "width": 640
@@ -3572,6 +3673,7 @@
       },
       "spec": "wiki/clips/kalis-altar/defile.toml",
       "state_hash": "5c4579f15702acc9",
+      "states_hash": "8a7a2fcbd1e12746",
       "title": "Kali's altar defiled",
       "to": 1560,
       "width": 640
@@ -3607,6 +3709,7 @@
       },
       "spec": "wiki/clips/kalis-favour/kapala.toml",
       "state_hash": "0d8b14dc9b31ecbe",
+      "states_hash": "a70f4d0f064d809d",
       "title": "Kali's gift and anger",
       "to": 1839,
       "width": 640
@@ -3642,6 +3745,7 @@
       },
       "spec": "wiki/clips/kapala/heart.toml",
       "state_hash": "517929a9da159cb8",
+      "states_hash": "ed57dc2cdfd4aa7c",
       "title": "Kapala filling",
       "to": 1900,
       "width": 640
@@ -3677,6 +3781,7 @@
       },
       "spec": "wiki/clips/kissing-parlor/kiss.toml",
       "state_hash": "c8a114f34cb8c93d",
+      "states_hash": "7ef73b27a781e197",
       "title": "A kiss in the Kissing Parlor",
       "to": 2116,
       "width": 640
@@ -3712,6 +3817,7 @@
       },
       "spec": "wiki/clips/kissing-parlor/theft.toml",
       "state_hash": "ee38b0dbb15a5e6f",
+      "states_hash": "b8a5beffea81423d",
       "title": "Stealing the Kissing Parlor's damsel",
       "to": 1340,
       "width": 640
@@ -3747,6 +3853,7 @@
       },
       "spec": "wiki/clips/lava/burn.toml",
       "state_hash": "e7c8c614c3838eea",
+      "states_hash": "8d1b3abb0c3a140a",
       "title": "Lava",
       "to": 109,
       "width": 640
@@ -3782,6 +3889,7 @@
       },
       "spec": "wiki/clips/lava/flow.toml",
       "state_hash": "49798ec2a124b74d",
+      "states_hash": "4d52be192fdf1cd8",
       "title": "Lava flowing away",
       "to": 1030,
       "width": 640
@@ -3817,6 +3925,7 @@
       },
       "spec": "wiki/clips/level-editor/build.toml",
       "state_hash": "c01e085fab8c100d",
+      "states_hash": "1f755b7d74c48ef9",
       "title": "Building and testing a level",
       "to": 519,
       "width": 640
@@ -3852,6 +3961,7 @@
       },
       "spec": "wiki/clips/level-editor/chain.toml",
       "state_hash": "1e014e3a199fa923",
+      "states_hash": "74f81eac87bbdf02",
       "title": "A chain of custom levels",
       "to": 620,
       "width": 640
@@ -3887,6 +3997,7 @@
       },
       "spec": "wiki/clips/level-editor/every-tile.toml",
       "state_hash": "c01e085fab8c100d",
+      "states_hash": "86e53aea415c9d55",
       "title": "Every tile",
       "to": 599,
       "width": 640
@@ -3922,6 +4033,7 @@
       },
       "spec": "wiki/clips/level-editor/load-level.toml",
       "state_hash": "816b760385213e45",
+      "states_hash": "5bcdd75102c990e2",
       "title": "The custom levels menu",
       "to": 419,
       "width": 640
@@ -3957,6 +4069,7 @@
       },
       "spec": "wiki/clips/level-generation/path.toml",
       "state_hash": "3c8c671c082814ac",
+      "states_hash": "b59a76635c3990e5",
       "title": "Down a level's path",
       "to": 1140,
       "width": 640
@@ -3992,6 +4105,7 @@
       },
       "spec": "wiki/clips/machete/caveman.toml",
       "state_hash": "d229eb7be47f9a51",
+      "states_hash": "8e189fd75ac6e788",
       "title": "Machete against a caveman",
       "to": 209,
       "width": 640
@@ -4027,6 +4141,7 @@
       },
       "spec": "wiki/clips/magma-man/bomb.toml",
       "state_hash": "1edd90ffe34f782b",
+      "states_hash": "b2802975cb7ceedb",
       "title": "Magma Man bombed",
       "to": 339,
       "width": 640
@@ -4062,6 +4177,7 @@
       },
       "spec": "wiki/clips/magma-man/spawn.toml",
       "state_hash": "f1e1c68654e2418f",
+      "states_hash": "291dbe8ea2999bc0",
       "title": "Magma Man",
       "to": 369,
       "width": 640
@@ -4097,6 +4213,7 @@
       },
       "spec": "wiki/clips/magma-man/touch.toml",
       "state_hash": "759ea2516364eb91",
+      "states_hash": "e467e9e99d0ab6ec",
       "title": "Magma Man touch",
       "to": 319,
       "width": 640
@@ -4132,6 +4249,7 @@
       },
       "spec": "wiki/clips/mantrap/eat.toml",
       "state_hash": "107a5c42b7a148de",
+      "states_hash": "b6f4c04244741537",
       "title": "Mantrap eats the player",
       "to": 179,
       "width": 640
@@ -4167,6 +4285,7 @@
       },
       "spec": "wiki/clips/mantrap/whip.toml",
       "state_hash": "131c764fdc51b620",
+      "states_hash": "ae605523b8c4b064",
       "title": "Mantrap whipped",
       "to": 299,
       "width": 640
@@ -4202,6 +4321,7 @@
       },
       "spec": "wiki/clips/mattock/dig.toml",
       "state_hash": "599f95d138fa0a93",
+      "states_hash": "640957d247834242",
       "title": "Mattock digging",
       "to": 149,
       "width": 640
@@ -4237,6 +4357,7 @@
       },
       "spec": "wiki/clips/mattock/wind-up.toml",
       "state_hash": "c140ba68a54764f2",
+      "states_hash": "65ffc7353771fb05",
       "title": "Mattock wind-up and the floor",
       "to": 149,
       "width": 640
@@ -4272,6 +4393,7 @@
       },
       "spec": "wiki/clips/megamouth/attack.toml",
       "state_hash": "61956f3f321a2c00",
+      "states_hash": "bf59d897395169d3",
       "title": "Megamouth attack",
       "to": 139,
       "width": 640
@@ -4307,6 +4429,7 @@
       },
       "spec": "wiki/clips/megamouth/bomb.toml",
       "state_hash": "4ad3b32ae043e4c5",
+      "states_hash": "cba38ec95227ec66",
       "title": "Megamouth stranded",
       "to": 259,
       "width": 640
@@ -4342,6 +4465,7 @@
       },
       "spec": "wiki/clips/megamouth/whip.toml",
       "state_hash": "8cde799e658c80c0",
+      "states_hash": "b441d6f23cb00bb3",
       "title": "Megamouth whipped",
       "to": 149,
       "width": 640
@@ -4377,6 +4501,7 @@
       },
       "spec": "wiki/clips/mines/exit.toml",
       "state_hash": "ed7a89e9a9aff107",
+      "states_hash": "6c15fbc57853c60c",
       "title": "Through a Mines level",
       "to": 1719,
       "width": 640
@@ -4412,6 +4537,7 @@
       },
       "spec": "wiki/clips/mines/start.toml",
       "state_hash": "75c0141392262021",
+      "states_hash": "6db6181c8a074f8d",
       "title": "Into the Mines",
       "to": 680,
       "width": 640
@@ -4447,6 +4573,7 @@
       },
       "spec": "wiki/clips/moai/statue.toml",
       "state_hash": "c526ceb61ffd6bd0",
+      "states_hash": "6c8b99d150525d1d",
       "title": "The Moai",
       "to": 1090,
       "width": 640
@@ -4482,6 +4609,7 @@
       },
       "spec": "wiki/clips/monkey/steal.toml",
       "state_hash": "d7a895da632f65e1",
+      "states_hash": "5ec181e38bbec37b",
       "title": "Monkey steals",
       "to": 299,
       "width": 640
@@ -4517,6 +4645,7 @@
       },
       "spec": "wiki/clips/mothership/psychic-presence.toml",
       "state_hash": "d487cb3207fd0c8e",
+      "states_hash": "7c5f2e4eebd9cb98",
       "title": "Arriving over the mothership",
       "to": 1420,
       "width": 640
@@ -4552,6 +4681,7 @@
       },
       "spec": "wiki/clips/olmec/awakening.toml",
       "state_hash": "b40175816817b0e8",
+      "states_hash": "1f19a58c594ca6e4",
       "title": "Olmec awakening",
       "to": 2150,
       "width": 640
@@ -4587,6 +4717,7 @@
       },
       "spec": "wiki/clips/olmec/crush.toml",
       "state_hash": "a26f4a0d5d456aa2",
+      "states_hash": "4535159beca3396c",
       "title": "Olmec crush",
       "to": 3009,
       "width": 640
@@ -4622,6 +4753,7 @@
       },
       "spec": "wiki/clips/olmec/lava.toml",
       "state_hash": "2966eea86cfacc77",
+      "states_hash": "139c5a3b2fe4053e",
       "title": "Olmec in the lava",
       "to": 5239,
       "width": 640
@@ -4657,6 +4789,7 @@
       },
       "spec": "wiki/clips/olmec/slam.toml",
       "state_hash": "de0ec2e4af7e9266",
+      "states_hash": "2bcc6a5f80b506ef",
       "title": "Olmec slam",
       "to": 2959,
       "width": 640
@@ -4692,6 +4825,7 @@
       },
       "spec": "wiki/clips/olmecs-lair/exit.toml",
       "state_hash": "6466eeae62716dbf",
+      "states_hash": "a634309a42f46609",
       "title": "Leaving Olmec's Lair",
       "to": 5700,
       "width": 640
@@ -4727,6 +4861,7 @@
       },
       "spec": "wiki/clips/parachute/open.toml",
       "state_hash": "acaa88632b324625",
+      "states_hash": "91f1ef9bd63233d5",
       "title": "Parachute opening",
       "to": 2339,
       "width": 640
@@ -4762,6 +4897,7 @@
       },
       "spec": "wiki/clips/paste/wall.toml",
       "state_hash": "d8a178ccb45ae188",
+      "states_hash": "687bdfe801a67325",
       "title": "Sticky bomb on a wall",
       "to": 1114,
       "width": 640
@@ -4797,6 +4933,7 @@
       },
       "spec": "wiki/clips/paste/yeti.toml",
       "state_hash": "f271011219f4079b",
+      "states_hash": "63f885f5299cbaaa",
       "title": "Sticky bomb on a yeti",
       "to": 1309,
       "width": 640
@@ -4832,6 +4969,7 @@
       },
       "spec": "wiki/clips/piranha/bite.toml",
       "state_hash": "2f608a2e56be519f",
+      "states_hash": "ecf7405ef17ba208",
       "title": "Piranhas bite",
       "to": 109,
       "width": 640
@@ -4867,6 +5005,7 @@
       },
       "spec": "wiki/clips/pistol/shopkeeper.toml",
       "state_hash": "a5b8d6216872d516",
+      "states_hash": "856e5d890a5267d1",
       "title": "Pistol shots",
       "to": 1565,
       "width": 640
@@ -4902,6 +5041,7 @@
       },
       "spec": "wiki/clips/pitchers-mitt/rock.toml",
       "state_hash": "84a643d733dd4e29",
+      "states_hash": "50a7a6f500af7945",
       "title": "Pitcher's Mitt standing throw",
       "to": 269,
       "width": 640
@@ -4937,6 +5077,7 @@
       },
       "spec": "wiki/clips/pitchers-mitt/throw.toml",
       "state_hash": "3e9b07ed35b52503",
+      "states_hash": "cdb4bf0ba23fda1b",
       "title": "Pitcher's Mitt throw",
       "to": 1299,
       "width": 640
@@ -4972,6 +5113,7 @@
       },
       "spec": "wiki/clips/quirks/ankh-thrown-out-of-shop.toml",
       "state_hash": "2eafbb1b23cc1661",
+      "states_hash": "a93ff74e555a4044",
       "title": "The ankh, thrown out of its shop, angers no one",
       "to": 1604,
       "width": 640
@@ -5007,6 +5149,7 @@
       },
       "spec": "wiki/clips/quirks/arrow-trap-sensor-left-wider.toml",
       "state_hash": "0d71bd59b0ca9917",
+      "states_hash": "d1b8e02578e90ce4",
       "title": "A left-facing arrow trap sees a block farther",
       "to": 360,
       "width": 640
@@ -5042,6 +5185,7 @@
       },
       "spec": "wiki/clips/quirks/ash-graves.toml",
       "state_hash": "9c0032fc817c2b2a",
+      "states_hash": "c2a06b22781b072d",
       "title": "Two Ash graves on one level",
       "to": 1079,
       "width": 640
@@ -5077,6 +5221,7 @@
       },
       "spec": "wiki/clips/quirks/barrier-item-thrown-through.toml",
       "state_hash": "d27edbe1b069b204",
+      "states_hash": "05e286e6b7397822",
       "title": "The mothership's barrier throws an item on through it",
       "to": 2129,
       "width": 640
@@ -5112,6 +5257,7 @@
       },
       "spec": "wiki/clips/quirks/bomb-arrow-free.toml",
       "state_hash": "855b92d052374a07",
+      "states_hash": "d86cf375057c8a8a",
       "title": "A bomb arrow costs no bomb",
       "to": 480,
       "width": 640
@@ -5147,6 +5293,7 @@
       },
       "spec": "wiki/clips/quirks/boulder-double-speed.toml",
       "state_hash": "7c0073162e37c2a0",
+      "states_hash": "797da7eaf27a00f8",
       "title": "The boulder rolls at twice its speed",
       "to": 885,
       "width": 640
@@ -5182,6 +5329,7 @@
       },
       "spec": "wiki/clips/quirks/caveman-ledge-slide.toml",
       "state_hash": "4a73d176a3ac0828",
+      "states_hash": "6a8fce0f3a1b8d08",
       "title": "A caveman slides off the ledge it stops at",
       "to": 340,
       "width": 640
@@ -5217,6 +5365,7 @@
       },
       "spec": "wiki/clips/quirks/caveman-sight-alerts-others.toml",
       "state_hash": "ebe4ecbe68779765",
+      "states_hash": "16ed3a25bcb50f15",
       "title": "One caveman's sight sets off the others near the player",
       "to": 420,
       "width": 640
@@ -5252,6 +5401,7 @@
       },
       "spec": "wiki/clips/quirks/chest-trap-bomb-taken-out.toml",
       "state_hash": "930e3c08f7f48430",
+      "states_hash": "46306610c750b132",
       "title": "A chest's trap bomb, carried out, is a free bomb",
       "to": 340,
       "width": 640
@@ -5287,6 +5437,7 @@
       },
       "spec": "wiki/clips/quirks/city-jungle-earth.toml",
       "state_hash": "ec609cd88292c405",
+      "states_hash": "c02e2e97f755e1ad",
       "title": "Jungle earth in the City of Gold",
       "to": 6900,
       "width": 640
@@ -5322,6 +5473,7 @@
       },
       "spec": "wiki/clips/quirks/city-message-twice.toml",
       "state_hash": "e921b9284aa55a75",
+      "states_hash": "677e154159ca6212",
       "title": "The City of Gold's message, twice",
       "to": 7720,
       "width": 640
@@ -5357,6 +5509,7 @@
       },
       "spec": "wiki/clips/quirks/city-stone-block-no-gold.toml",
       "state_hash": "a4fb88f708538f51",
+      "states_hash": "82567a868d56a5d7",
       "title": "A stone block in the City of Gold gives no gold",
       "to": 7900,
       "width": 640
@@ -5392,6 +5545,7 @@
       },
       "spec": "wiki/clips/quirks/compass-arrow-off-screen.toml",
       "state_hash": "919013c855373554",
+      "states_hash": "7469453bddc336e6",
       "title": "The compass arrow leaves the top of the screen",
       "to": 4833,
       "width": 640
@@ -5427,6 +5581,7 @@
       },
       "spec": "wiki/clips/quirks/credits-fade-unskippable.toml",
       "state_hash": "e8c4d85f29999c09",
+      "states_hash": "8cc0a3b21a42b5f8",
       "title": "The credits' fade-in can't be skipped",
       "to": 6939,
       "width": 640
@@ -5462,6 +5617,7 @@
       },
       "spec": "wiki/clips/quirks/crystal-skull-sold-as-idol.toml",
       "state_hash": "3ffdeef2f42c4eba",
+      "states_hash": "39c10ccd32a74986",
       "title": "A crystal skull, sold, counts as a golden idol",
       "to": 2074,
       "width": 640
@@ -5497,6 +5653,7 @@
       },
       "spec": "wiki/clips/quirks/damsel-title-rope-spelunker.toml",
       "state_hash": "120799d6c86409b5",
+      "states_hash": "738f96cbef0be953",
       "title": "The Damsel leaves as the Spelunker",
       "to": 1027,
       "width": 640
@@ -5532,6 +5689,7 @@
       },
       "spec": "wiki/clips/quirks/damsel-whip-hop-thrown.toml",
       "state_hash": "b15c5a305d01cdb5",
+      "states_hash": "55d307c962ebca2a",
       "title": "A whipped Damsel's hop counts as a throw",
       "to": 500,
       "width": 640
@@ -5567,6 +5725,7 @@
       },
       "spec": "wiki/clips/quirks/dark-graveyard-lake-you-hear.toml",
       "state_hash": "59516074937ca3dd",
+      "states_hash": "2c5ab6901c48aa76",
       "title": "A dark, flooded graveyard level's third message",
       "to": 4720,
       "width": 640
@@ -5602,6 +5761,7 @@
       },
       "spec": "wiki/clips/quirks/dark-rubble-falls-through.toml",
       "state_hash": "8b692715b382a03c",
+      "states_hash": "1bfc767f61c42167",
       "title": "The big piece of dark rubble falls through the rock",
       "to": 360,
       "width": 640
@@ -5637,6 +5797,7 @@
       },
       "spec": "wiki/clips/quirks/dark-rubble-off-centre.toml",
       "state_hash": "13379861dd971962",
+      "states_hash": "ff9df894e8d14d56",
       "title": "Dark rock's rubble lands off-centre",
       "to": 380,
       "width": 640
@@ -5672,6 +5833,7 @@
       },
       "spec": "wiki/clips/quirks/editor-info-skips-fields.toml",
       "state_hash": "426e49c4dca0d2ae",
+      "states_hash": "5e5e4892fc913f6b",
       "title": "The editor's info prompt skips fields",
       "to": 423,
       "width": 640
@@ -5707,6 +5869,7 @@
       },
       "spec": "wiki/clips/quirks/fly-full-knockback.toml",
       "state_hash": "12c880b5148b2a7d",
+      "states_hash": "f422d80989af1986",
       "title": "A fly knocks a monster back at full strength",
       "to": 345,
       "width": 640
@@ -5742,6 +5905,7 @@
       },
       "spec": "wiki/clips/quirks/giant-spider-whip-wind-up.toml",
       "state_hash": "ae3a9e7380460807",
+      "states_hash": "5dd49eac1b5a562a",
       "title": "The whip's wind-up hurts a giant spider with no wait",
       "to": 330,
       "width": 640
@@ -5777,6 +5941,7 @@
       },
       "spec": "wiki/clips/quirks/gold-door-on-altar.toml",
       "state_hash": "d27f7531dba3ec28",
+      "states_hash": "7629dcd3d867b6b3",
       "title": "The City of Gold's door on Kali's altar",
       "to": 1520,
       "width": 640
@@ -5812,6 +5977,7 @@
       },
       "spec": "wiki/clips/quirks/highscores-block-crush.toml",
       "state_hash": "8a66d65af5ec6869",
+      "states_hash": "cee0ff8993597e7c",
       "title": "Crushed by the reset block",
       "to": 899,
       "width": 640
@@ -5847,6 +6013,7 @@
       },
       "spec": "wiki/clips/quirks/highscores-time-960.toml",
       "state_hash": "9b8ca0ce42f65de1",
+      "states_hash": "978163b7204805f1",
       "title": "No trophy for a best time of 16:00",
       "to": 599,
       "width": 640
@@ -5882,6 +6049,7 @@
       },
       "spec": "wiki/clips/quirks/jar-shot-in-hands.toml",
       "state_hash": "e056a43f8c9ac1d5",
+      "states_hash": "51c9386f67efe8c7",
       "title": "A jar shot in the player's hands comes back",
       "to": 380,
       "width": 640
@@ -5917,6 +6085,7 @@
       },
       "spec": "wiki/clips/quirks/jar-whip-rolls-twice.toml",
       "state_hash": "7731bd92093f2101",
+      "states_hash": "aee814639d5f9b2c",
       "title": "A whipped jar pays out twice",
       "to": 344,
       "width": 640
@@ -5952,6 +6121,7 @@
       },
       "spec": "wiki/clips/quirks/jetpack-vanishes-player-invisible.toml",
       "state_hash": "84ea3b79b55eee24",
+      "states_hash": "6100c94178902096",
       "title": "A jetpack on the floor vanishes when the player dies unseen",
       "to": 400,
       "width": 640
@@ -5987,6 +6157,7 @@
       },
       "spec": "wiki/clips/quirks/lit-message-halved.toml",
       "state_hash": "302fa95efe838b76",
+      "states_hash": "bee5b27d349221e1",
       "title": "A message lasts half as long on a lit level",
       "to": 3780,
       "width": 640
@@ -6022,6 +6193,7 @@
       },
       "spec": "wiki/clips/quirks/market-die-angers-next-shop.toml",
       "state_hash": "47116a095fcbebc2",
+      "states_hash": "60c9e9e84c4c1e76",
       "title": "A die carried into the next shop",
       "to": 1500,
       "width": 640
@@ -6057,6 +6229,7 @@
       },
       "spec": "wiki/clips/quirks/market-graveyard.toml",
       "state_hash": "feb25f46f47475ed",
+      "states_hash": "36695abce5f17e23",
       "title": "A Black Market on a graveyard level",
       "to": 1400,
       "width": 640
@@ -6092,6 +6265,7 @@
       },
       "spec": "wiki/clips/quirks/market-two-general-stores.toml",
       "state_hash": "a371a49a72be1e1a",
+      "states_hash": "ece2eca7eadd3632",
       "title": "A Black Market with two General Stores",
       "to": 1580,
       "width": 640
@@ -6127,6 +6301,7 @@
       },
       "spec": "wiki/clips/quirks/mattock-wind-up-twice.toml",
       "state_hash": "c140ba68a54764f2",
+      "states_hash": "65ffc7353771fb05",
       "title": "The Mattock makes its wind-up twice a swing",
       "to": 390,
       "width": 640
@@ -6162,6 +6337,7 @@
       },
       "spec": "wiki/clips/quirks/mattock-wrong-block.toml",
       "state_hash": "a097536aae57537a",
+      "states_hash": "f7234d4d592bcd58",
       "title": "The Mattock breaks the wrong block",
       "to": 440,
       "width": 640
@@ -6197,6 +6373,7 @@
       },
       "spec": "wiki/clips/quirks/mitt-catch-every-rock.toml",
       "state_hash": "6c9bb96490dca1e3",
+      "states_hash": "490ae915c152a866",
       "title": "The Pitcher's Mitt catches every rock at once",
       "to": 410,
       "width": 640
@@ -6232,6 +6409,7 @@
       },
       "spec": "wiki/clips/quirks/mitt-gravity-one-step.toml",
       "state_hash": "201d52a7c151ad11",
+      "states_hash": "c3026f5d0f3df0c2",
       "title": "The Pitcher's Mitt's light gravity lasts one step for a rock",
       "to": 390,
       "width": 640
@@ -6267,6 +6445,7 @@
       },
       "spec": "wiki/clips/quirks/moon-room-goal-any-win.toml",
       "state_hash": "92debe8e40dcaf28",
+      "states_hash": "30fed8603d071aea",
       "title": "The Moon Room's goal for a slow win",
       "to": 819,
       "width": 640
@@ -6302,6 +6481,7 @@
       },
       "spec": "wiki/clips/quirks/no-shop-after-black-market.toml",
       "state_hash": "1050bc410fd701a2",
+      "states_hash": "96625f0c6d1d16ae",
       "title": "No shop after the Black Market",
       "to": 3527,
       "width": 640
@@ -6337,6 +6517,7 @@
       },
       "spec": "wiki/clips/quirks/olmec-door-block-crush.toml",
       "state_hash": "484945f484aacd1e",
+      "states_hash": "176783907168a908",
       "title": "The block under Olmec's door crushes the player, counted as Olmec's",
       "to": 5479,
       "width": 640
@@ -6372,6 +6553,7 @@
       },
       "spec": "wiki/clips/quirks/olmec-double-speed.toml",
       "state_hash": "27e58d46926efc56",
+      "states_hash": "05c608e32848b8c6",
       "title": "Olmec moves twice his speed",
       "to": 2990,
       "width": 640
@@ -6407,6 +6589,7 @@
       },
       "spec": "wiki/clips/quirks/olmec-lava-left-wall.toml",
       "state_hash": "07766a273f3f4554",
+      "states_hash": "88c8048712e971c4",
       "title": "Olmec at the left wall sits in the lava without drowning",
       "to": 5029,
       "width": 640
@@ -6442,6 +6625,7 @@
       },
       "spec": "wiki/clips/quirks/olmec-slam-drifting-left.toml",
       "state_hash": "6d7c9b02b4f5ebd2",
+      "states_hash": "bf9f27991530c123",
       "title": "Olmec doesn't stop to slam while drifting left",
       "to": 3069,
       "width": 640
@@ -6477,6 +6661,7 @@
       },
       "spec": "wiki/clips/quirks/parachute-torn-moving-right.toml",
       "state_hash": "7ec06e6c81ac641d",
+      "states_hash": "966b6c7835bcf089",
       "title": "A parachute tears only for an item moving right or down",
       "to": 520,
       "width": 640
@@ -6512,6 +6697,7 @@
       },
       "spec": "wiki/clips/quirks/pause-bomb-key-dies.toml",
       "state_hash": "aca6fb4df119c9cf",
+      "states_hash": "2f24a46f92b347d3",
       "title": "The bomb key dies from the pause screen",
       "to": 1349,
       "width": 640
@@ -6547,6 +6733,7 @@
       },
       "spec": "wiki/clips/quirks/pickup-nearest-enemy.toml",
       "state_hash": "fa8b6bd49239d32b",
+      "states_hash": "a33751fe292d9c25",
       "title": "Picking up a stunned enemy takes the nearest one",
       "to": 510,
       "width": 640
@@ -6582,6 +6769,7 @@
       },
       "spec": "wiki/clips/quirks/rock-freezes-off-view.toml",
       "state_hash": "015b03101bc41079",
+      "states_hash": "1f673eb6321db111",
       "title": "A thrown rock waits outside the view",
       "to": 1292,
       "width": 640
@@ -6617,6 +6805,7 @@
       },
       "spec": "wiki/clips/quirks/shop-compass-restocked.toml",
       "state_hash": "b5f2c909ee384953",
+      "states_hash": "834169853b177ca9",
       "title": "A shop sells a Compass the player already wears",
       "to": 2058,
       "width": 640
@@ -6652,6 +6841,7 @@
       },
       "spec": "wiki/clips/quirks/shopkeeper-patrol-one-step.toml",
       "state_hash": "597cec9700c86760",
+      "states_hash": "479de6bd1a545181",
       "title": "A patrolling Shopkeeper's walk lasts one step",
       "to": 540,
       "width": 640
@@ -6687,6 +6877,7 @@
       },
       "spec": "wiki/clips/quirks/shopkeeper-spikes-murderer.toml",
       "state_hash": "0baf2162f336fd80",
+      "states_hash": "9060913dcf7bc824",
       "title": "A Shopkeeper the Spikes kill counts as the player's kill",
       "to": 1959,
       "width": 640
@@ -6722,6 +6913,7 @@
       },
       "spec": "wiki/clips/quirks/sign-message-lost.toml",
       "state_hash": "1922f38a428520df",
+      "states_hash": "d8a995fbf12f54a7",
       "title": "A level without exits loses its sign's message",
       "to": 345,
       "width": 640
@@ -6757,6 +6949,7 @@
       },
       "spec": "wiki/clips/quirks/skeleton-faces-right.toml",
       "state_hash": "f5db2804dc9cda5b",
+      "states_hash": "2c0fe74291b777e6",
       "title": "A skeleton in a custom level faces right",
       "to": 440,
       "width": 640
@@ -6792,6 +6985,7 @@
       },
       "spec": "wiki/clips/quirks/skull-breaks-on-ceiling.toml",
       "state_hash": "b85cfcb136e0425b",
+      "states_hash": "e4224eec477403b4",
       "title": "A skull breaks on a gentle ceiling hit",
       "to": 389,
       "width": 640
@@ -6827,6 +7021,7 @@
       },
       "spec": "wiki/clips/quirks/smash-trap-random-throw.toml",
       "state_hash": "62fc0dfa01c7c0b2",
+      "states_hash": "f3ec88d0ad9e2759",
       "title": "A resting smash trap throws the player its random way",
       "to": 360,
       "width": 640
@@ -6862,6 +7057,7 @@
       },
       "spec": "wiki/clips/quirks/teleporter-old-target.toml",
       "state_hash": "d02f5801ce1eb103",
+      "states_hash": "0a733c0cfd7c96fb",
       "title": "The Teleporter goes back to its last spot",
       "to": 480,
       "width": 640
@@ -6897,6 +7093,7 @@
       },
       "spec": "wiki/clips/quirks/test-bombs-unclamped.toml",
       "state_hash": "34e78b5b6d3c1c87",
+      "states_hash": "e174ec6099f0bc2c",
       "title": "A test starts with 1,111 bombs",
       "to": 615,
       "width": 640
@@ -6932,6 +7129,7 @@
       },
       "spec": "wiki/clips/quirks/thrown-item-nearest-enemy.toml",
       "state_hash": "d81e9c1c60884010",
+      "states_hash": "3cbe41f335998e16",
       "title": "A thrown rock hurts the nearest enemy, not the one it hits",
       "to": 360,
       "width": 640
@@ -6967,6 +7165,7 @@
       },
       "spec": "wiki/clips/quirks/thrown-monster-full-push.toml",
       "state_hash": "fa6142315a355de2",
+      "states_hash": "88b0bb7e70675f44",
       "title": "A thrown monster pushes with all its speed, a thrown rock with 0.3",
       "to": 489,
       "width": 640
@@ -7002,6 +7201,7 @@
       },
       "spec": "wiki/clips/quirks/tomb-lord-whip-wind-up.toml",
       "state_hash": "38988567a5cf1215",
+      "states_hash": "4a154b37d88fdc10",
       "title": "The Tomb Lord takes the Whip's wind-up from its own floor",
       "to": 340,
       "width": 640
@@ -7037,6 +7237,7 @@
       },
       "spec": "wiki/clips/quirks/tunnel-man-first-visit.toml",
       "state_hash": "5f7239c69a163c59",
+      "states_hash": "738afcdd5568644d",
       "title": "The Tunnel Man misses his first visit",
       "to": 4317,
       "width": 640
@@ -7072,6 +7273,7 @@
       },
       "spec": "wiki/clips/quirks/two-damsels-one-heart.toml",
       "state_hash": "656cc27b0a37b1e1",
+      "states_hash": "9ef6935aabf368c4",
       "title": "Two Damsels saved, one heart",
       "to": 712,
       "width": 640
@@ -7107,6 +7309,7 @@
       },
       "spec": "wiki/clips/quirks/ufo-laser-surges.toml",
       "state_hash": "edebab5d5b365ac3",
+      "states_hash": "3a11f37c2af56b1b",
       "title": "A UFO's laser falls in surges",
       "to": 1978,
       "width": 640
@@ -7142,6 +7345,7 @@
       },
       "spec": "wiki/clips/quirks/web-jump-wears-wrong-web.toml",
       "state_hash": "a1cf5753ea11978f",
+      "states_hash": "c0e74db837bdf948",
       "title": "A jump out of a web wears down the web beside it",
       "to": 510,
       "width": 640
@@ -7177,6 +7381,7 @@
       },
       "spec": "wiki/clips/quirks/whip-hits-every-step.toml",
       "state_hash": "8cde799e658c80c0",
+      "states_hash": "b441d6f23cb00bb3",
       "title": "A whip swing hurts a monster on every step it touches it",
       "to": 390,
       "width": 640
@@ -7212,6 +7417,7 @@
       },
       "spec": "wiki/clips/quirks/xoc-statue-in-sacrifice-pit.toml",
       "state_hash": "5dcc5bfe89f8ae14",
+      "states_hash": "54702f5e42f46b11",
       "title": "The Lady Xoc statue in a sacrifice pit",
       "to": 7650,
       "width": 640
@@ -7247,6 +7453,7 @@
       },
       "spec": "wiki/clips/quirks/yeti-king-touch-custom-level.toml",
       "state_hash": "62006dc52e1e1bc4",
+      "states_hash": "9f956b1e02b081d2",
       "title": "The Yeti King's touch costs nothing in a custom level",
       "to": 500,
       "width": 640
@@ -7282,6 +7489,7 @@
       },
       "spec": "wiki/clips/quirks/yeti-king-whip-wind-up.toml",
       "state_hash": "ae0fbe18e0b09198",
+      "states_hash": "3a759a6018830a28",
       "title": "The Whip hurts the Yeti King only with its wind-up",
       "to": 460,
       "width": 640
@@ -7317,6 +7525,7 @@
       },
       "spec": "wiki/clips/quirks/yeti-never-charges.toml",
       "state_hash": "70298be1eecfce43",
+      "states_hash": "a1936766fa46dc1a",
       "title": "A yeti's sight sets off a caveman, but never the yeti",
       "to": 460,
       "width": 640
@@ -7352,6 +7561,7 @@
       },
       "spec": "wiki/clips/quirks/yeti-stomp-rising.toml",
       "state_hash": "33a57f7e60f1cf17",
+      "states_hash": "4485354ab03f64c6",
       "title": "A yeti stomped on the way up loses nothing",
       "to": 390,
       "width": 640
@@ -7387,6 +7597,7 @@
       },
       "spec": "wiki/clips/quirks/yeti-stomp-sixteen-steps.toml",
       "state_hash": "f7afc5efe0dd5cd0",
+      "states_hash": "eb95b407500cdafe",
       "title": "A yeti stomped after 16 steps of falling loses one hit point",
       "to": 400,
       "width": 640
@@ -7422,6 +7633,7 @@
       },
       "spec": "wiki/clips/rare-shop/theft.toml",
       "state_hash": "c38535d776244b25",
+      "states_hash": "950ac31af8979447",
       "title": "Shoplifting from a Rare Shop",
       "to": 1469,
       "width": 640
@@ -7457,6 +7669,7 @@
       },
       "spec": "wiki/clips/rare-shop/wanted.toml",
       "state_hash": "6b9d530382a37c95",
+      "states_hash": "60b1adb213da4608",
       "title": "A Rare Shop on a thief's next level",
       "to": 1779,
       "width": 640
@@ -7492,6 +7705,7 @@
       },
       "spec": "wiki/clips/restless-dead/arrival.toml",
       "state_hash": "87c5836769042fd7",
+      "states_hash": "65f683fff8a1cc4f",
       "title": "A graveyard level",
       "to": 3560,
       "width": 640
@@ -7527,6 +7741,7 @@
       },
       "spec": "wiki/clips/rope/burn.toml",
       "state_hash": "9438e70e16a8e1b1",
+      "states_hash": "9fe445bbec7fb451",
       "title": "Rope burning in lava",
       "to": 969,
       "width": 640
@@ -7562,6 +7777,7 @@
       },
       "spec": "wiki/clips/rope/climb.toml",
       "state_hash": "07e006c63f3c7039",
+      "states_hash": "5aee756584642929",
       "title": "Rope thrown up and climbed",
       "to": 1299,
       "width": 640
@@ -7597,6 +7813,7 @@
       },
       "spec": "wiki/clips/rope/ledge.toml",
       "state_hash": "224ae6d23339340a",
+      "states_hash": "61a3ee12776e83e8",
       "title": "Rope dropped down a ledge",
       "to": 1227,
       "width": 640
@@ -7632,6 +7849,7 @@
       },
       "spec": "wiki/clips/sacrifice-pit/arrival.toml",
       "state_hash": "756bada804181557",
+      "states_hash": "ed59cfd2a4c09100",
       "title": "Arriving at a sacrifice pit",
       "to": 897,
       "width": 640
@@ -7667,6 +7885,7 @@
       },
       "spec": "wiki/clips/sacrifice/yeti.toml",
       "state_hash": "e48cb050e884d5f6",
+      "states_hash": "432f60bb2502df6f",
       "title": "Yeti sacrificed to Kali",
       "to": 1364,
       "width": 640
@@ -7702,6 +7921,7 @@
       },
       "spec": "wiki/clips/scarab/collect.toml",
       "state_hash": "23c146e8a5f0c435",
+      "states_hash": "e4844aabae7b013f",
       "title": "Scarab",
       "to": 1789,
       "width": 640
@@ -7737,6 +7957,7 @@
       },
       "spec": "wiki/clips/sceptre/hawkman.toml",
       "state_hash": "9a845438fc665a9a",
+      "states_hash": "881a18ba1fd50058",
       "title": "Sceptre's psychic wave",
       "to": 1634,
       "width": 640
@@ -7772,6 +7993,7 @@
       },
       "spec": "wiki/clips/scoring/level-tally.toml",
       "state_hash": "f215bf95056255f7",
+      "states_hash": "b93982f5979232ff",
       "title": "Level completed",
       "to": 1899,
       "width": 640
@@ -7807,6 +8029,7 @@
       },
       "spec": "wiki/clips/scoring/reset.toml",
       "state_hash": "bf1eb958e2562721",
+      "states_hash": "8639a185e39a26ee",
       "title": "Resetting the high scores",
       "to": 838,
       "width": 640
@@ -7908,6 +8131,7 @@
       },
       "spec": "wiki/clips/shopkeeper/patrol.toml",
       "state_hash": "597cec9700c86760",
+      "states_hash": "48a0ce8d1d1c572c",
       "title": "Shopkeeper on patrol",
       "to": 199,
       "width": 640
@@ -7943,6 +8167,7 @@
       },
       "spec": "wiki/clips/shopkeeper/thief.toml",
       "state_hash": "d1eedc9e231bc2fa",
+      "states_hash": "3f42b62677a1fa44",
       "title": "Shopkeeper and a thief",
       "to": 1999,
       "width": 640
@@ -7978,6 +8203,7 @@
       },
       "spec": "wiki/clips/shopkeeper/throw.toml",
       "state_hash": "a5b8d6216872d516",
+      "states_hash": "e739ec361199bf0c",
       "title": "Shopkeeper's throw",
       "to": 1599,
       "width": 640
@@ -8013,6 +8239,7 @@
       },
       "spec": "wiki/clips/shotgun/shopkeeper.toml",
       "state_hash": "bd67fa3861c79a5e",
+      "states_hash": "16bfa4323922544d",
       "title": "Shotgun blast",
       "to": 1924,
       "width": 640
@@ -8048,6 +8275,7 @@
       },
       "spec": "wiki/clips/shotgun/spiders.toml",
       "state_hash": "a3615785b4acaa46",
+      "states_hash": "1867256cbc7f6324",
       "title": "Shotgun spread",
       "to": 1719,
       "width": 640
@@ -8083,6 +8311,7 @@
       },
       "spec": "wiki/clips/skeleton/rise.toml",
       "state_hash": "5579ca2613e313dc",
+      "states_hash": "11997a0753355db4",
       "title": "Skeleton rising",
       "to": 1459,
       "width": 640
@@ -8118,6 +8347,7 @@
       },
       "spec": "wiki/clips/skeleton/whip.toml",
       "state_hash": "224edcf9d2eda855",
+      "states_hash": "18ee2554a6c40a55",
       "title": "Skeleton whipped apart",
       "to": 179,
       "width": 640
@@ -8153,6 +8383,7 @@
       },
       "spec": "wiki/clips/skull/throw.toml",
       "state_hash": "1bde46db19a10d6a",
+      "states_hash": "009591c8d4af9ece",
       "title": "Skull thrown at a snake",
       "to": 829,
       "width": 640
@@ -8188,6 +8419,7 @@
       },
       "spec": "wiki/clips/smash-trap/crush.toml",
       "state_hash": "4cd4564eb777d77d",
+      "states_hash": "00fd485230125157",
       "title": "Smash trap",
       "to": 1800,
       "width": 640
@@ -8223,6 +8455,7 @@
       },
       "spec": "wiki/clips/smash-trap/lit.toml",
       "state_hash": "6f4686c2315f2bd5",
+      "states_hash": "6760bfc05932018c",
       "title": "Lit smash trap",
       "to": 1880,
       "width": 640
@@ -8258,6 +8491,7 @@
       },
       "spec": "wiki/clips/snake-pit/descent.toml",
       "state_hash": "3ffbd4655b61c943",
+      "states_hash": "9813a73ef3c7362d",
       "title": "Down a snake pit",
       "to": 4135,
       "width": 640
@@ -8293,6 +8527,7 @@
       },
       "spec": "wiki/clips/snake/bite.toml",
       "state_hash": "2c0773988bce1332",
+      "states_hash": "8d278e1c315435dc",
       "title": "Snake bite",
       "to": 149,
       "width": 640
@@ -8328,6 +8563,7 @@
       },
       "spec": "wiki/clips/snake/stomp.toml",
       "state_hash": "a447724a91801da1",
+      "states_hash": "d656baaedb107e99",
       "title": "Snake stomp",
       "to": 859,
       "width": 640
@@ -8363,6 +8599,7 @@
       },
       "spec": "wiki/clips/snake/thrown-rock.toml",
       "state_hash": "9613e4c50e578e48",
+      "states_hash": "ac1119c9a692ae60",
       "title": "Rock thrown at a snake",
       "to": 1139,
       "width": 640
@@ -8398,6 +8635,7 @@
       },
       "spec": "wiki/clips/spear-trap/bomb.toml",
       "state_hash": "f893e16ec6c3abae",
+      "states_hash": "e3203bfdf3c38060",
       "title": "Bombing a spear trap",
       "to": 2145,
       "width": 640
@@ -8433,6 +8671,7 @@
       },
       "spec": "wiki/clips/spear-trap/stab.toml",
       "state_hash": "fa1660ea879d2517",
+      "states_hash": "80122762915dd556",
       "title": "Spear trap",
       "to": 119,
       "width": 640
@@ -8468,6 +8707,7 @@
       },
       "spec": "wiki/clips/spectacles/reveal.toml",
       "state_hash": "3003c34f6136dd70",
+      "states_hash": "3928f678a5f6c877",
       "title": "Spectacles reveal buried treasure",
       "to": 119,
       "width": 640
@@ -8503,6 +8743,7 @@
       },
       "spec": "wiki/clips/speedrunning-basics/run.toml",
       "state_hash": "836aa39aa5d59f5d",
+      "states_hash": "f085fc0e518b66a2",
       "title": "Walking and running",
       "to": 1344,
       "width": 640
@@ -8538,6 +8779,7 @@
       },
       "spec": "wiki/clips/speedrunning-basics/shortcut-win.toml",
       "state_hash": "e3e54c3d3a50ce18",
+      "states_hash": "4c3e4f8e3d217e12",
       "title": "A win from a shortcut",
       "to": 8454,
       "width": 640
@@ -8573,6 +8815,7 @@
       },
       "spec": "wiki/clips/spelunker/change.toml",
       "state_hash": "08d242286c122771",
+      "states_hash": "89d7ad034ca66e46",
       "title": "The Changing Room",
       "to": 760,
       "width": 640
@@ -8608,6 +8851,7 @@
       },
       "spec": "wiki/clips/spelunker/climb.toml",
       "state_hash": "5d93f78927ff74b5",
+      "states_hash": "d944dee0fcf3af11",
       "title": "Climbing and crawling",
       "to": 1279,
       "width": 640
@@ -8643,6 +8887,7 @@
       },
       "spec": "wiki/clips/spelunker/death.toml",
       "state_hash": "aace33a7fef3f2fa",
+      "states_hash": "6ec39f1fee58afdd",
       "title": "The Spelunker's death",
       "to": 799,
       "width": 640
@@ -8678,6 +8923,7 @@
       },
       "spec": "wiki/clips/spelunker/moves.toml",
       "state_hash": "5e4b04f065a09e1a",
+      "states_hash": "bc894b819564f6ae",
       "title": "The Spelunker's moves",
       "to": 899,
       "width": 640
@@ -8713,6 +8959,7 @@
       },
       "spec": "wiki/clips/spider/drop.toml",
       "state_hash": "50ba7a7ba066df4d",
+      "states_hash": "8afb8e9279c65003",
       "title": "Spider drop",
       "to": 109,
       "width": 640
@@ -8748,6 +8995,7 @@
       },
       "spec": "wiki/clips/spike-shoes/mantrap.toml",
       "state_hash": "8b87f0ea4c391ef9",
+      "states_hash": "13fefbf21c5694ec",
       "title": "Spike Shoes stomp a mantrap",
       "to": 119,
       "width": 640
@@ -8783,6 +9031,7 @@
       },
       "spec": "wiki/clips/spike-shoes/stomp.toml",
       "state_hash": "4f870506abb4417b",
+      "states_hash": "aefbd7856383c0ff",
       "title": "Spike Shoes stomp a caveman",
       "to": 1559,
       "width": 640
@@ -8818,6 +9067,7 @@
       },
       "spec": "wiki/clips/spikes/fall.toml",
       "state_hash": "134defb0bb87ede9",
+      "states_hash": "23eeba8dca166bb6",
       "title": "Falling onto spikes",
       "to": 119,
       "width": 640
@@ -8853,6 +9103,7 @@
       },
       "spec": "wiki/clips/spring-shoes/jump.toml",
       "state_hash": "2639adff8d570641",
+      "states_hash": "493228622412b2ba",
       "title": "Spring Shoes jump",
       "to": 299,
       "width": 640
@@ -8888,6 +9139,7 @@
       },
       "spec": "wiki/clips/spring-trap/bounce.toml",
       "state_hash": "1692ffa0b57667df",
+      "states_hash": "d2da1b33b239b44c",
       "title": "Spring trap",
       "to": 900,
       "width": 640
@@ -8923,6 +9175,7 @@
       },
       "spec": "wiki/clips/spring-trap/no-floor.toml",
       "state_hash": "edd8b63fa10fa6c2",
+      "states_hash": "48fdd71b1afab267",
       "title": "Spring trap losing its floor",
       "to": 1099,
       "width": 640
@@ -8958,6 +9211,7 @@
       },
       "spec": "wiki/clips/stomping/caveman.toml",
       "state_hash": "33b6344f28b79fb4",
+      "states_hash": "3a04d8be2901086c",
       "title": "Stomp from a height",
       "to": 129,
       "width": 640
@@ -8993,6 +9247,7 @@
       },
       "spec": "wiki/clips/teleporter/rock.toml",
       "state_hash": "22a3bf8b96e631dd",
+      "states_hash": "db70faa17241ebc6",
       "title": "Teleporter into rock",
       "to": 1199,
       "width": 640
@@ -9028,6 +9283,7 @@
       },
       "spec": "wiki/clips/teleporter/snake.toml",
       "state_hash": "32df71460c208f95",
+      "states_hash": "4545f644a4209cf2",
       "title": "Teleporter landing on a snake",
       "to": 89,
       "width": 640
@@ -9063,6 +9319,7 @@
       },
       "spec": "wiki/clips/temple/shortcut.toml",
       "state_hash": "c264b61394946f23",
+      "states_hash": "74326917f3b50244",
       "title": "The level 13 shortcut",
       "to": 899,
       "width": 640
@@ -9098,6 +9355,7 @@
       },
       "spec": "wiki/clips/temple/to-olmec.toml",
       "state_hash": "6bb4ae6c1ac6521a",
+      "states_hash": "ff96bedb7576668c",
       "title": "From the Temple to Olmec's Lair",
       "to": 1800,
       "width": 640
@@ -9133,6 +9391,7 @@
       },
       "spec": "wiki/clips/throwing/rock.toml",
       "state_hash": "ef14a7b8ee30976d",
+      "states_hash": "2862df8020414f8c",
       "title": "Three ways to throw",
       "to": 219,
       "width": 640
@@ -9168,6 +9427,7 @@
       },
       "spec": "wiki/clips/tomb-lord/bomb.toml",
       "state_hash": "4fe7db2d78aa240e",
+      "states_hash": "42ae445ec0e670dd",
       "title": "Tomb Lord bombed",
       "to": 1114,
       "width": 640
@@ -9203,6 +9463,7 @@
       },
       "spec": "wiki/clips/tomb-lord/flies.toml",
       "state_hash": "c6a190e613c8906b",
+      "states_hash": "c852d56605c93d64",
       "title": "Tomb Lord flies",
       "to": 119,
       "width": 640
@@ -9238,6 +9499,7 @@
       },
       "spec": "wiki/clips/tomb-lord/whip.toml",
       "state_hash": "5853274a5145aba4",
+      "states_hash": "c9946f1b2b05b288",
       "title": "Tomb Lord whipped from above",
       "to": 119,
       "width": 640
@@ -9273,6 +9535,7 @@
       },
       "spec": "wiki/clips/tomb-lord/wind-up.toml",
       "state_hash": "c6a190e613c8906b",
+      "states_hash": "95ffb2c9a1b98866",
       "title": "Tomb Lord and the whip's wind-up",
       "to": 119,
       "width": 640
@@ -9308,6 +9571,7 @@
       },
       "spec": "wiki/clips/trap-block/crumble.toml",
       "state_hash": "06732d893812c7a4",
+      "states_hash": "520bc59e9e84ac81",
       "title": "Trap blocks crumbling",
       "to": 989,
       "width": 640
@@ -9343,6 +9607,7 @@
       },
       "spec": "wiki/clips/trap-block/pit.toml",
       "state_hash": "b54502e29e503ed4",
+      "states_hash": "a86c78af51c91b43",
       "title": "The Sacrifice Pit's trap blocks",
       "to": 999,
       "width": 640
@@ -9378,6 +9643,7 @@
       },
       "spec": "wiki/clips/tunnel-man-shortcuts/level-9.toml",
       "state_hash": "0740216c0af39619",
+      "states_hash": "9e66ea8438ce9847",
       "title": "The level 9 shortcut",
       "to": 900,
       "width": 640
@@ -9413,6 +9679,7 @@
       },
       "spec": "wiki/clips/tunnel-man/donate.toml",
       "state_hash": "542fa452bd32ff2f",
+      "states_hash": "ca3b3add29e69fd2",
       "title": "Tunnel Man's shortcut",
       "to": 4377,
       "width": 640
@@ -9448,6 +9715,7 @@
       },
       "spec": "wiki/clips/tunnel-man/paid.toml",
       "state_hash": "f0d70d22aab89464",
+      "states_hash": "7b20fbdf1b3734f0",
       "title": "Tunnel Man paid off",
       "to": 4325,
       "width": 640
@@ -9483,6 +9751,7 @@
       },
       "spec": "wiki/clips/udjat-eye/chest.toml",
       "state_hash": "24f98d7f646ad8a0",
+      "states_hash": "f395faa3206994ea",
       "title": "Locked chest",
       "to": 1749,
       "width": 640
@@ -9518,6 +9787,7 @@
       },
       "spec": "wiki/clips/udjat-eye/market.toml",
       "state_hash": "8a7275a0a4e47f47",
+      "states_hash": "226e68f98d86f148",
       "title": "Udjat Eye near the Black Market's entrance",
       "to": 5877,
       "width": 640
@@ -9553,6 +9823,7 @@
       },
       "spec": "wiki/clips/udjat-eye/sealed-key.toml",
       "state_hash": "801d31eb0d746dfd",
+      "states_hash": "3979005b1b0d32d0",
       "title": "Key sealed in rock",
       "to": 2429,
       "width": 640
@@ -9588,6 +9859,7 @@
       },
       "spec": "wiki/clips/ufo/crash.toml",
       "state_hash": "7f46e268c210e570",
+      "states_hash": "021dd709f87611eb",
       "title": "UFO crash",
       "to": 1939,
       "width": 640
@@ -9623,6 +9895,7 @@
       },
       "spec": "wiki/clips/ufo/laser.toml",
       "state_hash": "f01afa7a3b44a149",
+      "states_hash": "7df1ea868a1815d8",
       "title": "UFO laser",
       "to": 239,
       "width": 640
@@ -9658,6 +9931,7 @@
       },
       "spec": "wiki/clips/ufo/thrown-rock.toml",
       "state_hash": "f02d9e5411088f8d",
+      "states_hash": "89c4ef15218b0d8e",
       "title": "UFO hit by a rock",
       "to": 2024,
       "width": 640
@@ -9693,6 +9967,7 @@
       },
       "spec": "wiki/clips/vampire/attack.toml",
       "state_hash": "478e01d8af4616e4",
+      "states_hash": "dcce4eeeda19eda2",
       "title": "Vampire attack",
       "to": 279,
       "width": 640
@@ -9728,6 +10003,7 @@
       },
       "spec": "wiki/clips/vampire/cape.toml",
       "state_hash": "4e3c5935e61b3dee",
+      "states_hash": "53155a9fab1ffa96",
       "title": "Vampire killed",
       "to": 239,
       "width": 640
@@ -9763,6 +10039,7 @@
       },
       "spec": "wiki/clips/vampire/whip.toml",
       "state_hash": "f8d1fe206cf43821",
+      "states_hash": "7bf6961d5afb0556",
       "title": "Vampire whipped",
       "to": 219,
       "width": 640
@@ -9798,6 +10075,7 @@
       },
       "spec": "wiki/clips/weapon-shop/buy.toml",
       "state_hash": "592c5a302d9fd7f9",
+      "states_hash": "d5803735137e23f0",
       "title": "Buying a pistol in a Weapon Shop",
       "to": 1489,
       "width": 640
@@ -9833,6 +10111,7 @@
       },
       "spec": "wiki/clips/web-cannon/caveman.toml",
       "state_hash": "8a19f264401e63d1",
+      "states_hash": "1beb28fb726a65df",
       "title": "Web Cannon against a caveman",
       "to": 239,
       "width": 640
@@ -9868,6 +10147,7 @@
       },
       "spec": "wiki/clips/web/fall.toml",
       "state_hash": "2dcbea53aa7f9bbf",
+      "states_hash": "0e3f75b72c0c3e43",
       "title": "Falling into a web",
       "to": 239,
       "width": 640
@@ -9903,6 +10183,7 @@
       },
       "spec": "wiki/clips/web/snake.toml",
       "state_hash": "a66f7b26bd2df7c1",
+      "states_hash": "5d48f6c8c5ed1f48",
       "title": "Snake in a web",
       "to": 189,
       "width": 640
@@ -9938,6 +10219,7 @@
       },
       "spec": "wiki/clips/whip/crack.toml",
       "state_hash": "c9bc526c736386da",
+      "states_hash": "b0091c237b37b902",
       "title": "Whip crack and wind-up",
       "to": 89,
       "width": 640
@@ -9973,6 +10255,7 @@
       },
       "spec": "wiki/clips/yeti-king/bomb.toml",
       "state_hash": "62006dc52e1e1bc4",
+      "states_hash": "2bc12c7423848439",
       "title": "Yeti King bombed",
       "to": 259,
       "width": 640
@@ -10008,6 +10291,7 @@
       },
       "spec": "wiki/clips/yeti-king/swat.toml",
       "state_hash": "fa49d5ff1883b58d",
+      "states_hash": "c0b1676bcb857727",
       "title": "Yeti King swat",
       "to": 1861,
       "width": 640
@@ -10043,6 +10327,7 @@
       },
       "spec": "wiki/clips/yeti-king/thrown-rock.toml",
       "state_hash": "862ef19fd1bafd3a",
+      "states_hash": "c5341328451aa763",
       "title": "Yeti King hit by a rock",
       "to": 129,
       "width": 640
@@ -10078,6 +10363,7 @@
       },
       "spec": "wiki/clips/yeti-king/yell.toml",
       "state_hash": "251fa5244fad77bf",
+      "states_hash": "1ceb1827b12d4348",
       "title": "Yeti King yell",
       "to": 219,
       "width": 640
@@ -10113,6 +10399,7 @@
       },
       "spec": "wiki/clips/yeti-lair/arrival.toml",
       "state_hash": "aa922febcf7cee96",
+      "states_hash": "c8781bf06a23a7b3",
       "title": "Arriving in a Yeti lair",
       "to": 1780,
       "width": 640
@@ -10148,6 +10435,7 @@
       },
       "spec": "wiki/clips/yeti/ceiling.toml",
       "state_hash": "57f6c223016a5354",
+      "states_hash": "77de1c63926056c0",
       "title": "Yeti under a low ceiling",
       "to": 219,
       "width": 640
@@ -10183,6 +10471,7 @@
       },
       "spec": "wiki/clips/yeti/stomp.toml",
       "state_hash": "de23e72057e01062",
+      "states_hash": "daa200b88ca721b0",
       "title": "Yeti stomped",
       "to": 359,
       "width": 640
@@ -10218,6 +10507,7 @@
       },
       "spec": "wiki/clips/yeti/throw.toml",
       "state_hash": "580ea90af60a568c",
+      "states_hash": "4187e0c625c3432c",
       "title": "Yeti throw",
       "to": 139,
       "width": 640
@@ -10253,6 +10543,7 @@
       },
       "spec": "wiki/clips/zombie/hop.toml",
       "state_hash": "50fda0e91dd61eec",
+      "states_hash": "136ad172ee4d6714",
       "title": "Zombie hops",
       "to": 259,
       "width": 640
@@ -10288,6 +10579,7 @@
       },
       "spec": "wiki/clips/zombie/whip.toml",
       "state_hash": "50fda0e91dd61eec",
+      "states_hash": "2695f8e10886125a",
       "title": "Zombie whipped",
       "to": 199,
       "width": 640

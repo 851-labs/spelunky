@@ -52,9 +52,9 @@ export interface PackageClip extends MediaClip {
   // game (src/wiki/live-clip.tsx), and whether it's a scene's: one cut from a committed replay plays only in a
   // build that says it can (build/compile.ts's LiveClips.replays). Null for the settings program's, which the
   // media have no replay of, and for media from before they had the committed replays' (851-3572). `state` is
-  // clip.json's `state_hash`, the game's state at the clip's first frame, which the page holds the game at /play/
-  // to (src/wiki/live-clip-player.tsx).
-  live: { replay: string; from: number; scene: boolean; state: string } | null;
+  // clip.json's `state_hash`, the game's state at the clip's first frame, and `states` its `states_hash`, the game's
+  // states at each of the clip's frames, which the page holds the game at /play/ to (src/wiki/live-clip-player.tsx).
+  live: { replay: string; from: number; scene: boolean; state: string; states: string } | null;
 }
 
 export interface PackageSprite {
@@ -109,6 +109,7 @@ export function readMediaPackage(dir: string, url: string, date: string, log: st
               from: frame(clip.replay_from, `${where}: replay_from`),
               scene: clip.source?.kind === "scene",
               state: hash(clip.state_hash, `${where}: state_hash`),
+              states: hash(clip.states_hash, `${where}: states_hash`),
             }
           : null,
     };

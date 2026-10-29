@@ -44,9 +44,10 @@ fn slot_value(s: &Slot) -> Option<trace::Value> {
 impl World {
     /// The state after the last frame, every field, hashed: what a replay fingerprint hashes for each frame
     /// (`harness::fingerprint`, [`FrameEncoder`] and [`trace::canon::hash`]). The wiki's clips record it at
-    /// their first frame, and the web build's embed reports its own there, so a page can tell a build that
-    /// plays the clip unlike its video (docs/wiki-media.md, "The state at the first frame"). The same on every
-    /// platform, as the world is.
+    /// their first frame, and at every frame of theirs ([`trace::canon::hash_frames`]), and the web build's
+    /// embed reports its own, so a page can tell a build that plays the clip unlike its video
+    /// (docs/wiki-media.md, "The state at the first frame" and "The states through the clip"). The same on
+    /// every platform, as the world is.
     pub fn frame_hash(&self) -> u64 {
         let mut buf = Vec::new();
         FrameEncoder::new().encode(self, &mut buf);
@@ -528,6 +529,11 @@ mod tests {
         // Fingerprints and the wiki's clips are committed: changing the hash means recording them all again.
         assert_eq!(trace::canon::hash(b""), 0xf4a9_e556_70e1_91bb);
         assert_eq!(trace::canon::hash(b"spelunky"), 0xb42d_3d89_3cbe_d43f);
+        assert_eq!(trace::canon::hash_frames(&[]), trace::canon::hash(b""));
+        assert_eq!(
+            trace::canon::hash_frames(&[1, u64::MAX]),
+            0x7627_b6a6_aa7f_7b70
+        );
     }
 
     #[test]

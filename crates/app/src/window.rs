@@ -118,7 +118,8 @@ pub trait Game {
     fn unshown(&mut self, _unshown: bool) {}
 
     /// The game's state after the last tick, hashed (`gm::World::frame_hash`), if it has one: an embedded
-    /// replay reports it at the clip's first frame ([`Playback::state`]).
+    /// replay reports it at the clip's first frame and through its frames ([`Playback::state`],
+    /// [`Playback::states`]).
     fn frame_hash(&self) -> Option<u64> {
         None
     }
@@ -237,7 +238,8 @@ pub enum Control {
 /// holds its last frame instead of closing, and hands the game to the reader on [`Control::TakeControl`].
 pub struct Embed {
     /// The first frame shown. The ones before it run as fast as they go, unshown: they're how the game
-    /// gets there, as a clip's video starts at its spec's `from`.
+    /// gets there, as a clip's video starts at its spec's `from`. So do the clip's own, once, before it
+    /// goes back to show them ([`Embedded::through`]).
     pub from: u64,
     /// The reader's input once they take control: how keys map, and whether gamepads are read.
     pub keys: KeyMap,
@@ -261,13 +263,19 @@ pub struct Playback {
     pub frame: u64,
     /// The clip's frames: the replay's from [`Embed::from`] on.
     pub frames: u64,
-    /// The replay's frames before [`Embed::from`] run so far: how far the run of them unshown has got, as
-    /// it goes, for the page to show over its poster. [`Embed::from`] once the clip's first frame is
-    /// reached, after which it stays: a seek never restores a savestate from before it.
+    /// The replay's frames run unshown before the clip's first frame shows: the ones before [`Embed::from`],
+    /// then the clip's own, which it runs through first ([`Embedded::through`]). How far the run has got, as
+    /// it goes, for the page to show over its poster: the replay's length once the clip's first frame shows,
+    /// after which it stays.
     pub lead: u64,
     /// The game's state at the clip's first frame ([`Game::frame_hash`]), once the replay has run it: the
     /// page checks it's what the clip's video was rendered from, as this build could play it otherwise.
     pub state: Option<u64>,
+    /// The game's states at each of the clip's frames, first to last, as one hash
+    /// (`trace::canon::hash_frames`), once the replay has run them through, which it does before showing the
+    /// first: the page checks them too, as a build could play the clip's own frames otherwise from the same
+    /// first state.
+    pub states: Option<u64>,
 }
 
 /// An embedded replay, as the app drives it.
@@ -277,7 +285,10 @@ struct Embedded {
     told: Playback,
     /// The replay's frames.
     length: u64,
-    /// The first frame to show: [`Embed::from`], then wherever the page seeks. The ones before it run unshown.
+    /// The first frame to show: past the replay's last while it runs the clip through ([`through`]), then
+    /// [`Embed::from`], then wherever the page seeks. The ones before it run unshown.
+    ///
+    /// [`through`]: Self::through
     seek: u64,
     /// The clip's frame the page last asked for, until the next ticks run: of a drag's many seeks, only the
     /// last restores a savestate.
@@ -285,8 +296,16 @@ struct Embedded {
     savestates: Savestates,
     /// The replay, while the reader has the game: a seek hands the game back to it.
     replay: Option<Replay>,
+    /// The game's states at the clip's frames run so far ([`Game::frame_hash`]), while the replay runs the
+    /// clip through unshown before showing its first frame, keeping savestates as it goes: then the page has
+    /// its states ([`Playback::states`]) before the reader sees any of it, and can go back to the video
+    /// first. A few hundred frames at most, a fraction of a second on top of the frames before the clip.
+    /// `None` once it has, when it seeks back to the first frame.
+    through: Option<Vec<u64>>,
     /// [`Playback::state`].
     state: Option<u64>,
+    /// [`Playback::states`].
+    states: Option<u64>,
 }
 
 /// An embedded replay's savestates ([`Game::savestate`]), by the frame each was taken before running.
@@ -528,15 +547,24 @@ impl<G: Game> App<G> {
     /// The page has already heard the default (`web::run` says it as it starts).
     pub fn with_embed(mut self, embed: Embed) -> App<G> {
         if let Source::Replay(replay) = &self.source {
+            // The clip's frames run through to the replay's end before the first shows, if it has any: a
+            // replay that ends before them holds its last frame, as without.
+            let through = (replay.len() > embed.from).then(Vec::new);
             self.embed = Some(Embedded {
-                seek: embed.from,
+                seek: if through.is_some() {
+                    replay.len()
+                } else {
+                    embed.from
+                },
                 savestates: Savestates::new(embed.from),
                 embed,
                 told: Playback::default(),
                 length: replay.len(),
                 sought: None,
                 replay: None,
+                through,
                 state: None,
+                states: None,
             });
         }
         self
@@ -677,6 +705,11 @@ impl<G: Game> App<G> {
         let now = Instant::now();
         let mut ticks = 0;
         loop {
+            // The run through the clip is over: its seek back to the first frame comes first, at the next call,
+            // even paused, rather than a tick past the replay's end, which would hold the last frame.
+            if self.embed.as_ref().is_some_and(|e| e.sought.is_some()) {
+                break;
+            }
             let skipping = self.skipping();
             if skipping {
                 if now.elapsed() >= SKIP_SLICE {
@@ -736,13 +769,27 @@ impl<G: Game> App<G> {
                 self.fail(event_loop, e);
                 return None;
             }
-            // The clip's first frame, as the replay first runs it: what the page checks its video shows.
+            // The clip's frames, as the replay runs them through: what the page checks its video shows.
+            let ran = self.ticks - 1;
             if let Some(e) = &mut self.embed
-                && e.state.is_none()
-                && self.ticks - 1 == e.embed.from
+                && let Some(hashes) = &mut e.through
+                && ran >= e.embed.from
                 && matches!(self.source, Source::Replay(_))
             {
-                e.state = self.game.frame_hash();
+                let hash = self.game.frame_hash();
+                if ran == e.embed.from {
+                    e.state = hash;
+                }
+                hashes.extend(hash);
+                // The clip's last: back to its first, for the reader, once this frame's done. A game
+                // without savestates (none the app embeds) can't go back, and holds this one.
+                if ran + 1 == e.length {
+                    if hashes.len() as u64 == e.length - e.embed.from {
+                        e.states = Some(trace::canon::hash_frames(hashes));
+                    }
+                    e.through = None;
+                    e.sought = Some(0);
+                }
             }
             let g = self.graphics.as_mut()?;
             if let Some(switch) = self.game.take_switch() {
@@ -818,7 +865,7 @@ impl<G: Game> App<G> {
     }
 
     /// Whether the next tick is one of an embedded replay's unshown frames, before [`Embed::from`] or the
-    /// frame the page seeks to.
+    /// frame the page seeks to, or the clip's own as it first runs them through ([`Embedded::through`]).
     fn skipping(&self) -> bool {
         self.embed.as_ref().is_some_and(|e| self.ticks < e.seek)
     }
@@ -870,22 +917,27 @@ impl<G: Game> App<G> {
         // The frame sought until it shows, so that the page's slider stays where the reader left it. The
         // reader's game runs on past the replay's end, where the slider stays, and the page needn't hear
         // of each frame.
+        // Until the clip has started, it's at its first, whatever runs through.
+        let ready = e.told.ready || showing;
         let frame = if showing {
             self.ticks.saturating_sub(1)
+        } else if !ready {
+            e.embed.from
         } else {
             e.seek
         }
         .min(e.length.saturating_sub(1));
         let now = Playback {
             // Once the clip has started, the frame it shows stays while a seek runs.
-            ready: e.told.ready || showing,
+            ready,
             paused: self.paused,
             live,
             ended: self.held,
             frame: frame.saturating_sub(e.embed.from),
             frames: e.length.saturating_sub(e.embed.from),
-            lead: self.ticks.min(e.embed.from),
+            lead: if ready { e.length } else { self.ticks }.min(e.length),
             state: e.state,
+            states: e.states,
         };
         if e.told != now {
             // The clip's first frame: the reader's click on the page's button is the gesture browsers want
@@ -960,6 +1012,9 @@ impl<G: Game> App<G> {
             Control::Pause => self.paused = true,
             // A held last frame has nothing to play on to, until the reader takes over.
             Control::Play => self.paused = self.held,
+            // Not while the replay runs the clip through, which it would cut short: the page's controls wait
+            // for its first frame anyway.
+            Control::Seek(_) if self.embed.as_ref().is_some_and(|e| e.through.is_some()) => {}
             // Done when the ticks next run, after whatever else the page has sent by then.
             Control::Seek(frame) => {
                 if let Some(e) = &mut self.embed {

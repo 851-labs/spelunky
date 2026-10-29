@@ -113,13 +113,14 @@ fn seek_frame(data: &wasm_bindgen::JsValue) -> Option<u64> {
 }
 
 /// Tells the page embedding the app where its replay is: a `postMessage` to its own origin of
-/// `{ spelunky: "playback", ready, paused, live, ended, frame, frames, lead, state }` ([`Playback`]'s fields).
+/// `{ spelunky: "playback", ready, paused, live, ended, frame, frames, lead, state, states }` ([`Playback`]'s
+/// fields).
 pub fn tell_embedder(playback: Playback) {
-    // As clip.json's `state_hash` has it: 16 hex digits, as a double can't hold every u64. Null until the
-    // clip's first frame has run.
-    let state = playback
-        .state
-        .map_or(wasm_bindgen::JsValue::NULL, |h| format!("{h:016x}").into());
+    // As clip.json's `state_hash` and `states_hash` have them: 16 hex digits, as a double can't hold every
+    // u64. Null until the clip's first frame has run, and its last.
+    let hex = |hash: Option<u64>| {
+        hash.map_or(wasm_bindgen::JsValue::NULL, |h| format!("{h:016x}").into())
+    };
     post_to_embedder(&[
         ("spelunky", "playback".into()),
         ("ready", playback.ready.into()),
@@ -130,7 +131,8 @@ pub fn tell_embedder(playback: Playback) {
         ("frame", (playback.frame as f64).into()),
         ("frames", (playback.frames as f64).into()),
         ("lead", (playback.lead as f64).into()),
-        ("state", state),
+        ("state", hex(playback.state)),
+        ("states", hex(playback.states)),
     ]);
 }
 
