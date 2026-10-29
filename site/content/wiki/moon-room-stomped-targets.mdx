@@ -1,0 +1,101 @@
+---
+slug: moon-room-stomped-targets
+title: Stomped targets drift in the Moon Room
+type: quirk
+categories: [quirks]
+aliases: [moon-room-stomped-target, stomped-ufo, stomped-target-worth-less, moon-room-stomp]
+card: { sprite: sUFO }
+lede: >-
+  Stomped targets drift in the Moon Room is a quirk of Spelunky Classic in which a target stomped late comes
+  back where it had swayed to, worth 3.
+quirk:
+  status: GML + Oracle
+  where: objects/oBatTarget/collision_oCharacter.gml:13
+  pinned_by: fidelity/replays/bonus-moon-stomped-targets.txt
+  entry: "1"
+  rows:
+    - A target stomped in the Moon Room's last 20 seconds comes back where it had swayed to, worth less.
+relations:
+  related: [moon-room]
+clips: [quirks/moon-room-stomped-targets]
+faq:
+  - q: Is it worth stomping the targets in the Moon Room in Spelunky Classic?
+    a: >-
+      A stomp scores the target's points, as an arrow does. But in the last 20 seconds a stomped middle or far
+      target comes back worth 3, where a shot one comes back worth 4 or 6, so shooting them keeps more points
+      in play.
+  - q: Why do the Moon Room's targets move left after you stomp them?
+    a: >-
+      In the last 20 seconds the targets sway up to 32 pixels to the left. An arrow's hit makes the new target
+      at the middle of the old one's path, but a stomp makes it where the old one had swayed to, and it sways
+      from there, further left.
+  - q: Does stomping a target cost a heart in the Moon Room?
+    a: >-
+      No. Landing on a target from above scores it and bounces the player up, as a stomp does; only a touch
+      from the side or below costs a heart.
+sources:
+  - objects/oBatTarget/create.gml
+  - objects/oBatTarget/step.gml
+  - objects/oBatTarget/collision_oArrow.gml
+  - objects/oBatTarget/collision_oCharacter.gml
+  - objects/oMoonRoom/alarm_11.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+In the [[moon-room|Moon Room]]'s last 20 seconds the targets come back as UFOs, worth 2 points more,
+and sway sideways as they fly. A target shot with the [[bow|Bow]] comes back over the middle of its own path,
+at its own value. One the player lands on comes back over the spot where it had swayed to, and since only the
+middle and far targets' places make a target worth more than the nearest, it's worth 3, whatever it was.
+
+## What happens
+
+With 3 seconds left, the player runs off the ledges and lands on three targets in a row: a UFO, then the
+middle target and the far one, both swayed well left of their paths. Each comes back as a UFO above the spot
+where it was stomped, worth 3, and sways on from there; the last bounce takes the player onto the
+[[spikes|Spikes]] <Cite clip="quirks/moon-room-stomped-targets" />.
+
+<Clip id="quirks/moon-room-stomped-targets" />
+
+## Why
+
+An arrow's hit makes the new target at `xMid`, the middle of the old one's path
+<Cite gml="objects/oBatTarget/collision_oArrow.gml:7" />, but landing on it makes the new one at `x`, where the
+old one is <Cite gml="objects/oBatTarget/collision_oCharacter.gml:13" />:
+
+```gml objects/oBatTarget/collision_oCharacter.gml:11-13
+    oMoonRoom.baskets += difficulty;
+
+    instance_create(x, -64, oBatTarget);
+```
+
+Until the last 20 seconds the two are the same. From then on, each step below the top of its path moves the
+target left of its middle by up to 32 pixels, and nothing moves it back
+<Cite gml="objects/oBatTarget/step.gml:18-22" />:
+
+```gml objects/oBatTarget/step.gml:18-22
+if (oMoonRoom.timer <= 20 and y > 64)
+{
+    x = xMid - abs(sin(xDiff)*32);
+    xDiff += 0.01;
+}
+```
+
+A new target takes its worth from where it's made: 2 at the middle target's place, 4 at the far one's, 1
+anywhere else, and 2 more as a UFO <Cite gml="objects/oBatTarget/create.gml:5-14" />. Made at a swayed spot, it
+misses both places, so it's worth 1, 3 as a UFO, and it sways from its new middle, further left
+<Cite quirk="1" />.
+
+## Reproducing it
+
+Land on a target once the timer reads 20 or less and the target has started to sway: a running jump off the
+room's ledges reaches the nearest, and its bounce the others. The middle and far targets show it best: shot,
+they come back worth 4 and 6; stomped, 3. The replay of the clip lands on the near target first, at 17
+seconds, whose replacement comes back 23 pixels left of the near target's path, and climbs back to the ledges.
+At the end it lands on three in a row, and afterwards no target is on the middle or far path, or worth more
+than 3 <Cite replay="fidelity/replays/bonus-moon-stomped-targets.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins where each new target is made and what it's
+worth. No option turns it off.

@@ -11,7 +11,7 @@ lede: >-
 infobox:
   image: { sprite: sStartSign, alt: "A dark stone sign reading START, on two stone posts" }
 relations:
-  related: [high-scores-room, tutorial, tunnel-man-shortcuts, controls, credits, level-editor]
+  related: [high-scores-room, tutorial, tunnel-man-shortcuts, controls, credits, level-editor, title-no-hint-hand]
 clips: [title-screen/opening, tutorial/door, jungle/shortcut, credits/title-rope, quirks/damsel-title-rope-spelunker]
 faq:
   - q: How do you start a game in Spelunky Classic?
@@ -94,7 +94,8 @@ Tutorial, once ([[tutorial#getting-there]]) <Cite gml="objects/oTitle/create.gml
 <Cite gml="objects/oPlayer1/other_animation_end.gml:76-83" />. A hand then points at START, with PRESS UP TO
 ENTER! while the player stands at it, but only if the title screen started with him already there: the
 opening skipped, or back from the high scores room. After the whole opening there's none
-<Cite gml="objects/oTitle/create.gml:64-98" /> <Cite gml="objects/oHintHand/draw.gml:1-14" />. The view
+([[title-no-hint-hand]]) <Cite gml="objects/oTitle/create.gml:64-98" /> <Cite gml="objects/oHintHand/draw.gml:1-14" />
+<Cite quirk="1" row="On a first run, the title screen has no hint hand after its opening." />. The view
 follows the player between the two screens <Cite gml="objects/oTitle/step.gml:25-36" />.
 
 The player's hearts are set back to the start's on every step, so nothing can kill him there

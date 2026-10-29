@@ -1,0 +1,8 @@
+title = "Stomped targets come back where they swayed to"
+description = "With 3 seconds left in the Moon Room, the player runs off the ledges and lands on three swaying targets in a row. Each comes back as a UFO above the spot where it was stomped, worth 3, the middle and far ones well left of their own paths, before the last bounce takes him onto the Spikes."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/bonus-moon-stomped-targets.txt"
+from = 2550
+to = 2699
+poster = 2685
+story = "oMoonRoom.baskets=14@2595 oMoonRoom.baskets=16@2605 oMoonRoom.baskets=20@2618 -oBatTarget@2605 +oBatTarget@2605 -oBatTarget@2618 +oBatTarget@2618 !oBatTarget.xMid=208@2606.. !oBatTarget.xMid=256@2619.. !oBatTarget.difficulty>3@2619.. oPlayer1.dead=1@2638"

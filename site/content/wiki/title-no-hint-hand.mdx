@@ -1,0 +1,111 @@
+---
+slug: title-no-hint-hand
+title: No hint hand after the title's opening
+type: quirk
+categories: [quirks]
+aliases: [hint-hand, press-up-to-enter, missing-hint-hand, first-run-hint]
+card: { sprite: sHintPoint }
+lede: >-
+  No hint hand after the title's opening is a quirk of Spelunky Classic in which a new player who watches the
+  opening gets no hand at the START door.
+quirk:
+  status: GML + Oracle
+  where: objects/oTitle/create.gml:64-98
+  pinned_by: fidelity/replays/title-first-run-hint-hand.txt
+  entry: "1"
+  rows:
+    - On a first run, the title screen has no hint hand after its opening.
+relations:
+  related: [title-screen]
+clips: [quirks/title-no-hint-hand]
+faq:
+  - q: What does the hand on the Spelunky Classic title screen mean?
+    a: >-
+      It's a hint for a new player: it points at the START door, and PRESS UP TO ENTER! shows while the player
+      stands under it. It's there only until the first game starts.
+  - q: Why is there no hand on the title screen the first time?
+    a: >-
+      The title screen makes the hand only when it starts with the player already standing in it: with the
+      opening skipped, or back from the high scores room. After the whole opening there's none.
+  - q: Is the missing hand a bug?
+    a: >-
+      Perhaps not: nothing in the code says whether it's meant. But a player who skips the opening gets the
+      hint, and one who watches it doesn't.
+sources:
+  - objects/oTitle/create.gml
+  - objects/oTitle/step.gml
+  - objects/oPDummy4/step.gml
+  - objects/oHintHand/draw.gml
+  - objects/oGlobals/create.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+On the game's very first run, the [[title-screen|title screen]] has a hint for the new player: a hand pointing
+at the START door, and PRESS UP TO ENTER! while the player stands under it. But it only appears when the title
+screen starts with the player already there, after the opening was skipped or on the way back from the
+[[high-scores-room|high scores room]]. A player who watches the opening through gets no hint. It may be by
+design; the code doesn't say.
+
+## What happens
+
+On a first run, the opening plays through and the player walks to the START door: no hand points at it, and
+no text shows. He goes into the high scores room and comes back out, and now the hand is over the START door,
+with PRESS UP TO ENTER! while he stands under it <Cite clip="quirks/title-no-hint-hand" />.
+
+<Clip id="quirks/title-no-hint-hand" />
+
+## Why
+
+A run is a first run while the high scores are all still at a fresh table's starting values
+<Cite gml="objects/oGlobals/create.gml:57-68" />. The title screen's create event then makes the hand
+(`oHintHand`) in each of its ways of starting with the player already in the room, but not in the opening's:
+
+```gml objects/oTitle/create.gml:64-89
+if (global.titleStart == 0)
+{
+    darkness = 1;
+    alarm[0] = 50;
+    with oScreen { canPause = false; }
+    //instance_create(280, -32, oPDummy4);
+    //instance_create(280, 32, oFlare);
+}
+else if (global.titleStart == 1) // start at highscore door
+{
+    player = instance_create(432+8, 184, oPlayer1);
+    player.facing = 19;
+    instance_create(320+280, 188, oFlare);
+    with oScreen { canPause = true; }
+    playMusic(global.musTitle, true);
+    if (global.firstTime) instance_create(384, 144, oHintHand);
+}
+else if (global.titleStart == 2) // start at rope
+{
+    player = instance_create(320+280, 184, oPlayer1);
+    player.facing = 18;
+    instance_create(320+280, 188, oFlare);
+    with oScreen { canPause = true; }
+    playMusic(global.musTitle, true);
+    if (global.firstTime) instance_create(384, 144, oHintHand);
+}
+```
+
+The opening ends with the Spelunker climbing down the rope and becoming the player, without the room starting
+again, so nothing makes the hand after it <Cite gml="objects/oPDummy4/step.gml:19-25" />. A key pressed during
+the opening starts the room again the second way, at the rope, which does make it
+<Cite gml="objects/oTitle/step.gml:1-23" />. The hand draws its text while the player is within 8 pixels of it
+<Cite gml="objects/oHintHand/draw.gml:1-14" />. The START door then takes a first run to the
+[[tutorial|Tutorial]] and ends it, so the hand is gone for good <Cite quirk="1" />.
+
+## Reproducing it
+
+Start the game with fresh high scores, watch the title's opening through and walk to the START door: there's
+no hand. Go into the SCORES door and back out, and the hand is there. The replay of the clip does both, then
+goes into the START door, to the Tutorial <Cite replay="fidelity/replays/title-first-run-hint-hand.txt" />.
+Another replay skips the opening with the attack key instead, and has the hand from the start
+<Cite replay="fidelity/replays/title-first-run-skip-opening.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's oddities
+<Cite quirk="1" />, and the oracle's fingerprints of the two replays pin when the hand is made. No option
+turns it off.

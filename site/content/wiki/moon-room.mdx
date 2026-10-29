@@ -14,8 +14,8 @@ infobox:
 relations:
   part_of:
     - { slug: high-scores-room, cite: objects/oHighscores/create.gml:50-66 }
-  related: [sun-room, stars-room, scoring, bow, moon-room-goal-any-win, speedrunning-basics]
-clips: [moon-room/archery, moon-room/ufos, quirks/moon-room-goal-any-win]
+  related: [sun-room, stars-room, scoring, bow, moon-room-goal-any-win, moon-room-stomped-targets, speedrunning-basics]
+clips: [moon-room/archery, moon-room/ufos, quirks/moon-room-goal-any-win, quirks/moon-room-stomped-targets]
 faq:
   - q: How do you unlock the Moon Room in Spelunky Classic?
     a: >-
@@ -112,8 +112,13 @@ pixels a step faster, and one shot down crashes rather than bleeds <Cite gml="ob
 Every target also sways sideways as it flies below the top of its path, up to 32 pixels to the left, toward the player's ledges <Cite gml="objects/oBatTarget/step.gml:18-22" />.
 A shot target's replacement still comes in at its own place, but a stomped one's comes in where the target
 had swayed to: it isn't at the middle or far target's place, so it's worth what the nearest is, 3 as a UFO,
-and sways from there <Cite gml="objects/oBatTarget/collision_oArrow.gml:7" />
-<Cite gml="objects/oBatTarget/collision_oCharacter.gml:13" /> <Cite gml="objects/oBatTarget/create.gml:5-14" />.
+and sways from there ([[moon-room-stomped-targets]]) <Cite gml="objects/oBatTarget/collision_oArrow.gml:7" />
+<Cite gml="objects/oBatTarget/collision_oCharacter.gml:13" /> <Cite gml="objects/oBatTarget/create.gml:5-14" /> <Cite quirk="1" row="A target stomped in the Moon Room's last 20 seconds comes back where it had swayed to, worth less." />.
+In the clip, with 3 seconds left, the player lands on three targets in a row, and each comes back as a UFO
+worth 3 above the spot where it was stomped <Cite clip="quirks/moon-room-stomped-targets" />.
+
+<Clip id="quirks/moon-room-stomped-targets" />
+
 
 When the timer runs out, the score is kept as the room's best in the high scores, up to 99; the targets
 vanish in puffs of smoke, and the entrance becomes a door back to the high scores room
@@ -142,4 +147,5 @@ the high scores room <Cite clip="moon-room/ufos" /> <Cite replay="fidelity/repla
   dunk, 2 for a shot and 3 off a wall, but nothing makes it <Cite gml="objects/oBasketball/step.gml:31-55" /> <Cite quirk="1" row="oJordans, oRopeBag, oBasketball and oFireFrogArmed are unreachable" />.
 - An older target is in the code as well, a bullseye that scores 1 to 5 by how near its middle an arrow hits
   and sways when 30 seconds are left. Nothing makes it, though the arrow's code still keeps arrows from
-  flying through it <Cite gml="objects/oTarget/collision_oArrow.gml:1-22" /> <Cite gml="objects/oTarget/step.gml:35-39" /> <Cite gml="objects/oArrow/step.gml:24-37" />.
+  flying through it <Cite gml="objects/oTarget/collision_oArrow.gml:1-22" /> <Cite gml="objects/oTarget/step.gml:35-39" /> <Cite gml="objects/oArrow/step.gml:24-37" />
+  <Cite quirk="1" row="oJordans, oRopeBag, oBasketball and oFireFrogArmed are unreachable" />.

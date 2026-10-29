@@ -1,0 +1,8 @@
+title = "No hint hand after the title's opening"
+description = "On the game's first run, the title's opening plays through and the player walks to the START door: no hand points at it, and no PRESS UP TO ENTER! shows. He goes into the high scores room and comes back out, and now the hand is over the START door, with the text while he stands under it."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/title-first-run-hint-hand.txt"
+from = 430
+to = 929
+poster = 580
+story = "!+oHintHand@..774 oPlayer1.x<=394@521 room=rHighscores@670 room=rTitle@775 titleStart=1@775 +oHintHand@775"

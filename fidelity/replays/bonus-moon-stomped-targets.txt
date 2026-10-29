@@ -1,0 +1,78 @@
+# Targets stomped in the Moon Room's last 20 seconds come back where they had swayed to, worth 3 (851-3694;
+# docs/quirks.md section 1). As bonus-moon-archery.txt into rMoon (791), with the bow, an arrow every 60 frames
+# until the timer reaches 20 (2061; the last arrow scores at 2034). From then on the targets sway left as they
+# fly. The player jumps off the step (Z, run held) and lands on the near target (xMid 160) where it has swayed
+# to, x 136.8 (2180): oBatTarget's collision with the player makes the replacement at x, not xMid, so it has
+# xMid 136.6 and sways from there. Holding left he comes back and hangs on the lowest step (2193), jumps up
+# onto the ledge (2300) and waits. Then he runs off the ledge (2576) and lands on three targets in a row: the
+# replacement (2595), the middle target, swayed to 177.4 (2605), and the far one, swayed to 232.5 (2618).
+# Each replacement is made where its target was, not at 208 or 256, so oBatTarget's create gives it
+# difficulty 1, 3 as a UFO, where an arrow's would be worth 4 and 6. The last bounce takes him onto the
+# spikes (2638): the death ends the challenge at 20 points (mini2), and the three replacements fly on.
+# story: room=rMoon@791 oMoonRoom.baskets=11@2180 oBatTarget.xMid<160@2180 oPlayer1.state=23@2193
+# story: oMoonRoom.baskets=14@2595 oMoonRoom.baskets=16@2605 oMoonRoom.baskets=20@2618
+# story: -oBatTarget@2605 +oBatTarget@2605 -oBatTarget@2618 +oBatTarget@2618
+# story: !oBatTarget.xMid=208@2606.. !oBatTarget.xMid=256@2619.. !oBatTarget.difficulty>3@2619..
+# story: !plife<8@791..2637 oPlayer1.dead=1@2638 mini2=20@2638
+seed 777
+frames 2700
+highscore 9200000 "MONEY"
+highscore 8000500 "TIME"
+highscore 7000120 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 54
+515 hold up 5
+570 hold right 5
+570 hold Z 12
+600 hold Z 12
+600 hold right 20
+625 hold Z 8
+625 hold right 8
+655 hold Z 12
+655 hold left 20
+685 hold Z 8
+685 hold left 8
+705 hold Z 12
+705 hold right 20
+735 hold Z 8
+735 hold right 8
+760 hold up 5
+800 hold right 6
+815 hold down 10
+820 hold X 2
+835 hold right 2
+900 hold X 40
+960 hold X 40
+1020 hold X 40
+1080 hold X 40
+1140 hold X 40
+1200 hold X 40
+1260 hold X 40
+1320 hold X 40
+1380 hold X 40
+1440 hold X 40
+1500 hold X 40
+1560 hold X 40
+1620 hold X 40
+1680 hold X 40
+1740 hold X 40
+1800 hold X 40
+1860 hold X 40
+1920 hold X 40
+1980 hold X 40
+2157 hold right 11
+2159 hold shift 33
+2160 hold Z 12
+2181 hold left 74
+2300 hold Z 9
+2304 hold left 10
+2576 hold right 39
+2581 hold shift 15
