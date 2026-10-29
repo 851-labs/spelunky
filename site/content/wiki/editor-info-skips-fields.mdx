@@ -60,7 +60,8 @@ editing <Cite clip="quirks/editor-info-skips-fields" />.
 
 ## Why
 
-GameMaker runs an object's "any key" event twice for each key press <Cite quirk="5" />, and the editor's prompt
+GameMaker runs an object's "any key" event twice for each key press <Cite
+quirk="5" row='The keyboard stages run the "no key" and "any key" events twice' />, and the editor's prompt
 lives in that event. Each field moves the prompt on to the next when Enter is pressed and it isn't empty:
 
 ```gml objects/oLevelEditor/keypress_anykey.gml:201-211

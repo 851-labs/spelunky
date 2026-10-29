@@ -68,8 +68,9 @@ spare it the hit, as a Caveman's do while it's stunned, so it breaks on the firs
 invincible monster or a [[magma-man|Magma Man]] lets it fly on. A [[damsel|Damsel]] it hits loses 1 hit
 point, and the bone is destroyed too <Cite
 gml="objects/oItem/step.gml:256-363" /> <Cite gml="objects/oItem/step.gml:365-398" />
-<Cite quirk="1" />. Unlike a Rock or an arrow, it can't hurt the player: his own code checks only for those
-two <Cite gml="objects/oPlayer1/step.gml:1513-1565" />.
+<Cite quirk="1" row="A fast thrown item hurts the nearest enemy, not the one it hit." />. Unlike a Rock or an
+arrow, it can't hurt the player: his own code checks only for those two <Cite
+gml="objects/oPlayer1/step.gml:1513-1565" />.
 
 In the clip, the player drops a bomb beside a pool and runs back. The explosion breaks the pool's side,
 the water drains away, and the Piranha in it turns into a Fish Bone. He picks the bone up, jumps out of the
@@ -98,7 +99,8 @@ killed leaves only blood, and a Dead Fish three plain bones, not a Fish Bone
 - **[[lava|Lava]].** A Fish Bone that touches lava stops and sinks, and is destroyed once it's under the
   surface <Cite gml="objects/oItem/step.gml:160-185" />.
 - **The screen.** It moves only while it's within 16 pixels of the screen
-  <Cite gml="objects/oItem/step.gml:1-3" /> <Cite quirk="1" />.
+  ([[items-freeze-off-screen]]) <Cite gml="objects/oItem/step.gml:1-3" />
+  <Cite quirk="1" row="Items freeze outside the view." />.
 - **Exits.** Carried through a level's exit, it's in the player's hands on the next level; while he holds
   it, the HUD shows it in the box for the held item <Cite gml="objects/oPlayer1/step.gml:842-850" />
   <Cite gml="scripts/scrHoldItem.gml:37" /> <Cite gml="scripts/scrDrawHUD.gml:84" />.
@@ -115,4 +117,4 @@ killed leaves only blood, and a Dead Fish three plain bones, not a Fish Bone
   name is "Arrow" or "Fish Bone", a line copied from the items' code; no monster has either name
   <Cite gml="objects/oEnemy/step.gml:264" />. The Jar's and the Skull's own steps keep the same line, which
   never holds for them either <Cite gml="objects/oJar/step.gml:143-144" />
-<Cite gml="objects/oSkull/step.gml:141-142" /> <Cite quirk="1" />.
+<Cite gml="objects/oSkull/step.gml:141-142" /> <Cite quirk="1" row="Jar and Skull leftovers" />.
