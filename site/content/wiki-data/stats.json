@@ -321,6 +321,16 @@
         "damage": {"at":["objects/oItem/step.gml:282","objects/oItem/step.gml:294","objects/oItem/step.gml:305","objects/oItem/step.gml:315","objects/oItem/step.gml:325","objects/oItem/step.gml:344"],"label":"Thrown damage to monsters","unit":"hit points","value":1}
       }
     },
+    "flare": {
+      "kind": "item",
+      "name": "Flare",
+      "object": "oFlare",
+      "stats": {
+        "damage": {"at":["objects/oItem/step.gml:282","objects/oItem/step.gml:294","objects/oItem/step.gml:305","objects/oItem/step.gml:315","objects/oItem/step.gml:325","objects/oItem/step.gml:344"],"label":"Thrown damage to monsters","unit":"hit points","value":1},
+        "light": {"at":["objects/oScreen/step_begin.gml:181"],"label":"Light on a dark level","unit":"px","value":96},
+        "per-crate": {"at":["objects/oPlayer1/step.gml:654"],"label":"Flares in a crate","unit":"flares","value":3}
+      }
+    },
     "frog": {
       "kind": "monster",
       "name": "Frog",
@@ -485,6 +495,15 @@
         "heal": {"at":["objects/oPlayer1/collision_oBlood.gml:10"],"label":"Heal","unit":"hearts","value":1}
       }
     },
+    "lamp": {
+      "kind": "item",
+      "name": "Lamp",
+      "object": "oLampItem",
+      "stats": {
+        "damage": {"at":["objects/oItem/step.gml:282","objects/oItem/step.gml:294","objects/oItem/step.gml:305","objects/oItem/step.gml:315","objects/oItem/step.gml:325","objects/oItem/step.gml:344"],"label":"Thrown damage to monsters","unit":"hit points","value":1},
+        "light": {"at":["objects/oScreen/step_begin.gml:193"],"label":"Light on a dark level","unit":"px","value":96}
+      }
+    },
     "lava": {
       "kind": "trap",
       "name": "Lava",
@@ -506,6 +525,14 @@
         "sacrifice-pit": {"at":["scripts/scrClearGlobals.gml:60"],"label":"Odds of a sacrifice pit","unit":"1 in","value":8},
         "snake-pit": {"at":["scripts/scrClearGlobals.gml:55"],"label":"Odds of a snake pit","unit":"1 in","value":8},
         "yeti-lair": {"at":["scripts/scrClearGlobals.gml:58"],"label":"Odds of a Yeti lair","unit":"1 in","value":6}
+      }
+    },
+    "locked-chest": {
+      "kind": "item",
+      "name": "Locked Chest",
+      "object": "oLockedChest",
+      "stats": {
+        "nook-chance": {"at":["scripts/scrEntityGen.gml:28"],"label":"Odds in the first nook","unit":"1 in","value":8}
       }
     },
     "machete": {
@@ -4248,6 +4275,18 @@
       },
       "parent": "oItem",
       "type": "Sceptre"
+    },
+    "oScreen": {
+      "init": {
+        "canPause": {"at":"objects/oScreen/create.gml:22","value":1},
+        "enabled": {"at":"objects/oScreen/create.gml:18","value":1},
+        "paused": {"at":"objects/oScreen/create.gml:23","value":0},
+        "py": {"at":"objects/oScreen/create.gml:9","value":0},
+        "screen_h": {"at":"objects/oScreen/create.gml:15","value":240},
+        "screen_w": {"at":"objects/oScreen/create.gml:14","value":320},
+        "screen_x": {"at":"objects/oScreen/create.gml:12","value":0},
+        "screen_y": {"at":"objects/oScreen/create.gml:13","value":0}
+      }
     },
     "oShopkeeper": {
       "init": {

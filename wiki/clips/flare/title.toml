@@ -1,0 +1,7 @@
+title = "The title screen's flare"
+description = "The title screen starts dark. A flare drops in from the top at its right edge, and as it falls, the dark fades and the title shows."
+replay = "fidelity/replays/mines-seed-2.txt"
+from = 260
+to = 400
+poster = 305
+story = "+oFlare@288 oTitle.darkness=0@316"

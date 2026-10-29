@@ -300,7 +300,7 @@
     "oLevel5Sign": {"places":[],"rooms":["rTitle"]},
     "oLevelEditor": {"places":[],"rooms":["rLevelEditor"]},
     "oLoadLevel": {"places":[],"rooms":["rLoadLevel"]},
-    "oLockedChest": {"places":["ice-caves","jungle","mines","temple"],"rooms":[]},
+    "oLockedChest": {"places":["mines"],"rooms":[]},
     "oLush": {"places":["black-market","flooded-level","jungle","mines","temple"],"rooms":["rTransition1x","rTransition2","rTransition2x"]},
     "oMachete": {"places":["ice-caves","jungle","mines","olmecs-lair","temple"],"rooms":[]},
     "oManTrap": {"places":["jungle"],"rooms":[]},

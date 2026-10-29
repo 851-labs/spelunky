@@ -1,0 +1,7 @@
+title = "Crate of flares"
+description = "After the screen between levels, level 2 of the Mines loads dark, with a crate of flares glowing beside the entrance. The player walks over to it and opens it with up and the attack key, and three lit flares fly out, each lighting the dark around it."
+replay = "fidelity/replays/equip-seed-2-flare-crate.txt"
+from = 1700
+to = 1799
+poster = 1745
+story = "darkLevel=1@1720 +oFlareCrate@1720 -oFlareCrate@1732 +oFlare*3@1732 +oPoof@1732"

@@ -1,0 +1,141 @@
+---
+slug: lamp
+title: Lamp
+type: item
+categories: [items/carryables]
+objects: [oLampItem, oLampRedItem, oLamp, oLampRed]
+aliases: [lamps, red-lamp, lantern, shop-lamp]
+lede: >-
+  The Lamp is a carryable item in Spelunky Classic, a hanging lamp brought down by breaking its block, that
+  lights the dark <Stat id="lamp.light" /> around it.
+infobox:
+  image: { sprite: sLampItem, anim: true, alt: "A black iron lantern, its four small panes glowing orange" }
+  kind: carryable
+  effect: { text: "Lights the dark; heavy", cite: objects/oScreen/step_begin.gml:191-194 }
+  damage: { stat: lamp.damage }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, black-market, yeti-lair, dark-level]
+  related: [dark-level, flare, kissing-parlor, general-store, throwing]
+clips: [lamp/fall, lamp/red]
+faq:
+  - q: How do you get a Lamp in Spelunky Classic?
+    a: >-
+      By breaking the block a lamp hangs from. Every shop has a lamp hanging from its ceiling, and a
+      [[dark-level|dark level]] in the Mines hangs more under its blocks; the block's destruction brings
+      the lamp down as a Lamp the player can carry.
+  - q: What does a Lamp do in Spelunky Classic?
+    a: >-
+      It lights the dark. On a dark level, a plain Lamp lights <Stat id="lamp.light" /> around it, carried
+      or lying on the ground, and widens the player's own light as he nears it. On a lit level it does
+      nothing but be carried and thrown.
+  - q: Does the red Lamp light the dark in Spelunky Classic?
+    a: >-
+      No. Hanging in the [[kissing-parlor|Kissing Parlor]], the red lamp lights its circle as any lamp does,
+      but once it's down, the code lights circles for the plain Lamp only: the red one only tints the light
+      near it red.
+  - q: Can you take a Lamp to the next level in Spelunky Classic?
+    a: >-
+      No. A Lamp is heavy, and the player sets a heavy item down when he takes an exit, so it stays on its
+      level.
+sources:
+  - objects/oLamp/create.gml
+  - objects/oLampItem/create.gml
+  - objects/oLampRedItem/create.gml
+  - objects/oSolid/destroy.gml
+  - objects/oScreen/step_begin.gml
+  - objects/oPlayer1/step.gml
+  - objects/oItem/step.gml
+  - scripts/scrRoomGen.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Every shop has a lamp hanging from its ceiling, and a [[dark-level|dark level]] in the [[mines|Mines]] hangs
+more of them under its blocks. Hanging, a lamp is part of the scenery; when the block it hangs from is
+destroyed, it falls as a Lamp, a heavy item the player can carry and throw. On a dark level, carried or not,
+a plain Lamp lights the cave around it, as a [[flare|Flare]] does. The [[kissing-parlor|Kissing Parlor]]'s lamp is
+red, and falls as a red Lamp, which, unlike the plain one, lights nothing once it's down.
+
+## Usage
+
+<Clip id="lamp/fall" />
+
+### Bringing it down
+
+A hanging lamp isn't an item: it can't be picked up, and it flickers where it hangs
+<Cite gml="objects/oLamp/create.gml:1" />. When the block above it is destroyed, the block's last act is to
+replace it with a Lamp, red if the hanging lamp was, which then falls
+<Cite gml="objects/oSolid/destroy.gml:24-33" />. A shop's lamp hangs from the shop's ceiling, out of reach of a
+[[bomb|Bomb]] on the floor, and a lit bomb in a shop within 96 pixels of the [[shopkeeper|Shopkeeper]]
+angers him <Cite gml="objects/oBomb/step.gml:6-17" /> <Cite quirk="1" row="The rare items' only sources" />.
+In the clip, in a Weapon shop whose shopkeeper is dead, the player throws a lit bomb up toward the lamp; it
+goes off under the ceiling, the block the lamp hangs from breaks, and the lamp drops to the floor
+<Cite clip="lamp/fall" />.
+
+### Carrying it
+
+A Lamp is picked up and thrown as any item is ([[throwing]]), but it's heavy, like a
+[[golden-idol|Golden Idol]]: the player carries it in front of him at his own height, and throws it at 4 pixels a
+step plus his own speed, rising at 2, or at 4 upward <Cite gml="objects/oLampItem/create.gml:3-8" />
+<Cite gml="objects/oItem/step.gml:44-50" /> <Cite gml="scripts/scrUseItem.gml:609-635" />. He sets it down when
+he takes an exit, so it stays on its level <Cite gml="objects/oPlayer1/step.gml:815-820" />. Thrown faster than
+2 pixels a step into a monster, it takes <Stat id="lamp.damage" /> from the monster nearest it, as any thrown
+item does <Cite gml="objects/oItem/step.gml:256-350" />.
+
+### Light
+
+On a lit level a Lamp gives no light: there's no darkness for it to cut. On a [[dark-level|dark level]]:
+
+| Lamp | Its own light | The player's light | |
+| --- | --- | --- | --- |
+| Hanging, plain or red | Within 96 pixels of it | Widens as he nears it, within 200 pixels | <Cite gml="objects/oScreen/step_begin.gml:187-190" /> <Cite gml="objects/oPlayer1/step.gml:89-94" /> |
+| A plain Lamp, carried or lying | Within <Stat id="lamp.light" /> of it | Widens as he nears it, within 200 pixels | <Cite gml="objects/oScreen/step_begin.gml:191-194" /> <Cite gml="objects/oPlayer1/step.gml:95-100" /> |
+| A red Lamp, carried or lying | None | Unchanged | <Cite gml="objects/oScreen/step_begin.gml:167-194" /> <Cite gml="objects/oPlayer1/step.gml:73-136" /> |
+
+While the player is within 96 pixels of a red lamp, hanging or down, every light on the screen is tinted
+red <Cite gml="objects/oScreen/step_begin.gml:156-177" />. The hanging red lamp is a kind of the plain one in the
+game's objects, so the code that lights the hanging lamps lights it too; the red Lamp isn't a kind of the plain
+Lamp, and the code that lights a Lamp's circle and widens the player's light names only the plain one
+<Cite gml="objects/oScreen/step_begin.gml:191-194" /> <Cite gml="objects/oPlayer1/step.gml:95-100" />. So a red
+Lamp carried through a dark level lights nothing but its tint.
+
+## Locations
+
+| Lamp | Where | |
+| --- | --- | --- |
+| Plain, hanging | In every shop, from the ceiling, in [[mines\|the Mines]], [[jungle\|the Jungle]], [[ice-caves\|the Ice Caves]] (and the [[yeti-lair\|Yeti Lair]]) and [[temple\|the Temple]], and in each of the [[black-market\|Black Market]]'s shops | <Cite gml="scripts/scrRoomGen.gml:427-431" /> <Cite gml="scripts/scrRoomGen2.gml:442-446" /> <Cite gml="scripts/scrRoomGen3.gml:369-373" /> <Cite gml="scripts/scrRoomGenYeti.gml:388-392" /> <Cite gml="scripts/scrRoomGen4.gml:468-471" /> <Cite gml="scripts/scrRoomGenMarket.gml:338-341" /> |
+| Red, hanging | In the [[kissing-parlor\|Kissing Parlor]], in place of the plain one: the Temple's has its own red lamp tile, and the other areas' room scripts hang the red lamp on a level whose shop is the Kissing Parlor | <Cite gml="scripts/scrRoomGen.gml:186" /> <Cite gml="scripts/scrRoomGen.gml:429" /> <Cite gml="scripts/scrRoomGen2.gml:444" /> <Cite gml="scripts/scrRoomGen3.gml:371" /> <Cite gml="scripts/scrRoomGenYeti.gml:390" /> <Cite gml="scripts/scrRoomGen4.gml:169" /> <Cite gml="scripts/scrRoomGen4.gml:472-475" /> |
+| Plain, hanging | On a [[dark-level\|dark level]] in the Mines: 1 in 60 under a block with two open tiles below, once the [[giant-spider\|Giant Spider]]'s roll fails | <Cite gml="scripts/scrEntityGen.gml:52-61" /> |
+
+The Lamp itself, the item, only ever comes from a hanging lamp's block: [[level-generation|level generation]]
+makes none, and the [[level-editor|level editor]] has no tile for either. In the second clip, the player
+throws a lit bomb up under the Kissing Parlor's ceiling, and its red lamp falls into the crater below, a red
+Lamp <Cite clip="lamp/red" /> <Cite replay="fidelity/replays/item-seed-22-red-lamp.txt" />.
+
+<Clip id="lamp/red" />
+
+## Interactions
+
+- **[[bomb|Bombs]].** An explosion breaks the block a lamp hangs from, which brings it down, and throws a Lamp
+  away from it without breaking it <Cite gml="objects/oExplosion/collision_oSolid.gml:1-14" />
+  <Cite gml="objects/oExplosion/collision_oItem.gml:30-36" />.
+- **[[lava|Lava]].** A Lamp that touches lava stops and sinks, and is destroyed once it's under the surface
+  <Cite gml="objects/oItem/step.gml:160-185" />.
+- **Water** does nothing to a Lamp: the check that puts a Flare out is in the Flare's own code, and the Lamp
+  has none <Cite gml="objects/oFlare/step.gml:6-20" />.
+
+## Tips
+
+- A plain Lamp is a light that water can't put out and that never runs out, but it can't leave its level:
+  on a dark level, it's for lighting the way to the exit.
+- A red Lamp is no use as a light: down, it lights nothing.
+
+## Trivia
+
+- The Lamp's create event is the [[golden-idol|Golden Idol]]'s, its name and value changed: it's heavy, carried
+  at the player's height as the idol is, and keeps a value, $1,000, and the idol's trigger, which only the idol's
+  code reads, so picking a Lamp up sets off no trap, and an exit takes it from his hands rather than paying for
+  it <Cite gml="objects/oLampItem/create.gml:3-8" /> <Cite gml="objects/oGoldIdol/create.gml:3-8" /> <Cite gml="objects/oPlayer1/step.gml:771-781" />
+  <Cite gml="objects/oPlayer1/step.gml:1222" />.
+- The red Lamp's create event is the same as the plain one's, name and all: both are "Lamp"
+  <Cite gml="objects/oLampRedItem/create.gml:3-8" />.

@@ -1,0 +1,7 @@
+title = "The red lamp brought down"
+description = "In a Kissing Parlor, its shopkeeper dead, the player jumps and throws a lit bomb up under the ceiling. The blast breaks the block the shop's red lamp hangs from, and the lamp falls into the crater below, a red Lamp he can carry."
+replay = "fidelity/replays/item-seed-22-red-lamp.txt"
+from = 1420
+to = 1513
+poster = 1487
+story = "-oLampRed@1482 +oLampRedItem@1482 +oExplosion@1482"

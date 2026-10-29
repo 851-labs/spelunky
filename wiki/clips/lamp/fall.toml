@@ -1,0 +1,7 @@
+title = "A shop's lamp brought down"
+description = "In a Weapon shop whose shopkeeper is dead, the player throws a lit bomb up toward the lamp. It goes off under the ceiling and breaks the block the lamp hangs from, and the lamp falls to the floor, a Lamp he can carry."
+replay = "fidelity/replays/item-seed-38-lamp.txt"
+from = 1355
+to = 1444
+poster = 1394
+story = "+oExplosion@1392 -oLamp@1392 +oLampItem@1392"
