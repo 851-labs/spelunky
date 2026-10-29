@@ -156,8 +156,8 @@ Custom levels can have them, as the [[level-editor|level editor]]'s tile `z`
   <Cite gml="objects/oEnemy/create.gml:4" />. The touch code's deaths-by-enemy tally checks for `"Zombie"`,
   so a Zombie that takes the player's last heart isn't counted, and the Zombie row of the table the game
   writes to `stats.txt` always reads `???` with 0 deaths
-  <Cite gml="objects/oEnemy/collision_oCharacter.gml:27-35" /> <Cite gml="scripts/scrWriteStats.gml:110-122" /> <Cite quirk="1" />.
+  <Cite gml="objects/oEnemy/collision_oCharacter.gml:27-35" /> <Cite gml="scripts/scrWriteStats.gml:110-122" /> <Cite quirk="1" row="The zombie's, the vampire's and the Dead Fish's kills of the player are never tallied." />.
 - The code names five states, but sets only three of them: the walking (`WALK`) and drowned (`DROWNED`)
   states are never used. Its step event sends any state it doesn't handle back to standing, except the
   drowned one
-  <Cite gml="objects/oZombie/create.gml:21-26" /> <Cite gml="objects/oZombie/step.gml:104-108" /> <Cite quirk="1" />.
+  <Cite gml="objects/oZombie/create.gml:21-26" /> <Cite gml="objects/oZombie/step.gml:104-108" /> <Cite quirk="1" row="Leftovers in the graveyard monsters" />.

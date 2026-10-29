@@ -63,10 +63,10 @@ stops there.
 
 Each step the player touches a Smash Trap, he loses 10 hearts, is thrown toward it (and down, if it was sliding
 down) and drops whatever he holds <Cite gml="objects/oPlayer1/step.gml:1649-1668" />. Being thrown toward a
-solid block, he isn't knocked clear of it ([[smash-trap-random-throw]]) <Cite quirk="1" />
+solid block, he isn't knocked clear of it ([[smash-trap-random-throw]]) <Cite quirk="1" row="A smash trap's hit throws the player toward it, and down if its random dir says so." />
 <Cite replay="fidelity/replays/trap-smash-crush.txt" />. Nothing spaces out the hits, so a player who stays
 against it is hit on every step, and each hit he survives is counted in the end-of-game statistics' smash trap
-row as well as the one that kills him <Cite quirk="1" />. If the trap slides
+row as well as the one that kills him <Cite quirk="1" row="The deaths table's explosion and trap rows don't count deaths." />. If the trap slides
 on over him, so that his middle is inside it, he's crushed: every heart, as anything solid crushes him
 <Cite gml="objects/oPlayer1/step.gml:1492-1511" />.
 
@@ -74,7 +74,7 @@ on over him, so that his middle is inside it, he's crushed: every heart, as anyt
 ([[lit-smash-trap-touch]]).
 It never takes the 10 hearts: it slides into him until he's inside it, and kills him by crushing, counted in the
 crushed row rather than the smash trap row <Cite gml="objects/oPlayer1/step.gml:1649" />
-<Cite gml="objects/oSmashTrapLit/step.gml:1-137" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/trap-dark-smash.txt" />.
+<Cite gml="objects/oSmashTrapLit/step.gml:1-137" /> <Cite quirk="1" row="A lit smash trap isn't a smash trap to the player." /> <Cite replay="fidelity/replays/trap-dark-smash.txt" />.
 The second clip shows one sliding at the player and crushing him.
 
 <Clip id="smash-trap/lit" />
@@ -114,8 +114,8 @@ Smash Traps are also in the Sun challenge room, a bonus room <Cite room="rSun" /
   ([[smash-trap-random-throw]]). Touching
   it without setting it off takes coming at it from outside its row and column, as by brushing its corner while
   dropping past it <Cite gml="objects/oSmashTrap/create.gml:25-29" /> <Cite gml="objects/oPlayer1/step.gml:1658-1661" />
-  <Cite quirk="1" /> <Cite replay="fidelity/replays/trap-smash-random-throw.txt" />.
+  <Cite quirk="1" row="A smash trap's hit throws the player toward it, and down if its random dir says so." /> <Cite replay="fidelity/replays/trap-smash-random-throw.txt" />.
 - The player's code kept the trap's direction names as a comment beside the check that reads them
   <Cite gml="objects/oPlayer1/step.gml:1660-1665" />.
 - A similar trap, `oThwompTrap`, a block that drops on a player passing under it and rises again, is in the
-  game's code but never made <Cite quirk="1" />.
+  game's code but never made <Cite quirk="1" row="oThwompTrap is unreachable" />.

@@ -122,7 +122,7 @@ high: a whip swung in front of him there does nothing, as the first clip on this
 one block up it takes a hit point <Cite clip="tomb-lord/whip" />. The whip's wind-up behind the player's
 back is another matter: the Tomb Lord takes it through the code most monsters share, which has neither the
 height limit nor the pause, so it takes a hit point every step it touches, about 3 a swing ([[whip-every-step]])
-<Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" /> <Cite quirk="1" />. The clip shows the player with his back to a Tomb
+<Cite gml="objects/oEnemy/collision_oWhipPre.gml:1-8" /> <Cite quirk="1" row="The Whip's wind-up hurts the Tomb Lord from any height, with no wait." />. The clip shows the player with his back to a Tomb
 Lord, the wind-up taking 3 <Cite clip="tomb-lord/wind-up" />.
 
 | Way | Damage | |
@@ -178,7 +178,7 @@ lava on level 13 drops it into the lava <Cite gml="objects/oEnemy/step.gml:68" /
   <Cite gml="objects/oSmashTrap/step.gml:105-113" />.
 - When a fly hits a monster, the code knocks a heavy one back less, then knocks it back the full amount
   anyway ([[fly-full-knockback]]): the lines after the `if` replace what it set. Every monster is heavy, so all of them get the full
-  amount <Cite gml="objects/oFly/collision_oEnemy.gml:3-14" /> <Cite gml="objects/oEnemy/create.gml:15" /> <Cite quirk="1" />.
+  amount <Cite gml="objects/oFly/collision_oEnemy.gml:3-14" /> <Cite gml="objects/oEnemy/create.gml:15" /> <Cite quirk="1" row="A fly gives a heavy monster the full knockback." />.
 
   ```gml objects/oFly/collision_oEnemy.gml:3-14
       if (other.heavy)

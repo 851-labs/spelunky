@@ -93,7 +93,7 @@ chance of melting back into a blob of magma instead, which keeps its hit points 
 lands <Cite gml="objects/oMagmaMan/step.gml:37-48" />. A Magma Man that isn't standing on anything, knocked
 off a ledge or with the floor blown out from under it, turns into a new blob at once, which has a fresh
 <Stat id="magma-man.hp" bare />, whatever it had left <Cite gml="objects/oMagmaMan/step.gml:13-19" />
-<Cite gml="objects/oMagma/create.gml:9" /> <Cite quirk="1" />.
+<Cite gml="objects/oMagma/create.gml:9" /> <Cite quirk="1" row="A Magma Man's hit points depend on how it becomes a blob." />.
 
 **Burning out.** It loses 1 hit point every step, so its <Stat id="magma-man.hp" /> last at most
 <Stat id="magma-man.hp" bare /> steps (6.67 seconds). With none left, or if it ends up inside solid ground,
@@ -124,8 +124,8 @@ A Magma Man can't be killed so much as waited out. Most of what kills monsters d
 
 | Way | Effect | |
 | --- | --- | --- |
-| [[whip\|Whip]] | Nothing: it only makes a hit sound | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> <Cite quirk="1" /> |
-| The Whip's wind-up behind the player | 1 for every step it touches it ([[whip-every-step]]) | <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> <Cite quirk="1" /> |
+| [[whip\|Whip]] | Nothing: it only makes a hit sound | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> <Cite quirk="1" row="The Magma Man's whip does nothing, but the wind-up hurts it." /> |
+| The Whip's wind-up behind the player | 1 for every step it touches it ([[whip-every-step]]) | <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> <Cite quirk="1" row="The Magma Man's whip does nothing, but the wind-up hurts it." /> |
 | A [[machete\|Machete]]'s or [[mattock\|Mattock]]'s swing | Their slash or hit in front, nothing; their wind-up, 2 a step (the Mattock makes two, 4 a step where they overlap) | <Cite gml="objects/oMagmaMan/collision_oWhip.gml:1-6" /> <Cite gml="objects/oEnemy/collision_oWhipPre.gml:1" /> |
 | [[stomping\|Stomp]] | None: it burns the player instead | <Cite gml="objects/oMagmaMan/collision_oCharacter.gml:1-22" /> |
 | A [[throwing\|thrown item]] or stunned monster | Nothing: they pass through it | <Cite gml="objects/oItem/step.gml:261" /> <Cite gml="objects/oEnemy/step.gml:177" /> |
@@ -136,7 +136,7 @@ A Magma Man can't be killed so much as waited out. Most of what kills monsters d
 
 An explosion that touches a Magma Man replaces it with two blobs of magma, each with a fresh
 <Stat id="magma-man.hp" />, so a bomb makes two Magma Men where there was one
-<Cite gml="objects/oExplosion/collision_oEnemy.gml:1-11" /> <Cite gml="objects/oMagma/create.gml:9" /> <Cite quirk="1" />. A bomb
+<Cite gml="objects/oExplosion/collision_oEnemy.gml:1-11" /> <Cite gml="objects/oMagma/create.gml:9" /> <Cite quirk="1" row="A Magma Man's hit points depend on how it becomes a blob." />. A bomb
 it touches is lit, going off 8–12 steps later, and knocked away from it
 <Cite gml="objects/oMagmaMan/collision_oBomb.gml:1-18" />. The clip shows a bomb going off by a Magma Man:
 the blast kills the player, beside it, and the Magma Man bursts into two blobs, which land and form two
@@ -172,4 +172,4 @@ it on a level. That's [[temple|the Temple]], whose rooms can have pools of lava
   does isn't counted anywhere <Cite gml="objects/oMagmaMan/collision_oCharacter.gml:15-19" />
   <Cite gml="scripts/isRealLevel.gml:7" />. Its touch is a copy of the Magma Man's without the tally
   <Cite gml="objects/oMagma/collision_oCharacter.gml:15" />, and the statistics' table has no row for blobs
-  <Cite gml="scripts/scrWriteStats.gml:110-143" /> <Cite quirk="1" />.
+  <Cite gml="scripts/scrWriteStats.gml:110-143" /> <Cite quirk="1" row="A blob of magma's kills of the player are never tallied." />.

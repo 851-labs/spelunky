@@ -155,7 +155,7 @@ The [[level-editor|level editor]] has no tile for a Dead Fish, so custom levels 
 - The Dead Fish's code never sets its `type` string, so it keeps the parent object's `"None"`
   <Cite gml="objects/oEnemy/create.gml:4" />. A Dead Fish that takes the player's last heart isn't counted
   in the deaths-by-enemy table the game writes to `stats.txt`, under the Piranha or anywhere else
-  <Cite gml="objects/oEnemy/collision_oCharacter.gml:27-51" /> <Cite quirk="1" />.
+  <Cite gml="objects/oEnemy/collision_oCharacter.gml:27-51" /> <Cite quirk="1" row="The zombie's, the vampire's and the Dead Fish's kills of the player are never tallied." />.
 - Unlike the Piranha's, its code starts an attack without checking that the player is alive, so near a
   dead swimming player it keeps starting attacks and giving them up the next step <Cite
   gml="objects/oDeadFish/step.gml:36-39" /> <Cite gml="objects/oDeadFish/step.gml:52-62" /> <Cite

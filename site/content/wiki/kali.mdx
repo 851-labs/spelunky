@@ -83,7 +83,7 @@ The first time a sacrifice brings the favour to each of three marks, she gives a
 altar's right half, free to take <Cite gml="scripts/scrGetFavorMsg.gml:27-110" />:
 
 - **At <Stat id="kali.gift-1" bare />**, a piece of equipment the player hasn't got, with two puffs of smoke.
-- **At <Stat id="kali.gift-2" bare />**, the [[kapala|Kapala]], the only way to get one <Cite quirk="1" />.
+- **At <Stat id="kali.gift-2" bare />**, the [[kapala|Kapala]], the only way to get one <Cite quirk="1" row="The rare items' only sources" />.
 - **At <Stat id="kali.gift-3" bare />**, 99 bombs, or <Stat id="health.kali-heal" /> for a player with 80 or more,
   and hearts again for every 16 more after it.
 
@@ -97,7 +97,7 @@ Destroying her altar angers her. Either half of it destroyed, by anything (a [[b
 [[ufo|UFO]]'s laser, or the floor under it taken away, which makes it crumble once it's on screen), defiles it:
 "YOU DARE DEFILE MY ALTAR?" and "I WILL PUNISH YOU!", the screen shakes, the favour falls by 16, and both
 halves go <Cite gml="objects/oSacAltarLeft/step.gml:1-5" /> <Cite gml="objects/oSacAltarLeft/destroy.gml:11-67" />
-<Cite quirk="1" />. What she does depends on how many altars the player has defiled in the game <Cite gml="objects/oSacAltarLeft/destroy.gml:20-60" />:
+<Cite quirk="1" row="The rare items' only sources" />. What she does depends on how many altars the player has defiled in the game <Cite gml="objects/oSacAltarLeft/destroy.gml:20-60" />:
 
 | Altar defiled | Punishment | |
 | --- | --- | --- |
@@ -164,7 +164,7 @@ HEAR PRAYERS TO KALI!" <Cite gml="objects/oPlayer1/alarm_0.gml:59-64" />.
 - A sacrifice at a favour below 0 has a branch of its own, which adds the body's value as the other does and
   then sets that value to 0. The body is destroyed a moment later, so the line changes nothing, and an angry
   Kali takes a sacrifice as gladly as a pleased one <Cite gml="objects/oEnemy/step.gml:148-153" /> <Cite gml="objects/oDamsel/step.gml:329-334" />
-  <Cite quirk="1" />. In the replay, a defiled altar leaves her favour at −4, and a dead [[yeti|Yeti]] on the
+  <Cite quirk="1" row="An angry Kali's sacrifice zeroes the body's value after adding it." />. In the replay, a defiled altar leaves her favour at −4, and a dead [[yeti|Yeti]] on the
   next level's altar raises it by 2, to −2 <Cite replay="fidelity/replays/item-seed-11-kali-angry-sacrifice.txt" />:
 
 ```gml objects/oEnemy/step.gml:148-153
@@ -177,7 +177,7 @@ HEAR PRAYERS TO KALI!" <Cite gml="objects/oPlayer1/alarm_0.gml:59-64" />.
 ```
 
 - A Damsel's sacrifice has a branch that would make a stunned one worth half as much again, 12, but she's
-  never in the state it tests for, so she's worth the same alive or dead <Cite gml="objects/oDamsel/step.gml:331" /> <Cite quirk="1" />.
+  never in the state it tests for, so she's worth the same alive or dead <Cite gml="objects/oDamsel/step.gml:331" /> <Cite quirk="1" row="Unreachable terrain and effects" />.
 - A dead Vampire is worth half a favour, so the favour needn't be a whole number, and "SHE HAS FORGIVEN
   YOU!", which needs it to be exactly 0, can be missed <Cite gml="objects/oEnemy/step.gml:154-158" />
   <Cite gml="scripts/scrGetFavorMsg.gml:26" />.

@@ -113,7 +113,7 @@ A Shopkeeper waiting for a thief (below) is on patrol: he stands for 20 to 50 st
 way or the other, at <Stat id="shopkeeper.walk-speed" />, and stands again
 <Cite gml="objects/oShopkeeper/step.gml:283-336" />. His walk checks for a wall at his head's height in front
 of him, not for a floor, so in open ground it stops after one step and he coasts to a halt: he shuffles rather
-than walks ([[shopkeeper-patrol-one-step]]) <Cite gml="objects/oShopkeeper/step.gml:309-328" /> <Cite clip="shopkeeper/patrol" /> <Cite quirk="1" />
+than walks ([[shopkeeper-patrol-one-step]]) <Cite gml="objects/oShopkeeper/step.gml:309-328" /> <Cite clip="shopkeeper/patrol" /> <Cite quirk="1" row="A patrolling Shopkeeper's walk lasts one step." />
 <Cite replay="fidelity/replays/enemy-shopkeeper-patrol-one-step.txt" /> <Cite clip="quirks/shopkeeper-patrol-one-step" />. He turns on
 the player who comes nearer than <Stat id="shopkeeper.sight-range" /> (and isn't more than 16 pixels below
 his middle), or who is right above or below him <Cite gml="objects/oShopkeeper/step.gml:87-97" />. In the clip, a
@@ -146,13 +146,13 @@ A ware is bought by holding it in the shop and pressing the [[controls|pay key]]
 player drops the ware ("YOU HAVEN'T GOT ENOUGH MONEY!") <Cite gml="objects/oPlayer1/step.gml:1359-1390" />.
 A [[golden-idol|Golden Idol]] set down on a shop's floor within 80 pixels of a calm Shopkeeper is sold for its
 value ("PLEASURE DOING BUSINESS!") <Cite gml="objects/oGoldIdol/step.gml:6-27" />. A
-[[crystal-skull|Crystal Skull]] sells the same way, and counts as an idol between levels <Cite quirk="1" />.
+[[crystal-skull|Crystal Skull]] sells the same way, and counts as an idol between levels ([[skull-sold-as-idol]]) <Cite quirk="1" row="A Crystal Skull sold to a Shopkeeper shows as a golden idol between levels." />.
 
 ### Angering him
 
 Each of these angers the nearest Shopkeeper, with its own shout, except that a broken wall and a lit bomb
 anger every Shopkeeper near the screen, a bomb again on every step for those off it
-([[bomb-angers-every-shopkeeper]]) <Cite gml="scripts/scrShopkeeperAnger.gml:7-23" /> <Cite quirk="1" />:
+([[bomb-angers-every-shopkeeper]]) <Cite gml="scripts/scrShopkeeperAnger.gml:7-23" /> <Cite quirk="1" row="A lit bomb in a shop angers every active Shopkeeper, and those off screen again on every step." />:
 
 | Cause | Shout | |
 | --- | --- | --- |
@@ -164,8 +164,8 @@ anger every Shopkeeper near the screen, a bomb again on every step for those off
 | Any of these, once a Shopkeeper has been killed | "YOU'LL PAY FOR YOUR CRIMES!" | <Cite gml="scripts/scrShopkeeperAnger.gml:13" /> |
 
 Stealing equips some wares at once and not others, by which leaves the shop first ([[stolen-ware-unequipped]])
-<Cite quirk="1" />. Hitting the Shopkeeper also angers him, with no shout ([[hit-shopkeeper-free-wares]]): a crack of the [[whip|Whip]], which doesn't hurt him, a thrown
-item, a bullet, a [[piranha|Piranha]]'s bite <Cite gml="objects/oShopkeeper/collision_oWhip.gml:12-18" /> <Cite gml="objects/oItem/step.gml:289-298" /> <Cite quirk="1" />.
+<Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />. Hitting the Shopkeeper also angers him, with no shout ([[hit-shopkeeper-free-wares]]): a crack of the [[whip|Whip]], which doesn't hurt him, a thrown
+item, a bullet, a [[piranha|Piranha]]'s bite <Cite gml="objects/oShopkeeper/collision_oWhip.gml:12-18" /> <Cite gml="objects/oItem/step.gml:289-298" /> <Cite quirk="1" row="Hitting a Shopkeeper frees the wares without marking the player a thief." />.
 
 ### The thief's Shopkeeper
 
@@ -186,7 +186,7 @@ In the clip, on the level after a theft, the Shopkeeper waiting by the exit leap
 down to it, and the player takes the exit unhurt <Cite replay="fidelity/replays/shop-seed-3-thief-next-level.txt" />.
 
 Hitting a Shopkeeper doesn't make the player a thief: in the pistol clip, the angry Shopkeeper's wares are free, but
-the player isn't marked <Cite quirk="1" /> <Cite replay="fidelity/replays/weapon-seed-39-pistol.txt" />.
+the player isn't marked <Cite quirk="1" row="Hitting a Shopkeeper frees the wares without marking the player a thief." /> <Cite replay="fidelity/replays/weapon-seed-39-pistol.txt" />.
 
 ### Fighting him
 
@@ -205,10 +205,10 @@ The Shopkeeper has <Stat id="shopkeeper.hp" /> <Cite gml="objects/oShopkeeper/cr
 | [[spikes\|Spikes]], falling onto them | Kills him | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
 | A block, inside one | Kills him | <Cite gml="objects/oShopkeeper/step.gml:24-63" /> |
 
-A stomp while the player is still rising takes nothing, though it stuns him ([[yeti-stomp-rising]]) <Cite quirk="1" />. Killing a
+A stomp while the player is still rising takes nothing, though it stuns him ([[yeti-stomp-rising]]) <Cite quirk="1" row="Stomping a Yeti, the Yeti King or a Shopkeeper on the way up takes nothing." />. Killing a
 Shopkeeper makes the player a murderer for the rest of the game, and so does his death by anything else,
 [[spikes|Spikes]] included, which counts as the player's kill ([[accidental-murder]]) <Cite gml="objects/oShopkeeper/step.gml:479-503" />
-<Cite quirk="1" /> <Cite replay="fidelity/replays/shop-seed-35-spikes-murderer.txt" />. In the clip, the Shopkeeper
+<Cite quirk="1" row="Any Shopkeeper's death marks the player a murderer, whatever killed him." /> <Cite replay="fidelity/replays/shop-seed-35-spikes-murderer.txt" />. In the clip, the Shopkeeper
 chasing a thief walks off a block into a hole with Spikes in it <Cite clip="quirks/shopkeeper-spikes-murderer" />.
 On one of [[kali|Kali]]'s [[kalis-altar|altars]] his body is worth half of <Stat id="shopkeeper.favor" bare /> [[kalis-favour|favour]] dead, and
 all of it stunned, if it lies still there for 20 steps before he wakes <Cite gml="objects/oEnemy/step.gml:130-166" />.
