@@ -1,5 +1,6 @@
-//! The window and its event loop: ticks the game at a fixed 30 Hz, renders each tick's frame once, and
-//! presents the latest frame at display rate.
+//! The window and its event loop: ticks the game at a fixed 30 Hz, renders each tick's frame once (an
+//! embedded replay's unshown ones only as far as their pixels last, `crate::unrendered`), and presents the
+//! latest frame at display rate.
 //!
 //! Ticks run on a timer (`ControlFlow::WaitUntil` the next tick's deadline), not on redraws, so the game
 //! keeps time while the window is minimised or hidden and the OS stops sending redraws. Redraws only

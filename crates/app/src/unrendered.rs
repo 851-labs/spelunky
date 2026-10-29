@@ -1,5 +1,6 @@
 //! Frames the game has run but the renderer hasn't drawn: a headless capture's frames before the first it
-//! shoots (`app --capture-from`). Rendering them is most of a long lead-in's time, and most of what they draw
+//! shoots (`app --capture-from`), and an embedded replay's unshown frames, before a clip's first or the
+//! frame a seek goes to (`window::Embed`). Rendering them is most of a long lead-in's time, and most of what they draw
 //! never shows, as Spelunky clears the back buffer and redraws its `screen` surface every step. But the
 //! renderer carries pixels from one frame to the next (the back buffer, the surfaces and the shown picture,
 //! `draw`'s "State between frames"), and some of what an early frame draws does show much later: the pause
