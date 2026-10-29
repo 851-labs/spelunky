@@ -211,8 +211,6 @@ export interface PageMeta {
   categories: Frontmatter["categories"];
   aliases: string[];
   objects: string[];
-  // A place's editor-built rooms (the frontmatter's `rooms`), which the source viewer's room pages link it from.
-  rooms: string[];
   // The lede as plain text: the meta description and the answer engines' snippet.
   lede: string;
   spoiler: boolean;
@@ -259,6 +257,9 @@ export interface CompiledPage {
   text: string;
   // The page as Markdown, its twin's content without the notice (markdown.ts). Nor does the module carry it.
   markdown: MdNode[];
+  // A place's editor-built rooms (its `rooms`), which the source viewer's room pages link it from
+  // (plugin.ts's sourceLinks). Nor this: no page of its own shows them.
+  rooms: string[];
 }
 
 export interface Wiki {
@@ -419,7 +420,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
         frame: own?.frame,
       }, meta.slug);
     }
-    pages.push({ file: page.file, meta, code: page.code(), text: page.text, markdown: page.markdown });
+    pages.push({ file: page.file, meta, code: page.code(), text: page.text, markdown: page.markdown, rooms: bySlugPage.get(meta.slug)!.rooms ?? [] });
   }
   // A planned page is one that's linked (by a page, or a planned quirk's `related`), or on a hub (by its type
   // or its category), the wiki's scope: one that's neither any more comes off the list.
@@ -933,7 +934,6 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     categories: page.categories,
     aliases: page.aliases ?? [],
     objects: page.objects ?? [],
-    rooms: page.rooms ?? [],
     lede: lede.text,
     spoiler: page.spoiler ?? false,
     image,

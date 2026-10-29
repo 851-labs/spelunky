@@ -57,6 +57,7 @@ async function roomPage(index: SourceIndex, name: string): Promise<(RoomData & {
   // Only this room's, so the page carries no more of the map than it shows.
   const { objectPages, roomPages } = await import("virtual:wiki/source-links");
   const pages = Object.fromEntries([...objects].filter((object) => Object.hasOwn(objectPages, object)).map((object) => [object, objectPages[object]]));
+  // By the room's own name, as the place's `rooms` has it, not its file's (the same for every room Spelunky has).
   const place = Object.hasOwn(roomPages, room.name) ? roomPages[room.name] : null;
   const instances = `${room.instances.length} ${room.instances.length === 1 ? "instance" : "instances"}`;
   return {

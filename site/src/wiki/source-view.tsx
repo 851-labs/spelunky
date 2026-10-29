@@ -4,6 +4,7 @@
 // and the index of every file and room. The highlighting is the build's (build/gml-highlight.ts): the browser
 // gets markup and a few lines of script.
 import type { Crumb } from "../seo/jsonld";
+import { CardLink } from "./hover-card";
 import { Breadcrumbs } from "./layout";
 import { ROOM_NOTICE, SOURCE_NOTICE, SUPER_SOUND_CREDIT } from "./notices.ts";
 import { roomUrl, sourceSubject, sourceUrl } from "./source-url.ts";
@@ -159,7 +160,11 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
       </p>
       {place && (
         <p className="source-about">
-          The wiki's page on this room: <a href={`/wiki/${place.slug}`}>{place.title}</a>.
+          The wiki's page on this room:{" "}
+          <CardLink href={`/wiki/${place.slug}`} slug={place.slug}>
+            {place.title}
+          </CardLink>
+          .
         </p>
       )}
       <h2 id="settings">Settings</h2>
@@ -239,9 +244,9 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
                     <code>{name}</code>
                   )}
                   {Object.hasOwn(pages, name) && (
-                    <a className="room-page" href={`/wiki/${pages[name].slug}`}>
+                    <CardLink className="room-page" href={`/wiki/${pages[name].slug}`} slug={pages[name].slug}>
                       {pages[name].title}
-                    </a>
+                    </CardLink>
                   )}
                 </th>
                 <td>{instances.length}</td>

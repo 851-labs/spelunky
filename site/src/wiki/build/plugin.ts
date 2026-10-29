@@ -32,7 +32,7 @@ import { buildSearchIndex } from "../search.ts";
 import { hoverCards } from "./cards.ts";
 import { CATEGORY_NAMES } from "./categories.ts";
 import { loadWiki } from "./compile.ts";
-import type { CompiledPage, PageMeta, WikiOptions } from "./compile.ts";
+import type { CompiledPage, WikiOptions } from "./compile.ts";
 import type { Hubs } from "./hubs.ts";
 import { markdownFiles } from "./markdown.ts";
 
@@ -53,14 +53,15 @@ export interface PageLink {
   title: string;
 }
 
-// The page each object is on (its `objects`) and each room (a place's `rooms`): one at most, which the build
-// has checked (compile.ts, relations.ts).
-export function sourceLinks(pages: PageMeta[]): { objects: Record<string, PageLink>; rooms: Record<string, PageLink> } {
+// The page each object is on (its `objects`) and each room (a place's `rooms`, by the room's own name, as the
+// room editor has it): one at most, which the build has checked (compile.ts, relations.ts).
+export function sourceLinks(pages: CompiledPage[]): { objects: Record<string, PageLink>; rooms: Record<string, PageLink> } {
   const objects: Record<string, PageLink> = {};
   const rooms: Record<string, PageLink> = {};
-  for (const { slug, title, objects: names, rooms: roomNames } of pages) {
-    for (const name of names) objects[name] = { slug, title };
-    for (const name of roomNames) rooms[name] = { slug, title };
+  for (const { meta, rooms: roomNames } of pages) {
+    const page = { slug: meta.slug, title: meta.title };
+    for (const name of meta.objects) objects[name] = page;
+    for (const name of roomNames) rooms[name] = page;
   }
   return { objects, rooms };
 }
@@ -194,7 +195,7 @@ export function wiki(options: WikiOptions): Plugin {
       }
       if (name === SOURCE_LINKS) {
         if (this.environment.name === "client") return "export const objectPages = {};\nexport const roomPages = {};";
-        const { objects, rooms } = sourceLinks([...pages.values()].map(({ meta }) => meta));
+        const { objects, rooms } = sourceLinks([...pages.values()]);
         return `export const objectPages = ${JSON.stringify(objects)};\nexport const roomPages = ${JSON.stringify(rooms)};`;
       }
       const page = pages.get(name.slice(PAGE.length));

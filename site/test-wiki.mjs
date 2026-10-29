@@ -70,7 +70,7 @@ if (committed.pages.length === 0) fail("content/wiki: no pages");
 // The source viewer's room pages link each object to its page and the room to its place's (plugin.ts's
 // sourceLinks): written pages only, as the committed pages are.
 {
-  const { objects, rooms } = sourceLinks(committed.pages.map((page) => page.meta));
+  const { objects, rooms } = sourceLinks(committed.pages);
   const json = (value) => JSON.stringify(value);
   if (json(objects.oSnake) !== json({ slug: "snake", title: "Snake" })) fail(`source links: oSnake is ${json(objects.oSnake)}`);
   if (objects.oBrick !== undefined) fail(`source links: oBrick is ${json(objects.oBrick)}`);
