@@ -3355,6 +3355,42 @@
       "width": 640
     },
     {
+      "audio_hash": "88eb82eebbb2dd50",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The high scores room, with gold trophies for money, time and kills, each with a door beside it. The player climbs the column of ledges beside them by hanging and pulling up; at each one the board reads that room's goal, and from the top ledge he goes into the Sun Room's door.",
+      "duration": 10.366666666666667,
+      "encoding": "24ad6facc49fcd95",
+      "files": {
+        "mp4": "high-scores-room/climb/clip.mp4",
+        "poster": "high-scores-room/climb/poster.png",
+        "replay": "high-scores-room/climb/replay.txt",
+        "webm": "high-scores-room/climb/clip.webm"
+      },
+      "fps": 30,
+      "frames": 311,
+      "frames_hash": "2e1353b3ed7bc2b8",
+      "from": 540,
+      "has_audio": true,
+      "height": 480,
+      "id": "high-scores-room/climb",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 700,
+      "replay_from": 540,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/bonus-sun-damsel.txt"
+      },
+      "spec": "wiki/clips/high-scores-room/climb.toml",
+      "state_hash": "0197332f7506cc89",
+      "states_hash": "0b710c11bc4ab36a",
+      "title": "Climbing to the Sun Room",
+      "to": 850,
+      "width": 640
+    },
+    {
       "audio_hash": "376f29d7c602d9b4",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The player takes level 8's exit. In the screen between levels, he pays the Tunnel Man the $500 left on a shortcut, and level 9, the first Ice Caves level, loads: blue rock and ice blocks, with Yetis and a UFO.",
@@ -4648,6 +4684,78 @@
       "states_hash": "5ec181e38bbec37b",
       "title": "Monkey steals",
       "to": 299,
+      "width": 640
+    },
+    {
+      "audio_hash": "4f63a15ff753c0fe",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "In the Moon Room the player picks up the bow, and ARCHERY CHALLENGE BEGINS IN 3... counts down as three bat-shaped targets fly up and down at the right. The 60-second timer starts, and he shoots an arrow every two seconds: one hits the nearest target for a point, and a new one flies in from the top in its place; six seconds later another arrow hits it for a second point.",
+      "duration": 15.666666666666666,
+      "encoding": "45ad00942a4ce887",
+      "files": {
+        "mp4": "moon-room/archery/clip.mp4",
+        "poster": "moon-room/archery/poster.png",
+        "replay": "moon-room/archery/replay.txt",
+        "webm": "moon-room/archery/clip.webm"
+      },
+      "fps": 30,
+      "frames": 470,
+      "frames_hash": "f8e310cdbca1acde",
+      "from": 791,
+      "has_audio": true,
+      "height": 480,
+      "id": "moon-room/archery",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 1069,
+      "replay_from": 791,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/bonus-moon-archery.txt"
+      },
+      "spec": "wiki/clips/moon-room/archery.toml",
+      "state_hash": "2ca6f00a5e11208c",
+      "states_hash": "b95d6759fbe4ab9b",
+      "title": "The archery challenge",
+      "to": 1260,
+      "width": 640
+    },
+    {
+      "audio_hash": "dcb7b9ef531d0630",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "With 20 seconds or less left in the Moon Room, the targets that come back are UFOs, worth 2 more points and faster, and the targets sway as they rise and fall. The player's arrows down a UFO every two seconds, each for 3 points, until the timer runs out at 35 points: FINISHED!, the entrance turns into a door, and he goes through it to the high scores room.",
+      "duration": 20.0,
+      "encoding": "ad4241c1483288aa",
+      "files": {
+        "mp4": "moon-room/ufos/clip.mp4",
+        "poster": "moon-room/ufos/poster.png",
+        "replay": "moon-room/ufos/replay.txt",
+        "webm": "moon-room/ufos/clip.webm"
+      },
+      "fps": 30,
+      "frames": 600,
+      "frames_hash": "6273c207c3e2cf01",
+      "from": 2195,
+      "has_audio": true,
+      "height": 480,
+      "id": "moon-room/ufos",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 2210,
+      "replay_from": 2195,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/bonus-moon-archery.txt"
+      },
+      "spec": "wiki/clips/moon-room/ufos.toml",
+      "state_hash": "d0c6350c50b3ac5c",
+      "states_hash": "c2566babd6639981",
+      "title": "The archery challenge's last 20 seconds",
+      "to": 2794,
       "width": 640
     },
     {
@@ -9289,6 +9397,42 @@
       "width": 640
     },
     {
+      "audio_hash": "11b9faaa87986b5e",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "In the Stars Room, SHOTGUN CHALLENGE BEGINS IN 3... counts down and an angry Shopkeeper drops in from the ceiling. The player climbs to the shotgun on the middle pillar and shoots, killing one Shopkeeper as more drop in. Stunned, he drops the shotgun; a Shopkeeper picks it up and shoots him dead, and FINISHED! shows over his 1 kill.",
+      "duration": 18.133333333333333,
+      "encoding": "8edd23e19962117e",
+      "files": {
+        "mp4": "stars-room/shotgun/clip.mp4",
+        "poster": "stars-room/shotgun/poster.png",
+        "replay": "stars-room/shotgun/replay.txt",
+        "webm": "stars-room/shotgun/clip.webm"
+      },
+      "fps": 30,
+      "frames": 544,
+      "frames_hash": "6e3086a522f5e9ce",
+      "from": 741,
+      "has_audio": true,
+      "height": 480,
+      "id": "stars-room/shotgun",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 1048,
+      "replay_from": 741,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/bonus-stars-shotgun.txt"
+      },
+      "spec": "wiki/clips/stars-room/shotgun.toml",
+      "state_hash": "efd5d8480776d97b",
+      "states_hash": "804082c0dfc5c4f5",
+      "title": "The shotgun challenge",
+      "to": 1284,
+      "width": 640
+    },
+    {
       "audio_hash": "826ccd1b58271484",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The player walks off a high ledge and lands on a caveman after 33 steps of falling: the stomp takes all three of its hit points, and he bounces off it without the fall hurting him.",
@@ -9322,6 +9466,42 @@
       "states_hash": "3a04d8be2901086c",
       "title": "Stomp from a height",
       "to": 129,
+      "width": 640
+    },
+    {
+      "audio_hash": "b90f52c1ebf03b86",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "In the Sun Room, a countdown reads DAMSEL CHALLENGE BEGINS IN 3... while the Damsel walks about among the traps. A point is counted each second as the arrow traps shoot her and the spear traps stab; a lit bomb drops from the ceiling onto the player, who stands still, and kills him at 10 points. FINISHED! and YOU SET A NEW RECORD! follow.",
+      "duration": 16.133333333333333,
+      "encoding": "586f224ee2fd5509",
+      "files": {
+        "mp4": "sun-room/challenge/clip.mp4",
+        "poster": "sun-room/challenge/poster.png",
+        "replay": "sun-room/challenge/replay.txt",
+        "webm": "sun-room/challenge/clip.webm"
+      },
+      "fps": 30,
+      "frames": 484,
+      "frames_hash": "b7abaf1281d07903",
+      "from": 846,
+      "has_audio": true,
+      "height": 480,
+      "id": "sun-room/challenge",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 1105,
+      "replay_from": 846,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/bonus-sun-damsel.txt"
+      },
+      "spec": "wiki/clips/sun-room/challenge.toml",
+      "state_hash": "41c48b3fc909bd23",
+      "states_hash": "13a1080f7804d8b4",
+      "title": "The damsel challenge",
+      "to": 1329,
       "width": 640
     },
     {
@@ -9502,6 +9682,42 @@
       "states_hash": "2862df8020414f8c",
       "title": "Three ways to throw",
       "to": 219,
+      "width": 640
+    },
+    {
+      "audio_hash": "523269112afcf846",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The title screen starts dark, with DEREK YU PRESENTS at the top. A flare falls past the doors and lights the cave as it drops, the Spelunker climbs down the rope beside it and lands, and the player walks left to the nearest of the three doors, SCORES, and goes in.",
+      "duration": 15.033333333333333,
+      "encoding": "27d402a34f177932",
+      "files": {
+        "mp4": "title-screen/opening/clip.mp4",
+        "poster": "title-screen/opening/poster.png",
+        "replay": "title-screen/opening/replay.txt",
+        "webm": "title-screen/opening/clip.webm"
+      },
+      "fps": 30,
+      "frames": 451,
+      "frames_hash": "1a5f8ad98e69081e",
+      "from": 110,
+      "has_audio": true,
+      "height": 480,
+      "id": "title-screen/opening",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 470,
+      "replay_from": 110,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/title-doors.txt"
+      },
+      "spec": "wiki/clips/title-screen/opening.toml",
+      "state_hash": "cde8f47d471bbba9",
+      "states_hash": "26d67b48ce2197a9",
+      "title": "The title screen's opening",
+      "to": 560,
       "width": 640
     },
     {

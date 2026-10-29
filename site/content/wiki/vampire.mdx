@@ -15,7 +15,10 @@ infobox:
   speed: { stat: vampire.charge-speed }
   behaviour: { text: "Charges on foot; flies as a bat to reach the player", cite: objects/oVampire/step.gml:57-345 }
 relations:
-  found_in: [jungle, restless-dead]
+  found_in:
+    - jungle
+    - restless-dead
+    - { slug: sun-room, cite: objects/oSunRoom/alarm_0.gml:15-28, note: "Dropping in, from 50 points" }
   drops: [cape, skull]
   damaged_by:
     - whip
@@ -176,7 +179,7 @@ with a 1 in 25 chance, or failing that a Vampire with a 1 in 160 chance
 
 Vampires also appear in:
 
-- **The Sun Room**, the minigame behind the door the high-score room shows once the best money score is
+- **The [[sun-room|Sun Room]]**, the minigame behind the door the [[high-scores-room|high scores room]] shows once the best money score is
   $200,000 or more. The player scores a point a second, and every 100–200 steps a lit Bomb drops in, or,
   from 50 points, a Vampire already in bat form (from 80, the Ghost comes instead) <Cite gml="objects/oHighscores/create.gml:19" /> <Cite gml="objects/oHighscores/create.gml:32-38" /> <Cite gml="objects/oSunRoom/alarm_11.gml:1-5" />
   <Cite gml="objects/oSunRoom/alarm_0.gml:9-48" />.

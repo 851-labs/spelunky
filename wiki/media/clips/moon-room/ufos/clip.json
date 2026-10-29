@@ -1,0 +1,36 @@
+{
+  "id": "moon-room/ufos",
+  "title": "The archery challenge's last 20 seconds",
+  "description": "With 20 seconds or less left in the Moon Room, the targets that come back are UFOs, worth 2 more points and faster, and the targets sway as they rise and fall. The player's arrows down a UFO every two seconds, each for 3 points, until the timer runs out at 35 points: FINISHED!, the entrance turns into a door, and he goes through it to the high scores room.",
+  "spec": "wiki/clips/moon-room/ufos.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/bonus-moon-archery.txt"
+  },
+  "from": 2195,
+  "to": 2794,
+  "frames": 600,
+  "replay_from": 2195,
+  "state_hash": "d0c6350c50b3ac5c",
+  "states_hash": "c2566babd6639981",
+  "fps": 30,
+  "duration": 20.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2210,
+  "frames_hash": "6273c207c3e2cf01",
+  "has_audio": true,
+  "audio_hash": "dcb7b9ef531d0630",
+  "encoding": "ad4241c1483288aa",
+  "files": {
+    "mp4": "moon-room/ufos/clip.mp4",
+    "webm": "moon-room/ufos/clip.webm",
+    "poster": "moon-room/ufos/poster.png",
+    "replay": "moon-room/ufos/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

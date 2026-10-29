@@ -1,0 +1,143 @@
+---
+slug: title-screen
+title: Title screen
+type: place
+categories: [places, the-game]
+rooms: [rTitle, rIntro]
+aliases: [title, title-room, main-menu, menu, intro, start-screen]
+lede: >-
+  The title screen of Spelunky Classic is a cave to walk around in, with doors to a new game, the Tutorial
+  and the high scores, and a rope to climb to quit.
+infobox:
+  image: { sprite: sStartSign, alt: "A dark stone sign reading START, on two stone posts" }
+relations:
+  related: [high-scores-room, tutorial, tunnel-man-shortcuts, controls, credits, level-editor]
+clips: [title-screen/opening, tutorial/door, jungle/shortcut, credits/title-rope, quirks/damsel-title-rope-spelunker]
+faq:
+  - q: How do you start a game in Spelunky Classic?
+    a: >-
+      Walk into the START door on the title screen and press up. A new game starts on level 1 of
+      [[mines|the Mines]]; the very first game goes to the [[tutorial|Tutorial]] instead.
+  - q: How do you quit Spelunky Classic from the title screen?
+    a: >-
+      Climb the rope at the right of the title screen, under the QUIT sign, to the top. The screen fades
+      out to the [[credits]], and the game quits after them.
+  - q: How do you skip the intro in Spelunky Classic?
+    a: >-
+      Press Enter, Escape, attack or start. The first press skips the story's lines to the walk to the cave,
+      the next goes to the title screen, and one more there skips its opening.
+  - q: How do you open the level editor in Spelunky Classic?
+    a: >-
+      Press F2 on the title screen for the [[level-editor|level editor]], or F3 to load a custom level.
+sources:
+  - objects/oIntro/create.gml
+  - objects/oIntro/step.gml
+  - objects/oPDummy3/step.gml
+  - objects/oTitle/create.gml
+  - objects/oTitle/alarm_0.gml
+  - objects/oTitle/alarm_3.gml
+  - objects/oTitle/step.gml
+  - objects/oTitle/draw.gml
+  - objects/oPDummy4/step.gml
+  - objects/oPlayer1/other_animation_end.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+It's a room the player walks around in rather than a menu, two screens wide. The right screen, where the
+game starts, has the doors under their signs: TUTORIAL, START and SCORES, the last to the
+[[high-scores-room|high scores room]]. At its right a rope hangs from the top under a QUIT sign. The left
+screen is the Shortcut House, where the [[tunnel-man|Tunnel Man]] stands and his
+[[tunnel-man-shortcuts|shortcuts]]' doors open once they're paid for. Nothing there can hurt the player.
+
+## Generation
+
+### The intro
+
+Spelunky opens on its intro: three lines of a story, one at a time, each picked from eight at random,
+"AS THE MOON BURNED BRIGHT ABOVE," "I DISMOUNTED MY CAMEL," "AND THAT'S WHEN IT ALL STARTED." among them
+<Cite gml="objects/oIntro/create.gml:9-45" /> <Cite gml="objects/oIntro/draw.gml:6-32" />. The screen then
+fades in on the desert at night, and the Spelunker walks to a cave, bats flying out past him, throws a rope
+down and climbs down out of sight, which fades out to the title screen
+<Cite gml="objects/oIntro/step.gml:14-32" /> <Cite gml="objects/oPDummy3/step.gml:1-37" />. Enter, Escape,
+attack or start skips the lines to the walk, and pressed during the walk, fades out to the title screen at
+once <Cite gml="objects/oIntro/step.gml:1-12" />.
+
+### The opening
+
+<Clip id="title-screen/opening" />
+
+From the intro, the title screen opens dark. DEREK YU PRESENTS shows at the top for 100 steps <Cite gml="objects/oTitle/create.gml:64-71" /> <Cite gml="objects/oTitle/alarm_0.gml:1-2" />
+<Cite gml="objects/oScreen/step_begin.gml:135-140" />. Seventy steps later a flare drops from the top, lighting the
+cave as it falls, and 50 steps later the Spelunker climbs down the rope, drops to the floor and is the player, as the
+title music starts <Cite gml="objects/oTitle/alarm_1.gml:1-2" /> <Cite gml="objects/oTitle/alarm_2.gml:1-4" /> <Cite gml="objects/oTitle/draw.gml:1-7" />
+<Cite gml="objects/oTitle/alarm_3.gml:1-3" /> <Cite gml="objects/oPDummy4/step.gml:1-32" />. Enter, Escape,
+attack or start during the opening starts it over with the player already at the foot of the rope and the
+cave lit <Cite gml="objects/oTitle/step.gml:1-23" /> <Cite gml="objects/oTitle/create.gml:81-89" />. In the
+clip, the opening plays through, and the player walks left into the SCORES door <Cite clip="title-screen/opening" />.
+
+Coming back from somewhere else, the player is already there, lit, with the music on: at the SCORES door from
+the high scores room, at the tutorial door from the Tutorial <Cite gml="objects/oTitle/create.gml:72-98" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:110-131" />.
+
+### The room
+
+| Door | Under the sign | Leads to | |
+| --- | --- | --- | --- |
+| START | START | A new game, on level 1 of [[mines\|the Mines]]; the very first game, the [[tutorial\|Tutorial]] | <Cite gml="objects/oPlayer1/other_animation_end.gml:72-86" /> |
+| Tutorial | TUTORIAL, left of START | The Tutorial, as level 0 | <Cite gml="objects/oPlayer1/other_animation_end.gml:87-95" /> |
+| Scores | SCORES, right of START | The [[high-scores-room\|high scores room]] | <Cite gml="objects/oPlayer1/other_animation_end.gml:96-109" /> |
+
+The room editor placed the doors, the signs, the rope and the level 5 shortcut's door <Cite room="rTitle" />.
+A game from START, or from the tutorial door through the Tutorial's exit, is one whose winning time counts for the high scores; one from a
+shortcut's door isn't ([[shortcut-win-no-time]]) <Cite gml="objects/oPlayer1/other_animation_end.gml:72-95" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:137-157" />.
+On the game's very first run, the tutorial door and its sign are bricked over, and START leads to the
+Tutorial, once ([[tutorial#getting-there]]) <Cite gml="objects/oTitle/create.gml:100-105" />
+<Cite gml="objects/oPlayer1/other_animation_end.gml:76-83" />. A hand then points at START, with PRESS UP TO
+ENTER! while the player stands at it, but only if the title screen started with him already there: the
+opening skipped, or back from the high scores room. After the whole opening there's none
+<Cite gml="objects/oTitle/create.gml:64-98" /> <Cite gml="objects/oHintHand/draw.gml:1-14" />. The view
+follows the player between the two screens <Cite gml="objects/oTitle/step.gml:25-36" />.
+
+The player's hearts are set back to the start's on every step, so nothing can kill him there
+<Cite gml="objects/oPlayer1/step.gml:2-7" />, and his bombs and ropes can't be used outside a level
+<Cite gml="objects/oPlayer1/step.gml:944-948" />. The room can be paused once he stands in it
+([[controls#pausing]]) <Cite gml="objects/oTitle/alarm_3.gml:2" />.
+
+With all four of the high scores' gold trophies, a gold trophy and a door take the Tunnel Man's place at the
+left end. Going through the door turns the player into the Tunnel Man, and through it again back
+([[tunnel-man#playing-as-him]]) <Cite gml="objects/oTitle/create.gml:54-62" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:192-218" />.
+
+### Leaving
+
+- **Quitting.** Climbing the rope to the top of the screen takes the player out of sight; the title fades
+  out to the [[credits]], and the game quits after them <Cite gml="objects/oPlayer1/step.gml:49-60" /> <Cite gml="objects/oPDummy5/step.gml:1-8" /> <Cite gml="objects/oTitle/step.gml:38-45" />
+  <Cite gml="objects/oCredits1/step.gml:48" />. The clip shows it <Cite clip="credits/title-rope" />.
+- **The level editor.** F2 opens the [[level-editor|level editor]], and F3 the menu of custom levels <Cite gml="objects/oTitle/keypress_F2.gml:1-3" /> <Cite gml="objects/oTitle/keypress_F3.gml:1-8" />.
+
+<Clip id="credits/title-rope" />
+
+## Inhabitants
+
+The [[tunnel-man|Tunnel Man]] stands at the left end of the Shortcut House until the player
+can play as him <Cite gml="objects/oTitle/create.gml:59-62" />. Nothing else lives there.
+
+## Items and shops
+
+The rope at the right is the room's only thing to use: climbing it to the top quits ([Leaving](#leaving)) <Cite room="rTitle" />.
+
+## Secrets
+
+<Clip id="jungle/shortcut" />
+
+The Shortcut House, the left screen, is walled off until the Tunnel Man's first shortcut is paid for; then a
+ladder leads up to its doors, to levels 5, 9 and 13 as each is paid ([[tunnel-man-shortcuts#the-shortcut-house]])
+<Cite gml="objects/oTitle/create.gml:27-52" /> <Cite gml="objects/oTitle/draw.gml:17-29" />. In the clip, the
+player climbs the ladder and goes into the level 5 door <Cite clip="jungle/shortcut" />.
+
+## Trivia
+
+- The title screen's code has the text V1.1 (C)2009, commented out, so the game shows no version
+  ([[versions]]) <Cite gml="objects/oTitle/draw.gml:11-15" />.
+- Playing as the [[damsel|Damsel]], the figure that climbs out of sight up the rope is the Spelunker
+  ([[damsel-title-rope-spelunker]]) <Cite quirk="1" row="Playing as the Damsel, the title rope's climb out shows the Spelunker." />.
+
+<Clip id="quirks/damsel-title-rope-spelunker" />

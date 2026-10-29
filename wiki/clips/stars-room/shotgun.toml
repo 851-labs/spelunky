@@ -1,0 +1,7 @@
+title = "The shotgun challenge"
+description = "In the Stars Room, SHOTGUN CHALLENGE BEGINS IN 3... counts down and an angry Shopkeeper drops in from the ceiling. The player climbs to the shotgun on the middle pillar and shoots, killing one Shopkeeper as more drop in. Stunned, he drops the shotgun; a Shopkeeper picks it up and shoots him dead, and FINISHED! shows over his 1 kill."
+replay = "fidelity/replays/bonus-stars-shotgun.txt"
+from = 741
+to = 1284
+poster = 1048
+story = "room=rStars@741 plife=8@741 +oShopkeeper2@841 held=oShotgun@895 oStarsRoom.kills=1@1048 +oShopkeeper2@1041 oPlayer1.stunned=1@1136..1136 held!=oShotgun@1136..1136 -oShotgun@1243 oShopkeeper2.hasGun=1@1247 oPlayer1.dead=1@1251 mini3=1@1251 oGame.drawStatus=1@1252"

@@ -40,7 +40,7 @@ sources:
 verified: { port: v0.1.11, date: 2026-10-28 }
 ---
 
-Climbing the title screen's rope to the top is the way out of Spelunky: the credits roll and the game quits. At the
+Climbing the [[title-screen|title screen]]'s rope to the top is the way out of Spelunky: the credits roll and the game quits. At the
 top, the player is swapped for a figure that climbs on up out of sight. Playing as the [[damsel|Damsel]], she
 climbs the rope as herself, but that figure is the [[spelunker|Spelunker]]: an `else` meant for the Damsel's check
 belongs to the Tunnel Man's.
@@ -70,7 +70,7 @@ sets her climbing sprite, and the third replaces it at once with the Spelunker's
 
 ## Reproducing it
 
-Save 8 Damsels in one game, so that the high scores room has the Changing Room's door
+Save 8 Damsels in one game, so that the [[high-scores-room|high scores room]] has the Changing Room's door
 <Cite gml="objects/oHighscores/create.gml:86-93" />. Go through it to become the Damsel
 <Cite gml="objects/oPlayer1/other_animation_end.gml:173-191" />, go back to the title screen, and climb its rope
 to the top. The replay starts with 8 saves: the player goes through the Changing Room's door and comes out as the

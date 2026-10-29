@@ -1,0 +1,130 @@
+---
+slug: stars-room
+title: Stars Room
+type: place
+categories: [places]
+rooms: [rStars]
+aliases: [stars-challenge, shotgun-challenge, star-room, stars-challenge-room]
+spoiler: true
+lede: >-
+  The Stars Room is a bonus room of Spelunky Classic, opened by 120 kills in a game, where the player
+  shoots angry Shopkeepers with a shotgun until they get him.
+infobox:
+  image: { sprite: sShopkeeperIcon, alt: "A bald Shopkeeper's face with a red nose and a black beard" }
+relations:
+  part_of:
+    - { slug: high-scores-room, cite: objects/oHighscores/create.gml:68-84 }
+  related: [sun-room, moon-room, scoring, shopkeeper, shotgun]
+clips: [stars-room/shotgun]
+faq:
+  - q: How do you unlock the Stars Room in Spelunky Classic?
+    a: >-
+      Kill 120 monsters in one game. The [[high-scores-room|high scores room]] then has a gold trophy for
+      kills, and a door beside it into the Stars Room.
+  - q: What do you do in the Stars Room in Spelunky Classic?
+    a: >-
+      Kill angry [[shopkeeper|Shopkeepers]] with the room's [[shotgun|Shotgun]]. They drop in from the
+      ceiling, more often the more the player kills, and the challenge ends when he dies.
+  - q: Do the Stars Room's Shopkeepers have shotguns in Spelunky Classic?
+    a: >-
+      No, they come in unarmed, but one that touches a shotgun takes it and fires it: one the player has
+      dropped, or the one in his hands.
+  - q: Do the Stars Room's Shopkeepers drop gold in Spelunky Classic?
+    a: >-
+      No. A Shopkeeper killed there only adds to the room's count: he leaves no
+      [[gold-nugget|Gold Nuggets]] and counts in none of the game's kills, and his body is gone once it has
+      lain still for 200 steps.
+sources:
+  - objects/oStarsRoom/create.gml
+  - objects/oStarsRoom/alarm_0.gml
+  - objects/oStarsRoom/alarm_11.gml
+  - objects/oStarsRoom/draw.gml
+  - objects/oShopkeeper2/create.gml
+  - objects/oShopkeeper2/step.gml
+  - objects/oShopkeeper/step.gml
+  - objects/oHighscores/create.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+It's the third of the three secret challenges behind the trophies of the [[high-scores-room|high scores
+room]], the SHOTGUN CHALLENGE. One room, built in the room editor, of rock pillars and ledges with a
+[[shotgun|Shotgun]] on the middle one. [[shopkeeper|Shopkeepers]] drop in from the ceiling, angry from the
+start, and come faster as the kills mount; past the first kills, [[spider|Spiders]] drop in with them. The
+score is the Shopkeepers killed before the player dies.
+
+## Generation
+
+### Getting there
+
+A best of 120 kills or more puts a gold trophy third from the top of the high scores room's column of
+trophies, and a door to the Stars Room under it <Cite gml="objects/oHighscores/create.gml:68-84" />.
+Climbing up beside it, the board reads STARS ROOM and the goal, KILL AS MANY ANGRY SHOPKEEPS AS YOU CAN
+BEFORE THEY GET YOU!, or LOCKED. without the kills <Cite gml="objects/oHighscores/draw.gml:67-92" />. The
+clip of the climb to the [[sun-room|Sun Room]] passes it on the way ([[high-scores-room#the-room]]).
+
+### The room
+
+The room editor laid out the whole room, a screen wide: the entrance at the bottom left, rock pillars and
+ledges, and the Shotgun on top of the middle pillar <Cite room="rStars" />. A carved star hangs on the back
+wall. As in every bonus room, the bricks around its edge can't be broken
+<Cite gml="objects/oStarsRoom/create.gml:11-17" />, the player has <Stat id="health.bonus-room" />
+<Cite gml="objects/oStarsRoom/create.gml:1" />, and his bombs and ropes can't be used outside a level
+([[sun-room#the-room]]).
+
+### The challenge
+
+<Clip id="stars-room/shotgun" />
+
+SHOTGUN CHALLENGE BEGINS IN 3... counts down at the bottom of the screen as the room starts
+<Cite gml="objects/oStarsRoom/draw.gml:9-17" />. From 100 steps in, Shopkeepers drop in from the ceiling, each
+at one of four places across the top at random, on a timer that shortens as the kills mount <Cite gml="objects/oStarsRoom/create.gml:5" /> <Cite gml="objects/oStarsRoom/alarm_0.gml:1-22" />:
+
+| Kills | A Shopkeeper every | |
+| --- | --- | --- |
+| 0–9 | 200 steps (6.67 seconds) | <Cite gml="objects/oStarsRoom/alarm_0.gml:21" /> |
+| 10–19 | 175 steps (5.83 seconds) | <Cite gml="objects/oStarsRoom/alarm_0.gml:17-20" /> |
+| 20–29 | 150 steps (5 seconds) | <Cite gml="objects/oStarsRoom/alarm_0.gml:13-16" /> |
+| 30–39 | 125 steps (4.17 seconds) | <Cite gml="objects/oStarsRoom/alarm_0.gml:9-12" /> |
+| 40 or more | 100 steps (3.33 seconds) | <Cite gml="objects/oStarsRoom/alarm_0.gml:5-8" /> |
+
+They come angry and without a shotgun <Cite gml="objects/oShopkeeper2/create.gml:1-5" />, chasing and
+leaping at the player as an angry Shopkeeper does ([[shopkeeper#angry]]); one that touches a
+shotgun takes it and fires it, even the one in the player's hands
+<Cite gml="objects/oShopkeeper/collision_oShotgun.gml:1-14" />. From 110 steps
+in, every 20 steps, a roll of 1 to 100 that comes in under the kills drops a [[spider|Spider]] at one of the
+same four places, so with more kills more Spiders come, and with none or one, none <Cite gml="objects/oStarsRoom/create.gml:8" /> <Cite gml="objects/oStarsRoom/alarm_11.gml:1-7" />.
+
+A Shopkeeper killed there adds one to the room's kills, shown at the top beside a Shopkeeper's face, up to 99,
+and nothing else: he leaves no [[gold-nugget|Gold Nuggets]], and counts in none of the game's kills
+<Cite gml="objects/oShopkeeper/step.gml:479-502" /> <Cite gml="objects/oStarsRoom/draw.gml:7-8" />. His body
+bleeds away once it has lain still for 200 steps, the count pausing while it's thrown or sliding
+<Cite gml="objects/oShopkeeper2/step.gml:1-11" /> <Cite gml="objects/oShopkeeper/step.gml:508" />.
+
+The challenge ends when the player dies: FINISHED! comes up, then YOU SET A NEW RECORD! if the kills beat the
+room's best, or BETTER LUCK NEXT TIME... <Cite gml="objects/oGame/draw.gml:99-118" />. The kills are kept
+as the room's best in the high scores, which count no play, death or win for it <Cite gml="objects/oPlayer1/step.gml:1909-1914" /> <Cite gml="scripts/scrUpdateHighscores.gml:78-117" />.
+Attack (or start) goes back to the high scores room, in front of the Stars Room's door <Cite gml="objects/oPlayer1/step.gml:907-941" /> <Cite gml="objects/oHighscores/create.gml:114-118" />.
+
+In the clip, the first Shopkeeper drops in and knocks the player about while he climbs to the Shotgun. He
+shoots one dead as more drop in; then, stunned, he drops the Shotgun, and a Shopkeeper picks it up and
+shoots him with it, at 1 kill <Cite clip="stars-room/shotgun" /> <Cite replay="fidelity/replays/bonus-stars-shotgun.txt" />.
+
+## Inhabitants
+
+| Monster | Where | |
+| --- | --- | --- |
+| [[shopkeeper\|Shopkeeper]] | Dropping in from the ceiling, angry and unarmed, every 100 to 200 steps | <Cite gml="objects/oStarsRoom/alarm_0.gml:1-22" /> |
+| [[spider\|Spider]] | Dropping in from the ceiling, a roll every 20 steps, likelier with more kills | <Cite gml="objects/oStarsRoom/alarm_11.gml:1-7" /> |
+
+## Hazards
+
+The room has no traps <Cite room="rStars" />: what can hurt the player is the Shopkeepers, the Spiders, and
+a Shopkeeper who has picked up a shotgun.
+
+## Items and shops
+
+The [[shotgun|Shotgun]] on the middle pillar is the room's only item <Cite room="rStars" />.
+
+## Trivia
+
+- The board's goal calls them "SHOPKEEPS" <Cite gml="objects/oHighscores/draw.gml:83-85" />.

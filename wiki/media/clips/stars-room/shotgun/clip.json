@@ -1,0 +1,36 @@
+{
+  "id": "stars-room/shotgun",
+  "title": "The shotgun challenge",
+  "description": "In the Stars Room, SHOTGUN CHALLENGE BEGINS IN 3... counts down and an angry Shopkeeper drops in from the ceiling. The player climbs to the shotgun on the middle pillar and shoots, killing one Shopkeeper as more drop in. Stunned, he drops the shotgun; a Shopkeeper picks it up and shoots him dead, and FINISHED! shows over his 1 kill.",
+  "spec": "wiki/clips/stars-room/shotgun.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/bonus-stars-shotgun.txt"
+  },
+  "from": 741,
+  "to": 1284,
+  "frames": 544,
+  "replay_from": 741,
+  "state_hash": "efd5d8480776d97b",
+  "states_hash": "804082c0dfc5c4f5",
+  "fps": 30,
+  "duration": 18.133333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1048,
+  "frames_hash": "6e3086a522f5e9ce",
+  "has_audio": true,
+  "audio_hash": "11b9faaa87986b5e",
+  "encoding": "8edd23e19962117e",
+  "files": {
+    "mp4": "stars-room/shotgun/clip.mp4",
+    "webm": "stars-room/shotgun/clip.webm",
+    "poster": "stars-room/shotgun/poster.png",
+    "replay": "stars-room/shotgun/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

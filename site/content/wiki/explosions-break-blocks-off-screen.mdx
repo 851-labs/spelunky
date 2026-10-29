@@ -66,7 +66,7 @@ no argument (GameMaker passes it one anyway, and nothing reads it). It asks whet
 the Tutorial, any level of the game, [[olmec|Olmec]]'s lair or a [[level-editor|custom level]]
 <Cite gml="scripts/isLevel.gml:7" />. So on a level the test always passes, and the explosion breaks every block
 it touches but the unbreakable ones, the level's border and the blocks under its doors <Cite quirk="1" />. (The
-only other room with explosions, the high scores room's Sun Room, passes the screen test anyway: its screen
+only other room with explosions, the high scores room's [[sun-room|Sun Room]], passes the screen test anyway: its screen
 doesn't move, and the room is barely taller than it <Cite gml="objects/oSunRoom/alarm_0.gml:31-36" />.) Whether `isRoom`, which does take a room's name, was meant is a guess: the screen's own
 code uses `isRoom("rTutorial")` to keep the Tutorial's messages white <Cite gml="objects/oScreen/step_begin.gml:252" />.
 The same mix-up is in the level's copy of that code, where it does nothing that shows: the screen's yellow

@@ -12,6 +12,8 @@ infobox:
   image: { sprite: sTunnelManLeft, alt: "A man with a black afro, in a blue shirt and brown trousers, facing left" }
   role: { text: "Digs shortcuts" }
 relations:
+  found_in:
+    - { slug: title-screen, cite: objects/oTitle/create.gml:59-62 }
   related: [mattock, jungle, ice-caves, temple, damsel]
 clips: [tunnel-man/donate, tunnel-man/paid]
 faq:
@@ -46,7 +48,7 @@ sources:
 verified: { port: v0.1.10, date: 2026-10-28 }
 ---
 
-He digs three [[tunnel-man-shortcuts|shortcuts]] in turn, each a door on the title screen that starts a game at the first level of an
+He digs three [[tunnel-man-shortcuts|shortcuts]] in turn, each a door on the [[title-screen|title screen]] that starts a game at the first level of an
 area: the [[jungle|Jungle]]'s level 5, the [[ice-caves|Ice Caves]]' level 9 and the [[temple|Temple]]'s level
 13. He asks for their price a donation at a time, in the screen between the last level of one area and the
 first of the next, and remembers what he's owed from game to game. Players who have earned every gold trophy
@@ -125,9 +127,10 @@ It breaks blocks as the Mattock does <Cite gml="objects/oMattockHit/other_animat
 
 ## Trivia
 
-- The Stars challenge room makes its outer bricks unbreakable, with the comment "To prevent the Tunnel Man
-  from tearing up the whole level." <Cite gml="objects/oStarsRoom/create.gml:10-17" />
-- The high scores room has a message for him, "NO MATTOCKS ALLOWED! THIS MEANS YOU!", in the Sun room's
+- Each of the three bonus rooms, the [[sun-room|Sun]], [[moon-room|Moon]] and [[stars-room|Stars]] Rooms, makes
+  its outer bricks unbreakable, with the comment "To prevent the Tunnel Man from tearing up the whole
+  level." <Cite gml="objects/oSunRoom/create.gml:10-17" /> <Cite gml="objects/oMoonRoom/create.gml:11-18" /> <Cite gml="objects/oStarsRoom/create.gml:10-17" />
+- The [[high-scores-room|high scores room]] has a message for him, "NO MATTOCKS ALLOWED! THIS MEANS YOU!", in the Sun room's
   description, turned off with `if (false)` and the test it replaced left in a comment
   <Cite gml="objects/oHighscores/draw.gml:19-27" />.
 - The up key raises the donation even before he has asked for one, while the player walks up to him and

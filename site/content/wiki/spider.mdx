@@ -17,7 +17,9 @@ infobox:
 relations:
   # Jars, Olmec's yellow balls and Kali's head drop Spiders too: that's on their pages (drops), and shows
   # here as "Dropped by".
-  found_in: [mines]
+  found_in:
+    - mines
+    - { slug: stars-room, cite: objects/oStarsRoom/alarm_11.gml:1-5, note: "Dropping in, once the player has kills" }
   damaged_by:
     - whip
     - machete
@@ -149,7 +151,7 @@ Spiders also appear wherever these are:
   it does again on a later one if the level is dark and the [[ghost|Ghost]] is already out <Cite
   gml="objects/oSacAltarLeft/destroy.gml:11-26" /> <Cite gml="objects/oSacAltarLeft/destroy.gml:39-47" />
   <Cite gml="objects/oKaliHead/alarm_0.gml:1-8" />.
-- **The Stars room**, a bonus room off the high-score room, where a Spider may drop in from the top every
+- **The [[stars-room|Stars Room]]**, a bonus room off the [[high-scores-room|high scores room]], where a Spider may drop in from the top every
   20 steps, more likely the more [[shopkeeper|Shopkeepers]] the player has killed there
   <Cite gml="objects/oStarsRoom/alarm_11.gml:1-7" /> <Cite gml="objects/oShopkeeper/step.gml:485" />.
 - **Custom levels**, as the [[level-editor|level editor]]'s tile `s`, a hanging Spider

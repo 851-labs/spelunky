@@ -1,0 +1,36 @@
+{
+  "id": "sun-room/challenge",
+  "title": "The damsel challenge",
+  "description": "In the Sun Room, a countdown reads DAMSEL CHALLENGE BEGINS IN 3... while the Damsel walks about among the traps. A point is counted each second as the arrow traps shoot her and the spear traps stab; a lit bomb drops from the ceiling onto the player, who stands still, and kills him at 10 points. FINISHED! and YOU SET A NEW RECORD! follow.",
+  "spec": "wiki/clips/sun-room/challenge.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/bonus-sun-damsel.txt"
+  },
+  "from": 846,
+  "to": 1329,
+  "frames": 484,
+  "replay_from": 846,
+  "state_hash": "41c48b3fc909bd23",
+  "states_hash": "13a1080f7804d8b4",
+  "fps": 30,
+  "duration": 16.133333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1105,
+  "frames_hash": "b7abaf1281d07903",
+  "has_audio": true,
+  "audio_hash": "b90f52c1ebf03b86",
+  "encoding": "586f224ee2fd5509",
+  "files": {
+    "mp4": "sun-room/challenge/clip.mp4",
+    "webm": "sun-room/challenge/clip.webm",
+    "poster": "sun-room/challenge/poster.png",
+    "replay": "sun-room/challenge/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

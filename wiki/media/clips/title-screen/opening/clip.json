@@ -1,0 +1,36 @@
+{
+  "id": "title-screen/opening",
+  "title": "The title screen's opening",
+  "description": "The title screen starts dark, with DEREK YU PRESENTS at the top. A flare falls past the doors and lights the cave as it drops, the Spelunker climbs down the rope beside it and lands, and the player walks left to the nearest of the three doors, SCORES, and goes in.",
+  "spec": "wiki/clips/title-screen/opening.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/title-doors.txt"
+  },
+  "from": 110,
+  "to": 560,
+  "frames": 451,
+  "replay_from": 110,
+  "state_hash": "cde8f47d471bbba9",
+  "states_hash": "26d67b48ce2197a9",
+  "fps": 30,
+  "duration": 15.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 470,
+  "frames_hash": "1a5f8ad98e69081e",
+  "has_audio": true,
+  "audio_hash": "523269112afcf846",
+  "encoding": "27d402a34f177932",
+  "files": {
+    "mp4": "title-screen/opening/clip.mp4",
+    "webm": "title-screen/opening/clip.webm",
+    "poster": "title-screen/opening/poster.png",
+    "replay": "title-screen/opening/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
