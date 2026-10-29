@@ -130,16 +130,18 @@ read before the app's build, which gets `WIKI_MEDIA_DIR` (`wiki/media`, for the 
 `sprites/index.json` and `clips/index.json` as they're pre-rendered), `WIKI_MEDIA_URL` (`/wiki/media`, to link
 the files), `WIKI_MEDIA_LOG` (a file of `git log --name-only` over the clips' videos, which dates each clip:
 below) and `WIKI_MEDIA_DATE` (when they last changed: the date of the last commit to `wiki/media`; a
-`--wiki-media` directory's modification time, if it isn't in a git work tree, which has no log); none is set
+`--wiki-media` directory's modification time, if it isn't a git repository of its own, which has no log); none is set
 under `npm run dev`. The wiki's pipeline and `virtual:wiki-media` read them (SEO, below).
 
 **Clip dates.** A clip's `uploadDate` (its `VideoObject`'s, and the video sitemap's publication date) is when
 its videos last changed: the newest commit that changed its `clip.mp4` or `clip.webm`, so a re-rendered clip
-moves only its own date, and a new title or description (`clip.json`) moves none. A clip the log doesn't name
-(rendered, not committed) has `WIKI_MEDIA_DATE`. Workers Builds clones at depth 1, where git shows the
+moves only its own date, and a new title or description (`clip.json`) moves none. A clip no commit has (a new
+one, rendered but not committed) has `WIKI_MEDIA_DATE`; one rendered again but not committed keeps its last
+commit's. On the first parents only: a merge's date is when its branch's videos got there. Workers Builds clones at depth 1, where git shows the
 checkout's commit adding every file, so `build.sh` first fetches a shallow clone's history with
 `--filter=blob:none --unshallow`: the commits and trees `git log` reads, not the files (every render of every
-clip), in about a second; and fails if it can't, rather than date every clip from the checkout. The dates come
+clip), in about a second, which leaves it a partial clone; and fails if it can't (if `origin` hasn't got the
+checkout's commit), rather than date every clip from the checkout. The dates come
 from the history, not the media, so the committed media (and CI's byte-for-byte check of them) don't change
 with them, and the same commit always builds the same dates.
 

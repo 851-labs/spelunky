@@ -109,8 +109,8 @@ fi
 # served at, /wiki/media, WIKI_MEDIA_LOG the file that dates each clip, its uploadDate (git log's list of the
 # commits that changed the clips' videos: a clip's is the newest that changed its MP4 or WebM), and
 # WIKI_MEDIA_DATE when the media last changed (the last commit to them), the date of a clip the log hasn't got
-# (rendered, not committed). A --wiki-media directory outside a git work tree has no log, and every clip's date
-# is the directory's modification time.
+# (a new one, rendered but not committed). A --wiki-media directory that isn't a git repository of its own has
+# no log, and every clip's date is the directory's modification time.
 media=${wiki_media:-$(cd .. && pwd)/wiki/media}
 for f in sprites/index.json clips/index.json LICENSE.txt NOTICE.txt; do
   [ -f "$media/$f" ] || die "$media has no $f: not what scripts/wiki-media renders"
@@ -124,10 +124,15 @@ other=$(cd "$media" && find sprites clips -type f \( -path '*/.*' -o ! \( -path 
   -path 'clips/*.mp4' -o -path 'clips/*.webm' \) \) | head -1)
 [ -z "$other" ] || die "$media has $other, which isn't a sprite's .png or .json or a clip's .png, .json, .txt, .mp4 or .webm: add it to wrangler.jsonc's run_worker_first"
 git_media() { git -C "$media" "$@"; }
-if [ "$(git_media rev-parse --is-inside-work-tree 2>/dev/null)" = true ]; then
+# The checkout's history, or a --wiki-media directory's that's a repository's top (test.sh's stand-in), not one
+# that's only somewhere in another repository's work tree, whose history isn't the media's.
+if [ -z "$wiki_media" ] || [ "$(git_media rev-parse --show-toplevel 2>/dev/null)" = "$(cd "$media" && pwd -P)" ]; then
+  [ "$(git_media rev-parse --is-inside-work-tree 2>/dev/null)" = true ] ||
+    die "wiki/media isn't in a git checkout, whose history dates the clips"
   # Workers Builds clones at depth 1, where git shows the checkout's commit adding every file, which would date
   # every clip from it. So a shallow clone fetches its history first, the commits and their trees, all git log
-  # reads: not the files (every render of every clip), which a full clone would download. About a second.
+  # reads: not the files (every render of every clip), which a full clone would download. About a second. That
+  # leaves it a partial clone, which fetches an old file when a command needs one.
   if [ "$(git_media rev-parse --is-shallow-repository)" = true ]; then
     echo "site/build.sh: fetching the shallow clone's history, which dates the clips"
     git_media fetch --quiet --filter=blob:none --unshallow origin "$(git_media rev-parse HEAD)" ||
@@ -138,17 +143,16 @@ if [ "$(git_media rev-parse --is-inside-work-tree 2>/dev/null)" = true ]; then
     { d=$(when -- .) && [ -n "$d" ] || d=$(when); } && echo "$d") ||
     die "git can't say when $media last changed"
   # One pass over the history, not one a clip: '@DATE', then the videos the commit changed, relative to clips/
-  # as clip.json's files are. No renames: a moved clip is a new video at its URL.
+  # as clip.json's files are, unquoted. No renames: a moved clip is a new video at its URL. The first parents
+  # only: a merge's own date is when its branch's videos got here.
   media_log=$tmp/clips.log
-  (cd "$media/clips" && TZ=UTC git log --relative --no-renames --format=@%cd \
-    --date=format-local:%Y-%m-%dT%H:%M:%SZ --name-only -- '*/clip.mp4' '*/clip.webm') >"$media_log" ||
+  (cd "$media/clips" && TZ=UTC git -c core.quotePath=false log --first-parent --relative --no-renames \
+    --format=@%cd --date=format-local:%Y-%m-%dT%H:%M:%SZ --name-only -- '*/clip.mp4' '*/clip.webm') >"$media_log" ||
     die "git can't say when the clips last changed"
   echo "site/build.sh: the clips dated by git's history (commits that changed their videos: $(grep -c '^@' "$media_log"))"
-elif [ -n "$wiki_media" ]; then
+else
   media_date=$(node -p 'fs.statSync(process.argv[1]).mtime.toISOString().replace(/\.\d+Z$/, "Z")' "$media")
   media_log=
-else
-  die "wiki/media isn't in a git checkout, whose history dates the clips"
 fi
 export WIKI_MEDIA_DIR="$media" WIKI_MEDIA_URL=/wiki/media WIKI_MEDIA_DATE="$media_date" WIKI_MEDIA_LOG="$media_log"
 
