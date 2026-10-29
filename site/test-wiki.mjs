@@ -14,6 +14,7 @@ import { markdownFiles } from "./src/wiki/build/markdown.ts";
 import { readSnapshot, resolveStat } from "./src/wiki/build/stats.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
 import { buildSearchIndex, matchingSections, searchWiki } from "./src/wiki/search.ts";
+import { START_JUDGE_MS, START_MS, newStartup, timeStartup } from "./src/wiki/live-clip-startup.ts";
 
 const here = (path) => new URL(path, import.meta.url).pathname;
 const options = (contentDir, plannedFile = here("content/wiki-planned.yaml")) => ({
@@ -788,6 +789,51 @@ const edit = (from, to) => {
   if (plays(cut, build(true)) !== want(cut)) fail(`live clips: a replay's is ${plays(cut, build(true))}`);
   if (plays(scene, null) !== "null" || plays(null, build(true)) !== "null") fail("live clips: without the build or the replay");
   if (failures === before) console.log("ok   live clips: a replay's clip plays only in a build that says it can");
+}
+
+// A live clip's start-up run is bounded (live-clip-startup.ts): its clock starts at the run's first report, counts
+// only in view, goes back to the video past START_MS, or sooner at a pace that wouldn't make it, and stops at the
+// clip's first frame.
+{
+  const before = failures;
+  const from = 9000;
+  // Reports every 250 ms from `t` (the clock's ms), with the lead `pace` frames a second past `lead`, until
+  // `until`; the time it's late at, or null.
+  const run = (startup, { t = 0, until = 60000, lead = 0, pace = null, counting = () => true, frames = 200 } = {}) => {
+    for (; t <= until; t += 250) {
+      const report = { ready: false, frames, ...(pace === null ? {} : { lead: Math.min(from, lead + (pace * t) / 1000) }) };
+      if (timeStartup(startup, report, counting(t), from, t)) return t;
+    }
+    return null;
+  };
+  // Its first report, as the game starts and before it downloads, has no frames, nor starts the clock.
+  const waiting = newStartup();
+  if (timeStartup(waiting, { ready: false, frames: 0, lead: 0 }, true, from, 0)) fail("start-up: late before it began");
+  if (timeStartup(waiting, null, true, from, START_MS * 2) || waiting.begun) fail("start-up: the downloads counted");
+  // Without a lead (a build that doesn't report its run), past START_MS and not before.
+  const plain = run(newStartup());
+  if (plain === null || plain <= START_MS || plain > START_MS + 250) fail(`start-up: without a lead, late at ${plain} ms`);
+  // A pace that makes it in START_MS / 2 plays; one that would take twice START_MS goes back at START_JUDGE_MS.
+  if (run(newStartup(), { pace: (from * 1000) / (START_MS / 2), until: START_MS / 2 + 1000 }) !== null) fail("start-up: a quick run went back");
+  const slowRun = run(newStartup(), { pace: (from * 1000) / (START_MS * 2) });
+  if (slowRun !== START_JUDGE_MS) fail(`start-up: a slow run went back at ${slowRun} ms, not ${START_JUDGE_MS}`);
+  // Between reports, a stall judges no pace (the lead is the last report's), only START_MS.
+  const stalled = newStartup();
+  run(stalled, { pace: (from * 1000) / (START_MS / 2), until: START_JUDGE_MS + 250 });
+  if (timeStartup(stalled, null, true, from, START_JUDGE_MS + 3000)) fail("start-up: a stall between reports went back");
+  // Out of view, the clock stops: a minute away doesn't count.
+  const away = run(newStartup(), { counting: (t) => t < 1000 || t >= 61000, until: 120000 });
+  if (away === null || away <= START_MS + 60000 - 250) fail(`start-up: the time out of view counted (late at ${away} ms)`);
+  // A game that doesn't seek has no frames: its clock starts at its first report.
+  const noSeek = newStartup();
+  timeStartup(noSeek, { ready: false }, true, from, 0);
+  if (!timeStartup(noSeek, null, true, from, START_MS + 1)) fail("start-up: a game without frames was never late");
+  // The clip's first frame ends it.
+  const shown = newStartup();
+  run(shown, { until: 1000 });
+  timeStartup(shown, { ready: true, frames: 200 }, true, from, 1250);
+  if (timeStartup(shown, null, true, from, START_MS * 2)) fail("start-up: late after the clip's first frame");
+  if (failures === before) console.log("ok   live clips: the start-up run is bounded");
 }
 
 const cases = [

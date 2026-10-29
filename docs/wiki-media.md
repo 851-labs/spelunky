@@ -482,14 +482,16 @@ its first frame, with buttons to pause it, take control from the replay, restart
   `kali/spiders`, on a dark level whose frames stay rendered, from 4.1 s to 3.5 s (851-3613).
 - **The start-up run's bound** (851-3617). A game that reports it (below) says how far its run of the frames
   before the clip's first has got, which a Base UI `Progress` shows over the poster. The run is bounded either
-  way: the player times it from its first report (once the game's downloaded and set up, as a slow network is
-  no slow device), only while the game's in view of a visible page, and goes back to the video, saying why,
+  way: the player times it from its first report of the clip's frames (once the game's downloaded and set up,
+  as a slow network is no slow device; a build that doesn't seek never says, and is timed from its first
+  report), only while the game's in view of a visible page, and goes back to the video, saying why,
   if the clip's first frame hasn't shown after 20 s. With the game's progress it needn't wait that long: a run
   whose pace over at least its first 3 s would take it past 20 s goes back then. Play live stays offered. In
   Chromium on an M1 Pro, `kali/spiders` (from frame 8,850, the latest) gets there in 3.3 s, in 10 s with the
-  CPU slowed twice (CDP's throttling), and in 27 to 32 s slowed four times (Lighthouse's mid-range phone),
-  where every clip from before about frame 6,000 makes it, all but 17 of the 276. There, `kali/spiders` goes
-  back to the video 3 s into its run, and `alien/parachute` (1,950) shows after 7 s.
+  CPU slowed twice (CDP's throttling), and in 16 to 32 s slowed four times (Lighthouse's mid-range phone; the
+  machine was busy), where even at the slowest every clip from before about frame 6,000 makes it, all but 17
+  of the 276. In the slower runs `kali/spiders` went back to the video 3 s into its run, while
+  `alien/parachute` (1,950) showed after 5 to 7 s.
 - **Late clips on phones keep the button.** Whether a clip starts in time is its lead over the device's
   speed, and phones' speeds range widely, the fastest a match for a laptop's, so a cut-off frame for phones would keep late clips from phones that run them in seconds, and still let slow laptops
   wait. The bound measures the device itself, and with the game's progress a phone that can't get there in

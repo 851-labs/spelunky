@@ -11,7 +11,7 @@
 // clip's first, so the poster stays over it until then. A game that reports that run (`progress`, build.sh's
 // WIKI_LIVE_PROGRESS, from /play/'s page) says how many of them it's run (`lead`), which a Base UI Progress
 // shows over the poster. The run is bounded either way: one that takes too long goes back to the video
-// (`onSlow`, timeStartup). At the replay's end it holds the last frame, from which
+// (`onSlow`, live-clip-startup.ts). At the replay's end it holds the last frame, from which
 // the reader can take over too. A game that seeks (`seek`, build.sh's WIKI_LIVE_SEEK, from /play/'s page) keeps
 // savestates as it plays: the slider seeks in the clip, handing the game back to the replay if the reader has
 // it, and Restart is a seek to its first frame. Without, it has no frame or frames, and Restarting is loading
@@ -24,6 +24,8 @@ import { Progress } from "@base-ui/react/progress";
 import { Slider } from "@base-ui/react/slider";
 import { Toolbar } from "@base-ui/react/toolbar";
 import { useEffect, useRef, useState } from "react";
+import { newStartup, timeStartup } from "./live-clip-startup";
+import type { Startup, StartupReport } from "./live-clip-startup";
 
 interface Playback {
   ready: boolean;
@@ -58,18 +60,8 @@ const SETTLE_SEEK = 1;
 // The ticks a game that's fallen behind runs back to back, so between two reports (crates/app's
 // window::MAX_CATCH_UP).
 const CATCH_UP = 4;
-// The start-up run's bound: the replay's frames before the clip's first, run unshown, as fast as the device runs
-// them. Kali's spiders, the latest clip (from frame 8,850), get there in 3.3 s on an M1 Pro in Chromium, 10 s with
-// its CPU slowed twice, and 27 to 32 s slowed four times (Lighthouse's mid-range phone), where every clip from
-// before about frame 6,000 makes it: all but 17 of the 276. Twenty seconds is long to look at a poster for a few
-// seconds' clip, even one with a progress bar; the video's there. The clock starts at the run's first report,
-// which comes once the game's downloaded and its GPU's set up, as a slow network is no slow device, and counts
-// only while the game's in view of a visible page, as a browser can slow one that isn't.
-const START_MS = 20000;
-// With the game's progress, the player needn't wait that long to know: a run that's gone on for START_JUDGE_MS
-// at a pace that would take it past START_MS, from the first report it counted, goes back then. The run's first
-// frames (the boot, the title) go faster than the rest, so the pace only errs on the side of waiting.
-const START_JUDGE_MS = 3000;
+// How often the start-up run's clock is checked between reports (live-clip-startup.ts).
+const START_CHECK_MS = 250;
 // Wiki.css's touch screens, which hide the button where the game can't play on phones.
 const TOUCH = "(hover: none), (pointer: coarse)";
 
@@ -108,18 +100,25 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
   // A browser can slow a frame that's out of view or a hidden tab, so only one in view counts, and the count
   // starts again from the next frame when it comes back.
   const speed = useRef<Speed>({ perFrame: [], ms: 0, frame: null, at: 0, settle: SETTLE_START, decided: false });
-  // The start-up run's time so far, to bound it (timeStartup). A new iframe runs it again.
+  // The start-up run's time so far, to bound it (live-clip-startup.ts). A new iframe runs it again: from when it's
+  // in, as until then the old one's reports still come from the frame.
   const startup = useRef<Startup>(newStartup());
+  useEffect(() => {
+    if (run > 0) startup.current = newStartup();
+  }, [run]);
   const inView = useRef(true);
   const counting = () => inView.current && document.visibilityState === "visible";
   const slow = useRef(onSlow);
   slow.current = onSlow;
+  const timeStart = (report: StartupReport | null) => {
+    if (timeStartup(startup.current, report, counting(), from, performance.now())) slow.current("late");
+  };
   useEffect(() => {
     const element = frame.current;
     if (!element) return;
     const away = () => {
       speed.current.frame = null;
-      timeStartup(startup.current, null, counting(), from, slow.current);
+      timeStart(null);
     };
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -135,7 +134,7 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
       document.removeEventListener("visibilitychange", away);
     };
     // Restart without seeking makes a new iframe.
-  }, [run]);
+  }, [run, from]);
 
   useEffect(() => {
     const listener = (event: MessageEvent) => {
@@ -144,7 +143,7 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
       const data = event.data;
       if (data?.spelunky === "playback") {
         timeFrames(speed.current, data, counting(), slow.current);
-        timeStartup(startup.current, data, counting(), from, slow.current);
+        timeStart(data);
         setEngine({ kind: "playback", playback: data });
         setScrub((at) => (at === data.frame ? null : at));
       } else if (data?.spelunky === "error") setEngine({ kind: "error", error: String(data.error) });
@@ -178,7 +177,6 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
       return;
     }
     setEngine({ kind: "loading" });
-    startup.current = newStartup();
     setRun((n) => n + 1);
   };
   const takeControl = () => {
@@ -192,7 +190,7 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
   // The start-up run's clock runs between reports too, which a device that's stuck sends none of.
   useEffect(() => {
     if (!covered) return;
-    const timer = setInterval(() => timeStartup(startup.current, null, counting(), from, slow.current), START_CHECK_MS);
+    const timer = setInterval(() => timeStart(null), START_CHECK_MS);
     return () => clearInterval(timer);
   }, [covered, from, run]);
   // Its frames run so far, once it's begun: until then, the game's downloading and setting up.
@@ -313,53 +311,6 @@ function timeFrames(speed: Speed, playback: Playback, inView: boolean, slow: (wh
   speed.decided = true;
   const sorted = [...speed.perFrame].sort((a, b) => a - b);
   if (sorted[sorted.length >> 1] > 1000 / SLOW_FPS) slow("slow");
-}
-
-// The start-up run's time so far (`startup` in LiveClipPlayer): whether it's begun, its milliseconds counted, and
-// when last counted (null while not counting), the first report of its lead counted since it last started
-// counting, and the latest, and whether it's decided.
-interface Startup {
-  begun: boolean;
-  ms: number;
-  at: number | null;
-  base: { ms: number; lead: number } | null;
-  lead: number;
-  decided: boolean;
-}
-
-function newStartup(): Startup {
-  return { begun: false, ms: 0, at: null, base: null, lead: 0, decided: false };
-}
-
-// How often the start-up run's clock is checked between reports.
-const START_CHECK_MS = 250;
-
-// Counts the start-up run's time to now, from a report (`playback`) or between them (null), while the game's
-// in view of a visible page (`counting`), and calls `late` if it's taken too long: START_MS, or, with the game's
-// lead, a pace that would take it past that to `from`. It begins at the first report of the clip's frames, which
-// a game sends once its run has begun, and ends at the clip's first frame.
-function timeStartup(startup: Startup, playback: Playback | null, counting: boolean, from: number, late: (why: Slow) => void) {
-  if (startup.decided) return;
-  if (playback?.ready) {
-    startup.decided = true;
-    return;
-  }
-  const now = performance.now();
-  if (startup.at !== null) startup.ms += now - startup.at;
-  startup.begun ||= !!playback?.frames;
-  startup.at = startup.begun && counting ? now : null;
-  // Its pace counts from when the clock last started: the frames run while it was stopped weren't timed.
-  if (startup.at === null) startup.base = null;
-  else if (playback?.lead !== undefined) {
-    startup.lead = playback.lead;
-    startup.base ??= { ms: startup.ms, lead: playback.lead };
-  }
-  const { ms, base, lead } = startup;
-  const paced = base !== null && ms - base.ms >= START_JUDGE_MS && lead > base.lead;
-  if (ms > START_MS || (paced && ms + ((from - lead) * (ms - base.ms)) / (lead - base.lead) > START_MS)) {
-    startup.decided = true;
-    late("late");
-  }
 }
 
 function status(engine: Engine, seeks: boolean, touch: boolean): string {
