@@ -839,7 +839,7 @@ contains '<title>rTutorial – Room source – Spelunky Classic wiki</title>' '<
   '<a href="/wiki/source">Source code</a>' '<h1><code>rTutorial</code></h1>' \
   'Derek Yu and Mossmouth, LLC, under the <a href="/LICENSE.txt">Spelunky User License v1.1b</a>. Extracted by spelunky.ai&#x27;s tools' \
   'The room rTutorial as the room editor placed it: 4 instances of 3 objects and 1 tile.' \
-  '<th scope="row">Size</th><td>672 × 304 pixels</td>' '<td>bgCave, tiled across and down</td>' \
+  '<th scope="row">Size</th><td>672 × 304 pixels</td>' '<td><div>bgCave, tiled across and down</div></td>' \
   'View 0: 320 × 240 at (0, 0), shown at 640 × 480, following oPlayer1 with borders of 128 and 96' \
   '<tr id="oBrick"><th scope="row"><code>oBrick</code></th><td>2</td><td><ul class="room-positions"><li title="Instance 134002">(0, 0)</li><li title="Instance 134003">(16, 0)</li></ul></td></tr>' \
   '<tr id="oSnake"><th scope="row"><a href="/wiki/source#oSnake"><code>oSnake</code></a></th><td>1</td>' \
