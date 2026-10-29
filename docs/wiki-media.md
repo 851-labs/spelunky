@@ -224,6 +224,9 @@ Compass buried in Olmec's lair picked up: the quirk needs the lair, where the HU
 below it. `quirks/olmec-door-block-crush` is cut from `olmec-door-block-crush-seed-1.txt`, `ending-seed-1.txt` with
 the floor under the lair's door blown out and the player in its place when Olmec dies: the tally only counts a crush
 as Olmec's in the lair.
+`quirks/bomb-off-screen` is cut from `temple-seed-2-bomb-off-screen.txt`, a Temple route's bomb left behind and
+the walk back to its hole: a custom level would show the quirk too (`rLoadLevel` is a level), but the route's bomb
+already goes off out of sight.
 `quirks/moon-room-goal-any-win` (`flow-highscores-moon-room-slow-win.txt`) and `quirks/damsel-title-rope-spelunker`
 (`title-damsel-rope.txt`) are cut from replays of the high scores room and the title screen, which no scene reaches:
 they start from the stats in the replay's `highscore` lines.

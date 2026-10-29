@@ -1,0 +1,36 @@
+{
+  "id": "quirks/bomb-off-screen",
+  "title": "A bomb breaks the floor off the screen",
+  "description": "In the Temple, the player drops a bomb beside a damsel and runs left until it's far out of the view. It goes off there, out of sight: the screen shakes. He walks back, and the floor where the bomb lay is gone, so he drops into the hole.",
+  "spec": "wiki/clips/quirks/bomb-off-screen.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/temple-seed-2-bomb-off-screen.txt"
+  },
+  "from": 780,
+  "to": 1045,
+  "frames": 266,
+  "replay_from": 780,
+  "state_hash": "3b5f69c818276e43",
+  "states_hash": "8e317097b18fb42c",
+  "fps": 30,
+  "duration": 8.866666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1022,
+  "frames_hash": "e8e49bea22c29db7",
+  "has_audio": true,
+  "audio_hash": "1d6510109ee3af57",
+  "encoding": "bd8721eb2f3d7288",
+  "files": {
+    "mp4": "quirks/bomb-off-screen/clip.mp4",
+    "webm": "quirks/bomb-off-screen/clip.webm",
+    "poster": "quirks/bomb-off-screen/poster.png",
+    "replay": "quirks/bomb-off-screen/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

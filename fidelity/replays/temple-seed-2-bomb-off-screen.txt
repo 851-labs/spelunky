@@ -1,0 +1,56 @@
+# An explosion off the screen breaking blocks (851-3660, docs/quirks.md §1) with seed 2: city-of-gold-seed-2-sceptre.txt's
+# input to 904 (level 13 loads on 738). There, area-route's first try at the tomb lord drops a bomb at the player's
+# feet beside the damsel (790, x 497) and runs left. It goes off at 909 with the view's left edge at 103
+# (global.xview, which scrShake sets), so 74 px past the view's right edge, where oExplosion's collision_oSolid
+# means to spare blocks; but its isLevel("rTutorial") is true on every level, so it breaks six oTemple and an
+# oBlock (909-917), the floor the bomb lay on among them, and the screen shakes. Then by hand: the player stops
+# (924), walks back right (930), and drops into the hole where the floor was (1028-1037). Ends at 1059.
+# story: currLevel=13@738 +oBomb@790 xview=103@909..909 oExplosion.x=497@909..909 -oTemple*6@909..917
+# story: -oBlock@913..913 oPlayer1.y>160@1036 !plife<4
+seed 2
+frames 1060
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+696 release left
+708 press up
+713 release up
+760 press left
+790 release left
+790 press down
+790 press A
+796 release down
+796 release A
+796 press left
+796 press Z
+802 release Z
+808 release left
+808 press right
+814 release right
+814 press left
+814 press Z
+820 release Z
+880 press Z
+886 release Z
+898 press Z
+904 release Z
+924 release left
+930 press right

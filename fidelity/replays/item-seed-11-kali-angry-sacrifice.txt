@@ -13,9 +13,14 @@
 # global.favor < 0 branch, which adds half the body's favor for a dead one, 2, as the branch for 0 or more
 # does, then sets the body's favor to 0 on the instance it destroys a few lines on: favor -4 -> -2, "KALI
 # ACCEPTS THE SACRIFICE!" and "SHE SEEMS ANGRY WITH YOU.". Stands until 2045.
+# The first sacrifice's message (1328, "SHE SEEMS HAPPY WITH YOU." below) ends as every message does on a lit
+# level: oLevel's draw takes the timer from 200 to 199 on the frame it's set, and oScreen's begin step takes it
+# from 1 to 0 (1428), so the second line, white in oLevel's copy, is oScreen's yellow on every frame (quirks §1).
 # story: favor=12@1328 bombs=3@1336 -oSacAltarLeft@1455 favor=-4@1455 kaliPunish=1@1455 +oSpider*6@1456
 # story: currLevel=10@1629 +oSacAltarLeft@1700 -oUFO@1826 held=oYeti@1885 -oYeti@1968 favor=-2@1968
 # story: message2="SHE SEEMS ANGRY WITH YOU."@1968 !-oSacAltarLeft@1456..
+# story: message2="SHE SEEMS HAPPY WITH YOU."@1328..1328 messageTimer=199@1328..1328 messageTimer=1@1427..1427
+# story: messageTimer=0@1428..1428
 seed 11
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"

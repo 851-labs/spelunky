@@ -1,0 +1,8 @@
+title = "A bomb breaks the floor off the screen"
+description = "In the Temple, the player drops a bomb beside a damsel and runs left until it's far out of the view. It goes off there, out of sight: the screen shakes. He walks back, and the floor where the bomb lay is gone, so he drops into the hole."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/temple-seed-2-bomb-off-screen.txt"
+from = 780
+to = 1045
+poster = 1022
+story = "+oBomb@790 xview=103@909..909 oExplosion.x=497@909..909 -oTemple*6@909..917 -oBlock@913..913 oPlayer1.y>160@1036 !plife<4"

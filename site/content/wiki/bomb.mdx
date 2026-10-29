@@ -104,7 +104,7 @@ whatever it touches:
 
 | What it touches | What happens | |
 | --- | --- | --- |
-| Blocks | Destroyed, unless they're invincible (the level's border, the blocks under an entrance or an exit), when the explosion is on the screen or in the Tutorial; spikes left with no block under them break | <Cite gml="objects/oExplosion/collision_oSolid.gml:1-31" /> |
+| Blocks | Destroyed, unless they're invincible (the level's border, the blocks under an entrance or an exit), wherever the explosion is: the test meant to spare those off the screen outside the Tutorial is always passed ([[explosions-break-blocks-off-screen]]); spikes left with no block under them break | <Cite gml="objects/oExplosion/collision_oSolid.gml:1-31" /> <Cite quirk="1" /> |
 | Monsters | <Stat id="bomb.damage" />, knocked away 4–6 pixels a step and up at 6, and set burning; a [[magma-man\|Magma Man]] bursts into two blobs of magma instead, and an invincible monster takes nothing | <Cite gml="objects/oExplosion/collision_oEnemy.gml:1-19" /> |
 | The player | <Stat id="bomb.player-damage" />, knocked away and up, stunned for 100 steps and set burning | <Cite gml="objects/oPlayer1/step.gml:1614-1627" /> |
 | A [[damsel\|Damsel]] | 100 hit points, knocked away and up, stunned and set burning, unless she's invincible | <Cite gml="objects/oExplosion/collision_oDamsel.gml:1-9" /> |
@@ -180,7 +180,8 @@ along until it goes off <Cite gml="objects/oItem/step.gml:113-121" />
   <Stat id="bomb.fuse" as="seconds" /> and more to get clear.
 - An explosion sets off every bomb it touches within 4–8 steps, so bombs placed together go off almost
   together.
-- An explosion off the screen breaks no blocks, so a bomb thrown far out of sight only hurts what it touches.
+- A bomb that goes off out of sight still breaks blocks ([[explosions-break-blocks-off-screen]]). But one far past
+  the screen's edge usually doesn't go off at all: the game pauses it, fuse and all, until the player comes back.
 
 ## Trivia
 
