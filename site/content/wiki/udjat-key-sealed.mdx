@@ -1,0 +1,102 @@
+---
+slug: udjat-key-sealed
+title: The Udjat Eye's key sealed in rock
+type: quirk
+categories: [quirks]
+aliases: [sealed-key, key-in-rock, locked-chest-key-sealed, udjat-eye-sealed-key]
+card: { sprite: sKeyLeft }
+lede: >-
+  The Udjat Eye's key sealed in rock is a quirk of Spelunky Classic in which the locked chest's key can lie in a
+  pocket of rock that no way leads into.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrEntityGen.gml:108-143
+  pinned_by: fidelity/replays/item-seed-35-udjat-eye-sealed-key.txt
+  entry: "1"
+  rows:
+    - The locked chest's key can be sealed in rock.
+relations:
+  related: [udjat-eye, bomb, mattock]
+clips: [udjat-eye/sealed-key]
+spoiler: true
+faq:
+  - q: Why can't I reach the key to the locked chest in Spelunky Classic?
+    a: >-
+      It can be sealed in rock. The key is one of the level's treasures, picked at random from those not
+      inside a block, and a treasure can lie in a pocket of rock that nothing leads into, which has to be broken
+      open, with a [[bomb|Bomb]] or the [[mattock|Mattock]].
+  - q: Can the locked chest be sealed in rock too?
+    a: >-
+      Yes, sometimes in the same pocket as the key. The key then has to be carried to the chest inside it, as
+      the chest only opens to the key in the player's hands.
+  - q: What if the key is sealed and I have no bombs?
+    a: >-
+      The Mattock breaks the rock too. And the game makes no other chest: once a level has made the key, no
+      later level makes another, so a key left sealed is the [[udjat-eye|Udjat Eye]] lost for that game.
+sources:
+  - scripts/scrEntityGen.gml
+  - scripts/scrInitLevel.gml
+  - scripts/scrTreasureGen.gml
+  - objects/oLockedChest/collision_oKey.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+The [[udjat-eye|Udjat Eye]] comes from a locked chest on one of levels 2 to 4, and its key is one of that level's
+treasures, turned into the key. Nothing checks that the player can reach the treasure it picks, so the key can
+lie in a pocket of rock that no way leads into, sometimes with the chest, and the rock has to be broken open.
+
+## What happens
+
+Bombs have opened a pocket of rock that holds a locked chest and its key. An [[arrow-trap|Arrow Trap]] fires over
+the player as he drops in; he picks up the key, crawls under the low rock to the chest, opens it and puts on the
+Udjat Eye <Cite clip="udjat-eye/sealed-key" />.
+
+<Clip id="udjat-eye/sealed-key" />
+
+## Why
+
+The level that makes the locked chest, level 2 one time in 3, level 3 one time in 2, or else level 4, until one
+is made <Cite gml="scripts/scrInitLevel.gml:178-184" />, turns one of its treasures into the key, after
+the treasure is placed. Each treasure that isn't inside a block takes a roll of 1 in 8, for up to seven passes, and
+if none wins, the first one takes it:
+
+```gml scripts/scrEntityGen.gml:111-126
+        n = 1;
+        while (n < 8 and global.Key == false)
+        {
+            with oTreasure
+            {
+                if (rand(1,8) <= 1 and not collision_point(x, y, oSolid, 0, 0) and global.Key == false)
+                {
+                    if (type == "Gold Bars") instance_create(x, y+4, oKey);
+                    else instance_create(x, y, oKey);
+                    global.Key = true;
+                    instance_destroy();
+                    break;
+                }
+            }
+            n += 1;
+        }
+```
+
+The only test is that the treasure isn't inside a block. A treasure can be anywhere in the level, so the key can
+sit in a pocket that no way leads into. The chest goes in a nook in the rock, or beside the exit
+<Cite gml="scripts/scrTreasureGen.gml:47-64" />, so it's sometimes in the same pocket. The pocket's rock is
+ordinary, so an explosion or the Mattock's hit breaks it open <Cite quirk="1" />. The chest opens only to the key
+the player holds <Cite gml="objects/oLockedChest/collision_oKey.gml:1-21" />, so the key has to be carried to it.
+
+## Reproducing it
+
+Look for the locked chest and its key on level 2, 3 or 4, and carry the key to the chest. Some levels seal the
+key in a pocket, which a bomb dropped or thrown at its wall opens. The replay of the clip makes level 2, frame
+1456, with the chest and the key sealed together in a pocket beside the shaft that drops to the exit. A bomb
+thrown down the shaft blows out five bricks at its foot (2053), and one put down against its wall blows out six
+more (2221), opening the pocket. The player drops in, picks up the key (2308) and crawls it to the chest, which
+opens and drops the Udjat Eye (2349). He picks the Eye up and it goes on (2364)
+<Cite replay="fidelity/replays/item-seed-35-udjat-eye-sealed-key.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the sealed pocket, the bombs and the opened
+chest. No option turns it off.

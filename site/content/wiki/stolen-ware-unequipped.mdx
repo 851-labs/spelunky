@@ -1,0 +1,101 @@
+---
+slug: stolen-ware-unequipped
+title: The stolen ware left unequipped
+type: quirk
+categories: [quirks]
+aliases: [stolen-item-not-equipped, shoplift-unequipped, spike-shoes-not-worn, steal-equip-order]
+card: { sprite: sSpikeShoes }
+lede: >-
+  The stolen ware left unequipped is a quirk of Spelunky Classic in which a ware carried out of a shop ahead of
+  the player stays in his hands unworn.
+quirk:
+  status: GML + Oracle
+  where: objects/oPlayer1/step.gml:541-557
+  pinned_by: fidelity/replays/item-seed-7-spike-stomp.txt
+  entry: "1"
+  rows:
+    - Whether stealing a ware equips it depends on which leaves the shop's room first.
+relations:
+  related: [shopkeeper, spike-shoes, rare-shop, clothing-shop]
+clips: [rare-shop/theft, spike-shoes/stomp]
+faq:
+  - q: Why didn't the stolen Spike Shoes go on in Spelunky Classic?
+    a: >-
+      They left the shop before the player did. A stolen ware goes on only if the player is out of the shop
+      first; if the ware, held in front of him, crosses first, it's made free and stays in his hands.
+  - q: How do you put on a stolen item that stayed in your hands?
+    a: >-
+      Put it down and pick it up again (down and the action key). Picking up a free piece of equipment puts it
+      on.
+  - q: How do you steal a ware so it goes on at once?
+    a: >-
+      Leave the shop ahead of it: hold the run key, which moves the player more than the 4 pixels the ware is
+      held ahead of him each step, or jump out upwards. Walking out forwards, both usually cross on the same step, and it
+      goes on too.
+sources:
+  - objects/oPlayer1/step.gml
+  - objects/oItem/step.gml
+  - scripts/scrStealItem.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+Carrying a ware out of a shop unpaid angers the [[shopkeeper|Shopkeeper]] and makes the ware the player's, and a
+piece of equipment, such as the [[spike-shoes|Spike Shoes]], goes on as if bought. But two pieces of code take
+the theft, the player's and the ware's, and only the player's puts it on. Whichever leaves the shop first
+decides it, so a ware carried out ahead of the player stays in his hands, unworn, until he picks it up again.
+
+## What happens
+
+In a [[rare-shop|Rare Shop]] on level 5 that opens to the left, the player picks up the Spike Shoes, priced at
+$5,200, and heads left out of the shop with them, jumping as he leaves. The Shopkeeper turns on him and fires, but
+the shoes, out of the shop first, stay in his hands rather than going on <Cite clip="rare-shop/theft" />.
+
+<Clip id="rare-shop/theft" />
+
+Out of the shop, he puts the shoes down and picks them up again, which puts them on, and then stomps a Caveman
+with them <Cite clip="spike-shoes/stomp" />.
+
+<Clip id="spike-shoes/stomp" />
+
+## Why
+
+The player's step takes a theft when he's outside the shop's room with a ware that still has a price: it runs
+`scrStealItem`, which puts a piece of equipment on, and angers the Shopkeeper
+<Cite gml="objects/oPlayer1/step.gml:541-557" />. The ware's own step takes a theft when the ware is outside
+the shop, and it only angers the Shopkeeper and makes the ware free:
+
+```gml objects/oItem/step.gml:17-25
+    // stealing makes shopkeeper angry
+    if (isRealLevel())
+    {
+        if (cost > 0 and forSale and not isInShop(x, y))
+        {
+            global.itemsStolen += 1;
+            scrShopkeeperAnger(0);
+            cost = 0;
+        }
+```
+
+Once its `cost` is 0, the player's check no longer runs, so whichever is out first takes the theft. The ware
+is held 4 pixels ahead of the player <Cite gml="objects/oItem/step.gml:41-42" />, but it tests where the step
+before put it, while the player tests where he's just moved. Walking, at 3 pixels a step, it's out first only
+when a step leaves him 1 pixel short of the room's edge; otherwise both are out on the same step, and the
+player's step comes first, so the ware goes on. With the run key, faster than 4 pixels a step, the player is
+always out first, and jumping out upwards, he crosses first <Cite quirk="1" />. A free ware goes on when it's picked up
+<Cite gml="objects/oPlayer1/step.gml:1297" />.
+
+## Reproducing it
+
+Steal a piece of equipment by leaving the shop forwards so that it crosses the room's edge ahead of the
+player. It happens in normal play. The replay of the clips jumps out of a Rare Shop to the left with the Spike
+Shoes: the shoes leave the room a step before the player, so the Shopkeeper is angered (frame 1429) but the
+shoes stay in his hands. He puts them down (1463) and picks them up again, and they go on (1471)
+<Cite replay="fidelity/replays/item-seed-7-spike-stomp.txt" />. Running out on the ground with a Cape puts it
+on at once <Cite replay="fidelity/replays/item-seed-35-cape.txt" />. The Ankh is never for sale, so it's never
+left this way.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the theft, the unworn shoes and when they go
+on. No option turns it off.

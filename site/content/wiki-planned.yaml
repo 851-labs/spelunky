@@ -20,9 +20,4 @@
 # Each is on one line.
 
 fish-bone: { title: Fish Bone, type: item, objects: [oFishBone] }
-shortcut-win-no-time: { title: The shortcut win's 0:00, type: quirk, card: { sprite: sTimerIcon }, related: [scoring, tunnel-man-shortcuts, speedrunning-basics], lede: "The shortcut win's 0:00 is a quirk of Spelunky Classic in which a player whose wins all came from a shortcut door sees TIME: 0:00 in the high scores." }
-spectacles-message: { title: A Spectacles for sale, type: quirk, card: { sprite: sSpectacles }, related: [spectacles, spike-shoes, jetpack, rope-pile, shopkeeper], lede: "A Spectacles for sale is a quirk of Spelunky Classic in which four wares' price messages change their wording past level 2, as A SPECTACLES FOR $8800." }
-stolen-ware-unequipped: { title: The stolen ware left unequipped, type: quirk, card: { sprite: sSpikeShoes }, related: [shopkeeper, spike-shoes, rare-shop, clothing-shop], lede: "The stolen ware left unequipped is a quirk of Spelunky Classic in which a ware carried out of a shop ahead of the player stays in his hands unworn." }
-stomping-while-jumping: { title: Stomping while jumping, type: quirk, card: { sprite: sBatLeft }, related: [stomping, bat, spider], lede: "Stomping while jumping is a quirk of Spelunky Classic in which jumping up into a monster from just below kills it as a stomp would." }
 tutorial: { title: Tutorial, type: place, rooms: [rTutorial], card: { sprite: sTutorialSign } }
-udjat-key-sealed: { title: The Udjat Eye's key sealed in rock, type: quirk, card: { sprite: sKeyLeft }, related: [udjat-eye, bomb], lede: "The Udjat Eye's key sealed in rock is a quirk of Spelunky Classic in which the locked chest's key can lie in a pocket of rock that no way leads into." }

@@ -4,4 +4,4 @@ replay = "fidelity/replays/shop-seed-9-market-bomb.txt"
 from = 1140
 to = 1239
 poster = 1188
-story = "message=\"TERRORIST!\"@1187..1187 thiefLevel=14@1187..1187 thiefLevel=23@1188..1188 oPlayer1.dead=1@1188..1188"
+story = "message=\"TERRORIST!\"@1187..1187 thiefLevel=14@1187..1187 thiefLevel=23@1188..1188 oPlayer1.dead=1@1188..1188 thiefLevel=482@1239..1239"

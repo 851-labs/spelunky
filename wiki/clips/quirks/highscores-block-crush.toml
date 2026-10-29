@@ -1,0 +1,8 @@
+title = "Crushed by the reset block"
+description = "In the high scores room, the player has pushed the block onto the reset button, and it has stopped against the sign past it. He keeps pushing and creeps into the block until it crushes him: blood, and he's gone, but no game over follows."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/flow-highscores-reset-crush.txt"
+from = 790
+to = 899
+poster = 843
+story = "oPushBlock.x=224@835..835 plife<0@845..845 oPlayer1.visible=0@845..845 +oBlood*3@845..845 plife=4@846..846 !oPlayer1.dead=1"

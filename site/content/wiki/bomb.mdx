@@ -157,7 +157,8 @@ along until it goes off <Cite gml="objects/oItem/step.gml:113-121" />
 ## Interactions
 
 - **Shopkeepers.** A bomb the player or a Monkey lit (or the Sun Room dropped), in a shop and within 96
-  pixels of a [[shopkeeper|Shopkeeper]], angers him <Cite gml="objects/oBomb/step.gml:6-17" />, as does
+  pixels of a [[shopkeeper|Shopkeeper]], angers him, and every other Shopkeeper near the screen
+  ([[bomb-angers-every-shopkeeper]]) <Cite gml="objects/oBomb/step.gml:6-17" />, as does
   hurting him with the explosion. A bomb lit any other way (a [[chest|Chest]]'s trap, another explosion, a
   Magma Man) isn't marked armed, unless the player drops it when he's stunned or killed, so it doesn't, and
   at an exit it goes back into the player's count like an unlit

@@ -1,0 +1,98 @@
+---
+slug: hit-shopkeeper-free-wares
+title: Free wares from a hit Shopkeeper
+type: quirk
+categories: [quirks]
+aliases: [whip-the-shopkeeper, shoot-the-shopkeeper, no-thief-shopkeeper, free-wares]
+card: { sprite: sShopStunL }
+lede: >-
+  Free wares from a hit Shopkeeper is a quirk of Spelunky Classic in which hitting a Shopkeeper frees his wares
+  without marking the player a thief.
+quirk:
+  status: GML + Oracle
+  where: objects/oShopkeeper/step.gml:337-349
+  pinned_by: fidelity/replays/weapon-seed-39-pistol.txt
+  entry: "1"
+  rows:
+    - Hitting a Shopkeeper frees the wares without marking the player a thief.
+relations:
+  related: [shopkeeper, whip, pistol]
+clips: [shopkeeper/throw]
+faq:
+  - q: Does hitting a Shopkeeper make you a thief in Spelunky Classic?
+    a: >-
+      No. A crack of the [[whip|Whip]], a thrown item or a shot turns the [[shopkeeper|Shopkeeper]] on the
+      player, but it doesn't mark him a thief: there's no shout, and no Shopkeeper waits at the next level's
+      exit.
+  - q: Are a Shopkeeper's wares free once he's angry?
+    a: >-
+      Yes. The first step of his attack makes every ware free, however he was angered, so after a hit they
+      can be carried out with no theft.
+  - q: Is it safe to take the wares after hitting the Shopkeeper?
+    a: >-
+      Only as far as the theft goes. He still attacks, with his [[shotgun|Shotgun]] if he has it.
+sources:
+  - objects/oShopkeeper/collision_oWhip.gml
+  - objects/oShopkeeper/step.gml
+  - objects/oItem/step.gml
+  - objects/oBullet/collision_oEnemy.gml
+  - objects/oPiranha/step.gml
+  - scripts/scrShopkeeperAnger.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+Stealing from a shop, or bombing it, angers the [[shopkeeper|Shopkeeper]] through one script, which shouts and
+marks the player a thief, so that a Shopkeeper waits at the next level's exit. Hitting him angers him too, but
+none of the ways to hit him calls that script. And an angry Shopkeeper's first step gives every ware away, so a
+player who hits him can carry the wares out free, with no theft. It may be by design.
+
+## What happens
+
+The player buys a [[pistol|Pistol]] and shoots the Shopkeeper beside him, who falls stunned and drops his shotgun.
+He gets up angry, grabs the player and throws him against the floor, which costs a heart. The player then
+collects the shop's bomb bag, free, and no shout calls him a thief <Cite clip="shopkeeper/throw" />.
+
+<Clip id="shopkeeper/throw" />
+
+## Why
+
+A crack of the [[whip|Whip]] (or a Machete's slash) sets the Shopkeeper's `status` to `ATTACK` at once, and so do
+a thrown item's hit and a Piranha's bite; a bullet stuns him, and he gets up in `ATTACK` <Cite
+gml="objects/oShopkeeper/collision_oWhip.gml:1-19" /> <Cite gml="objects/oItem/step.gml:289-299" /> <Cite
+gml="objects/oPiranha/step.gml:107-118" /> <Cite gml="objects/oBullet/collision_oEnemy.gml:14-25" /> <Cite
+gml="objects/oShopkeeper/step.gml:465-470" />. None of them calls `scrShopkeeperAnger`, the script
+that shouts and adds to the thief count <Cite gml="scripts/scrShopkeeperAnger.gml:7-22" />. But the first step of
+his attack frees every ware the game is running:
+
+```gml objects/oShopkeeper/step.gml:337-349
+else if (status == ATTACK)
+{
+    image_speed = 1;
+    
+    if (not angered)
+    {
+        with oItem
+        {
+            cost = 0;
+            forSale = false;
+        }
+        angered = true;
+    }
+```
+
+A free ware isn't for sale, so carrying it out isn't a theft: the count stays at 0, so no Shopkeeper waits at the
+next level's exit, and its shops greet the player as before <Cite quirk="1" />.
+
+## Reproducing it
+
+Hit a Shopkeeper, with the Whip, a thrown item or a shot, then take a ware. It happens in normal play. In the
+replay of the clip, the player buys a Pistol and shoots the Shopkeeper (frame 1490). He gets up in his attack
+(1545), which frees the bomb bag (1546), and the player collects it (1598): the thief count stays at 0 throughout
+<Cite replay="fidelity/replays/weapon-seed-39-pistol.txt" />. Whipping one does the same: his attack frees the
+wares on the next step, with no shout and no thief <Cite replay="fidelity/replays/shop-seed-11-whip.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the free bag and the count. No option turns it
+off.

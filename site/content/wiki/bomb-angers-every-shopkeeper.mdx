@@ -1,0 +1,104 @@
+---
+slug: bomb-angers-every-shopkeeper
+title: Every Shopkeeper angered by one bomb
+type: quirk
+categories: [quirks]
+aliases: [terrorist, market-bomb, shop-bomb, thief-for-good, bomb-in-a-shop]
+card: { sprite: sBombArmed }
+lede: >-
+  Every Shopkeeper angered by one bomb is a quirk of Spelunky Classic in which a lit bomb in a shop angers all
+  nearby Shopkeepers, often for the rest of the game.
+quirk:
+  status: GML + Oracle
+  where: objects/oBomb/step.gml:6-17
+  pinned_by: fidelity/replays/shop-seed-9-market-bomb.txt
+  entry: "1"
+  rows:
+    - A lit bomb in a shop angers every active Shopkeeper, and those off screen again on every step.
+relations:
+  related: [shopkeeper, bomb, black-market]
+clips: [black-market-route/bomb]
+faq:
+  - q: Why is there a Shopkeeper at every exit after I bombed a shop in Spelunky Classic?
+    a: >-
+      The bomb made the player a thief many times over. A lit bomb in a shop angers every
+      [[shopkeeper|Shopkeeper]] near the screen, not only the shop's, and each adds to the count that puts an
+      angry Shopkeeper at each level's exit, which goes down by only 1 an exit.
+  - q: How long does the thief mark from a bomb in the Black Market last?
+    a: >-
+      For the rest of the game, as a rule. In the [[black-market|Black Market]], several Shopkeepers are near
+      enough to be angered at once, and those off the screen are angered again on every step the bomb burns,
+      so the count runs into the hundreds, far more than the levels left.
+  - q: Does a bomb in a shop anger only that shop's Shopkeeper?
+    a: >-
+      No. It angers every Shopkeeper the game is running at the time, the ones in other shops too, as a broken
+      shop wall does.
+sources:
+  - objects/oBomb/step.gml
+  - objects/oFireFrogBomb/step.gml
+  - scripts/scrShopkeeperAnger.gml
+  - objects/oShopkeeper/step.gml
+  - objects/oPlayer1/step.gml
+  - scripts/scrInitLevel.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+A lit [[bomb|Bomb]] in a shop, near its [[shopkeeper|Shopkeeper]], angers him ("TERRORIST!"), and anger marks the
+player a thief: a Shopkeeper waits at the next level's exit. But the bomb angers every Shopkeeper the game is
+running, not only the shop's, and those off the screen are never marked as angered, so they're angered again on
+every step it burns. In the [[black-market|Black Market]], with seven Shopkeepers close together, one bomb makes
+the player a thief for the rest of the game.
+
+## What happens
+
+In the Black Market, the player walks up to the Shopkeeper of Wang's Supply Shop and drops a lit bomb in the shop.
+"TERRORIST!": the Shopkeeper shoots him dead on the next step, and the market's other Shopkeepers are angered too.
+The thief count, which nothing on the screen shows, goes from 0 to 14 at once and 482 by the clip's end
+<Cite clip="black-market-route/bomb" />.
+
+<Clip id="black-market-route/bomb" />
+
+## Why
+
+On every step a lit bomb burns in a shop's room, or the Dice House's, within 96 pixels of a Shopkeeper, it runs
+the anger script on every Shopkeeper:
+
+```gml objects/oBomb/step.gml:6-17
+if (armed and instance_exists(oShopkeeper))
+{
+    if ((global.roomPath[scrGetRoomX(x), scrGetRoomY(y)] == 4 or
+        global.roomPath[scrGetRoomX(x), scrGetRoomY(y)] == 5) and
+        distance_to_object(oShopkeeper) < 96)
+    {
+        with oShopkeeper
+        {
+            scrShopkeeperAnger(2);
+        }
+    }
+}
+```
+
+A Fire Frog's bomb has the same lines <Cite gml="objects/oFireFrogBomb/step.gml:3-14" />. Run by each Shopkeeper,
+the script angers the one nearest him, himself, unless he's dead or already angered, and adds 2 to the player's
+thief count, or 3 if it's above 0 <Cite gml="scripts/scrShopkeeperAnger.gml:7-22" />. Only a Shopkeeper's own
+step marks him angered, the first time it runs his attack <Cite gml="objects/oShopkeeper/step.gml:337-349" />,
+and that step runs only while he's on the screen <Cite gml="objects/oShopkeeper/step.gml:3-4" />. So each one on
+the screen adds to the count once, but each one the game is running off the screen adds 3 again on every step the
+bomb burns. Each level's exit takes 1 off the count <Cite gml="objects/oPlayer1/step.gml:874" />, and each level
+that starts with it above 0 puts an angry Shopkeeper at its exit <Cite gml="scripts/scrInitLevel.gml:245-257" />
+<Cite quirk="1" />.
+
+## Reproducing it
+
+Light a bomb in one of the Black Market's shops, near its Shopkeeper, and survive his attack. In the replay of the
+clip, five Shopkeepers are running when the bomb goes down in Wang's Supply Shop (frame 1187), so the count goes
+from 0 to 14. Two of them are on the screen and are marked angered; the Bomb, Rare and Craps shops' are off it,
+and add 9 on every step: 23 on 1188, 482 on 1239. The Supply shop's Shopkeeper shoots the player dead on 1188
+<Cite replay="fidelity/replays/shop-seed-9-market-bomb.txt" />. A die carried out of the Dice House can do the same
+when the Shopkeeper it angers is off the screen ([[dice-angers-next-shop]]).
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the count, step by step. No option turns it
+off.

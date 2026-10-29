@@ -1,0 +1,91 @@
+---
+slug: shortcut-win-no-time
+title: The shortcut win's 0:00
+type: quirk
+categories: [quirks]
+aliases: [shortcut-win, time-0-00, no-time-for-shortcut-wins, shortcut-time]
+card: { sprite: sTimerIcon }
+lede: >-
+  The shortcut win's 0:00 is a quirk of Spelunky Classic in which a player whose wins all came from a shortcut
+  door sees TIME: 0:00 in the high scores.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrUpdateHighscores.gml:55-62
+  pinned_by: fidelity/replays/ending-seed-1.txt
+  entry: "1"
+  rows:
+    - "A win from a shortcut shows TIME: 0:00."
+relations:
+  related: [scoring, tunnel-man-shortcuts, speedrunning-basics]
+clips: [speedrunning-basics/shortcut-win]
+faq:
+  - q: Why does my best time say 0:00 in Spelunky Classic?
+    a: >-
+      Every win so far came from a [[tunnel-man-shortcuts|shortcut door]]. A shortcut win counts as a win but
+      keeps no time, and the high scores show the time row as soon as there's one win, so with no time kept
+      it reads 0:00.
+  - q: Do shortcut wins count for the time record?
+    a: >-
+      No. Only a game started from the start door or the tutorial's keeps its time. A shortcut win still adds
+      to WINS, and to money, kills and saves as any game does.
+  - q: Does a 0:00 time unlock the Moon Room?
+    a: >-
+      No. The time's trophy and the Moon Room both check for a time above 0, so with 0:00 there's no trophy,
+      no door, and the room's panel reads LOCKED.
+sources:
+  - scripts/scrUpdateHighscores.gml
+  - objects/oHighscores/draw.gml
+  - objects/oHighscores/create.gml
+  - objects/oPlayer1/other_animation_end.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+The [[tunnel-man-shortcuts|shortcut doors]] above the title screen start a game at level 5, 9 or 13, and a win
+from one counts. But it keeps no time: the time record stays as it was, which before any other win is 0. The
+high scores show the time whenever there's a win, so a player whose wins all came from shortcuts sees 0:00.
+
+## What happens
+
+After a game won from the level 13 shortcut, the credits fade out to the high scores room. The win is counted,
+WINS: 1, but the room shows TIME: 0:00, and the only trophy is the money's
+<Cite clip="speedrunning-basics/shortcut-win" />.
+
+<Clip id="speedrunning-basics/shortcut-win" />
+
+## Why
+
+A shortcut door sets `global.usedShortcut` for the whole game, and the start and tutorial doors clear it
+<Cite gml="objects/oPlayer1/other_animation_end.gml:137-157" /> <Cite gml="objects/oPlayer1/other_animation_end.gml:72-95" />.
+At the end of a win, `scrUpdateHighscores(1)` writes the win's time only when the game wasn't a shortcut's:
+
+```gml scripts/scrUpdateHighscores.gml:57-62
+if (argument0 == 1 and (global.time < tTime or tTime == 0) and not global.usedShortcut)
+{
+    highscore_add("TIME", global.time + 8000000);
+    global.newTime = true;
+}
+else highscore_add("TIME", tTime + 8000000);
+```
+
+So a shortcut win writes back the time that was there: 0, until a win from the start or the tutorial. It still
+adds 1 to WINS <Cite gml="scripts/scrUpdateHighscores.gml:81-84" />. The high scores room draws the time row
+whenever WINS is above 0, with the comment "only display time if won", and 0 seconds reads 0:00
+<Cite gml="objects/oHighscores/draw.gml:126-142" />. The time's trophy is made only for a time above 0
+<Cite gml="objects/oHighscores/create.gml:50" />, and the Moon Room's panel shows its goal only for one
+<Cite gml="objects/oHighscores/draw.gml:46" />, so neither shows: no trophy, no door, and the panel reads
+LOCKED. <Cite quirk="1" />
+
+## Reproducing it
+
+Pay the [[tunnel-man|Tunnel Man]] for a shortcut, start a game from its door, and win it, with no win from the
+start door before. Any player whose wins all come from a shortcut door sees it. The replay of the clip wins a
+game from the level 13 shortcut, so `usedShortcut` is 1 from frame 738 to the end. At the high scores
+room, frame 8393, the time record is 0, and the only trophy is the money's, with no Moon Room door
+<Cite replay="fidelity/replays/ending-seed-1.txt" />. A later win from the start door keeps its time, and the
+row shows it from then on. [[speedrunning-basics]] has the rest of how a run is timed.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the time record and the trophies. No option
+turns it off.

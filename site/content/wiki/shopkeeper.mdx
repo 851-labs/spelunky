@@ -151,7 +151,8 @@ value ("PLEASURE DOING BUSINESS!") <Cite gml="objects/oGoldIdol/step.gml:6-27" /
 ### Angering him
 
 Each of these angers the nearest Shopkeeper, with its own shout, except that a broken wall and a lit bomb
-anger every Shopkeeper near the screen <Cite gml="scripts/scrShopkeeperAnger.gml:7-23" /> <Cite quirk="1" />:
+anger every Shopkeeper near the screen, a bomb again on every step for those off it
+([[bomb-angers-every-shopkeeper]]) <Cite gml="scripts/scrShopkeeperAnger.gml:7-23" /> <Cite quirk="1" />:
 
 | Cause | Shout | |
 | --- | --- | --- |
@@ -162,8 +163,8 @@ anger every Shopkeeper near the screen <Cite gml="scripts/scrShopkeeperAnger.gml
 | The Damsel he sells hurt or killed | "HEY, ONLY I CAN DO THAT!" | <Cite gml="objects/oDamsel/collision_oWhip.gml:19-22" /> |
 | Any of these, once a Shopkeeper has been killed | "YOU'LL PAY FOR YOUR CRIMES!" | <Cite gml="scripts/scrShopkeeperAnger.gml:13" /> |
 
-Stealing equips some wares at once and not others, by which leaves the shop first <Cite quirk="1" />. Hitting
-the Shopkeeper also angers him, with no shout: a crack of the [[whip|Whip]], which doesn't hurt him, a thrown
+Stealing equips some wares at once and not others, by which leaves the shop first ([[stolen-ware-unequipped]])
+<Cite quirk="1" />. Hitting the Shopkeeper also angers him, with no shout ([[hit-shopkeeper-free-wares]]): a crack of the [[whip|Whip]], which doesn't hurt him, a thrown
 item, a bullet, a [[piranha|Piranha]]'s bite <Cite gml="objects/oShopkeeper/collision_oWhip.gml:12-18" /> <Cite gml="objects/oItem/step.gml:289-298" /> <Cite quirk="1" />.
 
 ### The thief's Shopkeeper
