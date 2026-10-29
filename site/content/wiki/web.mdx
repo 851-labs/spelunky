@@ -65,11 +65,11 @@ A web has a strength of <Stat id="web.life" />, and it's drawn fainter as the st
 opacity is its strength over 12 <Cite gml="objects/oWeb/create.gml:1-2" /> <Cite gml="objects/oWeb/step.gml:1-3" />.
 Once the strength is 1 or less, the web is gone.
 
-While the player's centre is in a web, unless he's climbing a rope or a ladder, he keeps only a fifth of his
+While the player's centre is in a web, unless he's climbing a rope or a [[ladder|ladder]], he keeps only a fifth of his
 speed each step, across and up or down, and his fall is forgotten: the count of steps he has been falling,
 which decides what a landing costs him, goes back to 0 <Cite gml="scripts/characterStepEvent.gml:677-681" />
 <Cite gml="scripts/characterStepEvent.gml:743-749" /> <Cite gml="scripts/characterStepEvent.gml:895-896" />.
-On ice he slides as he would without it, and under an open [[parachute|Parachute]] or [[cape|Cape]] he keeps
+On [[ice|ice]] he slides as he would without it, and under an open [[parachute|Parachute]] or [[cape|Cape]] he keeps
 half his speed up or down <Cite gml="scripts/characterStepEvent.gml:774-778" /> <Cite
 gml="scripts/characterStepEvent.gml:868-875" />.
 So a long fall that ends in a web does him no harm. A fall of more than 32 steps would cost him 2 hearts on

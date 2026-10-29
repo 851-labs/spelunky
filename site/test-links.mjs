@@ -24,9 +24,15 @@ import { parse as parseYaml } from "yaml";
 const SITE_URL = "https://spelunky.ai";
 // The pages still to come, each with its title (its hub card's) and the ticket writing it. Remove a page in
 // the PR that writes it; the check fails on one that's written, or that nothing shows any more.
-// None: every planned page is written (851-3638).
 /** @type {Map<string, { title: string, ticket: string }>} */
-const TO_COME = new Map([]);
+const TO_COME = new Map([
+  ["tree", { title: "Tree", ticket: "851-3708" }],
+  ["altar", { title: "Altar", ticket: "851-3708" }],
+  ["sign", { title: "Sign", ticket: "851-3708" }],
+  ["shop-sign", { title: "Shop Sign", ticket: "851-3708" }],
+  ["tiki-torch", { title: "Tiki Torch", ticket: "851-3708" }],
+  ["block", { title: "Block", ticket: "851-3708" }],
+]);
 
 const [dist, site] = process.argv.slice(2);
 if (!dist) {

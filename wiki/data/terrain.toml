@@ -1,0 +1,138 @@
+# Terrain's numbers (docs/wiki-data.md): what the levels are built from, and what the player does with it.
+# Most of what terrain does is in the player's code, which the shared character scripts
+# (characterCreateEvent, characterStepEvent) and oPlayer1's events hold, so most stats name a script or
+# oPlayer1 rather than the terrain's own object. Vines climb as ladders do (oVine is a kind of oLadder), and
+# doors have no numbers, so neither has an entity.
+
+[[entity]]
+slug = "ladder"
+name = "Ladder"
+kind = "terrain"
+object = "oLadderOrange"
+
+[[entity.stat]]
+id = "grab-range"
+label = "Reach to take hold"
+unit = "px"
+script = "characterStepEvent"
+find = "abs(x - (ladder.x + 8)) < ?"
+matches = 2
+note = "How near the ladder's middle the player must be, sideways, to take hold of it from the ground or a platform above it."
+
+[[entity.stat]]
+id = "jump-off-speed"
+label = "Sideways speed jumping off"
+unit = "px/step"
+script = "characterCreateEvent"
+find = "departLadderXVel = ?"
+note = "With left or right held; straight up without."
+
+[[entity]]
+slug = "water"
+name = "Water"
+kind = "terrain"
+object = "oWater"
+
+[[entity.stat]]
+id = "bubble-interval"
+label = "Bubble timer"
+unit = "steps"
+object = "oPlayer1"
+find = "bubbleTimerMax = ?"
+note = "While the player is swimming, he breathes out a bubble each time this timer runs out; with the step it's set again on, that's one every 21 steps."
+
+[[entity.stat]]
+id = "fish-chance"
+label = "Chance of a fish"
+script = "scrEntityGen"
+find = "rand(1, ?) == 1"
+where = ["!collision_point(x, y, oSolid, 0, 0)"]
+note = "1 in this for each block of water: a Piranha, or on a graveyard level a Dead Fish."
+
+[[entity]]
+slug = "ice"
+name = "Ice"
+kind = "terrain"
+object = "oIce"
+
+[[entity.stat]]
+id = "friction"
+label = "Speed kept each step on ice"
+script = "characterStepEvent"
+find = "xFric = ?"
+where = ["colIceBot"]
+note = "The share of his speed the player keeps each step he stands on ice, unless he's ducking or has Spike Shoes."
+
+[[entity.stat]]
+id = "ground-friction"
+label = "Speed kept each step on other ground"
+script = "characterCreateEvent"
+find = "frictionRunningX = ?"
+
+[[entity.stat]]
+id = "frozen-caveman"
+label = "Chance of a frozen Caveman"
+find = "rand(1, ?) == 1"
+note = "1 in this for each block of ice the game makes."
+
+[[entity.stat]]
+id = "ice-caves-chance"
+label = "Chance a rock tile is ice"
+script = "scrRoomGen3"
+find = "rand(1, ?) == 1"
+where = ["tile == \"1\""]
+note = "1 in this for each Ice Caves rock tile; the rest are rock."
+
+[[entity]]
+slug = "thin-ice"
+name = "Thin Ice"
+kind = "terrain"
+object = "oThinIce"
+
+[[entity.stat]]
+id = "thickness"
+label = "Thickness"
+find = "thickness = ?"
+
+[[entity.stat]]
+id = "wear"
+label = "Wear each step stood on"
+event = "step"
+find = "thickness -= ?"
+note = "It gives way when its thickness reaches 0."
+
+[[entity]]
+slug = "push-block"
+name = "Push Block"
+kind = "terrain"
+object = "oPushBlock"
+
+[[entity.stat]]
+id = "gravity"
+label = "Gravity"
+unit = "px/step"
+find = "myGrav = ?"
+note = "Added to its falling speed each step it falls."
+
+[[entity.stat]]
+id = "max-fall-speed"
+label = "Top falling speed"
+unit = "px/step"
+script = "gameStepEvent"
+find = "yVel > ?"
+matches = 2
+nth = 0
+
+[[entity.stat]]
+id = "tile-chance"
+label = "Chance on a push block tile"
+script = "scrRoomGen"
+find = "tile == \"4\" && rand(1, ?) == 1"
+note = "1 in this for each push block tile of a Mines room; the Temple's are the same."
+
+[[entity.stat]]
+id = "stone-chance"
+label = "Chance a stone block becomes one"
+script = "scrSetupWalls"
+find = "down && rand(1, ?) == 1"
+note = "1 in this for each stone block standing on a brick, Temple stone or hard block, and not beside lava."

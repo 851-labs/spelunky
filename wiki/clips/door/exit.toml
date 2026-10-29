@@ -1,0 +1,20 @@
+title = "Taking the exit"
+description = "The player walks to the exit, a doorway in the rock, and presses up in front of it; he turns to it and walks in through the door."
+from = 0
+to = 100
+poster = 80
+story = "oPlayer1.sprite_index=sPExit@78 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10@0000000000X00000001
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 60
+40 hold up 60
+'''

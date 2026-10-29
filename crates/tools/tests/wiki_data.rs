@@ -677,6 +677,11 @@ fn check_site_relations(site: &Value) {
     assert!(
         !strings(&site["found_in"]["oShopkeeper"]["places"]).contains(&"olmecs-lair".to_owned())
     );
+    // scrSetupWalls makes push blocks `with oBlock`, which runs only where stone blocks are made: Olmec's
+    // Lair, but not the Ice Caves, whose rooms have no push block tiles either.
+    let push_blocks = strings(&site["found_in"]["oPushBlock"]["places"]);
+    assert!(push_blocks.contains(&"olmecs-lair".to_owned()));
+    assert!(!push_blocks.contains(&"ice-caves".to_owned()));
     // A jar makes Snakes, and a crate holds items (the player's step opens it, but it's the crate's).
     assert!(strings(&site["drops"]["oJar"]["own"]).contains(&"oSnake".to_owned()));
     assert!(strings(&site["drops"]["oCrate"]["own"]).contains(&"oCompass".to_owned()));

@@ -1,0 +1,130 @@
+---
+slug: push-block
+title: Push Block
+type: terrain
+categories: [terrain]
+objects: [oPushBlock]
+aliases: [push-blocks, pushable-block, stone-block]
+lede: >-
+  A Push Block is terrain in Spelunky Classic, a loose stone block the player pushes along the floor at half
+  a pixel a step, which falls when pushed over an edge.
+infobox:
+  image: { sprite: sBlock, alt: "A square tan stone block with a raised border" }
+  effect: { text: "Pushed by walking into it; falls", cite: scripts/moveTo.gml:39-93 }
+  destroyed_by: { text: "Bombs, the Mattock, leaving the level" }
+relations:
+  found_in: [mines, jungle, temple, olmecs-lair, restless-dead, high-scores-room]
+  drops: [gold-chunk, gold-nugget]
+  related: [spear-trap, arrow-trap, lava, city-of-gold]
+clips: [push-block/push]
+faq:
+  - q: How do you push blocks in Spelunky Classic?
+    a: >-
+      By walking into one on the ground. It moves ahead of the player half a pixel a step, a block's width in
+      about 32 steps, until something solid is in its way.
+  - q: Can a push block crush you in Spelunky Classic?
+    a: >-
+      Yes, if the player keeps pushing one that's stuck against something solid: the game moves him into the
+      block anyway, and once his middle is inside it, he's crushed. That's [[push-block-crush]].
+  - q: What happens to a push block in lava in Spelunky Classic?
+    a: >-
+      It sinks, very slowly, a twentieth of a pixel a step, taking whatever push blocks are stacked on it down
+      with it.
+  - q: Why are push blocks gold in the City of Gold?
+    a: >-
+      In the [[city-of-gold|City of Gold]] every push block is drawn in gold, and one broken there scatters
+      gold rather than rubble: three [[gold-chunk|Gold Chunks]] and a [[gold-nugget|Gold Nugget]].
+sources:
+  - objects/oPushBlock/create.gml
+  - objects/oPushBlock/step.gml
+  - objects/oPushBlock/destroy.gml
+  - objects/oPushBlock/other_outside.gml
+  - objects/oMoveableSolid/create.gml
+  - scripts/moveTo.gml
+  - scripts/canPushMoveableSolids.gml
+  - scripts/gameStepEvent.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrSetupWalls.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Push blocks are made in [[mines|the Mines]]' and [[temple|the Temple]]'s rooms, on tiles of their own and from
+some of the stone blocks the levels are built with, in [[olmecs-lair|Olmec's Lair]] from stone blocks, and in
+a [[restless-dead|graveyard level]]'s crypt. Unlike any other block, the player can move one: walking into it pushes it along, and pushed
+over an edge it falls. Bombs and the [[mattock|Mattock]] break it like any block.
+
+## How it works
+
+<Clip id="push-block/push" />
+
+The clip shows a block pushed off a ledge: the player walks into it, pushes it slowly along the floor to the
+edge, and it falls to the floor below <Cite clip="push-block/push" />.
+
+### Pushing
+
+Walking into a push block on the ground, not ducking, the player pushes it: he presses against it, and the code
+that moves him moves the block a pixel for each pixel he moves into it, unless something solid is beyond it
+<Cite gml="scripts/characterStepEvent.gml:138-176" /> <Cite gml="scripts/moveTo.gml:39-93" />. In play that's
+half a pixel a step (15 a second), a block's width in 32 steps, where he walks at 3 pixels a step
+<Cite clip="push-block/push" />. After a moment of it, he's drawn pushing
+<Cite gml="scripts/characterSprite.gml:57" />. Only the player pushes blocks: the code allows it to characters
+alone, not monsters <Cite gml="scripts/canPushMoveableSolids.gml:1-6" />.
+
+A block stuck against something solid stops, but the player pushing it doesn't: he creeps into it, and once his
+middle is inside, he's crushed. That's [[push-block-crush]].
+
+### Falling
+
+Each step a push block has nothing solid under any part of it, it falls, gaining
+<Stat id="push-block.gravity" /> of speed a step, up to <Stat id="push-block.max-fall-speed" />, and stops on
+the first solid thing below it, with a thud <Cite gml="scripts/gameStepEvent.gml:235-256" />
+<Cite gml="objects/oMoveableSolid/create.gml:5" />. In the clip it doesn't drop until it has been pushed wholly
+past the ledge. It only falls while it's in the view; one off screen hangs where it is until the view comes to
+it <Cite gml="scripts/gameStepEvent.gml:238-239" />. One that falls out of the level is gone
+<Cite gml="objects/oPushBlock/other_outside.gml:1" />.
+
+### In lava
+
+A push block in [[lava|Lava]] sinks a twentieth of a pixel a step, taking any push blocks stacked on it down with
+it <Cite gml="objects/oPushBlock/step.gml:3-9" /> <Cite gml="scripts/scrMoveableSolidRecurseDrop.gml:1-10" />.
+
+## Locations
+
+| Where | How | |
+| --- | --- | --- |
+| [[mines\|The Mines]] | Each push block tile, with a 1 in <Stat id="push-block.tile-chance" bare /> chance | <Cite gml="scripts/scrRoomGen.gml:344" /> |
+| [[temple\|The Temple]] | As the Mines | <Cite gml="scripts/scrRoomGen4.gml:341" /> |
+| [[restless-dead\|A graveyard level]] | Both push block tiles of its crypt, always | <Cite gml="scripts/scrRoomGen2.gml:79-114" /> <Cite gml="scripts/scrRoomGen2.gml:353" /> |
+| Where there are stone blocks: the Mines, the Temple and [[olmecs-lair\|Olmec's Lair]] | Each stone block standing on a brick, Temple stone or a hard block, and not beside lava, with a 1 in <Stat id="push-block.stone-chance" bare /> chance | <Cite gml="scripts/scrSetupWalls.gml:457-471" /> |
+
+The [[high-scores-room|high scores room]] has the one the player pushes onto its reset button
+<Cite room="rHighscores" />. In custom levels it's the [[level-editor|level editor]]'s tile `B`
+<Cite gml="scripts/scrCreateTileObj.gml:106-109" />.
+
+## Interactions
+
+- **[[spear-trap|Spear Traps]]** strike at a push block in front of them as at a monster
+  <Cite gml="objects/oSpearTrapTop/step.gml:21-28" />.
+- **[[arrow-trap|Arrow Traps]]** fire at a push block falling through what they watch: their sensor counts a
+  block by its speed <Cite gml="objects/oArrowTrapTest/collision_oMoveableSolid.gml:5-26" />, which it has
+  only while it falls, as pushing moves it a pixel at a time without one
+  <Cite gml="scripts/moveTo.gml:57" /> <Cite gml="scripts/gameStepEvent.gml:236-256" />.
+- **Breaking it.** A [[bomb|Bomb]] or the [[mattock|Mattock]] breaks a push block like any block, leaving
+  rubble <Cite gml="objects/oPushBlock/destroy.gml:1-11" />.
+- **[[city-of-gold|The City of Gold]].** Every push block there is gold, and breaks into three
+  [[gold-chunk|Gold Chunks]] and a [[gold-nugget|Gold Nugget]] <Cite gml="objects/oPushBlock/create.gml:5" />
+  <Cite gml="objects/oPushBlock/destroy.gml:12-23" />.
+
+## Tips
+
+- Pushing is slow, a sixth of walking pace: a block pushed across a room takes seconds.
+- Stop pushing once the block stops, or be crushed ([[push-block-crush]]).
+- A push block pushed into a pit or over a ledge makes a step to climb back up by.
+
+## Trivia
+
+- A push block is drawn with the stone block's picture, and level generation turns some stone blocks into
+  push blocks once a level's walls are set up <Cite gml="scripts/scrSetupWalls.gml:457-471" />, so a stone
+  block and a push block look the same until one is pushed.
+- The code that lets things push blocks says it lets only the player, and that it can be edited to let monsters
+  push them too; it never was <Cite gml="scripts/canPushMoveableSolids.gml:1-6" />.

@@ -16,7 +16,7 @@ quirk:
   rows:
     - Pushing a block into a wall crushes the player.
 relations:
-  related: [scoring]
+  related: [push-block, scoring]
 clips: [quirks/highscores-block-crush]
 faq:
   - q: Why did pushing a block kill me in Spelunky Classic?
@@ -40,7 +40,7 @@ sources:
 verified: { port: v0.1.12, date: 2026-10-28 }
 ---
 
-A push block moves a pixel at a time ahead of the player, until something solid is in its way. Then it should
+A [[push-block|push block]] moves a pixel at a time ahead of the player, until something solid is in its way. Then it should
 stop him too. But the code that moves him only stops the block, so a player who keeps pushing creeps into it at
 the pushing speed, and once his middle is inside it, he's crushed. In the
 [[high-scores-room|high scores room]], its block stops right past the reset button, so that's where

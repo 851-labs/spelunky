@@ -1,0 +1,36 @@
+{
+  "id": "ladder/climb",
+  "title": "Climbing a ladder",
+  "description": "The player walks to a ladder and climbs it to the top, then jumps off toward the ledge beside it, catches the ledge's edge and pulls himself up onto it.",
+  "spec": "wiki/clips/ladder/climb.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 209,
+  "frames": 210,
+  "replay_from": 241,
+  "state_hash": "814013883df8bd10",
+  "states_hash": "dfca4054ddd9eac4",
+  "fps": 30,
+  "duration": 7.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 90,
+  "frames_hash": "f02da069b03c54cb",
+  "has_audio": true,
+  "audio_hash": "6da2cd07f468e58d",
+  "encoding": "ace0437dd791b6b3",
+  "files": {
+    "mp4": "ladder/climb/clip.mp4",
+    "webm": "ladder/climb/clip.webm",
+    "poster": "ladder/climb/poster.png",
+    "replay": "ladder/climb/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

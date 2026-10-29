@@ -9,6 +9,7 @@ export const CATEGORIES = [
   "items/carryables",
   "treasure",
   "traps",
+  "terrain",
   "places",
   "shops",
   "mechanics",
@@ -27,6 +28,7 @@ export const CATEGORY_NAMES: Record<Category, string> = {
   "items/carryables": "Carryables",
   treasure: "Treasure",
   traps: "Traps",
+  terrain: "Terrain",
   places: "Places",
   shops: "Shops",
   mechanics: "Mechanics",
@@ -72,6 +74,9 @@ const DESCRIPTIONS: Record<HubId, string> = {
     "The things the player can carry and throw in Spelunky Classic: rocks, jars, crates, bombs and more.",
   treasure: "The treasure of Spelunky Classic: gold, gems and idols, and what each is worth.",
   traps: "The traps of Spelunky Classic: arrow traps, spikes, boulders and the rest, with what sets them off.",
+  terrain:
+    "The terrain of Spelunky Classic: ladders, vines, water, ice, push blocks, doors and the rest of what the " +
+    "levels are built from.",
   places: "The places of Spelunky Classic: its four areas, Olmec's Lair and the special levels between them.",
   shops: "The shops of Spelunky Classic, what each sells, and what happens to a thief.",
   mechanics: "How Spelunky Classic works underneath: health, stunning, throwing, stomping, Kali's favour and more.",
@@ -92,6 +97,7 @@ const ORDER: readonly HubId[] = [
   ...ITEMS,
   "treasure",
   "traps",
+  "terrain",
   "places",
   "shops",
   "mechanics",

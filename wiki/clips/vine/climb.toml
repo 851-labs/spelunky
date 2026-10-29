@@ -1,0 +1,28 @@
+title = "Climbing a vine"
+description = "In the Jungle's green rock, the player walks to a vine hanging past a ledge and climbs it, as he would a ladder; at its top he jumps off toward the ledge, catches its edge and pulls himself up."
+from = 0
+to = 209
+poster = 100
+story = "oPlayer1.state=14@80 oPlayer1.state=23@142 oPlayer1.state=11@175 !plife<4"
+
+[scene]
+level = '''
+2222222222222222222222
+2000000000000000000002
+2000000000000000000002
+2000000000000v00000002
+2000000000000v22222222
+2000000000000v00000002
+2000000000000v00000002
+2000000000000v00000002
+20@0000000000v00000002
+2222222222222222222222
+2222222222222222222222
+'''
+inputs = '''
+20 hold right 80
+40 hold up 100
+140 hold right 60
+140 hold Z 10
+165 hold Z 10
+'''

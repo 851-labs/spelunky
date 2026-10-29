@@ -596,6 +596,8 @@ try {
     shops: "ankh-shop bomb-shop clothing-shop dice-house general-store kissing-parlor rare-shop weapon-shop",
     // The Game's mechanic pages, and the two places that are part of it too (the title screen, the high scores room).
     "the-game": "controls credits endings high-scores-room level-editor scoring settings title-screen versions",
+    // The terrain pages, written and planned.
+    terrain: "altar block door ice ladder push-block shop-sign sign thin-ice tiki-torch tree vine water",
   };
   for (const [id, list] of Object.entries(want)) if (cards(id)?.replaceAll("?", "") !== list) fail(`hubs: ${id} lists ${cards(id)}, not ${list}`);
   for (const { meta } of committed.pages) {

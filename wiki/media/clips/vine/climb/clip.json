@@ -1,0 +1,36 @@
+{
+  "id": "vine/climb",
+  "title": "Climbing a vine",
+  "description": "In the Jungle's green rock, the player walks to a vine hanging past a ledge and climbs it, as he would a ladder; at its top he jumps off toward the ledge, catches its edge and pulls himself up.",
+  "spec": "wiki/clips/vine/climb.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 209,
+  "frames": 210,
+  "replay_from": 241,
+  "state_hash": "892869c53f88c572",
+  "states_hash": "48fc62d315fc73e6",
+  "fps": 30,
+  "duration": 7.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 100,
+  "frames_hash": "35604b15b748e8c4",
+  "has_audio": true,
+  "audio_hash": "6da2cd07f468e58d",
+  "encoding": "7dd4e547023982ef",
+  "files": {
+    "mp4": "vine/climb/clip.mp4",
+    "webm": "vine/climb/clip.webm",
+    "poster": "vine/climb/poster.png",
+    "replay": "vine/climb/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

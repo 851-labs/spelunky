@@ -1,0 +1,60 @@
+---
+# Terrain page template (docs/wiki-style.md). Copy to site/content/wiki/<slug>.mdx and fill in; delete the
+# comments.
+slug: terrain-slug                  # e.g. push-block: the object's name without o and variant suffixes
+title: Terrain Name
+type: terrain
+categories: [terrain]
+objects: [oThing, oThingTop]        # every object that is this thing: its variants, its top, the parent it's one of
+aliases: []
+hatnote: ""                         # e.g. "For the item, see [[lamp]]."; else delete
+lede: >-
+  The Terrain Name is <a kind of terrain> in Spelunky Classic, found <where>, that <what it does to the player>.
+infobox:
+  image: { sprite: sThing, alt: "Describe what it looks like" }
+  effect: { text: "Under ten words", cite: scripts/characterStepEvent.gml:1 }
+  destroyed_by: { text: "Bombs, the Mattock", cite: objects/oThing/destroy.gml:1 }
+relations:
+  found_in: [mines]
+  related: []
+clips: [terrain-slug/use]
+faq:
+  - q: How do you <use it> in Spelunky Classic?
+    a: ...
+  - q: ...
+    a: ...
+  - q: ...
+    a: ...
+sources:
+  - objects/oThing/create.gml
+verified: { port: v0.0.0, date: 2026-01-01 }
+---
+
+{/* Summary: two to four sentences after the lede. No heading. */}
+
+## How it works
+
+{/* What the player does with it and what it does to him, step by step in the order the code checks, each
+   step cited: most of it is in the player's code (characterStepEvent, oPlayer1's step), not the terrain's.
+   What only shows in play (a speed, a distance) is measured in a trace of a scene and cites the scene's
+   clip. A ### a part when there are several (getting on, moving, getting off). */}
+
+<Clip id="terrain-slug/use" />
+
+## Locations
+
+{/* Where generation makes it: a table (area, how, chance, citation) from relations.json's spawns_in and the
+   room scripts, the rooms the room editor placed it in, and the level editor's tile. */}
+
+## Interactions
+
+{/* What else it meets: monsters that use it or are changed by it, items, what destroys it and what that
+   leaves (its destroy event), a ### each where there are several. */}
+
+## Tips
+
+{/* Practical consequences of the facts above, each following from something on the page. */}
+
+## Trivia
+
+{/* Oddities in the code, each cited; bugs the game keeps link to their quirk page. */}

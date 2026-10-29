@@ -1,0 +1,21 @@
+title = "Sliding on ice"
+description = "The player runs a few steps on rock and stops dead when he lets go; then he runs onto a floor of ice, lets go, and slides on along it."
+from = 0
+to = 239
+poster = 150
+story = "oPlayer1.xVel=0@51 !oPlayer1.xVel<1@105..140 !plife<4"
+
+[scene]
+level = '''
+111111111111111111111111111111
+100000000000000000000000000001
+100000000000000000000000000001
+100000000000000000000000000001
+10@000000000000000000000000001
+1111111111iiiiiiiiiiiiiiiiiiii
+1111111111iiiiiiiiiiiiiiiiiiii
+'''
+inputs = '''
+20 hold right 25
+75 hold right 30
+'''

@@ -1,0 +1,22 @@
+title = "Pushing a block"
+description = "The player walks into a stone block and pushes it slowly along the floor to the edge of a drop; it falls, lands on the floor below, and he drops down after it."
+from = 0
+to = 239
+poster = 120
+story = "oPlayer1.sprite_index=sPushLeft@41 oPushBlock.yVel>0@148 oPushBlock.y=128@159 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+1000000000000000000001
+10@000000B000000000001
+1111111111110000000001
+1111111111110000000001
+1111111111110000000001
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 200
+'''

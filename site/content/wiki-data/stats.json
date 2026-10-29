@@ -457,6 +457,17 @@
       "object": "oCrown",
       "stats": {}
     },
+    "ice": {
+      "kind": "terrain",
+      "name": "Ice",
+      "object": "oIce",
+      "stats": {
+        "friction": {"at":["scripts/characterStepEvent.gml:776"],"label":"Speed kept each step on ice","value":0.98},
+        "frozen-caveman": {"at":["objects/oIce/create.gml:3"],"label":"Chance of a frozen Caveman","value":80},
+        "ground-friction": {"at":["scripts/characterCreateEvent.gml:83"],"label":"Speed kept each step on other ground","value":0.6},
+        "ice-caves-chance": {"at":["scripts/scrRoomGen3.gml:297"],"label":"Chance a rock tile is ice","value":10}
+      }
+    },
     "jar": {
       "kind": "item",
       "name": "Jar",
@@ -493,6 +504,15 @@
       "object": "oKapala",
       "stats": {
         "heal": {"at":["objects/oPlayer1/collision_oBlood.gml:10"],"label":"Heal","unit":"hearts","value":1}
+      }
+    },
+    "ladder": {
+      "kind": "terrain",
+      "name": "Ladder",
+      "object": "oLadderOrange",
+      "stats": {
+        "grab-range": {"at":["scripts/characterStepEvent.gml:556","scripts/characterStepEvent.gml:617"],"label":"Reach to take hold","unit":"px","value":4},
+        "jump-off-speed": {"at":["scripts/characterCreateEvent.gml:72"],"label":"Sideways speed jumping off","unit":"px/step","value":4}
       }
     },
     "lamp": {
@@ -667,6 +687,17 @@
         "price": {"at":["objects/oMitt/create.gml:7"],"label":"Price","unit":"$","value":4000},
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":4000},{"at":2,"value":4000},{"at":3,"value":4400},{"at":4,"value":4800},{"at":5,"value":5200},{"at":6,"value":5600},{"at":7,"value":6000},{"at":8,"value":6400},{"at":9,"value":6800},{"at":10,"value":7200},{"at":11,"value":7600},{"at":12,"value":8000},{"at":13,"value":8400},{"at":14,"value":8800},{"at":15,"value":9200},{"at":16,"value":9600}],"unit":"$"},
         "throw-boost": {"at":["scripts/scrUseItem.gml:670"],"label":"Throw boost","unit":"px/step","value":6}
+      }
+    },
+    "push-block": {
+      "kind": "terrain",
+      "name": "Push Block",
+      "object": "oPushBlock",
+      "stats": {
+        "gravity": {"at":["objects/oMoveableSolid/create.gml:5"],"label":"Gravity","unit":"px/step","value":0.6},
+        "max-fall-speed": {"at":["scripts/gameStepEvent.gml:243"],"label":"Top falling speed","unit":"px/step","value":8},
+        "stone-chance": {"at":["scripts/scrSetupWalls.gml:466"],"label":"Chance a stone block becomes one","value":4},
+        "tile-chance": {"at":["scripts/scrRoomGen.gml:344"],"label":"Chance on a push block tile","value":4}
       }
     },
     "rock": {
@@ -935,6 +966,15 @@
         "price-by-level": {"at":["scripts/scrShopItemsGen.gml:186"],"label":"Price by level","table":[{"at":1,"value":10000},{"at":2,"value":10000},{"at":3,"value":11000},{"at":4,"value":12000},{"at":5,"value":13000},{"at":6,"value":14000},{"at":7,"value":15000},{"at":8,"value":16000},{"at":9,"value":17000},{"at":10,"value":18000},{"at":11,"value":19000},{"at":12,"value":20000},{"at":13,"value":21000},{"at":14,"value":22000},{"at":15,"value":23000},{"at":16,"value":24000}],"unit":"$"}
       }
     },
+    "thin-ice": {
+      "kind": "terrain",
+      "name": "Thin Ice",
+      "object": "oThinIce",
+      "stats": {
+        "thickness": {"at":["objects/oThinIce/create.gml:3"],"label":"Thickness","value":60},
+        "wear": {"at":["objects/oThinIce/step.gml:3"],"label":"Wear each step stood on","value":2}
+      }
+    },
     "throwing": {
       "kind": "mechanic",
       "name": "Throwing",
@@ -1022,6 +1062,15 @@
         "stomp-damage": {"at":["objects/oVampire/collision_oCharacter.gml:11","objects/oVampire/collision_oCharacter.gml:12"],"label":"Stomp damage","unit":"hit points"},
         "stun-time": {"at":["objects/oVampire/create.gml:32"],"label":"Stun time","unit":"steps","value":60},
         "walk-speed": {"at":["objects/oVampire/step.gml:108"],"label":"Walking speed","unit":"px/step","value":1.5}
+      }
+    },
+    "water": {
+      "kind": "terrain",
+      "name": "Water",
+      "object": "oWater",
+      "stats": {
+        "bubble-interval": {"at":["objects/oPlayer1/create.gml:36"],"label":"Bubble timer","unit":"steps","value":20},
+        "fish-chance": {"at":["scripts/scrEntityGen.gml:330"],"label":"Chance of a fish","value":30}
       }
     },
     "web": {
@@ -2911,6 +2960,17 @@
         "sunGold": {"at":"objects/oHighscores/create.gml:15","value":200000}
       }
     },
+    "oIce": {
+      "init": {
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "cleanDeath": {"at":"objects/oSolid/create.gml:7","value":0},
+        "invincible": {"at":"objects/oSolid/create.gml:3","value":0},
+        "shopWall": {"at":"objects/oSolid/create.gml:4","value":0},
+        "treasure": {"at":"objects/oSolid/create.gml:6","value":""},
+        "type": {"at":"objects/oSolid/create.gml:5","value":"None"}
+      },
+      "parent": "oSolid"
+    },
     "oJar": {
       "init": {
         "DUCKING": {"at":"objects/oItem/create.gml:10","value":12},
@@ -3161,6 +3221,13 @@
       },
       "parent": "oItem",
       "type": "Key"
+    },
+    "oLadderOrange": {
+      "init": {
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "type": {"at":"objects/oDrawnSprite/create.gml:1","value":""}
+      },
+      "parent": "oLadder"
     },
     "oLampItem": {
       "init": {
@@ -3948,6 +4015,20 @@
         "yVel": {"at":"objects/oPsychicWaveP/create.gml:3","value":0}
       },
       "parent": "oDrawnSprite"
+    },
+    "oPushBlock": {
+      "init": {
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "cleanDeath": {"at":"objects/oPushBlock/create.gml:6","value":0},
+        "invincible": {"at":"objects/oPushBlock/create.gml:3","value":0},
+        "myGrav": {"at":"objects/oMoveableSolid/create.gml:5","value":0.6},
+        "shopWall": {"at":"objects/oSolid/create.gml:4","value":0},
+        "treasure": {"at":"objects/oSolid/create.gml:6","value":""},
+        "type": {"at":"objects/oSolid/create.gml:5","value":"None"},
+        "xVel": {"at":"objects/oMoveableSolid/create.gml:3","value":0},
+        "yVel": {"at":"objects/oMoveableSolid/create.gml:4","value":0}
+      },
+      "parent": "oMoveableSolid"
     },
     "oRock": {
       "init": {
@@ -4937,6 +5018,18 @@
       "parent": "oItem",
       "type": "Teleporter"
     },
+    "oThinIce": {
+      "init": {
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "cleanDeath": {"at":"objects/oSolid/create.gml:7","value":0},
+        "invincible": {"at":"objects/oSolid/create.gml:3","value":0},
+        "shopWall": {"at":"objects/oSolid/create.gml:4","value":0},
+        "thickness": {"at":"objects/oThinIce/create.gml:3","value":60},
+        "treasure": {"at":"objects/oSolid/create.gml:6","value":""},
+        "type": {"at":"objects/oSolid/create.gml:5","value":"None"}
+      },
+      "parent": "oSolid"
+    },
     "oTombLord": {
       "init": {
         "ATTACK": {"at":"objects/oTombLord/create.gml:18","value":3},
@@ -5184,6 +5277,15 @@
       },
       "parent": "oEnemy",
       "type": "Vampire"
+    },
+    "oWater": {
+      "init": {
+        "blinkToggle": {"at":"objects/oDrawnSprite/create.gml:2","value":0},
+        "checked": {"at":"objects/oWater/create.gml:4","value":0},
+        "type": {"at":"objects/oWater/create.gml:3","value":"Water"}
+      },
+      "parent": "oDrawnSprite",
+      "type": "Water"
     },
     "oWeb": {
       "init": {

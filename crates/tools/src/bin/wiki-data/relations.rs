@@ -1698,10 +1698,13 @@ pub fn build(
                 .walk(root, env, true, None, &mut Vec::new(), &mut reaches)
                 .map_err(|e| format!("generation from {root}: {e}"))?;
         }
+        let mut kept = Vec::new();
         for reach in reaches {
-            if !analyzer.path_ok(&reach, env, ai * scenarios, None)? {
-                continue;
+            if analyzer.path_ok(&reach, env, ai * scenarios, None)? {
+                kept.push(reach);
             }
+        }
+        for reach in only_with_made(game, &placed, kept) {
             let last = reach.last();
             if let Some(obj) = absent(env).find(|o| is_a(game, &reach.object, o)) {
                 return Err(format!(
@@ -2029,6 +2032,36 @@ fn rooms_of(env: &Env) -> impl Iterator<Item = &str> {
         let room = k.strip_prefix("isRoom(\"")?.strip_suffix("\")")?;
         v.real().is_some_and(eval::truthy).then_some(room)
     })
+}
+
+/// An area's generation, but what's made inside a `with (obj)` that runs for no one there: an object no room
+/// places, which nothing else the area's generation makes is, or descends from (scrSetupWalls turns stone
+/// blocks into push blocks `with oBlock`, and the Ice Caves make no stone blocks, so no push blocks that way).
+/// Dropping one can leave another `with` with no one, so it's repeated until nothing more goes.
+fn only_with_made(
+    game: &Game<'_>,
+    placed: &BTreeMap<String, BTreeMap<String, usize>>,
+    mut reaches: Vec<Reach>,
+) -> Vec<Reach> {
+    let made_by_none = |made: &BTreeSet<&str>, target: &str| {
+        game.objects.contains_key(target)
+            && !placed.keys().any(|o| is_a(game, o, target))
+            && !made.iter().any(|o| is_a(game, o, target))
+    };
+    loop {
+        let made: BTreeSet<&str> = reaches.iter().map(|r| r.object.as_str()).collect();
+        let runs = |reach: &Reach| {
+            !(reach.steps.iter().flat_map(|s| &s.when))
+                .any(|w| matches!(w, When::With(target) if made_by_none(&made, target)))
+        };
+        let before = reaches.len();
+        let kept: Vec<bool> = reaches.iter().map(runs).collect();
+        let mut keep = kept.into_iter();
+        reaches.retain(|_| keep.next().unwrap_or(true));
+        if reaches.len() == before {
+            return reaches;
+        }
+    }
 }
 
 /// Whether `object` is `ancestor` or one of its descendants (an instance `with (ancestor)` picks).
