@@ -1,6 +1,6 @@
 // The components a page's MDX renders with (docs/wiki-style.md, "Body components"). compile.ts has already
 // resolved what they show (a stat's text, a citation's number, a clip's files), so each only draws it.
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, CSSProperties, ReactNode } from "react";
 import { clipAnchor } from "./anchors.ts";
 import { CardLink } from "./hover-card";
 import { LiveClip } from "./live-clip";
@@ -72,7 +72,8 @@ export interface ClipProps {
 // before they play sound, and the native controls set its volume. One without sound is, so a phone doesn't
 // pause the reader's music for it. A clip the media haven't got (a new spec, before scripts/wiki-media
 // renders it) is its title and description in a box its size. It's at most 600 pixels tall, which the game's
-// 4:3 clips never reach at the CSS's 640 wide: the settings program's tall window (416x600) shows its own size.
+// 4:3 clips never reach at the CSS's 640 wide: the settings program's tall window (416x600) shows its own size
+// (--clip-width, the video's: the figure has its ring's room besides).
 export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster, replay, from, seek, phones, progress, state, states }: ClipProps) {
   const anchor = clipAnchor(id);
   const fit = Math.floor((600 * Number(width)) / Number(height));
@@ -94,7 +95,7 @@ export function Clip({ id, title, description, width, height, loop, audio, mp4, 
     </video>
   );
   return (
-    <figure className="clip" id={anchor} style={fit < 640 ? { maxWidth: fit } : undefined}>
+    <figure className="clip" id={anchor} style={fit < 640 ? ({ "--clip-width": `${fit}px` } as CSSProperties) : undefined}>
       {video && replay ? (
         <LiveClip
           title={title}
