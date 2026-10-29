@@ -456,9 +456,9 @@ check "$site/wiki/media" 404 "$no_cache"
 # (docs/wiki-license.md), its clip and sprite from the media (the clip a scene's, so with its button to play it in
 # the game, src/wiki/live-clip.tsx), and a placeholder for a clip they haven't got;
 # and its layout (src/wiki/layout.tsx): the breadcrumbs its JSON-LD has too (through its category's hub), the
-# verified line, the infobox with its citations and relations, the table of contents (the wide screen's rail
-# beside the article, none of it marked current until the browser's scroll-spy does, and the body's
-# disclosure, closed, its panel in the page), the sections' anchors and the navbox, its title linking the hub.
+# infobox with its citations and relations, the table of contents (the wide screen's rail beside the article,
+# none of it marked current until the browser's scroll-spy does, and the body's disclosure, closed, its panel
+# in the page), the sections' anchors and the navbox, its title linking the hub.
 check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
@@ -478,7 +478,6 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   '<a class="anchor" href="#behaviour" aria-label="Link to this section" aria-describedby="behaviour">#</a>' \
   '<nav class="breadcrumbs" aria-label="Breadcrumb"><ol><li><a href="/wiki">Wiki</a></li><li><a href="/wiki/monsters">Monsters</a></li><li><span aria-current="page">Snake</span></li></ol></nav>' \
   '"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Wiki","item":"https://spelunky.ai/wiki"},{"@type":"ListItem","position":2,"name":"Monsters","item":"https://spelunky.ai/wiki/monsters"},{"@type":"ListItem","position":3,"name":"Snake","item":"https://spelunky.ai/wiki/snake"}]' \
-  '<a href="https://github.com/851-labs/spelunky/releases/tag/v0.1.7">v0.1.7</a> on<!-- --> <time dateTime="2026-10-27">27 October 2026</time>' \
   '<th scope="row">Health</th><td><data value="1" data-cite="objects/oSnake/create.gml:10">1 hit point</data><sup class="cite"><a href="#cite-1">[1]</a></sup></td>' \
   '<li id="cite-1"><code>objects/oSnake/create.gml:10</code></li>' \
   '<li id="cite-4"><code>objects/oSnake/step.gml:39-72</code></li>' \
@@ -512,9 +511,11 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
 # JS, not its HTML.
 grep -rqF 5ba7e1e5ba7e1e5b dist/client/assets || fail "the Snake bite's state_hash isn't in the page's JS"
 grep -rqF 5ba7e1e5ba7e5ba7 dist/client/assets || fail "the Snake bite's states_hash isn't in the page's JS"
-# The bite has sound, so it isn't muted: pressing play plays it. And the rail marks no section current
-# before the browser has scrolled (the breadcrumbs' and navbox's aria-current="page" aren't one).
-lacks 'muted=""' 'aria-current="location"'
+# The bite has sound, so it isn't muted: pressing play plays it. The rail marks no section current before the
+# browser has scrolled (the breadcrumbs' and navbox's aria-current="page" aren't one). And the page doesn't say
+# which release it was verified against: that's bookkeeping, its JSON-LD's dateModified (docs/wiki-style.md,
+# `verified`).
+lacks 'muted=""' 'aria-current="location"' 'Verified against the spelunky.ai port' 'class="verified"'
 # Its FAQ, shown and as an FAQPage (test-seo.mjs checks they agree), and its Markdown twin, named in its head.
 contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does a Snake do in Spelunky Classic?</dt>' \
   '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much damage does a Snake do in Spelunky Classic?","acceptedAnswer":{"@type":"Answer","text":"1 heart per bite.' \

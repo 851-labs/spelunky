@@ -139,13 +139,15 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
     if (!text.startsWith(notice)) fail(`markdown: ${name} doesn't start with the notice`);
     // Nothing of the MDX is left: components, [[links]], comments.
     if (/<[A-Z]|\[\[|\{\/\*/.test(text)) fail(`markdown: ${name} has MDX in it`);
+    // Nor which release a page was verified against: bookkeeping, not for a reader (docs/wiki-style.md, `verified`).
+    if (text.includes("Verified against the spelunky.ai port")) fail(`markdown: ${name} has the verified line`);
   }
   const md = files.get("wiki/snake.md") ?? "";
   // The title, where it's from, the lede, the infobox's table with its notes, the body's sections, a red
   // link's text, a section's link made absolute, a note after its word, a GML excerpt with its caption, the
   // FAQ, and References' notes.
   for (const text of [
-    "\n\n# Snake\n\nFrom the spelunky.ai wiki: <https://spelunky.ai/wiki/snake>. Verified against the spelunky.ai port [v0.1.7](https://github.com/851-labs/spelunky/releases/tag/v0.1.7) on 27 October 2026.\n\nThe Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n\n| Snake ",
+    "\n\n# Snake\n\nFrom the spelunky.ai wiki: <https://spelunky.ai/wiki/snake>.\n\nThe Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact.\n\n| Snake ",
     "\n## Behaviour\n",
     "almost any block in [the Mines](https://spelunky.ai/wiki/mines), and a [Snake pit](https://spelunky.ai/wiki/snake-pit)",
     "**The Tutorial**, which has one",

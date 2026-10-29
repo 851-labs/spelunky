@@ -11,7 +11,6 @@
 import { gfmToMarkdown } from "mdast-util-gfm";
 import { toMarkdown } from "mdast-util-to-markdown";
 import { absoluteUrl, SITE_URL } from "../../seo/seo.ts";
-import { longDate } from "../dates.ts";
 import { AUDIO_CREDIT, NOTICE } from "../notices.ts";
 import { CATEGORIES, CATEGORY_NAMES } from "./categories.ts";
 import type { ClipInfo, PageMeta, Reference, RelationLink } from "./compile.ts";
@@ -189,16 +188,9 @@ function inline(root: MdNode): MdNode[] {
 export function pageMarkdown(meta: PageMeta, parts: PageMarkdown): MdNode[] {
   const path = `/wiki/${meta.slug}`;
   const url = SITE_URL + path;
-  const release = `https://github.com/851-labs/spelunky/releases/tag/${meta.verified.port}`;
   const nodes: MdNode[] = [
     heading(1, meta.title),
-    paragraph(
-      text("From the spelunky.ai wiki: "),
-      link(url, text(url)),
-      text(". Verified against the spelunky.ai port "),
-      link(release, text(meta.verified.port)),
-      text(` on ${longDate(meta.verified.date)}.`),
-    ),
+    paragraph(text("From the spelunky.ai wiki: "), link(url, text(url)), text(".")),
   ];
   if (meta.spoiler) nodes.push(paragraph(text("This page describes a secret.")));
   if (parts.hatnote) nodes.push(paragraph({ type: "emphasis", children: inline(parts.hatnote) }));

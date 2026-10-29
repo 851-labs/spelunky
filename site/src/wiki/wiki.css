@@ -52,7 +52,8 @@ code { font: inherit; font-size: 0.9em; }
 .breadcrumbs ol { display: flex; flex-wrap: wrap; margin: 16px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--dim); }
 .breadcrumbs li + li::before { content: "›"; content: "›" / ""; padding: 0 8px; color: var(--dirt-light); }
 h1 { margin: 4px 0 0; font-size: 32px; line-height: 1.25; }
-.verified { margin: 4px 0 16px; color: var(--dim); font-size: 13px; }
+/* A page's title has room under it before the infobox's frame, which reaches 8px above the box. */
+.wiki-page h1 { margin-bottom: 16px; }
 p { margin: 8px 0; }
 .lede p { font-size: 17px; }
 .hatnote, .spoiler-note { color: var(--dim); font-style: italic; }
