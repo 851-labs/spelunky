@@ -13,6 +13,10 @@
 // savestates as it plays: the slider seeks in the clip, handing the game back to the replay if the reader has
 // it, and Restart is a seek to its first frame. Without, it has no frame or frames, and Restarting is loading
 // the iframe again: /play/'s files are cached for good.
+//
+// A touch screen has no Take control: the game needs a keyboard. And the player goes back to the video when
+// the device can't keep the game up to speed: while the replay plays in view, its frames come too slowly
+// (`onSlow`, live-clip.tsx), which the frames a seeking game reports tell.
 import { Slider } from "@base-ui/react/slider";
 import { Toolbar } from "@base-ui/react/toolbar";
 import { useEffect, useRef, useState } from "react";
@@ -35,6 +39,20 @@ type Engine =
 
 // The game's 30 frames a second.
 const FPS = 30;
+// Too slow: frames that come at under two thirds of that, as the median over three seconds (and ten reports) of
+// the replay playing in view. The median, so that a moment's hitch doesn't decide.
+const SLOW_FPS = 20;
+const WATCH_MS = 3000;
+const WATCH_REPORTS = 10;
+// The frames not timed from the clip's first, the game's first moments (its shaders, the sound starting), and
+// from a seek's, which comes after the frames run unshown to it.
+const SETTLE_START = 15;
+const SETTLE_SEEK = 1;
+// The ticks a game that's fallen behind runs back to back, so between two reports (crates/app's
+// window::MAX_CATCH_UP).
+const CATCH_UP = 4;
+// Wiki.css's touch screens, which hide the button where the game can't play on phones.
+const TOUCH = "(hover: none), (pointer: coarse)";
 
 export interface LiveClipPlayerProps {
   title: string;
@@ -47,9 +65,11 @@ export interface LiveClipPlayerProps {
   seek: boolean;
   // Back to the video.
   onClose: () => void;
+  // Back to the video, as the device can't keep up.
+  onSlow: () => void;
 }
 
-export function LiveClipPlayer({ title, width, height, poster, replay, from, seek, onClose }: LiveClipPlayerProps) {
+export function LiveClipPlayer({ title, width, height, poster, replay, from, seek, onClose, onSlow }: LiveClipPlayerProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [engine, setEngine] = useState<Engine>({ kind: "loading" });
   // A new iframe each time, for Restart without seeking.
@@ -59,6 +79,33 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
   const [scrub, setScrub] = useState<number | null>(null);
   const scrubTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => () => clearTimeout(scrubTimer.current), []);
+  const [touch] = useState(() => matchMedia(TOUCH).matches);
+  // The replay's frames as they came, while it plays in view, to tell whether the device keeps up (timeFrames).
+  // A browser can slow a frame that's out of view or a hidden tab, so only one in view counts, and the count
+  // starts again from the next frame when it comes back.
+  const speed = useRef<Speed>({ perFrame: [], ms: 0, frame: null, at: 0, settle: SETTLE_START, decided: false });
+  const inView = useRef(true);
+  const slow = useRef(onSlow);
+  slow.current = onSlow;
+  useEffect(() => {
+    const element = frame.current;
+    if (!element) return;
+    const away = () => (speed.current.frame = null);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inView.current = entry.isIntersecting;
+        away();
+      },
+      { threshold: 0.5 },
+    );
+    observer.observe(element);
+    document.addEventListener("visibilitychange", away);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", away);
+    };
+    // Restart without seeking makes a new iframe.
+  }, [run]);
 
   useEffect(() => {
     const listener = (event: MessageEvent) => {
@@ -66,6 +113,7 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
       if (event.origin !== location.origin || event.source !== frame.current?.contentWindow) return;
       const data = event.data;
       if (data?.spelunky === "playback") {
+        timeFrames(speed.current, data, inView.current && document.visibilityState === "visible", slow.current);
         setEngine({ kind: "playback", playback: data });
         setScrub((at) => (at === data.frame ? null : at));
       } else if (data?.spelunky === "error") setEngine({ kind: "error", error: String(data.error) });
@@ -89,6 +137,8 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
     clearTimeout(scrubTimer.current);
     scrubTimer.current = setTimeout(() => setScrub(null), 500);
     send({ spelunky: "seek", frame: to });
+    speed.current.frame = null;
+    speed.current.settle = Math.max(speed.current.settle, SETTLE_SEEK);
   };
   const restart = () => {
     if (frames !== null) {
@@ -155,9 +205,11 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
         <Toolbar.Button className="clip-button" disabled={!ready || live || ended} onClick={() => send(paused ? "spelunky:play" : "spelunky:pause")}>
           {paused && !ended ? "Play" : "Pause"}
         </Toolbar.Button>
-        <Toolbar.Button className="clip-button" disabled={!ready || live} onClick={takeControl}>
-          Take control
-        </Toolbar.Button>
+        {!touch && (
+          <Toolbar.Button className="clip-button" disabled={!ready || live} onClick={takeControl}>
+            Take control
+          </Toolbar.Button>
+        )}
         <Toolbar.Separator className="clip-controls-gap" />
         <Toolbar.Button className="clip-button clip-button-quiet" disabled={frames !== null && !ready} onClick={restart}>
           Restart
@@ -167,7 +219,7 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
         </Toolbar.Button>
       </Toolbar.Root>
       <p className="clip-live-note" role="status">
-        {status(engine, frames !== null)}
+        {status(engine, frames !== null, touch)}
       </p>
     </div>
   );
@@ -178,7 +230,43 @@ function seconds(frames: number): string {
   return (frames / FPS).toFixed(1);
 }
 
-function status(engine: Engine, seeks: boolean): string {
+// The replay's frames' timing so far (`speed` in LiveClipPlayer): the milliseconds each frame took, and their
+// sum, the last report's frame (null when it wasn't counted) and time, the frames still to settle before they
+// count, and whether it's decided.
+interface Speed {
+  perFrame: number[];
+  ms: number;
+  frame: number | null;
+  at: number;
+  settle: number;
+  decided: boolean;
+}
+
+// Times a playback report's frame, if the replay plays in view, and calls `slow` if enough came too slowly.
+// Only a frame just after the last one counted counts, at most CATCH_UP after it: not a seek's jump, nor the
+// first after a pause or a spell out of view.
+function timeFrames(speed: Speed, playback: Playback, inView: boolean, slow: () => void) {
+  if (speed.decided) return;
+  const now = performance.now();
+  const playing = inView && playback.ready && !playback.paused && !playback.live && !playback.ended;
+  const frame = playing ? (playback.frame ?? null) : null;
+  const step = frame !== null && speed.frame !== null ? frame - speed.frame : 0;
+  if (step >= 1 && step <= CATCH_UP) {
+    if (speed.settle > 0) speed.settle--;
+    else {
+      speed.perFrame.push((now - speed.at) / step);
+      speed.ms += now - speed.at;
+    }
+  }
+  speed.frame = frame;
+  speed.at = now;
+  if (speed.ms < WATCH_MS || speed.perFrame.length < WATCH_REPORTS) return;
+  speed.decided = true;
+  const sorted = [...speed.perFrame].sort((a, b) => a - b);
+  if (sorted[sorted.length >> 1] > 1000 / SLOW_FPS) slow();
+}
+
+function status(engine: Engine, seeks: boolean, touch: boolean): string {
   switch (engine.kind) {
     case "loading":
       return "Starting the game…";
@@ -192,7 +280,7 @@ function status(engine: Engine, seeks: boolean): string {
         return seeks ? `${keys} The slider takes you back to the replay.` : keys;
       }
       if (!ready) return "Starting the game…";
-      if (ended) return "The clip's over. Take control to play on from here.";
+      if (ended) return touch ? "The clip's over." : "The clip's over. Take control to play on from here.";
       if (paused) return "Paused.";
       return "Replaying the clip in the game.";
     }

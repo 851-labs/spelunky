@@ -97,6 +97,14 @@ if grep -q '<meta name="spelunky-embed"' "$tmp/play/index.html"; then
   # And whether it seeks: then the clips' player has a slider, and restarts without loading the game again.
   if grep -q '<meta name="spelunky-embed-seek"' "$tmp/play/index.html"; then
     export WIKI_LIVE_SEEK=1
+    # And whether it starts its sound at a tap where the browser held it, as Safari does, which every browser
+    # on iOS is: then phones get the button too. The player also needs the frames a seeking build reports, to
+    # tell when the device can't keep up.
+    if grep -q '<meta name="spelunky-embed-held-sound"' "$tmp/play/index.html"; then
+      export WIKI_LIVE_PHONES=1
+    else
+      echo "site/build.sh: the web build can't start its sound at a tap, so phones keep the wiki's clips' videos"
+    fi
   else
     echo "site/build.sh: the web build can't seek, so the wiki's live clips have no slider"
   fi
