@@ -1591,4 +1591,98 @@ mod tests {
             MAX_TILE_COPIES as usize
         );
     }
+
+    /// Frames before a capture's first left to [`Unrendered`](crate::unrendered::Unrendered) show the
+    /// same pictures from then on as frames all rendered, in a game drawn like Spelunky's `oScreen`: a
+    /// `screen` surface cleared and redrawn every frame, a pause screen drawn into once, and a dark level's
+    /// surface that nothing clears.
+    #[test]
+    fn unrendered_frames_show_the_same_pictures() {
+        let (Some(mut all), Some(mut skipping)) = (gpu_renderer(), gpu_renderer()) else {
+            return;
+        };
+        let (screen, pause, dark) = (SurfaceId(1), SurfaceId(2), SurfaceId(3));
+        let rect = |x: f64, y: f64, size: f64, color: u32, alpha: f64| Command::Rectangle {
+            x1: x,
+            y1: y,
+            x2: x + size,
+            y2: y + size,
+            color: Color(color),
+            alpha,
+            outline: false,
+        };
+        let blit = |surface| {
+            Command::Surface(draw::SurfaceDraw {
+                surface,
+                x: 0.0,
+                y: 0.0,
+                xscale: 1.0,
+                yscale: 1.0,
+                blend: Color::WHITE,
+                alpha: 0.75,
+            })
+        };
+        let clear = |color| Command::Clear {
+            color: Color(color),
+            alpha: 1.0,
+        };
+        let (dark_level, paused) = (|i| (5..12).contains(&i) || i >= 34, 20..32);
+        let frames: Vec<Frame> = (0..40u32)
+            .map(|i| {
+                let mut frame = Frame::new(8, 8);
+                frame.surfaces = [screen, pause, dark]
+                    .map(|id| draw::SurfaceSize {
+                        id,
+                        width: 8,
+                        height: 8,
+                    })
+                    .to_vec();
+                let c = &mut frame.commands;
+                if i == paused.start {
+                    c.extend([Command::SetTarget(Target::Surface(pause)), blit(screen)]);
+                    c.push(rect(0.0, 0.0, 8.0, 0x40_40_40, 0.5));
+                }
+                c.extend([Command::SetTarget(Target::Screen), clear(0)]);
+                c.push(blit(if paused.contains(&i) { pause } else { screen }));
+                c.push(Command::Present);
+                c.extend([
+                    Command::SetTarget(Target::Surface(screen)),
+                    clear(0x80_00_00),
+                ]);
+                c.push(rect(f64::from(i % 7), 2.0, 1.0, 0x00_FF_00 + i, 1.0));
+                if dark_level(i) {
+                    c.push(Command::SetTarget(Target::Surface(dark)));
+                    c.push(rect(f64::from(i % 5), 5.0, 2.0, 0x00_00_FF ^ (i << 3), 0.5));
+                    c.extend([Command::SetTarget(Target::Surface(screen)), blit(dark)]);
+                }
+                frame
+            })
+            .collect();
+        let from = 30;
+        let mut unrendered = crate::unrendered::Unrendered::new();
+        let mut rendered = 0;
+        for (i, frame) in frames.iter().enumerate() {
+            all.render(frame);
+            if i < from {
+                unrendered.push(frame.clone(), |frame| {
+                    skipping.render(frame);
+                    rendered += 1;
+                });
+                continue;
+            }
+            unrendered.flush(|frame| {
+                skipping.render(frame);
+                rendered += 1;
+            });
+            skipping.render(frame);
+            assert_eq!(
+                skipping.read_screen().unwrap(),
+                all.read_screen().unwrap(),
+                "frame {i}"
+            );
+        }
+        // The first (which made the surfaces), the dark level's, the pause's first and the one before
+        // (whose `screen` it drew), and the last before the capture.
+        assert_eq!(rendered, 1 + 7 + 2 + 1);
+    }
 }

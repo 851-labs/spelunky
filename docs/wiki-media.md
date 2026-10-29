@@ -106,7 +106,9 @@ inputs. `--replays DIR` writes them, for `replay-story` while writing a spec (it
 the scene's) or for `scripts/fidelity`: the first four scenes matched the oracle frame for frame. It plays
 every source as the app does, with the sound DLL modelled from the game's sounds (replays are recorded
 against the oracle's stub, which rarely makes a difference), and checks the facts. Rendering, the app
-captures the frames headless (`app --capture-from F`), `wiki-clips` scales them down to
+captures the frames headless (`app --capture-from F`), rendering the frames before the clip's only as far
+as its pixels need them (`app::unrendered`: most draw into what a later frame clears, but the pause screen
+and a dark level's light keep theirs), `wiki-clips` scales them down to
 the program's own pixels (the game's 320x240) and up again by `scale`, nearest neighbour, mixes the sound, and ffmpeg encodes them.
 
 **The settings program.** A clip cut from a replay in `fidelity/settings/` plays the settings program on its
