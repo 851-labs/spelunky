@@ -69,8 +69,9 @@ export interface WikiOptions {
   // no pages.
   sourceDir: string | null;
   // Whether the web build at /play/ can be embedded (build.sh's WIKI_LIVE_CLIPS, from its page), whether it
-  // seeks (WIKI_LIVE_SEEK) and whether phones can play it (WIKI_LIVE_PHONES), or null: then a clip whose replay
-  // the media have can play in it (src/wiki/live-clip.tsx).
+  // seeks (WIKI_LIVE_SEEK), whether phones can play it (WIKI_LIVE_PHONES) and whether it plays the clips cut from
+  // committed replays (WIKI_LIVE_REPLAYS), or null: then a clip whose replay the media have can play in it
+  // (src/wiki/live-clip.tsx), a scene's or, with `replays`, any.
   liveClips: LiveClips | null;
 }
 
@@ -78,6 +79,7 @@ export interface WikiOptions {
 export interface LiveClips {
   seek: boolean;
   phones: boolean;
+  replays: boolean;
 }
 
 export interface Reference {
@@ -99,10 +101,10 @@ export interface ClipInfo {
   files: { mp4: string; webm: string; poster: string } | null;
   // Whether its files have the game's sound (clip.json's has_audio).
   audio: boolean;
-  // Its replay's URL and the replay's frame it starts on, when the media have the replay (a scene's) and the
-  // web build can be embedded, to play it in the game (src/wiki/live-clip.tsx), and whether the build seeks and
-  // plays on phones.
-  live: ({ replay: string; from: number } & LiveClips) | null;
+  // Its replay's URL and the replay's frame it starts on, when the media have the replay and the web build can
+  // be embedded and play it (a scene's, or with LiveClips.replays one cut from a committed replay), to play it in
+  // the game (src/wiki/live-clip.tsx), and whether the build seeks and plays on phones.
+  live: ({ replay: string; from: number } & Pick<LiveClips, "seek" | "phones">) | null;
 }
 
 export interface SpriteImage {
@@ -893,11 +895,21 @@ function readClip(clipsDir: string, id: string, media: MediaPackage | null, live
     height: rendered?.height ?? 240 * scale,
     files: files || null,
     audio: rendered?.audio ?? false,
-    live:
-      media && liveClips && rendered?.live
-        ? { replay: mediaUrl(media, `clips/${rendered.live.replay}`), from: rendered.live.from, ...liveClips }
-        : null,
+    live: media && rendered ? clipLive(rendered.live, liveClips, (path) => mediaUrl(media, `clips/${path}`)) : null,
   };
+}
+
+// A rendered clip's live play (ClipInfo.live), its replay's path made a URL by `url`: when the media have its
+// replay, and the web build at /play/ can be embedded and plays it. Any such build plays a scene's; only one
+// that says so plays a clip cut from a committed replay (LiveClips.replays), as an older one could play the
+// replay unlike its video.
+export function clipLive(
+  live: MediaPackage["clips"][string]["live"],
+  liveClips: LiveClips | null,
+  url: (path: string) => string,
+): ClipInfo["live"] {
+  if (!live || !liveClips || !(live.scene || liveClips.replays)) return null;
+  return { replay: url(live.replay), from: live.from, seek: liveClips.seek, phones: liveClips.phones };
 }
 
 // ---------------------------------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
-// A clip in the game itself: a clip whose replay the media have (a scene's) has a "Play live" button under its
-// video, which swaps the video for the web build at /play/ replaying the clip from its first frame, with
-// controls to pause it and to take over from the replay (live-clip-player.tsx).
+// A clip in the game itself: a clip whose replay the media have (every clip's but the settings program's) has a
+// "Play live" button under its video, which swaps the video for the web build at /play/ replaying the clip from
+// its first frame, with controls to pause it and to take over from the replay (live-clip-player.tsx).
 //
 // Nothing of the game loads until the click: the page has only this button. The player is a chunk of its own,
 // and the game is a same-origin iframe of /play/?replay=URL&from=F&embed (crates/app's window::Embed), made

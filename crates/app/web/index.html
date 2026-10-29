@@ -12,6 +12,12 @@
 <!-- And it starts its sound at the reader's next key, click or tap where the browser held it (Safari, which every
      browser on iOS is: app::play::Play): only then does site/build.sh let phones play the clips. -->
 <meta name="spelunky-embed-held-sound" content="1">
+<!-- And it's from after the wiki's media had the clips cut from committed replays (fidelity/replays, 851-3572):
+     only then does site/build.sh let them play, not only the scenes' clips. A build from before could play one
+     unlike its video, without a fix the port made since to play it as the original does. It says nothing of
+     later fixes: the media are rendered from the main branch, so a release older than a fix there can play a
+     clip unlike its video too. -->
+<meta name="spelunky-embed-replays" content="1">
 <title>Spelunky Classic (unofficial mod) - Spelunky (c) 2008, 2009 Derek Yu and Mossmouth, LLC</title>
 <style>
   html, body { margin: 0; height: 100%; background: #000; color: #ccc; font: 14px system-ui, sans-serif; }
