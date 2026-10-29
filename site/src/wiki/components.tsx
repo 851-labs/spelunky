@@ -54,6 +54,8 @@ export interface ClipProps {
   seek?: boolean;
   // And phones can play it (live-clip.tsx).
   phones?: boolean;
+  // And it reports its start-up run: the player shows it over the poster (live-clip-player.tsx).
+  progress?: boolean;
 }
 
 // A clip: the video, and its title and description from the spec. No license caption: the page's header
@@ -64,7 +66,7 @@ export interface ClipProps {
 // pause the reader's music for it. A clip the media haven't got (a new spec, before scripts/wiki-media
 // renders it) is its title and description in a box its size. It's at most 600 pixels tall, which the game's
 // 4:3 clips never reach at the CSS's 640 wide: the settings program's tall window (416x600) shows its own size.
-export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster, replay, from, seek, phones }: ClipProps) {
+export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster, replay, from, seek, phones, progress }: ClipProps) {
   const anchor = `clip-${id.replaceAll("/", "-")}`;
   const fit = Math.floor((600 * Number(width)) / Number(height));
   const video = mp4 && webm && (
@@ -96,6 +98,7 @@ export function Clip({ id, title, description, width, height, loop, audio, mp4, 
           from={Number(from ?? 0)}
           seek={seek ?? false}
           phones={phones ?? false}
+          progress={progress ?? false}
         >
           {video}
         </LiveClip>

@@ -3,12 +3,15 @@
 // where its replay is (crates/app's web::listen_to_embedder and tell_embedder):
 //
 //   page to game  "spelunky:pause", "spelunky:play", "spelunky:take-control", { spelunky: "seek", frame }
-//   game to page  { spelunky: "playback", ready, paused, live, ended, frame, frames }, from its start, before
-//                 its downloads
+//   game to page  { spelunky: "playback", ready, paused, live, ended, frame, frames, lead }, from its start,
+//                 before its downloads
 //                 { spelunky: "error", error }
 //
 // The game runs the replay's frames before the clip's unshown, as fast as they go, and says it's ready on the
-// clip's first, so the poster stays over it until then. At the replay's end it holds the last frame, from which
+// clip's first, so the poster stays over it until then. A game that reports that run (`progress`, build.sh's
+// WIKI_LIVE_PROGRESS, from /play/'s page) says how many of them it's run (`lead`), which a Base UI Progress
+// shows over the poster. The run is bounded either way: one that takes too long goes back to the video
+// (`onSlow`, live-clip-startup.ts). At the replay's end it holds the last frame, from which
 // the reader can take over too. A game that seeks (`seek`, build.sh's WIKI_LIVE_SEEK, from /play/'s page) keeps
 // savestates as it plays: the slider seeks in the clip, handing the game back to the replay if the reader has
 // it, and Restart is a seek to its first frame. Without, it has no frame or frames, and Restarting is loading
@@ -17,9 +20,12 @@
 // A touch screen has no Take control: the game needs a keyboard. And the player goes back to the video when
 // the device can't keep the game up to speed: while the replay plays in view, its frames come too slowly
 // (`onSlow`, live-clip.tsx), which the frames a seeking game reports tell.
+import { Progress } from "@base-ui/react/progress";
 import { Slider } from "@base-ui/react/slider";
 import { Toolbar } from "@base-ui/react/toolbar";
 import { useEffect, useRef, useState } from "react";
+import { newStartup, timeStartup } from "./live-clip-startup";
+import type { Startup, StartupReport } from "./live-clip-startup";
 
 interface Playback {
   ready: boolean;
@@ -29,6 +35,9 @@ interface Playback {
   // The clip's frame showing (or being sought), and its frames: a game that seeks says.
   frame?: number;
   frames?: number;
+  // The replay's frames before the clip's first run so far, up to `from`: a game that reports its start-up run
+  // says.
+  lead?: number;
 }
 
 type Engine =
@@ -51,6 +60,8 @@ const SETTLE_SEEK = 1;
 // The ticks a game that's fallen behind runs back to back, so between two reports (crates/app's
 // window::MAX_CATCH_UP).
 const CATCH_UP = 4;
+// How often the start-up run's clock is checked between reports (live-clip-startup.ts).
+const START_CHECK_MS = 250;
 // Wiki.css's touch screens, which hide the button where the game can't play on phones.
 const TOUCH = "(hover: none), (pointer: coarse)";
 
@@ -63,13 +74,18 @@ export interface LiveClipPlayerProps {
   from: number;
   // The game seeks: a slider, and an instant Restart.
   seek: boolean;
+  // The game reports its start-up run: a progress bar over the poster.
+  progress: boolean;
   // Back to the video.
   onClose: () => void;
-  // Back to the video, as the device can't keep up.
-  onSlow: () => void;
+  // Back to the video, as the device can't keep up (`slow`) or can't get to the clip's first frame in time
+  // (`late`).
+  onSlow: (why: Slow) => void;
 }
 
-export function LiveClipPlayer({ title, width, height, poster, replay, from, seek, onClose, onSlow }: LiveClipPlayerProps) {
+export type Slow = "slow" | "late";
+
+export function LiveClipPlayer({ title, width, height, poster, replay, from, seek, progress, onClose, onSlow }: LiveClipPlayerProps) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [engine, setEngine] = useState<Engine>({ kind: "loading" });
   // A new iframe each time, for Restart without seeking.
@@ -84,13 +100,26 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
   // A browser can slow a frame that's out of view or a hidden tab, so only one in view counts, and the count
   // starts again from the next frame when it comes back.
   const speed = useRef<Speed>({ perFrame: [], ms: 0, frame: null, at: 0, settle: SETTLE_START, decided: false });
+  // The start-up run's time so far, to bound it (live-clip-startup.ts). A new iframe runs it again: from when it's
+  // in, as until then the old one's reports still come from the frame.
+  const startup = useRef<Startup>(newStartup());
+  useEffect(() => {
+    if (run > 0) startup.current = newStartup();
+  }, [run]);
   const inView = useRef(true);
+  const counting = () => inView.current && document.visibilityState === "visible";
   const slow = useRef(onSlow);
   slow.current = onSlow;
+  const timeStart = (report: StartupReport | null) => {
+    if (timeStartup(startup.current, report, counting(), from, performance.now())) slow.current("late");
+  };
   useEffect(() => {
     const element = frame.current;
     if (!element) return;
-    const away = () => (speed.current.frame = null);
+    const away = () => {
+      speed.current.frame = null;
+      timeStart(null);
+    };
     const observer = new IntersectionObserver(
       ([entry]) => {
         inView.current = entry.isIntersecting;
@@ -105,7 +134,7 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
       document.removeEventListener("visibilitychange", away);
     };
     // Restart without seeking makes a new iframe.
-  }, [run]);
+  }, [run, from]);
 
   useEffect(() => {
     const listener = (event: MessageEvent) => {
@@ -113,14 +142,15 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
       if (event.origin !== location.origin || event.source !== frame.current?.contentWindow) return;
       const data = event.data;
       if (data?.spelunky === "playback") {
-        timeFrames(speed.current, data, inView.current && document.visibilityState === "visible", slow.current);
+        timeFrames(speed.current, data, counting(), slow.current);
+        timeStart(data);
         setEngine({ kind: "playback", playback: data });
         setScrub((at) => (at === data.frame ? null : at));
       } else if (data?.spelunky === "error") setEngine({ kind: "error", error: String(data.error) });
     };
     addEventListener("message", listener);
     return () => removeEventListener("message", listener);
-  }, []);
+  }, [from]);
 
   // Whole, so that site/test-bundle.mjs can find them.
   const send = (message: "spelunky:pause" | "spelunky:play" | "spelunky:take-control" | { spelunky: "seek"; frame: number }) =>
@@ -157,6 +187,14 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
   const src = `/play/?replay=${encodeURIComponent(replay)}&from=${from}&embed`;
   // The poster covers the game until the clip's first frame.
   const covered = engine.kind === "loading" || (playback !== null && !playback.ready);
+  // The start-up run's clock runs between reports too, which a device that's stuck sends none of.
+  useEffect(() => {
+    if (!covered) return;
+    const timer = setInterval(() => timeStart(null), START_CHECK_MS);
+    return () => clearInterval(timer);
+  }, [covered, from, run]);
+  // Its frames run so far, once it's begun: until then, the game's downloading and setting up.
+  const lead = progress && playback?.frames && playback.lead !== undefined ? playback.lead : null;
   // The reader's game runs on past the clip's end: the thumb stays there.
   const at = frames === null ? 0 : Math.min(scrub ?? playback?.frame ?? 0, frames - 1);
   return (
@@ -171,7 +209,16 @@ export function LiveClipPlayer({ title, width, height, poster, replay, from, see
         />
         {covered && (
           <div className="clip-engine-cover" style={poster ? { backgroundImage: `url("${poster}")` } : undefined}>
-            <span>Starting the game…</span>
+            {progress ? (
+              <Progress.Root className="clip-progress" value={lead} max={from}>
+                <Progress.Label className="clip-progress-label">Starting the game…</Progress.Label>
+                <Progress.Track className="clip-progress-track">
+                  <Progress.Indicator className="clip-progress-indicator" />
+                </Progress.Track>
+              </Progress.Root>
+            ) : (
+              <span>Starting the game…</span>
+            )}
           </div>
         )}
       </div>
@@ -245,7 +292,7 @@ interface Speed {
 // Times a playback report's frame, if the replay plays in view, and calls `slow` if enough came too slowly.
 // Only a frame just after the last one counted counts, at most CATCH_UP after it: not a seek's jump, nor the
 // first after a pause or a spell out of view.
-function timeFrames(speed: Speed, playback: Playback, inView: boolean, slow: () => void) {
+function timeFrames(speed: Speed, playback: Playback, inView: boolean, slow: (why: Slow) => void) {
   if (speed.decided) return;
   const now = performance.now();
   const playing = inView && playback.ready && !playback.paused && !playback.live && !playback.ended;
@@ -263,7 +310,7 @@ function timeFrames(speed: Speed, playback: Playback, inView: boolean, slow: () 
   if (speed.ms < WATCH_MS || speed.perFrame.length < WATCH_REPORTS) return;
   speed.decided = true;
   const sorted = [...speed.perFrame].sort((a, b) => a - b);
-  if (sorted[sorted.length >> 1] > 1000 / SLOW_FPS) slow();
+  if (sorted[sorted.length >> 1] > 1000 / SLOW_FPS) slow("slow");
 }
 
 function status(engine: Engine, seeks: boolean, touch: boolean): string {

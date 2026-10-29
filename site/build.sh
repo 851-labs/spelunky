@@ -115,6 +115,13 @@ if grep -q '<meta name="spelunky-embed"' "$tmp/play/index.html"; then
   else
     echo "site/build.sh: the web build is from before the wiki's clips cut from committed replays, so only scenes' clips play in it"
   fi
+  # And whether it reports how far its run of the frames before a clip's first has got: then the clips' player
+  # shows it over the poster.
+  if grep -q '<meta name="spelunky-embed-progress"' "$tmp/play/index.html"; then
+    export WIKI_LIVE_PROGRESS=1
+  else
+    echo "site/build.sh: the web build doesn't report its start-up run, so the wiki's live clips show no progress bar"
+  fi
 else
   echo "site/build.sh: the web build can't be embedded, so the wiki's clips can't play in it"
 fi

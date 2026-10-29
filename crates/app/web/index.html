@@ -18,6 +18,9 @@
      later fixes: the media are rendered from the main branch, so a release older than a fix there can play a
      clip unlike its video too. -->
 <meta name="spelunky-embed-replays" content="1">
+<!-- And it reports how far its run of the frames before the clip's first has got (the playback report's lead,
+     app::window::Playback::lead): only then does site/build.sh have the clips' player show it over the poster. -->
+<meta name="spelunky-embed-progress" content="1">
 <title>Spelunky Classic (unofficial mod) - Spelunky (c) 2008, 2009 Derek Yu and Mossmouth, LLC</title>
 <style>
   html, body { margin: 0; height: 100%; background: #000; color: #ccc; font: 14px system-ui, sans-serif; }

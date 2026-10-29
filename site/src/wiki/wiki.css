@@ -174,6 +174,15 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
   background: #000 center / cover no-repeat; image-rendering: pixelated;
 }
 .clip-engine-cover span { padding: 4px 10px; color: var(--text); background: #000c; font-size: 14px; }
+/* How far the game's got to the clip's first frame (live-clip-player.tsx), as the slider: a dirt track, filled
+   gold. Before it's begun, while the game downloads and sets up, the track is empty: Base UI gives the
+   indicator its width only once there's a value. */
+.clip-progress {
+  display: flex; flex-direction: column; gap: 6px; width: min(100%, 320px); padding: 6px 10px 8px;
+  color: var(--text); background: #000c; font-size: 14px; text-align: center;
+}
+.clip-progress-track { height: 6px; background: var(--dirt); box-shadow: 0 0 0 var(--px) var(--dirt-light); }
+.clip-progress-indicator { width: 0; height: 100%; background: var(--gold); }
 /* Where in the clip the game is, to seek with (live-clip-player.tsx): a dirt track, filled gold to the thumb. */
 .clip-seek { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 .clip-slider { flex: 1; }
