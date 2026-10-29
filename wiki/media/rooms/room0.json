@@ -1,0 +1,20 @@
+{
+  "name": "room0",
+  "caption": "",
+  "width": 320,
+  "height": 240,
+  "speed": 30,
+  "persistent": false,
+  "background_color": "#c0c0c0",
+  "draw_background_color": true,
+  "creation_code": "",
+  "backgrounds": [],
+  "views_enabled": false,
+  "views": [],
+  "tiles": [],
+  "instances": [
+    {"id":133466,"object":"mascara","x":32,"y":32},
+    {"id":133467,"object":"mascara2","x":32,"y":80},
+    {"id":133468,"object":"core","x":0,"y":0}
+  ]
+}

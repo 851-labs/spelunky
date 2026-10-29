@@ -1,0 +1,19 @@
+{
+  "name": "rScreenInit",
+  "caption": "",
+  "width": 320,
+  "height": 240,
+  "speed": 30,
+  "persistent": false,
+  "background_color": "#000000",
+  "draw_background_color": true,
+  "creation_code": "",
+  "backgrounds": [],
+  "views_enabled": false,
+  "views": [],
+  "tiles": [],
+  "instances": [
+    {"id":135468,"object":"oMusic","x":0,"y":0},
+    {"id":135470,"object":"oScreen","x":16,"y":0}
+  ]
+}
