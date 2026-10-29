@@ -1,0 +1,89 @@
+---
+slug: no-shops-after-black-market
+title: No shops after the Black Market
+type: quirk
+categories: [quirks]
+aliases: [no-shop-after-black-market, no-more-shops, shops-gone-after-market, made-black-market]
+card: { sprite: sShopLeft }
+lede: >-
+  No shops after the Black Market is a quirk of Spelunky Classic in which, once the Black Market has been made,
+  no later level has a shop.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrLevelGen.gml:239-241
+  pinned_by: fidelity/replays/jungle-seed-9-market-no-shop.txt
+  entry: "1"
+  rows:
+    - No shop for the rest of the game once the Black Market is made.
+relations:
+  related: [black-market, shopkeeper, level-generation, jungle]
+clips: [quirks/no-shop-after-black-market]
+faq:
+  - q: Are there shops after the Black Market in Spelunky Classic?
+    a: >-
+      No. Once the Black Market has been made, no later level has a shop, in the Jungle, the Ice Caves or the
+      Temple, until a new game.
+  - q: Why are there no more shops after the Black Market?
+    a: >-
+      The roll for a level's shop also checks that the game hasn't made the Black Market yet, and that mark is
+      only cleared when a new game starts. It may be meant that way, but the check can't be for the market's own
+      level, which skips the shop code anyway.
+  - q: Should you buy everything you need in the Black Market?
+    a: >-
+      Yes, whatever the rest of the run needs. The market is the game's last shop: an item it doesn't sell has to
+      be found.
+  - q: Do the levels after the Black Market still roll for a shop?
+    a: >-
+      Yes. Each level still draws the roll's random number, but the check beside it fails, so the roll never
+      makes a shop.
+sources:
+  - scripts/scrLevelGen.gml
+  - scripts/scrClearGlobals.gml
+verified: { port: v0.1.13, date: 2026-10-29 }
+---
+
+From level 2 on, each level rolls for a [[shopkeeper|Shopkeeper]]'s shop, with a chance of 2 in its level's
+number ([[level-generation#shops|Shops]]). The [[black-market|Black Market]], found through a hidden door in the
+[[jungle|Jungle]], is a level of shops. But once it has been made, the roll never succeeds again: every level
+after it, to the end of the game, has no shop.
+
+## What happens
+
+On seed 9, the player finds the Black Market on level 6. On level 8, two levels on, the shop roll passes and the
+level's top-left room is beside the path, where a shop could stand. The player walks left along the top row until
+that room fills the left of the view: it's an ordinary Jungle room, and the level has no
+Shopkeeper <Cite clip="quirks/no-shop-after-black-market" />.
+
+<Clip id="quirks/no-shop-after-black-market" />
+
+## Why
+
+The shop roll is one line of the level generator, run for every level:
+
+```gml scripts/scrLevelGen.gml:239-241
+// shop
+if (rand(1,global.currLevel) <= 2 and global.currLevel > 1 and not global.madeBlackMarket)
+{
+```
+
+`madeBlackMarket` is set by the Black Market's own level, which then returns before it gets to this line
+<Cite gml="scripts/scrLevelGen.gml:44-69" />. Only a new game clears it <Cite gml="scripts/scrClearGlobals.gml:75" />.
+So the check never applies to the market's level. Its only effect is on the levels after it, the rest of
+the Jungle, the Ice Caves and the Temple: their rolls are still drawn, but they never make a shop
+<Cite quirk="1" />. It may be by design, a market that's the game's last shop, but nothing in the code says so.
+
+## Reproducing it
+
+Find the Black Market (the hidden door on level 5, 6 or 7: [[black-market]]) and play on: no later level has a
+shop. It happens in every game that finds the market. The clip's replay goes through seed 9's market on level 6
+and into level 8, whose shop roll passes, and walks the top row to the room beside the path. No Shopkeeper is
+made on the level <Cite replay="fidelity/replays/jungle-seed-9-market-no-shop.txt" />. Two longer runs show the
+same on other levels: level 7 of seed 9's City of Gold run, whose roll is 1 and whose top-left room is beside the
+path <Cite replay="fidelity/replays/city-of-gold-seed-9.txt" />, and level 8 of the run the clip's replay starts
+from <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the clip's replay pins its run, whose story checks that
+level 8 makes no Shopkeeper. No option turns it off.

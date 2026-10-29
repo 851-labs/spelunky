@@ -1,0 +1,35 @@
+{
+  "id": "quirks/no-shop-after-black-market",
+  "title": "No shop after the Black Market",
+  "description": "Seed 9's level 8, two levels after the Black Market. The player walks left along the top row until the room beside the path, where a shop could stand, fills the left of the view: it's an ordinary Jungle room, and the level has no shop, though its shop roll passed.",
+  "spec": "wiki/clips/quirks/no-shop-after-black-market.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/jungle-seed-9-market-no-shop.txt"
+  },
+  "from": 3112,
+  "to": 3527,
+  "frames": 416,
+  "replay_from": 3112,
+  "state_hash": "1050bc410fd701a2",
+  "fps": 30,
+  "duration": 13.866666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 3460,
+  "frames_hash": "7523f8a9b14c143d",
+  "has_audio": true,
+  "audio_hash": "2b6d4047bc7b92a2",
+  "encoding": "a75de41c8d31f245",
+  "files": {
+    "mp4": "quirks/no-shop-after-black-market/clip.mp4",
+    "webm": "quirks/no-shop-after-black-market/clip.webm",
+    "poster": "quirks/no-shop-after-black-market/poster.png",
+    "replay": "quirks/no-shop-after-black-market/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
