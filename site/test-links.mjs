@@ -8,9 +8,10 @@
 // wiki page must be reachable from /wiki through the pages' links, so none is an orphan that only search or the
 // sitemap finds. And the wiki is complete: no hub shows a page to come and no page a red link, but for those
 // TO_COME names with the ticket that's writing them, and wiki-planned.yaml plans nothing else, so a page can't
-// be planned without someone to write it (851-3638's five had none, and were missed). A page whose text names
-// one of our tickets (851-NNNN) fails too: that's bookkeeping, not for a reader.
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+// be planned without someone to write it (851-3638's five had none, and were missed). A wiki page or Markdown
+// twin that names one of our tickets (851-NNNN) anywhere, its text, attributes or JSON-LD, fails too: that's
+// bookkeeping, not for a reader.
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
 const SITE_URL = "https://spelunky.ai";
@@ -42,9 +43,8 @@ const walk = (dir) =>
     return statSync(path).isDirectory() ? walk(path) : [path];
   });
 // The pre-rendered pages, as paths in DIST with / separators: not the web build's (play/), nor the 404 page.
-const pages = walk(dist)
-  .map((path) => relative(dist, path).split(sep).join("/"))
-  .filter((file) => file.endsWith(".html") && !file.startsWith("play/") && file !== "404.html");
+const files = new Set(walk(dist).map((path) => relative(dist, path).split(sep).join("/")));
+const pages = [...files].filter((file) => file.endsWith(".html") && !file.startsWith("play/") && file !== "404.html");
 const html = new Map(pages.map((file) => [file, readFileSync(join(dist, file), "utf8")]));
 // The wiki's pages and hubs, but the source viewer's (noindex, and linked only from citations).
 const wiki = pages.filter((file) => /^wiki(\.html$|\/)/.test(file) && !file.startsWith("wiki/source"));
@@ -56,23 +56,33 @@ const urlOf = (file) =>
 // path's .html (/wiki/snake, /wiki), a directory's its index.html with the slash (/play/), anything else
 // the file itself, its name unescaped (a sprite's 0%404x.png).
 function fileAt(path) {
-  let name;
-  try {
-    name = decodeURIComponent(path).slice(1);
-  } catch {
-    return null;
-  }
-  const is = (file) => existsSync(join(dist, file)) && statSync(join(dist, file)).isFile();
-  if (name === "" || name.endsWith("/")) return is(`${name}index.html`) ? `${name}index.html` : null;
-  if (is(`${name}.html`)) return `${name}.html`;
-  return is(name) ? name : null;
+  const name = decoded(path)?.slice(1);
+  if (name === undefined) return null;
+  if (name === "" || name.endsWith("/")) return files.has(`${name}index.html`) ? `${name}index.html` : null;
+  if (files.has(`${name}.html`)) return `${name}.html`;
+  return files.has(name) ? name : null;
 }
+// A URL's part unescaped, or undefined for a malformed escape (a stray %), which is no file and no id.
+function decoded(part) {
+  try {
+    return decodeURIComponent(part);
+  } catch {
+    return undefined;
+  }
+}
+// An attribute's or text's value, its HTML entities unescaped as React writes them (Kali&#x27;s Altar).
+const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"' };
+const unescaped = (text) =>
+  text.replace(/&(?:#x([0-9a-f]+)|#(\d+)|(amp|lt|gt|quot));/gi, (_, hex, dec, name) => {
+    if (hex) return String.fromCodePoint(parseInt(hex, 16));
+    return dec ? String.fromCodePoint(Number(dec)) : ENTITIES[name.toLowerCase()];
+  });
 
 const idsOf = new Map();
 const ids = (file) => {
   if (!idsOf.has(file)) {
-    const text = readFileSync(join(dist, file), "utf8");
-    idsOf.set(file, new Set([...text.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1])));
+    const text = html.get(file) ?? readFileSync(join(dist, file), "utf8");
+    idsOf.set(file, new Set([...text.matchAll(/\sid="([^"]+)"/g)].map((m) => unescaped(m[1]))));
   }
   return idsOf.get(file);
 };
@@ -83,7 +93,7 @@ for (const [file, text] of html) {
   const here = urlOf(file);
   links.set(file, new Set());
   for (const m of text.matchAll(/<(a|link|img|source|video|script|iframe)\b[^>]*?\s(href|src|poster)="([^"]*)"/g)) {
-    const [tag, value] = [m[1], m[3].replaceAll("&amp;", "&")];
+    const [tag, value] = [m[1], unescaped(m[3])];
     let url;
     if (value.startsWith(`${SITE_URL}/`)) url = value.slice(SITE_URL.length);
     else if (value.startsWith("/") && !value.startsWith("//")) url = value;
@@ -102,7 +112,7 @@ for (const [file, text] of html) {
     }
     // The source viewer's #L3-L4 is lines, which its script highlights, not an element's id.
     const lines = /^L\d/.test(fragment);
-    if (fragment && target.endsWith(".html") && !lines && !ids(target).has(decodeURIComponent(fragment)))
+    if (fragment && target.endsWith(".html") && !lines && !ids(target).has(decoded(fragment)))
       fail(`${here}: ${value}: ${urlOf(target)} has no #${fragment}`);
     if (tag === "a" && target !== file && isWiki.has(target)) links.get(file).add(target);
   }
@@ -137,9 +147,12 @@ const redLinks = new Map();
 for (const file of wiki) {
   const text = html.get(file);
   const where = urlOf(file);
-  for (const [, title] of text.matchAll(CARD)) cards.set(title, [...(cards.get(title) ?? []), where]);
+  for (const [, card] of text.matchAll(CARD)) {
+    const title = unescaped(card);
+    cards.set(title, [...(cards.get(title) ?? []), where]);
+  }
   for (const [span] of text.matchAll(RED_LINK)) {
-    const slug = /\sdata-slug="([^"]+)"/.exec(span)?.[1] ?? "(no data-slug)";
+    const slug = unescaped(/\sdata-slug="([^"]+)"/.exec(span)?.[1] ?? "(no data-slug)");
     redLinks.set(slug, [...new Set([...(redLinks.get(slug) ?? []), where])]);
   }
 }
@@ -159,14 +172,18 @@ for (const [slug, { title, ticket }] of TO_COME) {
     fail(`nothing shows ${slug} as to come: remove it from TO_COME (${ticket})`);
 }
 
-// No page's text names one of our tickets. (Not a GML line range: objects/oPlayer1/step.gml:1851-1882.)
+// No wiki page or twin names one of our tickets: four digits, not after a letter, digit or : (a GML line
+// range, objects/oPlayer1/step.gml:1851-1882, or the source viewer's #L1851-L1882), nor 851-labs. Its
+// stylesheet aside, as a tooltip, alt text or JSON-LD is read too.
 for (const file of wiki) {
-  const text = html
-    .get(file)
-    .replace(/<(script|style)\b[\s\S]*?<\/\1>/g, "")
-    .replace(/<[^>]+>/g, " ");
-  const ticket = /(?<![\d.:-])851-\d{3,4}\b/.exec(text);
-  if (ticket) fail(`${urlOf(file)} names ticket ${ticket[0]} in its text`);
+  const twin = file.replace(/\.html$/, ".md");
+  for (const [name, text] of [
+    [file, html.get(file).replace(/<style\b[\s\S]*?<\/style>/g, "")],
+    ...(files.has(twin) ? [[twin, readFileSync(join(dist, twin), "utf8")]] : []),
+  ]) {
+    const ticket = /(?<![\w.:-])851-\d{4}\b/.exec(text);
+    if (ticket) fail(`${name} names ticket ${ticket[0]}`);
+  }
 }
 
 if (wiki.length < 2 || checked === 0)
