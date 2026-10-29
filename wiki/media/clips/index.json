@@ -4970,6 +4970,39 @@
       "width": 640
     },
     {
+      "audio_hash": "4052e772f37eb992",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The City of Gold loads with the player near its entrance. He walks right along its gold floor and over a block of the Jungle's mossy earth set in it.",
+      "duration": 5.2,
+      "encoding": "e2df8f257c4c06e4",
+      "files": {
+        "mp4": "quirks/city-jungle-earth/clip.mp4",
+        "poster": "quirks/city-jungle-earth/poster.png",
+        "webm": "quirks/city-jungle-earth/clip.webm"
+      },
+      "fps": 30,
+      "frames": 156,
+      "frames_hash": "c45938f9218f0530",
+      "from": 6745,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/city-jungle-earth",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 6876,
+      "replay_from": 6745,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
+      },
+      "spec": "wiki/clips/quirks/city-jungle-earth.toml",
+      "title": "Jungle earth in the City of Gold",
+      "to": 6900,
+      "width": 640
+    },
+    {
       "audio_hash": "fdfbf5ef39a421d3",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "A bomb in the City of Gold destroys a stone block and the gold temple block beside it. The temple block gives three gold chunks and a nugget; the stone block nothing, as level generation marked every stone block of a Temple level to break without a trace.",
@@ -5297,6 +5330,39 @@
       "spec": "wiki/clips/quirks/gold-door-on-altar.toml",
       "title": "The City of Gold's door on Kali's altar",
       "to": 1520,
+      "width": 640
+    },
+    {
+      "audio_hash": "6df40159d336fc2c",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "In the high scores room, the player has pushed the block onto the reset button, and it has stopped against the sign past it. He keeps pushing and creeps into the block until it crushes him: blood, and he's gone, but no game over follows.",
+      "duration": 3.6666666666666665,
+      "encoding": "00e33335d143335a",
+      "files": {
+        "mp4": "quirks/highscores-block-crush/clip.mp4",
+        "poster": "quirks/highscores-block-crush/poster.png",
+        "webm": "quirks/highscores-block-crush/clip.webm"
+      },
+      "fps": 30,
+      "frames": 110,
+      "frames_hash": "1ddec595e2b5b534",
+      "from": 790,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/highscores-block-crush",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 843,
+      "replay_from": 790,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/flow-highscores-reset-crush.txt"
+      },
+      "spec": "wiki/clips/quirks/highscores-block-crush.toml",
+      "title": "Crushed by the reset block",
+      "to": 899,
       "width": 640
     },
     {
