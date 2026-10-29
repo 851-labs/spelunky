@@ -213,6 +213,8 @@ own levels. So is `quirks/dark-graveyard-lake-you-hear` (`jungle-seed-10-dark-gr
 levels roll the lake and the graveyard. So is `quirks/barrier-item-thrown-through` (`ice-seed-63-barrier-through.txt`): no
 level editor tile makes the mothership or its barrier. So is `quirks/gold-door-on-altar`
 (`temple-seed-1-gold-door-on-altar.txt`): only level 14's generation makes the gold door.
+`quirks/tutorial-negative-depth` is cut from `flow-tutorial-pause-depth.txt`, two pauses in `rTutorial`: the
+quirk is the Tutorial's own (its level 0), which no scene reaches.
 `quirks/dark-rubble-off-centre` is cut from a staged scene's replay, `terrain-dark-rubble-off-centre.txt`, a brick and a block of dark rock broken with a Mattock over pits, and
 `quirks/dark-rubble-falls-through` from another, `terrain-dark-rubble-falls-through.txt`, a block of dark rock
 broken over a column of ice, which shows the dark big piece better than the rock would.

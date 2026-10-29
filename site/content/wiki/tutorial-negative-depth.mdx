@@ -1,0 +1,88 @@
+---
+slug: tutorial-negative-depth
+title: Negative depth in the Tutorial
+type: quirk
+categories: [quirks]
+aliases: [tutorial-depth, negative-depth, depth-below-zero, tutorial-pause-depth]
+card: { sprite: sTutorialSign }
+lede: >-
+  Negative depth in the Tutorial is a quirk of Spelunky Classic in which the pause screen gives a depth
+  below zero in the Tutorial, because it's level 0.
+quirk:
+  status: GML + Oracle
+  where: objects/oScreen/step_begin.gml:85-91
+  pinned_by: fidelity/replays/flow-tutorial-pause-depth.txt
+  entry: "1"
+  rows:
+    - The Tutorial's pause screen shows a negative depth.
+relations:
+  related: [tutorial, controls]
+clips: [quirks/tutorial-negative-depth]
+faq:
+  - q: Why is the depth negative in the Spelunky Classic Tutorial?
+    a: >-
+      The pause screen counts 174.8 feet for each level before the one the player is on, and the Tutorial is
+      level 0, so it starts 174.8 feet below zero. The player's height in the cave adds a little, but the cave
+      isn't deep enough to bring it back above zero: it reads -147.60 feet where he starts.
+  - q: Is the Tutorial's depth anywhere above zero in Spelunky Classic?
+    a: >-
+      No. It would take a spot more than 506 pixels down, and the Tutorial is 304 pixels tall. Standing on the
+      floor of its lower cave, the pause screen still reads -82.32 feet.
+  - q: Does the negative depth change anything in Spelunky Classic?
+    a: >-
+      No. The depth is only drawn on the pause screen; nothing else reads it.
+sources:
+  - objects/oScreen/step_begin.gml
+  - objects/oPlayer1/other_animation_end.gml
+  - scripts/isLevel.gml
+verified: { port: v0.1.14, date: 2026-10-29 }
+---
+
+The pause screen lists the level, the player's depth in feet, his money, kills, time and saves. In the
+[[tutorial|Tutorial]] it calls the level TUTORIAL CAVE, but works out the depth as it does on any level, and
+there the sum comes out below zero everywhere: -147.60 feet where the player starts, and still -82.32 on the
+floor of the lower cave. Nothing else uses the depth, so it changes nothing in play.
+
+## What happens
+
+The player enters the Tutorial and pauses: the screen gives his depth as -147.60 feet. He walks on, drops
+into the lower cave and pauses again on its floor, the lowest he can stand, and the depth is still below
+zero, -82.32 feet <Cite clip="quirks/tutorial-negative-depth" />.
+
+<Clip id="quirks/tutorial-negative-depth" />
+
+## Why
+
+The pause screen's code writes the depth from the level's number and the player's height, `py`, his `y`
+when the game paused <Cite gml="objects/oScreen/step_begin.gml:55" />:
+
+```gml objects/oScreen/step_begin.gml:85-91
+    if (isLevel())
+    {
+        n = 128-24;
+        if (global.currLevel < 1) draw_text(40, n-24, "TUTORIAL CAVE");
+        else if (isRoom("rLoadLevel")) draw_text(40, n-24, "LEVEL: " + global.customLevelName + " BY " + global.customLevelAuthor);
+        else draw_text(40, n-24, "LEVEL " + string(global.currLevel));
+        draw_text(40, n-16, "DEPTH: " + string(174.8*(global.currLevel-1)+(py+8)*0.34) + " FEET");
+```
+
+That's 174.8 feet for each level before this one, and 0.34 feet a pixel down the level. `isLevel()` counts
+the Tutorial's room as a level <Cite gml="scripts/isLevel.gml:7" />, and both ways into the Tutorial, the
+START door on a first game and the TUTORIAL door, set the level to 0
+<Cite gml="objects/oPlayer1/other_animation_end.gml:72-95" />. So the depth starts at `174.8 * (0 - 1)`,
+-174.8 feet, and the cave, 304 pixels tall, is too shallow for the 0.34 feet a pixel to bring it back above
+zero <Cite quirk="1" />. The code gives the Tutorial its own name a line above, but not its own depth.
+
+## Reproducing it
+
+Pause anywhere in the Tutorial. Where the player starts, `py` is 72, so the depth is
+`-174.8 + 80 * 0.34`, shown as -147.60. The replay of the clip pauses there (frame 568) and again on the
+lower cave's floor (980), at `py` 264, -82.32 feet <Cite replay="fidelity/replays/flow-tutorial-pause-depth.txt" />.
+Another replay pauses where the player starts, on the way back to the title
+<Cite replay="fidelity/replays/flow-tutorial-title.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the level and the player's height the
+depth is worked out from. No option turns it off.

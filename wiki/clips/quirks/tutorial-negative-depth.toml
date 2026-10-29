@@ -1,0 +1,8 @@
+title = "The Tutorial's negative depth"
+description = "The player enters the Tutorial cave and pauses: the pause screen gives his depth as -147.60 feet. He walks on, drops into the lower cave and pauses again on its floor, the lowest he can stand, and the depth is still below zero, -82.32 feet."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/flow-tutorial-pause-depth.txt"
+from = 560
+to = 1060
+poster = 600
+story = "room=rTutorial@565 currLevel=0@565 oScreen.paused=1@568 oScreen.py=72@568 oScreen.paused=1@980 oScreen.py=264@980 !oPlayer1.dead=1"

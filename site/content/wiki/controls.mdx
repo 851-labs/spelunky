@@ -40,7 +40,7 @@ sources:
   - objects/oScreen/step_begin.gml
   - objects/oGamepad/step.gml
   - scripts/checkJump.gml
-verified: { port: v0.1.10, date: 2026-10-28 }
+verified: { port: v0.1.14, date: 2026-10-29 }
 ---
 
 Each action has a key, which the [[settings|settings program]] can change, and a gamepad button; the game
@@ -95,8 +95,9 @@ per step keeps him running rather than slowing to a crawl
 Escape (or the gamepad's start) pauses when the room allows it and the player is alive: the screen darkens,
 the music goes quiet and everything else stops, so the clock stops too
 <Cite gml="objects/oScreen/step_begin.gml:34-61" />. The clip shows it on the first level: the pause screen
-lists the level, its depth in feet, the money, the kills, the time on the level and in all, and the saves,
-with the keys it takes <Cite gml="objects/oScreen/step_begin.gml:85-117" /> <Cite clip="controls/pause" />.
+lists the level, its depth in feet (below zero in the Tutorial: [[tutorial-negative-depth]]), the money, the
+kills, the time on the level and in all, and the saves, with the keys it takes
+<Cite gml="objects/oScreen/step_begin.gml:85-117" /> <Cite clip="controls/pause" />.
 
 - **Escape** returns to the game <Cite gml="objects/oScreen/step_begin.gml:62-72" />.
 - **F1** kills the player, which ends the game as any death does, unless an [[ankh|Ankh]] revives him

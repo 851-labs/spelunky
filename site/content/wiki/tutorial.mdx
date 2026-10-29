@@ -163,8 +163,10 @@ always opens into gems ([[chest#usage]]). There are no shops.
 ## Trivia
 
 - The pause screen calls it "TUTORIAL CAVE", and works out its depth as for any level, 174.8 feet for
-  each level past the first, so for level 0 the depth comes out below zero: −147.6 feet where the player
-  starts <Cite gml="objects/oScreen/step_begin.gml:55" /> <Cite gml="objects/oScreen/step_begin.gml:85-91" />.
+  each level past the first, so for level 0 the depth comes out below zero: −147.60 feet where the player
+  starts, and still −82.32 on the lower cave's floor ([[tutorial-negative-depth]]) <Cite
+  gml="objects/oScreen/step_begin.gml:55" /> <Cite gml="objects/oScreen/step_begin.gml:85-91" /> <Cite
+  quirk="1" row="The Tutorial's pause screen shows a negative depth." />.
 - Nothing done there counts toward the statistics the high scores room keeps, as the game counts only
   its own levels <Cite gml="scripts/isRealLevel.gml:1-8" /> <Cite gml="objects/oPlayer1/step.gml:563" />.
 - An explosion's code means to let it break blocks off the screen only in the Tutorial, but its test,
