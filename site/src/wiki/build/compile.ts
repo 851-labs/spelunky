@@ -44,6 +44,7 @@ import { sourcePaths } from "./source.ts";
 import { readSnapshot, resolveStat } from "./stats.ts";
 import type { Snapshot } from "./stats.ts";
 import { sourceUrl } from "../source-url.ts";
+import { clipAnchor } from "../anchors.ts";
 
 export interface WikiOptions {
   // The pages: content/wiki/*.mdx.
@@ -104,7 +105,8 @@ export interface Reference {
   href?: string;
   // A replay's clips on the page, the ones cut from it, which play it.
   clips?: { id: string; title: string }[];
-  // A quirk citation's section of docs/quirks.md, linked on GitHub, and the rows it cites (quirkReference).
+  // A quirk citation's section of docs/quirks.md, the rows it cites, and where the section's name links
+  // (quirkReference).
   quirk?: { section: string; href: string; rows: QuirkRowLink[] };
 }
 
@@ -213,7 +215,7 @@ export interface PageMeta {
   relations: Relation[];
   seeAlso: Relation[];
   // A quirk page's quirk box, with its docs/quirks.md section's title and link, its rows' links, its `where`'s
-  // lines in the source viewer (sourceHref) and its `pinned_by` replay on GitHub.
+  // lines in the source viewer (sourceHref) and its `pinned_by` on GitHub when it's a file (a replay).
   quirk:
     | (NonNullable<Frontmatter["quirk"]> & { section: string; href: string; rowHrefs: string[]; whereHref?: string; pinnedHref?: string })
     | null;
@@ -321,7 +323,8 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     for (const name of page.quirk.rows) {
       const row = findRow(quirks.get(page.quirk.entry)!, page.quirk.entry, name) as QuirkRow;
       const other = quirkPages.get(row);
-      if (other) errors.push(`${page.slug}.mdx: quirk.rows: ${other.slug}.mdx names docs/quirks.md line ${row.line} too: one page a row`);
+      if (other?.slug === page.slug) errors.push(`${page.slug}.mdx: quirk.rows: two of them name docs/quirks.md line ${row.line}`);
+      else if (other) errors.push(`${page.slug}.mdx: quirk.rows: ${other.slug}.mdx names docs/quirks.md line ${row.line} too: one page a row`);
       else quirkPages.set(row, { slug: page.slug, title: page.title });
     }
   }
@@ -475,13 +478,14 @@ function readAreas(path: string) {
 }
 
 // A quirk page's box: its fields, its docs/quirks.md section's title and link and its rows' (loadWiki has
-// checked they're there), and its `pinned_by` on GitHub when it's a replay (compilePage has checked it's there).
+// checked they're there), and its `pinned_by` on GitHub when it's a file of the repo's (compilePage has checked
+// it's there).
 function quirkBox(quirk: Frontmatter["quirk"], ctx: Context, href: (cite: string) => string | undefined): PageMeta["quirk"] {
   const section = quirk && ctx.quirks.get(quirk.entry);
   if (!quirk || !section) return null;
   const whereHref = href(quirk.where);
   const rowHrefs = quirk.rows.map((name) => (findRow(section, quirk.entry, name) as QuirkRow).href);
-  const pinned = REPLAY.test(quirk.pinned_by);
+  const pinned = quirk.pinned_by.includes("/");
   return {
     ...quirk,
     section: section.title,
@@ -493,7 +497,9 @@ function quirkBox(quirk: Frontmatter["quirk"], ctx: Context, href: (cite: string
 }
 
 // A committed replay's path, as pages cite it (fidelity/replays/, or the settings program's fidelity/settings/).
-const REPLAY = /^fidelity\/(replays|settings)\/[a-z0-9][a-z0-9.-]*\.txt$/;
+const REPLAY = /^fidelity\/(replays|settings)\/(?!.*\.\.)[\w./-]+\.txt$/;
+// A file of the repo's, as a quirk box's `pinned_by` names one (a replay, or a test's file).
+const REPO_FILE = /^(?!.*\.\.)[\w-]+(\/[\w.-]+)+$/;
 
 // What's wrong with a replay a page cites, if anything: not a committed replay's path, or not in the checkout
 // (renamed or removed), which would link to nothing.
@@ -505,7 +511,9 @@ function replayError(path: string, repoDir: string): string | null {
 
 // A quirk citation's section and rows (Reference.quirk), linked: the row it names (row=); or, on a quirk page
 // citing its own section, the page's rows, which its text is about; or none, the section as a whole. A row a
-// quirk page names links to it, unless it's this page. compileFragment has checked the section and the row.
+// quirk page names links to it, unless it's this page, and then the section's name links to the row on GitHub;
+// otherwise the rows link there, and the name to the section's heading. compileFragment has checked the section
+// and the row.
 function quirkReference(ref: Reference, page: Frontmatter, ctx: Context): NonNullable<Reference["quirk"]> {
   const section = ctx.quirks.get(ref.target)!;
   const names = ref.row !== undefined ? [ref.row] : page.quirk?.entry === ref.target ? page.quirk.rows : [];
@@ -514,7 +522,8 @@ function quirkReference(ref: Reference, page: Frontmatter, ctx: Context): NonNul
     const named = ctx.quirkPages.get(row);
     return { name, href: row.href, ...(named && named.slug !== page.slug ? { page: named } : {}) };
   });
-  return { section: section.title, href: section.href, rows };
+  const href = rows.length === 1 && rows[0].page ? rows[0].href : section.href;
+  return { section: section.title, href, rows };
 }
 
 // The media's gml/ tree's files and how many lines each has, by path in it (objects/oSnake/step.gml), or
@@ -697,6 +706,8 @@ interface PageState {
   clipReplays: Map<string, string>;
   placed: Set<string>;
   references: Reference[];
+  // What tells its quirk citations apart (reference): the row each names, by its line.
+  keys: Map<Reference, string | undefined>;
   // Headings' anchors, which are unique on a page, starting with the layout's own.
   anchors: Set<string>;
   // The body's sections, for the table of contents.
@@ -748,7 +759,7 @@ function renderedAnchors({ meta, anchors }: Compiled): Set<string> {
   ];
   for (const anchor of hidden) if (anchor) shown.delete(anchor);
   // Its clips (placed, or in the Gallery) and navboxes have anchors too.
-  for (const clip of meta.clips) shown.add(`clip-${clip.id.replaceAll("/", "-")}`);
+  for (const clip of meta.clips) shown.add(clipAnchor(clip.id));
   for (const navbox of meta.navboxes) shown.add(`navbox-${navbox.category.replace("/", "-")}`);
   return shown;
 }
@@ -763,6 +774,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     clipReplays: new Map(),
     placed: new Set(),
     references: [],
+    keys: new Map(),
     anchors: new Set(LAYOUT_ANCHORS),
     sections: [],
     links: new Set(),
@@ -870,10 +882,15 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     .sort((a, b) => Number(a.inverse) - Number(b.inverse) || relationRank(a.relation) - relationRank(b.relation))
     .map(shown);
   if (body.text === "" && errors.length === before) errors.push(`${name}: the page has no body`);
-  // A quirk box's replay links to it, as a citation of it does.
+  // A quirk box's replay (or test's file) links to it, as a citation of a replay does; a test it names by its
+  // name alone is text.
   const pinned = page.quirk?.pinned_by;
-  if (pinned?.startsWith("fidelity/")) {
-    const error = replayError(pinned, ctx.repoDir);
+  if (pinned?.includes("/")) {
+    const error = pinned.startsWith("fidelity/")
+      ? replayError(pinned, ctx.repoDir)
+      : !REPO_FILE.test(pinned) || !existsSync(join(ctx.repoDir, pinned))
+        ? "the repo has no such file"
+        : null;
     if (error) errors.push(`${name}: quirk.pinned_by: ${pinned}: ${error}`);
   }
   if (errors.length > before) return null;
@@ -971,12 +988,15 @@ function mediaJsonLd(media: WikiMedia | null, clips: ClipInfo[], image: SpriteIm
 
 const pick = ({ text, value, cite }: { text: string; value: string; cite: string[] }) => ({ text, value, cite });
 
-// A citation's note: the same source cited twice is the same note.
-function reference(state: PageState, kind: Reference["kind"], target: string, row?: string): Reference {
-  let ref = state.references.find((r) => r.kind === kind && r.target === target && r.row === row);
+// A citation's note: the same source cited twice is the same note, and so is a quirk row named by two openings
+// (`line`, the row's in docs/quirks.md).
+function reference(state: PageState, kind: Reference["kind"], target: string, row?: string, line?: number): Reference {
+  const key = line === undefined ? row : `L${line}`;
+  let ref = state.references.find((r) => r.kind === kind && r.target === target && state.keys.get(r) === key);
   if (!ref) {
     ref = { n: state.references.length + 1, kind, target, ...(row === undefined ? {} : { row }) };
     state.references.push(ref);
+    state.keys.set(ref, key);
   }
   return ref;
 }
@@ -1317,7 +1337,9 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
           if (typeof found === "string") fail(node, `<Cite quirk="${target}" row=...>: ${found}`);
         }
       }
-      const ref = reference(state, kind, target, row);
+      // Two openings of one row are one note.
+      const found = kind === "quirk" && row !== undefined && ctx.quirks.has(target) ? findRow(ctx.quirks.get(target)!, target, row) : null;
+      const ref = reference(state, kind, target, row, typeof found === "object" ? found?.line : undefined);
       return [element(node.type as "mdxJsxTextElement", "Cite", [attribute("n", String(ref.n))])];
     }
     case "Clip": {

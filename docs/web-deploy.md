@@ -134,7 +134,9 @@ below) and `WIKI_MEDIA_DATE` (when they last changed: the date of the last commi
 under `npm run dev`. The wiki's pipeline and `virtual:wiki-media` read them (SEO, below). It also gets
 `WIKI_COMMIT`, the checkout's commit (`git rev-parse HEAD`: Workers Builds checks out the one it builds), which the
 wiki's links to the repo's files on GitHub (a cited replay, a `docs/quirks.md` row) are pinned to
-(`docs/wiki-style.md`, "Citing the code"); `npm run dev` links them at `main`.
+(`docs/wiki-style.md`, "Citing the code"); `npm run dev` links them at `main`. The build checks the files and
+reads the rows' lines from the work tree, so a local build of changes not yet pushed links what GitHub hasn't
+got.
 
 **Clip dates.** A clip's `uploadDate` (its `VideoObject`'s, and the video sitemap's publication date) is when
 its videos last changed: the newest commit that changed its `clip.mp4` or `clip.webm`, so a re-rendered clip

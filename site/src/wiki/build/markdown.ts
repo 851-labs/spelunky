@@ -11,6 +11,7 @@
 import { gfmToMarkdown } from "mdast-util-gfm";
 import { toMarkdown } from "mdast-util-to-markdown";
 import { absoluteUrl, SITE_URL } from "../../seo/seo.ts";
+import { clipAnchor } from "../anchors.ts";
 import { AUDIO_CREDIT, NOTICE } from "../notices.ts";
 import { CATEGORIES, CATEGORY_NAMES } from "./categories.ts";
 import type { ClipInfo, PageMeta, Reference, RelationLink } from "./compile.ts";
@@ -277,7 +278,7 @@ function relationLinks(links: RelationLink[]): MdNode[] {
 // A citation, as References lists it (layout.tsx's Reference), on the page at `page` (its path), whose own clips
 // it links to.
 function reference({ kind, target, href, clips, quirk }: Reference, page: string): MdNode[] {
-  const clipLink = (id: string, title: string) => link(absolute(`#clip-${id.replaceAll("/", "-")}`, page), text(title));
+  const clipLink = (id: string, title: string) => link(absolute(`#${clipAnchor(id)}`, page), text(title));
   switch (kind) {
     case "gml":
       return [source(target, href)];
@@ -295,14 +296,13 @@ function reference({ kind, target, href, clips, quirk }: Reference, page: string
     case "quirk": {
       if (!quirk) return [text(`docs/quirks.md §${target}`)];
       if (quirk.rows.length === 0) return [link(quirk.href, text(`docs/quirks.md §${target}, ${quirk.section}`))];
-      const section = quirk.rows.length === 1 && quirk.rows[0].page ? quirk.rows[0].href : quirk.href;
       return [
         ...quirk.rows.flatMap((row, i) => [
           ...(i === 0 ? [] : [text(" ")]),
           link(row.page ? absoluteUrl(`/wiki/${row.page.slug}`) : row.href, text(`“${row.name}”`)),
         ]),
         text(", "),
-        link(section, text(`docs/quirks.md §${target}`)),
+        link(quirk.href, text(`docs/quirks.md §${target}`)),
       ];
     }
     case "room":

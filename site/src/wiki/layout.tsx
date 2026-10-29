@@ -13,6 +13,7 @@ import { Fragment } from "react";
 import type { ReactNode } from "react";
 import type { Crumb } from "../seo/jsonld";
 import type { Navbox, Reference as ReferenceData, Section } from "./build/compile";
+import { clipAnchor } from "./anchors.ts";
 import { CATEGORY_NAMES, hubPath } from "./build/categories.ts";
 import { Cite, Clip, components, H2, H3, SourceLink, Sprite } from "./components";
 import type { WikiComponents } from "./components";
@@ -156,8 +157,6 @@ export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
   );
 }
 
-const clipAnchor = (id: string) => `#clip-${id.replaceAll("/", "-")}`;
-
 // A citation in References. Each links where it can be checked (docs/wiki-style.md, "Citing the code"): the
 // lines in the source viewer, the replay on GitHub and the page's clips that play it, the clip, the quirk's row.
 function Reference({ reference: { kind, target, href, clips, quirk } }: { reference: ReferenceData }) {
@@ -174,7 +173,7 @@ function Reference({ reference: { kind, target, href, clips, quirk } }: { refere
               {clips.map((clip, i) => (
                 <Fragment key={clip.id}>
                   {i > 0 && (i === clips.length - 1 ? " and " : ", ")}
-                  <a href={clipAnchor(clip.id)}>{clip.title}</a>
+                  <a href={`#${clipAnchor(clip.id)}`}>{clip.title}</a>
                 </Fragment>
               ))}
               {clips.length === 1 ? " plays" : " play"}
@@ -185,7 +184,7 @@ function Reference({ reference: { kind, target, href, clips, quirk } }: { refere
     case "clip":
       return (
         <>
-          Clip <a href={clipAnchor(target)}>{target}</a>
+          Clip <a href={`#${clipAnchor(target)}`}>{target}</a>
         </>
       );
     case "quirk":
@@ -201,13 +200,12 @@ function Reference({ reference: { kind, target, href, clips, quirk } }: { refere
   }
 }
 
-// A quirk citation: the rows it cites, by their openings, each linking to the quirk page that names it, or else
-// to the row on GitHub, then the section, linking to the one row there when a page took its quote's link, else
-// to the section. A citation of no row is the section's, by its title.
+// A quirk citation (compile.ts's quirkReference): the rows it cites, by their openings, each linking to the
+// quirk page that names it, or else to the row on GitHub, then the section, linking where quirkReference says.
+// A citation of no row is the section's, by its title.
 function QuirkReference({ entry, quirk }: { entry: string; quirk: NonNullable<ReferenceData["quirk"]> }) {
   const { rows } = quirk;
   if (rows.length === 0) return <a href={quirk.href}>{`docs/quirks.md §${entry}, ${quirk.section}`}</a>;
-  const section = rows.length === 1 && rows[0].page ? rows[0].href : quirk.href;
   return (
     <>
       {rows.map((row, i) => (
@@ -225,7 +223,7 @@ function QuirkReference({ entry, quirk }: { entry: string; quirk: NonNullable<Re
         </Fragment>
       ))}
       {", "}
-      <a href={section}>{`docs/quirks.md §${entry}`}</a>
+      <a href={quirk.href}>{`docs/quirks.md §${entry}`}</a>
     </>
   );
 }

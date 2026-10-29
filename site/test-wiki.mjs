@@ -476,10 +476,10 @@ try {
     mkdirSync(content);
     const jarRow = "A whipped Jar rolls its contents twice.";
     const nearestRow = "instance_nearest measures to instances' positions";
-    // The double whip cites its own row; the Snake the double whip's, a §5 row, §1 as a whole, two replays (one
-    // its Rock clip's) and a clip.
+    // The double whip cites its own row; the Snake the double whip's (twice, by two openings: one note), a §5
+    // row, §1 as a whole, two replays (one its Rock clip's) and a clip.
     writeFileSync(join(content, "double-whip.mdx"), quirkPage.replace("It hits twice.", 'It hits twice <Cite quirk="1" />.'));
-    const snakeCites = `\nIt rolls twice <Cite quirk="1" row="${jarRow}" />, nearest <Cite quirk="5" row="${nearestRow}" />, oddly <Cite quirk="1" />, and hit <Cite replay="fidelity/replays/action-throw-rock-snake.txt" /> <Cite replay="fidelity/replays/mines-seed-1.txt" /> <Cite clip="snake/stomp" />.\n`;
+    const snakeCites = `\nIt rolls twice <Cite quirk="1" row="${jarRow}" /> <Cite quirk="1" row="A whipped Jar rolls" />, nearest <Cite quirk="5" row="${nearestRow}" />, oddly <Cite quirk="1" />, and hit <Cite replay="fidelity/replays/action-throw-rock-snake.txt" /> <Cite replay="fidelity/replays/mines-seed-1.txt" /> <Cite clip="snake/stomp" />.\n`;
     writeFileSync(join(content, "snake.mdx"), readFileSync(here("content/wiki/snake.mdx"), "utf8") + snakeCites);
     const planned = join(dir, "planned.yaml");
     writeFileSync(planned, snakePlanned);
@@ -494,11 +494,13 @@ try {
     const page = (slug) => wiki.pages.find((p) => p.meta.slug === slug);
     const refs = (slug, kind) => page(slug)?.meta.references.filter((ref) => ref.kind === kind) ?? [];
     const json = (value) => JSON.stringify(value);
-    const [jar, nearest, whole] = refs("snake", "quirk").map((ref) => ref.quirk);
-    if (json(jar) !== json({ section: "Bugs and leftovers in the 1.1 source", href: section1, rows: [{ name: jarRow, href: rowUrl(jarRow), page: { slug: "double-whip", title: "Double whip" } }] })) {
+    const quirkRefs = refs("snake", "quirk");
+    if (quirkRefs.length !== 3) fail(`reference links: the Snake has ${quirkRefs.length} quirk notes, not 3`);
+    const [jar, nearest, whole] = quirkRefs.map((ref) => ref.quirk);
+    if (json(jar) !== json({ section: "Bugs and leftovers in the 1.1 source", href: rowUrl(jarRow), rows: [{ name: jarRow, href: rowUrl(jarRow), page: { slug: "double-whip", title: "Double whip" } }] })) {
       fail(`reference links: the Snake's Jar row is ${json(jar)}`);
     }
-    if (nearest?.rows[0]?.href !== rowUrl("instance_nearest measures") || nearest.rows[0].page || !nearest.href.endsWith("#5-runner-frame-instances-and-events")) {
+    if (nearest?.rows[0]?.href !== rowUrl("instance_nearest measures") || nearest.rows[0].page || !nearest.href.endsWith("/docs/quirks.md#5-runner-frame-instances-and-events")) {
       fail(`reference links: the Snake's §5 row is ${json(nearest)}`);
     }
     if (whole?.rows.length !== 0 || whole.href !== section1) fail(`reference links: the Snake's §1 citation is ${json(whole)}`);
@@ -997,6 +999,8 @@ const cases = [
   ["a quirk citation's section docs/quirks.md hasn't got", { "snake.mdx": `${source}\nIt <Cite quirk="42" />.\n` }, '<Cite quirk="42">: docs/quirks.md has no section 42'],
   ["a row on a citation that isn't a quirk's", { "snake.mdx": `${source}\nIt <Cite gml="objects/oSnake/step.gml:41-54" row="A whipped Jar" />.\n` }, "only a quirk citation names a row="],
   ["a quirk box's replay the repo hasn't got", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("item-jar-whip-rolls-twice.txt", "no-such-replay.txt") }, "quirk.pinned_by: fidelity/replays/no-such-replay.txt: the repo has no such replay"],
+  ["a quirk box's file the repo hasn't got", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("fidelity/replays/item-jar-whip-rolls-twice.txt", "crates/game/tests/no_such_test.rs") }, "quirk.pinned_by: crates/game/tests/no_such_test.rs: the repo has no such file"],
+  ["a row a quirk page names twice", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("    - A whipped Jar rolls its contents twice.", "    - A whipped Jar rolls its contents twice.\n    - A whipped Jar rolls its contents twice. oJar's collision with oWhip plays the break sound, makes a smoke puff and 3 rubble pieces and rolls the chain of gold, gems, a Spider and a Snake, then calls instance_destroy().") }, "quirk.rows: two of them name docs/quirks.md line "],
   ["a row two quirk pages name", { "snake.mdx": source, "double-whip.mdx": quirkPage, "double-lash.mdx": quirkPage.replaceAll("double-whip", "double-lash").replaceAll("Double whip", "Double lash") }, "names docs/quirks.md line "],
   ["a quirk row that isn't a sentence", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("rolls its contents twice.", "rolls") }, "a row's opening: a sentence or more"],
   ["a row that isn't a number", { "snake.mdx": `${source}\nIt costs <Stat id="spectacles.price-by-level" at="five" />.\n` }, 'at= is a whole number, not "five"'],

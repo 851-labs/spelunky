@@ -1,6 +1,7 @@
 // The components a page's MDX renders with (docs/wiki-style.md, "Body components"). compile.ts has already
 // resolved what they show (a stat's text, a citation's number, a clip's files), so each only draws it.
 import type { ComponentProps, ReactNode } from "react";
+import { clipAnchor } from "./anchors.ts";
 import { CardLink } from "./hover-card";
 import { LiveClip } from "./live-clip";
 
@@ -73,7 +74,7 @@ export interface ClipProps {
 // renders it) is its title and description in a box its size. It's at most 600 pixels tall, which the game's
 // 4:3 clips never reach at the CSS's 640 wide: the settings program's tall window (416x600) shows its own size.
 export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster, replay, from, seek, phones, progress, state, states }: ClipProps) {
-  const anchor = `clip-${id.replaceAll("/", "-")}`;
+  const anchor = clipAnchor(id);
   const fit = Math.floor((600 * Number(width)) / Number(height));
   const video = mp4 && webm && (
     <video

@@ -156,8 +156,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   plugin, serves the results as modules, one per page, and fails the build with every error at once:
   frontmatter that doesn't fit the schema, a quirk page's `rows` entry or a quirk citation's `row=` that no
   row of its `docs/quirks.md` section starts with, or that more than one does (`quirks.ts`), a quirk citation's
-  section `docs/quirks.md` hasn't got, a row two quirk pages name, a replay a citation or a quirk box's
-  `pinned_by` names that the repo hasn't got, a slug that isn't the file's name, is a hub's or `media`, or is
+  section `docs/quirks.md` hasn't got, a row two quirk pages (or two of a page's `rows`) name, a replay a
+  citation or a file a quirk box's `pinned_by` names that the repo hasn't got, a slug that isn't the file's name, is a hub's or `media`, or is
   another page's slug or alias, an object on two pages, a stat `stats.json` hasn't got (or one that's text, or
   that the create event changes again under a condition), a clip without a spec, a sprite the media
   haven't got or have no pixels of, a component that isn't one of the above, code (an `{expression}` other
@@ -672,12 +672,15 @@ Spelunky Classic does.
   doesn't rot when the replay changes or goes; and to the page's clips cut from it (their spec's `replay`),
   which play it. A clip links to itself on the page. A quirk citation shows its row's opening, as `row=` has
   it, linking to the quirk page that names the row in its `rows`, or to the row's line in `docs/quirks.md` on
-  GitHub (at the commit too) where no page does, then the section, linking to the row there. A quirk citation
+  GitHub (at the commit too) where no page does, then the section's name, linking to the row on GitHub when
+  the quote went to a quirk page, and to the section's heading when it didn't. Two openings of one row are one
+  note. A quirk citation
   without `row=` is its section's, by title, linked to the section's heading: say which row (`row=`) instead,
-  except on a quirk page citing its own rows. A quirk box's Pinned by links to its replay and its rows to
-  their lines. The Markdown twins (and so `llms-full.txt`) link the same, absolutely. The build fails on a
-  replay the repo hasn't got and a row `docs/quirks.md` hasn't got (above). A `room=` citation is still
-  text.
+  except on a quirk page citing its own rows (851-3644 to 851-3648 name the rest, and 851-3649 then makes the
+  build fail without one). A quirk box's Pinned by links to its replay (or a test's file; a test named only by
+  its name is text) and its rows to their lines. The Markdown twins (and so `llms-full.txt`) link the same, absolutely. The build fails on a
+  replay or a `pinned_by` file the repo hasn't got and a row `docs/quirks.md` hasn't got (above). A `room=`
+  citation is still text (851-3650).
 - **A bug in the GML** the page describes (a test that's always true, a `type` string never set) is
   behaviour: describe it, cite the lines, and quote them in Trivia if the code is the point. If
   `docs/quirks.md` doesn't have it, file a ticket to add it (and its quirk page) rather than leaving it
