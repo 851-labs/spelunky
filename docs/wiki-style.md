@@ -57,7 +57,7 @@ Every page:
 | `faq` | Three to five [questions and answers](#faq-blocks). Not on guides, which are the answer. |
 | `sources` | The code that defines the thing: object events and scripts, without lines (`objects/oSnake/step.gml`). Rendered as a "Source code" list under References; line-level citations go in the body ([Citing](#citing-the-code)). |
 | `spoiler` | `true` on a page about a secret ([Spoilers](#spoilers)). Optional. |
-| `verified` | `{ port: v0.1.7, date: 2026-10-27 }`: the port release the page was last checked against and when ([Verify](#verify-before-publishing)). Shown as "Verified against v0.1.7". |
+| `verified` | `{ port: v0.1.7, date: 2026-10-27 }`: the port release the page was last checked against and when ([Verify](#verify-before-publishing)). Not shown on the page or in its Markdown twin (it's bookkeeping, not something a reader needs): the date is the page's `dateModified` in its Article JSON-LD and its `lastmod` in `/sitemap.xml`, and orders `/wiki`'s featured pages. |
 
 Strings in `lede`, `hatnote`, infobox `text` and FAQ answers are inline MDX: they may use `[[links]]` and
 `<Stat>`, and are rendered to plain text where plain text is needed (meta tags, JSON-LD).
@@ -226,8 +226,6 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
 - **The layout** (`site/src/wiki/layout.tsx`, `wiki.css`), Fandom's shape in the landing page's pixel look:
   - **Breadcrumbs** above the title, from `src/wiki/crumbs.ts`, which the BreadcrumbList JSON-LD uses too,
     so the two can't differ: Wiki, the page's first category's hub (Items first for an item's), the page.
-  - **The verified line** under the title: "Verified against the spelunky.ai port v0.1.7 on 27 October
-    2026", the version linking to its release.
   - **The infobox**, floated beside the lede (after it, full width, on a phone): the title, the image
     sprite at twice its `@4x` file when it fits (a still frame for `prefers-reduced-motion`), the type's
     fields, each data value citing its lines as a numbered note like a `text`'s `cite`, the `objects`, and

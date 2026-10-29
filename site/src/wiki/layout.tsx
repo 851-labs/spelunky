@@ -1,5 +1,5 @@
 // The wiki's page frame and a page's layout, Fandom's shape in the site's pixel look: breadcrumbs, the
-// title and when it was verified, the infobox beside the lede, the body with its table of contents, the
+// title, the infobox beside the lede, the body with its table of contents, the
 // generated sections, and the navboxes of the page's categories; on a wide screen, the contents in a rail
 // beside them (src/wiki/contents.tsx). The license's notices are on every wiki page (docs/wiki-license.md,
 // "Notice text for the templates"): the footer, with the audio credit on a page whose clips have sound. The
@@ -17,7 +17,6 @@ import { Cite, Clip, components, H2, H3, SourceLink, Sprite } from "./components
 import type { WikiComponents } from "./components";
 import { Contents, ContentsRail } from "./contents";
 import { trail } from "./crumbs";
-import { longDate } from "./dates.ts";
 import { CardLink, HoverCards } from "./hover-card";
 import { AUDIO_CREDIT, NOTICE } from "./notices.ts";
 import type { PageMeta, PageModule } from "./pages";
@@ -73,7 +72,6 @@ export function WikiPage({ page }: { page: PageModule }) {
       <article>
         <Breadcrumbs crumbs={trail(meta)} />
         <h1>{meta.title}</h1>
-        <Verified verified={meta.verified} />
         {meta.spoiler && <p className="spoiler-note">This page describes a secret.</p>}
         {Hatnote && (
           <div className="hatnote">
@@ -154,18 +152,6 @@ export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
         ))}
       </ol>
     </nav>
-  );
-}
-
-// "Verified against v0.1.7" (docs/wiki-style.md, `verified`), under the title, where a reader judging the
-// page looks first. The date's written out by hand (dates.ts): the same text on the server and in the browser.
-function Verified({ verified }: { verified: PageMeta["verified"] }) {
-  return (
-    <p className="verified">
-      Verified against the spelunky.ai port{" "}
-      <a href={`https://github.com/851-labs/spelunky/releases/tag/${verified.port}`}>{verified.port}</a> on{" "}
-      <time dateTime={verified.date}>{longDate(verified.date)}</time>.
-    </p>
   );
 }
 
