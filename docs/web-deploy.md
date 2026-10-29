@@ -344,7 +344,7 @@ with stand-in wiki pages (Node runs the TypeScript, stripping its types).
 
 Every wiki page and hub, and `/wiki`, has a 1200x630 card as its `og:image` and `twitter:image` (with their
 size and alt text): its sprite in a stone frame, its categories, its name and its infobox's first three
-numbers (a hub's, how many of its pages are written and to come), under the SPELUNKY title sprite and a
+numbers (a hub's has none), under the SPELUNKY title sprite and a
 "fan wiki" badge, over the line "Unofficial fan wiki · spelunky.ai" (docs/wiki-license.md). Everything on
 it is the game's own pixel art at whole scales, nearest neighbour: the text is in its sprite fonts, `sFont`
 and `sFontSmall` (`font_add_sprite`'s, so upper case, `' '` to `'Z'`), the colours the wiki's.

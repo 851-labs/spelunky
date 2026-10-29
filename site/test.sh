@@ -573,6 +573,8 @@ contains '<title>Spelunky Classic fan wiki</title>' \
   '<h2 id="how">How this wiki is made</h2>' \
   '"@type":"ItemList","name":"Spelunky Classic fan wiki categories"' \
   '{"@type":"ListItem","position":1,"name":"Monsters","url":"https://spelunky.ai/wiki/monsters"}'
+# No count of how much of the wiki is written: it's an encyclopedia, not a progress tracker.
+lacks 'class="hub-count"' 'class="category-count"' ' written of the ' ' written</span>'
 # A featured card whole: its page's link, its infobox sprite's first frame and its title. Which page it is
 # (the most recently verified, then by title) changes with the content.
 featured_card="<li class=\"card\"><a class=\"card-body\" href=\"/wiki/[a-z0-9-]+\"><span class=\"card-image\"><img src=\"$media_url/sprites/s[A-Za-z0-9_]+/frames/0%404x\\.png\" width=\"64\" height=\"64\" alt=\"\" loading=\"lazy\"/></span><span class=\"card-title\">[^<]+</span>"
@@ -658,6 +660,7 @@ contains '<title>Monsters – Spelunky Classic fan wiki</title>' \
   "<li class=\"card\"><a class=\"card-body\" href=\"/wiki/bat\"><span class=\"card-image\"><img src=\"$media_url/sprites/sBatLeft/frames/0%404x.png\" width=\"64\" height=\"64\" alt=\"\" loading=\"lazy\"/></span><span class=\"card-title\">Bat</span>" \
   '<div class="hub-query"><label id="' '>Filter by name</label><input id="' 'type="search" autoComplete="off" value=""/>' \
   'role="group" aria-label="Found in" class="hub-choices">' 'aria-pressed="true">All</button>' 'aria-pressed="false">The Mines</button>'
+lacks 'class="hub-count"' ' to come.</p>'
 check "$site/wiki/items" 200 "$no_cache"
 contains '<title>Items – Spelunky Classic fan wiki</title>' 'role="group" aria-label="Kind" class="hub-choices">' \
   '<li><a href="/wiki/items/equipment">Equipment</a></li>'

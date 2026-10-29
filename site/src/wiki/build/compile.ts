@@ -386,14 +386,13 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     warnings,
   );
   if (renderOg) {
-    const pages = (n: number) => `${n} ${n === 1 ? "page" : "pages"}`;
+    // A hub's card has no stats: how many of its pages are written would read as a progress tracker.
     for (const data of hubs.hubs) {
       const hub = hubById(data.id)!;
-      const written = data.cards.filter((card) => card.href !== null).length;
       data.og = og({
         kicker: hub.parent ? hubById(hub.parent)!.name : "Category",
         title: hub.name,
-        stats: [["Written", pages(written)], ["To come", pages(data.cards.length - written)]],
+        stats: [],
         sprite: hubs.sprites[data.id]?.sprite ?? null,
         frame: hubs.sprites[data.id]?.frame,
       }, data.id);
@@ -402,7 +401,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     home.og = og({
       kicker: "Spelunky Classic",
       title: "Fan wiki",
-      stats: [["Written", pages(home.written)], ["To come", pages(home.total - home.written)]],
+      stats: [],
       // The Spelunker.
       sprite: "sStandLeft",
     }, "wiki");

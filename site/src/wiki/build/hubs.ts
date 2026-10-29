@@ -46,14 +46,14 @@ export interface HubData {
   og: SeoImage | null;
 }
 
-// /wiki's own: every hub with its counts and a sprite to show, and the featured pages.
+// /wiki's own: every hub with a sprite to show, and the featured pages.
 export interface HomeData {
-  hubs: { id: HubId; written: number; total: number; image: CardImage | null }[];
+  // `written`: how many of its pages are, for /wiki's ItemList, which lists only the hubs with one (the rest
+  // are noindex: src/wiki/hub-route.ts).
+  hubs: { id: HubId; written: number; image: CardImage | null }[];
   featured: (HubCard & { lede: string })[];
   // The box the featured cards draw their sprites in (cardBox).
   featuredBox: number;
-  written: number;
-  total: number;
   // /wiki's Open Graph image, or null without the media.
   og: SeoImage | null;
 }
@@ -273,13 +273,10 @@ export function makeHubs(
     hubs: hubs.map(({ id, cards }, i) => ({
       id,
       written: cards.filter((card) => card.href !== null).length,
-      total: cards.length,
       image: (tiles[i] && tileImages.get(tiles[i].slug)) ?? null,
     })),
     featured,
     featuredBox: cardBox(featured),
-    written: written.length,
-    total: cards.length,
     og: null,
   };
   const sprites: Hubs["sprites"] = {};

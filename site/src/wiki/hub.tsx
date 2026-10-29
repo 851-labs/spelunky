@@ -15,18 +15,6 @@ import type { HomeData, HubCard, HubData } from "./build/hubs";
 import { hubTrail } from "./crumbs";
 import { Breadcrumbs } from "./layout";
 
-const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-
-// How much of a list is written: "1 page written, 5 to come".
-function Progress({ cards }: { cards: HubCard[] }) {
-  const written = cards.filter((card) => card.href !== null).length;
-  return (
-    <p className="hub-count">
-      {plural(written, "page", "pages")} written, {cards.length - written} to come.
-    </p>
-  );
-}
-
 export function HubView({ hub, data }: { hub: Hub; data: HubData }) {
   // /wiki/items's own: its categories' hubs, which it lists the cards of together.
   const children = childrenOf(hub.id);
@@ -49,10 +37,7 @@ export function HubView({ hub, data }: { hub: Hub; data: HubData }) {
       {data.cards.length === 0 ? (
         <p className="hub-empty">No pages here yet: the wiki is new, and this category's are still to be written.</p>
       ) : (
-        <>
-          <Progress cards={data.cards} />
-          <FilteredGrid hub={hub} data={data} />
-        </>
+        <FilteredGrid hub={hub} data={data} />
       )}
     </article>
   );
@@ -206,7 +191,7 @@ function CardImage({ image }: { image: HubCard["image"] }) {
 // /wiki: the search box (the route's: src/wiki/search-box.tsx's WikiSearch, with /wiki?q='s results), the
 // featured pages, every category, and how the wiki is made.
 export function WikiHome({ data, search }: { data: HomeData; search: ReactNode }) {
-  const counts = new Map(data.hubs.map((hub) => [hub.id, hub]));
+  const tiles = new Map(data.hubs.map((hub) => [hub.id, hub]));
   // Each top-level hub, with /wiki/items's own under it.
   const top = HUBS.filter((hub) => hub.parent === null);
   return (
@@ -217,9 +202,6 @@ export function WikiHome({ data, search }: { data: HomeData; search: ReactNode }
         comes from, and every clip is recorded from the game playing.
       </p>
       {search}
-      <p className="hub-count">
-        {plural(data.written, "page", "pages")} written of the {data.total} the wiki covers so far.
-      </p>
 
       {data.featured.length > 0 && (
         <section aria-labelledby="featured">
@@ -232,14 +214,13 @@ export function WikiHome({ data, search }: { data: HomeData; search: ReactNode }
         <h2 id="categories">Categories</h2>
         <ul className="categories">
           {top.map((hub) => {
-            const count = counts.get(hub.id)!;
+            const tile = tiles.get(hub.id)!;
             const children = childrenOf(hub.id);
             return (
               <li key={hub.id} className="category">
                 <a className="category-link" href={hub.path}>
-                  <CardImage image={count.image} />
+                  <CardImage image={tile.image} />
                   <span className="category-name">{hub.name}</span>
-                  <span className="category-count">{count.total === 0 ? "No pages yet" : `${count.written} of ${count.total} written`}</span>
                 </a>
                 {children.length > 0 && (
                   <ul className="category-children">
