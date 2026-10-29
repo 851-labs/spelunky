@@ -1,0 +1,36 @@
+{
+  "id": "block/boulder",
+  "title": "Gold in the rock",
+  "description": "In the Mines, a boulder rolls along a corridor, breaking the bricks in its way; the ones veined with gold spill gold chunks and a nugget as they break.",
+  "spec": "wiki/clips/block/boulder.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-boulder-outrun.txt"
+  },
+  "from": 830,
+  "to": 930,
+  "frames": 101,
+  "replay_from": 830,
+  "state_hash": "65502538ce280d01",
+  "states_hash": "0e335b3fc19ec694",
+  "fps": 30,
+  "duration": 3.3666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 860,
+  "frames_hash": "f468bc8f5ea66420",
+  "has_audio": true,
+  "audio_hash": "b911d277eeb71f14",
+  "encoding": "37fb7962ff6a11be",
+  "files": {
+    "mp4": "block/boulder/clip.mp4",
+    "webm": "block/boulder/clip.webm",
+    "poster": "block/boulder/poster.png",
+    "replay": "block/boulder/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

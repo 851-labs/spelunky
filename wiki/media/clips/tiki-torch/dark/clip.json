@@ -1,0 +1,36 @@
+{
+  "id": "tiki-torch/dark",
+  "title": "Tiki torches on a dark level",
+  "description": "On a dark level of the Jungle, the cave is black but for the circle of light around the player and smaller ones around what glows; at the right, a tiki torch stands on the ground, flickering in a circle of its own.",
+  "spec": "wiki/clips/tiki-torch/dark.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/fuzz-goal-jungle-seed-66-tiki-torch.txt"
+  },
+  "from": 1594,
+  "to": 1699,
+  "frames": 106,
+  "replay_from": 1594,
+  "state_hash": "6f4e51db6cf08adb",
+  "states_hash": "35dbc9a6dc252da0",
+  "fps": 30,
+  "duration": 3.533333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1650,
+  "frames_hash": "fb8a404808c281c8",
+  "has_audio": true,
+  "audio_hash": "b179e933091432e7",
+  "encoding": "df7117e724a4d8b5",
+  "files": {
+    "mp4": "tiki-torch/dark/clip.mp4",
+    "webm": "tiki-torch/dark/clip.webm",
+    "poster": "tiki-torch/dark/poster.png",
+    "replay": "tiki-torch/dark/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

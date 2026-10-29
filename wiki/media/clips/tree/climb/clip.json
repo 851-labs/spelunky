@@ -1,0 +1,36 @@
+{
+  "id": "tree/climb",
+  "title": "Climbing a tree",
+  "description": "The player walks to a tree and jumps at its trunk, catching hold of its side without Climbing Gloves; each jump from there takes him a block higher up the trunk, until he hangs just under its leaves.",
+  "spec": "wiki/clips/tree/climb.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 179,
+  "frames": 180,
+  "replay_from": 241,
+  "state_hash": "8872a200460f7735",
+  "states_hash": "130a07e1b694c8b3",
+  "fps": 30,
+  "duration": 6.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 120,
+  "frames_hash": "3ae633fecdbbd922",
+  "has_audio": true,
+  "audio_hash": "823f4a9a4bd2081f",
+  "encoding": "7d9cf28e955055ef",
+  "files": {
+    "mp4": "tree/climb/clip.mp4",
+    "webm": "tree/climb/clip.webm",
+    "poster": "tree/climb/poster.png",
+    "replay": "tree/climb/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
