@@ -218,10 +218,11 @@ export interface PageMeta {
   // The relations the infobox shows (relations.ts), and those See also does.
   relations: Relation[];
   seeAlso: Relation[];
-  // A quirk page's quirk box, with its docs/quirks.md section's title and link, its rows' links, its `where`'s
-  // lines in the source viewer (sourceHref) and its `pinned_by` on GitHub when it's a file (a replay).
+  // A quirk page's quirk box, with its status in a reader's words (known), its docs/quirks.md section's title
+  // and link, its rows' links, its `where`'s lines in the source viewer (sourceHref) and its `pinned_by` on
+  // GitHub when it's a file (a replay).
   quirk:
-    | (NonNullable<Frontmatter["quirk"]> & { section: string; href: string; rowHrefs: string[]; whereHref?: string; pinnedHref?: string })
+    | (NonNullable<Frontmatter["quirk"]> & { known: string; section: string; href: string; rowHrefs: string[]; whereHref?: string; pinnedHref?: string })
     | null;
   clips: ClipInfo[];
   // The clips the body doesn't place, for the Gallery.
@@ -495,12 +496,36 @@ function quirkBox(quirk: Frontmatter["quirk"], ctx: Context, href: (cite: string
   const pinned = quirk.pinned_by.includes("/");
   return {
     ...quirk,
+    known: knownFrom(quirk.status),
     section: section.title,
     href: section.href,
     rowHrefs,
     ...(whereHref ? { whereHref } : {}),
     ...(pinned ? { pinnedHref: repoUrl(ctx.commit, quirk.pinned_by) } : {}),
   };
+}
+
+// What each docs/quirks.md status means, for a reader who doesn't know what the oracle or OpenGMK is: how the
+// port's maintainers know the row is so (docs/quirks.md's legend; /wiki's "How this wiki is made" says more).
+const KNOWN: Record<string, string> = {
+  GML: "read in the game's code",
+  Oracle: "seen in the original game running",
+  OpenGMK: "checked in OpenGMK, a rebuild of GameMaker 8",
+  GM8: "run on GameMaker 8 itself",
+  DLL: "read in the game's sound library",
+};
+
+// A quirk box's status in those words, each part with what it covers as the row has it: "GML + Oracle (the
+// Jar); GML (the Skull)" is "Read in the game's code and seen in the original game running (the Jar); read in
+// the game's code (the Skull)". The schema has checked its shape.
+function knownFrom(status: string): string {
+  const parts = status.split("; ").map((part) => {
+    const [, codes, covers] = /^([^(]+?)(?: \((.+)\))?$/.exec(part)!;
+    const words = codes.split(" + ").map((code) => KNOWN[code]);
+    return covers ? `${words.join(" and ")} (${covers})` : words.join(" and ");
+  });
+  const known = parts.join("; ");
+  return known[0].toUpperCase() + known.slice(1);
 }
 
 // A committed replay's path, as pages cite it (fidelity/replays/, or the settings program's fidelity/settings/).

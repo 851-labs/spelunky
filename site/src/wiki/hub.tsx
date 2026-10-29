@@ -253,6 +253,11 @@ export function WikiHome({ data, search }: { data: HomeData; search: ReactNode }
           which release of the port it was last checked against; the code is on{" "}
           <a href="https://github.com/851-labs/spelunky">GitHub</a>.
         </p>
+        <p>
+          A <a href="/wiki/quirks">quirk</a> page's box says how the quirk is known: “read in the game's code”
+          means the lines that cause it are in that source, and “seen in the original game running” means its
+          replay was also played in the original game, under the oracle, and does it there as it does in the port.
+        </p>
       </section>
     </article>
   );

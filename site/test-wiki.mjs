@@ -55,6 +55,17 @@ if (committed.pages.length === 0) fail("content/wiki: no pages");
     fail(`spectacles.price-by-level at 5 is ${JSON.stringify(row)}`);
   }
 }
+// A quirk box says how the quirk is known in words, not docs/quirks.md's codes (docs/wiki-style.md, "Infobox
+// fields"): each part with what it covers, where the rows' differ.
+{
+  const known = committed.pages.find((page) => page.meta.slug === "phantom-jar")?.meta.quirk?.known;
+  if (known !== "Read in the game's code and seen in the original game running (the Jar); read in the game's code (the Skull)") {
+    fail(`quirk box: the phantom Jar's How we know is ${JSON.stringify(known)}`);
+  }
+  for (const page of committed.pages) {
+    if (page.meta.quirk && /GML|OpenGMK|Oracle|GM8|DLL|undefined/.test(page.meta.quirk.known)) fail(`quirk box: ${page.meta.slug}'s How we know is ${page.meta.quirk.known}`);
+  }
+}
 const snake = committed.pages.find((page) => page.meta.slug === "snake");
 if (!snake) fail("content/wiki: no snake page");
 else {
@@ -572,6 +583,9 @@ try {
       fail("reference links: double-whip.md's Pinned by");
     }
     if (!whipMd.includes(`: [“${jarRow}”](${rowUrl(jarRow)})`)) fail("reference links: double-whip.md's Rows");
+    if (!tableRow("[How we know](https://spelunky.ai/wiki#how)", "Read in the game's code and seen in the original game running").test(whipMd) || whipMd.includes("GML + Oracle")) {
+      fail("reference links: double-whip.md's How we know");
+    }
     // Nothing in References is left without a link.
     for (const ref of wiki.pages.flatMap((p) => p.meta.references)) {
       if (ref.kind === "replay" && !ref.href) fail(`reference links: replay ${ref.target} has no link`);

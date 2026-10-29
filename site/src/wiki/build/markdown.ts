@@ -11,7 +11,7 @@
 import { gfmToMarkdown } from "mdast-util-gfm";
 import { toMarkdown } from "mdast-util-to-markdown";
 import { absoluteUrl, SITE_URL } from "../../seo/seo.ts";
-import { clipAnchor } from "../anchors.ts";
+import { clipAnchor, HOW_WE_KNOW } from "../anchors.ts";
 import { AUDIO_CREDIT, NOTICE } from "../notices.ts";
 import { CATEGORIES, CATEGORY_NAMES } from "./categories.ts";
 import type { ClipInfo, PageMeta, Reference, RelationLink } from "./compile.ts";
@@ -242,8 +242,8 @@ function infobox(meta: PageMeta, fragments: Record<string, MdNode>): MdNode[] {
   }
   // A quirk box's fields, as the layout's QuirkRows has them: its rows quoted after their section's link.
   if (meta.quirk) {
-    const { status, where, whereHref, pinned_by, pinnedHref, entry, rows: quoted, rowHrefs, section, href } = meta.quirk;
-    rows.push([[text("Status")], [text(status)]], [[text("Where")], [source(where, whereHref)]], [[text("Pinned by")], [source(pinned_by, pinnedHref)]]);
+    const { known, where, whereHref, pinned_by, pinnedHref, entry, rows: quoted, rowHrefs, section, href } = meta.quirk;
+    rows.push([[link(absoluteUrl(HOW_WE_KNOW), text("How we know"))], [text(known)]], [[text("Where")], [source(where, whereHref)]], [[text("Pinned by")], [source(pinned_by, pinnedHref)]]);
     const quotes = quoted.flatMap((row, i) => [text(" "), link(rowHrefs[i], text(`“${row}”`))]);
     rows.push([[text(quoted.length === 1 ? "Row" : "Rows")], [link(href, text(`docs/quirks.md §${entry}, ${section}`)), text(":"), ...quotes]]);
   }
