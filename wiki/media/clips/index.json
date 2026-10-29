@@ -2347,6 +2347,42 @@
       "width": 640
     },
     {
+      "audio_hash": "ccea7a73330f59d3",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player walks to the exit, a doorway in the rock, and presses up in front of it; he turns to it and walks in through the door.",
+      "duration": 3.3666666666666667,
+      "encoding": "6a8980e56ea15b95",
+      "files": {
+        "mp4": "door/exit/clip.mp4",
+        "poster": "door/exit/poster.png",
+        "replay": "door/exit/replay.txt",
+        "webm": "door/exit/clip.webm"
+      },
+      "fps": 30,
+      "frames": 101,
+      "frames_hash": "af8a2d3673c828aa",
+      "from": 0,
+      "has_audio": true,
+      "height": 480,
+      "id": "door/exit",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 80,
+      "replay_from": 241,
+      "scale": 2,
+      "source": {
+        "kind": "scene",
+        "seed": 0
+      },
+      "spec": "wiki/clips/door/exit.toml",
+      "state_hash": "3f8d8177c62610bb",
+      "states_hash": "279ad0027f1b2545",
+      "title": "Taking the exit",
+      "to": 100,
+      "width": 640
+    },
+    {
       "audio_hash": "9ea07f97deb5a344",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The player falls into the desert and lies stunned, and the golden head lands beside him. YOU MADE IT! The final score counts up to the $21125 he brought out, the treasure adds $50000, and the time, kills and saves follow; the screen fades to black: YOU SHALL BE REMEMBERED AS A HERO.",
@@ -3499,6 +3535,42 @@
       "width": 640
     },
     {
+      "audio_hash": "452cfc234cfba078",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player runs a few steps on rock and stops dead when he lets go; then he runs onto a floor of ice, lets go, and slides on along it.",
+      "duration": 8.0,
+      "encoding": "51acf3d36a47c4c8",
+      "files": {
+        "mp4": "ice/slide/clip.mp4",
+        "poster": "ice/slide/poster.png",
+        "replay": "ice/slide/replay.txt",
+        "webm": "ice/slide/clip.webm"
+      },
+      "fps": 30,
+      "frames": 240,
+      "frames_hash": "3f5952eeec9bab8e",
+      "from": 0,
+      "has_audio": true,
+      "height": 480,
+      "id": "ice/slide",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 150,
+      "replay_from": 241,
+      "scale": 2,
+      "source": {
+        "kind": "scene",
+        "seed": 0
+      },
+      "spec": "wiki/clips/ice/slide.toml",
+      "state_hash": "e39d10bc6a9c79d0",
+      "states_hash": "d5e0bd46ee7779f6",
+      "title": "Sliding on ice",
+      "to": 239,
+      "width": 640
+    },
+    {
       "audio_hash": "c2c08ac119b003d3",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The player picks up a jar, drops down a level and throws it at a snake on the floor. The jar shatters on the snake and kills it.",
@@ -3964,6 +4036,42 @@
       "states_hash": "b8a5beffea81423d",
       "title": "Stealing the Kissing Parlor's damsel",
       "to": 1340,
+      "width": 640
+    },
+    {
+      "audio_hash": "6da2cd07f468e58d",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player walks to a ladder and climbs it to the top, then jumps off toward the ledge beside it, catches the ledge's edge and pulls himself up onto it.",
+      "duration": 7.0,
+      "encoding": "ace0437dd791b6b3",
+      "files": {
+        "mp4": "ladder/climb/clip.mp4",
+        "poster": "ladder/climb/poster.png",
+        "replay": "ladder/climb/replay.txt",
+        "webm": "ladder/climb/clip.webm"
+      },
+      "fps": 30,
+      "frames": 210,
+      "frames_hash": "f02da069b03c54cb",
+      "from": 0,
+      "has_audio": true,
+      "height": 480,
+      "id": "ladder/climb",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 90,
+      "replay_from": 241,
+      "scale": 2,
+      "source": {
+        "kind": "scene",
+        "seed": 0
+      },
+      "spec": "wiki/clips/ladder/climb.toml",
+      "state_hash": "814013883df8bd10",
+      "states_hash": "dfca4054ddd9eac4",
+      "title": "Climbing a ladder",
+      "to": 209,
       "width": 640
     },
     {
@@ -5404,6 +5512,42 @@
       "states_hash": "cdb4bf0ba23fda1b",
       "title": "Pitcher's Mitt throw",
       "to": 1299,
+      "width": 640
+    },
+    {
+      "audio_hash": "1a014ee91e8602c0",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player walks into a stone block and pushes it slowly along the floor to the edge of a drop; it falls, lands on the floor below, and he drops down after it.",
+      "duration": 8.0,
+      "encoding": "36214b4d8405ac2e",
+      "files": {
+        "mp4": "push-block/push/clip.mp4",
+        "poster": "push-block/push/poster.png",
+        "replay": "push-block/push/replay.txt",
+        "webm": "push-block/push/clip.webm"
+      },
+      "fps": 30,
+      "frames": 240,
+      "frames_hash": "aeb85367df926014",
+      "from": 0,
+      "has_audio": true,
+      "height": 480,
+      "id": "push-block/push",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 120,
+      "replay_from": 241,
+      "scale": 2,
+      "source": {
+        "kind": "scene",
+        "seed": 0
+      },
+      "spec": "wiki/clips/push-block/push.toml",
+      "state_hash": "d128e47746ac338f",
+      "states_hash": "18e3105ced5a4dd1",
+      "title": "Pushing a block",
+      "to": 239,
       "width": 640
     },
     {
@@ -9829,6 +9973,42 @@
       "width": 640
     },
     {
+      "audio_hash": "caa604351ed974c8",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "Revived by the Ankh inside the Moai, the player stands on the thin ice in the statue's chest; it wears thinner under him and gives way, dropping him to the Hedjet and the exit below.",
+      "duration": 3.033333333333333,
+      "encoding": "c5a5984bd8b8b3f4",
+      "files": {
+        "mp4": "thin-ice/melt/clip.mp4",
+        "poster": "thin-ice/melt/poster.png",
+        "replay": "thin-ice/melt/replay.txt",
+        "webm": "thin-ice/melt/clip.webm"
+      },
+      "fps": 30,
+      "frames": 91,
+      "frames_hash": "7c47f6f56459d21e",
+      "from": 5421,
+      "has_audio": true,
+      "height": 480,
+      "id": "thin-ice/melt",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 5440,
+      "replay_from": 5421,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/tunnelman-seed-9-ice-paid.txt"
+      },
+      "spec": "wiki/clips/thin-ice/melt.toml",
+      "state_hash": "5ff528e56a12ee68",
+      "states_hash": "f7f7bee10bd5b620",
+      "title": "Thin ice giving way",
+      "to": 5511,
+      "width": 640
+    },
+    {
       "audio_hash": "c8d3eb948fabd373",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The player picks up a rock and throws it ahead of him, then throws a second one with up held, which flies higher and bounces back off the wall, then throws a third with down held, which skids a short way along the floor.",
@@ -10618,6 +10798,78 @@
       "states_hash": "7bf6961d5afb0556",
       "title": "Vampire whipped",
       "to": 219,
+      "width": 640
+    },
+    {
+      "audio_hash": "6da2cd07f468e58d",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "In the Jungle's green rock, the player walks to a vine hanging past a ledge and climbs it, as he would a ladder; at its top he jumps off toward the ledge, catches its edge and pulls himself up.",
+      "duration": 7.0,
+      "encoding": "7dd4e547023982ef",
+      "files": {
+        "mp4": "vine/climb/clip.mp4",
+        "poster": "vine/climb/poster.png",
+        "replay": "vine/climb/replay.txt",
+        "webm": "vine/climb/clip.webm"
+      },
+      "fps": 30,
+      "frames": 210,
+      "frames_hash": "35604b15b748e8c4",
+      "from": 0,
+      "has_audio": true,
+      "height": 480,
+      "id": "vine/climb",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 100,
+      "replay_from": 241,
+      "scale": 2,
+      "source": {
+        "kind": "scene",
+        "seed": 0
+      },
+      "spec": "wiki/clips/vine/climb.toml",
+      "state_hash": "892869c53f88c572",
+      "states_hash": "48fc62d315fc73e6",
+      "title": "Climbing a vine",
+      "to": 209,
+      "width": 640
+    },
+    {
+      "audio_hash": "26d41c817be5a069",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player walks off a high ledge and falls into a pool, landing unhurt after a fall long enough to hurt him on dry ground; he walks along the bottom, breathing out bubbles, then kicks up to the surface and climbs out onto the bank.",
+      "duration": 8.0,
+      "encoding": "94c76c60c27b6c06",
+      "files": {
+        "mp4": "water/swim/clip.mp4",
+        "poster": "water/swim/poster.png",
+        "replay": "water/swim/replay.txt",
+        "webm": "water/swim/clip.webm"
+      },
+      "fps": 30,
+      "frames": 240,
+      "frames_hash": "3dd3f438735230a4",
+      "from": 0,
+      "has_audio": true,
+      "height": 480,
+      "id": "water/swim",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 100,
+      "replay_from": 241,
+      "scale": 2,
+      "source": {
+        "kind": "scene",
+        "seed": 0
+      },
+      "spec": "wiki/clips/water/swim.toml",
+      "state_hash": "15675db474ec45b9",
+      "states_hash": "e806eace4defe9b0",
+      "title": "Falling into water",
+      "to": 239,
       "width": 640
     },
     {

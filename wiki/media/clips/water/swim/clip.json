@@ -1,0 +1,36 @@
+{
+  "id": "water/swim",
+  "title": "Falling into water",
+  "description": "The player walks off a high ledge and falls into a pool, landing unhurt after a fall long enough to hurt him on dry ground; he walks along the bottom, breathing out bubbles, then kicks up to the surface and climbs out onto the bank.",
+  "spec": "wiki/clips/water/swim.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 239,
+  "frames": 240,
+  "replay_from": 241,
+  "state_hash": "15675db474ec45b9",
+  "states_hash": "e806eace4defe9b0",
+  "fps": 30,
+  "duration": 8.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 100,
+  "frames_hash": "3dd3f438735230a4",
+  "has_audio": true,
+  "audio_hash": "26d41c817be5a069",
+  "encoding": "94c76c60c27b6c06",
+  "files": {
+    "mp4": "water/swim/clip.mp4",
+    "webm": "water/swim/clip.webm",
+    "poster": "water/swim/poster.png",
+    "replay": "water/swim/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

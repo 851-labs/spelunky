@@ -1,0 +1,36 @@
+{
+  "id": "door/exit",
+  "title": "Taking the exit",
+  "description": "The player walks to the exit, a doorway in the rock, and presses up in front of it; he turns to it and walks in through the door.",
+  "spec": "wiki/clips/door/exit.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 100,
+  "frames": 101,
+  "replay_from": 241,
+  "state_hash": "3f8d8177c62610bb",
+  "states_hash": "279ad0027f1b2545",
+  "fps": 30,
+  "duration": 3.3666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 80,
+  "frames_hash": "af8a2d3673c828aa",
+  "has_audio": true,
+  "audio_hash": "ccea7a73330f59d3",
+  "encoding": "6a8980e56ea15b95",
+  "files": {
+    "mp4": "door/exit/clip.mp4",
+    "webm": "door/exit/clip.webm",
+    "poster": "door/exit/poster.png",
+    "replay": "door/exit/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

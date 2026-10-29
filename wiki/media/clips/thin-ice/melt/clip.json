@@ -1,0 +1,36 @@
+{
+  "id": "thin-ice/melt",
+  "title": "Thin ice giving way",
+  "description": "Revived by the Ankh inside the Moai, the player stands on the thin ice in the statue's chest; it wears thinner under him and gives way, dropping him to the Hedjet and the exit below.",
+  "spec": "wiki/clips/thin-ice/melt.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/tunnelman-seed-9-ice-paid.txt"
+  },
+  "from": 5421,
+  "to": 5511,
+  "frames": 91,
+  "replay_from": 5421,
+  "state_hash": "5ff528e56a12ee68",
+  "states_hash": "f7f7bee10bd5b620",
+  "fps": 30,
+  "duration": 3.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 5440,
+  "frames_hash": "7c47f6f56459d21e",
+  "has_audio": true,
+  "audio_hash": "caa604351ed974c8",
+  "encoding": "c5a5984bd8b8b3f4",
+  "files": {
+    "mp4": "thin-ice/melt/clip.mp4",
+    "webm": "thin-ice/melt/clip.webm",
+    "poster": "thin-ice/melt/poster.png",
+    "replay": "thin-ice/melt/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
