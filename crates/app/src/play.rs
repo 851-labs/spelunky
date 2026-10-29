@@ -67,6 +67,10 @@ pub struct Play {
     game: Option<Game>,
     /// The ticks aren't shown ([`WindowGame::unshown`]): their sounds don't play.
     unshown: bool,
+    /// The browser holds the player's sound ([`Player::running`]). The game's sounds are dropped until it
+    /// plays, rather than all sounding at once then, and the player then starts from what the game has
+    /// playing.
+    sound_held: bool,
     /// Problems that would repeat every tick are reported once.
     warned_save: bool,
     warned_audio: bool,
@@ -90,6 +94,7 @@ impl Play {
             player: None,
             game: None,
             unshown: false,
+            sound_held: false,
             warned_save: false,
             warned_audio: false,
             fixed_window: false,
@@ -162,6 +167,12 @@ impl Play {
         let Some(player) = &mut self.player else {
             return;
         };
+        // Not yet: `play_sounds` resyncs once it plays.
+        if !player.running() {
+            self.sound_held = true;
+            return;
+        }
+        self.sound_held = false;
         let commands = match &mut self.game {
             Some(game) => {
                 drop(game.take_audio_commands());
@@ -182,8 +193,22 @@ impl Play {
         }
         let Some(game) = &mut self.game else { return };
         let commands = game.take_audio_commands();
-        if let Some(player) = &mut self.player
-            && let Err(e) = player.apply(&commands)
+        let Some(player) = &mut self.player else {
+            return;
+        };
+        if !player.running() {
+            // The browser wants a user gesture first. Safari, in the wiki's frame, doesn't count the reader's
+            // click on the page, which made the frame; once there's another, anywhere on the page, this
+            // starts it.
+            player.resume();
+            self.sound_held = true;
+            return;
+        }
+        if self.sound_held {
+            self.resync();
+            return;
+        }
+        if let Err(e) = player.apply(&commands)
             && !std::mem::replace(&mut self.warned_audio, true)
         {
             warn(&format!(
@@ -308,6 +333,10 @@ impl WindowGame for Play {
     fn user_gesture(&mut self) {
         if self.sound == SoundOutput::OnGesture {
             self.open_player();
+        }
+        // In the gesture's handler, where a browser that held it lets the sound start.
+        if let Some(player) = &mut self.player {
+            player.resume();
         }
     }
 

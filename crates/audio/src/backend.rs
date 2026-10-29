@@ -12,7 +12,9 @@
 //! are decoded when they're loaded. Music (the DLL's streamed sounds) streams from memory natively;
 //! kira can't stream on wasm, so there a track is decoded whole each time it starts, which stalls that
 //! frame and holds the decoded track while it plays. The browser also needs a user gesture before it
-//! starts audio, which is the app's job. The offline mixer decodes music the same way, since kira streams
+//! starts audio, which is the app's job: [`Player::running`] says whether it has, and [`Player::resume`]
+//! asks again (there kira runs on `web::WebBackend`, which keeps the stream's audio context). The offline
+//! mixer decodes music the same way, since kira streams
 //! on a thread of its own, whose timing would decide what it mixes.
 
 use crate::model::{Command, Handle, SoundBank};
@@ -23,14 +25,21 @@ use kira::sound::PlaybackPosition;
 use kira::sound::static_sound::{StaticSoundData, StaticSoundHandle};
 #[cfg(not(target_arch = "wasm32"))]
 use kira::sound::streaming::{StreamingSoundData, StreamingSoundHandle};
-use kira::{
-    AudioManager, Decibels, DefaultBackend, Easing, Panning, PlaybackRate, StartTime, Tween,
-};
+use kira::{AudioManager, Decibels, Easing, Panning, PlaybackRate, StartTime, Tween};
 use std::collections::{BTreeMap, HashMap};
 use std::fmt;
 use std::io::Cursor;
 use std::sync::Arc;
 use std::time::Duration;
+
+#[cfg(all(feature = "backend", target_arch = "wasm32"))]
+mod web;
+
+/// The device's kira backend: in the browser, one that can tell whether the sound plays yet.
+#[cfg(all(feature = "backend", target_arch = "wasm32"))]
+type DeviceBackend = web::WebBackend;
+#[cfg(not(all(feature = "backend", target_arch = "wasm32")))]
+type DeviceBackend = kira::DefaultBackend;
 
 /// DirectSound applies volume, pan and frequency at once.
 const INSTANT: Tween = Tween {
@@ -188,7 +197,7 @@ fn directsound_pan(pan: i32) -> (Panning, f32) {
 }
 
 /// Applies [`Command`]s to the default output device, or to another kira backend (`B`).
-pub struct Player<B: Backend = DefaultBackend> {
+pub struct Player<B: Backend = DeviceBackend> {
     manager: AudioManager<B>,
     /// The model's bank: where the bytes of every file it loads come from.
     bank: Arc<SoundBank>,
@@ -205,7 +214,7 @@ impl Player {
     /// Opens the default output device, to play files from `bank` (the model's, with their bytes:
     /// [`SoundBank::insert`]).
     pub fn new(bank: Arc<SoundBank>) -> Result<Self, BackendError> {
-        let manager = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default())
+        let manager = AudioManager::<DeviceBackend>::new(AudioManagerSettings::default())
             .map_err(|e| BackendError::Device(e.to_string()))?;
         // kira can't stream on wasm.
         Ok(Self::with_manager(
@@ -213,6 +222,22 @@ impl Player {
             bank,
             cfg!(not(target_arch = "wasm32")),
         ))
+    }
+
+    /// Whether its sound reaches the device. A browser holds it until the page has had a user gesture:
+    /// meanwhile the commands would pile up in kira and all sound at once when it starts.
+    pub fn running(&mut self) -> bool {
+        #[cfg(target_arch = "wasm32")]
+        return self.manager.backend_mut().running();
+        #[cfg(not(target_arch = "wasm32"))]
+        true
+    }
+
+    /// Asks the browser for the sound again, if it holds it and the page has a user gesture to grant it
+    /// with (a key, click or tap in the last moment, in this frame or, for Safari, the page around it).
+    pub fn resume(&mut self) {
+        #[cfg(target_arch = "wasm32")]
+        self.manager.backend_mut().resume();
     }
 }
 

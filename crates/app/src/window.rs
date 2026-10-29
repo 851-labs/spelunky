@@ -26,7 +26,7 @@ use trace::replay::{Event, MouseButton, Replay, ReplayHeader};
 use web_time::{Duration, Instant};
 use winit::application::ApplicationHandler;
 use winit::dpi::{LogicalSize, PhysicalPosition};
-use winit::event::{ElementState, KeyEvent, MouseScrollDelta, WindowEvent};
+use winit::event::{ElementState, KeyEvent, MouseScrollDelta, Touch, TouchPhase, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoopProxy};
 use winit::keyboard::{Key, KeyCode, PhysicalKey};
 use winit::window::{Fullscreen, Window, WindowId};
@@ -82,7 +82,8 @@ pub trait Game {
     }
 
     /// The player pressed a key or button: a user gesture, which the browser needs before it plays
-    /// sound.
+    /// sound. A key's, button's or tap's is called in the browser event's handler, where Safari wants
+    /// it; the embedding page's controls' and the clip's first frame's aren't (`Embed`).
     fn user_gesture(&mut self) {}
 
     /// What to show from now on, after a tick that switched programs (the settings program starting
@@ -818,8 +819,9 @@ impl<G: Game> App<G> {
         };
         if e.told != now {
             // The clip's first frame: the reader's click on the page's button is the gesture browsers want
-            // before sound (the page lets the frame play it), and the sound starts from what the game has
-            // playing now, not from the unshown frames' every sound at once.
+            // before sound (the page lets the frame play it; Safari doesn't, and the sound waits for the
+            // reader's next: `Play::play_sounds`), and the sound starts from what the game has playing now,
+            // not from the unshown frames' every sound at once.
             if now.ready && !e.told.ready {
                 self.game.user_gesture();
             }
@@ -1121,6 +1123,12 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     c.mouse_button(b, state == ElementState::Pressed);
                 }
             }
+            // A tap is a gesture too, though not the game's: Spelunky has no touch input. Phones count its end
+            // (pointerup), desktops its start.
+            WindowEvent::Touch(Touch {
+                phase: TouchPhase::Started | TouchPhase::Ended,
+                ..
+            }) => self.game.user_gesture(),
             WindowEvent::MouseWheel { delta, .. } => {
                 let dy = match delta {
                     MouseScrollDelta::LineDelta(_, y) => f64::from(y),

@@ -472,7 +472,12 @@ its first frame, with buttons to pause it, take control from the replay, restart
   Taking control hands the game to the reader's keyboard, mouse and gamepad where it's got to, releasing
   what the replay held (`Collector::taking_over`); nothing is saved or recorded. The sound starts at the
   clip's first frame, from what the game has playing then: the click on Play live is the gesture browsers
-  want, which the page passes on to the frame (`allow="autoplay"`).
+  want, which the page passes on to the frame (`allow="autoplay"`). Safari doesn't: the click made the
+  frame, which had no document then. It holds the sound until the reader's next key, click or tap, in the
+  frame or anywhere on the page, which Safari passes on to the frame: the app asks again in that event's
+  handler, or on its next frame. Until then the app drops the game's sounds, which would all sound at
+  once, and then starts from what the game has playing (`audio::backend::Player::running`). Safari also
+  remembers a site that has played sound, and lets it start without a gesture from then on.
 - **Only with a build that has it.** `/play/` is the web build `site/web-release.txt` pins, which can be
   older than the wiki. A build with the embed mode says so in its page (`<meta name="spelunky-embed">`),
   and `site/build.sh` gives the clips their button only then (`WIKI_LIVE_CLIPS`): a build from before it

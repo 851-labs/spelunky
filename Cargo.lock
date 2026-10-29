@@ -187,6 +187,8 @@ dependencies = [
  "gm",
  "kira",
  "serde",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
