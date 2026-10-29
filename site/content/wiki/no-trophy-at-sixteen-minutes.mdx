@@ -6,9 +6,8 @@ categories: [quirks]
 aliases: [highscores-time-960, time-960-no-trophy, 960-seconds-no-trophy, sixteen-minute-trophy]
 card: { sprite: sBronzeTrophy }
 lede: >-
-  No trophy at 16:00 is a quirk of Spelunky Classic in which a best time of exactly 16:00 earns no trophy in the
-  high scores room, though 15:59 earns the bronze one, because the check around the time's trophies is "under 960
-  seconds" while the bronze one's is "960 or less".
+  No trophy at 16:00 is a quirk of Spelunky Classic in which a best time of exactly 16:00 earns no trophy, though
+  15:59 earns the bronze one.
 quirk:
   status: GML + Oracle
   where: objects/oHighscores/create.gml:50-56
@@ -32,7 +31,8 @@ faq:
   - q: How likely is a time of exactly 16:00?
     a: >-
       It's rare. The best time is the win's clock, rounded down to the second, so the best win has to take from
-      16:00.000 to 16:00.999, and be faster than every win before it.
+      16:00.000 to 16:00.999, be faster than every win before it, and not start from a shortcut, as a shortcut
+      game's time isn't kept.
 sources:
   - objects/oHighscores/create.gml
   - scripts/scrUpdateHighscores.gml
@@ -74,7 +74,7 @@ end of a won game, the clock is rounded down to the second before it's compared 
 
 ## Reproducing it
 
-Win a game in 16:00, as the best time recorded, and enter the high scores room. It happens in normal play, but
+Win a game in 16:00, without a shortcut, as the best time recorded, and enter the high scores room. It happens in normal play, but
 rarely: the best time has to land on that second. The replay of the clip starts from a high scores table with
 one win at 16:00 and nothing else, and walks into the scores door: the room loads (frame 546) with a best time of
 960 and makes no trophy at all <Cite replay="fidelity/replays/flow-highscores-time-960-no-trophy.txt" />. With

@@ -1,5 +1,5 @@
 title = "A shop sells a Compass the player already wears"
-description = "Level 10 loads with the player wearing the Compass Kali gave him on level 9. The Supply shop beside him sells another, and he picks it up: \"A COMPASS FOR $5400.\""
+description = "Level 10 loads with the player wearing the Compass Kali gave him on level 9. The General Store beside him sells another, and he picks it up: \"A COMPASS FOR $5400.\""
 # Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
 replay = "fidelity/replays/shop-seed-11-compass-restocked.txt"
 from = 1962

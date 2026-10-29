@@ -7,15 +7,17 @@ aliases: [pause-bomb-key-dies, bomb-key-dies-paused, rope-key-quits, pause-scree
 card: { sprite: sBombIcon }
 lede: >-
   The pause screen's hidden keys is a quirk of Spelunky Classic in which the bomb key kills the player from the
-  pause screen, like F1, and the rope key quits the game, like F10, though the screen only shows the function
-  keys, because the pause screen reads the gamepad's buttons through code that takes the keyboard's keys too.
+  pause screen, and the rope key quits.
 quirk:
   status: GML + Oracle
   where: objects/oScreen/step_begin.gml:5-30
   pinned_by: fidelity/replays/flow-pause-game-over-new-game.txt
   entry: "1"
   rows:
-    - The pause screen's keyboard keys aren't only the ones it shows (ESC-RETURN F1-DIE F10-QUIT)
+    - >-
+      The pause screen's keyboard keys aren't only the ones it shows (ESC-RETURN F1-DIE F10-QUIT): oScreen's begin
+      step reads checkBombPressed and checkRopePressed, which take the keyboard's bomb and rope keys as well as the
+      gamepad's, so the bomb key (A) kills the player like F1 and the rope key (S) quits like F10.
 relations:
   related: [controls, bomb, rope]
 clips: [quirks/pause-bomb-key-dies]

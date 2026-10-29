@@ -6,9 +6,8 @@ categories: [quirks]
 aliases: [rock-freezes-off-view, items-freeze-outside-the-view, frozen-rock, mid-air-rock]
 card: { sprite: sRock }
 lede: >-
-  Items freeze off screen is a quirk of Spelunky Classic in which a thrown item that leaves the view stops in
-  mid-air and flies on when the view comes back to it, because an item's step only moves it while it's near the
-  view.
+  Items freeze off screen is a quirk of Spelunky Classic in which a thrown item that leaves the view stops in mid-
+  air until the view comes back.
 quirk:
   status: GML + Oracle
   where: objects/oItem/step.gml:1
@@ -31,8 +30,9 @@ faq:
       it.
   - q: Is a frozen item the same as a deactivated one?
     a: >-
-      Not quite. Further out, 96 pixels past the view, the level deactivates everything, items included. Between
-      16 and 96 pixels out, an item is still active, but its step does nothing.
+      Not quite. Further out, from 96 pixels past the view, the level deactivates things, items included,
+      though it keeps more active to the right of and below the player. Short of that, an item is still active,
+      but its step does nothing.
 sources:
   - objects/oItem/step.gml
   - objects/oLevel/step.gml
@@ -63,7 +63,7 @@ if ((x > view_xview[0]-16 and x < view_xview[0] + view_wview[0]+16 and
 ```
 
 Outside it, the step does nothing, so the item keeps its position and its speed, and stays active, until the
-level deactivates everything 96 pixels past the view <Cite gml="objects/oLevel/step.gml:64-77" />. When the view
+level deactivates it, 96 pixels or more past the view <Cite gml="objects/oLevel/step.gml:64-77" />. When the view
 comes back within 16 pixels of it, the step runs again with the speed it kept, and it flies on <Cite quirk="1" />.
 
 ## Reproducing it
