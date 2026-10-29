@@ -16,7 +16,7 @@
 use crate::gpu::{self, Gpu};
 use crate::input::{Collector, Gamepads, KeyMap, PAD_JOYSTICK};
 use crate::notice::Notice;
-use crate::present::{Presenter, window_to_content};
+use crate::present::{Presenter, Scaling, window_to_content};
 use crate::render::{Renderer, Surfaces};
 use crate::textures::Textures;
 use crate::unrendered::Unrendered;
@@ -619,6 +619,12 @@ impl<G: Game> App<G> {
             &gpu.adapter,
             &gpu.device,
             (size.width, size.height),
+            // A page's frame, as large as fits, where the clip's video was.
+            if self.embed.is_some() {
+                Scaling::Fill
+            } else {
+                Scaling::Whole
+            },
         ) {
             Ok(p) => p,
             Err(e) => return self.fail(event_loop, e),
@@ -637,12 +643,14 @@ impl<G: Game> App<G> {
     /// The cursor in GM window pixels: the back buffer's, which the window shows scaled and centred.
     fn cursor_in_screen(&self) -> Option<(i32, i32)> {
         let pos = self.cursor?;
-        let (screen, _) = self.graphics.as_ref()?.renderer.screen()?;
+        let g = self.graphics.as_ref()?;
+        let (screen, _) = g.renderer.screen()?;
         let size = self.window.as_ref()?.inner_size();
         window_to_content(
             (pos.x, pos.y),
             (screen.width(), screen.height()),
             (size.width, size.height),
+            g.presenter.scaling(),
         )
     }
 

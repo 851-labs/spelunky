@@ -586,6 +586,15 @@ its first frame, with buttons to pause it, take control from the replay, restart
   hashed, as an animation's frame or an alarm that comes back into step could. A build that does this says so
   (`<meta name="spelunky-embed-states">`, `WIKI_LIVE_STATES`): only then does the page check them, and count
   the clip's frames in the progress bar.
+- **The game fills the box** (851-3642). The iframe is the video's box, 4:3 as the game is, and the game
+  shows as large as fits in it, as the video does, with nearest sampling (`app::present::Scaling::Fill`), so
+  going between them doesn't move or resize it. `/play/` itself scales by whole numbers, which keep every GM
+  pixel the same size, but in a 640x480 box on a 2x screen (1280x960 pixels) the game's 960x720 is at 1,
+  with bars of 160 and 120 pixels around it. There a GM pixel is 4 of the screen's, as even as a whole
+  number; on other screens and at narrower boxes some rows and columns are a screen pixel thicker, but every
+  pixel stays sharp, where the browser smooths the video's. A build that fills it says so
+  (`<meta name="spelunky-embed-fill">`): the page has nothing to change for it, so `site/build.sh` only says
+  when a build letterboxes.
 
 ## Source
 

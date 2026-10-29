@@ -45,9 +45,9 @@ trap cleanup EXIT
 # A stand-in for scripts/web --package's tarball: the page, its manifest, and a content-hashed v/HASH/.
 mkdir -p "$tmp/web/v/0123456789abcdef"
 # Its page can be embedded, seeks, plays on phones, plays clips cut from committed replays, reports its start-up
-# run, reports its state at a clip's first frame and runs a clip through, reporting its states at its frames, as the
-# wiki's clips ask (src/wiki/live-clip.tsx).
-echo '<!doctype html><meta name="spelunky-embed" content="1"><meta name="spelunky-embed-seek" content="1"><meta name="spelunky-embed-held-sound" content="1"><meta name="spelunky-embed-replays" content="1"><meta name="spelunky-embed-progress" content="1"><meta name="spelunky-embed-state" content="1"><meta name="spelunky-embed-states" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
+# run, reports its state at a clip's first frame, runs a clip through, reporting its states at its frames, and fills
+# its frame, as the wiki's clips ask (src/wiki/live-clip.tsx).
+echo '<!doctype html><meta name="spelunky-embed" content="1"><meta name="spelunky-embed-seek" content="1"><meta name="spelunky-embed-held-sound" content="1"><meta name="spelunky-embed-replays" content="1"><meta name="spelunky-embed-progress" content="1"><meta name="spelunky-embed-state" content="1"><meta name="spelunky-embed-states" content="1"><meta name="spelunky-embed-fill" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
 echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .

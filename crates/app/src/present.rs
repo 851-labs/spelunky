@@ -1,21 +1,40 @@
 //! Shows GM's back buffer in a window, scaled by the largest whole number that fits, centred on black.
 //! Whole-number scaling keeps every GM pixel the same size; anything else would make some rows and
 //! columns thicker than others. A window smaller than the picture (a short browser window) shrinks it to
-//! fit instead, with nearest sampling, rather than cutting it off.
+//! fit instead, with nearest sampling, rather than cutting it off. A page's frame (the wiki's live clips)
+//! takes the picture as large as it fits, whole or not ([`Scaling::Fill`]).
 
 use crate::render::Renderer;
 
-/// The scale at which `content` shows in `window`: the largest whole number that fits, or below 1 the
-/// largest that fits at all; and the top-left offset that centres it.
-pub fn fit(content: (u32, u32), window: (u32, u32)) -> (f64, (i32, i32)) {
+/// How the picture takes the window.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Scaling {
+    /// By the largest whole number that fits, so every GM pixel is the same size: black around it.
+    Whole,
+    /// As large as fits, with nearest sampling: an embedding page's frame, which shows the game where a
+    /// clip's video was, as the video fills it. A whole number would leave wide bars there (960x720 is
+    /// scale 1 in a 640x480 frame on a 2x screen, 1280x960 pixels), and it's 4:3, as the game is, so this
+    /// fills it. On that screen a GM pixel is 4 of the screen's, as even as whole scaling.
+    Fill,
+}
+
+/// The scale at which `content` shows in `window`: by `scaling`, below 1 the largest that fits at all;
+/// and the top-left offset that centres it.
+pub fn fit(content: (u32, u32), window: (u32, u32), scaling: Scaling) -> (f64, (i32, i32)) {
     let (cw, ch) = (content.0.max(1), content.1.max(1));
     let whole = (window.0 / cw).min(window.1 / ch);
-    let scale = if whole >= 1 {
+    let scale = if whole >= 1 && scaling == Scaling::Whole {
         f64::from(whole)
     } else {
         (f64::from(window.0) / f64::from(cw)).min(f64::from(window.1) / f64::from(ch))
     };
-    let offset = |win: u32, c: u32| ((f64::from(win) - f64::from(c) * scale) / 2.0).floor() as i32;
+    // Never below 0: a scale that fits exactly can come out a hair over, which would move the picture a
+    // pixel off the window's edge.
+    let offset = |win: u32, c: u32| {
+        ((f64::from(win) - f64::from(c) * scale) / 2.0)
+            .max(0.0)
+            .floor() as i32
+    };
     (scale, (offset(window.0, cw), offset(window.1, ch)))
 }
 
@@ -28,8 +47,9 @@ pub fn window_to_content(
     pos: (f64, f64),
     content: (u32, u32),
     window: (u32, u32),
+    scaling: Scaling,
 ) -> Option<(i32, i32)> {
-    let (scale, (x, y)) = fit(content, window);
+    let (scale, (x, y)) = fit(content, window, scaling);
     if scale <= 0.0 {
         return None;
     }
@@ -51,6 +71,7 @@ pub struct Presenter {
     pipeline: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
     uniform: wgpu::Buffer,
+    scaling: Scaling,
     /// Rebuilt when the renderer replaces its back buffer (tracked by serial).
     bind_group: Option<(u64, wgpu::BindGroup)>,
 }
@@ -61,6 +82,7 @@ impl Presenter {
         adapter: &wgpu::Adapter,
         device: &wgpu::Device,
         size: (u32, u32),
+        scaling: Scaling,
     ) -> Result<Presenter, String> {
         let caps = surface.get_capabilities(adapter);
         // GM never converts colour spaces, so write values to the window as they are.
@@ -155,8 +177,14 @@ impl Presenter {
             pipeline,
             layout,
             uniform,
+            scaling,
             bind_group: None,
         })
+    }
+
+    /// How it scales the picture, which the cursor maps back through.
+    pub fn scaling(&self) -> Scaling {
+        self.scaling
     }
 
     pub fn resize(&mut self, device: &wgpu::Device, size: (u32, u32)) {
@@ -218,6 +246,7 @@ impl Presenter {
         let (scale, (x, y)) = fit(
             (screen.width(), screen.height()),
             (self.config.width, self.config.height),
+            self.scaling,
         );
         let uniform = Uniform {
             offset: [x as f32, y as f32],
@@ -263,15 +292,22 @@ mod tests {
 
     #[test]
     fn fits_whole_multiples_and_centres() {
-        assert_eq!(fit((320, 240), (640, 480)), (2.0, (0, 0)));
-        assert_eq!(fit((320, 240), (1000, 800)), (3.0, (20, 40)));
-        assert_eq!(fit((960, 720), (1000, 800)), (1.0, (20, 40)));
+        assert_eq!(fit((320, 240), (640, 480), Scaling::Whole), (2.0, (0, 0)));
+        assert_eq!(
+            fit((320, 240), (1000, 800), Scaling::Whole),
+            (3.0, (20, 40))
+        );
+        assert_eq!(
+            fit((960, 720), (1000, 800), Scaling::Whole),
+            (1.0, (20, 40))
+        );
     }
 
     #[test]
     fn the_cursor_maps_back_into_the_pictures_pixels() {
         // 960x720 (screenScale 3) in a 2000x1600 window: scale 2, offset (40, 80).
-        let at = |x, y| window_to_content((x, y), (960, 720), (2000, 1600)).unwrap();
+        let at =
+            |x, y| window_to_content((x, y), (960, 720), (2000, 1600), Scaling::Whole).unwrap();
         assert_eq!(at(40.0, 80.0), (0, 0));
         assert_eq!(at(41.9, 81.9), (0, 0));
         assert_eq!(at(42.0, 82.0), (1, 1));
@@ -280,20 +316,55 @@ mod tests {
         assert_eq!(at(0.0, 0.0), (-20, -40));
         // Shrunk to fit (scale 0.5): a window pixel covers two of the picture's.
         assert_eq!(
-            window_to_content((101.0, 0.0), (320, 240), (160, 240)),
+            window_to_content((101.0, 0.0), (320, 240), (160, 240), Scaling::Whole),
             Some((202, -120))
         );
         // Minimized, or one side 0: no position, so the last one stands.
-        assert_eq!(window_to_content((10.0, 10.0), (960, 720), (0, 0)), None);
-        assert_eq!(window_to_content((10.0, 10.0), (960, 720), (800, 0)), None);
+        assert_eq!(
+            window_to_content((10.0, 10.0), (960, 720), (0, 0), Scaling::Whole),
+            None
+        );
+        assert_eq!(
+            window_to_content((10.0, 10.0), (960, 720), (800, 0), Scaling::Whole),
+            None
+        );
     }
 
     #[test]
     fn shrinks_to_fit_a_smaller_window() {
         // Height-bound: 600 / 720.
-        let (scale, (x, y)) = fit((960, 720), (1000, 600));
+        let (scale, (x, y)) = fit((960, 720), (1000, 600), Scaling::Whole);
         assert_eq!(scale, 600.0 / 720.0);
         assert_eq!((x, y), (100, 0));
-        assert_eq!(fit((320, 240), (160, 240)), (0.5, (0, 60)));
+        assert_eq!(fit((320, 240), (160, 240), Scaling::Whole), (0.5, (0, 60)));
+    }
+
+    #[test]
+    fn a_pages_frame_is_filled() {
+        // 960x720 in a 640x480 frame on a 2x screen: the whole picture, a GM pixel (3 of the buffer's) 4 of
+        // the screen's, where whole scaling would leave it at 1 with bars of 160 and 120.
+        assert_eq!(
+            fit((960, 720), (1280, 960), Scaling::Fill),
+            (4.0 / 3.0, (0, 0))
+        );
+        assert_eq!(
+            fit((960, 720), (1280, 960), Scaling::Whole),
+            (1.0, (160, 120))
+        );
+        // A frame of another shape keeps the picture's, centred: as wide as fits, here.
+        let (scale, offset) = fit((960, 720), (1000, 800), Scaling::Fill);
+        assert_eq!(scale, 1000.0 / 960.0);
+        assert_eq!(offset, (0, 25));
+        // Smaller than the picture, it shrinks as whole scaling does.
+        assert_eq!(fit((960, 720), (480, 360), Scaling::Fill), (0.5, (0, 0)));
+        // A phone's: 1050x788 for a frame of 350 by 262.67 at 3x.
+        let (scale, offset) = fit((960, 720), (1050, 788), Scaling::Fill);
+        assert_eq!(scale, 1050.0 / 960.0);
+        assert_eq!(offset, (0, 0));
+        // The cursor maps back through the same scale.
+        let at = |x, y| window_to_content((x, y), (960, 720), (1280, 960), Scaling::Fill).unwrap();
+        assert_eq!(at(0.0, 0.0), (0, 0));
+        assert_eq!(at(4.0, 4.0), (3, 3));
+        assert_eq!(at(1279.9, 959.9), (959, 719));
     }
 }
