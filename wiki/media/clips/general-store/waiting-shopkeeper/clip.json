@@ -10,6 +10,7 @@
   "from": 1880,
   "to": 1975,
   "frames": 96,
+  "replay_from": 1880,
   "fps": 30,
   "duration": 3.2,
   "width": 640,

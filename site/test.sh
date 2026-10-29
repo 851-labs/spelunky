@@ -102,7 +102,7 @@ echo '{"frames":[{"file_scaled":null}],"anim_scaled":null}' >"$media/sprites/sBl
 cat >"$media/clips/index.json" <<'EOF2'
 {"caption":"Recorded from the spelunky.ai port v9.9.9, a stand-in.","clips":[{"id":"snake/bite",
  "title":"Snake bite","description":"A snake bites the player & takes a heart.","duration":3.3333333333333335,
- "width":640,"height":480,"has_audio":true,"source":{"kind":"scene","seed":0},"from":40,
+ "width":640,"height":480,"has_audio":true,"source":{"kind":"scene","seed":0},"from":40,"replay_from":281,
  "files":{"mp4":"snake/bite/clip.mp4","webm":"snake/bite/clip.webm","poster":"snake/bite/poster.png","replay":"snake/bite/replay.txt"}}]}
 EOF2
 # A few files of the gml/ tree, the source viewer's (src/wiki/build/source.ts), with each kind of token, a

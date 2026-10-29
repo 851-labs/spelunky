@@ -7,7 +7,7 @@
 // one they haven't got, and its sprite animated. Given SITE (a running server: wrangler dev) and URL (the path it serves MEDIA at, /wiki/media),
 // every media URL they make must be served there as is, a 200 and not a redirect.
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { registerHooks } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -138,10 +138,32 @@ test("a clip's uploadDate: when its videos last changed, or without a commit, th
 });
 
 test("a scene's clip plays in the game: its replay, from the replay's frame of the clip's first", () => {
-  // The stand-in's `from` is 40, the scene's frame: the replay boots for 241 frames before the scene's first.
+  // The stand-in's `from` is 40, the scene's frame, and its `replay_from` 281, the replay's: the replay boots
+  // for 241 frames before the scene's first.
   assert.deepEqual(pkg.clips["snake/bite"].live, { replay: "snake/bite/replay.txt", from: 281 });
   // The page asks for it at the package's URL, as the game fetches it (src/wiki/live-clip-player.tsx).
   served.add(at("clips/snake/bite/replay.txt"));
+});
+
+test("a scene's clip starts on the replay's frame its clip.json says, which the site doesn't work out", () => {
+  const scratch = mkdtempSync(join(tmpdir(), "test-media-"));
+  try {
+    const copy = join(scratch, "media");
+    cpSync(dir, copy, { recursive: true, filter: (file) => !file.endsWith("/.git") });
+    const file = join(copy, "clips/index.json");
+    const index = JSON.parse(readFileSync(file, "utf8"));
+    const clip = index.clips.find((c) => c.id === "snake/bite");
+    // Not 241 past `from`: a scene that starts elsewhere needs no change to the site.
+    clip.replay_from = 500;
+    writeFileSync(file, JSON.stringify(index));
+    assert.equal(readMediaPackage(copy, url, DATE).clips["snake/bite"].live.from, 500);
+    // Media from before the field are scripts/wiki-media's to render again.
+    delete clip.replay_from;
+    writeFileSync(file, JSON.stringify(index));
+    assert.throws(() => readMediaPackage(copy, url, DATE), /snake\/bite: replay_from isn't a frame number/);
+  } finally {
+    rmSync(scratch, { recursive: true });
+  }
 });
 
 test("a sprite's ImageObject, its @ escaped", () => {
