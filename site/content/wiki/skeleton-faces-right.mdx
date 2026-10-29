@@ -1,0 +1,82 @@
+---
+slug: skeleton-faces-right
+title: Skeletons facing right
+type: quirk
+categories: [quirks]
+aliases: [walking-away-from-the-player, custom-level-facing]
+card: { sprite: sSkeletonCreateR, frame: 3 }
+lede: >-
+  Skeletons facing right is a quirk of Spelunky Classic in which a skeleton made before the player, as a custom
+  level's are, walks right wherever the player is.
+quirk:
+  status: GML + Oracle
+  where: objects/oSkeleton/create.gml:27-31
+  pinned_by: fidelity/replays/enemy-skeleton-tile-faces-right.txt
+  entry: "1"
+  rows:
+    - A skeleton made before the player faces right.
+relations:
+  related: [skeleton, level-editor]
+clips: [quirks/skeleton-faces-right]
+faq:
+  - q: Why do Skeletons in custom levels walk away from the player?
+    a: >-
+      A [[skeleton|Skeleton]] turns to face the player only if he exists when it's made. A custom level makes
+      its tiles before the player, so its Skeletons keep facing right, and walk right until a wall turns them.
+  - q: Do Skeletons in the game's own levels face the player?
+    a: >-
+      Yes. There, a Skeleton only rises from a pile of bones while the player is in the level, and turns to him.
+  - q: Does the level editor's test show it too?
+    a: >-
+      Yes. Testing a level in the [[level-editor|level editor]] loads it the same way, its tiles first and the
+      player after them.
+sources:
+  - objects/oSkeleton/create.gml
+  - objects/oSkeleton/step.gml
+  - scripts/scrLoadLevel.gml
+  - scripts/scrCreateTileObj.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+A [[skeleton|Skeleton]] faces the player when it's made, and walks toward him. It can only do that if the player
+is there yet, and in a custom level ([[level-editor|the level editor]]'s) he isn't: the level's tiles come first.
+So a custom level's Skeleton faces right, wherever the player is.
+
+## What happens
+
+A Skeleton placed in a custom level walks right, away from the player, until it reaches the wall: it's made
+before the player, so it doesn't turn to face him <Cite clip="quirks/skeleton-faces-right" />.
+
+<Clip id="quirks/skeleton-faces-right" />
+
+## Why
+
+A Skeleton's create event faces it right, and turns it left only if there's a player, left of its middle:
+
+```gml objects/oSkeleton/create.gml:25-31
+LEFT = 0;
+RIGHT = 1;
+facing = RIGHT;
+if (instance_exists(oPlayer1))
+{
+    if (oPlayer1.x < x+8) facing = LEFT;
+}
+```
+
+Its walk turns only at a wall <Cite gml="objects/oSkeleton/step.gml:48-61" />. A custom level makes its tiles
+first, the level editor's `K` among them <Cite gml="scripts/scrCreateTileObj.gml:143-146" />, and the player after
+them, at its entrance <Cite gml="scripts/scrLoadLevel.gml:100" /> <Cite gml="scripts/scrLoadLevel.gml:162-173" />.
+So when a tile's Skeleton is made there's no player, and it keeps facing right. In the generated levels, Skeletons
+only rise from piles of bones while the player is there, and turn to him <Cite quirk="1" />.
+
+## Reproducing it
+
+Make a custom level with a `K` right of the player's entrance, and play it: the Skeleton walks right, away from
+him. The level editor's test does the same. The replay of the clip's staged scene, on a custom level, has a
+Skeleton right of the player: it starts walking right, away from him, and turns only at the wall
+<Cite replay="fidelity/replays/enemy-skeleton-tile-faces-right.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the Skeleton's facing. No option turns it off.

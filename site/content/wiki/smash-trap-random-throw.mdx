@@ -1,0 +1,95 @@
+---
+slug: smash-trap-random-throw
+title: The Smash Trap's random throw
+type: quirk
+categories: [quirks]
+aliases: [random-throw, thrown-down]
+card: { sprite: sSmashTrap }
+lede: >-
+  The Smash Trap's random throw is a quirk of Spelunky Classic in which a Smash Trap that has never slid throws
+  the player it hits down one time in four.
+quirk:
+  status: GML + Oracle
+  where: objects/oPlayer1/step.gml:1649-1668
+  pinned_by: fidelity/replays/trap-smash-random-throw.txt
+  entry: "1"
+  rows:
+    - A smash trap's hit throws the player toward it, and down if its random dir says so.
+relations:
+  related: [smash-trap]
+clips: [quirks/smash-trap-random-throw]
+faq:
+  - q: Why does a Smash Trap throw the player into it?
+    a: >-
+      Its hit throws the player toward the trap's middle, from either side. The trap is solid, so he isn't
+      knocked clear: he stays against it, to be hit again, and a sliding trap usually goes on over him and
+      crushes him.
+  - q: Why did a Smash Trap throw the player down?
+    a: >-
+      Its hit throws him down if the trap is sliding down. A trap that has never slid has a direction it picked
+      at random when it was made, so its hit throws him down one time in four, whichever side he touches it from.
+  - q: Does a lit Smash Trap throw the player too?
+    a: >-
+      No. On a [[dark-level|dark level]] the trap is another kind of object, which the player's check for a
+      Smash Trap doesn't see, so its touch neither hurts nor throws him. It kills only by sliding on into him.
+sources:
+  - objects/oPlayer1/step.gml
+  - objects/oSmashTrap/create.gml
+  - objects/oSmashTrap/step.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+A [[smash-trap|Smash Trap]]'s hit takes 10 hearts and throws the player. Which way is decided by the trap: across,
+toward it, and up, or down if it's sliding down. A trap that has never slid has no way it's sliding, only the one
+it picked at random when it was made, so its hit throws the player down one time in four.
+
+## What happens
+
+The player drops into a gap beside a Smash Trap that hasn't moved yet and brushes its corner from above its row.
+The hit throws him down, not up, because the trap was made facing down at random; he falls into its row, and it
+slides into him <Cite clip="quirks/smash-trap-random-throw" />.
+
+<Clip id="quirks/smash-trap-random-throw" />
+
+## Why
+
+When the player touches a Smash Trap, his step takes the nearest one, not always the one he touches, and throws
+him by it:
+
+```gml objects/oPlayer1/step.gml:1653-1661
+    obj = instance_nearest(x, y, oSmashTrap);
+    global.plife -= 10;
+    if (obj.x+8 < x) xVel = -rand(4,6);
+    else xVel = rand(4,6);
+    yVel = -6;
+    if (obj)
+    {
+        if (obj.dir == 1) yVel = 4;
+    }
+```
+
+`xVel` is negative when the trap's middle is left of him, so it throws him toward the trap, from either side.
+The trap is solid, so he stays against it, to be hit again on the next step <Cite quirk="1" />. `yVel` is -6, or
+4 if the trap's `dir` is 1, down. A slide sets `dir` to the way it goes
+<Cite gml="objects/oSmashTrap/step.gml:4-35" />, but before its first slide it's what the create event picked:
+
+```gml objects/oSmashTrap/create.gml:25
+dir = rand(0,3);
+```
+
+So a trap that has never slid throws him down one time in four. Touching one without setting it off takes coming
+at it from outside its row and column, as inside them it slides at him first <Cite quirk="1" />.
+
+## Reproducing it
+
+Drop past a Smash Trap that hasn't moved, brushing its corner from above its row. The replay of the clip's staged
+scene, a custom level with seed 1, has a trap whose create event makes its `dir` 1. The player drops into the gap
+beside it and touches its corner from above its row, before it has moved: the hit throws him down, with a `yVel`
+of 4, and toward it. Thrown down into its row, he sets it off, and it slides into him
+<Cite replay="fidelity/replays/trap-smash-random-throw.txt" />. A trap that slides at the player throws him toward
+it too, from his right, and goes on over him <Cite replay="fidelity/replays/trap-smash-crush.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of both replays pin the throws. No option turns it off.

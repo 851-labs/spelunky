@@ -113,7 +113,7 @@ A Shopkeeper waiting for a thief (below) is on patrol: he stands for 20 to 50 st
 way or the other, at <Stat id="shopkeeper.walk-speed" />, and stands again
 <Cite gml="objects/oShopkeeper/step.gml:283-336" />. His walk checks for a wall at his head's height in front
 of him, not for a floor, so in open ground it stops after one step and he coasts to a halt: he shuffles rather
-than walks <Cite gml="objects/oShopkeeper/step.gml:309-328" /> <Cite clip="shopkeeper/patrol" /> <Cite quirk="1" />
+than walks ([[shopkeeper-patrol-one-step]]) <Cite gml="objects/oShopkeeper/step.gml:309-328" /> <Cite clip="shopkeeper/patrol" /> <Cite quirk="1" />
 <Cite replay="fidelity/replays/enemy-shopkeeper-patrol-one-step.txt" /> <Cite clip="quirks/shopkeeper-patrol-one-step" />. He turns on
 the player who comes nearer than <Stat id="shopkeeper.sight-range" /> (and isn't more than 16 pixels below
 his middle), or who is right above or below him <Cite gml="objects/oShopkeeper/step.gml:87-97" />. In the clip, a
@@ -204,7 +204,7 @@ The Shopkeeper has <Stat id="shopkeeper.hp" /> <Cite gml="objects/oShopkeeper/cr
 | [[spikes\|Spikes]], falling onto them | Kills him | <Cite gml="objects/oEnemy/step.gml:108-128" /> |
 | A block, inside one | Kills him | <Cite gml="objects/oShopkeeper/step.gml:24-63" /> |
 
-A stomp while the player is still rising takes nothing, though it stuns him <Cite quirk="1" />. Killing a
+A stomp while the player is still rising takes nothing, though it stuns him ([[yeti-stomp-rising]]) <Cite quirk="1" />. Killing a
 Shopkeeper makes the player a murderer for the rest of the game, and so does his death by anything else,
 [[spikes|Spikes]] included, which counts as the player's kill ([[accidental-murder]]) <Cite gml="objects/oShopkeeper/step.gml:479-503" />
 <Cite quirk="1" /> <Cite replay="fidelity/replays/shop-seed-35-spikes-murderer.txt" />. In the clip, the Shopkeeper

@@ -107,7 +107,7 @@ When the player touches the Yeti King without landing on it, and isn't invincibl
 <Stat id="yeti-king.damage" />, is knocked away from it (and upward, if he's above it), and blinks,
 invincible, for 30 steps (1 second) <Cite gml="objects/oYetiKing/collision_oCharacter.gml:16-33" />. That's
 on the game's own levels only: in a custom level, the touch knocks him back and costs nothing
-<Cite gml="objects/oYetiKing/collision_oCharacter.gml:27-31" /> <Cite gml="scripts/isRealLevel.gml:7-8" /> <Cite quirk="1" />. So the
+([[yeti-king-touch-custom-level]]) <Cite gml="objects/oYetiKing/collision_oCharacter.gml:27-31" /> <Cite gml="scripts/isRealLevel.gml:7-8" /> <Cite quirk="1" />. So the
 clip is from a real Yeti lair: the Yeti King yells at the crouching player, who then walks into it, drops from
 4 hearts to 2 and is knocked away from it, blinking <Cite clip="yeti-king/swat" />.
 
@@ -179,7 +179,7 @@ In custom levels, it's the [[level-editor|level editor]]'s tile `Y`
 ## Trivia
 
 - Its kill is added to the player's lifetime tally even in a custom level, which no other Ice Caves
-  monster's is, while its damage to the player is skipped there
+  monster's is, while its damage to the player is skipped there ([[yeti-king-touch-custom-level]])
   <Cite gml="objects/oYetiKing/step.gml:41-46" /> <Cite gml="objects/oYetiKing/collision_oCharacter.gml:27" /> <Cite quirk="1" />.
 - Its touch event begins with a comment copied from the code most monsters share, which it replaces:
 

@@ -1,0 +1,89 @@
+---
+slug: compass-arrow-off-screen
+title: The Compass's arrow off the screen
+type: quirk
+categories: [quirks]
+aliases: [arrow-off-screen, missing-exit-arrow]
+card: { sprite: sCompassDown }
+lede: >-
+  The Compass's arrow off the screen is a quirk of Spelunky Classic in which the Compass's arrow for an exit
+  above the screen is drawn above it, out of sight.
+quirk:
+  status: "GML + Oracle (the view); GML (the drawing)"
+  where: scripts/scrDrawHUD.gml:44-76
+  pinned_by: fidelity/replays/item-seed-1-compass-olmec-lair.txt
+  entry: "1"
+  rows:
+    - The Compass's arrow for an exit above the screen is off it.
+relations:
+  related: [compass, olmecs-lair]
+clips: [quirks/compass-arrow-off-screen]
+faq:
+  - q: Why does the Compass's arrow disappear in Olmec's Lair?
+    a: >-
+      The [[compass|Compass]] draws its side arrows at the exit's height on the screen. In
+      [[olmecs-lair|Olmec's Lair]], near the bottom left, the exit is above the screen, so the arrow is drawn
+      above it too, all but a sliver.
+  - q: Can the Compass's arrow point up?
+    a: >-
+      No. It has arrows that point down and to the sides, and none that points up. An exit straight above the
+      screen gets no arrow at all.
+  - q: Does this happen on ordinary levels?
+    a: >-
+      No. A level's exit is always in its bottom row of rooms, and the screen can't go lower than that, so the
+      exit is never above it. Only Olmec's Lair, whose exit the game places by hand, goes deeper than its exit.
+sources:
+  - scripts/scrDrawHUD.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+The [[compass|Compass]] points to the exit with an arrow on the edge of the screen: along the bottom for an
+exit below it, and on the left or right edge for one to the side, at the exit's height. Nothing stops that
+height from being above the screen. Then the arrow is drawn there too, where no one can see it.
+
+## What happens
+
+In [[olmecs-lair|Olmec's Lair]], the player picks up a Compass, and its arrow points right, at the top of the
+screen, toward the exit. He drops into the bottom left of the lair, the screen follows him down, and the
+arrow goes up off its top, all but a sliver <Cite clip="quirks/compass-arrow-off-screen" />.
+
+<Clip id="quirks/compass-arrow-off-screen" />
+
+## Why
+
+The HUD draws a down arrow for an exit more than a screen's height below the view's top
+<Cite gml="scripts/scrDrawHUD.gml:48-65" />. For any other exit, one to the left or right gets a side arrow,
+drawn at the exit's `y` less the view's:
+
+```gml scripts/scrDrawHUD.gml:66-75
+        else if (global.exitX < view_xview[0])
+        {
+            if (global.messageTimer > 0) draw_sprite(sCompassSmallLeft, -1, 0, global.exitY-view_yview[0]);
+            else draw_sprite(sCompassLeft, -1, 0, global.exitY-view_yview[0]);
+        }
+        else if (global.exitX > view_xview[0]+320-16)
+        {
+            if (global.messageTimer > 0) draw_sprite(sCompassSmallRight, -1, 304, global.exitY-view_yview[0]);
+            else draw_sprite(sCompassRight, -1, 304, global.exitY-view_yview[0]);
+        }
+```
+
+For an exit above the view, that's a negative `y`, above the top of the screen; one straight above gets no
+arrow at all. On a generated level the exit is in the bottom row of rooms, which the view can't go below. In
+Olmec's Lair the HUD sets the exit itself, at (640, 544) <Cite gml="scripts/scrDrawHUD.gml:44" />, and the
+lair goes deeper: at its bottom left, with the view's top at y 553 to 556, the right arrow is drawn at y -9
+to -12 <Cite quirk="1" />.
+
+## Reproducing it
+
+Carry a Compass into Olmec's Lair and go down into its bottom left: the arrow that points right to the exit
+goes off the top of the screen. With seed 1, the lair has a free Compass of its own, buried in a block by the
+left wall that Olmec's slams dig through. The replay picks it up, with the view's top at y 536 to 539 and the
+arrow at y 5 to 8, then drops into the bottom left, where the view follows him down to 556
+<Cite replay="fidelity/replays/item-seed-1-compass-olmec-lair.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the view's position, which places the
+arrow. No option turns it off.

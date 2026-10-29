@@ -1,0 +1,103 @@
+---
+slug: olmec-lava-left-wall
+title: Olmec sitting in the lava
+type: quirk
+categories: [quirks]
+aliases: [wont-drown, lava-left-wall]
+card: { sprite: sLavaTop }
+lede: >-
+  Olmec sitting in the lava is a quirk of Spelunky Classic in which Olmec, dug down into the lava by the left
+  wall of his lair, sits in it without drowning.
+quirk:
+  status: GML + Oracle
+  where: objects/oOlmec/step.gml:35-43
+  pinned_by: fidelity/replays/ending-seed-1.txt
+  entry: "1"
+  rows:
+    - Olmec at the left wall sits in the lava without drowning.
+relations:
+  related: [olmec, lava, olmecs-lair, beating-olmec]
+clips: [quirks/olmec-lava-left-wall]
+faq:
+  - q: Why won't Olmec die in the lava?
+    a: >-
+      If his slams dig him into the [[lava|lava]] by the left wall of [[olmecs-lair|his lair]], both of his
+      checks for lava test a point inside the wall, where there's never any. He sits in it, out of sight, until a
+      hop drifts him off the wall.
+  - q: How do you get Olmec off the left wall?
+    a: >-
+      Stand to his right, past his right side, as he hops: his hops drift him toward the player, and only a
+      player that far right makes him drift right. Off the wall, he stops, sinks and dies.
+  - q: Can Olmec stay in the lava for good?
+    a: >-
+      Yes. A player who stays over him keeps him there as long as he likes, as one run does from a rope above
+      him, through two hops. By the wall, the player can't get to his left.
+sources:
+  - objects/oOlmec/step.gml
+  - objects/oOlmec/create.gml
+  - scripts/isCollisionLeft.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+[[olmec|Olmec]] can only die in [[lava|lava]], when his slams have dug him down through the floor of his lair
+into it ([[beating-olmec|Beating Olmec]]). By the lair's left wall, they dig him into it all the same, but
+there it can't kill him: he sits on the lava's floor, out of sight, and goes on hopping out of it and landing
+back in it unharmed.
+
+## What happens
+
+Olmec's last slam takes him down by the left wall of his lair into the lava, where he sits out of sight
+without drowning. When he hops out of it and drifts right, toward the player, off the wall, he starts to sink
+<Cite clip="quirks/olmec-lava-left-wall" />.
+
+<Clip id="quirks/olmec-lava-left-wall" />
+
+## Why
+
+Olmec tests for lava at two points on his left edge, his `x`: under his feet, which starts him drowning, and
+over his top, which kills him:
+
+```gml objects/oOlmec/step.gml:35-43
+if (collision_point(x, y+64, oLava, 0, 0)) status = DROWNING;
+
+if (collision_point(x, y-2, oLava, 0, 0))
+{
+    global.enemyKills[21] += 1;
+    oFinalBoss.olmecDead = true;
+    global.kills += 1;
+    instance_destroy();
+}
+```
+
+But his body starts 2 pixels right of `x` <Cite gml="objects/oOlmec/create.gml:3" />, and his step bumps him
+a pixel right while his body touches a wall on its left <Cite gml="scripts/isCollisionLeft.gml:6-10" />:
+
+```gml objects/oOlmec/step.gml:22-27
+if (isCollisionLeft(1))
+{
+    x += 1;
+    xVel = 0;
+    //if (xVel < 0) xVel = -xVel * 0.8;
+}
+```
+
+So drifting into the left wall, he comes to rest at x 15, his body a pixel off the wall and his `x` in the
+wall's column, x 0 to 15, where neither point is ever lava. Only a hop's drift takes him off it, and in the
+air he drifts right only if the player is past his right side on the step his drift is decided
+<Cite gml="objects/oOlmec/step.gml:104-111" />. With the player over him he doesn't drift, and the player
+can't be left of him there <Cite quirk="1" />.
+
+## Reproducing it
+
+Let Olmec's slams dig him down by the left wall of his lair, and stay over him as he hops. The replay of a whole
+game with seed 1 shows it: his last slam lands him in the lava at x 15, on its floor, his top 32 pixels under
+its surface. His `x` stays 15 through a hop that, with the player to his right, drifts him right, and he starts
+to drown 2 pixels off the wall <Cite replay="fidelity/replays/ending-seed-1.txt" />. Another run keeps him there
+longer, with the player on a rope above him through two hops, until a third, with the player to his right,
+drifts him off <Cite replay="fidelity/replays/olmec-door-block-crush-seed-1.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of both replays pin his position and the step he starts to
+drown. No option turns it off.

@@ -1,0 +1,97 @@
+---
+slug: yeti-stomp-rising
+title: Stomps that take nothing on the way up
+type: quirk
+categories: [quirks]
+aliases: [rising-stomp, sixteen-step-stomp, yeti-stomp-sixteen-steps]
+card: { sprite: sYetiLeft }
+lede: >-
+  Stomps that take nothing on the way up is a quirk of Spelunky Classic in which stomping a Yeti, the Yeti King
+  or a Shopkeeper while rising takes no hit points.
+quirk:
+  status: GML + Oracle
+  where: objects/oYeti/collision_oCharacter.gml:6-13
+  pinned_by: fidelity/replays/enemy-yeti-stomp-rising.txt
+  entry: "1"
+  rows:
+    - Stomping a Yeti, the Yeti King or a Shopkeeper on the way up takes nothing.
+relations:
+  related: [yeti, yeti-king, shopkeeper, stomping, spike-shoes]
+clips: [quirks/yeti-stomp-rising, quirks/yeti-stomp-sixteen-steps]
+faq:
+  - q: Why didn't stomping the Yeti hurt it?
+    a: >-
+      A stomp counts while the player is jumping as well as falling, but a [[yeti|Yeti]]'s takes hit points by
+      how long he has been falling, rounded up. Rising, that's 0 steps, so it takes nothing: the Yeti is stunned,
+      and he bounces off.
+  - q: Which monsters does it happen to?
+    a: >-
+      The Yeti, the [[yeti-king|Yeti King]] and the [[shopkeeper|Shopkeeper]]. Most other monsters' stomps
+      take 1 hit point, and 1 more for every 16 steps of falling, so one on the way up still takes 1.
+  - q: Do Spike Shoes help?
+    a: >-
+      Not on the way up: [[spike-shoes|Spike Shoes]] triple a stomp, and three times nothing is nothing.
+sources:
+  - objects/oYeti/collision_oCharacter.gml
+  - objects/oYetiKing/collision_oCharacter.gml
+  - objects/oShopkeeper/collision_oCharacter.gml
+  - objects/oEnemy/collision_oCharacter.gml
+  - objects/oPlayer1/step.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+A [[stomping|stomp]] takes hit points by how long the player has been falling. Most monsters' stomps take 1, and
+1 more for every 16 steps of falling. A [[yeti|Yeti]]'s, the [[yeti-king|Yeti King]]'s and a
+[[shopkeeper|Shopkeeper]]'s take 1 for every 16 steps, rounded up, which is 0 when he hasn't been falling at all:
+when he stomps one while still rising.
+
+## What happens
+
+The player jumps at a Yeti, and his feet catch its head while he is still rising: the game counts a stomp, which
+stuns the Yeti, but it keeps all five of its hit points <Cite clip="quirks/yeti-stomp-rising" />.
+
+<Clip id="quirks/yeti-stomp-rising" />
+
+The same rounding shows at exactly 16 steps of falling. The player hops off a ledge and lands on a Yeti on his
+16th step: it loses one of its five hit points, where the same drop onto a [[caveman|Caveman]] takes two of its
+three <Cite clip="quirks/yeti-stomp-sixteen-steps" />.
+
+<Clip id="quirks/yeti-stomp-sixteen-steps" />
+
+## Why
+
+The Yeti's stomp, which the Yeti King's and the Shopkeeper's copy, takes `ceil(fallTimer/16)` hit points, three
+times that in Spike Shoes:
+
+```gml objects/oYeti/collision_oCharacter.gml:6-13
+else if (not other.dead and not other.stunned and (other.state == 15 or other.state == 16) and other.y < y+5 and not other.swimming)
+{
+    if (status < STUNNED)
+    {
+        other.yVel=-6-0.2*other.yVel
+        if (global.hasSpikeShoes) { hp -= (3 * ceil(other.fallTimer/16)); instance_create(other.x, other.y+8, oBlood); }
+        else hp -= (1 * ceil(other.fallTimer/16));
+        other.fallTimer = 0;
+```
+
+The Yeti King's and the Shopkeeper's are the same <Cite gml="objects/oYetiKing/collision_oCharacter.gml:6-11" />
+<Cite gml="objects/oShopkeeper/collision_oCharacter.gml:5-12" />. Most other monsters' stomp takes
+`floor(fallTimer/16)+1` <Cite gml="objects/oEnemy/collision_oCharacter.gml:9-10" />. `fallTimer` counts the
+player's steps of falling, and his step sets it to 0 on every step he isn't falling
+<Cite gml="objects/oPlayer1/step.gml:254-256" /> <Cite gml="objects/oPlayer1/step.gml:290-292" />, but a stomp
+needs only the player jumping (`state` 15) or falling (16). So a stomp while he's still rising, his middle less than 5
+pixels below the Yeti's top (the Yeti King's 8), takes 0. At an exact multiple of 16 steps it takes a step's worth less
+than other monsters' stomps: 1, not 2, after 16 steps; at any other length the two agree <Cite quirk="1" />.
+
+## Reproducing it
+
+Jump into a Yeti so that the player's feet reach its head on the way up. The replay of the first clip's staged
+scene, on a custom level, has the player jump as a Yeti walks up to him: he stomps it on the way up, and it's
+stunned with all 5 hit points <Cite replay="fidelity/replays/enemy-yeti-stomp-rising.txt" />. The second's has
+him land on a Yeti on his 16th step of falling, which takes it from 5 hit points to 4, and the same drop onto a
+Caveman takes it from 3 to 1 <Cite replay="fidelity/replays/enemy-yeti-stomp-sixteen-steps.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of both replays pin the hit points. No option turns it off.
