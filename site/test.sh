@@ -21,8 +21,8 @@ trap cleanup EXIT
 
 # A stand-in for scripts/web --package's tarball: the page, its manifest, and a content-hashed v/HASH/.
 mkdir -p "$tmp/web/v/0123456789abcdef"
-# Its page can be embedded, and seeks, as the wiki's clips ask (src/wiki/live-clip.tsx).
-echo '<!doctype html><meta name="spelunky-embed" content="1"><meta name="spelunky-embed-seek" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
+# Its page can be embedded, seeks and plays on phones, as the wiki's clips ask (src/wiki/live-clip.tsx).
+echo '<!doctype html><meta name="spelunky-embed" content="1"><meta name="spelunky-embed-seek" content="1"><meta name="spelunky-embed-held-sound" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
 echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
@@ -439,7 +439,7 @@ contains '<title>Snake – Spelunky Classic fan wiki</title>' \
   "poster=\"$media_url/clips/snake/bite/poster.png\"" \
   "<source src=\"$media_url/clips/snake/bite/clip.webm\" type=\"video/webm\"/>" \
   "<source src=\"$media_url/clips/snake/bite/clip.mp4\" type=\"video/mp4\"/>" \
-  '</video><div class="clip-live"><button type="button" tabindex="0" aria-disabled="false" class="clip-button">Play live</button>' \
+  '</video><div class="clip-live" data-phones=""><button type="button" tabindex="0" aria-disabled="false" class="clip-button">Play live</button>' \
   '<figure class="clip" id="clip-snake-stomp"><div class="clip-missing"' \
   "$audio_credit" \
   'Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC'

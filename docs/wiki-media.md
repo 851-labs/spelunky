@@ -450,8 +450,15 @@ its first frame, with buttons to pause it, take control from the replay, restart
 - **Loaded on the click.** The page has only the button. Its player is a chunk of its own, and the game is a
   same-origin iframe of `/play/?replay=URL&from=F&embed`, made then: `/play/`'s own page and files (about
   13 MB the first time, most of it the wasm and the sounds, then cached for good), none of them in the
-  page's JS. `site/test-bundle.mjs` checks no page loads the player up front. A phone keeps the video (the
-  CSS hides the button where the pointer is coarse): the game needs a keyboard.
+  page's JS. `site/test-bundle.mjs` checks no page loads the player up front.
+- **Phones.** A phone gets the clip to watch, pause, scrub and restart, without Take control: the game needs
+  a keyboard, and on-screen buttons for its eight keys would cover most of a phone-sized clip. The controls
+  are a finger's size where the pointer is coarse. The video stays where the game can't run well: a browser
+  without WebAssembly or WebGL2, a reader who asks to save data (`Save-Data`: the game is megabytes), and a
+  device that can't keep up. The player times the frames the game reports while the replay plays in view,
+  past its first moments and any seek's, and if the median comes at under 20 a second over three seconds,
+  it goes back to the video and says why, still offering the button. Desktops too: the check is for any
+  device the game can't keep up on.
 - **The start frame.** A scene's frame 0 is its replay's `SCENE_START` (241), so the page asks for
   `from=241+from` (`site/src/seo/media-package.ts`). The app runs the frames before it unshown, as fast as
   they go (`app::window::Embed`), so the clip's first frame shows after a moment, the poster covering the
@@ -484,7 +491,10 @@ its first frame, with buttons to pause it, take control from the replay, restart
   plays a replay from the boot, without the controls. One that seeks says that too
   (`<meta name="spelunky-embed-seek">`, `WIKI_LIVE_SEEK`): only then does the player have its slider, and
   Restart without loading the game again. The player also waits for the game to say how many frames the
-  clip has.
+  clip has. And one that starts its sound at a tap where the browser held it (Safari, which every browser on
+  iOS is) says so (`<meta name="spelunky-embed-held-sound">`, `WIKI_LIVE_PHONES`, only with seeking, whose
+  frames the player times): only then do phones get the button. Before, the CSS hides it where the pointer
+  is coarse.
 
 ## Source
 
