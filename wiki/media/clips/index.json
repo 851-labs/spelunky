@@ -6811,6 +6811,42 @@
       "width": 640
     },
     {
+      "audio_hash": "49be1686d949044b",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "With 3 seconds left in the Moon Room, the player runs off the ledges and lands on three swaying targets in a row. Each comes back as a UFO above the spot where it was stomped, worth 3, the middle and far ones well left of their own paths, before the last bounce takes him onto the Spikes.",
+      "duration": 5.0,
+      "encoding": "14d835187fbb92aa",
+      "files": {
+        "mp4": "quirks/moon-room-stomped-targets/clip.mp4",
+        "poster": "quirks/moon-room-stomped-targets/poster.png",
+        "replay": "quirks/moon-room-stomped-targets/replay.txt",
+        "webm": "quirks/moon-room-stomped-targets/clip.webm"
+      },
+      "fps": 30,
+      "frames": 150,
+      "frames_hash": "072cfadb3a22800c",
+      "from": 2550,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/moon-room-stomped-targets",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 2685,
+      "replay_from": 2550,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/bonus-moon-stomped-targets.txt"
+      },
+      "spec": "wiki/clips/quirks/moon-room-stomped-targets.toml",
+      "state_hash": "48f1557175fbb545",
+      "states_hash": "ee6088c21bdd6cdc",
+      "title": "Stomped targets come back where they swayed to",
+      "to": 2699,
+      "width": 640
+    },
+    {
       "audio_hash": "2b6d4047bc7b92a2",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "Seed 9's level 8, two levels after the Black Market. The player walks left along the top row until the room beside the path, where a shop could stand, fills the left of the view: it's an ordinary Jungle room, and the level has no shop, though its shop roll passed.",
@@ -7528,6 +7564,42 @@
       "states_hash": "88b0bb7e70675f44",
       "title": "A thrown monster pushes with all its speed, a thrown rock with 0.3",
       "to": 489,
+      "width": 640
+    },
+    {
+      "audio_hash": "7015d6511559d84b",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "On the game's first run, the title's opening plays through and the player walks to the START door: no hand points at it, and no PRESS UP TO ENTER! shows. He goes into the high scores room and comes back out, and now the hand is over the START door, with the text while he stands under it.",
+      "duration": 16.666666666666668,
+      "encoding": "e5c13fa693ca872e",
+      "files": {
+        "mp4": "quirks/title-no-hint-hand/clip.mp4",
+        "poster": "quirks/title-no-hint-hand/poster.png",
+        "replay": "quirks/title-no-hint-hand/replay.txt",
+        "webm": "quirks/title-no-hint-hand/clip.webm"
+      },
+      "fps": 30,
+      "frames": 500,
+      "frames_hash": "dadef63d565970f2",
+      "from": 430,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/title-no-hint-hand",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 580,
+      "replay_from": 430,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/title-first-run-hint-hand.txt"
+      },
+      "spec": "wiki/clips/quirks/title-no-hint-hand.toml",
+      "state_hash": "203aaa7fed776831",
+      "states_hash": "2e4c3253a4d84dbb",
+      "title": "No hint hand after the title's opening",
+      "to": 929,
       "width": 640
     },
     {

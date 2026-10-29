@@ -1,0 +1,24 @@
+# The wiki clip quirks/title-no-hint-hand's replay (wiki/clips/quirks/title-no-hint-hand.toml), made by wiki-clips: fidelity/replays/title-first-run-hint-hand.txt up to the clip's last
+# frame, 929.
+seed 777
+frames 930
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+600 press right
+616 release right
+640 press up
+645 release up
+684 press right
+694 release right
+704 press left
+714 release left
+744 press up
+749 release up
+800 press left
+816 release left
+900 press up
+905 release up
