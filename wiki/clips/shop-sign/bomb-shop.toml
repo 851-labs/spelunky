@@ -1,0 +1,7 @@
+title = "A shop's sign"
+description = "In the Mines, the player drops down beside a Bomb Shop's sign, a board with a bomb painted on it hanging over the shop's entrance, and walks in; the shopkeeper welcomes him."
+replay = "fidelity/replays/shop-seed-17-bomb-buy.txt"
+from = 1840
+to = 1940
+poster = 1870
+story = "message=\"WELCOME TO TONY'S BOMB SHOP!\"@1885"
