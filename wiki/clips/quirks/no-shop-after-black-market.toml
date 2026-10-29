@@ -1,0 +1,8 @@
+title = "No shop after the Black Market"
+description = "Seed 9's level 8, two levels after the Black Market. The player walks left along the top row until the room beside the path, where a shop could stand, fills the left of the view: it's an ordinary Jungle room, and the level has no shop, though its shop roll passed."
+# Cut from a replay made for it, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/jungle-seed-9-market-no-shop.txt"
+from = 3112
+to = 3527
+poster = 3460
+story = "room=rLevel@3112 oPlayer1.x<240@3370..3400 !+oShopkeeper !oPlayer1.y>144@3370.. !plife<4"
