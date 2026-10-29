@@ -213,7 +213,8 @@ for (const [alias, slug] of aliases) {
     if (files.has(file)) fail(`alias ${alias} (of ${slug}) is ${file}, which it would hide`);
   }
 }
-const ALIAS_URL = new RegExp(`${SITE_URL.replaceAll(".", "\\.")}/wiki/([a-z0-9-]+)(?![a-z0-9-])`, "g");
+// Absolute or from the root (a JSON-LD url, a Markdown link), not after another host.
+const ALIAS_URL = new RegExp(`(?<![\\w./-])(?:${SITE_URL.replaceAll(".", "\\.")})?/wiki/([a-z0-9-]+)(?![a-z0-9-])`, "g");
 const sitemaps = [...files].filter((file) => /^sitemap[\w-]*\.xml$/.test(file));
 if (sitemaps.length === 0) fail(`no sitemap in ${dist}`);
 const markdown = [...files].filter((file) => /^wiki\/[^/]+\.md$|^llms(-full)?\.txt$/.test(file));

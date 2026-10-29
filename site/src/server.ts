@@ -58,7 +58,8 @@ export default {
     // /wiki/jar, not by way of /wiki/pot or /wiki/jar/. The build fails on an alias that's a page's slug, so none
     // hides a page. No-cache, as the pages are: a browser asks again, so an alias that becomes a page of its own
     // shows up at once.
-    const alias = ALIAS.exec(url.pathname);
+    // Only a GET or HEAD, as any other method of a page is the asset store's 405.
+    const alias = (request.method === "GET" || request.method === "HEAD") && ALIAS.exec(url.pathname);
     const page = alias && aliases.get(alias[1]);
     if (page) {
       url.pathname = `/wiki/${page}${alias[2] === ".md" ? ".md" : ""}`;
