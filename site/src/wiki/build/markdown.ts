@@ -53,8 +53,8 @@ const list = (items: MdNode[][]): MdNode => ({
   children: items.map((children) => ({ type: "listItem", spread: false, children })),
 });
 const footnote = (n: number): MdNode => ({ type: "footnoteReference", identifier: String(n), label: String(n) });
-// A gml/ path or citation, linking to its lines in the source viewer where the page's does (components.tsx's
-// SourceLink).
+// A path in code style, linking where the page's does (components.tsx's SourceLink): a gml/ path or citation to
+// its lines in the source viewer, a replay to it on GitHub.
 const source = (target: string, href: string | undefined): MdNode => (href ? link(absoluteUrl(href), code(target)) : code(target));
 
 // A site path or a page's own anchor as an absolute URL: the files are read away from the site.
@@ -216,7 +216,7 @@ export function pageMarkdown(meta: PageMeta, parts: PageMarkdown): MdNode[] {
       type: "footnoteDefinition",
       identifier: String(ref.n),
       label: String(ref.n),
-      children: [paragraph(...reference(ref))],
+      children: [paragraph(...reference(ref, path))],
     });
   }
   nodes.push(heading(3, "Source code"));
@@ -241,9 +241,9 @@ function infobox(meta: PageMeta, fragments: Record<string, MdNode>): MdNode[] {
   }
   // A quirk box's fields, as the layout's QuirkRows has them: its rows quoted after their section's link.
   if (meta.quirk) {
-    const { status, where, whereHref, pinned_by, entry, rows: quoted, section, href } = meta.quirk;
-    rows.push([[text("Status")], [text(status)]], [[text("Where")], [source(where, whereHref)]], [[text("Pinned by")], [code(pinned_by)]]);
-    const quotes = quoted.map((row) => text(` “${row}”`));
+    const { status, where, whereHref, pinned_by, pinnedHref, entry, rows: quoted, rowHrefs, section, href } = meta.quirk;
+    rows.push([[text("Status")], [text(status)]], [[text("Where")], [source(where, whereHref)]], [[text("Pinned by")], [source(pinned_by, pinnedHref)]]);
+    const quotes = quoted.flatMap((row, i) => [text(" "), link(rowHrefs[i], text(`“${row}”`))]);
     rows.push([[text(quoted.length === 1 ? "Row" : "Rows")], [link(href, text(`docs/quirks.md §${entry}, ${section}`)), text(":"), ...quotes]]);
   }
   for (const relation of meta.relations) rows.push([[text(relation.label)], relationLinks(relation.links)]);
@@ -274,17 +274,37 @@ function relationLinks(links: RelationLink[]): MdNode[] {
   ]);
 }
 
-// A citation, as References lists it (layout.tsx's Reference).
-function reference({ kind, target, href }: Reference): MdNode[] {
+// A citation, as References lists it (layout.tsx's Reference), on the page at `page` (its path), whose own clips
+// it links to.
+function reference({ kind, target, href, clips, quirk }: Reference, page: string): MdNode[] {
+  const clipLink = (id: string, title: string) => link(absolute(`#clip-${id.replaceAll("/", "-")}`, page), text(title));
   switch (kind) {
     case "gml":
       return [source(target, href)];
     case "replay":
-      return [text("Replay "), code(target)];
+      if (!clips) return [text("Replay "), source(target, href)];
+      return [
+        text("Replay "),
+        source(target, href),
+        text(clips.length === 1 ? ", which the clip " : ", which the clips "),
+        ...clips.flatMap((clip, i) => [...(i === 0 ? [] : [text(i === clips.length - 1 ? " and " : ", ")]), clipLink(clip.id, clip.title)]),
+        text(clips.length === 1 ? " plays" : " play"),
+      ];
     case "clip":
-      return [text(`Clip ${target}`)];
-    case "quirk":
-      return [text(`Quirk ${target} (docs/quirks.md)`)];
+      return [text("Clip "), clipLink(target, target)];
+    case "quirk": {
+      if (!quirk) return [text(`docs/quirks.md §${target}`)];
+      if (quirk.rows.length === 0) return [link(quirk.href, text(`docs/quirks.md §${target}, ${quirk.section}`))];
+      const section = quirk.rows.length === 1 && quirk.rows[0].page ? quirk.rows[0].href : quirk.href;
+      return [
+        ...quirk.rows.flatMap((row, i) => [
+          ...(i === 0 ? [] : [text(" ")]),
+          link(row.page ? absoluteUrl(`/wiki/${row.page.slug}`) : row.href, text(`“${row.name}”`)),
+        ]),
+        text(", "),
+        link(section, text(`docs/quirks.md §${target}`)),
+      ];
+    }
     case "room":
       return [code(target), text(", as the room editor placed it")];
   }

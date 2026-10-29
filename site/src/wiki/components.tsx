@@ -22,8 +22,8 @@ export function Cite({ n }: { n: string }) {
   );
 }
 
-// A gml/ path or citation, linking to its lines in the source viewer when the media have them (compile.ts's
-// sourceHref), and as text when they don't.
+// A path in code style: a gml/ path or citation, linking to its lines in the source viewer when the media have
+// them (compile.ts's sourceHref), and as text when they don't; or a replay, linking to it on GitHub.
 export function SourceLink({ href, children }: { href?: string; children: string }) {
   return href ? (
     <a href={href}>

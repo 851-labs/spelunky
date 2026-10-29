@@ -131,7 +131,10 @@ read before the app's build, which gets `WIKI_MEDIA_DIR` (`wiki/media`, for the 
 the files), `WIKI_MEDIA_LOG` (a file of `git log --name-only` over the clips' videos, which dates each clip:
 below) and `WIKI_MEDIA_DATE` (when they last changed: the date of the last commit to `wiki/media`; a
 `--wiki-media` directory's modification time, if it isn't a git repository of its own, which has no log); none is set
-under `npm run dev`. The wiki's pipeline and `virtual:wiki-media` read them (SEO, below).
+under `npm run dev`. The wiki's pipeline and `virtual:wiki-media` read them (SEO, below). It also gets
+`WIKI_COMMIT`, the checkout's commit (`git rev-parse HEAD`: Workers Builds checks out the one it builds), which the
+wiki's links to the repo's files on GitHub (a cited replay, a `docs/quirks.md` row) are pinned to
+(`docs/wiki-style.md`, "Citing the code"); `npm run dev` links them at `main`.
 
 **Clip dates.** A clip's `uploadDate` (its `VideoObject`'s, and the video sitemap's publication date) is when
 its videos last changed: the newest commit that changed its `clip.mp4` or `clip.webm`, so a re-rendered clip

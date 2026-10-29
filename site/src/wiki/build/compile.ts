@@ -4,7 +4,7 @@
 // its citations' numbers, its clips' titles (from wiki/clips/) and files and its sprites (from the
 // wiki media), its links' targets and its relations (relations.ts). Anything that doesn't resolve is an
 // error, and any error fails the build.
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { compile } from "@mdx-js/mdx";
 import remarkGfm from "remark-gfm";
@@ -23,9 +23,10 @@ import type { Category } from "./categories.ts";
 import { placesFound, readPlanned, readRelations, relationRank, resolveRelations, targets as wikiTargets } from "./relations.ts";
 import type { PageRelations, RelationList, Target } from "./relations.ts";
 import { makeHubs } from "./hubs.ts";
-import { checkQuirk, readQuirks } from "./quirks.ts";
+import { checkQuirk, findRow, noSection, readQuirks } from "./quirks.ts";
 import type { Hubs } from "./hubs.ts";
-import type { QuirkSection } from "./quirks.ts";
+import type { QuirkRow, QuirkSection } from "./quirks.ts";
+import { repoUrl } from "./repo.ts";
 import { markdownTree, pageMarkdown } from "./markdown.ts";
 import type { MdNode } from "./markdown.ts";
 import { ogRenderer } from "./og.ts";
@@ -58,8 +59,13 @@ export interface WikiOptions {
   clipsDir: string;
   // The relations' spec, the repo's wiki/data/relations.toml: the areas the navboxes group pages by.
   relationsSpec: string;
-  // The repo's docs/quirks.md, whose rows the quirk pages name (quirks.ts).
+  // The repo's docs/quirks.md, whose rows the quirk pages and quirk citations name (quirks.ts).
   quirksFile: string;
+  // The repo's checkout, which has the replays the pages cite, and the commit it's at (build.sh's WIKI_COMMIT),
+  // which the pages' links to its files on GitHub are pinned to (repo.ts): "main" where there's none to pin to
+  // (`npm run dev`).
+  repoDir: string;
+  commit: string;
   // The media, where they're served, when they last changed and the git log that dates each clip (build.sh's
   // WIKI_MEDIA_DIR, WIKI_MEDIA_URL, WIKI_MEDIA_DATE and WIKI_MEDIA_LOG), or null (`npm run dev`): then clips and
   // sprites render as placeholders, with a warning, and the pages have no media in their JSON-LD.
@@ -91,8 +97,23 @@ export interface Reference {
   n: number;
   kind: "gml" | "replay" | "clip" | "quirk" | "room";
   target: string;
-  // A gml citation's lines in the source viewer, when the media's gml/ has them (sourceHref).
+  // The docs/quirks.md row a quirk citation names by its opening (row=), if it names one.
+  row?: string;
+  // Where it links: a gml citation's lines in the source viewer, when the media's gml/ has them (sourceHref); a
+  // replay on GitHub, at the commit the site is built from (repo.ts).
   href?: string;
+  // A replay's clips on the page, the ones cut from it, which play it.
+  clips?: { id: string; title: string }[];
+  // A quirk citation's section of docs/quirks.md, linked on GitHub, and the rows it cites (quirkReference).
+  quirk?: { section: string; href: string; rows: QuirkRowLink[] };
+}
+
+// A docs/quirks.md row a citation cites: its opening, as the page names it, the row on GitHub, and the quirk
+// page that names it in its `rows`, if there is one and it isn't the citing page.
+export interface QuirkRowLink {
+  name: string;
+  href: string;
+  page?: { slug: string; title: string };
 }
 
 export interface ClipInfo {
@@ -191,9 +212,11 @@ export interface PageMeta {
   // The relations the infobox shows (relations.ts), and those See also does.
   relations: Relation[];
   seeAlso: Relation[];
-  // A quirk page's quirk box, with its docs/quirks.md section's title and link, and its `where`'s lines in
-  // the source viewer (sourceHref).
-  quirk: (NonNullable<Frontmatter["quirk"]> & { section: string; href: string; whereHref?: string }) | null;
+  // A quirk page's quirk box, with its docs/quirks.md section's title and link, its rows' links, its `where`'s
+  // lines in the source viewer (sourceHref) and its `pinned_by` replay on GitHub.
+  quirk:
+    | (NonNullable<Frontmatter["quirk"]> & { section: string; href: string; rowHrefs: string[]; whereHref?: string; pinnedHref?: string })
+    | null;
   clips: ClipInfo[];
   // The clips the body doesn't place, for the Gallery.
   gallery: string[];
@@ -287,9 +310,20 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     if (page) parsed.push(page);
   }
   checkAcrossPages(parsed, errors);
-  const quirks = readQuirks(options.quirksFile);
+  const quirks = readQuirks(options.quirksFile, options.commit);
+  // The quirk page that names each row, by the row, which a citation of the row links to.
+  const quirkPages = new Map<QuirkRow, { slug: string; title: string }>();
   for (const { page } of parsed) {
-    if (page.quirk) for (const error of checkQuirk(page.quirk, quirks)) errors.push(`${page.slug}.mdx: ${error}`);
+    if (!page.quirk) continue;
+    const quirkErrors = checkQuirk(page.quirk, quirks);
+    for (const error of quirkErrors) errors.push(`${page.slug}.mdx: ${error}`);
+    if (quirkErrors.length > 0) continue;
+    for (const name of page.quirk.rows) {
+      const row = findRow(quirks.get(page.quirk.entry)!, page.quirk.entry, name) as QuirkRow;
+      const other = quirkPages.get(row);
+      if (other) errors.push(`${page.slug}.mdx: quirk.rows: ${other.slug}.mdx names docs/quirks.md line ${row.line} too: one page a row`);
+      else quirkPages.set(row, { slug: page.slug, title: page.title });
+    }
   }
   const frontmatters = parsed.map((p) => p.page);
   const plan = readPlanned(options.plannedFile, errors);
@@ -301,7 +335,22 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
 
   const compiled: Compiled[] = [];
   for (const p of parsed) {
-    const ctx = { data, targets, relations, navboxes, clipsDir: options.clipsDir, liveClips: options.liveClips, quirks, media, seoMedia, source, warnings };
+    const ctx = {
+      data,
+      targets,
+      relations,
+      navboxes,
+      clipsDir: options.clipsDir,
+      liveClips: options.liveClips,
+      quirks,
+      quirkPages,
+      repoDir: options.repoDir,
+      commit: options.commit,
+      media,
+      seoMedia,
+      source,
+      warnings,
+    };
     const page = await compilePage(p, ctx, errors);
     if (page) compiled.push(page);
   }
@@ -425,13 +474,47 @@ function readAreas(path: string) {
   return (spec.area ?? []).map(({ slug, name }) => ({ slug, name }));
 }
 
-// A quirk page's box: its fields, and its docs/quirks.md section's title and link (loadWiki has checked the
-// section is there).
-function quirkBox(quirk: Frontmatter["quirk"], sections: Map<string, QuirkSection>, href: (cite: string) => string | undefined): PageMeta["quirk"] {
-  const section = quirk && sections.get(quirk.entry);
+// A quirk page's box: its fields, its docs/quirks.md section's title and link and its rows' (loadWiki has
+// checked they're there), and its `pinned_by` on GitHub when it's a replay (compilePage has checked it's there).
+function quirkBox(quirk: Frontmatter["quirk"], ctx: Context, href: (cite: string) => string | undefined): PageMeta["quirk"] {
+  const section = quirk && ctx.quirks.get(quirk.entry);
   if (!quirk || !section) return null;
   const whereHref = href(quirk.where);
-  return { ...quirk, section: section.title, href: section.href, ...(whereHref ? { whereHref } : {}) };
+  const rowHrefs = quirk.rows.map((name) => (findRow(section, quirk.entry, name) as QuirkRow).href);
+  const pinned = REPLAY.test(quirk.pinned_by);
+  return {
+    ...quirk,
+    section: section.title,
+    href: section.href,
+    rowHrefs,
+    ...(whereHref ? { whereHref } : {}),
+    ...(pinned ? { pinnedHref: repoUrl(ctx.commit, quirk.pinned_by) } : {}),
+  };
+}
+
+// A committed replay's path, as pages cite it (fidelity/replays/, or the settings program's fidelity/settings/).
+const REPLAY = /^fidelity\/(replays|settings)\/[a-z0-9][a-z0-9.-]*\.txt$/;
+
+// What's wrong with a replay a page cites, if anything: not a committed replay's path, or not in the checkout
+// (renamed or removed), which would link to nothing.
+function replayError(path: string, repoDir: string): string | null {
+  if (!REPLAY.test(path)) return "a committed replay's path (fidelity/replays/<name>.txt or fidelity/settings/<name>.txt)";
+  if (!existsSync(join(repoDir, path))) return "the repo has no such replay";
+  return null;
+}
+
+// A quirk citation's section and rows (Reference.quirk), linked: the row it names (row=); or, on a quirk page
+// citing its own section, the page's rows, which its text is about; or none, the section as a whole. A row a
+// quirk page names links to it, unless it's this page. compileFragment has checked the section and the row.
+function quirkReference(ref: Reference, page: Frontmatter, ctx: Context): NonNullable<Reference["quirk"]> {
+  const section = ctx.quirks.get(ref.target)!;
+  const names = ref.row !== undefined ? [ref.row] : page.quirk?.entry === ref.target ? page.quirk.rows : [];
+  const rows = names.map((name): QuirkRowLink => {
+    const row = findRow(section, ref.target, name) as QuirkRow;
+    const named = ctx.quirkPages.get(row);
+    return { name, href: row.href, ...(named && named.slug !== page.slug ? { page: named } : {}) };
+  });
+  return { section: section.title, href: section.href, rows };
 }
 
 // The media's gml/ tree's files and how many lines each has, by path in it (objects/oSnake/step.gml), or
@@ -593,6 +676,9 @@ interface Context {
   clipsDir: string;
   liveClips: LiveClips | null;
   quirks: Map<string, QuirkSection>;
+  quirkPages: Map<QuirkRow, { slug: string; title: string }>;
+  repoDir: string;
+  commit: string;
   media: MediaPackage | null;
   // The JSON-LD's view of the media (mediaJsonLd).
   seoMedia: WikiMedia | null;
@@ -607,6 +693,8 @@ interface PageState {
   name: string;
   page: Frontmatter;
   clips: Map<string, ClipInfo>;
+  // Its clips' replays (their specs' `replay`), by clip.
+  clipReplays: Map<string, string>;
   placed: Set<string>;
   references: Reference[];
   // Headings' anchors, which are unique on a page, starting with the layout's own.
@@ -672,6 +760,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     name,
     page,
     clips: new Map(),
+    clipReplays: new Map(),
     placed: new Set(),
     references: [],
     anchors: new Set(LAYOUT_ANCHORS),
@@ -685,13 +774,15 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
   const href = (cite: string) => sourceHref(cite, ctx.source, state.missing);
 
   for (const id of page.clips) {
-    const clip = readClip(ctx.clipsDir, id, ctx.media, ctx.liveClips);
-    if (typeof clip === "string") errors.push(`${name}: clips: ${clip}`);
+    const read = readClip(ctx.clipsDir, id, ctx.media, ctx.liveClips);
+    if (typeof read === "string") errors.push(`${name}: clips: ${read}`);
     else {
+      const { clip, replay } = read;
       // A spec whose clip isn't rendered yet (scripts/check fails a pull request for that: docs/wiki-media.md)
       // shows its title and description where it goes.
       if (ctx.media && !clip.files) ctx.warnings.push(`${name}: clip ${id} isn't in the wiki media yet`);
       state.clips.set(id, clip);
+      if (replay) state.clipReplays.set(id, replay);
     }
   }
 
@@ -779,6 +870,12 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     .sort((a, b) => Number(a.inverse) - Number(b.inverse) || relationRank(a.relation) - relationRank(b.relation))
     .map(shown);
   if (body.text === "" && errors.length === before) errors.push(`${name}: the page has no body`);
+  // A quirk box's replay links to it, as a citation of it does.
+  const pinned = page.quirk?.pinned_by;
+  if (pinned?.startsWith("fidelity/")) {
+    const error = replayError(pinned, ctx.repoDir);
+    if (error) errors.push(`${name}: quirk.pinned_by: ${pinned}: ${error}`);
+  }
   if (errors.length > before) return null;
 
   const meta: PageMeta = {
@@ -794,14 +891,23 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     infobox,
     relations,
     seeAlso,
-    quirk: quirkBox(page.quirk, ctx.quirks, href),
+    quirk: quirkBox(page.quirk, ctx, href),
     clips: [...state.clips.values()],
     gallery: page.clips.filter((id) => !state.placed.has(id)),
     audio: [...state.clips.values()].some((clip) => clip.audio),
     questions: (page.faq ?? []).map((f) => f.q),
     sections: state.sections,
     navboxes: page.categories.map((category) => ctx.navboxes.get(category)!),
-    references: state.references.map((ref) => {
+    references: state.references.map((ref): Reference => {
+      if (ref.kind === "replay") {
+        const clips = [...state.clips.values()].filter((clip) => state.clipReplays.get(clip.id) === ref.target);
+        return {
+          ...ref,
+          href: repoUrl(ctx.commit, ref.target),
+          ...(clips.length > 0 ? { clips: clips.map(({ id, title }) => ({ id, title })) } : {}),
+        };
+      }
+      if (ref.kind === "quirk") return { ...ref, quirk: quirkReference(ref, page, ctx) };
       const to = ref.kind === "gml" ? href(ref.target) : undefined;
       return to ? { ...ref, href: to } : ref;
     }),
@@ -866,16 +972,22 @@ function mediaJsonLd(media: WikiMedia | null, clips: ClipInfo[], image: SpriteIm
 const pick = ({ text, value, cite }: { text: string; value: string; cite: string[] }) => ({ text, value, cite });
 
 // A citation's note: the same source cited twice is the same note.
-function reference(state: PageState, kind: Reference["kind"], target: string): Reference {
-  let ref = state.references.find((r) => r.kind === kind && r.target === target);
+function reference(state: PageState, kind: Reference["kind"], target: string, row?: string): Reference {
+  let ref = state.references.find((r) => r.kind === kind && r.target === target && r.row === row);
   if (!ref) {
-    ref = { n: state.references.length + 1, kind, target };
+    ref = { n: state.references.length + 1, kind, target, ...(row === undefined ? {} : { row }) };
     state.references.push(ref);
   }
   return ref;
 }
 
-function readClip(clipsDir: string, id: string, media: MediaPackage | null, liveClips: LiveClips | null): ClipInfo | string {
+// A clip's spec as the page shows it, and the committed replay it's cut from (its `replay`), if it says.
+function readClip(
+  clipsDir: string,
+  id: string,
+  media: MediaPackage | null,
+  liveClips: LiveClips | null,
+): { clip: ClipInfo; replay: string | null } | string {
   let spec: Record<string, unknown>;
   try {
     spec = parseToml(readFileSync(join(clipsDir, `${id}.toml`), "utf8"));
@@ -895,7 +1007,7 @@ function readClip(clipsDir: string, id: string, media: MediaPackage | null, live
     webm: mediaUrl(media, `clips/${rendered.webm}`),
     poster: mediaUrl(media, `clips/${rendered.poster}`),
   };
-  return {
+  const clip: ClipInfo = {
     id,
     title,
     description,
@@ -906,6 +1018,7 @@ function readClip(clipsDir: string, id: string, media: MediaPackage | null, live
     audio: rendered?.audio ?? false,
     live: media && rendered ? clipLive(rendered.live, liveClips, (path) => mediaUrl(media, `clips/${path}`)) : null,
   };
+  return { clip, replay: typeof spec.replay === "string" ? spec.replay : null };
 }
 
 // A rendered clip's live play (ClipInfo.live), its replay's path made a URL by `url`: when the media have its
@@ -1179,7 +1292,7 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
     }
     case "Cite": {
       const kinds = ["gml", "replay", "clip", "quirk", "room"] as const;
-      allow(...kinds);
+      allow(...kinds, "row");
       const given = kinds.filter((k) => attrs.has(k));
       if (given.length !== 1) {
         fail(node, `<Cite> takes one of ${kinds.join("=, ")}=`);
@@ -1187,9 +1300,24 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
       }
       const kind = given[0];
       const target = attrs.get(kind) ?? "";
+      const row = attrs.has("row") ? (attrs.get("row") ?? "") : undefined;
       if (kind === "gml" && !GML_CITE.test(target)) fail(node, `<Cite gml="${target}">: a gml/ path and lines (objects/oSnake/step.gml:41-54)`);
       if (kind === "clip" && !state.clips.has(target)) fail(node, `<Cite clip="${target}">: the page's clips don't list it`);
-      const ref = reference(state, kind, target);
+      if (kind === "replay") {
+        const error = replayError(target, ctx.repoDir);
+        if (error) fail(node, `<Cite replay="${target}">: ${error}`);
+      }
+      if (row !== undefined && kind !== "quirk") fail(node, `<Cite ${kind}>: only a quirk citation names a row=`);
+      if (kind === "quirk") {
+        // The section, and the row it names by its opening, as a quirk box's `rows` does (quirks.ts).
+        const section = ctx.quirks.get(target);
+        if (!section) fail(node, `<Cite quirk="${target}">: ${noSection(target, ctx.quirks)}`);
+        else if (row !== undefined) {
+          const found = findRow(section, target, row);
+          if (typeof found === "string") fail(node, `<Cite quirk="${target}" row=...>: ${found}`);
+        }
+      }
+      const ref = reference(state, kind, target, row);
       return [element(node.type as "mdxJsxTextElement", "Cite", [attribute("n", String(ref.n))])];
     }
     case "Clip": {

@@ -666,16 +666,30 @@ check "$site/wiki/items" 200 "$no_cache"
 contains '<title>Items – Spelunky Classic fan wiki</title>' 'role="group" aria-label="Kind" class="hub-choices">' \
   '<li><a href="/wiki/items/equipment">Equipment</a></li>'
 # The quirks hub filters by what its quirks involve, and its cards have their ledes; a quirk page's box links
-# its docs/quirks.md section and quotes its rows.
+# its docs/quirks.md section on GitHub, its rows there and its replay, at the commit built (build.sh's
+# WIKI_COMMIT), and its References cite its row and the replay its clip plays. A monster page's citation of §1
+# as a whole links the section, and its replays link to GitHub.
 check "$site/wiki/quirks" 200 "$no_cache"
 contains '<title>Quirks and glitches – Spelunky Classic fan wiki</title>' 'role="group" aria-label="Involves" class="hub-choices">' \
   'aria-pressed="false">Items</button>' '<a class="card-body" href="/wiki/double-jar-roll">' \
   '<span class="card-lede">The double Jar roll is a quirk of Spelunky Classic'
 check "$site/wiki/double-jar-roll" 200 "$no_cache"
+blob="https://github.com/851-labs/spelunky/blob/$(git rev-parse HEAD)"
+jar_row=$(grep -n '^| \*\*A whipped Jar rolls its contents twice\.' ../docs/quirks.md | cut -d: -f1)
+[ -n "$jar_row" ] || fail "docs/quirks.md has no row starting \"A whipped Jar rolls its contents twice.\""
+section1="$blob/docs/quirks.md#1-bugs-and-leftovers-in-the-11-source"
 contains '<p class="infobox-title" id="infobox-title">Quirk</p>' \
-  '<a href="https://github.com/851-labs/spelunky/blob/main/docs/quirks.md#1-bugs-and-leftovers-in-the-11-source">docs/quirks.md §1, Bugs and leftovers in the 1.1 source</a>' \
-  '<q class="infobox-row">A whipped Jar rolls its contents twice.</q>' '<code>fidelity/replays/item-jar-whip-rolls-twice.txt</code>' \
-  '<th scope="row">Where</th><td><a href="/wiki/source/objects/oJar/collision_oWhip#L1-L21"><code>objects/oJar/collision_oWhip.gml:1-21</code></a></td>'
+  "<a href=\"$section1\">docs/quirks.md §1, Bugs and leftovers in the 1.1 source</a>" \
+  "<a class=\"infobox-row\" href=\"$blob/docs/quirks.md?plain=1#L$jar_row\"><q>A whipped Jar rolls its contents twice.</q></a>" \
+  "<th scope=\"row\">Pinned by</th><td><a href=\"$blob/fidelity/replays/item-jar-whip-rolls-twice.txt\"><code>fidelity/replays/item-jar-whip-rolls-twice.txt</code></a></td>" \
+  '<th scope="row">Where</th><td><a href="/wiki/source/objects/oJar/collision_oWhip#L1-L21"><code>objects/oJar/collision_oWhip.gml:1-21</code></a></td>' \
+  "<a href=\"$blob/docs/quirks.md?plain=1#L$jar_row\"><q>A whipped Jar rolls its contents twice.</q></a>, <a href=\"$section1\">docs/quirks.md §1</a>" \
+  "Replay <a href=\"$blob/fidelity/replays/item-jar-whip-rolls-twice.txt\"><code>fidelity/replays/item-jar-whip-rolls-twice.txt</code></a>, which the clip <a href=\"#clip-quirks-jar-whip-rolls-twice\">"
+lacks 'Quirk 1 (docs/quirks.md)'
+check "$site/wiki/jar" 200 "$no_cache"
+contains "<a href=\"$section1\">docs/quirks.md §1, Bugs and leftovers in the 1.1 source</a>" \
+  "Replay <a href=\"$blob/fidelity/replays/item-held-jar-shot.txt\"><code>fidelity/replays/item-held-jar-shot.txt</code></a>"
+lacks 'Quirk 1 (docs/quirks.md)'
 check "$site/wiki/items/weapons" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Weapons – Spelunky Classic fan wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/items/weapons"/>' \

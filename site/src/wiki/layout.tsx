@@ -9,9 +9,10 @@
 //
 // Everything has its size before it loads (the sprite, the clips' boxes) and nothing moves once it has: no
 // layout shift.
+import { Fragment } from "react";
 import type { ReactNode } from "react";
 import type { Crumb } from "../seo/jsonld";
-import type { Navbox, Section } from "./build/compile";
+import type { Navbox, Reference as ReferenceData, Section } from "./build/compile";
 import { CATEGORY_NAMES, hubPath } from "./build/categories.ts";
 import { Cite, Clip, components, H2, H3, SourceLink, Sprite } from "./components";
 import type { WikiComponents } from "./components";
@@ -119,7 +120,7 @@ export function WikiPage({ page }: { page: PageModule }) {
             <ol className="references">
               {meta.references.map((ref) => (
                 <li key={ref.n} id={`cite-${ref.n}`}>
-                  <Reference kind={ref.kind} target={ref.target} href={ref.href} />
+                  <Reference reference={ref} />
                 </li>
               ))}
             </ol>
@@ -155,25 +156,40 @@ export function Breadcrumbs({ crumbs }: { crumbs: Crumb[] }) {
   );
 }
 
-// A citation in References.
-function Reference({ kind, target, href }: { kind: string; target: string; href?: string }) {
+const clipAnchor = (id: string) => `#clip-${id.replaceAll("/", "-")}`;
+
+// A citation in References. Each links where it can be checked (docs/wiki-style.md, "Citing the code"): the
+// lines in the source viewer, the replay on GitHub and the page's clips that play it, the clip, the quirk's row.
+function Reference({ reference: { kind, target, href, clips, quirk } }: { reference: ReferenceData }) {
   switch (kind) {
     case "gml":
       return <SourceLink href={href}>{target}</SourceLink>;
     case "replay":
       return (
         <>
-          Replay <code>{target}</code>
+          Replay <SourceLink href={href}>{target}</SourceLink>
+          {clips && (
+            <>
+              {clips.length === 1 ? ", which the clip " : ", which the clips "}
+              {clips.map((clip, i) => (
+                <Fragment key={clip.id}>
+                  {i > 0 && (i === clips.length - 1 ? " and " : ", ")}
+                  <a href={clipAnchor(clip.id)}>{clip.title}</a>
+                </Fragment>
+              ))}
+              {clips.length === 1 ? " plays" : " play"}
+            </>
+          )}
         </>
       );
     case "clip":
       return (
         <>
-          Clip <a href={`#clip-${target.replaceAll("/", "-")}`}>{target}</a>
+          Clip <a href={clipAnchor(target)}>{target}</a>
         </>
       );
     case "quirk":
-      return <>Quirk {target} (docs/quirks.md)</>;
+      return quirk ? <QuirkReference entry={target} quirk={quirk} /> : <>docs/quirks.md §{target}</>;
     case "room":
       return (
         <>
@@ -183,6 +199,35 @@ function Reference({ kind, target, href }: { kind: string; target: string; href?
     default:
       return <code>{target}</code>;
   }
+}
+
+// A quirk citation: the rows it cites, by their openings, each linking to the quirk page that names it, or else
+// to the row on GitHub, then the section, linking to the one row there when a page took its quote's link, else
+// to the section. A citation of no row is the section's, by its title.
+function QuirkReference({ entry, quirk }: { entry: string; quirk: NonNullable<ReferenceData["quirk"]> }) {
+  const { rows } = quirk;
+  if (rows.length === 0) return <a href={quirk.href}>{`docs/quirks.md §${entry}, ${quirk.section}`}</a>;
+  const section = rows.length === 1 && rows[0].page ? rows[0].href : quirk.href;
+  return (
+    <>
+      {rows.map((row, i) => (
+        <Fragment key={row.name}>
+          {i > 0 && " "}
+          {row.page ? (
+            <CardLink href={`/wiki/${row.page.slug}`} slug={row.page.slug}>
+              <q>{row.name}</q>
+            </CardLink>
+          ) : (
+            <a href={row.href}>
+              <q>{row.name}</q>
+            </a>
+          )}
+        </Fragment>
+      ))}
+      {", "}
+      <a href={section}>{`docs/quirks.md §${entry}`}</a>
+    </>
+  );
 }
 
 const notes = (ns: number[]) => ns.map((n) => <Cite key={n} n={String(n)} />);
@@ -277,7 +322,8 @@ function Infobox({ page }: { page: PageModule }) {
 }
 
 // A quirk box's fields (docs/wiki-style.md, "Infobox fields"): how it's known, where the code is, what pins
-// it, and the docs/quirks.md rows the page is the readable version of, which the section's heading links.
+// it (its replay on GitHub), and the docs/quirks.md rows the page is the readable version of, under their
+// section's link, each linking to its row.
 function QuirkRows({ quirk }: { quirk: NonNullable<PageMeta["quirk"]> }) {
   return (
     <>
@@ -294,17 +340,17 @@ function QuirkRows({ quirk }: { quirk: NonNullable<PageMeta["quirk"]> }) {
       <tr>
         <th scope="row">Pinned by</th>
         <td>
-          <code>{quirk.pinned_by}</code>
+          <SourceLink href={quirk.pinnedHref}>{quirk.pinned_by}</SourceLink>
         </td>
       </tr>
       <tr>
         <th scope="row">{quirk.rows.length === 1 ? "Row" : "Rows"}</th>
         <td>
           <a href={quirk.href}>{`docs/quirks.md §${quirk.entry}, ${quirk.section}`}</a>
-          {quirk.rows.map((row) => (
-            <q key={row} className="infobox-row">
-              {row}
-            </q>
+          {quirk.rows.map((row, i) => (
+            <a key={row} className="infobox-row" href={quirk.rowHrefs[i]}>
+              <q>{row}</q>
+            </a>
           ))}
         </td>
       </tr>

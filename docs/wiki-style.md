@@ -121,7 +121,7 @@ hurts monsters) and what oEnemy's code makes (a Frog, for a Fire Frog in water).
 | --- | --- |
 | `[[slug]]`, `[[slug\|text]]`, `[[slug#anchor]]` | A wiki link ([Links](#links-and-navboxes)). |
 | `<Stat id="snake.hp" />` | A number from `stats.json`, with its unit (`1 hit point`). `id="oSnake.hp"` reads an object's create-event value. `as="seconds"` turns steps into seconds and `as="per-second"` px/step into px/s (30 steps a second, `room_speed`; two decimals at most); `bare` leaves the unit off. A table stat is read a row at a time: `<Stat id="spectacles.price-by-level" at="5" />` is its row for 5 (`$10,400`), and the build fails on a table without `at` or a row it hasn't got. |
-| `<Cite gml="objects/oSnake/step.gml:66-71" />` | A citation: a numbered note linking to the lines ([Citing](#citing-the-code)). Also `replay=`, `clip=`, `quirk=` and `room=` (what the room editor placed in a room, `relations.json`'s `placed_in`). |
+| `<Cite gml="objects/oSnake/step.gml:66-71" />` | A citation: a numbered note linking to the lines ([Citing](#citing-the-code)). Also `replay=`, `clip=`, `quirk=` (a `docs/quirks.md` section, with `row=` naming the row by its opening: `<Cite quirk="1" row="A whipped Jar rolls its contents twice." />`) and `room=` (what the room editor placed in a room, `relations.json`'s `placed_in`). |
 | ```` ```gml objects/oSnake/step.gml:73-76 ```` | A short GML excerpt: a fenced code block whose info string is `gml` and the lines' citation. The build adds the license's caption; `scripts/wiki-cites` checks the lines hold the text. A fence, not a component, because MDX would read the code's `{` and `<` as JavaScript and JSX. |
 | `<Clip id="snake/bite" />` | A clip, with its title and an accessible description from the spec. |
 | `<Sprite name="sSnakeWalkL" anim alt="..." />` | A sprite, still or animated, at an integer scale. |
@@ -154,8 +154,10 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   relation checked against `site/content/wiki-data/relations.json` (wiki-data's relations, snapshotted as the
   stats are), the inverses, and What links here. `plugin.ts`, a Vite
   plugin, serves the results as modules, one per page, and fails the build with every error at once:
-  frontmatter that doesn't fit the schema, a quirk page's `rows` entry that no row of its `docs/quirks.md`
-  section starts with (`quirks.ts`), a slug that isn't the file's name, is a hub's or `media`, or is
+  frontmatter that doesn't fit the schema, a quirk page's `rows` entry or a quirk citation's `row=` that no
+  row of its `docs/quirks.md` section starts with, or that more than one does (`quirks.ts`), a quirk citation's
+  section `docs/quirks.md` hasn't got, a row two quirk pages name, a replay a citation or a quirk box's
+  `pinned_by` names that the repo hasn't got, a slug that isn't the file's name, is a hub's or `media`, or is
   another page's slug or alias, an object on two pages, a stat `stats.json` hasn't got (or one that's text, or
   that the create event changes again under a condition), a clip without a spec, a sprite the media
   haven't got or have no pixels of, a component that isn't one of the above, code (an `{expression}` other
@@ -313,7 +315,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   Snake's Markdown twin, `/llms.txt` and `/llms-full.txt` (their types, caching and notices), and runs
   `site/test-wiki.mjs`, which compiles the committed pages (and checks the hubs' cards and their Markdown), a
   set of pages that link and relate to each other (inverses, What links here, their twins' links and
-  `/llms.txt`), their citations' links to the source viewer, and a set of broken ones, each of which must
+  `/llms.txt`), their citations' links to the source viewer, their replays' and quirk rows' links (to
+  GitHub, the clips and the quirk pages), and a set of broken ones, each of which must
   fail the build with its error, searches the index of the committed pages, and checks their hover cards.
 
 ## Tone
@@ -435,8 +438,8 @@ and the code most monsters share (`oEnemy`), with monsters' own variants on thei
   constant, cited lines where it doesn't (a branch per fall length).
 - **Examples** are concrete cases, each a clip or a committed replay whose story shows it, so a staged scene
   that shows the rule with its numbers (a stomp after 33 steps of falling) is the main clip.
-- **Quirks** cite their `docs/quirks.md` §1 rows (`<Cite quirk="1" />`) and the replays that pin them,
-  rather than explaining them again.
+- **Quirks** cite their `docs/quirks.md` §1 rows (`<Cite quirk="1" row="..." />`) and the replays that pin
+  them, rather than explaining them again.
 
 Notes on the sections:
 
@@ -509,9 +512,11 @@ source's bugs; a runner rule from the other sections only when it's what the pla
   claims nothing the row and the GML don't. If the page and the row disagree, check the GML: fix the page,
   or, if the row is wrong, file a ticket for it. The quirk box's `rows` names the rows by their opening
   sentence, as the row has it, without its `**` and `` ` `` marks (`A whipped Jar rolls its contents
-  twice.`), and the build fails on one that no row of the `entry` section starts with, so a row that's
-  reworded or removed fails the build until its page is checked against it again. The box links the section on GitHub and quotes
-  the rows.
+  twice.`), and the build fails on one that no row of the `entry` section starts with (or more than one
+  does), so a row that's reworded or removed fails the build until its page is checked against it again. A
+  row has one page. The box links the section on GitHub and quotes the rows, each linking to its line there,
+  and its `pinned_by` replay links to the replay. A row's page is where the wiki's citations of the row link
+  ([Citing](#citing-the-code)); the page's own `<Cite quirk="1" />` cites its rows, with no `row=`.
 - **One page a bug.** A page is one row, or several rows that are one bug in several places (the monsters
   whose own whip code forgets the wind-up, `whip-every-step`; the `instance_nearest` picks,
   `nearest-enemy`), never two bugs that only share an item (the Pitcher's Mitt's catch and its gravity are
@@ -658,8 +663,21 @@ Spelunky Classic does.
   `<Cite replay="fidelity/replays/action-throw-rock-snake.txt" />` for a committed replay whose story shows
   it. A page can only cite its own clips (those in its `clips`), so another page's clip (a quirk's) is
   cited by listing it, which also puts it in the Gallery, or not at all.
-- **Runner behaviour** (event order, collisions, RNG) isn't in the GML: cite the `docs/quirks.md` entry
-  (`<Cite quirk="1" />` with its section) or a replay that shows it.
+- **Runner behaviour** (event order, collisions, RNG) isn't in the GML: cite the `docs/quirks.md` row
+  (`<Cite quirk="5" row="instance_nearest measures to instances' positions" />`) or a replay that shows it.
+  A bug the GML has cites its §1 row the same way.
+- **Every reference links somewhere**, so a reader can check it in a click. A gml citation links to the
+  source viewer (above). A replay links to the file on GitHub (the repo is public), at the commit the site
+  was built from (`site/build.sh`'s `WIKI_COMMIT`), so the link shows what the page was checked against and
+  doesn't rot when the replay changes or goes; and to the page's clips cut from it (their spec's `replay`),
+  which play it. A clip links to itself on the page. A quirk citation shows its row's opening, as `row=` has
+  it, linking to the quirk page that names the row in its `rows`, or to the row's line in `docs/quirks.md` on
+  GitHub (at the commit too) where no page does, then the section, linking to the row there. A quirk citation
+  without `row=` is its section's, by title, linked to the section's heading: say which row (`row=`) instead,
+  except on a quirk page citing its own rows. A quirk box's Pinned by links to its replay and its rows to
+  their lines. The Markdown twins (and so `llms-full.txt`) link the same, absolutely. The build fails on a
+  replay the repo hasn't got and a row `docs/quirks.md` hasn't got (above). A `room=` citation is still
+  text.
 - **A bug in the GML** the page describes (a test that's always true, a `type` string never set) is
   behaviour: describe it, cite the lines, and quote them in Trivia if the code is the point. If
   `docs/quirks.md` doesn't have it, file a ticket to add it (and its quirk page) rather than leaving it
