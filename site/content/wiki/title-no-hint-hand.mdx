@@ -56,8 +56,9 @@ with PRESS UP TO ENTER! while he stands under it <Cite clip="quirks/title-no-hin
 
 ## Why
 
-A run is a first run while the high scores are all still at a fresh table's starting values
-<Cite gml="objects/oGlobals/create.gml:57-68" />. The title screen's create event then makes the hand
+A run is a first run while the high scores table holds none of the game's own entries, as on the very first
+start, when the game writes its starting table <Cite gml="objects/oGlobals/create.gml:57-68" />. That table
+doesn't pass the same test, so even resetting the high scores doesn't make another first run. The title screen's create event then makes the hand
 (`oHintHand`) in each of its ways of starting with the player already in the room, but not in the opening's:
 
 ```gml objects/oTitle/create.gml:64-89
@@ -98,7 +99,7 @@ the opening starts the room again the second way, at the rope, which does make i
 
 ## Reproducing it
 
-Start the game with fresh high scores, watch the title's opening through and walk to the START door: there's
+Start the game for the very first time, with no high scores, watch the title's opening through and walk to the START door: there's
 no hand. Go into the SCORES door and back out, and the hand is there. The replay of the clip does both, then
 goes into the START door, to the Tutorial <Cite replay="fidelity/replays/title-first-run-hint-hand.txt" />.
 Another replay skips the opening with the attack key instead, and has the hand from the start

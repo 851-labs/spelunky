@@ -2,7 +2,7 @@
 # docs/quirks.md section 1). As bonus-moon-archery.txt into rMoon (791), with the bow, an arrow every 60 frames
 # until the timer reaches 20 (2061; the last arrow scores at 2034). From then on the targets sway left as they
 # fly. The player jumps off the step (Z, run held) and lands on the near target (xMid 160) where it has swayed
-# to, x 136.8 (2180): oBatTarget's collision with the player makes the replacement at x, not xMid, so it has
+# to, x 136.6 (2180): oBatTarget's collision with the player makes the replacement at x, not xMid, so it has
 # xMid 136.6 and sways from there. Holding left he comes back and hangs on the lowest step (2193), jumps up
 # onto the ledge (2300) and waits. Then he runs off the ledge (2576) and lands on three targets in a row: the
 # replacement (2595), the middle target, swayed to 177.4 (2605), and the far one, swayed to 232.5 (2618).

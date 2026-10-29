@@ -1,8 +1,8 @@
-# A first run that skips the title's opening gets the hint hand (851-3694; docs/quirks.md section 1). A fresh
-# highscore table, so global.firstTime. Skips rIntro with the attack key (X, twice), then presses it again
-# during the title's opening (150), while oScreen.canPause is still false: oTitle's step sets titleStart 2 and
-# restarts the room, and the titleStart 2 branch puts the player at the rope and makes the oHintHand over the
-# START door. He walks left under it and goes in, to rTutorial (361).
+# A first run that skips the title's opening gets the hint hand (851-3694; docs/quirks.md section 1). No
+# highscore lines, so the runner's empty table, and global.firstTime. Skips rIntro with the attack key (X,
+# twice), then presses it again during the title's opening (150), while oScreen.canPause is still false:
+# oTitle's step sets titleStart 2 and restarts the room, and the titleStart 2 branch puts the player at the
+# rope and makes the oHintHand over the START door. He walks left under it and goes in, to rTutorial (361).
 # story: titleStart=2@150 +oHintHand@150 room=rTutorial@361 firstTime=0@361
 seed 777
 frames 400
