@@ -25,7 +25,8 @@
   "files": {
     "mp4": "kissing-parlor/kiss/clip.mp4",
     "webm": "kissing-parlor/kiss/clip.webm",
-    "poster": "kissing-parlor/kiss/poster.png"
+    "poster": "kissing-parlor/kiss/poster.png",
+    "replay": "kissing-parlor/kiss/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

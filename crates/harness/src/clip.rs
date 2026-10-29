@@ -263,6 +263,29 @@ impl Clip {
         Ok(out)
     }
 
+    /// The replay a page plays the clip from in the game (the media's `replay.txt`; docs/wiki-media.md,
+    /// "Playing a clip in the game"): a scene's, or the committed replay up to the clip's last frame, so the
+    /// game stops where the video does, and its savestates are only the clip's. `None` for one of the
+    /// settings program's, which the game's embedding doesn't play.
+    pub fn live_replay(&self, source: &Source) -> Option<String> {
+        if source.settings {
+            return None;
+        }
+        let Some(path) = &self.spec.replay else {
+            // A scene's already ends with the clip.
+            return Some(source.text.clone());
+        };
+        let last = self.run_frames(source).1;
+        let cut = crate::fuzz::truncate(&source.replay, last + 1);
+        Some(format!(
+            "# The wiki clip {}'s replay (wiki/clips/{}.toml), made by wiki-clips: {path} up to the clip's last\n\
+             # frame, {last}.\n{}",
+            self.id,
+            self.id,
+            cut.to_text()
+        ))
+    }
+
     /// The replay the clip plays and the facts to check on it. A replay spec's is read from `repo`.
     pub fn source(&self, repo: &Path) -> Result<Source, String> {
         let spec = &self.spec;
@@ -537,17 +560,77 @@ inputs = '''
         assert!(c.source(Path::new("/")).unwrap_err().starts_with("inputs:"));
     }
 
+    fn repo() -> PathBuf {
+        std::fs::canonicalize(Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")).unwrap()
+    }
+
+    /// The committed spec `id`, and what it plays.
+    fn committed(id: &str) -> (Clip, Source) {
+        let repo = repo();
+        let clip = Clip::read(&repo, &repo.join(SPEC_DIR).join(format!("{id}.toml"))).unwrap();
+        let source = clip.source(&repo).unwrap();
+        (clip, source)
+    }
+
     #[test]
     fn a_settings_replay_plays_the_settings_program() {
-        let repo =
-            std::fs::canonicalize(Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")).unwrap();
-        let source = |id: &str| {
-            let clip = Clip::read(&repo, &repo.join(SPEC_DIR).join(format!("{id}.toml"))).unwrap();
-            clip.source(&repo).unwrap()
-        };
-        assert!(source("settings/window").settings);
-        assert!(!source("controls/pause").settings);
-        assert!(!source("snake/bite").settings);
+        assert!(committed("settings/window").1.settings);
+        assert!(!committed("controls/pause").1.settings);
+        assert!(!committed("snake/bite").1.settings);
+    }
+
+    #[test]
+    fn a_live_replay_is_the_source_up_to_the_clip_s_last_frame() {
+        // Cut from a committed replay that runs on long after the clip.
+        let (clip, source) = committed("alien/parachute");
+        let last = clip.run_frames(&source).1;
+        assert!(source.replay.len() > last + 1);
+        let live = Replay::parse(&clip.live_replay(&source).unwrap()).unwrap();
+        assert_eq!(live.len(), last + 1);
+        assert_eq!(live.header, source.replay.header);
+        // Every frame's input is the source's, up to its last.
+        let inputs = |r: &Replay| r.inputs().map(|i| i.state).collect::<Vec<_>>();
+        assert_eq!(
+            inputs(&live),
+            inputs(&source.replay)[..=last as usize].to_vec()
+        );
+        // A scene's is the one it plays; the settings program has none.
+        let (clip, source) = committed("snake/bite");
+        assert_eq!(clip.live_replay(&source), Some(source.text.clone()));
+        let (clip, source) = committed("settings/window");
+        assert_eq!(clip.live_replay(&source), None);
+    }
+
+    #[test]
+    fn every_live_replay_keeps_the_default_keys() {
+        // The page's note on taking control names the game's default keys (site/src/wiki/live-clip-player.tsx),
+        // and a replay's `keys` or `gamepad` would change them for the reader.
+        let repo = repo();
+        let mut specs = Vec::new();
+        let mut dirs = vec![repo.join(SPEC_DIR)];
+        while let Some(dir) = dirs.pop() {
+            for entry in std::fs::read_dir(dir).unwrap() {
+                let path = entry.unwrap().path();
+                if path.is_dir() {
+                    dirs.push(path);
+                } else if path.extension().is_some_and(|e| e == "toml") {
+                    specs.push(path);
+                }
+            }
+        }
+        let defaults = trace::ReplayHeader::default();
+        for path in specs {
+            let clip = Clip::read(&repo, &path).unwrap();
+            let source = clip.source(&repo).unwrap();
+            if let Some(text) = clip.live_replay(&source) {
+                let header = Replay::parse(&text).unwrap().header;
+                assert!(
+                    header.keys == defaults.keys && header.gamepad == defaults.gamepad,
+                    "{}: its replay changes the keys",
+                    clip.id
+                );
+            }
+        }
     }
 
     #[test]

@@ -7,7 +7,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
-import { loadWiki } from "./src/wiki/build/compile.ts";
+import { clipLive, loadWiki } from "./src/wiki/build/compile.ts";
 import { hoverCards } from "./src/wiki/build/cards.ts";
 import { cardScale, makeHubs } from "./src/wiki/build/hubs.ts";
 import { markdownFiles } from "./src/wiki/build/markdown.ts";
@@ -770,6 +770,24 @@ const edit = (from, to) => {
   const longest = JSON.stringify(made.small).length;
   if (longest > 600) fail(`hover cards: a full card is ${longest} bytes`);
   if (failures === before) console.log(`ok   hover cards: ${Object.keys(cards).length} page(s), a full card ${longest} bytes`);
+}
+
+// A clip plays live when the media have its replay and the web build at /play/ plays it: a scene's in any
+// embeddable build, one cut from a committed replay only in a build that says it plays them (build.sh's
+// WIKI_LIVE_REPLAYS, from 851-3572's marker), and the settings program's, which has no replay, in none.
+{
+  const before = failures;
+  const url = (path) => `/wiki/media/clips/${path}`;
+  const scene = { replay: "snake/bite/replay.txt", from: 281, scene: true };
+  const cut = { replay: "snake/stomp/replay.txt", from: 1415, scene: false };
+  const build = (replays) => ({ seek: true, phones: true, replays });
+  const plays = (live, liveClips) => JSON.stringify(clipLive(live, liveClips, url));
+  const want = (live) => JSON.stringify({ replay: url(live.replay), from: live.from, seek: true, phones: true });
+  if (plays(scene, build(false)) !== want(scene)) fail(`live clips: a scene's is ${plays(scene, build(false))}`);
+  if (plays(cut, build(false)) !== "null") fail(`live clips: a replay's plays in a build that doesn't say it can`);
+  if (plays(cut, build(true)) !== want(cut)) fail(`live clips: a replay's is ${plays(cut, build(true))}`);
+  if (plays(scene, null) !== "null" || plays(null, build(true)) !== "null") fail("live clips: without the build or the replay");
+  if (failures === before) console.log("ok   live clips: a replay's clip plays only in a build that says it can");
 }
 
 const cases = [

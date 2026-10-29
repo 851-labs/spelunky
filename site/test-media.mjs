@@ -140,7 +140,7 @@ test("a clip's uploadDate: when its videos last changed, or without a commit, th
 test("a scene's clip plays in the game: its replay, from the replay's frame of the clip's first", () => {
   // The stand-in's `from` is 40, the scene's frame, and its `replay_from` 281, the replay's: the replay boots
   // for 241 frames before the scene's first.
-  assert.deepEqual(pkg.clips["snake/bite"].live, { replay: "snake/bite/replay.txt", from: 281 });
+  assert.deepEqual(pkg.clips["snake/bite"].live, { replay: "snake/bite/replay.txt", from: 281, scene: true });
   // The page asks for it at the package's URL, as the game fetches it (src/wiki/live-clip-player.tsx).
   served.add(at("clips/snake/bite/replay.txt"));
 });
@@ -161,6 +161,30 @@ test("a scene's clip starts on the replay's frame its clip.json says, which the 
     delete clip.replay_from;
     writeFileSync(file, JSON.stringify(index));
     assert.throws(() => readMediaPackage(copy, url, DATE), /snake\/bite: replay_from isn't a frame number/);
+  } finally {
+    rmSync(scratch, { recursive: true });
+  }
+});
+
+test("a clip cut from a committed replay plays its replay.txt, from its first frame; the settings program's has none", () => {
+  const scratch = mkdtempSync(join(tmpdir(), "test-media-"));
+  try {
+    const copy = join(scratch, "media");
+    cpSync(dir, copy, { recursive: true, filter: (file) => !file.endsWith("/.git") });
+    const file = join(copy, "clips/index.json");
+    const index = JSON.parse(readFileSync(file, "utf8"));
+    const bite = index.clips.find((c) => c.id === "snake/bite");
+    const files = (id) => ({ mp4: `${id}/clip.mp4`, webm: `${id}/clip.webm`, poster: `${id}/poster.png` });
+    const cut = (id, replay, extra) => ({ ...bite, id, source: { kind: "replay", replay }, from: 1415, replay_from: 1415, ...extra });
+    index.clips.push(
+      cut("snake/stomp", "fidelity/replays/enemy-mines-seed-1-kills.txt", { files: { ...files("snake/stomp"), replay: "snake/stomp/replay.txt" } }),
+      cut("settings/window", "fidelity/settings/wiki-window-keys.txt", { files: files("settings/window") }),
+    );
+    writeFileSync(file, JSON.stringify(index));
+    const clips = readMediaPackage(copy, url, DATE).clips;
+    // Its replay's frame is its own `from`: the replay has no boot before it.
+    assert.deepEqual(clips["snake/stomp"].live, { replay: "snake/stomp/replay.txt", from: 1415, scene: false });
+    assert.equal(clips["settings/window"].live, null);
   } finally {
     rmSync(scratch, { recursive: true });
   }

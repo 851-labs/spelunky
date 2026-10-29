@@ -25,7 +25,8 @@
   "files": {
     "mp4": "snake/thrown-rock/clip.mp4",
     "webm": "snake/thrown-rock/clip.webm",
-    "poster": "snake/thrown-rock/poster.png"
+    "poster": "snake/thrown-rock/poster.png",
+    "replay": "snake/thrown-rock/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

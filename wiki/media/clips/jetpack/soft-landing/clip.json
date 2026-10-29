@@ -25,7 +25,8 @@
   "files": {
     "mp4": "jetpack/soft-landing/clip.mp4",
     "webm": "jetpack/soft-landing/clip.webm",
-    "poster": "jetpack/soft-landing/poster.png"
+    "poster": "jetpack/soft-landing/poster.png",
+    "replay": "jetpack/soft-landing/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

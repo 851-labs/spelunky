@@ -25,7 +25,8 @@
   "files": {
     "mp4": "credits/title-rope/clip.mp4",
     "webm": "credits/title-rope/clip.webm",
-    "poster": "credits/title-rope/poster.png"
+    "poster": "credits/title-rope/poster.png",
+    "replay": "credits/title-rope/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

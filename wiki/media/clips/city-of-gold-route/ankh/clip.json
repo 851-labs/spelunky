@@ -25,7 +25,8 @@
   "files": {
     "mp4": "city-of-gold-route/ankh/clip.mp4",
     "webm": "city-of-gold-route/ankh/clip.webm",
-    "poster": "city-of-gold-route/ankh/poster.png"
+    "poster": "city-of-gold-route/ankh/poster.png",
+    "replay": "city-of-gold-route/ankh/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/gold-door-on-altar/clip.mp4",
     "webm": "quirks/gold-door-on-altar/clip.webm",
-    "poster": "quirks/gold-door-on-altar/poster.png"
+    "poster": "quirks/gold-door-on-altar/poster.png",
+    "replay": "quirks/gold-door-on-altar/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

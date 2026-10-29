@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/jar-whip-rolls-twice/clip.mp4",
     "webm": "quirks/jar-whip-rolls-twice/clip.webm",
-    "poster": "quirks/jar-whip-rolls-twice/poster.png"
+    "poster": "quirks/jar-whip-rolls-twice/poster.png",
+    "replay": "quirks/jar-whip-rolls-twice/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

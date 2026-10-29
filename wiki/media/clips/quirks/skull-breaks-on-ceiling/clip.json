@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/skull-breaks-on-ceiling/clip.mp4",
     "webm": "quirks/skull-breaks-on-ceiling/clip.webm",
-    "poster": "quirks/skull-breaks-on-ceiling/poster.png"
+    "poster": "quirks/skull-breaks-on-ceiling/poster.png",
+    "replay": "quirks/skull-breaks-on-ceiling/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

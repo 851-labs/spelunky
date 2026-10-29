@@ -25,7 +25,8 @@
   "files": {
     "mp4": "bomb/throw/clip.mp4",
     "webm": "bomb/throw/clip.webm",
-    "poster": "bomb/throw/poster.png"
+    "poster": "bomb/throw/poster.png",
+    "replay": "bomb/throw/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

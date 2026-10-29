@@ -267,7 +267,7 @@ fn in_parallel<T: Sync, R: Send>(items: &[T], jobs: usize, f: impl Fn(&T) -> R +
 
 /// What `--check --media` holds the committed render to, without the app's capture: each spec's clip.json
 /// has what the spec says (everything but the hashes of its frames and sound and of how they were encoded,
-/// which only a render can tell), its files are there and a scene's replay is the scene's; and with `every`
+/// which only a render can tell), its files are there and its replay is the clip's (none for the settings program's); and with `every`
 /// spec, no other clip is there and index.json lists exactly these. What it finds wrong.
 fn check_media(
     media: &Path,
@@ -303,13 +303,9 @@ fn check_media(
                 wrong.push(format!("{}: no {file}", clip.id));
             }
         }
-        if clip.spec.scene.is_some()
-            && std::fs::read_to_string(dir.join("replay.txt"))
-                .ok()
-                .as_deref()
-                != Some(source.text.as_str())
-        {
-            wrong.push(format!("{}: replay.txt isn't the scene's", clip.id));
+        let replay = std::fs::read_to_string(dir.join("replay.txt")).ok();
+        if replay != clip.live_replay(source) {
+            wrong.push(format!("{}: replay.txt isn't the clip's", clip.id));
         }
     }
     if every {
@@ -405,7 +401,7 @@ struct ClipMeta {
     from: u64,
     to: u64,
     frames: u64,
-    /// The replay's frame the clip starts on (a scene's `files.replay`, or `source.replay`): `from`, past a
+    /// The replay's frame the clip starts on (`source.replay`'s, and `files.replay`'s): `from`, past a
     /// scene's boot and load from the title's menu ([`harness::clip::SCENE_START`]), for playing the clip in
     /// the game from its first frame.
     replay_from: u64,
@@ -464,7 +460,8 @@ struct Files {
     mp4: String,
     webm: String,
     poster: String,
-    /// A scene's replay (what it plays, from boot).
+    /// The replay a page plays the clip from in the game, from boot to the clip's last frame: a scene's, or
+    /// the committed one's start ([`harness::clip::Clip::live_replay`]). None for the settings program's.
     #[serde(skip_serializing_if = "Option::is_none")]
     replay: Option<String>,
 }
@@ -659,7 +656,7 @@ fn clip_meta(
             mp4: rel("clip.mp4"),
             webm: rel("clip.webm"),
             poster: rel("poster.png"),
-            replay: spec.replay.is_none().then(|| rel("replay.txt")),
+            replay: clip.live_replay(source).map(|_| rel("replay.txt")),
         },
         notice: WIKI_NOTICE,
         license: WIKI_LICENSE_URL,
@@ -685,7 +682,7 @@ fn reusable(dir: &Path, meta: &ClipMeta) -> bool {
 }
 
 /// Renders a clip into its directory under `--out`: its videos (or an earlier render's, with `--reuse`, if
-/// they'd come out the same), poster, scene replay and clip.json. All of it is made in a scratch directory
+/// they'd come out the same), poster, replay and clip.json. All of it is made in a scratch directory
 /// of its own (`.scratch/<id>`) and replaces the clip's directory only once it's done, so a render that fails
 /// leaves the clip as it was, and `--reuse` may be `--out`. What it rendered.
 fn render(
@@ -705,13 +702,15 @@ fn render(
     let _ = std::fs::remove_dir_all(&work);
     let new = work.join("clip");
     std::fs::create_dir_all(&new).map_err(io(&new))?;
-    let replay_path = match &spec.replay {
-        Some(r) => repo.join(r),
-        None => {
+    // The video is made from the replay the page plays, where there's one.
+    let replay_path = match (clip.live_replay(source), &spec.replay) {
+        (Some(text), _) => {
             let path = new.join("replay.txt");
-            std::fs::write(&path, &source.text).map_err(io(&path))?;
+            std::fs::write(&path, text).map_err(io(&path))?;
             path
         }
+        (None, Some(r)) => repo.join(r),
+        (None, None) => unreachable!("a scene has its replay"),
     };
 
     // The app's pictures, one PNG a frame.

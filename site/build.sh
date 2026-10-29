@@ -108,6 +108,13 @@ if grep -q '<meta name="spelunky-embed"' "$tmp/play/index.html"; then
   else
     echo "site/build.sh: the web build can't seek, so the wiki's live clips have no slider"
   fi
+  # And whether it's from after the media had the clips cut from committed replays: only then do they get the
+  # button, not only the scenes' clips, as an older build could play one unlike its video.
+  if grep -q '<meta name="spelunky-embed-replays"' "$tmp/play/index.html"; then
+    export WIKI_LIVE_REPLAYS=1
+  else
+    echo "site/build.sh: the web build is from before the wiki's clips cut from committed replays, so only scenes' clips play in it"
+  fi
 else
   echo "site/build.sh: the web build can't be embedded, so the wiki's clips can't play in it"
 fi

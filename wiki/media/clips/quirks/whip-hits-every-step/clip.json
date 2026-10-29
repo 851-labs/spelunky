@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/whip-hits-every-step/clip.mp4",
     "webm": "quirks/whip-hits-every-step/clip.webm",
-    "poster": "quirks/whip-hits-every-step/poster.png"
+    "poster": "quirks/whip-hits-every-step/poster.png",
+    "replay": "quirks/whip-hits-every-step/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

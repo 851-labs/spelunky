@@ -149,7 +149,7 @@ has the audio credit after the notice in `copyright`, and the pages that show on
 | `<id>/clip.mp4` | H.264, 4:2:0, `+faststart` (playable before it's all in), for every browser; AAC, 128 kb/s |
 | `<id>/clip.webm` | VP9, 4:2:0, smaller where it plays; Opus, 96 kb/s |
 | `<id>/poster.png` | The `poster` frame, at the clip's size |
-| `<id>/replay.txt` | A scene's replay |
+| `<id>/replay.txt` | The replay the game plays the clip from on its page: a scene's, or the committed replay to the clip's last frame (`harness::clip::Clip::live_replay`). None for the settings program's |
 
 Paths in the JSON are relative to the output directory. The scale is even so that the videos' colour, at
 half resolution, never mixes two game pixels. The frames are the same on every run of the same port and
@@ -442,7 +442,7 @@ dies as the level loads.
 
 ### Playing a clip in the game
 
-A clip whose replay the media have (a scene's, `<id>/replay.txt`) can play in the game itself on its page,
+A clip whose replay the media have (`<id>/replay.txt`, every clip's but the settings program's) can play in the game itself on its page,
 not only as video: a **Play live** button under the video swaps it for the web build, replaying the clip from
 its first frame, with buttons to pause it, take control from the replay, restart it, and go back to the video
 (`site/src/wiki/live-clip.tsx`, `live-clip-player.tsx`).
@@ -460,10 +460,21 @@ its first frame, with buttons to pause it, take control from the replay, restart
   it goes back to the video and says why, still offering the button. Desktops too: the check is for any
   device the game can't keep up on.
 - **The start frame.** A scene's frame 0 is its replay's `SCENE_START` (241), so the page asks for the
-  replay's frame clip.json gives, `replay_from` (241 past `from`), rather than working it out
-  (`site/src/seo/media-package.ts`). The app runs the frames before it unshown, as fast as
-  they go (`app::window::Embed`), so the clip's first frame shows after a moment, the poster covering the
-  game until then. A replay can't start anywhere else without the frames before it.
+  replay's frame clip.json gives, `replay_from` (241 past `from`, or a committed replay's `from` itself),
+  rather than working it out (`site/src/seo/media-package.ts`). The app runs the frames before it unshown, as
+  fast as they go (`app::window::Embed`), so the clip's first frame shows after a moment, the poster covering
+  the game until then. A replay can't start anywhere else without the frames before it.
+- **Clips cut from committed replays** ship their replay (851-3572), cut at the clip's last frame, as a
+  scene's ends with its clip: the game stops where the video does, the slider spans the clip, and the
+  savestates are only the clip's, not those of the thousands of frames some replays run on for. It's a few
+  KB (the 199 are 600 KB in all), made from the committed replay the same every time (`Clip::live_replay`), and
+  the video is captured from it. A savestate at the clip's first frame would skip the frames before it, but
+  it's the game's state as this port lays it out in memory (about 300 KB): `/play/` is a release's build,
+  which can't read one from another, and every change to the game would commit all of them again. A replay's
+  inputs read the same in any build. The cost is the frames before the clip, which the game runs unshown at about
+  3,000 a second (Chromium on an M1 Pro), the poster saying "Starting the game…" until then. From the click,
+  `snake/stomp` (from frame 740) showed its first frame after 1.1 s, `alien/parachute` (1,950) after 2.5 s, and
+  the latest, `kali/spiders` (8,850), after 5 s. Half the clips start before frame 1,200.
 - **Seeking.** As the replay first plays through, the app keeps a savestate (a clone of the game, about
   300 KB) before every 30th frame from the clip's first (`app::window`'s `Savestates`). A seek restores the
   latest one at or before the frame sought, or runs on from where the game is if that's nearer, and runs the
@@ -495,7 +506,11 @@ its first frame, with buttons to pause it, take control from the replay, restart
   clip has. And one that starts its sound at a tap where the browser held it (Safari, which every browser on
   iOS is) says so (`<meta name="spelunky-embed-held-sound">`, `WIKI_LIVE_PHONES`, only with seeking, whose
   frames the player times): only then do phones get the button. Before, the CSS hides it where the pointer
-  is coarse.
+  is coarse. And one from after the media had the clips cut from committed replays says so
+  (`<meta name="spelunky-embed-replays">`, `WIKI_LIVE_REPLAYS`): only then do they get the button, scenes'
+  clips having it before. An older build could play one unlike its video, without a fix the port made since
+  to play it as the original does. It's an age, not a check: the media are `main`'s, and a release from
+  before a later fix could play a clip unlike its video too, a scene's as well.
 
 ## Source
 
@@ -557,7 +572,7 @@ Two checks hold it to that:
 
 - `scripts/check` runs `wiki-clips --check --media wiki/media/clips`: every spec still shows its story, has its
   clip in `wiki/media/clips` with what the spec says (its title, frames, poster frame and the rest of
-  `clip.json` but the three hashes) and its files, a scene's `replay.txt` is the scene's, no clip there is
+  `clip.json` but the three hashes) and its files, its `replay.txt` is the clip's (and the settings program's have none), no clip there is
   without a spec, and `index.json` lists them all. It needs neither the GPU nor ffmpeg.
 - `pr.yml`'s web job on a Mac mini runs `scripts/wiki-media --check --since HEAD^1`, when the pull request
   changes what the media are made from (the script's `made_from`: `wiki/clips`, `wiki/media`, `fidelity/replays`,

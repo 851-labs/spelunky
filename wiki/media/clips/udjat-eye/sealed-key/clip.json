@@ -25,7 +25,8 @@
   "files": {
     "mp4": "udjat-eye/sealed-key/clip.mp4",
     "webm": "udjat-eye/sealed-key/clip.webm",
-    "poster": "udjat-eye/sealed-key/poster.png"
+    "poster": "udjat-eye/sealed-key/poster.png",
+    "replay": "udjat-eye/sealed-key/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

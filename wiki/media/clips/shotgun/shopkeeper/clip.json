@@ -25,7 +25,8 @@
   "files": {
     "mp4": "shotgun/shopkeeper/clip.mp4",
     "webm": "shotgun/shopkeeper/clip.webm",
-    "poster": "shotgun/shopkeeper/poster.png"
+    "poster": "shotgun/shopkeeper/poster.png",
+    "replay": "shotgun/shopkeeper/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

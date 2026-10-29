@@ -25,7 +25,8 @@
   "files": {
     "mp4": "snake-pit/descent/clip.mp4",
     "webm": "snake-pit/descent/clip.webm",
-    "poster": "snake-pit/descent/poster.png"
+    "poster": "snake-pit/descent/poster.png",
+    "replay": "snake-pit/descent/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

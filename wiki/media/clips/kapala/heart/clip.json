@@ -25,7 +25,8 @@
   "files": {
     "mp4": "kapala/heart/clip.mp4",
     "webm": "kapala/heart/clip.webm",
-    "poster": "kapala/heart/poster.png"
+    "poster": "kapala/heart/poster.png",
+    "replay": "kapala/heart/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

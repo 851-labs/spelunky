@@ -1,0 +1,38 @@
+# The wiki clip golden-idol/boulder's replay (wiki/clips/golden-idol/boulder.toml), made by wiki-clips: fidelity/replays/trap-boulder-crush.txt up to the clip's last
+# frame, 839.
+seed 26
+frames 840
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+606 release left
+606 press Z
+612 press left
+618 release left
+618 release Z
+618 press up
+624 release up
+624 press left
+684 press X
+690 release X
+702 release left
+702 press down
+702 press X
+703 release down
+703 release X

@@ -1,0 +1,28 @@
+# The wiki clip quirks/ash-graves's replay (wiki/clips/quirks/ash-graves.toml), made by wiki-clips: fidelity/replays/item-seed-244-ash-graves.txt up to the clip's last
+# frame, 1079.
+seed 244
+frames 1080
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up

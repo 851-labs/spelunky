@@ -25,7 +25,8 @@
   "files": {
     "mp4": "boulder/outrun/clip.mp4",
     "webm": "boulder/outrun/clip.webm",
-    "poster": "boulder/outrun/poster.png"
+    "poster": "boulder/outrun/poster.png",
+    "replay": "boulder/outrun/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

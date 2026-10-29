@@ -117,6 +117,7 @@
       "files": {
         "mp4": "alien/parachute/clip.mp4",
         "poster": "alien/parachute/poster.png",
+        "replay": "alien/parachute/replay.txt",
         "webm": "alien/parachute/clip.webm"
       },
       "fps": 30,
@@ -184,6 +185,7 @@
       "files": {
         "mp4": "ankh-shop/visit/clip.mp4",
         "poster": "ankh-shop/visit/poster.png",
+        "replay": "ankh-shop/visit/replay.txt",
         "webm": "ankh-shop/visit/clip.webm"
       },
       "fps": 30,
@@ -217,6 +219,7 @@
       "files": {
         "mp4": "ankh/revive/clip.mp4",
         "poster": "ankh/revive/poster.png",
+        "replay": "ankh/revive/replay.txt",
         "webm": "ankh/revive/clip.webm"
       },
       "fps": 30,
@@ -250,6 +253,7 @@
       "files": {
         "mp4": "arrow-trap/dark/clip.mp4",
         "poster": "arrow-trap/dark/poster.png",
+        "replay": "arrow-trap/dark/replay.txt",
         "webm": "arrow-trap/dark/clip.webm"
       },
       "fps": 30,
@@ -351,6 +355,7 @@
       "files": {
         "mp4": "arrow/trap/clip.mp4",
         "poster": "arrow/trap/poster.png",
+        "replay": "arrow/trap/replay.txt",
         "webm": "arrow/trap/clip.webm"
       },
       "fps": 30,
@@ -384,6 +389,7 @@
       "files": {
         "mp4": "ball-and-chain/drag/clip.mp4",
         "poster": "ball-and-chain/drag/poster.png",
+        "replay": "ball-and-chain/drag/replay.txt",
         "webm": "ball-and-chain/drag/clip.webm"
       },
       "fps": 30,
@@ -417,6 +423,7 @@
       "files": {
         "mp4": "bat/jump-kill/clip.mp4",
         "poster": "bat/jump-kill/poster.png",
+        "replay": "bat/jump-kill/replay.txt",
         "webm": "bat/jump-kill/clip.webm"
       },
       "fps": 30,
@@ -484,6 +491,7 @@
       "files": {
         "mp4": "beating-olmec/dig/clip.mp4",
         "poster": "beating-olmec/dig/poster.png",
+        "replay": "beating-olmec/dig/replay.txt",
         "webm": "beating-olmec/dig/clip.webm"
       },
       "fps": 30,
@@ -517,6 +525,7 @@
       "files": {
         "mp4": "beating-olmec/lure/clip.mp4",
         "poster": "beating-olmec/lure/poster.png",
+        "replay": "beating-olmec/lure/replay.txt",
         "webm": "beating-olmec/lure/clip.webm"
       },
       "fps": 30,
@@ -550,6 +559,7 @@
       "files": {
         "mp4": "big-emerald/tutorial/clip.mp4",
         "poster": "big-emerald/tutorial/poster.png",
+        "replay": "big-emerald/tutorial/replay.txt",
         "webm": "big-emerald/tutorial/clip.webm"
       },
       "fps": 30,
@@ -583,6 +593,7 @@
       "files": {
         "mp4": "big-ruby/chest/clip.mp4",
         "poster": "big-ruby/chest/poster.png",
+        "replay": "big-ruby/chest/replay.txt",
         "webm": "big-ruby/chest/clip.webm"
       },
       "fps": 30,
@@ -650,6 +661,7 @@
       "files": {
         "mp4": "black-market-route/bomb/clip.mp4",
         "poster": "black-market-route/bomb/poster.png",
+        "replay": "black-market-route/bomb/replay.txt",
         "webm": "black-market-route/bomb/clip.webm"
       },
       "fps": 30,
@@ -683,6 +695,7 @@
       "files": {
         "mp4": "black-market/entrance/clip.mp4",
         "poster": "black-market/entrance/poster.png",
+        "replay": "black-market/entrance/replay.txt",
         "webm": "black-market/entrance/clip.webm"
       },
       "fps": 30,
@@ -716,6 +729,7 @@
       "files": {
         "mp4": "black-market/walk/clip.mp4",
         "poster": "black-market/walk/poster.png",
+        "replay": "black-market/walk/replay.txt",
         "webm": "black-market/walk/clip.webm"
       },
       "fps": 30,
@@ -749,6 +763,7 @@
       "files": {
         "mp4": "bomb-shop/buy/clip.mp4",
         "poster": "bomb-shop/buy/poster.png",
+        "replay": "bomb-shop/buy/replay.txt",
         "webm": "bomb-shop/buy/clip.webm"
       },
       "fps": 30,
@@ -782,6 +797,7 @@
       "files": {
         "mp4": "bomb/brick/clip.mp4",
         "poster": "bomb/brick/poster.png",
+        "replay": "bomb/brick/replay.txt",
         "webm": "bomb/brick/clip.webm"
       },
       "fps": 30,
@@ -815,6 +831,7 @@
       "files": {
         "mp4": "bomb/chain/clip.mp4",
         "poster": "bomb/chain/poster.png",
+        "replay": "bomb/chain/replay.txt",
         "webm": "bomb/chain/clip.webm"
       },
       "fps": 30,
@@ -848,6 +865,7 @@
       "files": {
         "mp4": "bomb/throw/clip.mp4",
         "poster": "bomb/throw/poster.png",
+        "replay": "bomb/throw/replay.txt",
         "webm": "bomb/throw/clip.webm"
       },
       "fps": 30,
@@ -915,6 +933,7 @@
       "files": {
         "mp4": "boulder/crush/clip.mp4",
         "poster": "boulder/crush/poster.png",
+        "replay": "boulder/crush/replay.txt",
         "webm": "boulder/crush/clip.webm"
       },
       "fps": 30,
@@ -948,6 +967,7 @@
       "files": {
         "mp4": "boulder/outrun/clip.mp4",
         "poster": "boulder/outrun/poster.png",
+        "replay": "boulder/outrun/replay.txt",
         "webm": "boulder/outrun/clip.webm"
       },
       "fps": 30,
@@ -1049,6 +1069,7 @@
       "files": {
         "mp4": "cape/glide/clip.mp4",
         "poster": "cape/glide/poster.png",
+        "replay": "cape/glide/replay.txt",
         "webm": "cape/glide/clip.webm"
       },
       "fps": 30,
@@ -1184,6 +1205,7 @@
       "files": {
         "mp4": "ceiling-trap/crush/clip.mp4",
         "poster": "ceiling-trap/crush/poster.png",
+        "replay": "ceiling-trap/crush/replay.txt",
         "webm": "ceiling-trap/crush/clip.webm"
       },
       "fps": 30,
@@ -1217,6 +1239,7 @@
       "files": {
         "mp4": "chest/open/clip.mp4",
         "poster": "chest/open/poster.png",
+        "replay": "chest/open/replay.txt",
         "webm": "chest/open/clip.webm"
       },
       "fps": 30,
@@ -1250,6 +1273,7 @@
       "files": {
         "mp4": "city-of-gold-route/ankh/clip.mp4",
         "poster": "city-of-gold-route/ankh/poster.png",
+        "replay": "city-of-gold-route/ankh/replay.txt",
         "webm": "city-of-gold-route/ankh/clip.webm"
       },
       "fps": 30,
@@ -1283,6 +1307,7 @@
       "files": {
         "mp4": "city-of-gold-route/carry/clip.mp4",
         "poster": "city-of-gold-route/carry/poster.png",
+        "replay": "city-of-gold-route/carry/replay.txt",
         "webm": "city-of-gold-route/carry/clip.webm"
       },
       "fps": 30,
@@ -1316,6 +1341,7 @@
       "files": {
         "mp4": "city-of-gold-route/sceptre/clip.mp4",
         "poster": "city-of-gold-route/sceptre/poster.png",
+        "replay": "city-of-gold-route/sceptre/replay.txt",
         "webm": "city-of-gold-route/sceptre/clip.webm"
       },
       "fps": 30,
@@ -1349,6 +1375,7 @@
       "files": {
         "mp4": "city-of-gold/arrival/clip.mp4",
         "poster": "city-of-gold/arrival/poster.png",
+        "replay": "city-of-gold/arrival/replay.txt",
         "webm": "city-of-gold/arrival/clip.webm"
       },
       "fps": 30,
@@ -1382,6 +1409,7 @@
       "files": {
         "mp4": "city-of-gold/to-olmec/clip.mp4",
         "poster": "city-of-gold/to-olmec/poster.png",
+        "replay": "city-of-gold/to-olmec/replay.txt",
         "webm": "city-of-gold/to-olmec/clip.webm"
       },
       "fps": 30,
@@ -1415,6 +1443,7 @@
       "files": {
         "mp4": "city-of-gold/xoc-statue/clip.mp4",
         "poster": "city-of-gold/xoc-statue/poster.png",
+        "replay": "city-of-gold/xoc-statue/replay.txt",
         "webm": "city-of-gold/xoc-statue/clip.webm"
       },
       "fps": 30,
@@ -1482,6 +1511,7 @@
       "files": {
         "mp4": "clothing-shop/theft/clip.mp4",
         "poster": "clothing-shop/theft/poster.png",
+        "replay": "clothing-shop/theft/replay.txt",
         "webm": "clothing-shop/theft/clip.webm"
       },
       "fps": 30,
@@ -1515,6 +1545,7 @@
       "files": {
         "mp4": "compass/arrow/clip.mp4",
         "poster": "compass/arrow/poster.png",
+        "replay": "compass/arrow/replay.txt",
         "webm": "compass/arrow/clip.webm"
       },
       "fps": 30,
@@ -1548,6 +1579,7 @@
       "files": {
         "mp4": "controls/pause/clip.mp4",
         "poster": "controls/pause/poster.png",
+        "replay": "controls/pause/replay.txt",
         "webm": "controls/pause/clip.webm"
       },
       "fps": 30,
@@ -1649,6 +1681,7 @@
       "files": {
         "mp4": "credits/caravan/clip.mp4",
         "poster": "credits/caravan/poster.png",
+        "replay": "credits/caravan/replay.txt",
         "webm": "credits/caravan/clip.webm"
       },
       "fps": 30,
@@ -1682,6 +1715,7 @@
       "files": {
         "mp4": "credits/ride-off/clip.mp4",
         "poster": "credits/ride-off/poster.png",
+        "replay": "credits/ride-off/replay.txt",
         "webm": "credits/ride-off/clip.webm"
       },
       "fps": 30,
@@ -1715,6 +1749,7 @@
       "files": {
         "mp4": "credits/title-rope/clip.mp4",
         "poster": "credits/title-rope/poster.png",
+        "replay": "credits/title-rope/replay.txt",
         "webm": "credits/title-rope/clip.webm"
       },
       "fps": 30,
@@ -1748,6 +1783,7 @@
       "files": {
         "mp4": "crystal-skull/ghost/clip.mp4",
         "poster": "crystal-skull/ghost/poster.png",
+        "replay": "crystal-skull/ghost/replay.txt",
         "webm": "crystal-skull/ghost/clip.webm"
       },
       "fps": 30,
@@ -1849,6 +1885,7 @@
       "files": {
         "mp4": "damsel/rescue/clip.mp4",
         "poster": "damsel/rescue/poster.png",
+        "replay": "damsel/rescue/replay.txt",
         "webm": "damsel/rescue/clip.webm"
       },
       "fps": 30,
@@ -1882,6 +1919,7 @@
       "files": {
         "mp4": "damsel/sacrifice/clip.mp4",
         "poster": "damsel/sacrifice/poster.png",
+        "replay": "damsel/sacrifice/replay.txt",
         "webm": "damsel/sacrifice/clip.webm"
       },
       "fps": 30,
@@ -1949,6 +1987,7 @@
       "files": {
         "mp4": "dark-level/arrival/clip.mp4",
         "poster": "dark-level/arrival/poster.png",
+        "replay": "dark-level/arrival/replay.txt",
         "webm": "dark-level/arrival/clip.webm"
       },
       "fps": 30,
@@ -1982,6 +2021,7 @@
       "files": {
         "mp4": "dead-fish/bite/clip.mp4",
         "poster": "dead-fish/bite/poster.png",
+        "replay": "dead-fish/bite/replay.txt",
         "webm": "dead-fish/bite/clip.webm"
       },
       "fps": 30,
@@ -2015,6 +2055,7 @@
       "files": {
         "mp4": "dead-fish/stomp/clip.mp4",
         "poster": "dead-fish/stomp/poster.png",
+        "replay": "dead-fish/stomp/replay.txt",
         "webm": "dead-fish/stomp/clip.webm"
       },
       "fps": 30,
@@ -2048,6 +2089,7 @@
       "files": {
         "mp4": "diamond/ghost/clip.mp4",
         "poster": "diamond/ghost/poster.png",
+        "replay": "diamond/ghost/replay.txt",
         "webm": "diamond/ghost/clip.webm"
       },
       "fps": 30,
@@ -2081,6 +2123,7 @@
       "files": {
         "mp4": "dice-house/cheat/clip.mp4",
         "poster": "dice-house/cheat/poster.png",
+        "replay": "dice-house/cheat/replay.txt",
         "webm": "dice-house/cheat/clip.webm"
       },
       "fps": 30,
@@ -2114,6 +2157,7 @@
       "files": {
         "mp4": "dice-house/seven/clip.mp4",
         "poster": "dice-house/seven/poster.png",
+        "replay": "dice-house/seven/replay.txt",
         "webm": "dice-house/seven/clip.webm"
       },
       "fps": 30,
@@ -2147,6 +2191,7 @@
       "files": {
         "mp4": "dice-house/win/clip.mp4",
         "poster": "dice-house/win/poster.png",
+        "replay": "dice-house/win/replay.txt",
         "webm": "dice-house/win/clip.webm"
       },
       "fps": 30,
@@ -2180,6 +2225,7 @@
       "files": {
         "mp4": "endings/tally/clip.mp4",
         "poster": "endings/tally/poster.png",
+        "replay": "endings/tally/replay.txt",
         "webm": "endings/tally/clip.webm"
       },
       "fps": 30,
@@ -2213,6 +2259,7 @@
       "files": {
         "mp4": "endings/volcano/clip.mp4",
         "poster": "endings/volcano/poster.png",
+        "replay": "endings/volcano/replay.txt",
         "webm": "endings/volcano/clip.webm"
       },
       "fps": 30,
@@ -2314,6 +2361,7 @@
       "files": {
         "mp4": "flooded-level/crossing/clip.mp4",
         "poster": "flooded-level/crossing/poster.png",
+        "replay": "flooded-level/crossing/replay.txt",
         "webm": "flooded-level/crossing/clip.webm"
       },
       "fps": 30,
@@ -2347,6 +2395,7 @@
       "files": {
         "mp4": "flooded-level/megamouth/clip.mp4",
         "poster": "flooded-level/megamouth/poster.png",
+        "replay": "flooded-level/megamouth/replay.txt",
         "webm": "flooded-level/megamouth/clip.webm"
       },
       "fps": 30,
@@ -2414,6 +2463,7 @@
       "files": {
         "mp4": "general-store/buy/clip.mp4",
         "poster": "general-store/buy/poster.png",
+        "replay": "general-store/buy/replay.txt",
         "webm": "general-store/buy/clip.webm"
       },
       "fps": 30,
@@ -2447,6 +2497,7 @@
       "files": {
         "mp4": "general-store/theft/clip.mp4",
         "poster": "general-store/theft/poster.png",
+        "replay": "general-store/theft/replay.txt",
         "webm": "general-store/theft/clip.webm"
       },
       "fps": 30,
@@ -2480,6 +2531,7 @@
       "files": {
         "mp4": "general-store/waiting-shopkeeper/clip.mp4",
         "poster": "general-store/waiting-shopkeeper/poster.png",
+        "replay": "general-store/waiting-shopkeeper/replay.txt",
         "webm": "general-store/waiting-shopkeeper/clip.webm"
       },
       "fps": 30,
@@ -2513,6 +2565,7 @@
       "files": {
         "mp4": "ghost-timer/warning/clip.mp4",
         "poster": "ghost-timer/warning/poster.png",
+        "replay": "ghost-timer/warning/replay.txt",
         "webm": "ghost-timer/warning/clip.webm"
       },
       "fps": 30,
@@ -2546,6 +2599,7 @@
       "files": {
         "mp4": "ghost/touch/clip.mp4",
         "poster": "ghost/touch/poster.png",
+        "replay": "ghost/touch/replay.txt",
         "webm": "ghost/touch/clip.webm"
       },
       "fps": 30,
@@ -2715,6 +2769,7 @@
       "files": {
         "mp4": "gold-bar/tutorial/clip.mp4",
         "poster": "gold-bar/tutorial/poster.png",
+        "replay": "gold-bar/tutorial/replay.txt",
         "webm": "gold-bar/tutorial/clip.webm"
       },
       "fps": 30,
@@ -2748,6 +2803,7 @@
       "files": {
         "mp4": "gold-chunk/mattock/clip.mp4",
         "poster": "gold-chunk/mattock/poster.png",
+        "replay": "gold-chunk/mattock/replay.txt",
         "webm": "gold-chunk/mattock/clip.webm"
       },
       "fps": 30,
@@ -2781,6 +2837,7 @@
       "files": {
         "mp4": "gold-nugget/shopkeeper/clip.mp4",
         "poster": "gold-nugget/shopkeeper/poster.png",
+        "replay": "gold-nugget/shopkeeper/replay.txt",
         "webm": "gold-nugget/shopkeeper/clip.webm"
       },
       "fps": 30,
@@ -2814,6 +2871,7 @@
       "files": {
         "mp4": "golden-idol/boulder/clip.mp4",
         "poster": "golden-idol/boulder/poster.png",
+        "replay": "golden-idol/boulder/replay.txt",
         "webm": "golden-idol/boulder/clip.webm"
       },
       "fps": 30,
@@ -2847,6 +2905,7 @@
       "files": {
         "mp4": "golden-idol/exit/clip.mp4",
         "poster": "golden-idol/exit/poster.png",
+        "replay": "golden-idol/exit/replay.txt",
         "webm": "golden-idol/exit/clip.webm"
       },
       "fps": 30,
@@ -2982,6 +3041,7 @@
       "files": {
         "mp4": "hedjet/dark-level/clip.mp4",
         "poster": "hedjet/dark-level/poster.png",
+        "replay": "hedjet/dark-level/replay.txt",
         "webm": "hedjet/dark-level/clip.webm"
       },
       "fps": 30,
@@ -3015,6 +3075,7 @@
       "files": {
         "mp4": "hedjet/gold-door/clip.mp4",
         "poster": "hedjet/gold-door/poster.png",
+        "replay": "hedjet/gold-door/replay.txt",
         "webm": "hedjet/gold-door/clip.webm"
       },
       "fps": 30,
@@ -3048,6 +3109,7 @@
       "files": {
         "mp4": "hedjet/moai/clip.mp4",
         "poster": "hedjet/moai/poster.png",
+        "replay": "hedjet/moai/replay.txt",
         "webm": "hedjet/moai/clip.webm"
       },
       "fps": 30,
@@ -3081,6 +3143,7 @@
       "files": {
         "mp4": "ice-caves/from-jungle/clip.mp4",
         "poster": "ice-caves/from-jungle/poster.png",
+        "replay": "ice-caves/from-jungle/replay.txt",
         "webm": "ice-caves/from-jungle/clip.webm"
       },
       "fps": 30,
@@ -3114,6 +3177,7 @@
       "files": {
         "mp4": "jar/throw/clip.mp4",
         "poster": "jar/throw/poster.png",
+        "replay": "jar/throw/replay.txt",
         "webm": "jar/throw/clip.webm"
       },
       "fps": 30,
@@ -3181,6 +3245,7 @@
       "files": {
         "mp4": "jetpack/fly/clip.mp4",
         "poster": "jetpack/fly/poster.png",
+        "replay": "jetpack/fly/replay.txt",
         "webm": "jetpack/fly/clip.webm"
       },
       "fps": 30,
@@ -3214,6 +3279,7 @@
       "files": {
         "mp4": "jetpack/soft-landing/clip.mp4",
         "poster": "jetpack/soft-landing/poster.png",
+        "replay": "jetpack/soft-landing/replay.txt",
         "webm": "jetpack/soft-landing/clip.webm"
       },
       "fps": 30,
@@ -3247,6 +3313,7 @@
       "files": {
         "mp4": "jungle/from-mines/clip.mp4",
         "poster": "jungle/from-mines/poster.png",
+        "replay": "jungle/from-mines/replay.txt",
         "webm": "jungle/from-mines/clip.webm"
       },
       "fps": 30,
@@ -3280,6 +3347,7 @@
       "files": {
         "mp4": "jungle/shortcut/clip.mp4",
         "poster": "jungle/shortcut/poster.png",
+        "replay": "jungle/shortcut/replay.txt",
         "webm": "jungle/shortcut/clip.webm"
       },
       "fps": 30,
@@ -3313,6 +3381,7 @@
       "files": {
         "mp4": "kali/ghost/clip.mp4",
         "poster": "kali/ghost/poster.png",
+        "replay": "kali/ghost/replay.txt",
         "webm": "kali/ghost/clip.webm"
       },
       "fps": 30,
@@ -3346,6 +3415,7 @@
       "files": {
         "mp4": "kali/spiders/clip.mp4",
         "poster": "kali/spiders/poster.png",
+        "replay": "kali/spiders/replay.txt",
         "webm": "kali/spiders/clip.webm"
       },
       "fps": 30,
@@ -3379,6 +3449,7 @@
       "files": {
         "mp4": "kalis-altar/defile/clip.mp4",
         "poster": "kalis-altar/defile/poster.png",
+        "replay": "kalis-altar/defile/replay.txt",
         "webm": "kalis-altar/defile/clip.webm"
       },
       "fps": 30,
@@ -3412,6 +3483,7 @@
       "files": {
         "mp4": "kalis-favour/kapala/clip.mp4",
         "poster": "kalis-favour/kapala/poster.png",
+        "replay": "kalis-favour/kapala/replay.txt",
         "webm": "kalis-favour/kapala/clip.webm"
       },
       "fps": 30,
@@ -3445,6 +3517,7 @@
       "files": {
         "mp4": "kapala/heart/clip.mp4",
         "poster": "kapala/heart/poster.png",
+        "replay": "kapala/heart/replay.txt",
         "webm": "kapala/heart/clip.webm"
       },
       "fps": 30,
@@ -3478,6 +3551,7 @@
       "files": {
         "mp4": "kissing-parlor/kiss/clip.mp4",
         "poster": "kissing-parlor/kiss/poster.png",
+        "replay": "kissing-parlor/kiss/replay.txt",
         "webm": "kissing-parlor/kiss/clip.webm"
       },
       "fps": 30,
@@ -3511,6 +3585,7 @@
       "files": {
         "mp4": "kissing-parlor/theft/clip.mp4",
         "poster": "kissing-parlor/theft/poster.png",
+        "replay": "kissing-parlor/theft/replay.txt",
         "webm": "kissing-parlor/theft/clip.webm"
       },
       "fps": 30,
@@ -3578,6 +3653,7 @@
       "files": {
         "mp4": "lava/flow/clip.mp4",
         "poster": "lava/flow/poster.png",
+        "replay": "lava/flow/replay.txt",
         "webm": "lava/flow/clip.webm"
       },
       "fps": 30,
@@ -3611,6 +3687,7 @@
       "files": {
         "mp4": "level-editor/build/clip.mp4",
         "poster": "level-editor/build/poster.png",
+        "replay": "level-editor/build/replay.txt",
         "webm": "level-editor/build/clip.webm"
       },
       "fps": 30,
@@ -3644,6 +3721,7 @@
       "files": {
         "mp4": "level-editor/chain/clip.mp4",
         "poster": "level-editor/chain/poster.png",
+        "replay": "level-editor/chain/replay.txt",
         "webm": "level-editor/chain/clip.webm"
       },
       "fps": 30,
@@ -3677,6 +3755,7 @@
       "files": {
         "mp4": "level-editor/every-tile/clip.mp4",
         "poster": "level-editor/every-tile/poster.png",
+        "replay": "level-editor/every-tile/replay.txt",
         "webm": "level-editor/every-tile/clip.webm"
       },
       "fps": 30,
@@ -3710,6 +3789,7 @@
       "files": {
         "mp4": "level-editor/load-level/clip.mp4",
         "poster": "level-editor/load-level/poster.png",
+        "replay": "level-editor/load-level/replay.txt",
         "webm": "level-editor/load-level/clip.webm"
       },
       "fps": 30,
@@ -3743,6 +3823,7 @@
       "files": {
         "mp4": "level-generation/path/clip.mp4",
         "poster": "level-generation/path/poster.png",
+        "replay": "level-generation/path/replay.txt",
         "webm": "level-generation/path/clip.webm"
       },
       "fps": 30,
@@ -4150,6 +4231,7 @@
       "files": {
         "mp4": "mines/exit/clip.mp4",
         "poster": "mines/exit/poster.png",
+        "replay": "mines/exit/replay.txt",
         "webm": "mines/exit/clip.webm"
       },
       "fps": 30,
@@ -4183,6 +4265,7 @@
       "files": {
         "mp4": "mines/start/clip.mp4",
         "poster": "mines/start/poster.png",
+        "replay": "mines/start/replay.txt",
         "webm": "mines/start/clip.webm"
       },
       "fps": 30,
@@ -4216,6 +4299,7 @@
       "files": {
         "mp4": "moai/statue/clip.mp4",
         "poster": "moai/statue/poster.png",
+        "replay": "moai/statue/replay.txt",
         "webm": "moai/statue/clip.webm"
       },
       "fps": 30,
@@ -4283,6 +4367,7 @@
       "files": {
         "mp4": "mothership/psychic-presence/clip.mp4",
         "poster": "mothership/psychic-presence/poster.png",
+        "replay": "mothership/psychic-presence/replay.txt",
         "webm": "mothership/psychic-presence/clip.webm"
       },
       "fps": 30,
@@ -4316,6 +4401,7 @@
       "files": {
         "mp4": "olmec/awakening/clip.mp4",
         "poster": "olmec/awakening/poster.png",
+        "replay": "olmec/awakening/replay.txt",
         "webm": "olmec/awakening/clip.webm"
       },
       "fps": 30,
@@ -4349,6 +4435,7 @@
       "files": {
         "mp4": "olmec/crush/clip.mp4",
         "poster": "olmec/crush/poster.png",
+        "replay": "olmec/crush/replay.txt",
         "webm": "olmec/crush/clip.webm"
       },
       "fps": 30,
@@ -4382,6 +4469,7 @@
       "files": {
         "mp4": "olmec/lava/clip.mp4",
         "poster": "olmec/lava/poster.png",
+        "replay": "olmec/lava/replay.txt",
         "webm": "olmec/lava/clip.webm"
       },
       "fps": 30,
@@ -4415,6 +4503,7 @@
       "files": {
         "mp4": "olmec/slam/clip.mp4",
         "poster": "olmec/slam/poster.png",
+        "replay": "olmec/slam/replay.txt",
         "webm": "olmec/slam/clip.webm"
       },
       "fps": 30,
@@ -4448,6 +4537,7 @@
       "files": {
         "mp4": "olmecs-lair/exit/clip.mp4",
         "poster": "olmecs-lair/exit/poster.png",
+        "replay": "olmecs-lair/exit/replay.txt",
         "webm": "olmecs-lair/exit/clip.webm"
       },
       "fps": 30,
@@ -4481,6 +4571,7 @@
       "files": {
         "mp4": "parachute/open/clip.mp4",
         "poster": "parachute/open/poster.png",
+        "replay": "parachute/open/replay.txt",
         "webm": "parachute/open/clip.webm"
       },
       "fps": 30,
@@ -4514,6 +4605,7 @@
       "files": {
         "mp4": "paste/wall/clip.mp4",
         "poster": "paste/wall/poster.png",
+        "replay": "paste/wall/replay.txt",
         "webm": "paste/wall/clip.webm"
       },
       "fps": 30,
@@ -4547,6 +4639,7 @@
       "files": {
         "mp4": "paste/yeti/clip.mp4",
         "poster": "paste/yeti/poster.png",
+        "replay": "paste/yeti/replay.txt",
         "webm": "paste/yeti/clip.webm"
       },
       "fps": 30,
@@ -4614,6 +4707,7 @@
       "files": {
         "mp4": "pistol/shopkeeper/clip.mp4",
         "poster": "pistol/shopkeeper/poster.png",
+        "replay": "pistol/shopkeeper/replay.txt",
         "webm": "pistol/shopkeeper/clip.webm"
       },
       "fps": 30,
@@ -4681,6 +4775,7 @@
       "files": {
         "mp4": "pitchers-mitt/throw/clip.mp4",
         "poster": "pitchers-mitt/throw/poster.png",
+        "replay": "pitchers-mitt/throw/replay.txt",
         "webm": "pitchers-mitt/throw/clip.webm"
       },
       "fps": 30,
@@ -4714,6 +4809,7 @@
       "files": {
         "mp4": "quirks/ankh-thrown-out-of-shop/clip.mp4",
         "poster": "quirks/ankh-thrown-out-of-shop/poster.png",
+        "replay": "quirks/ankh-thrown-out-of-shop/replay.txt",
         "webm": "quirks/ankh-thrown-out-of-shop/clip.webm"
       },
       "fps": 30,
@@ -4747,6 +4843,7 @@
       "files": {
         "mp4": "quirks/arrow-trap-sensor-left-wider/clip.mp4",
         "poster": "quirks/arrow-trap-sensor-left-wider/poster.png",
+        "replay": "quirks/arrow-trap-sensor-left-wider/replay.txt",
         "webm": "quirks/arrow-trap-sensor-left-wider/clip.webm"
       },
       "fps": 30,
@@ -4780,6 +4877,7 @@
       "files": {
         "mp4": "quirks/ash-graves/clip.mp4",
         "poster": "quirks/ash-graves/poster.png",
+        "replay": "quirks/ash-graves/replay.txt",
         "webm": "quirks/ash-graves/clip.webm"
       },
       "fps": 30,
@@ -4813,6 +4911,7 @@
       "files": {
         "mp4": "quirks/barrier-item-thrown-through/clip.mp4",
         "poster": "quirks/barrier-item-thrown-through/poster.png",
+        "replay": "quirks/barrier-item-thrown-through/replay.txt",
         "webm": "quirks/barrier-item-thrown-through/clip.webm"
       },
       "fps": 30,
@@ -4846,6 +4945,7 @@
       "files": {
         "mp4": "quirks/bomb-arrow-free/clip.mp4",
         "poster": "quirks/bomb-arrow-free/poster.png",
+        "replay": "quirks/bomb-arrow-free/replay.txt",
         "webm": "quirks/bomb-arrow-free/clip.webm"
       },
       "fps": 30,
@@ -4879,6 +4979,7 @@
       "files": {
         "mp4": "quirks/caveman-ledge-slide/clip.mp4",
         "poster": "quirks/caveman-ledge-slide/poster.png",
+        "replay": "quirks/caveman-ledge-slide/replay.txt",
         "webm": "quirks/caveman-ledge-slide/clip.webm"
       },
       "fps": 30,
@@ -4912,6 +5013,7 @@
       "files": {
         "mp4": "quirks/caveman-sight-alerts-others/clip.mp4",
         "poster": "quirks/caveman-sight-alerts-others/poster.png",
+        "replay": "quirks/caveman-sight-alerts-others/replay.txt",
         "webm": "quirks/caveman-sight-alerts-others/clip.webm"
       },
       "fps": 30,
@@ -4945,6 +5047,7 @@
       "files": {
         "mp4": "quirks/chest-trap-bomb-taken-out/clip.mp4",
         "poster": "quirks/chest-trap-bomb-taken-out/poster.png",
+        "replay": "quirks/chest-trap-bomb-taken-out/replay.txt",
         "webm": "quirks/chest-trap-bomb-taken-out/clip.webm"
       },
       "fps": 30,
@@ -4978,6 +5081,7 @@
       "files": {
         "mp4": "quirks/city-jungle-earth/clip.mp4",
         "poster": "quirks/city-jungle-earth/poster.png",
+        "replay": "quirks/city-jungle-earth/replay.txt",
         "webm": "quirks/city-jungle-earth/clip.webm"
       },
       "fps": 30,
@@ -5011,6 +5115,7 @@
       "files": {
         "mp4": "quirks/city-stone-block-no-gold/clip.mp4",
         "poster": "quirks/city-stone-block-no-gold/poster.png",
+        "replay": "quirks/city-stone-block-no-gold/replay.txt",
         "webm": "quirks/city-stone-block-no-gold/clip.webm"
       },
       "fps": 30,
@@ -5044,6 +5149,7 @@
       "files": {
         "mp4": "quirks/compass-arrow-off-screen/clip.mp4",
         "poster": "quirks/compass-arrow-off-screen/poster.png",
+        "replay": "quirks/compass-arrow-off-screen/replay.txt",
         "webm": "quirks/compass-arrow-off-screen/clip.webm"
       },
       "fps": 30,
@@ -5077,6 +5183,7 @@
       "files": {
         "mp4": "quirks/crystal-skull-sold-as-idol/clip.mp4",
         "poster": "quirks/crystal-skull-sold-as-idol/poster.png",
+        "replay": "quirks/crystal-skull-sold-as-idol/replay.txt",
         "webm": "quirks/crystal-skull-sold-as-idol/clip.webm"
       },
       "fps": 30,
@@ -5110,6 +5217,7 @@
       "files": {
         "mp4": "quirks/damsel-title-rope-spelunker/clip.mp4",
         "poster": "quirks/damsel-title-rope-spelunker/poster.png",
+        "replay": "quirks/damsel-title-rope-spelunker/replay.txt",
         "webm": "quirks/damsel-title-rope-spelunker/clip.webm"
       },
       "fps": 30,
@@ -5143,6 +5251,7 @@
       "files": {
         "mp4": "quirks/damsel-whip-hop-thrown/clip.mp4",
         "poster": "quirks/damsel-whip-hop-thrown/poster.png",
+        "replay": "quirks/damsel-whip-hop-thrown/replay.txt",
         "webm": "quirks/damsel-whip-hop-thrown/clip.webm"
       },
       "fps": 30,
@@ -5176,6 +5285,7 @@
       "files": {
         "mp4": "quirks/dark-graveyard-lake-you-hear/clip.mp4",
         "poster": "quirks/dark-graveyard-lake-you-hear/poster.png",
+        "replay": "quirks/dark-graveyard-lake-you-hear/replay.txt",
         "webm": "quirks/dark-graveyard-lake-you-hear/clip.webm"
       },
       "fps": 30,
@@ -5209,6 +5319,7 @@
       "files": {
         "mp4": "quirks/dark-rubble-falls-through/clip.mp4",
         "poster": "quirks/dark-rubble-falls-through/poster.png",
+        "replay": "quirks/dark-rubble-falls-through/replay.txt",
         "webm": "quirks/dark-rubble-falls-through/clip.webm"
       },
       "fps": 30,
@@ -5242,6 +5353,7 @@
       "files": {
         "mp4": "quirks/dark-rubble-off-centre/clip.mp4",
         "poster": "quirks/dark-rubble-off-centre/poster.png",
+        "replay": "quirks/dark-rubble-off-centre/replay.txt",
         "webm": "quirks/dark-rubble-off-centre/clip.webm"
       },
       "fps": 30,
@@ -5275,6 +5387,7 @@
       "files": {
         "mp4": "quirks/giant-spider-whip-wind-up/clip.mp4",
         "poster": "quirks/giant-spider-whip-wind-up/poster.png",
+        "replay": "quirks/giant-spider-whip-wind-up/replay.txt",
         "webm": "quirks/giant-spider-whip-wind-up/clip.webm"
       },
       "fps": 30,
@@ -5308,6 +5421,7 @@
       "files": {
         "mp4": "quirks/gold-door-on-altar/clip.mp4",
         "poster": "quirks/gold-door-on-altar/poster.png",
+        "replay": "quirks/gold-door-on-altar/replay.txt",
         "webm": "quirks/gold-door-on-altar/clip.webm"
       },
       "fps": 30,
@@ -5341,6 +5455,7 @@
       "files": {
         "mp4": "quirks/highscores-block-crush/clip.mp4",
         "poster": "quirks/highscores-block-crush/poster.png",
+        "replay": "quirks/highscores-block-crush/replay.txt",
         "webm": "quirks/highscores-block-crush/clip.webm"
       },
       "fps": 30,
@@ -5374,6 +5489,7 @@
       "files": {
         "mp4": "quirks/jar-shot-in-hands/clip.mp4",
         "poster": "quirks/jar-shot-in-hands/poster.png",
+        "replay": "quirks/jar-shot-in-hands/replay.txt",
         "webm": "quirks/jar-shot-in-hands/clip.webm"
       },
       "fps": 30,
@@ -5407,6 +5523,7 @@
       "files": {
         "mp4": "quirks/jar-whip-rolls-twice/clip.mp4",
         "poster": "quirks/jar-whip-rolls-twice/poster.png",
+        "replay": "quirks/jar-whip-rolls-twice/replay.txt",
         "webm": "quirks/jar-whip-rolls-twice/clip.webm"
       },
       "fps": 30,
@@ -5440,6 +5557,7 @@
       "files": {
         "mp4": "quirks/jetpack-vanishes-player-invisible/clip.mp4",
         "poster": "quirks/jetpack-vanishes-player-invisible/poster.png",
+        "replay": "quirks/jetpack-vanishes-player-invisible/replay.txt",
         "webm": "quirks/jetpack-vanishes-player-invisible/clip.webm"
       },
       "fps": 30,
@@ -5473,6 +5591,7 @@
       "files": {
         "mp4": "quirks/market-die-angers-next-shop/clip.mp4",
         "poster": "quirks/market-die-angers-next-shop/poster.png",
+        "replay": "quirks/market-die-angers-next-shop/replay.txt",
         "webm": "quirks/market-die-angers-next-shop/clip.webm"
       },
       "fps": 30,
@@ -5506,6 +5625,7 @@
       "files": {
         "mp4": "quirks/market-graveyard/clip.mp4",
         "poster": "quirks/market-graveyard/poster.png",
+        "replay": "quirks/market-graveyard/replay.txt",
         "webm": "quirks/market-graveyard/clip.webm"
       },
       "fps": 30,
@@ -5539,6 +5659,7 @@
       "files": {
         "mp4": "quirks/market-two-general-stores/clip.mp4",
         "poster": "quirks/market-two-general-stores/poster.png",
+        "replay": "quirks/market-two-general-stores/replay.txt",
         "webm": "quirks/market-two-general-stores/clip.webm"
       },
       "fps": 30,
@@ -5572,6 +5693,7 @@
       "files": {
         "mp4": "quirks/mattock-wind-up-twice/clip.mp4",
         "poster": "quirks/mattock-wind-up-twice/poster.png",
+        "replay": "quirks/mattock-wind-up-twice/replay.txt",
         "webm": "quirks/mattock-wind-up-twice/clip.webm"
       },
       "fps": 30,
@@ -5605,6 +5727,7 @@
       "files": {
         "mp4": "quirks/mattock-wrong-block/clip.mp4",
         "poster": "quirks/mattock-wrong-block/poster.png",
+        "replay": "quirks/mattock-wrong-block/replay.txt",
         "webm": "quirks/mattock-wrong-block/clip.webm"
       },
       "fps": 30,
@@ -5638,6 +5761,7 @@
       "files": {
         "mp4": "quirks/mitt-catch-every-rock/clip.mp4",
         "poster": "quirks/mitt-catch-every-rock/poster.png",
+        "replay": "quirks/mitt-catch-every-rock/replay.txt",
         "webm": "quirks/mitt-catch-every-rock/clip.webm"
       },
       "fps": 30,
@@ -5671,6 +5795,7 @@
       "files": {
         "mp4": "quirks/mitt-gravity-one-step/clip.mp4",
         "poster": "quirks/mitt-gravity-one-step/poster.png",
+        "replay": "quirks/mitt-gravity-one-step/replay.txt",
         "webm": "quirks/mitt-gravity-one-step/clip.webm"
       },
       "fps": 30,
@@ -5704,6 +5829,7 @@
       "files": {
         "mp4": "quirks/moon-room-goal-any-win/clip.mp4",
         "poster": "quirks/moon-room-goal-any-win/poster.png",
+        "replay": "quirks/moon-room-goal-any-win/replay.txt",
         "webm": "quirks/moon-room-goal-any-win/clip.webm"
       },
       "fps": 30,
@@ -5737,6 +5863,7 @@
       "files": {
         "mp4": "quirks/olmec-door-block-crush/clip.mp4",
         "poster": "quirks/olmec-door-block-crush/poster.png",
+        "replay": "quirks/olmec-door-block-crush/replay.txt",
         "webm": "quirks/olmec-door-block-crush/clip.webm"
       },
       "fps": 30,
@@ -5770,6 +5897,7 @@
       "files": {
         "mp4": "quirks/olmec-lava-left-wall/clip.mp4",
         "poster": "quirks/olmec-lava-left-wall/poster.png",
+        "replay": "quirks/olmec-lava-left-wall/replay.txt",
         "webm": "quirks/olmec-lava-left-wall/clip.webm"
       },
       "fps": 30,
@@ -5803,6 +5931,7 @@
       "files": {
         "mp4": "quirks/olmec-slam-drifting-left/clip.mp4",
         "poster": "quirks/olmec-slam-drifting-left/poster.png",
+        "replay": "quirks/olmec-slam-drifting-left/replay.txt",
         "webm": "quirks/olmec-slam-drifting-left/clip.webm"
       },
       "fps": 30,
@@ -5836,6 +5965,7 @@
       "files": {
         "mp4": "quirks/parachute-torn-moving-right/clip.mp4",
         "poster": "quirks/parachute-torn-moving-right/poster.png",
+        "replay": "quirks/parachute-torn-moving-right/replay.txt",
         "webm": "quirks/parachute-torn-moving-right/clip.webm"
       },
       "fps": 30,
@@ -5869,6 +5999,7 @@
       "files": {
         "mp4": "quirks/pickup-nearest-enemy/clip.mp4",
         "poster": "quirks/pickup-nearest-enemy/poster.png",
+        "replay": "quirks/pickup-nearest-enemy/replay.txt",
         "webm": "quirks/pickup-nearest-enemy/clip.webm"
       },
       "fps": 30,
@@ -5902,6 +6033,7 @@
       "files": {
         "mp4": "quirks/shopkeeper-patrol-one-step/clip.mp4",
         "poster": "quirks/shopkeeper-patrol-one-step/poster.png",
+        "replay": "quirks/shopkeeper-patrol-one-step/replay.txt",
         "webm": "quirks/shopkeeper-patrol-one-step/clip.webm"
       },
       "fps": 30,
@@ -5935,6 +6067,7 @@
       "files": {
         "mp4": "quirks/shopkeeper-spikes-murderer/clip.mp4",
         "poster": "quirks/shopkeeper-spikes-murderer/poster.png",
+        "replay": "quirks/shopkeeper-spikes-murderer/replay.txt",
         "webm": "quirks/shopkeeper-spikes-murderer/clip.webm"
       },
       "fps": 30,
@@ -5968,6 +6101,7 @@
       "files": {
         "mp4": "quirks/skeleton-faces-right/clip.mp4",
         "poster": "quirks/skeleton-faces-right/poster.png",
+        "replay": "quirks/skeleton-faces-right/replay.txt",
         "webm": "quirks/skeleton-faces-right/clip.webm"
       },
       "fps": 30,
@@ -6001,6 +6135,7 @@
       "files": {
         "mp4": "quirks/skull-breaks-on-ceiling/clip.mp4",
         "poster": "quirks/skull-breaks-on-ceiling/poster.png",
+        "replay": "quirks/skull-breaks-on-ceiling/replay.txt",
         "webm": "quirks/skull-breaks-on-ceiling/clip.webm"
       },
       "fps": 30,
@@ -6034,6 +6169,7 @@
       "files": {
         "mp4": "quirks/smash-trap-random-throw/clip.mp4",
         "poster": "quirks/smash-trap-random-throw/poster.png",
+        "replay": "quirks/smash-trap-random-throw/replay.txt",
         "webm": "quirks/smash-trap-random-throw/clip.webm"
       },
       "fps": 30,
@@ -6067,6 +6203,7 @@
       "files": {
         "mp4": "quirks/teleporter-old-target/clip.mp4",
         "poster": "quirks/teleporter-old-target/poster.png",
+        "replay": "quirks/teleporter-old-target/replay.txt",
         "webm": "quirks/teleporter-old-target/clip.webm"
       },
       "fps": 30,
@@ -6100,6 +6237,7 @@
       "files": {
         "mp4": "quirks/thrown-item-nearest-enemy/clip.mp4",
         "poster": "quirks/thrown-item-nearest-enemy/poster.png",
+        "replay": "quirks/thrown-item-nearest-enemy/replay.txt",
         "webm": "quirks/thrown-item-nearest-enemy/clip.webm"
       },
       "fps": 30,
@@ -6133,6 +6271,7 @@
       "files": {
         "mp4": "quirks/thrown-monster-full-push/clip.mp4",
         "poster": "quirks/thrown-monster-full-push/poster.png",
+        "replay": "quirks/thrown-monster-full-push/replay.txt",
         "webm": "quirks/thrown-monster-full-push/clip.webm"
       },
       "fps": 30,
@@ -6166,6 +6305,7 @@
       "files": {
         "mp4": "quirks/tomb-lord-whip-wind-up/clip.mp4",
         "poster": "quirks/tomb-lord-whip-wind-up/poster.png",
+        "replay": "quirks/tomb-lord-whip-wind-up/replay.txt",
         "webm": "quirks/tomb-lord-whip-wind-up/clip.webm"
       },
       "fps": 30,
@@ -6199,6 +6339,7 @@
       "files": {
         "mp4": "quirks/two-damsels-one-heart/clip.mp4",
         "poster": "quirks/two-damsels-one-heart/poster.png",
+        "replay": "quirks/two-damsels-one-heart/replay.txt",
         "webm": "quirks/two-damsels-one-heart/clip.webm"
       },
       "fps": 30,
@@ -6232,6 +6373,7 @@
       "files": {
         "mp4": "quirks/web-jump-wears-wrong-web/clip.mp4",
         "poster": "quirks/web-jump-wears-wrong-web/poster.png",
+        "replay": "quirks/web-jump-wears-wrong-web/replay.txt",
         "webm": "quirks/web-jump-wears-wrong-web/clip.webm"
       },
       "fps": 30,
@@ -6265,6 +6407,7 @@
       "files": {
         "mp4": "quirks/whip-hits-every-step/clip.mp4",
         "poster": "quirks/whip-hits-every-step/poster.png",
+        "replay": "quirks/whip-hits-every-step/replay.txt",
         "webm": "quirks/whip-hits-every-step/clip.webm"
       },
       "fps": 30,
@@ -6298,6 +6441,7 @@
       "files": {
         "mp4": "quirks/xoc-statue-in-sacrifice-pit/clip.mp4",
         "poster": "quirks/xoc-statue-in-sacrifice-pit/poster.png",
+        "replay": "quirks/xoc-statue-in-sacrifice-pit/replay.txt",
         "webm": "quirks/xoc-statue-in-sacrifice-pit/clip.webm"
       },
       "fps": 30,
@@ -6331,6 +6475,7 @@
       "files": {
         "mp4": "quirks/yeti-king-touch-custom-level/clip.mp4",
         "poster": "quirks/yeti-king-touch-custom-level/poster.png",
+        "replay": "quirks/yeti-king-touch-custom-level/replay.txt",
         "webm": "quirks/yeti-king-touch-custom-level/clip.webm"
       },
       "fps": 30,
@@ -6364,6 +6509,7 @@
       "files": {
         "mp4": "quirks/yeti-king-whip-wind-up/clip.mp4",
         "poster": "quirks/yeti-king-whip-wind-up/poster.png",
+        "replay": "quirks/yeti-king-whip-wind-up/replay.txt",
         "webm": "quirks/yeti-king-whip-wind-up/clip.webm"
       },
       "fps": 30,
@@ -6397,6 +6543,7 @@
       "files": {
         "mp4": "quirks/yeti-never-charges/clip.mp4",
         "poster": "quirks/yeti-never-charges/poster.png",
+        "replay": "quirks/yeti-never-charges/replay.txt",
         "webm": "quirks/yeti-never-charges/clip.webm"
       },
       "fps": 30,
@@ -6430,6 +6577,7 @@
       "files": {
         "mp4": "quirks/yeti-stomp-rising/clip.mp4",
         "poster": "quirks/yeti-stomp-rising/poster.png",
+        "replay": "quirks/yeti-stomp-rising/replay.txt",
         "webm": "quirks/yeti-stomp-rising/clip.webm"
       },
       "fps": 30,
@@ -6463,6 +6611,7 @@
       "files": {
         "mp4": "quirks/yeti-stomp-sixteen-steps/clip.mp4",
         "poster": "quirks/yeti-stomp-sixteen-steps/poster.png",
+        "replay": "quirks/yeti-stomp-sixteen-steps/replay.txt",
         "webm": "quirks/yeti-stomp-sixteen-steps/clip.webm"
       },
       "fps": 30,
@@ -6496,6 +6645,7 @@
       "files": {
         "mp4": "rare-shop/theft/clip.mp4",
         "poster": "rare-shop/theft/poster.png",
+        "replay": "rare-shop/theft/replay.txt",
         "webm": "rare-shop/theft/clip.webm"
       },
       "fps": 30,
@@ -6529,6 +6679,7 @@
       "files": {
         "mp4": "rare-shop/wanted/clip.mp4",
         "poster": "rare-shop/wanted/poster.png",
+        "replay": "rare-shop/wanted/replay.txt",
         "webm": "rare-shop/wanted/clip.webm"
       },
       "fps": 30,
@@ -6562,6 +6713,7 @@
       "files": {
         "mp4": "restless-dead/arrival/clip.mp4",
         "poster": "restless-dead/arrival/poster.png",
+        "replay": "restless-dead/arrival/replay.txt",
         "webm": "restless-dead/arrival/clip.webm"
       },
       "fps": 30,
@@ -6595,6 +6747,7 @@
       "files": {
         "mp4": "rope/burn/clip.mp4",
         "poster": "rope/burn/poster.png",
+        "replay": "rope/burn/replay.txt",
         "webm": "rope/burn/clip.webm"
       },
       "fps": 30,
@@ -6628,6 +6781,7 @@
       "files": {
         "mp4": "rope/climb/clip.mp4",
         "poster": "rope/climb/poster.png",
+        "replay": "rope/climb/replay.txt",
         "webm": "rope/climb/clip.webm"
       },
       "fps": 30,
@@ -6661,6 +6815,7 @@
       "files": {
         "mp4": "rope/ledge/clip.mp4",
         "poster": "rope/ledge/poster.png",
+        "replay": "rope/ledge/replay.txt",
         "webm": "rope/ledge/clip.webm"
       },
       "fps": 30,
@@ -6694,6 +6849,7 @@
       "files": {
         "mp4": "sacrifice-pit/arrival/clip.mp4",
         "poster": "sacrifice-pit/arrival/poster.png",
+        "replay": "sacrifice-pit/arrival/replay.txt",
         "webm": "sacrifice-pit/arrival/clip.webm"
       },
       "fps": 30,
@@ -6727,6 +6883,7 @@
       "files": {
         "mp4": "sacrifice/yeti/clip.mp4",
         "poster": "sacrifice/yeti/poster.png",
+        "replay": "sacrifice/yeti/replay.txt",
         "webm": "sacrifice/yeti/clip.webm"
       },
       "fps": 30,
@@ -6760,6 +6917,7 @@
       "files": {
         "mp4": "scarab/collect/clip.mp4",
         "poster": "scarab/collect/poster.png",
+        "replay": "scarab/collect/replay.txt",
         "webm": "scarab/collect/clip.webm"
       },
       "fps": 30,
@@ -6793,6 +6951,7 @@
       "files": {
         "mp4": "sceptre/hawkman/clip.mp4",
         "poster": "sceptre/hawkman/poster.png",
+        "replay": "sceptre/hawkman/replay.txt",
         "webm": "sceptre/hawkman/clip.webm"
       },
       "fps": 30,
@@ -6826,6 +6985,7 @@
       "files": {
         "mp4": "scoring/level-tally/clip.mp4",
         "poster": "scoring/level-tally/poster.png",
+        "replay": "scoring/level-tally/replay.txt",
         "webm": "scoring/level-tally/clip.webm"
       },
       "fps": 30,
@@ -6859,6 +7019,7 @@
       "files": {
         "mp4": "scoring/reset/clip.mp4",
         "poster": "scoring/reset/poster.png",
+        "replay": "scoring/reset/replay.txt",
         "webm": "scoring/reset/clip.webm"
       },
       "fps": 30,
@@ -6992,6 +7153,7 @@
       "files": {
         "mp4": "shopkeeper/thief/clip.mp4",
         "poster": "shopkeeper/thief/poster.png",
+        "replay": "shopkeeper/thief/replay.txt",
         "webm": "shopkeeper/thief/clip.webm"
       },
       "fps": 30,
@@ -7025,6 +7187,7 @@
       "files": {
         "mp4": "shopkeeper/throw/clip.mp4",
         "poster": "shopkeeper/throw/poster.png",
+        "replay": "shopkeeper/throw/replay.txt",
         "webm": "shopkeeper/throw/clip.webm"
       },
       "fps": 30,
@@ -7058,6 +7221,7 @@
       "files": {
         "mp4": "shotgun/shopkeeper/clip.mp4",
         "poster": "shotgun/shopkeeper/poster.png",
+        "replay": "shotgun/shopkeeper/replay.txt",
         "webm": "shotgun/shopkeeper/clip.webm"
       },
       "fps": 30,
@@ -7091,6 +7255,7 @@
       "files": {
         "mp4": "shotgun/spiders/clip.mp4",
         "poster": "shotgun/spiders/poster.png",
+        "replay": "shotgun/spiders/replay.txt",
         "webm": "shotgun/spiders/clip.webm"
       },
       "fps": 30,
@@ -7124,6 +7289,7 @@
       "files": {
         "mp4": "skeleton/rise/clip.mp4",
         "poster": "skeleton/rise/poster.png",
+        "replay": "skeleton/rise/replay.txt",
         "webm": "skeleton/rise/clip.webm"
       },
       "fps": 30,
@@ -7191,6 +7357,7 @@
       "files": {
         "mp4": "skull/throw/clip.mp4",
         "poster": "skull/throw/poster.png",
+        "replay": "skull/throw/replay.txt",
         "webm": "skull/throw/clip.webm"
       },
       "fps": 30,
@@ -7224,6 +7391,7 @@
       "files": {
         "mp4": "smash-trap/crush/clip.mp4",
         "poster": "smash-trap/crush/poster.png",
+        "replay": "smash-trap/crush/replay.txt",
         "webm": "smash-trap/crush/clip.webm"
       },
       "fps": 30,
@@ -7257,6 +7425,7 @@
       "files": {
         "mp4": "smash-trap/lit/clip.mp4",
         "poster": "smash-trap/lit/poster.png",
+        "replay": "smash-trap/lit/replay.txt",
         "webm": "smash-trap/lit/clip.webm"
       },
       "fps": 30,
@@ -7290,6 +7459,7 @@
       "files": {
         "mp4": "snake-pit/descent/clip.mp4",
         "poster": "snake-pit/descent/poster.png",
+        "replay": "snake-pit/descent/replay.txt",
         "webm": "snake-pit/descent/clip.webm"
       },
       "fps": 30,
@@ -7357,6 +7527,7 @@
       "files": {
         "mp4": "snake/stomp/clip.mp4",
         "poster": "snake/stomp/poster.png",
+        "replay": "snake/stomp/replay.txt",
         "webm": "snake/stomp/clip.webm"
       },
       "fps": 30,
@@ -7390,6 +7561,7 @@
       "files": {
         "mp4": "snake/thrown-rock/clip.mp4",
         "poster": "snake/thrown-rock/poster.png",
+        "replay": "snake/thrown-rock/replay.txt",
         "webm": "snake/thrown-rock/clip.webm"
       },
       "fps": 30,
@@ -7423,6 +7595,7 @@
       "files": {
         "mp4": "spear-trap/bomb/clip.mp4",
         "poster": "spear-trap/bomb/poster.png",
+        "replay": "spear-trap/bomb/replay.txt",
         "webm": "spear-trap/bomb/clip.webm"
       },
       "fps": 30,
@@ -7524,6 +7697,7 @@
       "files": {
         "mp4": "speedrunning-basics/run/clip.mp4",
         "poster": "speedrunning-basics/run/poster.png",
+        "replay": "speedrunning-basics/run/replay.txt",
         "webm": "speedrunning-basics/run/clip.webm"
       },
       "fps": 30,
@@ -7557,6 +7731,7 @@
       "files": {
         "mp4": "speedrunning-basics/shortcut-win/clip.mp4",
         "poster": "speedrunning-basics/shortcut-win/poster.png",
+        "replay": "speedrunning-basics/shortcut-win/replay.txt",
         "webm": "speedrunning-basics/shortcut-win/clip.webm"
       },
       "fps": 30,
@@ -7590,6 +7765,7 @@
       "files": {
         "mp4": "spelunker/change/clip.mp4",
         "poster": "spelunker/change/poster.png",
+        "replay": "spelunker/change/replay.txt",
         "webm": "spelunker/change/clip.webm"
       },
       "fps": 30,
@@ -7623,6 +7799,7 @@
       "files": {
         "mp4": "spelunker/climb/clip.mp4",
         "poster": "spelunker/climb/poster.png",
+        "replay": "spelunker/climb/replay.txt",
         "webm": "spelunker/climb/clip.webm"
       },
       "fps": 30,
@@ -7656,6 +7833,7 @@
       "files": {
         "mp4": "spelunker/death/clip.mp4",
         "poster": "spelunker/death/poster.png",
+        "replay": "spelunker/death/replay.txt",
         "webm": "spelunker/death/clip.webm"
       },
       "fps": 30,
@@ -7689,6 +7867,7 @@
       "files": {
         "mp4": "spelunker/moves/clip.mp4",
         "poster": "spelunker/moves/poster.png",
+        "replay": "spelunker/moves/replay.txt",
         "webm": "spelunker/moves/clip.webm"
       },
       "fps": 30,
@@ -7790,6 +7969,7 @@
       "files": {
         "mp4": "spike-shoes/stomp/clip.mp4",
         "poster": "spike-shoes/stomp/poster.png",
+        "replay": "spike-shoes/stomp/replay.txt",
         "webm": "spike-shoes/stomp/clip.webm"
       },
       "fps": 30,
@@ -7891,6 +8071,7 @@
       "files": {
         "mp4": "spring-trap/bounce/clip.mp4",
         "poster": "spring-trap/bounce/poster.png",
+        "replay": "spring-trap/bounce/replay.txt",
         "webm": "spring-trap/bounce/clip.webm"
       },
       "fps": 30,
@@ -7924,6 +8105,7 @@
       "files": {
         "mp4": "spring-trap/no-floor/clip.mp4",
         "poster": "spring-trap/no-floor/poster.png",
+        "replay": "spring-trap/no-floor/replay.txt",
         "webm": "spring-trap/no-floor/clip.webm"
       },
       "fps": 30,
@@ -7991,6 +8173,7 @@
       "files": {
         "mp4": "teleporter/rock/clip.mp4",
         "poster": "teleporter/rock/poster.png",
+        "replay": "teleporter/rock/replay.txt",
         "webm": "teleporter/rock/clip.webm"
       },
       "fps": 30,
@@ -8058,6 +8241,7 @@
       "files": {
         "mp4": "temple/shortcut/clip.mp4",
         "poster": "temple/shortcut/poster.png",
+        "replay": "temple/shortcut/replay.txt",
         "webm": "temple/shortcut/clip.webm"
       },
       "fps": 30,
@@ -8091,6 +8275,7 @@
       "files": {
         "mp4": "temple/to-olmec/clip.mp4",
         "poster": "temple/to-olmec/poster.png",
+        "replay": "temple/to-olmec/replay.txt",
         "webm": "temple/to-olmec/clip.webm"
       },
       "fps": 30,
@@ -8158,6 +8343,7 @@
       "files": {
         "mp4": "tomb-lord/bomb/clip.mp4",
         "poster": "tomb-lord/bomb/poster.png",
+        "replay": "tomb-lord/bomb/replay.txt",
         "webm": "tomb-lord/bomb/clip.webm"
       },
       "fps": 30,
@@ -8293,6 +8479,7 @@
       "files": {
         "mp4": "trap-block/crumble/clip.mp4",
         "poster": "trap-block/crumble/poster.png",
+        "replay": "trap-block/crumble/replay.txt",
         "webm": "trap-block/crumble/clip.webm"
       },
       "fps": 30,
@@ -8326,6 +8513,7 @@
       "files": {
         "mp4": "trap-block/pit/clip.mp4",
         "poster": "trap-block/pit/poster.png",
+        "replay": "trap-block/pit/replay.txt",
         "webm": "trap-block/pit/clip.webm"
       },
       "fps": 30,
@@ -8359,6 +8547,7 @@
       "files": {
         "mp4": "tunnel-man-shortcuts/level-9/clip.mp4",
         "poster": "tunnel-man-shortcuts/level-9/poster.png",
+        "replay": "tunnel-man-shortcuts/level-9/replay.txt",
         "webm": "tunnel-man-shortcuts/level-9/clip.webm"
       },
       "fps": 30,
@@ -8392,6 +8581,7 @@
       "files": {
         "mp4": "tunnel-man/donate/clip.mp4",
         "poster": "tunnel-man/donate/poster.png",
+        "replay": "tunnel-man/donate/replay.txt",
         "webm": "tunnel-man/donate/clip.webm"
       },
       "fps": 30,
@@ -8425,6 +8615,7 @@
       "files": {
         "mp4": "tunnel-man/paid/clip.mp4",
         "poster": "tunnel-man/paid/poster.png",
+        "replay": "tunnel-man/paid/replay.txt",
         "webm": "tunnel-man/paid/clip.webm"
       },
       "fps": 30,
@@ -8458,6 +8649,7 @@
       "files": {
         "mp4": "udjat-eye/chest/clip.mp4",
         "poster": "udjat-eye/chest/poster.png",
+        "replay": "udjat-eye/chest/replay.txt",
         "webm": "udjat-eye/chest/clip.webm"
       },
       "fps": 30,
@@ -8491,6 +8683,7 @@
       "files": {
         "mp4": "udjat-eye/market/clip.mp4",
         "poster": "udjat-eye/market/poster.png",
+        "replay": "udjat-eye/market/replay.txt",
         "webm": "udjat-eye/market/clip.webm"
       },
       "fps": 30,
@@ -8524,6 +8717,7 @@
       "files": {
         "mp4": "udjat-eye/sealed-key/clip.mp4",
         "poster": "udjat-eye/sealed-key/poster.png",
+        "replay": "udjat-eye/sealed-key/replay.txt",
         "webm": "udjat-eye/sealed-key/clip.webm"
       },
       "fps": 30,
@@ -8557,6 +8751,7 @@
       "files": {
         "mp4": "ufo/crash/clip.mp4",
         "poster": "ufo/crash/poster.png",
+        "replay": "ufo/crash/replay.txt",
         "webm": "ufo/crash/clip.webm"
       },
       "fps": 30,
@@ -8624,6 +8819,7 @@
       "files": {
         "mp4": "ufo/thrown-rock/clip.mp4",
         "poster": "ufo/thrown-rock/poster.png",
+        "replay": "ufo/thrown-rock/replay.txt",
         "webm": "ufo/thrown-rock/clip.webm"
       },
       "fps": 30,
@@ -8759,6 +8955,7 @@
       "files": {
         "mp4": "weapon-shop/buy/clip.mp4",
         "poster": "weapon-shop/buy/poster.png",
+        "replay": "weapon-shop/buy/replay.txt",
         "webm": "weapon-shop/buy/clip.webm"
       },
       "fps": 30,
@@ -8962,6 +9159,7 @@
       "files": {
         "mp4": "yeti-king/swat/clip.mp4",
         "poster": "yeti-king/swat/poster.png",
+        "replay": "yeti-king/swat/replay.txt",
         "webm": "yeti-king/swat/clip.webm"
       },
       "fps": 30,
@@ -9063,6 +9261,7 @@
       "files": {
         "mp4": "yeti-lair/arrival/clip.mp4",
         "poster": "yeti-lair/arrival/poster.png",
+        "replay": "yeti-lair/arrival/replay.txt",
         "webm": "yeti-lair/arrival/clip.webm"
       },
       "fps": 30,

@@ -1,0 +1,44 @@
+# The wiki clip ceiling-trap/crush's replay (wiki/clips/ceiling-trap/crush.toml), made by wiki-clips: fidelity/replays/trap-ceiling-crush.txt up to the clip's last
+# frame, 1430.
+seed 8
+frames 1431
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+696 release left
+708 press up
+713 release up
+770 press left
+808 release left
+815 press down
+817 press A
+819 release A
+823 release down
+826 press right
+848 release right
+950 press left
+972 release left
+995 press right
+1029 release right
+1040 press down
+1042 press X
+1044 release X
+1050 release down

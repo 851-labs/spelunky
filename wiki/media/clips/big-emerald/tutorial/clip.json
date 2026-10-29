@@ -25,7 +25,8 @@
   "files": {
     "mp4": "big-emerald/tutorial/clip.mp4",
     "webm": "big-emerald/tutorial/clip.webm",
-    "poster": "big-emerald/tutorial/poster.png"
+    "poster": "big-emerald/tutorial/poster.png",
+    "replay": "big-emerald/tutorial/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

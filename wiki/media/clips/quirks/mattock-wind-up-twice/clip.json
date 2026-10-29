@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/mattock-wind-up-twice/clip.mp4",
     "webm": "quirks/mattock-wind-up-twice/clip.webm",
-    "poster": "quirks/mattock-wind-up-twice/poster.png"
+    "poster": "quirks/mattock-wind-up-twice/poster.png",
+    "replay": "quirks/mattock-wind-up-twice/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

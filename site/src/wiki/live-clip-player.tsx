@@ -274,7 +274,7 @@ function status(engine: Engine, seeks: boolean, touch: boolean): string {
       return `The game stopped: ${engine.error}`;
     case "playback": {
       const { ready, paused, live, ended } = engine.playback;
-      // The game's default keys (its KeyConfig), which a scene's replay keeps.
+      // The game's default keys (its KeyConfig), which every clip's replay keeps (harness's clip tests check).
       if (live) {
         const keys = "You have the game: arrow keys move, Z jumps, X attacks, Shift runs, A bombs, S ropes.";
         return seeks ? `${keys} The slider takes you back to the replay.` : keys;

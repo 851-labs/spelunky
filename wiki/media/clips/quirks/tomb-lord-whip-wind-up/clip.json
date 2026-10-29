@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/tomb-lord-whip-wind-up/clip.mp4",
     "webm": "quirks/tomb-lord-whip-wind-up/clip.webm",
-    "poster": "quirks/tomb-lord-whip-wind-up/poster.png"
+    "poster": "quirks/tomb-lord-whip-wind-up/poster.png",
+    "replay": "quirks/tomb-lord-whip-wind-up/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

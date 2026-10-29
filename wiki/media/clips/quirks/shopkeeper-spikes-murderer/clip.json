@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/shopkeeper-spikes-murderer/clip.mp4",
     "webm": "quirks/shopkeeper-spikes-murderer/clip.webm",
-    "poster": "quirks/shopkeeper-spikes-murderer/poster.png"
+    "poster": "quirks/shopkeeper-spikes-murderer/poster.png",
+    "replay": "quirks/shopkeeper-spikes-murderer/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

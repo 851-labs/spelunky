@@ -25,7 +25,8 @@
   "files": {
     "mp4": "city-of-gold/to-olmec/clip.mp4",
     "webm": "city-of-gold/to-olmec/clip.webm",
-    "poster": "city-of-gold/to-olmec/poster.png"
+    "poster": "city-of-gold/to-olmec/poster.png",
+    "replay": "city-of-gold/to-olmec/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

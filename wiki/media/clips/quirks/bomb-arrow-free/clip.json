@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/bomb-arrow-free/clip.mp4",
     "webm": "quirks/bomb-arrow-free/clip.webm",
-    "poster": "quirks/bomb-arrow-free/poster.png"
+    "poster": "quirks/bomb-arrow-free/poster.png",
+    "replay": "quirks/bomb-arrow-free/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

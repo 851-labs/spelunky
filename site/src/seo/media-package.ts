@@ -48,9 +48,11 @@ export interface MediaPackage {
 
 export interface PackageClip extends MediaClip {
   webm: string;
-  // A scene's replay and its frame the clip starts on (clip.json's `replay_from`), for playing the clip in the
-  // game (src/wiki/live-clip.tsx); null for a clip of a committed replay, which the media haven't got.
-  live: { replay: string; from: number } | null;
+  // The clip's replay and its frame the clip starts on (clip.json's `replay_from`), for playing the clip in the
+  // game (src/wiki/live-clip.tsx), and whether it's a scene's: one cut from a committed replay plays only in a
+  // build that says it can (build/compile.ts's LiveClips.replays). Null for the settings program's, which the
+  // media have no replay of, and for media from before they had the committed replays' (851-3572).
+  live: { replay: string; from: number; scene: boolean } | null;
 }
 
 export interface PackageSprite {
@@ -96,11 +98,15 @@ export function readMediaPackage(dir: string, url: string, date: string, log: st
       // newer uploadDate tells search engines it is.
       date: [changed.get(mp4), changed.get(webm)].filter((d) => d !== undefined).sort().at(-1) ?? date,
       webm,
-      // The replay's frame, `replay_from`, not the spec's `from`, which counts from the scene's first: the replay
-      // boots the game and loads the scene's level from the title's menu before it.
+      // The replay's frame, `replay_from`, not the spec's `from`, which counts from a scene's first: its replay
+      // boots the game and loads the scene's level from the title's menu before it. A scene always has its replay.
       live:
-        clip.source?.kind === "scene"
-          ? { replay: string(clip.files?.replay, `${where}: files.replay`), from: frame(clip.replay_from, `${where}: replay_from`) }
+        clip.source?.kind === "scene" || clip.files?.replay !== undefined
+          ? {
+              replay: string(clip.files?.replay, `${where}: files.replay`),
+              from: frame(clip.replay_from, `${where}: replay_from`),
+              scene: clip.source?.kind === "scene",
+            }
           : null,
     };
   }

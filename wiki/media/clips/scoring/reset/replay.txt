@@ -1,0 +1,23 @@
+# The wiki clip scoring/reset's replay (wiki/clips/scoring/reset.toml), made by wiki-clips: fidelity/replays/flow-highscores-reset-crush.txt up to the clip's last
+# frame, 838.
+seed 777
+frames 839
+highscore 9250000 "MONEY"
+highscore 8000500 "TIME"
+highscore 7000150 "KILLS"
+highscore 6000010 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+504 release left
+515 press up
+520 release up
+560 press right

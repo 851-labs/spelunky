@@ -25,7 +25,8 @@
   "files": {
     "mp4": "smash-trap/lit/clip.mp4",
     "webm": "smash-trap/lit/clip.webm",
-    "poster": "smash-trap/lit/poster.png"
+    "poster": "smash-trap/lit/poster.png",
+    "replay": "smash-trap/lit/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

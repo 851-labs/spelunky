@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/olmec-slam-drifting-left/clip.mp4",
     "webm": "quirks/olmec-slam-drifting-left/clip.webm",
-    "poster": "quirks/olmec-slam-drifting-left/poster.png"
+    "poster": "quirks/olmec-slam-drifting-left/poster.png",
+    "replay": "quirks/olmec-slam-drifting-left/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

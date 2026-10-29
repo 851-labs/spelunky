@@ -1,0 +1,36 @@
+# The wiki clip credits/title-rope's replay (wiki/clips/credits/title-rope.toml), made by wiki-clips: fidelity/replays/title-locked.txt up to the clip's last
+# frame, 1299.
+seed 777
+frames 1300
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+540 release left
+545 press Z
+555 release Z
+560 press Z
+560 press left
+570 release Z
+570 release left
+575 press right
+580 release right
+590 press up
+600 release up
+610 press right
+694 release right
+710 press Z
+710 press up
+715 release Z
+910 release up

@@ -1,0 +1,34 @@
+# The wiki clip lava/flow's replay (wiki/clips/lava/flow.toml), made by wiki-clips: fidelity/replays/terrain-bomb-lava.txt up to the clip's last
+# frame, 1030.
+seed 3
+frames 1031
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+696 release left
+708 press up
+713 release up
+760 press left
+796 release left
+796 press right
+856 release right
+856 press A
+858 release A

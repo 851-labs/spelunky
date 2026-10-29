@@ -25,7 +25,8 @@
   "files": {
     "mp4": "ice-caves/from-jungle/clip.mp4",
     "webm": "ice-caves/from-jungle/clip.webm",
-    "poster": "ice-caves/from-jungle/poster.png"
+    "poster": "ice-caves/from-jungle/poster.png",
+    "replay": "ice-caves/from-jungle/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

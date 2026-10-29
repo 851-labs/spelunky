@@ -46,8 +46,8 @@ export interface ClipProps {
   mp4?: string;
   webm?: string;
   poster?: string;
-  // Its replay, when the media have it (a scene's), and the replay's frame it starts on: then it can play in
-  // the game too (live-clip.tsx).
+  // Its replay, when the media have it and the game at /play/ plays it (build/compile.ts's clipLive), and the
+  // replay's frame it starts on: then it can play in the game too (live-clip.tsx).
   replay?: string;
   from?: string | number;
   // The game at /play/ seeks: the player has a slider (live-clip-player.tsx).

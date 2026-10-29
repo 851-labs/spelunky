@@ -25,7 +25,8 @@
   "files": {
     "mp4": "olmec/awakening/clip.mp4",
     "webm": "olmec/awakening/clip.webm",
-    "poster": "olmec/awakening/poster.png"
+    "poster": "olmec/awakening/poster.png",
+    "replay": "olmec/awakening/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

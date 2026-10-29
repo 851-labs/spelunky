@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/barrier-item-thrown-through/clip.mp4",
     "webm": "quirks/barrier-item-thrown-through/clip.webm",
-    "poster": "quirks/barrier-item-thrown-through/poster.png"
+    "poster": "quirks/barrier-item-thrown-through/poster.png",
+    "replay": "quirks/barrier-item-thrown-through/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

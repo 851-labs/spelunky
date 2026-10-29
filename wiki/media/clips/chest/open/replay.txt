@@ -1,0 +1,36 @@
+# The wiki clip chest/open's replay (wiki/clips/chest/open.toml), made by wiki-clips: fidelity/replays/equip-seed-13-chest-gems.txt up to the clip's last
+# frame, 759.
+seed 13
+frames 760
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press left
+654 release left
+657 press left
+659 release left
+662 press up
+664 press X
+666 release X
+668 release up
+690 press left
+698 release left
+705 press right
+721 release right

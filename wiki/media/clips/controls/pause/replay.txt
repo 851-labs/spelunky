@@ -1,0 +1,44 @@
+# The wiki clip controls/pause's replay (wiki/clips/controls/pause.toml), made by wiki-clips: fidelity/replays/flow-pause-game-over-new-game.txt up to the clip's last
+# frame, 999.
+seed 1
+frames 1000
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+640 press right
+670 release right
+700 press escape
+702 release escape
+720 press right
+730 press Z
+736 release Z
+745 press X
+749 release X
+750 release right
+760 press C
+764 release C
+775 press left
+795 release left
+800 press escape
+802 release escape
+830 press right
+850 release right
+870 press escape
+872 release escape
+900 press 112
+902 release 112

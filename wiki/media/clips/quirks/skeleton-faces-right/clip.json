@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/skeleton-faces-right/clip.mp4",
     "webm": "quirks/skeleton-faces-right/clip.webm",
-    "poster": "quirks/skeleton-faces-right/poster.png"
+    "poster": "quirks/skeleton-faces-right/poster.png",
+    "replay": "quirks/skeleton-faces-right/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

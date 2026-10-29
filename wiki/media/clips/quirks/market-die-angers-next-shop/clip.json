@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/market-die-angers-next-shop/clip.mp4",
     "webm": "quirks/market-die-angers-next-shop/clip.webm",
-    "poster": "quirks/market-die-angers-next-shop/poster.png"
+    "poster": "quirks/market-die-angers-next-shop/poster.png",
+    "replay": "quirks/market-die-angers-next-shop/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

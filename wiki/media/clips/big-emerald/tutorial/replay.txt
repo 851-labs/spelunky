@@ -1,0 +1,40 @@
+# The wiki clip big-emerald/tutorial's replay (wiki/clips/big-emerald/tutorial.toml), made by wiki-clips: fidelity/replays/movement-ladder-crawl.txt up to the clip's last
+# frame, 1010.
+seed 12345
+frames 1011
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+570 press right
+598 press Z
+608 release Z
+625 press Z
+639 release Z
+642 press Z
+650 release Z
+660 release right
+708 press X
+710 release X
+722 press X
+724 release X
+736 press X
+738 release X
+752 press right
+826 press shift
+836 press Z
+848 release Z
+856 release shift
+887 release right
+890 press up
+893 press Z
+899 release Z
+952 release up
+955 press left
+956 press Z
+959 release Z
+1003 release left

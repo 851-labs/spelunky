@@ -25,7 +25,8 @@
   "files": {
     "mp4": "credits/caravan/clip.mp4",
     "webm": "credits/caravan/clip.webm",
-    "poster": "credits/caravan/poster.png"
+    "poster": "credits/caravan/poster.png",
+    "replay": "credits/caravan/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

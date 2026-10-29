@@ -25,7 +25,8 @@
   "files": {
     "mp4": "sacrifice-pit/arrival/clip.mp4",
     "webm": "sacrifice-pit/arrival/clip.webm",
-    "poster": "sacrifice-pit/arrival/poster.png"
+    "poster": "sacrifice-pit/arrival/poster.png",
+    "replay": "sacrifice-pit/arrival/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

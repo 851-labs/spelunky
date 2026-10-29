@@ -25,7 +25,8 @@
   "files": {
     "mp4": "rare-shop/theft/clip.mp4",
     "webm": "rare-shop/theft/clip.webm",
-    "poster": "rare-shop/theft/poster.png"
+    "poster": "rare-shop/theft/poster.png",
+    "replay": "rare-shop/theft/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

@@ -25,7 +25,8 @@
   "files": {
     "mp4": "speedrunning-basics/shortcut-win/clip.mp4",
     "webm": "speedrunning-basics/shortcut-win/clip.webm",
-    "poster": "speedrunning-basics/shortcut-win/poster.png"
+    "poster": "speedrunning-basics/shortcut-win/poster.png",
+    "replay": "speedrunning-basics/shortcut-win/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

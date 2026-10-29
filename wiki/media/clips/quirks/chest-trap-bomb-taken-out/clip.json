@@ -25,7 +25,8 @@
   "files": {
     "mp4": "quirks/chest-trap-bomb-taken-out/clip.mp4",
     "webm": "quirks/chest-trap-bomb-taken-out/clip.webm",
-    "poster": "quirks/chest-trap-bomb-taken-out/poster.png"
+    "poster": "quirks/chest-trap-bomb-taken-out/poster.png",
+    "replay": "quirks/chest-trap-bomb-taken-out/replay.txt"
   },
   "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
   "license": "https://spelunky.ai/LICENSE.txt",

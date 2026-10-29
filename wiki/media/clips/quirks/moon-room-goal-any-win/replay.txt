@@ -1,0 +1,46 @@
+# The wiki clip quirks/moon-room-goal-any-win's replay (wiki/clips/quirks/moon-room-goal-any-win.toml), made by wiki-clips: fidelity/replays/flow-highscores-moon-room-slow-win.txt up to the clip's last
+# frame, 819.
+seed 777
+frames 820
+highscore 9000000 "MONEY"
+highscore 8000700 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000001 "PLAYS"
+highscore 4000001 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+504 release left
+515 press up
+520 release up
+600 press right
+606 press Z
+620 release Z
+625 press Z
+626 release right
+626 press right
+633 release Z
+634 release right
+645 press left
+646 press Z
+660 release Z
+665 release left
+670 press Z
+671 press left
+677 release left
+678 release Z
+690 press right
+691 press Z
+705 release Z
+710 release right
+715 press Z
+716 press right
+723 release Z
+724 release right
