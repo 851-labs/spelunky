@@ -1,0 +1,32 @@
+{
+  "id": "hedjet/moai",
+  "title": "Hedjet in the Moai",
+  "description": "On the level with the Moai, the player, wearing an ankh, drops a bomb at his feet. The blast takes his last hearts, and the ankh revives him inside the Moai's sealed chamber, where he falls onto the Hedjet, picks it up and leaves by the Moai's own exit.",
+  "spec": "wiki/clips/hedjet/moai.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-9.txt"
+  },
+  "from": 5295,
+  "to": 5580,
+  "frames": 286,
+  "fps": 30,
+  "duration": 9.533333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 5537,
+  "frames_hash": "d8d78b988c361483",
+  "has_audio": true,
+  "audio_hash": "efa406ef6182d182",
+  "encoding": "f80a84f31fd4a8cb",
+  "files": {
+    "mp4": "hedjet/moai/clip.mp4",
+    "webm": "hedjet/moai/clip.webm",
+    "poster": "hedjet/moai/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,42 @@
+{
+  "id": 1374,
+  "name": "sVampireDHeldL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 3,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oVampire",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sVampireDHeldL/strip.png",
+  "strip_scaled": "sVampireDHeldL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sVampireDHeldL/frames/0.png",
+      "file_scaled": "sVampireDHeldL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oVampire"
+  ]
+}

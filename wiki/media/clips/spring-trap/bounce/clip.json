@@ -1,0 +1,32 @@
+{
+  "id": "spring-trap/bounce",
+  "title": "Spring trap",
+  "description": "In the Ice Caves, the player lands on a spring trap, which throws him high into the air, and again each time he comes down on it.",
+  "spec": "wiki/clips/spring-trap/bounce.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-spring.txt"
+  },
+  "from": 800,
+  "to": 900,
+  "frames": 101,
+  "fps": 30,
+  "duration": 3.3666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 824,
+  "frames_hash": "9e4284c75678603c",
+  "has_audio": true,
+  "audio_hash": "2ecf457871dfe6d8",
+  "encoding": "056e9f8be025c1b6",
+  "files": {
+    "mp4": "spring-trap/bounce/clip.mp4",
+    "webm": "spring-trap/bounce/clip.webm",
+    "poster": "spring-trap/bounce/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

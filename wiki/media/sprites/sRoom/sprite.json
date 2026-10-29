@@ -1,0 +1,40 @@
+{
+  "id": 438,
+  "name": "sRoom",
+  "width": 160,
+  "height": 128,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 2,
+    "right": 157,
+    "bottom": 125
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sRoom/strip.png",
+  "strip_scaled": "sRoom/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sRoom/frames/0.png",
+      "file_scaled": "sRoom/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 157,
+        "bottom": 125
+      }
+    }
+  ],
+  "objects": [
+    "oRoom"
+  ],
+  "used_by": [
+    "oRoom"
+  ]
+}

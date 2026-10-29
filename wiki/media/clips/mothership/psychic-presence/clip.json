@@ -1,0 +1,32 @@
+{
+  "id": "mothership/psychic-presence",
+  "title": "Arriving over the mothership",
+  "description": "An Ice Caves level loads with the message \"THERE'S A PSYCHIC PRESENCE HERE!\" Under the player's ledge lies the alien craft, and in its last room the Alien Boss, behind a pink barrier. It sends a psychic wave up through the hull, which knocks the player down and takes a heart.",
+  "spec": "wiki/clips/mothership/psychic-presence.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/fuzz-goal-ice-seed-63-alien-boss.txt"
+  },
+  "from": 1243,
+  "to": 1420,
+  "frames": 178,
+  "fps": 30,
+  "duration": 5.933333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1340,
+  "frames_hash": "940c36edd6585f73",
+  "has_audio": true,
+  "audio_hash": "39b4ddbc8952bb15",
+  "encoding": "51c096057c05862d",
+  "files": {
+    "mp4": "mothership/psychic-presence/clip.mp4",
+    "webm": "mothership/psychic-presence/clip.webm",
+    "poster": "mothership/psychic-presence/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

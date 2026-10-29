@@ -1,0 +1,40 @@
+{
+  "id": 1221,
+  "name": "sBombBoxTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 5,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBombBoxTile/strip.png",
+  "strip_scaled": "sBombBoxTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBombBoxTile/frames/0.png",
+      "file_scaled": "sBombBoxTile/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 5,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oBombBoxTile"
+  ],
+  "used_by": [
+    "oBombBoxTile"
+  ]
+}

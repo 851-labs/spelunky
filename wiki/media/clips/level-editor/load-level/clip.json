@@ -1,0 +1,32 @@
+{
+  "id": "level-editor/load-level",
+  "title": "The custom levels menu",
+  "description": "The menu F3 opens lists the levels in the levels folder, ten to a page. The player clicks a level, pages down to the second page and back, picks ALPHA, and presses Load; the level starts and the player walks right.",
+  "spec": "wiki/clips/level-editor/load-level.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/mouse-load-level.txt"
+  },
+  "from": 200,
+  "to": 419,
+  "frames": 220,
+  "fps": 30,
+  "duration": 7.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 240,
+  "frames_hash": "e2a58ac9b6aeef8a",
+  "has_audio": true,
+  "audio_hash": "7fde1a7b7d8d71d6",
+  "encoding": "c518f3cdbd059b35",
+  "files": {
+    "mp4": "level-editor/load-level/clip.mp4",
+    "webm": "level-editor/load-level/clip.webm",
+    "poster": "level-editor/load-level/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

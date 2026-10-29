@@ -1,7 +1,7 @@
 // Reads the wiki's pages (content/wiki/<slug>.mdx), validates them, and compiles each to a JavaScript
 // module the routes render (docs/wiki-style.md is the page model, and its "The pipeline" this). Everything a
 // page refers to is resolved here, at build time: its numbers (`<Stat>`, from the committed stats snapshot),
-// its citations' numbers, its clips' titles (from wiki/clips/) and files and its sprites (from the pinned
+// its citations' numbers, its clips' titles (from wiki/clips/) and files and its sprites (from the
 // wiki media), its links' targets and its relations (relations.ts). Anything that doesn't resolve is an
 // error, and any error fails the build.
 import { readdirSync, readFileSync } from "node:fs";
@@ -60,12 +60,12 @@ export interface WikiOptions {
   relationsSpec: string;
   // The repo's docs/quirks.md, whose rows the quirk pages name (quirks.ts).
   quirksFile: string;
-  // The unpacked media, where they're served and when they were published (build.sh's WIKI_MEDIA_DIR,
-  // WIKI_MEDIA_URL and WIKI_MEDIA_DATE), or null (`npm run dev`, or no pin): then clips and sprites render as
+  // The media, where they're served and when they last changed (build.sh's WIKI_MEDIA_DIR, WIKI_MEDIA_URL and
+  // WIKI_MEDIA_DATE), or null (`npm run dev`): then clips and sprites render as
   // placeholders, with a warning, and the pages have no media in their JSON-LD.
   media: { dir: string; url: string; date: string } | null;
   // The media's gml/ tree, the source viewer's (build/source.ts), which citations link to: null without the
-  // media, and missing from a package from before the viewer. Then citations are text, as the viewer has
+  // media, and missing from stand-in media without one. Then citations are text, as the viewer has
   // no pages.
   sourceDir: string | null;
   // Whether the web build at /play/ can be embedded (build.sh's WIKI_LIVE_CLIPS, from its page), and whether it
@@ -254,11 +254,11 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
   const data = readSnapshot(options.statsFile);
   const relationsData = readRelations(options.relationsFile);
   const media = options.media ? readMediaPackage(options.media.dir, options.media.url, options.media.date) : null;
-  // The package as the JSON-LD's builders see it (src/seo/media.ts), for each page's own.
+  // The media as the JSON-LD's builders see them (src/seo/media.ts), for each page's own.
   const seoMedia = media && wikiMedia(media);
   if (!media) warnings.push("no wiki media (WIKI_MEDIA_DIR): clips and sprites render as placeholders");
   const source = sourceLines(options.sourceDir);
-  if (media && !source) warnings.push("the wiki media have no gml/ (a package from before the source viewer): citations aren't linked");
+  if (media && !source) warnings.push("the wiki media have no gml/: citations aren't linked");
 
   // First every page's frontmatter, so that links and the checks across pages can see them all.
   const parsed: Parsed[] = [];
@@ -431,8 +431,8 @@ function sourceLines(dir: string | null): Map<string, number> | null {
 }
 
 // Where a citation (objects/oSnake/step.gml, or :47-54 of it) opens in the source viewer, or undefined
-// where the media's gml/ hasn't got the file or its lines: the pages may cite a newer extraction than the
-// pinned package's (wiki-cites checks them against the extraction, and fails a line 0 or a reversed range,
+// where the media's gml/ hasn't got the file or its lines: the pages may cite another extraction than the
+// media's (wiki-cites checks them against the extraction, and fails a line 0 or a reversed range,
 // which this doesn't link either). Then it's text, and noted in MISSING with why, for the page's warning.
 // Without any gml/, it's text with no warning (loadWiki says so once), as is a quirk's `where` that names
 // no gml/ file.
@@ -670,8 +670,8 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     const clip = readClip(ctx.clipsDir, id, ctx.media, ctx.liveClips);
     if (typeof clip === "string") errors.push(`${name}: clips: ${clip}`);
     else {
-      // A new spec's clip is rendered by the next release (docs/wiki-media.md, "Publishing"), so until then
-      // the page shows its title and description where it goes.
+      // A spec whose clip isn't rendered yet (scripts/check fails a pull request for that: docs/wiki-media.md)
+      // shows its title and description where it goes.
       if (ctx.media && !clip.files) ctx.warnings.push(`${name}: clip ${id} isn't in the wiki media yet`);
       state.clips.set(id, clip);
     }
@@ -801,7 +801,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     // Made once every page is compiled (loadWiki).
     og: null,
   };
-  // The first few: a package that's older than the pages misses the same files on many of them.
+  // The first few: media older than the pages miss the same files on many of them.
   if (state.missing.size > 0) {
     const missing = [...state.missing];
     const more = missing.length > 3 ? ` and ${missing.length - 3} more` : "";

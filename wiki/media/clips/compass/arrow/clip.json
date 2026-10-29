@@ -1,0 +1,32 @@
+{
+  "id": "compass/arrow",
+  "title": "Compass arrow",
+  "description": "The player steals a compass out of a shop by jumping out with it, which puts it on. An arrow appears at the edge of the screen, pointing the way to the level's exit, as the angry shopkeeper fires after him.",
+  "spec": "wiki/clips/compass/arrow.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-3-compass.txt"
+  },
+  "from": 930,
+  "to": 1059,
+  "frames": 130,
+  "fps": 30,
+  "duration": 4.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1000,
+  "frames_hash": "939fab3177d42248",
+  "has_audio": true,
+  "audio_hash": "745dd82586efc6cb",
+  "encoding": "b6f6a7de4c6a80a7",
+  "files": {
+    "mp4": "compass/arrow/clip.mp4",
+    "webm": "compass/arrow/clip.webm",
+    "poster": "compass/arrow/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

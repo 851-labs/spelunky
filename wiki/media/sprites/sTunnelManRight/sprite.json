@@ -1,0 +1,38 @@
+{
+  "id": 927,
+  "name": "sTunnelManRight",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTunnelManRight/strip.png",
+  "strip_scaled": "sTunnelManRight/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sTunnelManRight/frames/0.png",
+      "file_scaled": "sTunnelManRight/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oTunnelMan"
+  ]
+}

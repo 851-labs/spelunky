@@ -1,10 +1,10 @@
-// The wiki media's JSON-LD and sitemaps (src/seo/media.ts, sitemap.ts), on the stand-in package site/test.sh
+// The wiki media's JSON-LD and sitemaps (src/seo/media.ts, sitemap.ts), on the stand-in media site/test.sh
 // makes (docs/web-deploy.md, "SEO"):
 //
 //   node test-media.mjs MEDIA [SITE URL]
 //
-// MEDIA is the unpacked package. The wiki's pages are a stand-in Snake page that shows the package's clip,
-// one it hasn't got, and its sprite animated. Given SITE (a running server: wrangler dev) and URL (the path it serves MEDIA at, /wiki/media/HASH),
+// MEDIA is the media's directory. The wiki's pages are a stand-in Snake page that shows the media's clip,
+// one they haven't got, and its sprite animated. Given SITE (a running server: wrangler dev) and URL (the path it serves MEDIA at, /wiki/media),
 // every media URL they make must be served there as is, a 200 and not a redirect.
 import assert from "node:assert/strict";
 import { registerHooks } from "node:module";
@@ -35,7 +35,7 @@ const { imageSitemapXml, robotsTxt, sitemapPaths, videoSitemapXml } = await impo
 const { absoluteUrl } = await import("./src/seo/seo.ts");
 
 const SITE_URL = "https://spelunky.ai";
-const [dir, site, url = "/wiki/media/0123456789abcdef"] = process.argv.slice(2);
+const [dir, site, url = "/wiki/media"] = process.argv.slice(2);
 if (!dir) {
   console.error("usage: node test-media.mjs MEDIA [SITE URL]");
   process.exit(2);
@@ -117,7 +117,7 @@ test("an unknown clip or sprite, or no media, fails", () => {
   assert.throws(() => spriteImage(media, "sBlank"), /no sprite sBlank/);
   assert.equal(spriteWithPixels(pkg, "sBlank"), "sBlank has no pixels in the wiki media, so no image to show");
   assert.equal(spriteWithPixels(pkg, "sNope"), "no sprite sNope in the wiki media");
-  assert.throws(() => clipVideo(null, "snake/bite"), /pins none/);
+  assert.throws(() => clipVideo(null, "snake/bite"), /had no WIKI_MEDIA_DIR/);
   assert.throws(() => readMediaPackage(dir, url, "27 October 2026"), /isn't ISO 8601/);
 });
 

@@ -1,0 +1,42 @@
+{
+  "id": 1092,
+  "name": "sGiantSpiderJump",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 3,
+    "top": 12,
+    "right": 28,
+    "bottom": 31
+  },
+  "fps": 24.0,
+  "fps_source": {
+    "object": "oGiantSpider",
+    "via": "uses",
+    "image_speed": 0.8
+  },
+  "strip": "sGiantSpiderJump/strip.png",
+  "strip_scaled": "sGiantSpiderJump/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sGiantSpiderJump/frames/0.png",
+      "file_scaled": "sGiantSpiderJump/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 12,
+        "right": 28,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oGiantSpider"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": 491,
+  "name": "sDieL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 7,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oDamsel",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sDieL/strip.png",
+  "strip_scaled": "sDieL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sDieL/frames/0.png",
+      "file_scaled": "sDieL/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 7,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1",
+    "oDamsel"
+  ]
+}

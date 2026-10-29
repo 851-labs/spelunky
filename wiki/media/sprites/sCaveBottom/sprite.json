@@ -1,0 +1,36 @@
+{
+  "id": 441,
+  "name": "sCaveBottom",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 2
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCaveBottom/strip.png",
+  "strip_scaled": "sCaveBottom/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCaveBottom/frames/0.png",
+      "file_scaled": "sCaveBottom/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 2
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

@@ -1,0 +1,122 @@
+{
+  "id": 883,
+  "name": "sAlienBossDie",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 31,
+    "bottom": 31
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oAlienBoss",
+    "via": "uses",
+    "image_speed": 0.25
+  },
+  "strip": "sAlienBossDie/strip.png",
+  "strip_scaled": "sAlienBossDie/strip@4x.png",
+  "anim": "sAlienBossDie/anim.png",
+  "anim_scaled": "sAlienBossDie/anim@4x.png",
+  "frames": [
+    {
+      "file": "sAlienBossDie/frames/0.png",
+      "file_scaled": "sAlienBossDie/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossDie/frames/1.png",
+      "file_scaled": "sAlienBossDie/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossDie/frames/2.png",
+      "file_scaled": "sAlienBossDie/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossDie/frames/3.png",
+      "file_scaled": "sAlienBossDie/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossDie/frames/4.png",
+      "file_scaled": "sAlienBossDie/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 7,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossDie/frames/5.png",
+      "file_scaled": "sAlienBossDie/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 11,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossDie/frames/6.png",
+      "file_scaled": "sAlienBossDie/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 15,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossDie/frames/7.png",
+      "file_scaled": "sAlienBossDie/frames/7@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 20,
+        "right": 31,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sAlienBossDie/frames/8.png",
+      "file_scaled": "sAlienBossDie/frames/8@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 22,
+        "right": 31,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oAlienBoss"
+  ]
+}

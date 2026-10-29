@@ -1,0 +1,38 @@
+{
+  "id": 1193,
+  "name": "sGiantSpiderDisp",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 8,
+    "right": 30,
+    "bottom": 22
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sGiantSpiderDisp/strip.png",
+  "strip_scaled": "sGiantSpiderDisp/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sGiantSpiderDisp/frames/0.png",
+      "file_scaled": "sGiantSpiderDisp/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 8,
+        "right": 30,
+        "bottom": 22
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oTransition"
+  ]
+}

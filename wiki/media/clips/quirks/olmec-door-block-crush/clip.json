@@ -1,0 +1,32 @@
+{
+  "id": "quirks/olmec-door-block-crush",
+  "title": "The block under Olmec's door crushes the player, counted as Olmec's",
+  "description": "A bomb has blown out the floor under the exit door of Olmec's lair, and the player jumps the pit onto the block left below it. Olmec, sinking in the lava off screen, dies, and a new block appears under the door, around the player's middle: he's crushed, and the game counts the death against Olmec.",
+  "spec": "wiki/clips/quirks/olmec-door-block-crush.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/olmec-door-block-crush-seed-1.txt"
+  },
+  "from": 5360,
+  "to": 5479,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 5431,
+  "frames_hash": "cc6e5ceea3dbb8ca",
+  "has_audio": true,
+  "audio_hash": "4b53f6db73ac2891",
+  "encoding": "c850746ee8c8b01a",
+  "files": {
+    "mp4": "quirks/olmec-door-block-crush/clip.mp4",
+    "webm": "quirks/olmec-door-block-crush/clip.webm",
+    "poster": "quirks/olmec-door-block-crush/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

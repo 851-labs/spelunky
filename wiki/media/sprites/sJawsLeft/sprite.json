@@ -1,0 +1,124 @@
+{
+  "id": 1269,
+  "name": "sJawsLeft",
+  "width": 16,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 4,
+    "right": 15,
+    "bottom": 29
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oJaws",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sJawsLeft/strip.png",
+  "strip_scaled": "sJawsLeft/strip@4x.png",
+  "anim": "sJawsLeft/anim.png",
+  "anim_scaled": "sJawsLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sJawsLeft/frames/0.png",
+      "file_scaled": "sJawsLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 15,
+        "bottom": 29
+      }
+    },
+    {
+      "file": "sJawsLeft/frames/1.png",
+      "file_scaled": "sJawsLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 15,
+        "bottom": 29
+      }
+    },
+    {
+      "file": "sJawsLeft/frames/2.png",
+      "file_scaled": "sJawsLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 15,
+        "bottom": 29
+      }
+    },
+    {
+      "file": "sJawsLeft/frames/3.png",
+      "file_scaled": "sJawsLeft/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 15,
+        "bottom": 29
+      }
+    },
+    {
+      "file": "sJawsLeft/frames/4.png",
+      "file_scaled": "sJawsLeft/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 15,
+        "bottom": 29
+      }
+    },
+    {
+      "file": "sJawsLeft/frames/5.png",
+      "file_scaled": "sJawsLeft/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 15,
+        "bottom": 29
+      }
+    },
+    {
+      "file": "sJawsLeft/frames/6.png",
+      "file_scaled": "sJawsLeft/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 15,
+        "bottom": 28
+      }
+    },
+    {
+      "file": "sJawsLeft/frames/7.png",
+      "file_scaled": "sJawsLeft/frames/7@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 15,
+        "bottom": 29
+      }
+    },
+    {
+      "file": "sJawsLeft/frames/8.png",
+      "file_scaled": "sJawsLeft/frames/8@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 15,
+        "bottom": 29
+      }
+    }
+  ],
+  "objects": [
+    "oJaws"
+  ],
+  "used_by": [
+    "oJaws"
+  ]
+}

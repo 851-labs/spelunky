@@ -1,0 +1,32 @@
+{
+  "id": "udjat-eye/sealed-key",
+  "title": "Key sealed in rock",
+  "description": "Bombs have opened a pocket of rock holding a locked chest and its key. An arrow trap fires over the player as he drops in; he picks up the key, crawls under the low rock to the chest, opens it and puts on the Udjat Eye.",
+  "spec": "wiki/clips/udjat-eye/sealed-key.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-35-udjat-eye-sealed-key.txt"
+  },
+  "from": 2270,
+  "to": 2429,
+  "frames": 160,
+  "fps": 30,
+  "duration": 5.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2349,
+  "frames_hash": "7d1ec1e60dcf9de0",
+  "has_audio": true,
+  "audio_hash": "bd1f21e7df6d174f",
+  "encoding": "1c140ddeca9d6cd7",
+  "files": {
+    "mp4": "udjat-eye/sealed-key/clip.mp4",
+    "webm": "udjat-eye/sealed-key/clip.webm",
+    "poster": "udjat-eye/sealed-key/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

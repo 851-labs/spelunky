@@ -1,0 +1,118 @@
+{
+  "id": 1248,
+  "name": "sSpringTrapSprung",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSpringTrapSprung/strip.png",
+  "strip_scaled": "sSpringTrapSprung/strip@4x.png",
+  "anim": "sSpringTrapSprung/anim.png",
+  "anim_scaled": "sSpringTrapSprung/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSpringTrapSprung/frames/0.png",
+      "file_scaled": "sSpringTrapSprung/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 12,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpringTrapSprung/frames/1.png",
+      "file_scaled": "sSpringTrapSprung/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 6,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpringTrapSprung/frames/2.png",
+      "file_scaled": "sSpringTrapSprung/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpringTrapSprung/frames/3.png",
+      "file_scaled": "sSpringTrapSprung/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpringTrapSprung/frames/4.png",
+      "file_scaled": "sSpringTrapSprung/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpringTrapSprung/frames/5.png",
+      "file_scaled": "sSpringTrapSprung/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpringTrapSprung/frames/6.png",
+      "file_scaled": "sSpringTrapSprung/frames/6@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpringTrapSprung/frames/7.png",
+      "file_scaled": "sSpringTrapSprung/frames/7@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSpringTrapSprung/frames/8.png",
+      "file_scaled": "sSpringTrapSprung/frames/8@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 6,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oSpringTrap"
+  ]
+}

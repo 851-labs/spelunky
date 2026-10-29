@@ -1,0 +1,33 @@
+{
+  "id": "zombie/whip",
+  "title": "Zombie whipped",
+  "description": "A zombie hops toward the player, who whips it. It falls apart into three bones and a skull, which shatters as it lands.",
+  "spec": "wiki/clips/zombie/whip.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 4
+  },
+  "from": 40,
+  "to": 199,
+  "frames": 160,
+  "fps": 30,
+  "duration": 5.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 121,
+  "frames_hash": "bb3676e29a3ce900",
+  "has_audio": true,
+  "audio_hash": "8e5d3c4db0dea9b7",
+  "encoding": "c2825280f3c34450",
+  "files": {
+    "mp4": "zombie/whip/clip.mp4",
+    "webm": "zombie/whip/clip.webm",
+    "poster": "zombie/whip/poster.png",
+    "replay": "zombie/whip/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

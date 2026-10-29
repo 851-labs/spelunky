@@ -26,7 +26,7 @@ scripts/extract       # regenerate assets/ (gitignored) from the reference zips
 scripts/transpile     # regenerate crates/game/src/generated/ (committed) from the reference .gmk
 scripts/web           # build the browser version and serve it at http://localhost:8000 (--check: build only)
 scripts/release/build # the native releases for macOS, Windows and Linux, built on a Mac (docs/releasing.md)
-scripts/wiki-sprites  # the wiki's sprite images and metadata, into target/wiki-media/sprites (docs/wiki-media.md)
+scripts/wiki-media    # the wiki's sprites and clips, into wiki/media (committed; docs/wiki-media.md)
 scripts/wiki-data     # the wiki's numbers (health, damage, prices), into target/wiki-data/stats.json (docs/wiki-data.md)
 scripts/wiki-cites    # check the wiki's pages' GML citations and excerpts against assets/gml (docs/wiki-style.md)
 ```

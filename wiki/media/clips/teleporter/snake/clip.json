@@ -1,0 +1,33 @@
+{
+  "id": "teleporter/snake",
+  "title": "Teleporter landing on a snake",
+  "description": "The player picks up a teleporter and uses it facing a snake. He reappears five blocks ahead, where the snake was, and the snake is destroyed in a spray of blood.",
+  "spec": "wiki/clips/teleporter/snake.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 1
+  },
+  "from": 0,
+  "to": 89,
+  "frames": 90,
+  "fps": 30,
+  "duration": 3.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 31,
+  "frames_hash": "d0b7c005708bcd0c",
+  "has_audio": true,
+  "audio_hash": "9f833603dba24f21",
+  "encoding": "b1e09fbc90489c02",
+  "files": {
+    "mp4": "teleporter/snake/clip.mp4",
+    "webm": "teleporter/snake/clip.webm",
+    "poster": "teleporter/snake/poster.png",
+    "replay": "teleporter/snake/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

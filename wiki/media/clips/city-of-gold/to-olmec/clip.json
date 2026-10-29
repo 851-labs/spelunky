@@ -1,0 +1,32 @@
+{
+  "id": "city-of-gold/to-olmec",
+  "title": "From the City of Gold to Olmec's Lair",
+  "description": "The player drops through a hole bombed beside the statue, picks up an emerald and takes the City of Gold's exit. After the screen between levels, level 16, Olmec's Lair, loads.",
+  "spec": "wiki/clips/city-of-gold/to-olmec.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
+  },
+  "from": 7480,
+  "to": 7700,
+  "frames": 221,
+  "fps": 30,
+  "duration": 7.366666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 7690,
+  "frames_hash": "35ea2af728fe1f17",
+  "has_audio": true,
+  "audio_hash": "cf2693d7bc679e18",
+  "encoding": "aa2d49ee6050bb17",
+  "files": {
+    "mp4": "city-of-gold/to-olmec/clip.mp4",
+    "webm": "city-of-gold/to-olmec/clip.webm",
+    "poster": "city-of-gold/to-olmec/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

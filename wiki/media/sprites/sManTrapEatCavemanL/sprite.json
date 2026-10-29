@@ -1,0 +1,172 @@
+{
+  "id": 822,
+  "name": "sManTrapEatCavemanL",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 8,
+    "y": 16
+  },
+  "bbox": {
+    "left": 0,
+    "top": 2,
+    "right": 24,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oManTrap",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sManTrapEatCavemanL/strip.png",
+  "strip_scaled": "sManTrapEatCavemanL/strip@4x.png",
+  "anim": "sManTrapEatCavemanL/anim.png",
+  "anim_scaled": "sManTrapEatCavemanL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sManTrapEatCavemanL/frames/0.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/0@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 16,
+        "right": 23,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/1.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/1@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 18,
+        "right": 23,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/2.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 10,
+        "right": 23,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/3.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 23,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/4.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/4@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 2,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/5.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/5@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 4,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/6.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/6@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 9,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/7.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/7@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 10,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/8.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/8@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 11,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/9.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/9@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 13,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/10.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/10@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 12,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/11.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/11@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 16,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/12.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/12@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 16,
+        "right": 23,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sManTrapEatCavemanL/frames/13.png",
+      "file_scaled": "sManTrapEatCavemanL/frames/13@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 17,
+        "right": 23,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oManTrap"
+  ]
+}

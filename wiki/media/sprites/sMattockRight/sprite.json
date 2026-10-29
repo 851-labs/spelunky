@@ -1,0 +1,42 @@
+{
+  "id": 1021,
+  "name": "sMattockRight",
+  "width": 16,
+  "height": 12,
+  "origin": {
+    "x": 8,
+    "y": 6
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMattockRight/strip.png",
+  "strip_scaled": "sMattockRight/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMattockRight/frames/0.png",
+      "file_scaled": "sMattockRight/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [
+    "oMattock"
+  ],
+  "used_by": [
+    "oPDummy",
+    "oPDummy2",
+    "oMattock"
+  ]
+}

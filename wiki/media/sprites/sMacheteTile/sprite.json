@@ -1,0 +1,40 @@
+{
+  "id": 1230,
+  "name": "sMacheteTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 8,
+    "right": 15,
+    "bottom": 12
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMacheteTile/strip.png",
+  "strip_scaled": "sMacheteTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMacheteTile/frames/0.png",
+      "file_scaled": "sMacheteTile/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 8,
+        "right": 15,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [
+    "oMacheteTile"
+  ],
+  "used_by": [
+    "oMacheteTile"
+  ]
+}

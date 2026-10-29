@@ -1,0 +1,32 @@
+{
+  "id": "quirks/olmec-slam-drifting-left",
+  "title": "Olmec doesn't stop to slam while drifting left",
+  "description": "Olmec hops and drifts left over the player without stopping, and stops to slam only once his drift has slowed. On his next hop he drifts right and stops over the player at once.",
+  "spec": "wiki/clips/quirks/olmec-slam-drifting-left.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 2900,
+  "to": 3069,
+  "frames": 170,
+  "fps": 30,
+  "duration": 5.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2927,
+  "frames_hash": "e5705a866f944a22",
+  "has_audio": true,
+  "audio_hash": "418e143bff40567d",
+  "encoding": "3b5eab594dc747a8",
+  "files": {
+    "mp4": "quirks/olmec-slam-drifting-left/clip.mp4",
+    "webm": "quirks/olmec-slam-drifting-left/clip.webm",
+    "poster": "quirks/olmec-slam-drifting-left/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

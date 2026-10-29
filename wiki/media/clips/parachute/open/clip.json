@@ -1,0 +1,32 @@
+{
+  "id": "parachute/open",
+  "title": "Parachute opening",
+  "description": "Wearing a parachute, the player runs off a ledge into a deep drop. After half a second of falling it opens over him, and he floats down a pixel a step and lands unhurt; it falls away behind him.",
+  "spec": "wiki/clips/parachute/open.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-26-parachute.txt"
+  },
+  "from": 2240,
+  "to": 2339,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2275,
+  "frames_hash": "0ee696f9c3a3f5a2",
+  "has_audio": true,
+  "audio_hash": "72e4cc8554408bb9",
+  "encoding": "bc83a9c878947b15",
+  "files": {
+    "mp4": "parachute/open/clip.mp4",
+    "webm": "parachute/open/clip.webm",
+    "poster": "parachute/open/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

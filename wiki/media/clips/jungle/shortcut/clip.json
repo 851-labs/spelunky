@@ -1,0 +1,32 @@
+{
+  "id": "jungle/shortcut",
+  "title": "The level 5 shortcut",
+  "description": "With the shortcuts built, the player climbs the ladder from the title screen to the Shortcut House, where doors lead to levels 5, 9 and 13, and enters the level 5 door. The first Jungle level loads, with Cavemen and vines.",
+  "spec": "wiki/clips/jungle/shortcut.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/title-shortcut5.txt"
+  },
+  "from": 520,
+  "to": 860,
+  "frames": 341,
+  "fps": 30,
+  "duration": 11.366666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 790,
+  "frames_hash": "7fe99c0637055566",
+  "has_audio": true,
+  "audio_hash": "18d1bfb3b5940fd0",
+  "encoding": "c5b9ad32fa581cb2",
+  "files": {
+    "mp4": "jungle/shortcut/clip.mp4",
+    "webm": "jungle/shortcut/clip.webm",
+    "poster": "jungle/shortcut/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

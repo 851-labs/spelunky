@@ -1,0 +1,50 @@
+{
+  "id": 673,
+  "name": "sYellowBall",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 14,
+    "bottom": 14
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sYellowBall/strip.png",
+  "strip_scaled": "sYellowBall/strip@4x.png",
+  "anim": "sYellowBall/anim.png",
+  "anim_scaled": "sYellowBall/anim@4x.png",
+  "frames": [
+    {
+      "file": "sYellowBall/frames/0.png",
+      "file_scaled": "sYellowBall/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sYellowBall/frames/1.png",
+      "file_scaled": "sYellowBall/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 14,
+        "bottom": 14
+      }
+    }
+  ],
+  "objects": [
+    "oYellowBall"
+  ],
+  "used_by": [
+    "oYellowBall"
+  ]
+}

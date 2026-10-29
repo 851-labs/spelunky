@@ -1,0 +1,40 @@
+{
+  "id": 1153,
+  "name": "sLockedChest",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 6,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLockedChest/strip.png",
+  "strip_scaled": "sLockedChest/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sLockedChest/frames/0.png",
+      "file_scaled": "sLockedChest/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 6,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oLockedChest"
+  ],
+  "used_by": [
+    "oLockedChest"
+  ]
+}

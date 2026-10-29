@@ -1,0 +1,40 @@
+{
+  "id": 471,
+  "name": "sRopeTop",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sRopeTop/strip.png",
+  "strip_scaled": "sRopeTop/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sRopeTop/frames/0.png",
+      "file_scaled": "sRopeTop/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [
+    "oRopeTop"
+  ],
+  "used_by": [
+    "oRopeTop"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "arrow-trap/miss",
+  "title": "Arrow trap firing short",
+  "description": "The player walks toward an arrow trap from five blocks away and sets it off; its arrow drops onto the floor, slows and stops short of him, harmless.",
+  "spec": "wiki/clips/arrow-trap/miss.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 99,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 52,
+  "frames_hash": "61ae6e9794706028",
+  "has_audio": true,
+  "audio_hash": "becdc3cd6715323c",
+  "encoding": "19bde215bcfccf3f",
+  "files": {
+    "mp4": "arrow-trap/miss/clip.mp4",
+    "webm": "arrow-trap/miss/clip.webm",
+    "poster": "arrow-trap/miss/poster.png",
+    "replay": "arrow-trap/miss/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

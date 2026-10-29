@@ -1,0 +1,32 @@
+{
+  "id": "hedjet/gold-door",
+  "title": "Gold door",
+  "description": "Wearing the Hedjet, the player carries the Tomb Lord's sceptre to the gold door. The door takes the sceptre and opens, and he goes through it to the City of Gold.",
+  "spec": "wiki/clips/hedjet/gold-door.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-9.txt"
+  },
+  "from": 6610,
+  "to": 6760,
+  "frames": 151,
+  "fps": 30,
+  "duration": 5.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 6666,
+  "frames_hash": "33a1ad160609f901",
+  "has_audio": true,
+  "audio_hash": "5c328668c5af3903",
+  "encoding": "2cb048a1bf6ecf48",
+  "files": {
+    "mp4": "hedjet/gold-door/clip.mp4",
+    "webm": "hedjet/gold-door/clip.webm",
+    "poster": "hedjet/gold-door/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

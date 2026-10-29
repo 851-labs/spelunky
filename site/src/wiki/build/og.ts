@@ -1,4 +1,4 @@
-// The wiki's Open Graph images: a 1200x630 card per page and hub, made at build time from the pinned media
+// The wiki's Open Graph images: a 1200x630 card per page and hub, made at build time from the wiki's media
 // (docs/web-deploy.md, "Open Graph images"). Everything on it is the game's own pixel art, nearest neighbour
 // at whole scales: the page's sprite, the SPELUNKY title sprite, and the text in the game's sprite fonts
 // (sFont and sFontSmall, which it draws with font_add_sprite: monospaced, ' ' to 'Z', so upper case), on the
@@ -94,7 +94,7 @@ interface Font {
   dotRaise: number;
 }
 
-// Renders cards from the media package (media-package.ts). Throws if it hasn't got the fonts or the title.
+// Renders cards from the media (media-package.ts). Throws if it hasn't got the fonts or the title.
 export function ogRenderer(media: MediaPackage) {
   const sprite = (name: string) => {
     if (!Object.hasOwn(media.sprites, name)) throw new Error(`og: no sprite ${name} in the wiki media`);

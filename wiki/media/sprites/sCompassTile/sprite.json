@@ -1,0 +1,40 @@
+{
+  "id": 1235,
+  "name": "sCompassTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 4,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCompassTile/strip.png",
+  "strip_scaled": "sCompassTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCompassTile/frames/0.png",
+      "file_scaled": "sCompassTile/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oCompassTile"
+  ],
+  "used_by": [
+    "oCompassTile"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "snake/stomp",
+  "title": "Snake stomp",
+  "description": "The player drops onto a snake from the ledge above and kills it by landing on it.",
+  "spec": "wiki/clips/snake/stomp.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-mines-seed-1-kills.txt"
+  },
+  "from": 740,
+  "to": 859,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 806,
+  "frames_hash": "1441a0a2c23f45ed",
+  "has_audio": true,
+  "audio_hash": "275072022847b230",
+  "encoding": "2dccd60f3d6ed94e",
+  "files": {
+    "mp4": "snake/stomp/clip.mp4",
+    "webm": "snake/stomp/clip.webm",
+    "poster": "snake/stomp/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

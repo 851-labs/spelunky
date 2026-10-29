@@ -1,0 +1,42 @@
+{
+  "id": 713,
+  "name": "sRubbleLush",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 6,
+    "bottom": 6
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sRubbleLush/strip.png",
+  "strip_scaled": "sRubbleLush/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sRubbleLush/frames/0.png",
+      "file_scaled": "sRubbleLush/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oBlock",
+    "oPushBlock",
+    "oLush",
+    "oTemple",
+    "oXocBlock"
+  ]
+}

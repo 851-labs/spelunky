@@ -1,0 +1,33 @@
+{
+  "id": "crate/rope",
+  "title": "Crate opened into ropes",
+  "description": "The player walks onto a crate and opens it. It holds a pile of rope, which appears under him and is collected at once: his ropes go from 4 to 7.",
+  "spec": "wiki/clips/crate/rope.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 2
+  },
+  "from": 0,
+  "to": 99,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 33,
+  "frames_hash": "1dbfc0aee7c79d63",
+  "has_audio": true,
+  "audio_hash": "23bf658025d035d3",
+  "encoding": "6f46451290c89f74",
+  "files": {
+    "mp4": "crate/rope/clip.mp4",
+    "webm": "crate/rope/clip.webm",
+    "poster": "crate/rope/poster.png",
+    "replay": "crate/rope/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

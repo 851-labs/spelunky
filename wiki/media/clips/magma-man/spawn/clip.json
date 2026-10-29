@@ -1,0 +1,33 @@
+{
+  "id": "magma-man/spawn",
+  "title": "Magma Man",
+  "description": "Lava spurts a blob of magma onto the floor beside the pool, where it forms into a magma man. It wanders the floor, stopping at the lava's edge, until it burns out and crumbles.",
+  "spec": "wiki/clips/magma-man/spawn.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 53
+  },
+  "from": 100,
+  "to": 369,
+  "frames": 270,
+  "fps": 30,
+  "duration": 9.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 170,
+  "frames_hash": "6718455f98ba70fb",
+  "has_audio": true,
+  "audio_hash": "009c037c26f40833",
+  "encoding": "0fefa5c2c7a5f3c1",
+  "files": {
+    "mp4": "magma-man/spawn/clip.mp4",
+    "webm": "magma-man/spawn/clip.webm",
+    "poster": "magma-man/spawn/poster.png",
+    "replay": "magma-man/spawn/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

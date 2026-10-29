@@ -1,0 +1,62 @@
+{
+  "id": 508,
+  "name": "sPiranhaRight",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oPiranha",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sPiranhaRight/strip.png",
+  "strip_scaled": "sPiranhaRight/strip@4x.png",
+  "anim": "sPiranhaRight/anim.png",
+  "anim_scaled": "sPiranhaRight/anim@4x.png",
+  "frames": [
+    {
+      "file": "sPiranhaRight/frames/0.png",
+      "file_scaled": "sPiranhaRight/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sPiranhaRight/frames/1.png",
+      "file_scaled": "sPiranhaRight/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sPiranhaRight/frames/2.png",
+      "file_scaled": "sPiranhaRight/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPiranha"
+  ]
+}

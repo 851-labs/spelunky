@@ -1,0 +1,32 @@
+{
+  "id": "shotgun/spiders",
+  "title": "Shotgun spread",
+  "description": "Kali's spiders drop around the player, who shoots them with a shotgun. The spread of pellets kills two at once, and the rest fall to later shots without the player losing a heart.",
+  "spec": "wiki/clips/shotgun/spiders.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/weapon-seed-38-web-cannon.txt"
+  },
+  "from": 1600,
+  "to": 1719,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1637,
+  "frames_hash": "fa921b96dbc38e27",
+  "has_audio": true,
+  "audio_hash": "70bed9fcea6c60b6",
+  "encoding": "cc3e4f6a14e06d53",
+  "files": {
+    "mp4": "shotgun/spiders/clip.mp4",
+    "webm": "shotgun/spiders/clip.webm",
+    "poster": "shotgun/spiders/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

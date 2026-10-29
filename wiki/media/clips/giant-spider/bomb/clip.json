@@ -1,0 +1,33 @@
+{
+  "id": "giant-spider/bomb",
+  "title": "Giant spider bombed",
+  "description": "The player places a bomb beside a giant spider hanging from the ceiling and runs back. The explosion kills it, and it leaves a paste and a big sapphire.",
+  "spec": "wiki/clips/giant-spider/bomb.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 20,
+  "to": 259,
+  "frames": 240,
+  "fps": 30,
+  "duration": 8.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 186,
+  "frames_hash": "33a3d9134de0e57e",
+  "has_audio": true,
+  "audio_hash": "ebceae0152f931a2",
+  "encoding": "0084ece72c8a37eb",
+  "files": {
+    "mp4": "giant-spider/bomb/clip.mp4",
+    "webm": "giant-spider/bomb/clip.webm",
+    "poster": "giant-spider/bomb/poster.png",
+    "replay": "giant-spider/bomb/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

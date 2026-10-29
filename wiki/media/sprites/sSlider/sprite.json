@@ -1,0 +1,42 @@
+{
+  "id": 1245,
+  "name": "sSlider",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 5,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSlider/strip.png",
+  "strip_scaled": "sSlider/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSlider/frames/0.png",
+      "file_scaled": "sSlider/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 5,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [
+    "oSlider1",
+    "oSlider2"
+  ],
+  "used_by": [
+    "oSlider1",
+    "oSlider2"
+  ]
+}

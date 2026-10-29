@@ -1,0 +1,33 @@
+{
+  "id": "web-cannon/caveman",
+  "title": "Web Cannon against a caveman",
+  "description": "The player picks up a web cannon and fires it ahead along the floor, where the web ball makes a web. A caveman spots him and charges into the web, which holds it fast.",
+  "spec": "wiki/clips/web-cannon/caveman.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 239,
+  "frames": 240,
+  "fps": 30,
+  "duration": 8.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 120,
+  "frames_hash": "59fca0501102be98",
+  "has_audio": true,
+  "audio_hash": "73ca2d46d9a99e9c",
+  "encoding": "01c7b73f99e8a841",
+  "files": {
+    "mp4": "web-cannon/caveman/clip.mp4",
+    "webm": "web-cannon/caveman/clip.webm",
+    "poster": "web-cannon/caveman/poster.png",
+    "replay": "web-cannon/caveman/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,76 @@
+{
+  "id": 868,
+  "name": "sMagmaTrail",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 4,
+    "top": 4,
+    "right": 11,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMagmaTrail/strip.png",
+  "strip_scaled": "sMagmaTrail/strip@4x.png",
+  "anim": "sMagmaTrail/anim.png",
+  "anim_scaled": "sMagmaTrail/anim@4x.png",
+  "frames": [
+    {
+      "file": "sMagmaTrail/frames/0.png",
+      "file_scaled": "sMagmaTrail/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 4,
+        "right": 11,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sMagmaTrail/frames/1.png",
+      "file_scaled": "sMagmaTrail/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 5,
+        "right": 10,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sMagmaTrail/frames/2.png",
+      "file_scaled": "sMagmaTrail/frames/2@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 6,
+        "right": 9,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sMagmaTrail/frames/3.png",
+      "file_scaled": "sMagmaTrail/frames/3@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 6,
+        "right": 9,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sMagmaTrail/frames/4.png",
+      "file_scaled": "sMagmaTrail/frames/4@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 7,
+        "right": 8,
+        "bottom": 8
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

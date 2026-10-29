@@ -1,0 +1,38 @@
+{
+  "id": 1204,
+  "name": "sJoyConfigButtonPressed",
+  "width": 56,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 55,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sJoyConfigButtonPressed/strip.png",
+  "strip_scaled": "sJoyConfigButtonPressed/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sJoyConfigButtonPressed/frames/0.png",
+      "file_scaled": "sJoyConfigButtonPressed/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 55,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oJoyConfigButton"
+  ]
+}

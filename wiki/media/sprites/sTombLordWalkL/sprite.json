@@ -1,0 +1,92 @@
+{
+  "id": 1144,
+  "name": "sTombLordWalkL",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 4,
+    "top": 0,
+    "right": 25,
+    "bottom": 31
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oTombLord",
+    "via": "uses",
+    "image_speed": 0.25
+  },
+  "strip": "sTombLordWalkL/strip.png",
+  "strip_scaled": "sTombLordWalkL/strip@4x.png",
+  "anim": "sTombLordWalkL/anim.png",
+  "anim_scaled": "sTombLordWalkL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sTombLordWalkL/frames/0.png",
+      "file_scaled": "sTombLordWalkL/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 25,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordWalkL/frames/1.png",
+      "file_scaled": "sTombLordWalkL/frames/1@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 1,
+        "right": 25,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordWalkL/frames/2.png",
+      "file_scaled": "sTombLordWalkL/frames/2@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 25,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordWalkL/frames/3.png",
+      "file_scaled": "sTombLordWalkL/frames/3@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 25,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordWalkL/frames/4.png",
+      "file_scaled": "sTombLordWalkL/frames/4@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 1,
+        "right": 25,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordWalkL/frames/5.png",
+      "file_scaled": "sTombLordWalkL/frames/5@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 25,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oTombLord"
+  ]
+}

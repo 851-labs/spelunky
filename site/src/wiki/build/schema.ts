@@ -18,7 +18,7 @@ export const PAGE_TYPES = [
 export type PageType = (typeof PAGE_TYPES)[number];
 
 // Slugs no page may take: the hubs' (`/wiki/monsters`, `/wiki/items`...), `media`, where the wiki's sprites
-// and clips are served (`/wiki/media/`, site/wiki-media.sh), `og`, where its Open Graph images are, and
+// and clips are served (`/wiki/media/`, site/build.sh), `og`, where its Open Graph images are, and
 // `source`, the source viewer's (`/wiki/source`, source.ts).
 export const RESERVED_SLUGS = new Set([
   ...CATEGORIES.map((c) => c.split("/")[0]),

@@ -1,0 +1,60 @@
+{
+  "id": 1380,
+  "name": "sLampRedItem",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 12
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLampRedItem/strip.png",
+  "strip_scaled": "sLampRedItem/strip@4x.png",
+  "anim": "sLampRedItem/anim.png",
+  "anim_scaled": "sLampRedItem/anim@4x.png",
+  "frames": [
+    {
+      "file": "sLampRedItem/frames/0.png",
+      "file_scaled": "sLampRedItem/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLampRedItem/frames/1.png",
+      "file_scaled": "sLampRedItem/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLampRedItem/frames/2.png",
+      "file_scaled": "sLampRedItem/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oLampRedItem"
+  ],
+  "used_by": [
+    "oLampRedItem"
+  ]
+}

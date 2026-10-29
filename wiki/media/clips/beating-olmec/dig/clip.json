@@ -1,0 +1,32 @@
+{
+  "id": "beating-olmec/dig",
+  "title": "Olmec digging down",
+  "description": "In the shaft Olmec has dug by the lair's left wall, the player waits beside him. Each time Olmec hops, he stops in the air and slams down, breaking the floor beneath him, so he sinks a block deeper, and three yellow balls fly out.",
+  "spec": "wiki/clips/beating-olmec/dig.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 4080,
+  "to": 4340,
+  "frames": 261,
+  "fps": 30,
+  "duration": 8.7,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 4180,
+  "frames_hash": "2cae427d7c68b6e1",
+  "has_audio": true,
+  "audio_hash": "3e98d2384324457e",
+  "encoding": "ac13e650911f4413",
+  "files": {
+    "mp4": "beating-olmec/dig/clip.mp4",
+    "webm": "beating-olmec/dig/clip.webm",
+    "poster": "beating-olmec/dig/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "golden-idol/exit",
+  "title": "Golden idol carried out",
+  "description": "In the Mines, the player grabs a golden idol and drops down a shaft while the boulder it sets off rolls along the corridor above. He carries the idol to the exit, where it is added to his money, and goes on to the next level.",
+  "spec": "wiki/clips/golden-idol/exit.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-boulder-outrun.txt"
+  },
+  "from": 700,
+  "to": 1109,
+  "frames": 410,
+  "fps": 30,
+  "duration": 13.666666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 820,
+  "frames_hash": "722956d6a595d83c",
+  "has_audio": true,
+  "audio_hash": "ee0931cf438db3c2",
+  "encoding": "f6ae3b0c477334e1",
+  "files": {
+    "mp4": "golden-idol/exit/clip.mp4",
+    "webm": "golden-idol/exit/clip.webm",
+    "poster": "golden-idol/exit/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

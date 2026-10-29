@@ -1,0 +1,33 @@
+{
+  "id": "monkey/steal",
+  "title": "Monkey steals",
+  "description": "A monkey leaps off a vine at the player, clings to his back and throws one of his bombs away. It jumps on him again and throws away a rope.",
+  "spec": "wiki/clips/monkey/steal.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 40,
+  "to": 299,
+  "frames": 260,
+  "fps": 30,
+  "duration": 8.666666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 130,
+  "frames_hash": "edfe8e4d279324d6",
+  "has_audio": true,
+  "audio_hash": "d8c86fea0d0c3562",
+  "encoding": "4f0bf52150b41ca4",
+  "files": {
+    "mp4": "monkey/steal/clip.mp4",
+    "webm": "monkey/steal/clip.webm",
+    "poster": "monkey/steal/poster.png",
+    "replay": "monkey/steal/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

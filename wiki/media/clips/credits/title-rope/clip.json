@@ -1,0 +1,32 @@
+{
+  "id": "credits/title-rope",
+  "title": "The credits after the title's rope",
+  "description": "The player climbs the title screen's rope out of the top of the screen, and the credits fade in on the desert at night, under the moon, as in the intro. The Spelunker rides in on a camel, the credits music starts, and SPELUNKY appears.",
+  "spec": "wiki/clips/credits/title-rope.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/title-locked.txt"
+  },
+  "from": 840,
+  "to": 1299,
+  "frames": 460,
+  "fps": 30,
+  "duration": 15.333333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1200,
+  "frames_hash": "1062bc7eaeb4876a",
+  "has_audio": true,
+  "audio_hash": "59b0ab57cd965821",
+  "encoding": "e821ad05d801d108",
+  "files": {
+    "mp4": "credits/title-rope/clip.mp4",
+    "webm": "credits/title-rope/clip.webm",
+    "poster": "credits/title-rope/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

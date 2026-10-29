@@ -1,0 +1,138 @@
+{
+  "id": 1400,
+  "name": "sTunnelAttackL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTunnelAttackL/strip.png",
+  "strip_scaled": "sTunnelAttackL/strip@4x.png",
+  "anim": "sTunnelAttackL/anim.png",
+  "anim_scaled": "sTunnelAttackL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sTunnelAttackL/frames/0.png",
+      "file_scaled": "sTunnelAttackL/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelAttackL/frames/1.png",
+      "file_scaled": "sTunnelAttackL/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelAttackL/frames/2.png",
+      "file_scaled": "sTunnelAttackL/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelAttackL/frames/3.png",
+      "file_scaled": "sTunnelAttackL/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelAttackL/frames/4.png",
+      "file_scaled": "sTunnelAttackL/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelAttackL/frames/5.png",
+      "file_scaled": "sTunnelAttackL/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelAttackL/frames/6.png",
+      "file_scaled": "sTunnelAttackL/frames/6@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelAttackL/frames/7.png",
+      "file_scaled": "sTunnelAttackL/frames/7@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelAttackL/frames/8.png",
+      "file_scaled": "sTunnelAttackL/frames/8@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelAttackL/frames/9.png",
+      "file_scaled": "sTunnelAttackL/frames/9@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelAttackL/frames/10.png",
+      "file_scaled": "sTunnelAttackL/frames/10@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1"
+  ]
+}

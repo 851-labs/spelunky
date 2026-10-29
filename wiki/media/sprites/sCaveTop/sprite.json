@@ -1,0 +1,36 @@
+{
+  "id": 440,
+  "name": "sCaveTop",
+  "width": 16,
+  "height": 17,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 13,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCaveTop/strip.png",
+  "strip_scaled": "sCaveTop/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCaveTop/frames/0.png",
+      "file_scaled": "sCaveTop/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 13,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

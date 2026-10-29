@@ -1,0 +1,40 @@
+{
+  "id": 511,
+  "name": "sVine",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sVine/strip.png",
+  "strip_scaled": "sVine/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sVine/frames/0.png",
+      "file_scaled": "sVine/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oVine"
+  ],
+  "used_by": [
+    "oVine"
+  ]
+}

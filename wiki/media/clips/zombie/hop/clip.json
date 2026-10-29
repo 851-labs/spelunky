@@ -1,0 +1,33 @@
+{
+  "id": "zombie/hop",
+  "title": "Zombie hops",
+  "description": "A zombie wakes as the player walks up to it, hops toward him in short hops and then a long one, and bites him for a heart. It rests, then hops again.",
+  "spec": "wiki/clips/zombie/hop.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 4
+  },
+  "from": 40,
+  "to": 259,
+  "frames": 220,
+  "fps": 30,
+  "duration": 7.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 133,
+  "frames_hash": "40bb9e7e983d6b96",
+  "has_audio": true,
+  "audio_hash": "c320145d173a55ed",
+  "encoding": "28d66580f5ccc306",
+  "files": {
+    "mp4": "zombie/hop/clip.mp4",
+    "webm": "zombie/hop/clip.webm",
+    "poster": "zombie/hop/poster.png",
+    "replay": "zombie/hop/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

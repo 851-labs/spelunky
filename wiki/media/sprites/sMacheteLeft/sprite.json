@@ -1,0 +1,38 @@
+{
+  "id": 961,
+  "name": "sMacheteLeft",
+  "width": 16,
+  "height": 12,
+  "origin": {
+    "x": 8,
+    "y": 6
+  },
+  "bbox": {
+    "left": 0,
+    "top": 4,
+    "right": 15,
+    "bottom": 8
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMacheteLeft/strip.png",
+  "strip_scaled": "sMacheteLeft/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMacheteLeft/frames/0.png",
+      "file_scaled": "sMacheteLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 15,
+        "bottom": 8
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oMachete"
+  ]
+}

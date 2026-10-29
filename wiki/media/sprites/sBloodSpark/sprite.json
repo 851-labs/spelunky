@@ -1,0 +1,124 @@
+{
+  "id": 1392,
+  "name": "sBloodSpark",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oBloodSpark",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sBloodSpark/strip.png",
+  "strip_scaled": "sBloodSpark/strip@4x.png",
+  "anim": "sBloodSpark/anim.png",
+  "anim_scaled": "sBloodSpark/anim@4x.png",
+  "frames": [
+    {
+      "file": "sBloodSpark/frames/0.png",
+      "file_scaled": "sBloodSpark/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sBloodSpark/frames/1.png",
+      "file_scaled": "sBloodSpark/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBloodSpark/frames/2.png",
+      "file_scaled": "sBloodSpark/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 7,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBloodSpark/frames/3.png",
+      "file_scaled": "sBloodSpark/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 5,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBloodSpark/frames/4.png",
+      "file_scaled": "sBloodSpark/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 5,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sBloodSpark/frames/5.png",
+      "file_scaled": "sBloodSpark/frames/5@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 1,
+        "right": 5,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBloodSpark/frames/6.png",
+      "file_scaled": "sBloodSpark/frames/6@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 1,
+        "right": 5,
+        "bottom": 4
+      }
+    },
+    {
+      "file": "sBloodSpark/frames/7.png",
+      "file_scaled": "sBloodSpark/frames/7@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 1,
+        "right": 5,
+        "bottom": 3
+      }
+    },
+    {
+      "file": "sBloodSpark/frames/8.png",
+      "file_scaled": "sBloodSpark/frames/8@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 5,
+        "bottom": 2
+      }
+    }
+  ],
+  "objects": [
+    "oBloodSpark"
+  ],
+  "used_by": [
+    "oBloodSpark"
+  ]
+}

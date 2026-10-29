@@ -1,0 +1,36 @@
+{
+  "id": 524,
+  "name": "sDarkBottom",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 2
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDarkBottom/strip.png",
+  "strip_scaled": "sDarkBottom/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sDarkBottom/frames/0.png",
+      "file_scaled": "sDarkBottom/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 2
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

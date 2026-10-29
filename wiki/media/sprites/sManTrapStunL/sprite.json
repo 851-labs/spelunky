@@ -1,0 +1,82 @@
+{
+  "id": 609,
+  "name": "sManTrapStunL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oManTrap",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sManTrapStunL/strip.png",
+  "strip_scaled": "sManTrapStunL/strip@4x.png",
+  "anim": "sManTrapStunL/anim.png",
+  "anim_scaled": "sManTrapStunL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sManTrapStunL/frames/0.png",
+      "file_scaled": "sManTrapStunL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 7,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sManTrapStunL/frames/1.png",
+      "file_scaled": "sManTrapStunL/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sManTrapStunL/frames/2.png",
+      "file_scaled": "sManTrapStunL/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sManTrapStunL/frames/3.png",
+      "file_scaled": "sManTrapStunL/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sManTrapStunL/frames/4.png",
+      "file_scaled": "sManTrapStunL/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oManTrap"
+  ]
+}

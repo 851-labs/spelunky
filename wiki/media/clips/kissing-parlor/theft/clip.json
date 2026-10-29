@@ -1,0 +1,32 @@
+{
+  "id": "kissing-parlor/theft",
+  "title": "Stealing the Kissing Parlor's damsel",
+  "description": "In a Kissing Parlor on level 2, the player asks for a kiss without the $10000 and is sent away. He picks the damsel up, priced at $30000, can't pay and puts her down, then picks her up again and walks out of the shop with her. The shopkeeper shouts \"Come back here, thief!\" and shoots him dead.",
+  "spec": "wiki/clips/kissing-parlor/theft.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-22-kissing-theft.txt"
+  },
+  "from": 1150,
+  "to": 1340,
+  "frames": 191,
+  "fps": 30,
+  "duration": 6.366666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1224,
+  "frames_hash": "e629ae1d2594b7a3",
+  "has_audio": true,
+  "audio_hash": "4778157843edf99a",
+  "encoding": "fd0b389ba62b9479",
+  "files": {
+    "mp4": "kissing-parlor/theft/clip.mp4",
+    "webm": "kissing-parlor/theft/clip.webm",
+    "poster": "kissing-parlor/theft/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,39 @@
+{
+  "id": 1027,
+  "name": "sMattockPreL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 10,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMattockPreL/strip.png",
+  "strip_scaled": "sMattockPreL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMattockPreL/frames/0.png",
+      "file_scaled": "sMattockPreL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 10,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1",
+    "oMattockPre"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "bomb-shop/buy",
+  "title": "Buying bombs in a Bomb Shop",
+  "description": "The player walks into a Bomb Shop on level 2 and its shopkeeper welcomes him. He picks up a bag of three bombs for $2500 and pays, and his bombs go from 4 to 7.",
+  "spec": "wiki/clips/bomb-shop/buy.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-17-bomb-buy.txt"
+  },
+  "from": 1870,
+  "to": 1989,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1942,
+  "frames_hash": "188e66a79b3827d8",
+  "has_audio": true,
+  "audio_hash": "0e463971f885d87c",
+  "encoding": "4ffc883972070ca0",
+  "files": {
+    "mp4": "bomb-shop/buy/clip.mp4",
+    "webm": "bomb-shop/buy/clip.webm",
+    "poster": "bomb-shop/buy/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

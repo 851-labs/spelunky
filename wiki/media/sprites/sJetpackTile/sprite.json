@@ -1,0 +1,40 @@
+{
+  "id": 1236,
+  "name": "sJetpackTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 3,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sJetpackTile/strip.png",
+  "strip_scaled": "sJetpackTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sJetpackTile/frames/0.png",
+      "file_scaled": "sJetpackTile/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oJetpackTile"
+  ],
+  "used_by": [
+    "oJetpackTile"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "quirks/bomb-arrow-free",
+  "title": "A bomb arrow costs no bomb",
+  "description": "From a ledge, the player presses the bomb key with a bow barely drawn, and nothing happens: he shoots a plain arrow. Drawn all the way, the key makes a bomb arrow, which sticks in a wall and blows up there, while his bombs stay at four.",
+  "spec": "wiki/clips/quirks/bomb-arrow-free.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/weapon-bow-bomb-arrow-free.txt"
+  },
+  "from": 241,
+  "to": 480,
+  "frames": 240,
+  "fps": 30,
+  "duration": 8.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 447,
+  "frames_hash": "9ed6687b2ae74a1d",
+  "has_audio": true,
+  "audio_hash": "57d559919230d412",
+  "encoding": "22664e4695a46110",
+  "files": {
+    "mp4": "quirks/bomb-arrow-free/clip.mp4",
+    "webm": "quirks/bomb-arrow-free/clip.webm",
+    "poster": "quirks/bomb-arrow-free/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

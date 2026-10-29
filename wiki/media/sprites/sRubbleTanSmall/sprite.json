@@ -1,0 +1,59 @@
+{
+  "id": 716,
+  "name": "sRubbleTanSmall",
+  "width": 4,
+  "height": 4,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 3,
+    "bottom": 3
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oSpearTrapTop",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sRubbleTanSmall/strip.png",
+  "strip_scaled": "sRubbleTanSmall/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sRubbleTanSmall/frames/0.png",
+      "file_scaled": "sRubbleTanSmall/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 3,
+        "bottom": 3
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oExplosion",
+    "oArrowTrapRight",
+    "oSpearTrapTop",
+    "oSpearTrapBottom",
+    "oSmashTrap",
+    "oCeilingTrap",
+    "oDoor",
+    "oTrapBlock",
+    "oAltarLeft",
+    "oAltarRight",
+    "oBrickSmooth",
+    "oArrowTrapLeft",
+    "oSign",
+    "oArrowRepeaterR",
+    "oArrowRepeaterL",
+    "oGrave",
+    "oSmashTrapLit",
+    "oSacAltarLeft"
+  ]
+}

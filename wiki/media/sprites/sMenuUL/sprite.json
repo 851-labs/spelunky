@@ -1,0 +1,40 @@
+{
+  "id": 643,
+  "name": "sMenuUL",
+  "width": 16,
+  "height": 17,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 5,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMenuUL/strip.png",
+  "strip_scaled": "sMenuUL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMenuUL/frames/0.png",
+      "file_scaled": "sMenuUL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 5,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oMenuUL"
+  ],
+  "used_by": [
+    "oMenuUL"
+  ]
+}

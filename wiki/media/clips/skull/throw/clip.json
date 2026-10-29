@@ -1,0 +1,32 @@
+{
+  "id": "skull/throw",
+  "title": "Skull thrown at a snake",
+  "description": "The player picks up a skull, drops off a ledge and throws it at a snake on a ledge beside him while falling. The skull breaks into bones on the snake and kills it.",
+  "spec": "wiki/clips/skull/throw.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/action-skull-bomb-rope-arrow.txt"
+  },
+  "from": 690,
+  "to": 829,
+  "frames": 140,
+  "fps": 30,
+  "duration": 4.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 790,
+  "frames_hash": "e08baf331b98a0bf",
+  "has_audio": true,
+  "audio_hash": "b7be51c1e153179c",
+  "encoding": "8482fd7fa1bb63cf",
+  "files": {
+    "mp4": "skull/throw/clip.mp4",
+    "webm": "skull/throw/clip.webm",
+    "poster": "skull/throw/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

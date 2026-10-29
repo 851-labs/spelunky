@@ -1,0 +1,32 @@
+{
+  "id": "kapala/heart",
+  "title": "Kapala filling",
+  "description": "Kali's gift, a kapala, appears on her altar, and the player picks it up. A laser destroys the altar, spiders come out of her statue and he whips them; each drop of blood he touches fills the kapala, and the ninth turns into a heart.",
+  "spec": "wiki/clips/kapala/heart.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-11-kapala.txt"
+  },
+  "from": 1770,
+  "to": 1900,
+  "frames": 131,
+  "fps": 30,
+  "duration": 4.366666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1884,
+  "frames_hash": "d31476dcf79b211b",
+  "has_audio": true,
+  "audio_hash": "32181a76c8ce05c4",
+  "encoding": "fd53cc71344b63bf",
+  "files": {
+    "mp4": "kapala/heart/clip.mp4",
+    "webm": "kapala/heart/clip.webm",
+    "poster": "kapala/heart/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

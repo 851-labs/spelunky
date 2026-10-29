@@ -1,0 +1,52 @@
+{
+  "id": 815,
+  "name": "sFlare",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sFlare/strip.png",
+  "strip_scaled": "sFlare/strip@4x.png",
+  "anim": "sFlare/anim.png",
+  "anim_scaled": "sFlare/anim@4x.png",
+  "frames": [
+    {
+      "file": "sFlare/frames/0.png",
+      "file_scaled": "sFlare/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sFlare/frames/1.png",
+      "file_scaled": "sFlare/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    }
+  ],
+  "objects": [
+    "oFlare"
+  ],
+  "used_by": [
+    "oPDummy",
+    "oPDummy2",
+    "oFlare"
+  ]
+}

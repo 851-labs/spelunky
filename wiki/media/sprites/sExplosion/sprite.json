@@ -1,0 +1,130 @@
+{
+  "id": 379,
+  "name": "sExplosion",
+  "width": 48,
+  "height": 48,
+  "origin": {
+    "x": 24,
+    "y": 24
+  },
+  "bbox": {
+    "left": 0,
+    "top": 2,
+    "right": 47,
+    "bottom": 45
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sExplosion/strip.png",
+  "strip_scaled": "sExplosion/strip@4x.png",
+  "anim": "sExplosion/anim.png",
+  "anim_scaled": "sExplosion/anim@4x.png",
+  "frames": [
+    {
+      "file": "sExplosion/frames/0.png",
+      "file_scaled": "sExplosion/frames/0@4x.png",
+      "bbox": {
+        "left": 11,
+        "top": 12,
+        "right": 35,
+        "bottom": 35
+      }
+    },
+    {
+      "file": "sExplosion/frames/1.png",
+      "file_scaled": "sExplosion/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 5,
+        "right": 42,
+        "bottom": 42
+      }
+    },
+    {
+      "file": "sExplosion/frames/2.png",
+      "file_scaled": "sExplosion/frames/2@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 3,
+        "right": 43,
+        "bottom": 43
+      }
+    },
+    {
+      "file": "sExplosion/frames/3.png",
+      "file_scaled": "sExplosion/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 47,
+        "bottom": 45
+      }
+    },
+    {
+      "file": "sExplosion/frames/4.png",
+      "file_scaled": "sExplosion/frames/4@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 9,
+        "right": 40,
+        "bottom": 36
+      }
+    },
+    {
+      "file": "sExplosion/frames/5.png",
+      "file_scaled": "sExplosion/frames/5@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 5,
+        "right": 42,
+        "bottom": 44
+      }
+    },
+    {
+      "file": "sExplosion/frames/6.png",
+      "file_scaled": "sExplosion/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 43,
+        "bottom": 42
+      }
+    },
+    {
+      "file": "sExplosion/frames/7.png",
+      "file_scaled": "sExplosion/frames/7@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 8,
+        "right": 44,
+        "bottom": 40
+      }
+    },
+    {
+      "file": "sExplosion/frames/8.png",
+      "file_scaled": "sExplosion/frames/8@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 5,
+        "right": 39,
+        "bottom": 39
+      }
+    },
+    {
+      "file": "sExplosion/frames/9.png",
+      "file_scaled": "sExplosion/frames/9@4x.png",
+      "bbox": {
+        "left": 12,
+        "top": 2,
+        "right": 37,
+        "bottom": 41
+      }
+    }
+  ],
+  "objects": [
+    "oExplosion"
+  ],
+  "used_by": [
+    "oExplosion"
+  ]
+}

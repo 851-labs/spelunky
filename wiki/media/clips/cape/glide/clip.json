@@ -1,0 +1,32 @@
+{
+  "id": "cape/glide",
+  "title": "Cape glide",
+  "description": "The player runs out of a shop with a cape he hasn't paid for, which puts it on, and the shopkeeper fires after him. He runs into a gap in the floor and, pressing jump in mid-air, opens the cape and glides down to the ledge below, unhurt.",
+  "spec": "wiki/clips/cape/glide.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-35-cape.txt"
+  },
+  "from": 1690,
+  "to": 1809,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1765,
+  "frames_hash": "f5b51f0345bc3542",
+  "has_audio": true,
+  "audio_hash": "5c3c179d62e2c3da",
+  "encoding": "a6e36d097c81faec",
+  "files": {
+    "mp4": "cape/glide/clip.mp4",
+    "webm": "cape/glide/clip.webm",
+    "poster": "cape/glide/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

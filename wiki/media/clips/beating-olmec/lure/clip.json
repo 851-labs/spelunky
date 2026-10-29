@@ -1,0 +1,32 @@
+{
+  "id": "beating-olmec/lure",
+  "title": "Luring Olmec",
+  "description": "The player waits at the left end of Olmec's lair, where he arrived. Olmec hops toward him again and again, drifting left across the hall with each hop.",
+  "spec": "wiki/clips/beating-olmec/lure.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 2430,
+  "to": 2790,
+  "frames": 361,
+  "fps": 30,
+  "duration": 12.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2690,
+  "frames_hash": "d48e2ad662fa7552",
+  "has_audio": true,
+  "audio_hash": "ae695973480575da",
+  "encoding": "e704194bc6f1a3e5",
+  "files": {
+    "mp4": "beating-olmec/lure/clip.mp4",
+    "webm": "beating-olmec/lure/clip.webm",
+    "poster": "beating-olmec/lure/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

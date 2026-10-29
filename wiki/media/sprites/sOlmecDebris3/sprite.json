@@ -1,0 +1,68 @@
+{
+  "id": 850,
+  "name": "sOlmecDebris3",
+  "width": 12,
+  "height": 12,
+  "origin": {
+    "x": 6,
+    "y": 6
+  },
+  "bbox": {
+    "left": 2,
+    "top": 2,
+    "right": 9,
+    "bottom": 9
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sOlmecDebris3/strip.png",
+  "strip_scaled": "sOlmecDebris3/strip@4x.png",
+  "anim": "sOlmecDebris3/anim.png",
+  "anim_scaled": "sOlmecDebris3/anim@4x.png",
+  "frames": [
+    {
+      "file": "sOlmecDebris3/frames/0.png",
+      "file_scaled": "sOlmecDebris3/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 8,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sOlmecDebris3/frames/1.png",
+      "file_scaled": "sOlmecDebris3/frames/1@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 2,
+        "right": 8,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sOlmecDebris3/frames/2.png",
+      "file_scaled": "sOlmecDebris3/frames/2@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 3,
+        "right": 9,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sOlmecDebris3/frames/3.png",
+      "file_scaled": "sOlmecDebris3/frames/3@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 3,
+        "right": 8,
+        "bottom": 9
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oOlmecDebris"
+  ]
+}

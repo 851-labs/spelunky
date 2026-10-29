@@ -1,0 +1,42 @@
+{
+  "id": 601,
+  "name": "sSmashTrap",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSmashTrap/strip.png",
+  "strip_scaled": "sSmashTrap/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSmashTrap/frames/0.png",
+      "file_scaled": "sSmashTrap/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oSmashTrap",
+    "oSmashTrapTile"
+  ],
+  "used_by": [
+    "oSmashTrap",
+    "oSmashTrapTile"
+  ]
+}

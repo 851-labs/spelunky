@@ -1,0 +1,33 @@
+{
+  "id": "megamouth/attack",
+  "title": "Megamouth attack",
+  "description": "A megamouth patrols the bottom of a lake. As soon as the player drops into the water, it charges at him and bites, then turns around.",
+  "spec": "wiki/clips/megamouth/attack.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 20,
+  "to": 139,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 74,
+  "frames_hash": "d8a5e8a6d78af2ff",
+  "has_audio": true,
+  "audio_hash": "b28b92568fe33581",
+  "encoding": "c232d49948a09733",
+  "files": {
+    "mp4": "megamouth/attack/clip.mp4",
+    "webm": "megamouth/attack/clip.webm",
+    "poster": "megamouth/attack/poster.png",
+    "replay": "megamouth/attack/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

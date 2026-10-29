@@ -1,0 +1,32 @@
+{
+  "id": "tomb-lord/bomb",
+  "title": "Tomb Lord bombed",
+  "description": "A bomb the player has left on a ledge goes off beside a tomb lord below it. The one blast kills it, and it leaves four bones and the Sceptre.",
+  "spec": "wiki/clips/tomb-lord/bomb.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-2-sceptre.txt"
+  },
+  "from": 1015,
+  "to": 1114,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1056,
+  "frames_hash": "0ff47223b99c779d",
+  "has_audio": true,
+  "audio_hash": "f8738e60c799cf7f",
+  "encoding": "804d55e61fd0aef5",
+  "files": {
+    "mp4": "tomb-lord/bomb/clip.mp4",
+    "webm": "tomb-lord/bomb/clip.webm",
+    "poster": "tomb-lord/bomb/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

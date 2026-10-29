@@ -1,0 +1,32 @@
+{
+  "id": "rope/climb",
+  "title": "Rope thrown up and climbed",
+  "description": "In the Tutorial, the player throws a rope straight up. It catches near the ceiling and unrolls down to the floor, and he jumps onto it and climbs.",
+  "spec": "wiki/clips/rope/climb.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/movement-items-rope.txt"
+  },
+  "from": 1180,
+  "to": 1299,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1230,
+  "frames_hash": "464fe1048647039f",
+  "has_audio": true,
+  "audio_hash": "ae4431e6027bae88",
+  "encoding": "0fa9f5d16c0a9366",
+  "files": {
+    "mp4": "rope/climb/clip.mp4",
+    "webm": "rope/climb/clip.webm",
+    "poster": "rope/climb/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

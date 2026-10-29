@@ -17,12 +17,12 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/favicon.ico`, `/icon.svg`, `/apple-touch-icon.png` | the site's icons, the game's Spelunker (SEO, below) | `no-cache` |
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
-| `/wiki/media/HASH/` | the wiki's sprites and clips (`docs/wiki-media.md`), `HASH` being of their package; the clips' videos with byte ranges; its `LICENSE.txt` and `NOTICE.txt` in UTF-8, the type from `_headers` | `immutable`, a year |
+| `/wiki/media/` | the wiki's sprites and clips, committed in `wiki/media` (`docs/wiki-media.md`); the clips' videos with byte ranges; its `LICENSE.txt` and `NOTICE.txt` in UTF-8, the type from `_headers`. `/wiki/media/HASH/...`, where a release's package was, redirects (301) to `/wiki/media/...` | a day |
 | `/wiki/og/<slug>.HASH.png` | the wiki's Open Graph images, one a page and hub, `HASH` being of the file (SEO, "Open Graph images") | `immutable`, a year |
 
-`www.spelunky.ai` redirects (301) to the apex (its pages: the content-hashed files under `/play/v/`,
-`/assets/` and `/wiki/media/` skip the Worker, all but the clips, but only a page on www would ask for them
-there), and a path that's none of these is a 404 with `site/public/404.html`. Everything is in `site/`:
+`www.spelunky.ai` redirects (301) to the apex (its pages: the content-hashed files under `/play/v/` and
+`/assets/` and the media under `/wiki/media/` skip the Worker, all but the clips, but only a page on www would
+ask for them there), and a path that's none of these is a 404 with `site/public/404.html`. Everything is in `site/`:
 
 - `src/`: the app. `routes/` has its pages (TanStack Router's file routes; `routeTree.gen.ts` is generated
   from them by the build and `vite dev`, and committed), and `seo/` their head tags, JSON-LD and the
@@ -37,7 +37,7 @@ there), and a path that's none of these is a 404 with `site/public/404.html`. Ev
   (`content/wiki-planned.yaml`, docs/wiki-style.md, "Red links"), and the snapshots of its stats and
   relations (`content/wiki-data/`, docs/wiki-data.md).
 - `public/`: copied as is: the landing page's media, the site's icons (`scripts/site-icons`), `404.html`, and
-  `_headers` (the immutable caching, and the wiki media's `.txt` files' charset).
+  `_headers` (the immutable caching, the wiki media's day, and their `.txt` files' charset).
 - `wrangler.jsonc`: the Worker and its domains. `vite.config.ts` builds the app with the Cloudflare Vite
   plugin, which writes the deployable Worker to `dist/server` (with its own `wrangler.json`), its static
   assets to `dist/client`, and `.wrangler/deploy/config.json`, which points `wrangler deploy` and
@@ -49,14 +49,14 @@ there), and a path that's none of these is a 404 with `site/public/404.html`. Ev
   scripts by default, skips the script): re-approve it with `npm install-scripts approve <package>`
   (which moves its pin to the new version), and delete by hand any entry left for a version the lockfile no
   longer has: `npm install-scripts prune` off macOS would drop fsevents too, which only installs there.
-- `build.sh` and `web-release.txt`: the build, below; `wiki-media.sh` and `wiki-media.txt`: the wiki's media
+- `build.sh` and `web-release.txt`: the build, below, which serves the wiki's media from `wiki/media`
   ([Wiki media](#wiki-media)). `test.sh`: the smoke test (Testing locally).
 
 The site never builds Rust. A GitHub Release carries the web build as `spelunky-web-TAG.tar.gz` (made by
 `scripts/web --package`, attached by the release workflow), `site/web-release.txt` names the release and the
 tarball's SHA-256, and `site/build.sh` downloads it, checks the checksum, builds the app (`npm ci`, `vite build`
-and a type check), and unpacks the web build into its static assets at `/play/`, and the wiki's media at
-`/wiki/media/HASH/`. We
+and a type check), and unpacks the web build into its static assets at `/play/`, and copies the wiki's
+committed media there at `/wiki/media/`. We
 create and store no Cloudflare API token: Cloudflare's Workers Builds (its Git integration) builds and
 deploys with a build token of its own, which lives only in Cloudflare (the Worker's Settings → Build → "API
 token", named like "Workers Builds - DATE"; the account's existing one is reused) and never in GitHub.
@@ -97,11 +97,10 @@ saying so, so the first build after connecting fails, deploying nothing, until t
 
 1. The release workflow ([docs/ci.md](ci.md)) publishes a GitHub Release `TAG` with
    `spelunky-web-TAG.tar.gz`, made by `scripts/web --package`, and `latest.json`, the native apps' signed
-   update manifest (`docs/updates.md`), and `wiki-media-TAG.tar.gz`, the wiki's media (`docs/wiki-media.md`).
+   update manifest (`docs/updates.md`).
 2. `scripts/bump-web-release TAG` downloads them, checks the manifest's signature, and writes the tag and
-   both SHA-256s into `site/web-release.txt`; and checks the wiki's media as the site will unpack them and
-   writes the tag and their SHA-256 into `site/wiki-media.txt` (a release without them leaves it alone, and
-   so do newer media from `wiki-media.yml`: `docs/wiki-media.md`, "Publishing").
+   both SHA-256s into `site/web-release.txt`. (The wiki's media are committed, and go live with the pull
+   request that renders them: `docs/wiki-media.md`.)
 3. Open a PR with that change; merging it to `main` builds and deploys the site (a minute or two). The web
    build at `/play/` and the native apps' update at `/releases/latest.json` go live together.
 
@@ -124,28 +123,32 @@ of the free plan's 100,000 a day on every game start. The same goes for the page
 
 ## Wiki media
 
-`site/wiki-media.txt` pins a package of the wiki's sprites and clips, a release asset like the web build
-(`docs/wiki-media.md`, "Publishing"), and `site/build.sh` has `site/wiki-media.sh` download it, check its
-SHA-256 and unpack it at `/wiki/media/HASH/`, `HASH` being the first 16 hex digits of the package's SHA-256.
-`scripts/bump-web-release` moves both pins together, and between releases `wiki-media.yml` pushes a branch
-moving the media's pin alone (`scripts/bump-wiki-media`), so a PR changing the pin is a deploy too, and
-while it's `none` the site has no `/wiki/media/`. The media are unpacked before the app's build, which gets
-`WIKI_MEDIA_DIR` (the unpacked package, for the pages to read `sprites/index.json` and `clips/index.json` as
-they're pre-rendered), `WIKI_MEDIA_URL` (`/wiki/media/HASH`, to link the files) and `WIKI_MEDIA_DATE` (the
-pin's `date`, when its release was published, or a `--wiki-media` package's modification time); none is set
-while the pin is `none`, nor under `npm run dev`. The wiki's pipeline and `virtual:wiki-media` read them (SEO,
-below).
+The wiki's sprites and clips are committed, in `wiki/media` (`docs/wiki-media.md`, "Committing"), and
+`site/build.sh` copies them into the static assets at `/wiki/media/` (all but `gml/`, which only the source
+viewer's build reads), so the pull request that renders a clip deploys it, and its preview shows it. They're
+read before the app's build, which gets `WIKI_MEDIA_DIR` (`wiki/media`, for the pages to read
+`sprites/index.json` and `clips/index.json` as they're pre-rendered), `WIKI_MEDIA_URL` (`/wiki/media`, to link
+the files) and `WIKI_MEDIA_DATE` (when they last changed: the date of the last commit to `wiki/media`; in a
+shallow clone without it, of the oldest commit the clone has, which git shows adding every file, so the
+checkout's own at depth 1; a `--wiki-media` directory's modification time); none is set under `npm run dev`. The wiki's pipeline and `virtual:wiki-media` read them
+(SEO, below).
 
-**Caching.** A file's name doesn't say what's in it: `sSnakeWalkL/frames/0@4x.png` keeps its name when the
-sprites are re-exported, and every clip's caption names the release that rendered it. So the directory names
-the package, the files never change, and they're cached for good (`_headers`), like `/play/v/HASH/`. They
-skip the Worker too (`run_worker_first`), all but the clips' videos (Byte ranges, below): a wiki page shows
-dozens of sprites and a few clips, each a request, which through the Worker would come out of the free plan's
-100,000 a day. A page names the current `HASH`, and the pages are `no-cache`, so a new pin shows up on the next
-page view; a page loaded just before a deploy can miss its media until a reload, as `/play/` can (Rolling
-back), and that miss is cached as immutable too.
-The router never sees `/wiki/media/...`, and a wiki page mustn't be called `media` (`build.sh` fails if the
-app pre-renders one).
+**Caching.** A file keeps its name when it's rendered again (`sSnakeWalkL/frames/0@4x.png`,
+`snake/bite/clip.mp4`), so the URLs stay the same for a search engine's index and other sites, and the files
+are cached for a day (`_headers`), not for good: a reader who has a clip a pull request re-rendered gets the
+new one within a day, and the pages, `no-cache`, have the new text at once. They skip the Worker
+(`run_worker_first`), all but the clips' videos (Byte ranges, below): a wiki page shows dozens of sprites and a
+few clips, each a request, which through the Worker would come out of the free plan's 100,000 a day. The rules
+pick them by where they are and their extension (`sprites/`, the clips' `.png`, `.json` and `.txt`, and
+`LICENSE.txt` and `NOTICE.txt`), and `build.sh` fails on media with any other kind of file, which would come
+through the Worker.
+
+**The old URLs.** Until v0.1.11's media, the site served a release's package at `/wiki/media/HASH/`, `HASH`
+being the first 16 hex digits of its SHA-256, and the sitemaps, the pages' JSON-LD and anyone who copied a
+link have those URLs. The rules above don't match them, so they come through the Worker, which redirects
+(301) any `/wiki/media/HASH/PATH` to `/wiki/media/PATH`: the same file, as rendered now (`src/server.ts`).
+No directory of the media's is 16 hex digits. The router never sees `/wiki/media/...`, and a wiki page
+mustn't be called `media` (`build.sh` fails if the app pre-renders one).
 
 **Escape `@` as `%40`.** The asset store answers `0@4x.png` with a 307 to `0%404x.png`, its canonical form, so
 a page asks for that directly, saving a round trip per image (`encodeURIComponent` on each path segment).
@@ -161,18 +164,17 @@ range.
 
 So the clips' videos, `clips/**.mp4` and `.webm`, and only they, come through the Worker (`src/server.ts`).
 A satisfiable single range gets a 206 sliced from the asset (`Content-Range`, `Content-Length`,
-`Accept-Ranges`, and the asset's own headers: the immutable caching, type and ETag); anything else (no
+`Accept-Ranges`, and the asset's own headers: the caching, type and ETag); anything else (no
 `Range`, one past the end, several, a malformed one, an If-Range that isn't the ETag) the plain 200 with the
 whole file that a server may always send; and a HEAD the `Content-Length` the asset store leaves out. The
 sprites, posters and indexes never reach it: negative `run_worker_first` rules beat positive ones and `*`
-spans directories, so the rules keep the rest of the package off the Worker by extension (`.png`, `.json`,
-`.txt`), and `wiki-media.sh` fails on a package with a file of another kind, or a video outside `clips/`,
-which would come through it.
+spans directories, so the rules keep the rest of the media off the Worker by where they are and their
+extension (Caching, above).
 
 **The cost.** A clip costs Worker requests only when it's played: the pages' `<video>`s have
 `preload="none"`. Measured on a preview, a play is one request in Chrome (`bytes=0-`) and in a Safari that
 plays the WebM (no `Range`), and two in a Safari that plays the MP4 (`bytes=0-1`, then the rest); a loop
-replays from memory, and the immutable caching can spare a replay's requests. So the free plan's 100,000 a
+replays from memory, and a day's caching can spare a replay's requests. So the free plan's 100,000 a
 day is about 50,000 clip plays, less the page views. Seeking in a clip that isn't all in yet (with audio, a
 bigger one) is a request more each time. Each of these reads the whole clip from the asset store, which
 costs no request: the binding's answer has no `Content-Length`, so that's how the Worker learns the size.
@@ -189,7 +191,7 @@ site/test.sh                                        # the smoke test, below
 scripts/web --package /tmp/spelunky-web.tar.gz      # a release build, plus /tmp/spelunky-web.tar.gz.sha256
 site/build.sh --local /tmp/spelunky-web.tar.gz      # site/dist, checked against the .sha256 beside it
 # (add --manifest latest.json to serve an update manifest at /releases/latest.json too, and
-# --wiki-media target/wiki-media-v1.tar.gz for a scripts/wiki-media-package build instead of the pinned one)
+# --wiki-media DIR for other media than wiki/media's)
 (cd site && npx wrangler dev)                       # the built site, as Cloudflare runs it: http://localhost:8787
 (cd site && npx vite preview)                       # the same, for a build too big for wrangler dev: http://localhost:4173
 (cd site && npm run dev)                            # or Vite's dev server, which reloads as src/ changes
@@ -212,8 +214,8 @@ runs. `npm run dev`
 (`/play/`, `/LICENSE.txt`, `/releases/`, `/wiki/media/`).
 
 `site/test.sh` is the site's smoke test. It builds the site with stand-ins for the web build and the wiki's
-media (`build.sh --local ... --wiki-media ...`, the media packaged by `scripts/wiki-media-package`, so with its
-real `LICENSE.txt` and `NOTICE.txt`), so it downloads neither, serves it with `wrangler dev`, and
+media (`build.sh --local ... --wiki-media ...`, with `wiki/media`'s real `LICENSE.txt` and `NOTICE.txt`: the
+real media's 8,600 files would take `wrangler dev` past macOS's limit, above), so it downloads nothing, serves it with `wrangler dev`, and
 checks every path above (status, caching and other headers, contents, the landing page's), the 404 and the
 www redirect, the clips' byte ranges, the wiki's Snake page and hubs, the source viewer's pages (from a few
 stand-in GML files), and runs `test-seo.mjs` (SEO, below) and
@@ -269,12 +271,12 @@ Mossmouth; media carry the game's copyright notice and license ([wiki license](w
 source of the wiki's pages joins them), through the route `src/routes/sitemap[.]xml.ts`, which the build
 pre-renders to a static file.
 
-**The wiki's media.** `site/src/seo/media-package.ts` reads the pinned media package's indexes
-(`WIKI_MEDIA_DIR`, Wiki media above) at build time, the one reader of them: the wiki's build
+**The wiki's media.** `site/src/seo/media-package.ts` reads the media's indexes (`WIKI_MEDIA_DIR`, Wiki media
+above) at build time, the one reader of them: the wiki's build
 (`src/wiki/build/compile.ts`: the pages, the hubs' cards, the Open Graph images) uses what it reads, and its
 Vite plugin hands what the JSON-LD and the sitemaps need of them (`wikiMedia`: each clip's title, description,
 duration, size, MP4 and poster; each sprite with pixels, its upscaled size, first frame and animation) to the
-app as the module `virtual:wiki-media`, `null` without a pin.
+app as the module `virtual:wiki-media`, `null` without the media (`npm run dev`).
 The sitemaps are rendered in workerd, which can't read the files, so the indexes are built into the Worker.
 `site/src/seo/media.ts` turns them into JSON-LD. A wiki page's head has a `VideoObject` per clip it shows
 (its frontmatter's `clips`, in order) and an `ImageObject` of its infobox's sprite, made when the wiki is
@@ -284,12 +286,12 @@ the browser's too, so a page's route importing `virtual:wiki-media` would send e
 browser script has it.
 
 `clipVideo()` is a clip's `VideoObject`: its spec's title and description, the poster as `thumbnailUrl`, the
-MP4 as `contentUrl`, the duration in whole seconds (`PT4S`), the size, and the pin's `date` as `uploadDate`
-(`site/wiki-media.txt`, written by `scripts/bump-wiki-media` from the release's `published_at`).
+MP4 as `contentUrl`, the duration in whole seconds (`PT4S`), the size, and when the media last changed as
+`uploadDate` (`WIKI_MEDIA_DATE`: the last commit to `wiki/media`, Wiki media above).
 `spriteImage()` is a sprite's `ImageObject`, its first frame at 4x (or its animation, `{ anim: true }`).
 Both carry the game's `creditText`, `copyrightNotice` and `license` ([wiki license](wiki-license.md)), and
-throw for a clip or sprite the package doesn't have: a page's clip the pinned media haven't rendered yet is
-left out of its JSON-LD, as it is of the video sitemap. Media URLs escape each path segment, so a
+throw for a clip or sprite the media don't have: a page's clip that isn't rendered yet (which `scripts/check`
+fails a pull request for) is left out of its JSON-LD, as it is of the video sitemap. Media URLs escape each path segment, so a
 sprite's `0@4x.png` is `0%404x.png`, the URL the asset store serves rather than redirects.
 
 `/sitemap-video.xml` and `/sitemap-image.xml` are Google's video and image sitemaps, from the same module
@@ -297,8 +299,8 @@ sprite's `0@4x.png` is `0%404x.png`, the URL the asset store serves rather than 
 `<video:video>`s: thumbnail, title, description, MP4, duration and publication date) or a sprite (its
 `<image:image>`s). `sitemap.ts`'s `PAGE_MEDIA_SOURCES` say which page shows what: a wiki page shows the clips
 of its frontmatter's `clips` and its infobox's sprite, animated if the page shows it so
-(`src/wiki/sitemap.ts`'s `wikiPageMedia`, from `virtual:wiki/pages`). A clip the pinned media haven't got
-yet (a spec newer than the release) is left out, and a page is listed only if `/sitemap.xml` lists it.
+(`src/wiki/sitemap.ts`'s `wikiPageMedia`, from `virtual:wiki/pages`). A clip the media haven't got
+(a spec not rendered yet) is left out, and a page is listed only if `/sitemap.xml` lists it.
 `/robots.txt` (`src/routes/robots[.]txt.ts`) allows everything and names `/sitemap.xml`, and each media
 sitemap with a page in it: a `<urlset>` without a `<url>` isn't valid against the sitemaps schema, so an
 empty one is served but not named. All four are pre-rendered like the pages.
@@ -314,7 +316,7 @@ date with its time zone) and `ImageObject`s must be the media the media sitemaps
 and `/wiki/snake` must have both. A page's `FAQPage` must be the FAQ it shows (its questions and, as plain
 text, its answers), and `/wiki/snake` must have one. Every wiki page must name its Markdown twin, which
 must be built and served, every twin be named by its page, and `/llms.txt` list them all. Every page must
-name `/opensearch.xml`. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in package,
+name `/opensearch.xml`. `site/test-media.mjs` runs `media.ts` and the media sitemaps on `test.sh`'s stand-in media,
 with stand-in wiki pages (Node runs the TypeScript, stripping its types).
 
 ### Open Graph images
@@ -325,18 +327,18 @@ numbers (a hub's, how many of its pages are written and to come), under the SPEL
 "fan wiki" badge, over the line "Unofficial fan wiki · spelunky.ai" (docs/wiki-license.md). Everything on
 it is the game's own pixel art at whole scales, nearest neighbour: the text is in its sprite fonts, `sFont`
 and `sFontSmall` (`font_add_sprite`'s, so upper case, `' '` to `'Z'`), the colours the wiki's.
-`site/src/wiki/build/og.ts` draws them when the wiki is compiled, from the pinned media's sprites, and the
+`site/src/wiki/build/og.ts` draws them when the wiki is compiled, from the media's sprites, and the
 wiki's Vite plugin writes them to `dist/client/wiki/og/<slug>.<hash>.png` (a hub's at its id,
 `items/weapons.<hash>.png`; `/wiki`'s at `wiki.<hash>.png`), the hash being the first 16 hex digits of the
-file's SHA-256. So they skip the Worker and are cached for good like `/wiki/media/`, and a card that
+file's SHA-256. So they skip the Worker and are cached for good like `/play/v/`, and a card that
 changes gets a new URL, which a social site that cached the old one fetches afresh. Without the media
-(`npm run dev` without `WIKI_MEDIA_DIR`, or no pin) there are none, and the pages have the landing page's
+(`npm run dev` without `WIKI_MEDIA_DIR`) there are none, and the pages have the landing page's
 still; with them, `npm run dev` serves them too. A title or number
 with a character the fonts haven't got and `og.ts` has no substitute for (`–` is `-`) fails the build,
 naming it.
 
-**Why at the site's build.** Pages are written between releases, so a card has to follow its page, not
-the media package; and Workers Builds has Node, not Rust. The cards are drawn by a few hundred lines of
+**Why at the site's build.** A card has to follow its page, which can change without the media; and
+Workers Builds has Node, not Rust. The cards are drawn by a few hundred lines of
 TypeScript on `node:zlib` (`png.ts` reads and writes the PNGs), not satori and resvg or a canvas package:
 those bring native or wasm binaries and a font to the build, for drawing that is only blitting sprites at
 whole scales. The same pages and media always give the same pixels (integer arithmetic only), and the same
@@ -346,7 +348,7 @@ Each card is indexed colour, 3 to 7 KB, and takes about 25 ms.
 `site/test-og.mjs`, run by `site/test.sh`, checks that every pre-rendered wiki page and hub names its own
 card in `og:image` and `twitter:image` with its size and alt text, that each is served as a 1200x630
 `image/png` with immutable caching and the bytes the build wrote, that `/wiki/og/` has nothing else, and
-that compiling the wiki again makes the same files. `test.sh`'s stand-in media package has made-up fonts
+that compiling the wiki again makes the same files. `test.sh`'s stand-in media have made-up fonts
 for it, which `test-og.mjs stand-in` writes.
 
 ## Limits

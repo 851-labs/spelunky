@@ -1,0 +1,40 @@
+{
+  "id": 460,
+  "name": "sGold",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 13,
+    "bottom": 14
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sGold/strip.png",
+  "strip_scaled": "sGold/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sGold/frames/0.png",
+      "file_scaled": "sGold/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 13,
+        "bottom": 14
+      }
+    }
+  ],
+  "objects": [
+    "oGold"
+  ],
+  "used_by": [
+    "oGold"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "ufo/thrown-rock",
+  "title": "UFO hit by a rock",
+  "description": "The player throws a rock up at a UFO, which explodes. An alien ejects from the wreck and opens its parachute.",
+  "spec": "wiki/clips/ufo/thrown-rock.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-ufo-alien-seed-14.txt"
+  },
+  "from": 1925,
+  "to": 2024,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1962,
+  "frames_hash": "aa5a2c9334a36508",
+  "has_audio": true,
+  "audio_hash": "07f6390feb7d2f1e",
+  "encoding": "adf4c7d8df8f927e",
+  "files": {
+    "mp4": "ufo/thrown-rock/clip.mp4",
+    "webm": "ufo/thrown-rock/clip.webm",
+    "poster": "ufo/thrown-rock/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

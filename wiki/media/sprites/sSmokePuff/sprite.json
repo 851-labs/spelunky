@@ -1,0 +1,110 @@
+{
+  "id": 518,
+  "name": "sSmokePuff",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oSmokePuff",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sSmokePuff/strip.png",
+  "strip_scaled": "sSmokePuff/strip@4x.png",
+  "anim": "sSmokePuff/anim.png",
+  "anim_scaled": "sSmokePuff/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSmokePuff/frames/0.png",
+      "file_scaled": "sSmokePuff/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sSmokePuff/frames/1.png",
+      "file_scaled": "sSmokePuff/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sSmokePuff/frames/2.png",
+      "file_scaled": "sSmokePuff/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sSmokePuff/frames/3.png",
+      "file_scaled": "sSmokePuff/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sSmokePuff/frames/4.png",
+      "file_scaled": "sSmokePuff/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 6,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sSmokePuff/frames/5.png",
+      "file_scaled": "sSmokePuff/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sSmokePuff/frames/6.png",
+      "file_scaled": "sSmokePuff/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 4,
+        "bottom": 2
+      }
+    },
+    {
+      "file": "sSmokePuff/frames/7.png",
+      "file_scaled": "sSmokePuff/frames/7@4x.png",
+      "bbox": null
+    }
+  ],
+  "objects": [
+    "oSmokePuff"
+  ],
+  "used_by": [
+    "oSmokePuff",
+    "oBone"
+  ]
+}

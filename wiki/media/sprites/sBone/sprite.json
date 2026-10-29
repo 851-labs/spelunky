@@ -1,0 +1,110 @@
+{
+  "id": 879,
+  "name": "sBone",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBone/strip.png",
+  "strip_scaled": "sBone/strip@4x.png",
+  "anim": "sBone/anim.png",
+  "anim_scaled": "sBone/anim@4x.png",
+  "frames": [
+    {
+      "file": "sBone/frames/0.png",
+      "file_scaled": "sBone/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBone/frames/1.png",
+      "file_scaled": "sBone/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 5,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBone/frames/2.png",
+      "file_scaled": "sBone/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBone/frames/3.png",
+      "file_scaled": "sBone/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 6,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sBone/frames/4.png",
+      "file_scaled": "sBone/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sBone/frames/5.png",
+      "file_scaled": "sBone/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 5,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sBone/frames/6.png",
+      "file_scaled": "sBone/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 7,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBone/frames/7.png",
+      "file_scaled": "sBone/frames/7@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 7,
+        "bottom": 5
+      }
+    }
+  ],
+  "objects": [
+    "oBone"
+  ],
+  "used_by": [
+    "oBone"
+  ]
+}

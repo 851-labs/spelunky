@@ -1,0 +1,32 @@
+{
+  "id": "city-of-gold/arrival",
+  "title": "Arriving in the City of Gold",
+  "description": "Level 15 loads as the City of Gold, its blocks all gold, with the message \"IT'S THE LEGENDARY CITY OF GOLD!\" The player runs down to the Lady Xoc statue.",
+  "spec": "wiki/clips/city-of-gold/arrival.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
+  },
+  "from": 6745,
+  "to": 6995,
+  "frames": 251,
+  "fps": 30,
+  "duration": 8.366666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 6800,
+  "frames_hash": "21ff6d7fdb0debb5",
+  "has_audio": true,
+  "audio_hash": "31c6b1551c8ca029",
+  "encoding": "d626ee3157be0c41",
+  "files": {
+    "mp4": "city-of-gold/arrival/clip.mp4",
+    "webm": "city-of-gold/arrival/clip.webm",
+    "poster": "city-of-gold/arrival/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

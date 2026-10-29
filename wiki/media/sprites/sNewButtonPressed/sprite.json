@@ -1,0 +1,38 @@
+{
+  "id": 1303,
+  "name": "sNewButtonPressed",
+  "width": 32,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 31,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sNewButtonPressed/strip.png",
+  "strip_scaled": "sNewButtonPressed/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sNewButtonPressed/frames/0.png",
+      "file_scaled": "sNewButtonPressed/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oNewButton"
+  ]
+}

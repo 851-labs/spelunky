@@ -1,0 +1,42 @@
+{
+  "id": 837,
+  "name": "sAlienParachute",
+  "width": 16,
+  "height": 24,
+  "origin": {
+    "x": 8,
+    "y": 12
+  },
+  "bbox": {
+    "left": 3,
+    "top": 0,
+    "right": 12,
+    "bottom": 16
+  },
+  "fps": 18.0,
+  "fps_source": {
+    "object": "oAlienEject",
+    "via": "uses",
+    "image_speed": 0.6000000000000001
+  },
+  "strip": "sAlienParachute/strip.png",
+  "strip_scaled": "sAlienParachute/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sAlienParachute/frames/0.png",
+      "file_scaled": "sAlienParachute/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 12,
+        "bottom": 16
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oAlienEject"
+  ]
+}

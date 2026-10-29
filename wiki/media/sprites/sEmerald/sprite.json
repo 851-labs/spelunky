@@ -1,0 +1,41 @@
+{
+  "id": 517,
+  "name": "sEmerald",
+  "width": 4,
+  "height": 4,
+  "origin": {
+    "x": 2,
+    "y": 2
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 3,
+    "bottom": 3
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sEmerald/strip.png",
+  "strip_scaled": "sEmerald/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sEmerald/frames/0.png",
+      "file_scaled": "sEmerald/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 3,
+        "bottom": 3
+      }
+    }
+  ],
+  "objects": [
+    "oEmerald"
+  ],
+  "used_by": [
+    "oEmerald",
+    "oTransition"
+  ]
+}

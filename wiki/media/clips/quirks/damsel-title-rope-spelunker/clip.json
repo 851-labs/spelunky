@@ -1,0 +1,32 @@
+{
+  "id": "quirks/damsel-title-rope-spelunker",
+  "title": "The Damsel leaves as the Spelunker",
+  "description": "Playing as the Damsel, the player climbs the title screen's rope to quit. She climbs as the Damsel, but at the top the figure that climbs on out of sight is the Spelunker.",
+  "spec": "wiki/clips/quirks/damsel-title-rope-spelunker.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/title-damsel-rope.txt"
+  },
+  "from": 745,
+  "to": 1027,
+  "frames": 283,
+  "fps": 30,
+  "duration": 9.433333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 956,
+  "frames_hash": "2e7f571cce709c3a",
+  "has_audio": true,
+  "audio_hash": "960e80218ef05233",
+  "encoding": "a665688b2cb8b349",
+  "files": {
+    "mp4": "quirks/damsel-title-rope-spelunker/clip.mp4",
+    "webm": "quirks/damsel-title-rope-spelunker/clip.webm",
+    "poster": "quirks/damsel-title-rope-spelunker/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

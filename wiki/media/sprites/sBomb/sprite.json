@@ -1,0 +1,41 @@
+{
+  "id": 454,
+  "name": "sBomb",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBomb/strip.png",
+  "strip_scaled": "sBomb/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBomb/frames/0.png",
+      "file_scaled": "sBomb/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 7,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [
+    "oBomb"
+  ],
+  "used_by": [
+    "oPlayer1",
+    "oBomb"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "sceptre/hawkman",
+  "title": "Sceptre's psychic wave",
+  "description": "On level 14, the player fires the sceptre left and runs after its wave. The wave turns toward the nearest monster, a hawkman leaping at him, and kills it, taking 3 hit points on each step it touches it.",
+  "spec": "wiki/clips/sceptre/hawkman.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/weapon-seed-2-sceptre.txt"
+  },
+  "from": 1505,
+  "to": 1634,
+  "frames": 130,
+  "fps": 30,
+  "duration": 4.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1611,
+  "frames_hash": "91f4fd38ae8f00ae",
+  "has_audio": true,
+  "audio_hash": "4246701e4c666e0e",
+  "encoding": "c95849a482ea3f2b",
+  "files": {
+    "mp4": "sceptre/hawkman/clip.mp4",
+    "webm": "sceptre/hawkman/clip.webm",
+    "poster": "sceptre/hawkman/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

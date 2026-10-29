@@ -18,6 +18,10 @@ on:
       timeout-minutes:
         type: number
         default: 60
+      fetch-depth:
+        description: How many commits to check out (with `paths`, at least 2)
+        type: number
+        default: 1
       paths:
         description: >
           Only for a pull request that changes one of these (git pathspecs, space-separated); without it, or
@@ -52,7 +56,7 @@ jobs:
         with:
           persist-credentials: false
           # For `paths`, the merge commit's parents too.
-          fetch-depth: ${{ inputs.paths && 2 || 1 }}
+          fetch-depth: ${{ inputs.paths && 2 || inputs.fetch-depth }}
       # A pull request's run checks out the pull request merged into its base, so what it changes is that merge
       # commit's diff from its first parent. Anything else (no merge commit) runs.
       - id: changes

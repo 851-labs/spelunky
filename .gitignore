@@ -2,3 +2,6 @@
 .DS_Store
 __pycache__/
 /assets
+# What a wiki media render that stopped leaves behind (wiki-clips' .scratch), and Finder's .DS_Store: never
+# the media's (docs/wiki-media.md).
+/wiki/media/**/.*

@@ -1,0 +1,33 @@
+{
+  "id": "giant-spider/web",
+  "title": "Giant spider web shot",
+  "description": "A giant spider below the player's ledge spits a ball of web, which flies off in an arc and sticks where it lands as a web.",
+  "spec": "wiki/clips/giant-spider/web.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 9
+  },
+  "from": 140,
+  "to": 269,
+  "frames": 130,
+  "fps": 30,
+  "duration": 4.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 205,
+  "frames_hash": "8f309768e1bdf04d",
+  "has_audio": true,
+  "audio_hash": "01207c24d31b9c5d",
+  "encoding": "a4c3a9160f6ec9ac",
+  "files": {
+    "mp4": "giant-spider/web/clip.mp4",
+    "webm": "giant-spider/web/clip.webm",
+    "poster": "giant-spider/web/poster.png",
+    "replay": "giant-spider/web/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

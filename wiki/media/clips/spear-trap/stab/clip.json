@@ -1,0 +1,33 @@
+{
+  "id": "spear-trap/stab",
+  "title": "Spear trap",
+  "description": "The player, with eight hearts, walks up to a spear trap, which thrusts its spears at him as he comes in range; 20 steps later they strike him on three steps running, taking four hearts each, and kill him.",
+  "spec": "wiki/clips/spear-trap/stab.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 119,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 76,
+  "frames_hash": "ddcad86711fc739d",
+  "has_audio": true,
+  "audio_hash": "2b223222d86c8a8d",
+  "encoding": "1043130d8238e01e",
+  "files": {
+    "mp4": "spear-trap/stab/clip.mp4",
+    "webm": "spear-trap/stab/clip.webm",
+    "poster": "spear-trap/stab/poster.png",
+    "replay": "spear-trap/stab/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,42 @@
+{
+  "id": 959,
+  "name": "sPistolRight",
+  "width": 16,
+  "height": 8,
+  "origin": {
+    "x": 8,
+    "y": 4
+  },
+  "bbox": {
+    "left": 3,
+    "top": 1,
+    "right": 11,
+    "bottom": 6
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sPistolRight/strip.png",
+  "strip_scaled": "sPistolRight/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sPistolRight/frames/0.png",
+      "file_scaled": "sPistolRight/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 1,
+        "right": 11,
+        "bottom": 6
+      }
+    }
+  ],
+  "objects": [
+    "oPistol"
+  ],
+  "used_by": [
+    "oPDummy",
+    "oPDummy2",
+    "oPistol"
+  ]
+}

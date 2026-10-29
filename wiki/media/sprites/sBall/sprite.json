@@ -1,0 +1,42 @@
+{
+  "id": 1353,
+  "name": "sBall",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 10
+  },
+  "bbox": {
+    "left": 3,
+    "top": 6,
+    "right": 12,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBall/strip.png",
+  "strip_scaled": "sBall/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBall/frames/0.png",
+      "file_scaled": "sBall/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 6,
+        "right": 12,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oBall",
+    "oBall2"
+  ],
+  "used_by": [
+    "oBall",
+    "oBall2"
+  ]
+}

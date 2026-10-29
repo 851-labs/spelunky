@@ -1,0 +1,64 @@
+{
+  "id": 1385,
+  "name": "sFlareCrate",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 2,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 6.0,
+  "fps_source": {
+    "object": "oFlareCrate",
+    "via": "sprite",
+    "image_speed": 0.2
+  },
+  "strip": "sFlareCrate/strip.png",
+  "strip_scaled": "sFlareCrate/strip@4x.png",
+  "anim": "sFlareCrate/anim.png",
+  "anim_scaled": "sFlareCrate/anim@4x.png",
+  "frames": [
+    {
+      "file": "sFlareCrate/frames/0.png",
+      "file_scaled": "sFlareCrate/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFlareCrate/frames/1.png",
+      "file_scaled": "sFlareCrate/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFlareCrate/frames/2.png",
+      "file_scaled": "sFlareCrate/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oFlareCrate"
+  ],
+  "used_by": [
+    "oFlareCrate"
+  ]
+}

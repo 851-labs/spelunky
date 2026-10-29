@@ -1,0 +1,33 @@
+{
+  "id": "caveman/stun",
+  "title": "Caveman stunned",
+  "description": "The player whips a charging caveman, which falls stunned. About eight seconds later it gets up, spots him again and charges back into him.",
+  "spec": "wiki/clips/caveman/stun.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 90,
+  "to": 399,
+  "frames": 310,
+  "fps": 30,
+  "duration": 10.333333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 150,
+  "frames_hash": "22da664c1b3b5bb0",
+  "has_audio": true,
+  "audio_hash": "3de41ebb04b5230b",
+  "encoding": "5e24757a56acf220",
+  "files": {
+    "mp4": "caveman/stun/clip.mp4",
+    "webm": "caveman/stun/clip.webm",
+    "poster": "caveman/stun/poster.png",
+    "replay": "caveman/stun/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "quirks/mitt-gravity-one-step",
+  "title": "The Pitcher's Mitt's light gravity lasts one step for a rock",
+  "description": "Wearing a pitcher's mitt, the player throws a rock straight ahead: it drops to the floor within a few steps and stops short. He throws a jar the same way: it keeps the mitt's light gravity and flies flat across the room.",
+  "spec": "wiki/clips/quirks/mitt-gravity-one-step.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-mitt-gravity-one-step.txt"
+  },
+  "from": 291,
+  "to": 390,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 366,
+  "frames_hash": "6d44f74b3dac5d53",
+  "has_audio": true,
+  "audio_hash": "6116ffcf15a25309",
+  "encoding": "5eb9cf5c504e1a8f",
+  "files": {
+    "mp4": "quirks/mitt-gravity-one-step/clip.mp4",
+    "webm": "quirks/mitt-gravity-one-step/clip.webm",
+    "poster": "quirks/mitt-gravity-one-step/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "quirks/chest-trap-bomb-taken-out",
+  "title": "A chest's trap bomb, carried out, is a free bomb",
+  "description": "The player opens a chest, and out pops a lit bomb. He picks it up and takes the exit with it: instead of being left behind, it goes back into his bag, and his bombs go from 4 to 5.",
+  "spec": "wiki/clips/quirks/chest-trap-bomb-taken-out.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-chest-trap-bomb-unarmed.txt"
+  },
+  "from": 251,
+  "to": 340,
+  "frames": 90,
+  "fps": 30,
+  "duration": 3.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 290,
+  "frames_hash": "bf88737be328b540",
+  "has_audio": true,
+  "audio_hash": "74639434a7e1bbc6",
+  "encoding": "b940d840d09da9be",
+  "files": {
+    "mp4": "quirks/chest-trap-bomb-taken-out/clip.mp4",
+    "webm": "quirks/chest-trap-bomb-taken-out/clip.webm",
+    "poster": "quirks/chest-trap-bomb-taken-out/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "quirks/yeti-stomp-sixteen-steps",
+  "title": "A yeti stomped after 16 steps of falling loses one hit point",
+  "description": "The player hops off a ledge and lands on a yeti on his 16th step of falling: it loses one of its five hit points, where the same drop onto a caveman takes two of its three.",
+  "spec": "wiki/clips/quirks/yeti-stomp-sixteen-steps.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-yeti-stomp-sixteen-steps.txt"
+  },
+  "from": 256,
+  "to": 400,
+  "frames": 145,
+  "fps": 30,
+  "duration": 4.833333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 286,
+  "frames_hash": "355def76321144d5",
+  "has_audio": true,
+  "audio_hash": "8cbf9ebda3dc6a57",
+  "encoding": "9850a24a9f392c47",
+  "files": {
+    "mp4": "quirks/yeti-stomp-sixteen-steps/clip.mp4",
+    "webm": "quirks/yeti-stomp-sixteen-steps/clip.webm",
+    "poster": "quirks/yeti-stomp-sixteen-steps/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

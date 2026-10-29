@@ -1,0 +1,38 @@
+{
+  "id": 994,
+  "name": "sHoopsIcon",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sHoopsIcon/strip.png",
+  "strip_scaled": "sHoopsIcon/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sHoopsIcon/frames/0.png",
+      "file_scaled": "sHoopsIcon/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oMoonRoom"
+  ]
+}

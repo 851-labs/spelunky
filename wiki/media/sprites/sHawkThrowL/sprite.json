@@ -1,0 +1,102 @@
+{
+  "id": 706,
+  "name": "sHawkThrowL",
+  "width": 24,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 4,
+    "top": 0,
+    "right": 23,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oHawkman",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sHawkThrowL/strip.png",
+  "strip_scaled": "sHawkThrowL/strip@4x.png",
+  "anim": "sHawkThrowL/anim.png",
+  "anim_scaled": "sHawkThrowL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sHawkThrowL/frames/0.png",
+      "file_scaled": "sHawkThrowL/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 22,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sHawkThrowL/frames/1.png",
+      "file_scaled": "sHawkThrowL/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 23,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sHawkThrowL/frames/2.png",
+      "file_scaled": "sHawkThrowL/frames/2@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 23,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sHawkThrowL/frames/3.png",
+      "file_scaled": "sHawkThrowL/frames/3@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 20,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sHawkThrowL/frames/4.png",
+      "file_scaled": "sHawkThrowL/frames/4@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sHawkThrowL/frames/5.png",
+      "file_scaled": "sHawkThrowL/frames/5@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sHawkThrowL/frames/6.png",
+      "file_scaled": "sHawkThrowL/frames/6@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 17,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oHawkman"
+  ]
+}

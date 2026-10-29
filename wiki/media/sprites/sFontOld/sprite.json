@@ -1,0 +1,126 @@
+{
+  "id": 476,
+  "name": "sFontOld",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sFontOld/strip.png",
+  "strip_scaled": "sFontOld/strip@4x.png",
+  "anim": "sFontOld/anim.png",
+  "anim_scaled": "sFontOld/anim@4x.png",
+  "frames": [
+    {
+      "file": "sFontOld/frames/0.png",
+      "file_scaled": "sFontOld/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFontOld/frames/1.png",
+      "file_scaled": "sFontOld/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFontOld/frames/2.png",
+      "file_scaled": "sFontOld/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFontOld/frames/3.png",
+      "file_scaled": "sFontOld/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFontOld/frames/4.png",
+      "file_scaled": "sFontOld/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFontOld/frames/5.png",
+      "file_scaled": "sFontOld/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFontOld/frames/6.png",
+      "file_scaled": "sFontOld/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFontOld/frames/7.png",
+      "file_scaled": "sFontOld/frames/7@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFontOld/frames/8.png",
+      "file_scaled": "sFontOld/frames/8@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sFontOld/frames/9.png",
+      "file_scaled": "sFontOld/frames/9@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

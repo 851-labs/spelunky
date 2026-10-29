@@ -1,0 +1,39 @@
+{
+  "id": 1399,
+  "name": "sTunnelFallL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTunnelFallL/strip.png",
+  "strip_scaled": "sTunnelFallL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sTunnelFallL/frames/0.png",
+      "file_scaled": "sTunnelFallL/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1",
+    "oPDummy2"
+  ]
+}

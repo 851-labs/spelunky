@@ -44,6 +44,10 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   replay means recording its fingerprint with `scripts/fidelity --refresh-fingerprints <replay>`, which needs the
   oracle and refuses while the port disagrees with it. After a merge that changes the oracle's output, re-record
   them all with `scripts/fidelity --refresh-fingerprints` (docs/formats.md, "Fingerprints").
+- The wiki's media are committed in `wiki/media`. A change to a clip spec, a replay a clip is cut from, or what
+  renders them (the game, drawing, sound, `harness`, the extractor) runs `scripts/wiki-media` and commits what it
+  changes, in one commit near the end of the PR (each re-commit of a video stays in history); `scripts/check`
+  and CI's media check fail without it (docs/wiki-media.md, "Committing").
 - Game state never comes from the platform's float functions (`f64::sin`, `powi`, ...): they differ between macOS,
   wasm32 and the oracle. Use `gm::math`, which is deterministic on every platform: correctly rounded where GM8 is,
   and GM8's own x87 results where it isn't (the `x87` model). The workspace `clippy.toml` enforces it.

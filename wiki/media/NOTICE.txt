@@ -1,0 +1,17 @@
+spelunky.ai wiki media
+
+Sprites, animation strips, gameplay clips and the GML source of Spelunky Classic 1.1 for spelunky.ai's
+unofficial fan wiki. The sprites are exported from the game's assets (scripts/wiki-sprites); the clips are
+recorded from the spelunky.ai port, an unofficial, fan-made port (a mod) of the game, not the original
+(scripts/wiki-clips); gml/ is spelunky.gmk's code as spelunky.ai's extractor writes it, one file per script
+or object event, the "// ====" lines naming each action of an event (scripts/extract). Some scripts are
+others' work that Derek Yu credits in the source's readme.txt: Martin Piecyk's platform engine, ChevyRay's
+view scaling scripts and tsg1zzn's Super Sound System.
+Source: https://github.com/851-labs/spelunky (docs/wiki-media.md).
+
+Spelunky is Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User
+License v1.1b, in LICENSE.txt beside this file. Not affiliated with or endorsed by Mossmouth. These files
+may not be sold.
+
+The clips' sound: music by George Buzinkai and Jonathan Perry; sound effects made in SFXR. From Spelunky
+Classic 1.1, Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC.

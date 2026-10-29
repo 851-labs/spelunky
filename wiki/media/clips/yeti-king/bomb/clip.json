@@ -1,0 +1,33 @@
+{
+  "id": "yeti-king/bomb",
+  "title": "Yeti King bombed",
+  "description": "The player drops a bomb at the Yeti King's feet while it yells, and runs. The explosion kills it, and it bursts into bones, Big Sapphires and a rope pile.",
+  "spec": "wiki/clips/yeti-king/bomb.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 20,
+  "to": 259,
+  "frames": 240,
+  "fps": 30,
+  "duration": 8.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 186,
+  "frames_hash": "28b0bc7e0ec2c612",
+  "has_audio": true,
+  "audio_hash": "c13058bd608a4635",
+  "encoding": "b918bd5ddd642744",
+  "files": {
+    "mp4": "yeti-king/bomb/clip.mp4",
+    "webm": "yeti-king/bomb/clip.webm",
+    "poster": "yeti-king/bomb/poster.png",
+    "replay": "yeti-king/bomb/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

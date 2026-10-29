@@ -1,0 +1,41 @@
+{
+  "id": 805,
+  "name": "sShrubDark",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sShrubDark/strip.png",
+  "strip_scaled": "sShrubDark/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sShrubDark/frames/0.png",
+      "file_scaled": "sShrubDark/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oShrubDark"
+  ],
+  "used_by": [
+    "oShrubDark",
+    "oShrubScroll"
+  ]
+}

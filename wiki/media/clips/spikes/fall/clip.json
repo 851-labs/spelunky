@@ -1,0 +1,33 @@
+{
+  "id": "spikes/fall",
+  "title": "Falling onto spikes",
+  "description": "The player walks across two spikes on the floor unhurt, then walks off a ledge onto a row of spikes below and dies on them.",
+  "spec": "wiki/clips/spikes/fall.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 119,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 80,
+  "frames_hash": "3c93922d220e4b2c",
+  "has_audio": true,
+  "audio_hash": "2b223222d86c8a8d",
+  "encoding": "7696a291b9a1f2ca",
+  "files": {
+    "mp4": "spikes/fall/clip.mp4",
+    "webm": "spikes/fall/clip.webm",
+    "poster": "spikes/fall/poster.png",
+    "replay": "spikes/fall/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

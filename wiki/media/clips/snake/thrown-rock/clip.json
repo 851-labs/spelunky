@@ -1,0 +1,32 @@
+{
+  "id": "snake/thrown-rock",
+  "title": "Rock thrown at a snake",
+  "description": "The player throws a rock down at a snake from a ledge: a thrown item moving fast enough kills the enemy it hits.",
+  "spec": "wiki/clips/snake/thrown-rock.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/action-throw-rock-snake.txt"
+  },
+  "from": 1040,
+  "to": 1139,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1101,
+  "frames_hash": "6752fceaa4d93be9",
+  "has_audio": true,
+  "audio_hash": "8cf45fc0ff510909",
+  "encoding": "d296d1efa96f9a08",
+  "files": {
+    "mp4": "snake/thrown-rock/clip.mp4",
+    "webm": "snake/thrown-rock/clip.webm",
+    "poster": "snake/thrown-rock/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

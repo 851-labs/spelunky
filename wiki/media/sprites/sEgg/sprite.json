@@ -1,0 +1,36 @@
+{
+  "id": 963,
+  "name": "sEgg",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sEgg/strip.png",
+  "strip_scaled": "sEgg/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sEgg/frames/0.png",
+      "file_scaled": "sEgg/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

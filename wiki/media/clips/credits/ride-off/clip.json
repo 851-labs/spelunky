@@ -1,0 +1,32 @@
+{
+  "id": "credits/ride-off",
+  "title": "The end of the credits",
+  "description": "The beta testers' names, then THANKS FOR PLAYING! SEE YOU NEXT ADVENTURE! The desert stops, the camel and the caravan ride off to the left, and the attack key fades the scene out to the high scores room.",
+  "spec": "wiki/clips/credits/ride-off.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 7793,
+  "to": 8392,
+  "frames": 600,
+  "fps": 30,
+  "duration": 20.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 8100,
+  "frames_hash": "8a14eed8d9a248d1",
+  "has_audio": true,
+  "audio_hash": "361866cfc80dc6d6",
+  "encoding": "4c992190d686da2c",
+  "files": {
+    "mp4": "credits/ride-off/clip.mp4",
+    "webm": "credits/ride-off/clip.webm",
+    "poster": "credits/ride-off/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

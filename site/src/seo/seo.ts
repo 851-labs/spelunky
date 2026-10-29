@@ -26,7 +26,7 @@ export const ICON_SVG_PATH = "/icon.svg";
 export const TOUCH_ICON_PATH = "/apple-touch-icon.png";
 
 // The landing page's gameplay still, for a page without an image of its own (the wiki's have one, made at
-// build time from the pinned media: src/wiki/build/og.ts).
+// build time from the wiki's media: src/wiki/build/og.ts).
 export const DEFAULT_IMAGE: SeoImage = {
   path: "/media/gameplay.png",
   width: 320,

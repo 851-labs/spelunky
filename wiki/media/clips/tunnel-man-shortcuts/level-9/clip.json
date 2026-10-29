@@ -1,0 +1,32 @@
+{
+  "id": "tunnel-man-shortcuts/level-9",
+  "title": "The level 9 shortcut",
+  "description": "With every shortcut paid for, the player climbs the ladder from the title screen to the Shortcut House, jumps off it, runs past the level 13 door and enters the level 9 door. The first level of the Ice Caves loads.",
+  "spec": "wiki/clips/tunnel-man-shortcuts/level-9.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ice-seed-2.txt"
+  },
+  "from": 500,
+  "to": 900,
+  "frames": 401,
+  "fps": 30,
+  "duration": 13.366666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 700,
+  "frames_hash": "497290248519e7db",
+  "has_audio": true,
+  "audio_hash": "5865f2139be371bd",
+  "encoding": "4789f364cad3c657",
+  "files": {
+    "mp4": "tunnel-man-shortcuts/level-9/clip.mp4",
+    "webm": "tunnel-man-shortcuts/level-9/clip.webm",
+    "poster": "tunnel-man-shortcuts/level-9/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

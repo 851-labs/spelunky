@@ -1,0 +1,36 @@
+{
+  "id": 1045,
+  "name": "sGlovesIcon",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sGlovesIcon/strip.png",
+  "strip_scaled": "sGlovesIcon/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sGlovesIcon/frames/0.png",
+      "file_scaled": "sGlovesIcon/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

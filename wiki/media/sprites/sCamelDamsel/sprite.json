@@ -1,0 +1,92 @@
+{
+  "id": 1296,
+  "name": "sCamelDamsel",
+  "width": 48,
+  "height": 48,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 47,
+    "bottom": 47
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oCamel",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sCamelDamsel/strip.png",
+  "strip_scaled": "sCamelDamsel/strip@4x.png",
+  "anim": "sCamelDamsel/anim.png",
+  "anim_scaled": "sCamelDamsel/anim@4x.png",
+  "frames": [
+    {
+      "file": "sCamelDamsel/frames/0.png",
+      "file_scaled": "sCamelDamsel/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sCamelDamsel/frames/1.png",
+      "file_scaled": "sCamelDamsel/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sCamelDamsel/frames/2.png",
+      "file_scaled": "sCamelDamsel/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sCamelDamsel/frames/3.png",
+      "file_scaled": "sCamelDamsel/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sCamelDamsel/frames/4.png",
+      "file_scaled": "sCamelDamsel/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 47,
+        "bottom": 47
+      }
+    },
+    {
+      "file": "sCamelDamsel/frames/5.png",
+      "file_scaled": "sCamelDamsel/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 47,
+        "bottom": 47
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oCamel"
+  ]
+}

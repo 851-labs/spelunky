@@ -1,0 +1,40 @@
+{
+  "id": 577,
+  "name": "sGoldIdol",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 12
+  },
+  "bbox": {
+    "left": 2,
+    "top": 1,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sGoldIdol/strip.png",
+  "strip_scaled": "sGoldIdol/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sGoldIdol/frames/0.png",
+      "file_scaled": "sGoldIdol/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oGoldIdol"
+  ],
+  "used_by": [
+    "oGoldIdol"
+  ]
+}

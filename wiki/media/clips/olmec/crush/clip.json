@@ -1,0 +1,32 @@
+{
+  "id": "olmec/crush",
+  "title": "Olmec crush",
+  "description": "The player stands still under Olmec, which stops in the air above him and slams down on top of him, crushing him with all four hearts.",
+  "spec": "wiki/clips/olmec/crush.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-olmec-crush-seed-1.txt"
+  },
+  "from": 2890,
+  "to": 3009,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2958,
+  "frames_hash": "4f202cb26813a052",
+  "has_audio": true,
+  "audio_hash": "535f5be16db93b4f",
+  "encoding": "379ee6e728f53d28",
+  "files": {
+    "mp4": "olmec/crush/clip.mp4",
+    "webm": "olmec/crush/clip.webm",
+    "poster": "olmec/crush/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

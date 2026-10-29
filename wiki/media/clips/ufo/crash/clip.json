@@ -1,0 +1,32 @@
+{
+  "id": "ufo/crash",
+  "title": "UFO crash",
+  "description": "Bounced up by a spring trap, the player rises into a UFO and destroys it: the game counts it as landing on it. The wreck falls and explodes on the ground, taking the spring trap with it.",
+  "spec": "wiki/clips/ufo/crash.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ice-seed-14.txt"
+  },
+  "from": 1840,
+  "to": 1939,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1886,
+  "frames_hash": "e88dc11c211dc53b",
+  "has_audio": true,
+  "audio_hash": "40520e81468b1d55",
+  "encoding": "cdfc7df091798871",
+  "files": {
+    "mp4": "ufo/crash/clip.mp4",
+    "webm": "ufo/crash/clip.webm",
+    "poster": "ufo/crash/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

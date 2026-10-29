@@ -1,0 +1,38 @@
+{
+  "id": 1403,
+  "name": "sTunnelLBounce",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 3,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTunnelLBounce/strip.png",
+  "strip_scaled": "sTunnelLBounce/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sTunnelLBounce/frames/0.png",
+      "file_scaled": "sTunnelLBounce/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1"
+  ]
+}

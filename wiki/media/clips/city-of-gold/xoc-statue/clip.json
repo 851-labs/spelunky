@@ -1,0 +1,32 @@
+{
+  "id": "city-of-gold/xoc-statue",
+  "title": "The Lady Xoc statue",
+  "description": "The player bombs the top of the Lady Xoc statue. Its blocks break into gold chunks and nuggets, and the one at its brow into two diamonds.",
+  "spec": "wiki/clips/city-of-gold/xoc-statue.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-9-to-olmec.txt"
+  },
+  "from": 6985,
+  "to": 7200,
+  "frames": 216,
+  "fps": 30,
+  "duration": 7.2,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 7125,
+  "frames_hash": "114e9c72849666e3",
+  "has_audio": true,
+  "audio_hash": "4bc3f2231667a4af",
+  "encoding": "49137774d584913e",
+  "files": {
+    "mp4": "city-of-gold/xoc-statue/clip.mp4",
+    "webm": "city-of-gold/xoc-statue/clip.webm",
+    "poster": "city-of-gold/xoc-statue/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

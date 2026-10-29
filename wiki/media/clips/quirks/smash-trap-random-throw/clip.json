@@ -1,0 +1,32 @@
+{
+  "id": "quirks/smash-trap-random-throw",
+  "title": "A resting smash trap throws the player its random way",
+  "description": "The player drops into a gap beside a smash trap that hasn't moved yet and brushes its corner from above its row. The hit throws him down, not up, because the trap was made facing down at random; he falls into its row, and it slides into him.",
+  "spec": "wiki/clips/quirks/smash-trap-random-throw.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-smash-random-throw.txt"
+  },
+  "from": 251,
+  "to": 360,
+  "frames": 110,
+  "fps": 30,
+  "duration": 3.6666666666666665,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 270,
+  "frames_hash": "b68cc788367b26ff",
+  "has_audio": true,
+  "audio_hash": "f49104ace52865d9",
+  "encoding": "950ed7f84549c41e",
+  "files": {
+    "mp4": "quirks/smash-trap-random-throw/clip.mp4",
+    "webm": "quirks/smash-trap-random-throw/clip.webm",
+    "poster": "quirks/smash-trap-random-throw/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

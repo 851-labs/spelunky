@@ -1,0 +1,32 @@
+{
+  "id": "udjat-eye/chest",
+  "title": "Locked chest",
+  "description": "The player carries a key down to a locked chest. The key opens it, and the Udjat Eye pops out; he picks it up and puts it on, and a big sapphire and a big ruby buried in the rock to his right show through it.",
+  "spec": "wiki/clips/udjat-eye/chest.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-35-udjat-eye.txt"
+  },
+  "from": 1630,
+  "to": 1749,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1660,
+  "frames_hash": "661c9612f9c4f730",
+  "has_audio": true,
+  "audio_hash": "4a484132331b643e",
+  "encoding": "adfd1c4c9d541691",
+  "files": {
+    "mp4": "udjat-eye/chest/clip.mp4",
+    "webm": "udjat-eye/chest/clip.webm",
+    "poster": "udjat-eye/chest/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

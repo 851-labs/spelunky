@@ -1,0 +1,92 @@
+{
+  "id": 838,
+  "name": "sAlienDeploy",
+  "width": 16,
+  "height": 24,
+  "origin": {
+    "x": 8,
+    "y": 12
+  },
+  "bbox": {
+    "left": 3,
+    "top": 0,
+    "right": 12,
+    "bottom": 18
+  },
+  "fps": 18.0,
+  "fps_source": {
+    "object": "oAlienEject",
+    "via": "uses",
+    "image_speed": 0.6000000000000001
+  },
+  "strip": "sAlienDeploy/strip.png",
+  "strip_scaled": "sAlienDeploy/strip@4x.png",
+  "anim": "sAlienDeploy/anim.png",
+  "anim_scaled": "sAlienDeploy/anim@4x.png",
+  "frames": [
+    {
+      "file": "sAlienDeploy/frames/0.png",
+      "file_scaled": "sAlienDeploy/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 6,
+        "right": 12,
+        "bottom": 18
+      }
+    },
+    {
+      "file": "sAlienDeploy/frames/1.png",
+      "file_scaled": "sAlienDeploy/frames/1@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 2,
+        "right": 12,
+        "bottom": 17
+      }
+    },
+    {
+      "file": "sAlienDeploy/frames/2.png",
+      "file_scaled": "sAlienDeploy/frames/2@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 12,
+        "bottom": 16
+      }
+    },
+    {
+      "file": "sAlienDeploy/frames/3.png",
+      "file_scaled": "sAlienDeploy/frames/3@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 12,
+        "bottom": 17
+      }
+    },
+    {
+      "file": "sAlienDeploy/frames/4.png",
+      "file_scaled": "sAlienDeploy/frames/4@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 12,
+        "bottom": 18
+      }
+    },
+    {
+      "file": "sAlienDeploy/frames/5.png",
+      "file_scaled": "sAlienDeploy/frames/5@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 0,
+        "right": 12,
+        "bottom": 16
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oAlienEject"
+  ]
+}

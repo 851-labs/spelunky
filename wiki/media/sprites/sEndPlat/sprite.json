@@ -1,0 +1,40 @@
+{
+  "id": 674,
+  "name": "sEndPlat",
+  "width": 80,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 79,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sEndPlat/strip.png",
+  "strip_scaled": "sEndPlat/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sEndPlat/frames/0.png",
+      "file_scaled": "sEndPlat/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 79,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oEndPlat"
+  ],
+  "used_by": [
+    "oEndPlat"
+  ]
+}

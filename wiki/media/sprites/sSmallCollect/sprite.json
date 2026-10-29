@@ -1,0 +1,236 @@
+{
+  "id": 547,
+  "name": "sSmallCollect",
+  "width": 8,
+  "height": 10,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 6,
+    "bottom": 9
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oSmallCollect",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sSmallCollect/strip.png",
+  "strip_scaled": "sSmallCollect/strip@4x.png",
+  "anim": "sSmallCollect/anim.png",
+  "anim_scaled": "sSmallCollect/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSmallCollect/frames/0.png",
+      "file_scaled": "sSmallCollect/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 6,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/1.png",
+      "file_scaled": "sSmallCollect/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 6,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/2.png",
+      "file_scaled": "sSmallCollect/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 6,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/3.png",
+      "file_scaled": "sSmallCollect/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 6,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/4.png",
+      "file_scaled": "sSmallCollect/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 6,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/5.png",
+      "file_scaled": "sSmallCollect/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 6,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/6.png",
+      "file_scaled": "sSmallCollect/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 5,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/7.png",
+      "file_scaled": "sSmallCollect/frames/7@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 5,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/8.png",
+      "file_scaled": "sSmallCollect/frames/8@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 5,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/9.png",
+      "file_scaled": "sSmallCollect/frames/9@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 5,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/10.png",
+      "file_scaled": "sSmallCollect/frames/10@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 5,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/11.png",
+      "file_scaled": "sSmallCollect/frames/11@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 5,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/12.png",
+      "file_scaled": "sSmallCollect/frames/12@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 6,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/13.png",
+      "file_scaled": "sSmallCollect/frames/13@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 6,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/14.png",
+      "file_scaled": "sSmallCollect/frames/14@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 5,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/15.png",
+      "file_scaled": "sSmallCollect/frames/15@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 5,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/16.png",
+      "file_scaled": "sSmallCollect/frames/16@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 5,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/17.png",
+      "file_scaled": "sSmallCollect/frames/17@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 5,
+        "bottom": 7
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/18.png",
+      "file_scaled": "sSmallCollect/frames/18@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 5,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sSmallCollect/frames/19.png",
+      "file_scaled": "sSmallCollect/frames/19@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 5,
+        "bottom": 8
+      }
+    }
+  ],
+  "objects": [
+    "oSmallCollect"
+  ],
+  "used_by": [
+    "oItem",
+    "oSmallCollect",
+    "oDamsel"
+  ]
+}

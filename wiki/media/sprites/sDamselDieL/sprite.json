@@ -1,0 +1,43 @@
+{
+  "id": 640,
+  "name": "sDamselDieL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 6,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oDamsel",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sDamselDieL/strip.png",
+  "strip_scaled": "sDamselDieL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sDamselDieL/frames/0.png",
+      "file_scaled": "sDamselDieL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 6,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1",
+    "oDamsel"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": 630,
+  "name": "sOlmecSlam",
+  "width": 64,
+  "height": 8,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 60,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sOlmecSlam/strip.png",
+  "strip_scaled": "sOlmecSlam/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sOlmecSlam/frames/0.png",
+      "file_scaled": "sOlmecSlam/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 60,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [
+    "oOlmecSlam"
+  ],
+  "used_by": [
+    "oOlmecSlam"
+  ]
+}

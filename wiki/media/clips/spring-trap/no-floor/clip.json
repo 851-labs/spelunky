@@ -1,0 +1,32 @@
+{
+  "id": "spring-trap/no-floor",
+  "title": "Spring trap losing its floor",
+  "description": "A UFO's laser destroys the block under a spring trap, and the spring disappears with nothing under it.",
+  "spec": "wiki/clips/spring-trap/no-floor.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-spring.txt"
+  },
+  "from": 1005,
+  "to": 1099,
+  "frames": 95,
+  "fps": 30,
+  "duration": 3.1666666666666665,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1062,
+  "frames_hash": "37e62a50992b6faa",
+  "has_audio": true,
+  "audio_hash": "4798da764a00ff95",
+  "encoding": "07fae399dd865087",
+  "files": {
+    "mp4": "spring-trap/no-floor/clip.mp4",
+    "webm": "spring-trap/no-floor/clip.webm",
+    "poster": "spring-trap/no-floor/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

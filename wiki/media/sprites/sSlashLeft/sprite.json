@@ -1,0 +1,63 @@
+{
+  "id": 1386,
+  "name": "sSlashLeft",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 4,
+    "y": 24
+  },
+  "bbox": {
+    "left": 1,
+    "top": 4,
+    "right": 29,
+    "bottom": 27
+  },
+  "fps": 30.0,
+  "fps_source": {
+    "object": "oSlash",
+    "via": "uses",
+    "image_speed": 1.0
+  },
+  "strip": "sSlashLeft/strip.png",
+  "strip_scaled": "sSlashLeft/strip@4x.png",
+  "anim": "sSlashLeft/anim.png",
+  "anim_scaled": "sSlashLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSlashLeft/frames/0.png",
+      "file_scaled": "sSlashLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 13,
+        "top": 4,
+        "right": 29,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sSlashLeft/frames/1.png",
+      "file_scaled": "sSlashLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 5,
+        "right": 26,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sSlashLeft/frames/2.png",
+      "file_scaled": "sSlashLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 8,
+        "right": 9,
+        "bottom": 27
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1",
+    "oSlash"
+  ]
+}

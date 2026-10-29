@@ -1,0 +1,36 @@
+{
+  "id": 1000,
+  "name": "sDamselDuckL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 6,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDamselDuckL/strip.png",
+  "strip_scaled": "sDamselDuckL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sDamselDuckL/frames/0.png",
+      "file_scaled": "sDamselDuckL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 6,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

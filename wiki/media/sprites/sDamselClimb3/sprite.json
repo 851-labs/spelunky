@@ -1,0 +1,146 @@
+{
+  "id": 1348,
+  "name": "sDamselClimb3",
+  "width": 16,
+  "height": 24,
+  "origin": {
+    "x": 8,
+    "y": 16
+  },
+  "bbox": {
+    "left": 0,
+    "top": 5,
+    "right": 15,
+    "bottom": 23
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDamselClimb3/strip.png",
+  "strip_scaled": "sDamselClimb3/strip@4x.png",
+  "anim": "sDamselClimb3/anim.png",
+  "anim_scaled": "sDamselClimb3/anim@4x.png",
+  "frames": [
+    {
+      "file": "sDamselClimb3/frames/0.png",
+      "file_scaled": "sDamselClimb3/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 7,
+        "right": 13,
+        "bottom": 21
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/1.png",
+      "file_scaled": "sDamselClimb3/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 7,
+        "right": 15,
+        "bottom": 20
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/2.png",
+      "file_scaled": "sDamselClimb3/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 7,
+        "right": 15,
+        "bottom": 20
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/3.png",
+      "file_scaled": "sDamselClimb3/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 6,
+        "right": 13,
+        "bottom": 21
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/4.png",
+      "file_scaled": "sDamselClimb3/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 7,
+        "right": 13,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/5.png",
+      "file_scaled": "sDamselClimb3/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 5,
+        "right": 13,
+        "bottom": 22
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/6.png",
+      "file_scaled": "sDamselClimb3/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 7,
+        "right": 13,
+        "bottom": 21
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/7.png",
+      "file_scaled": "sDamselClimb3/frames/7@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 7,
+        "right": 13,
+        "bottom": 20
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/8.png",
+      "file_scaled": "sDamselClimb3/frames/8@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 7,
+        "right": 13,
+        "bottom": 20
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/9.png",
+      "file_scaled": "sDamselClimb3/frames/9@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 6,
+        "right": 13,
+        "bottom": 21
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/10.png",
+      "file_scaled": "sDamselClimb3/frames/10@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 7,
+        "right": 13,
+        "bottom": 23
+      }
+    },
+    {
+      "file": "sDamselClimb3/frames/11.png",
+      "file_scaled": "sDamselClimb3/frames/11@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 5,
+        "right": 13,
+        "bottom": 22
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

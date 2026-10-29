@@ -1,0 +1,77 @@
+{
+  "id": 1062,
+  "name": "sZombieLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oZombie",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sZombieLeft/strip.png",
+  "strip_scaled": "sZombieLeft/strip@4x.png",
+  "anim": "sZombieLeft/anim.png",
+  "anim_scaled": "sZombieLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sZombieLeft/frames/0.png",
+      "file_scaled": "sZombieLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sZombieLeft/frames/1.png",
+      "file_scaled": "sZombieLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sZombieLeft/frames/2.png",
+      "file_scaled": "sZombieLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sZombieLeft/frames/3.png",
+      "file_scaled": "sZombieLeft/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oZombie",
+    "oZombieTile"
+  ],
+  "used_by": [
+    "oTransition",
+    "oZombie",
+    "oZombieTile"
+  ]
+}

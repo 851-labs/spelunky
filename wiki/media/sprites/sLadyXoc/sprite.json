@@ -1,0 +1,36 @@
+{
+  "id": 1328,
+  "name": "sLadyXoc",
+  "width": 80,
+  "height": 96,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 78,
+    "bottom": 95
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLadyXoc/strip.png",
+  "strip_scaled": "sLadyXoc/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sLadyXoc/frames/0.png",
+      "file_scaled": "sLadyXoc/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 78,
+        "bottom": 95
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

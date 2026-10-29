@@ -1,0 +1,40 @@
+{
+  "id": 1198,
+  "name": "sTutorialSign",
+  "width": 32,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 31,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTutorialSign/strip.png",
+  "strip_scaled": "sTutorialSign/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sTutorialSign/frames/0.png",
+      "file_scaled": "sTutorialSign/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 31,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oTutorialSign"
+  ],
+  "used_by": [
+    "oTutorialSign"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": 1074,
+  "name": "sSpiderDrowning",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 9
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oSpider",
+    "via": "uses",
+    "image_speed": 0.4
+  },
+  "strip": "sSpiderDrowning/strip.png",
+  "strip_scaled": "sSpiderDrowning/strip@4x.png",
+  "anim": "sSpiderDrowning/anim.png",
+  "anim_scaled": "sSpiderDrowning/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSpiderDrowning/frames/0.png",
+      "file_scaled": "sSpiderDrowning/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sSpiderDrowning/frames/1.png",
+      "file_scaled": "sSpiderDrowning/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 9
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oSpider"
+  ]
+}

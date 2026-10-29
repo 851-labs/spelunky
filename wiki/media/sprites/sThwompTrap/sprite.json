@@ -1,0 +1,40 @@
+{
+  "id": 600,
+  "name": "sThwompTrap",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sThwompTrap/strip.png",
+  "strip_scaled": "sThwompTrap/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sThwompTrap/frames/0.png",
+      "file_scaled": "sThwompTrap/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oThwompTrap"
+  ],
+  "used_by": [
+    "oThwompTrap"
+  ]
+}

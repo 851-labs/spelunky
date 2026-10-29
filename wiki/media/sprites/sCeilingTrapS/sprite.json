@@ -1,0 +1,92 @@
+{
+  "id": 603,
+  "name": "sCeilingTrapS",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oCeilingTrap",
+    "via": "uses",
+    "image_speed": 0.4
+  },
+  "strip": "sCeilingTrapS/strip.png",
+  "strip_scaled": "sCeilingTrapS/strip@4x.png",
+  "anim": "sCeilingTrapS/anim.png",
+  "anim_scaled": "sCeilingTrapS/anim@4x.png",
+  "frames": [
+    {
+      "file": "sCeilingTrapS/frames/0.png",
+      "file_scaled": "sCeilingTrapS/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCeilingTrapS/frames/1.png",
+      "file_scaled": "sCeilingTrapS/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCeilingTrapS/frames/2.png",
+      "file_scaled": "sCeilingTrapS/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCeilingTrapS/frames/3.png",
+      "file_scaled": "sCeilingTrapS/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCeilingTrapS/frames/4.png",
+      "file_scaled": "sCeilingTrapS/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCeilingTrapS/frames/5.png",
+      "file_scaled": "sCeilingTrapS/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oCeilingTrap"
+  ]
+}

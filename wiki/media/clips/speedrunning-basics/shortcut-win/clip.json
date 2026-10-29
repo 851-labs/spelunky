@@ -1,0 +1,32 @@
+{
+  "id": "speedrunning-basics/shortcut-win",
+  "title": "A win from a shortcut",
+  "description": "After a game won from the level 13 shortcut, the credits fade out to the high scores room. The win is counted, WINS: 1, but no time is kept: with no best time before it, the room shows TIME: 0:00.",
+  "spec": "wiki/clips/speedrunning-basics/shortcut-win.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 8365,
+  "to": 8454,
+  "frames": 90,
+  "fps": 30,
+  "duration": 3.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 8430,
+  "frames_hash": "064518556a1bc4d0",
+  "has_audio": true,
+  "audio_hash": "c1ecaa945958aaae",
+  "encoding": "02c6a9f0c181f2ca",
+  "files": {
+    "mp4": "speedrunning-basics/shortcut-win/clip.mp4",
+    "webm": "speedrunning-basics/shortcut-win/clip.webm",
+    "poster": "speedrunning-basics/shortcut-win/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

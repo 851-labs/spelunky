@@ -1,0 +1,82 @@
+{
+  "id": 870,
+  "name": "sSkeletonWalkLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 12,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oSkeleton",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sSkeletonWalkLeft/strip.png",
+  "strip_scaled": "sSkeletonWalkLeft/strip@4x.png",
+  "anim": "sSkeletonWalkLeft/anim.png",
+  "anim_scaled": "sSkeletonWalkLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSkeletonWalkLeft/frames/0.png",
+      "file_scaled": "sSkeletonWalkLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSkeletonWalkLeft/frames/1.png",
+      "file_scaled": "sSkeletonWalkLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSkeletonWalkLeft/frames/2.png",
+      "file_scaled": "sSkeletonWalkLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSkeletonWalkLeft/frames/3.png",
+      "file_scaled": "sSkeletonWalkLeft/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSkeletonWalkLeft/frames/4.png",
+      "file_scaled": "sSkeletonWalkLeft/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oSkeleton"
+  ]
+}

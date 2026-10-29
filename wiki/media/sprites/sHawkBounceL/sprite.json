@@ -1,0 +1,42 @@
+{
+  "id": 696,
+  "name": "sHawkBounceL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 2,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oHawkman",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sHawkBounceL/strip.png",
+  "strip_scaled": "sHawkBounceL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sHawkBounceL/frames/0.png",
+      "file_scaled": "sHawkBounceL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oHawkman"
+  ]
+}

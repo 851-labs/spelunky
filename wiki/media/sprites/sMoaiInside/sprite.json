@@ -1,0 +1,40 @@
+{
+  "id": 1172,
+  "name": "sMoaiInside",
+  "width": 16,
+  "height": 48,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 47
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMoaiInside/strip.png",
+  "strip_scaled": "sMoaiInside/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMoaiInside/frames/0.png",
+      "file_scaled": "sMoaiInside/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 47
+      }
+    }
+  ],
+  "objects": [
+    "oMoaiInside"
+  ],
+  "used_by": [
+    "oMoaiInside"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "quirks/gold-door-on-altar",
+  "title": "The City of Gold's door on Kali's altar",
+  "description": "Level 14 loads with the City of Gold's door standing on the left half of Kali's altar, where level generation put it: the door's roll doesn't skip the altar. The player walks over and stands on the altar's other half, beside the door.",
+  "spec": "wiki/clips/quirks/gold-door-on-altar.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/temple-seed-1-gold-door-on-altar.txt"
+  },
+  "from": 1328,
+  "to": 1520,
+  "frames": 193,
+  "fps": 30,
+  "duration": 6.433333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1460,
+  "frames_hash": "5e80bab5ca3a7953",
+  "has_audio": true,
+  "audio_hash": "ba620d58724764c3",
+  "encoding": "3074b1a0fd8700ab",
+  "files": {
+    "mp4": "quirks/gold-door-on-altar/clip.mp4",
+    "webm": "quirks/gold-door-on-altar/clip.webm",
+    "poster": "quirks/gold-door-on-altar/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

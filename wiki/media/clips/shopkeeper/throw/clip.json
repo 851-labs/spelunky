@@ -1,0 +1,32 @@
+{
+  "id": "shopkeeper/throw",
+  "title": "Shopkeeper's throw",
+  "description": "The shopkeeper follows the player while he holds an unpaid pistol, and stands still once he pays. Shot with it, the shopkeeper falls stunned and drops his shotgun; he gets up angry, grabs the player and throws him against the floor, which costs a heart.",
+  "spec": "wiki/clips/shopkeeper/throw.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/weapon-seed-39-pistol.txt"
+  },
+  "from": 1466,
+  "to": 1599,
+  "frames": 134,
+  "fps": 30,
+  "duration": 4.466666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1556,
+  "frames_hash": "d0ae776ee775d636",
+  "has_audio": true,
+  "audio_hash": "6da9129ecd561633",
+  "encoding": "b231fe30aad731d7",
+  "files": {
+    "mp4": "shopkeeper/throw/clip.mp4",
+    "webm": "shopkeeper/throw/clip.webm",
+    "poster": "shopkeeper/throw/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,40 @@
+{
+  "id": 605,
+  "name": "sTitleBG",
+  "width": 192,
+  "height": 80,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 190,
+    "bottom": 79
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTitleBG/strip.png",
+  "strip_scaled": "sTitleBG/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sTitleBG/frames/0.png",
+      "file_scaled": "sTitleBG/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 190,
+        "bottom": 79
+      }
+    }
+  ],
+  "objects": [
+    "oTitleBG"
+  ],
+  "used_by": [
+    "oTitleBG"
+  ]
+}

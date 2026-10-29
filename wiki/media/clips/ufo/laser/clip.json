@@ -1,0 +1,33 @@
+{
+  "id": "ufo/laser",
+  "title": "UFO laser",
+  "description": "A UFO flies down to hover above the player, patrols until it is over him, and fires a laser that takes three hearts and stuns him. Its next shot kills him, and it goes on firing at his body.",
+  "spec": "wiki/clips/ufo/laser.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 100,
+  "to": 239,
+  "frames": 140,
+  "fps": 30,
+  "duration": 4.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 166,
+  "frames_hash": "f6c0bb3b31859fa6",
+  "has_audio": true,
+  "audio_hash": "eb07a0ea4e4f4cb3",
+  "encoding": "4c1cee8b7cb967b5",
+  "files": {
+    "mp4": "ufo/laser/clip.mp4",
+    "webm": "ufo/laser/clip.webm",
+    "poster": "ufo/laser/poster.png",
+    "replay": "ufo/laser/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

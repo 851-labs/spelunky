@@ -1,0 +1,64 @@
+{
+  "id": 1098,
+  "name": "sLamp",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oLamp",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sLamp/strip.png",
+  "strip_scaled": "sLamp/strip@4x.png",
+  "anim": "sLamp/anim.png",
+  "anim_scaled": "sLamp/anim@4x.png",
+  "frames": [
+    {
+      "file": "sLamp/frames/0.png",
+      "file_scaled": "sLamp/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLamp/frames/1.png",
+      "file_scaled": "sLamp/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLamp/frames/2.png",
+      "file_scaled": "sLamp/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oLamp"
+  ],
+  "used_by": [
+    "oLamp"
+  ]
+}

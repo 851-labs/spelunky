@@ -1,0 +1,32 @@
+{
+  "id": "general-store/buy",
+  "title": "Buying in a General Store",
+  "description": "In a General Store on level 2, the player picks up a parachute, and the shopkeeper names its price. He pays, and it goes on. He picks up the compass next, but hasn't the money for it, and paying drops it.",
+  "spec": "wiki/clips/general-store/buy.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-3-buy-theft.txt"
+  },
+  "from": 1727,
+  "to": 1849,
+  "frames": 123,
+  "fps": 30,
+  "duration": 4.1,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1770,
+  "frames_hash": "a13a62fce13b3a5e",
+  "has_audio": true,
+  "audio_hash": "cf3626735aa3c1a1",
+  "encoding": "33632b31af5d8f24",
+  "files": {
+    "mp4": "general-store/buy/clip.mp4",
+    "webm": "general-store/buy/clip.webm",
+    "poster": "general-store/buy/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

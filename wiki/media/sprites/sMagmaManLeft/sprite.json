@@ -1,0 +1,74 @@
+{
+  "id": 864,
+  "name": "sMagmaManLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oMagmaMan",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sMagmaManLeft/strip.png",
+  "strip_scaled": "sMagmaManLeft/strip@4x.png",
+  "anim": "sMagmaManLeft/anim.png",
+  "anim_scaled": "sMagmaManLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sMagmaManLeft/frames/0.png",
+      "file_scaled": "sMagmaManLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManLeft/frames/1.png",
+      "file_scaled": "sMagmaManLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManLeft/frames/2.png",
+      "file_scaled": "sMagmaManLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sMagmaManLeft/frames/3.png",
+      "file_scaled": "sMagmaManLeft/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oMagmaMan"
+  ],
+  "used_by": [
+    "oMagmaMan"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": 835,
+  "name": "sJar",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 3,
+    "top": 5,
+    "right": 12,
+    "bottom": 13
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sJar/strip.png",
+  "strip_scaled": "sJar/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sJar/frames/0.png",
+      "file_scaled": "sJar/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 5,
+        "right": 12,
+        "bottom": 13
+      }
+    }
+  ],
+  "objects": [
+    "oJar"
+  ],
+  "used_by": [
+    "oPDummy",
+    "oPDummy2",
+    "oJar"
+  ]
+}

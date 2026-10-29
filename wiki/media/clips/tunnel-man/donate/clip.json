@@ -1,0 +1,32 @@
+{
+  "id": "tunnel-man/donate",
+  "title": "Tunnel Man's shortcut",
+  "description": "Between the Mines and the Jungle, the player walks up to the Tunnel Man, who introduces himself and asks for $100,000 for a new shortcut. The player holds up to raise the donation to $4,100 and gives it; the Tunnel Man thanks him.",
+  "spec": "wiki/clips/tunnel-man/donate.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/tunnelman-seed-2-donate.txt"
+  },
+  "from": 4231,
+  "to": 4377,
+  "frames": 147,
+  "fps": 30,
+  "duration": 4.9,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 4320,
+  "frames_hash": "e96ceaa9410186a7",
+  "has_audio": true,
+  "audio_hash": "a6e6c8b8ce62c2c1",
+  "encoding": "46a51f45cfed34a6",
+  "files": {
+    "mp4": "tunnel-man/donate/clip.mp4",
+    "webm": "tunnel-man/donate/clip.webm",
+    "poster": "tunnel-man/donate/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "quirks/city-stone-block-no-gold",
+  "title": "A stone block in the City of Gold gives no gold",
+  "description": "A bomb in the City of Gold destroys a stone block and the gold temple block beside it. The temple block gives three gold chunks and a nugget; the stone block nothing, as level generation marked every stone block of a Temple level to break without a trace.",
+  "spec": "wiki/clips/quirks/city-stone-block-no-gold.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt"
+  },
+  "from": 7720,
+  "to": 7900,
+  "frames": 181,
+  "fps": 30,
+  "duration": 6.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 7852,
+  "frames_hash": "c6b9fd0e4b248ada",
+  "has_audio": true,
+  "audio_hash": "fdfbf5ef39a421d3",
+  "encoding": "5bc1dfe39fa35945",
+  "files": {
+    "mp4": "quirks/city-stone-block-no-gold/clip.mp4",
+    "webm": "quirks/city-stone-block-no-gold/clip.webm",
+    "poster": "quirks/city-stone-block-no-gold/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

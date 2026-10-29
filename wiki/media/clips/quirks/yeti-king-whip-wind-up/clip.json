@@ -1,0 +1,32 @@
+{
+  "id": "quirks/yeti-king-whip-wind-up",
+  "title": "The Whip hurts the Yeti King only with its wind-up",
+  "description": "The player whips with his back to the Yeti King: the wind-up behind him takes three of its hit points each swing. Turned to face it, the crack of the whip takes none.",
+  "spec": "wiki/clips/quirks/yeti-king-whip-wind-up.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-yeti-king-whip-wind-up.txt"
+  },
+  "from": 341,
+  "to": 460,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 373,
+  "frames_hash": "850da865de99ea4f",
+  "has_audio": true,
+  "audio_hash": "496d4c5b454a02cb",
+  "encoding": "8c30c0e945f21648",
+  "files": {
+    "mp4": "quirks/yeti-king-whip-wind-up/clip.mp4",
+    "webm": "quirks/yeti-king-whip-wind-up/clip.webm",
+    "poster": "quirks/yeti-king-whip-wind-up/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

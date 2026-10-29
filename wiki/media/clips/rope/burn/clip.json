@@ -1,0 +1,32 @@
+{
+  "id": "rope/burn",
+  "title": "Rope burning in lava",
+  "description": "In the Temple, the player drops a rope over a lava pool and climbs onto it. Its foot catches fire in the lava, and the fire climbs the rope, burning it away, until the player's segment goes and he drops.",
+  "spec": "wiki/clips/rope/burn.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/terrain-rope-burn-lava.txt"
+  },
+  "from": 850,
+  "to": 969,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 920,
+  "frames_hash": "1ee6c51cef2553bb",
+  "has_audio": true,
+  "audio_hash": "cdc029861974670e",
+  "encoding": "d5bf142975a3e908",
+  "files": {
+    "mp4": "rope/burn/clip.mp4",
+    "webm": "rope/burn/clip.webm",
+    "poster": "rope/burn/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

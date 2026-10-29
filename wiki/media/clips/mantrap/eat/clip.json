@@ -1,0 +1,33 @@
+{
+  "id": "mantrap/eat",
+  "title": "Mantrap eats the player",
+  "description": "The player drops onto a mantrap from a ledge. Without Spike Shoes that isn't a stomp: the mantrap swallows him whole and he dies.",
+  "spec": "wiki/clips/mantrap/eat.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 20,
+  "to": 179,
+  "frames": 160,
+  "fps": 30,
+  "duration": 5.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 90,
+  "frames_hash": "cbb05e49485484b5",
+  "has_audio": true,
+  "audio_hash": "35f3592d2c2c9bc5",
+  "encoding": "2c05ccb55b47a15c",
+  "files": {
+    "mp4": "mantrap/eat/clip.mp4",
+    "webm": "mantrap/eat/clip.webm",
+    "poster": "mantrap/eat/poster.png",
+    "replay": "mantrap/eat/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

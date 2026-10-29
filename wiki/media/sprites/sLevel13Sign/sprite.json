@@ -1,0 +1,40 @@
+{
+  "id": 1264,
+  "name": "sLevel13Sign",
+  "width": 48,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 46,
+    "bottom": 31
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sLevel13Sign/strip.png",
+  "strip_scaled": "sLevel13Sign/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sLevel13Sign/frames/0.png",
+      "file_scaled": "sLevel13Sign/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 46,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [
+    "oLevel13Sign"
+  ],
+  "used_by": [
+    "oLevel13Sign"
+  ]
+}

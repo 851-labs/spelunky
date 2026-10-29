@@ -1,0 +1,116 @@
+{
+  "id": 998,
+  "name": "sDamselPushL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDamselPushL/strip.png",
+  "strip_scaled": "sDamselPushL/strip@4x.png",
+  "anim": "sDamselPushL/anim.png",
+  "anim_scaled": "sDamselPushL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sDamselPushL/frames/0.png",
+      "file_scaled": "sDamselPushL/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselPushL/frames/1.png",
+      "file_scaled": "sDamselPushL/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 10,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselPushL/frames/2.png",
+      "file_scaled": "sDamselPushL/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 11,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselPushL/frames/3.png",
+      "file_scaled": "sDamselPushL/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselPushL/frames/4.png",
+      "file_scaled": "sDamselPushL/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselPushL/frames/5.png",
+      "file_scaled": "sDamselPushL/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselPushL/frames/6.png",
+      "file_scaled": "sDamselPushL/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselPushL/frames/7.png",
+      "file_scaled": "sDamselPushL/frames/7@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 11,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselPushL/frames/8.png",
+      "file_scaled": "sDamselPushL/frames/8@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 11,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

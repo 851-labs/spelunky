@@ -1,0 +1,33 @@
+{
+  "id": "hawkman/ceiling",
+  "title": "Hawkman bite",
+  "description": "Under a low ceiling, a hawkman charges the player but can't throw him: with a block right above it, it bites him for a heart instead.",
+  "spec": "wiki/clips/hawkman/ceiling.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 119,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 24,
+  "frames_hash": "121746a3d6e231c6",
+  "has_audio": true,
+  "audio_hash": "bb769c87529f414d",
+  "encoding": "b4d883b121b55893",
+  "files": {
+    "mp4": "hawkman/ceiling/clip.mp4",
+    "webm": "hawkman/ceiling/clip.webm",
+    "poster": "hawkman/ceiling/poster.png",
+    "replay": "hawkman/ceiling/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

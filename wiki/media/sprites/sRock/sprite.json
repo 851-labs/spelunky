@@ -1,0 +1,42 @@
+{
+  "id": 452,
+  "name": "sRock",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sRock/strip.png",
+  "strip_scaled": "sRock/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sRock/frames/0.png",
+      "file_scaled": "sRock/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 7,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [
+    "oRock"
+  ],
+  "used_by": [
+    "oRock",
+    "oPDummy",
+    "oPDummy2"
+  ]
+}

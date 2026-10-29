@@ -1,0 +1,32 @@
+{
+  "id": "quirks/arrow-trap-sensor-left-wider",
+  "title": "A left-facing arrow trap sees a block farther",
+  "description": "The player stands midway between two arrow traps that face each other, as far from one as from the other. He turns around, and only the left-facing trap fires; its arrow stops short of him. He takes two steps toward the right-facing one before it fires too.",
+  "spec": "wiki/clips/quirks/arrow-trap-sensor-left-wider.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-arrow-sensor-left-wider.txt"
+  },
+  "from": 251,
+  "to": 360,
+  "frames": 110,
+  "fps": 30,
+  "duration": 3.6666666666666665,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 266,
+  "frames_hash": "26f338fab7b77079",
+  "has_audio": true,
+  "audio_hash": "b19649b5420101b5",
+  "encoding": "41b7ccc295faa575",
+  "files": {
+    "mp4": "quirks/arrow-trap-sensor-left-wider/clip.mp4",
+    "webm": "quirks/arrow-trap-sensor-left-wider/clip.webm",
+    "poster": "quirks/arrow-trap-sensor-left-wider/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

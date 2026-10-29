@@ -1,0 +1,32 @@
+{
+  "id": "big-emerald/tutorial",
+  "title": "The Tutorial's big gems",
+  "description": "The player climbs a ladder to a high ledge of the Tutorial and runs left along it over a big emerald, a big sapphire and a big ruby, collecting each as he touches it.",
+  "spec": "wiki/clips/big-emerald/tutorial.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/movement-ladder-crawl.txt"
+  },
+  "from": 915,
+  "to": 1010,
+  "frames": 96,
+  "fps": 30,
+  "duration": 3.2,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 975,
+  "frames_hash": "fc3b1e6d5c5bd467",
+  "has_audio": true,
+  "audio_hash": "fb9bf4a1c7605187",
+  "encoding": "ba8567f4c0ba0783",
+  "files": {
+    "mp4": "big-emerald/tutorial/clip.mp4",
+    "webm": "big-emerald/tutorial/clip.webm",
+    "poster": "big-emerald/tutorial/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

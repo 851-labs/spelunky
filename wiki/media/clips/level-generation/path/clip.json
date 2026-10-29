@@ -1,0 +1,32 @@
+{
+  "id": "level-generation/path",
+  "title": "Down a level's path",
+  "description": "In the first level of the Mines, the player runs right from the entrance along the top row of rooms, drops into the room below at the level's right edge, runs back left along the second row, and drops again at its left edge.",
+  "spec": "wiki/clips/level-generation/path.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/mines-seed-2.txt"
+  },
+  "from": 565,
+  "to": 1140,
+  "frames": 576,
+  "fps": 30,
+  "duration": 19.2,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1000,
+  "frames_hash": "75dfcfc488a8bfe5",
+  "has_audio": true,
+  "audio_hash": "bc4edbc59fb10e8b",
+  "encoding": "e1d95fe5cf4c8ad9",
+  "files": {
+    "mp4": "level-generation/path/clip.mp4",
+    "webm": "level-generation/path/clip.webm",
+    "poster": "level-generation/path/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,6 +1,6 @@
 # A release: pushing a `v*` tag, or running this by hand on one. Everything must pass before anything is
 # published: the full suite (scripts/check), the full oracle fidelity run over every committed replay, the web
-# build, the native builds (build-native.yml, which signs and notarizes macOS, and renders the wiki's media) and
+# build, the native builds (build-native.yml, which signs and notarizes macOS) and
 # the updater's tests (updater.yml). The GitHub Release is a draft until then; the last job attaches the files
 # and publishes it.
 # A tag with a `-` (`v0.1.0-rc1`) is published as a prerelease, any other as the latest release.
@@ -120,6 +120,7 @@ jobs:
     env:
       TAG: ${{ needs.meta.outputs.tag }}
     steps:
+      # With the wiki's media, unlike the jobs below: site/build.sh reads them.
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
@@ -153,9 +154,15 @@ jobs:
     outputs:
       key: ${{ steps.oracle.outputs.key }}
     steps:
+      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
       - id: oracle
         uses: ./.github/actions/oracle-build
 
@@ -168,9 +175,15 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
+      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
       - uses: actions/cache@v6
         with:
           path: |
@@ -207,9 +220,15 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
+      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
       - name: Load the oracle
         uses: ./.github/actions/oracle-load
         with:
@@ -272,9 +291,15 @@ jobs:
       TAG: ${{ needs.meta.outputs.tag }}
       VERSION: ${{ needs.meta.outputs.version }}
     steps:
+      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
       - uses: actions/download-artifact@v8
         with:
           pattern: spelunky-${{ needs.meta.outputs.version }}-*
@@ -336,15 +361,9 @@ jobs:
         with:
           name: update-manifest
           path: dist
-      # The wiki's media at this release (docs/wiki-media.md), which scripts/bump-web-release pins too.
-      - uses: actions/download-artifact@v8
-        with:
-          name: wiki-media-${{ needs.meta.outputs.tag }}
-          path: dist
       - run: |
           cd dist
           [ -f "spelunky-web-$TAG.tar.gz" ] || { echo "::error::no spelunky-web-$TAG.tar.gz"; exit 1; }
-          [ -f "wiki-media-$TAG.tar.gz" ] || { echo "::error::no wiki-media-$TAG.tar.gz"; exit 1; }
           # scripts/bump-web-release takes the release's latest.json with its web build.
           [ "$DRY_RUN" = true ] || [ "$PRERELEASE" = true ] || [ -f latest.json ] ||
             { echo "::error::no latest.json"; exit 1; }

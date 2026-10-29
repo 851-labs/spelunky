@@ -1,0 +1,32 @@
+{
+  "id": "weapon-shop/buy",
+  "title": "Buying a pistol in a Weapon Shop",
+  "description": "The player walks into a Weapon Shop on level 2, which its shopkeeper calls his armory. He picks up the pistol, the shopkeeper names its price, $5000, and he pays for it.",
+  "spec": "wiki/clips/weapon-shop/buy.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/weapon-seed-39-pistol.txt"
+  },
+  "from": 1400,
+  "to": 1489,
+  "frames": 90,
+  "fps": 30,
+  "duration": 3.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1474,
+  "frames_hash": "6dfe1ec88f1a6f61",
+  "has_audio": true,
+  "audio_hash": "bb847a294ee3b6b5",
+  "encoding": "37b48a709aa40430",
+  "files": {
+    "mp4": "weapon-shop/buy/clip.mp4",
+    "webm": "weapon-shop/buy/clip.webm",
+    "poster": "weapon-shop/buy/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,42 @@
+{
+  "id": 629,
+  "name": "sOlmec",
+  "width": 64,
+  "height": 64,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 63,
+    "bottom": 63
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oOlmec",
+    "via": "uses",
+    "image_speed": 0.4
+  },
+  "strip": "sOlmec/strip.png",
+  "strip_scaled": "sOlmec/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sOlmec/frames/0.png",
+      "file_scaled": "sOlmec/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 63,
+        "bottom": 63
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oOlmec"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": 1171,
+  "name": "sMoai",
+  "width": 16,
+  "height": 64,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 63
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMoai/strip.png",
+  "strip_scaled": "sMoai/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMoai/frames/0.png",
+      "file_scaled": "sMoai/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 63
+      }
+    }
+  ],
+  "objects": [
+    "oMoai"
+  ],
+  "used_by": [
+    "oMoai"
+  ]
+}

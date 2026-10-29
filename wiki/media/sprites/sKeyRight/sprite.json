@@ -1,0 +1,42 @@
+{
+  "id": 1155,
+  "name": "sKeyRight",
+  "width": 16,
+  "height": 12,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 2,
+    "top": 4,
+    "right": 13,
+    "bottom": 11
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sKeyRight/strip.png",
+  "strip_scaled": "sKeyRight/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sKeyRight/frames/0.png",
+      "file_scaled": "sKeyRight/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 13,
+        "bottom": 11
+      }
+    }
+  ],
+  "objects": [
+    "oKey"
+  ],
+  "used_by": [
+    "oPDummy",
+    "oPDummy2",
+    "oKey"
+  ]
+}

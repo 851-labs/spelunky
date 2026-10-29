@@ -1,0 +1,46 @@
+{
+  "id": 871,
+  "name": "sSkeletonLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 12,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oSkeleton",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sSkeletonLeft/strip.png",
+  "strip_scaled": "sSkeletonLeft/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSkeletonLeft/frames/0.png",
+      "file_scaled": "sSkeletonLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 12,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oSkeletonTile"
+  ],
+  "used_by": [
+    "oTransition",
+    "oSkeleton",
+    "oSkeletonTile"
+  ]
+}

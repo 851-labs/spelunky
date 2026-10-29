@@ -1,0 +1,112 @@
+{
+  "id": 1258,
+  "name": "sYetiKingWalkR",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 30,
+    "bottom": 31
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oYetiKing",
+    "via": "uses",
+    "image_speed": 0.25
+  },
+  "strip": "sYetiKingWalkR/strip.png",
+  "strip_scaled": "sYetiKingWalkR/strip@4x.png",
+  "anim": "sYetiKingWalkR/anim.png",
+  "anim_scaled": "sYetiKingWalkR/anim@4x.png",
+  "frames": [
+    {
+      "file": "sYetiKingWalkR/frames/0.png",
+      "file_scaled": "sYetiKingWalkR/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingWalkR/frames/1.png",
+      "file_scaled": "sYetiKingWalkR/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingWalkR/frames/2.png",
+      "file_scaled": "sYetiKingWalkR/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingWalkR/frames/3.png",
+      "file_scaled": "sYetiKingWalkR/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingWalkR/frames/4.png",
+      "file_scaled": "sYetiKingWalkR/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingWalkR/frames/5.png",
+      "file_scaled": "sYetiKingWalkR/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingWalkR/frames/6.png",
+      "file_scaled": "sYetiKingWalkR/frames/6@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 30,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sYetiKingWalkR/frames/7.png",
+      "file_scaled": "sYetiKingWalkR/frames/7@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 30,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oYetiKing"
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "id": 574,
+  "name": "sUFO",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 15,
+    "bottom": 13
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oUFO",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sUFO/strip.png",
+  "strip_scaled": "sUFO/strip@4x.png",
+  "anim": "sUFO/anim.png",
+  "anim_scaled": "sUFO/anim@4x.png",
+  "frames": [
+    {
+      "file": "sUFO/frames/0.png",
+      "file_scaled": "sUFO/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sUFO/frames/1.png",
+      "file_scaled": "sUFO/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sUFO/frames/2.png",
+      "file_scaled": "sUFO/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sUFO/frames/3.png",
+      "file_scaled": "sUFO/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFO/frames/4.png",
+      "file_scaled": "sUFO/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFO/frames/5.png",
+      "file_scaled": "sUFO/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFO/frames/6.png",
+      "file_scaled": "sUFO/frames/6@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sUFO/frames/7.png",
+      "file_scaled": "sUFO/frames/7@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [
+    "oUFO",
+    "oUFOTile"
+  ],
+  "used_by": [
+    "oUFO",
+    "oTransition",
+    "oUFOTile",
+    "oBatTarget"
+  ]
+}

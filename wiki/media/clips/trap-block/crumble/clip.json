@@ -1,0 +1,32 @@
+{
+  "id": "trap-block/crumble",
+  "title": "Trap blocks crumbling",
+  "description": "In a Jungle idol room, the player drops onto a floor of skull blocks and picks up the golden idol from it. The blocks crumble from the outside in, two at a time, and he falls with the idol into the pool below, unhurt.",
+  "spec": "wiki/clips/trap-block/crumble.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-jungle-idol-blocks.txt"
+  },
+  "from": 830,
+  "to": 989,
+  "frames": 160,
+  "fps": 30,
+  "duration": 5.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 905,
+  "frames_hash": "f216b357d41a8bc5",
+  "has_audio": true,
+  "audio_hash": "3c1a33f66647dbef",
+  "encoding": "a40a1c199297fe61",
+  "files": {
+    "mp4": "trap-block/crumble/clip.mp4",
+    "webm": "trap-block/crumble/clip.webm",
+    "poster": "trap-block/crumble/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

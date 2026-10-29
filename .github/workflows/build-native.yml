@@ -4,8 +4,7 @@
 #
 # - build: all six builds on one Mac mini (scripts/release/build): macOS arm64 and x86_64, combined into a
 #   universal `Spelunky Classic.app`; Windows x64 and ARM64 with llvm-mingw; Linux x64 and ARM64 with zig. All
-#   open source: no Windows SDK, MSVC or license. It also fingerprints the smoke replay's trace on the port,
-#   and renders the wiki's media (docs/wiki-media.md): the sprites, and every clip on the mini's GPU.
+#   open source: no Windows SDK, MSVC or license. It also fingerprints the smoke replay's trace on the port.
 # - macos-sign (with `sign`): signs the app with Developer ID, notarizes and staples it, and packages it in a
 #   .dmg (notarized and stapled too) and a zip for the updater. Only this job sees the signing secrets, in
 #   the `release` environment (main and v* tags only; release.yml passes them on with `secrets: inherit`),
@@ -15,8 +14,7 @@
 #   lavapipe draw).
 #
 # Every file is an artifact named as the file, spelunky-<version>-<platform>.<ext>, which release.yml
-# publishes when the whole workflow passed. Nothing else this makes is named spelunky-*. The wiki's media
-# are the artifact wiki-media-<tag>, holding wiki-media-<tag>.tar.gz, which release.yml publishes too.
+# publishes when the whole workflow passed. Nothing else this makes is named spelunky-*.
 name: Native builds
 
 on:
@@ -168,34 +166,11 @@ jobs:
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-arm64.tar.gz
           if-no-files-found: error
           compression-level: 0
-      # The wiki's media at this commit (docs/wiki-media.md, "Publishing"): the sprites, and every clip
-      # rendered afresh by the app this build ships (its arm64 half) from the assets it extracted. After the
-      # apps' uploads, so a hand run whose render fails still leaves them. The caption names release.yml's
-      # tag: vX.Y.Z for a release's version, else the version itself (a dry run's dev-<sha>).
-      - name: Name the wiki media
-        id: wiki
-        run: |
-          case $VERSION in [0-9]*) tag=v$VERSION ;; *) tag=$VERSION ;; esac
-          { echo "tag=$tag"; echo "name=wiki-media-$tag"; } >>"$GITHUB_OUTPUT"
-      - name: Render the wiki media
-        uses: ./.github/actions/wiki-media-render
-        with:
-          name: ${{ steps.wiki.outputs.name }}
-          port-version: ${{ steps.wiki.outputs.tag }}
-          app: ${{ env.CARGO_TARGET_DIR }}/aarch64-apple-darwin/release/app
-          assets: ${{ env.CARGO_TARGET_DIR }}/packaging/assets
-      - uses: actions/upload-artifact@v7
-        with:
-          name: ${{ steps.wiki.outputs.name }}
-          path: target/${{ steps.wiki.outputs.name }}.tar.gz
-          if-no-files-found: error
-          compression-level: 0
-      # The cached target dir and toolchains stay (ci-setup caps them); the packages, the wiki's media and a
-      # fresh build's toolchain and target dir go.
+      # The cached target dir and toolchains stay (ci-setup caps them); the packages and a fresh build's
+      # toolchain and target dir go.
       - if: always()
         run: |
           rm -rf "$RUNNER_TEMP/packages" "$RUNNER_TEMP/macos-app.tar" "$RUNNER_TEMP/smoke-replay.jsonl" "$RUNNER_TEMP/spelunky-release"
-          rm -rf target/wiki-media target/wiki-media-*.tar.gz* "$RUNNER_TEMP/wiki-media-check"
 
   macos-sign:
     name: Sign Mac app

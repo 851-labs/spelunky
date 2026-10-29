@@ -1,0 +1,32 @@
+{
+  "id": "level-editor/every-tile",
+  "title": "Every tile",
+  "description": "A saved level holding every tile the level editor offers, five rows of them on brick floors, opens in the editor: blocks, ladders, trees and vines, water and lava, monsters, traps, treasure and items. Test plays it, and the monsters, traps and items come alive as the player walks in.",
+  "spec": "wiki/clips/level-editor/every-tile.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/editor-every-tile.txt"
+  },
+  "from": 200,
+  "to": 599,
+  "frames": 400,
+  "fps": 30,
+  "duration": 13.333333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 250,
+  "frames_hash": "ebf7be09e6df89dd",
+  "has_audio": true,
+  "audio_hash": "05b6ad23f36d6eb3",
+  "encoding": "1ced69c9fcecf5e4",
+  "files": {
+    "mp4": "level-editor/every-tile/clip.mp4",
+    "webm": "level-editor/every-tile/clip.webm",
+    "poster": "level-editor/every-tile/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

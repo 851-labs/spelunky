@@ -1,0 +1,56 @@
+{
+  "id": 624,
+  "name": "sprite624",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sprite624/strip.png",
+  "strip_scaled": "sprite624/strip@4x.png",
+  "anim": "sprite624/anim.png",
+  "anim_scaled": "sprite624/anim@4x.png",
+  "frames": [
+    {
+      "file": "sprite624/frames/0.png",
+      "file_scaled": "sprite624/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sprite624/frames/1.png",
+      "file_scaled": "sprite624/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sprite624/frames/2.png",
+      "file_scaled": "sprite624/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

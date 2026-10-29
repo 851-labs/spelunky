@@ -1,0 +1,36 @@
+{
+  "id": 1034,
+  "name": "sSpectaclesIcon",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 15,
+    "bottom": 13
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSpectaclesIcon/strip.png",
+  "strip_scaled": "sSpectaclesIcon/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSpectaclesIcon/frames/0.png",
+      "file_scaled": "sSpectaclesIcon/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 13
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

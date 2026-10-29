@@ -1,0 +1,33 @@
+{
+  "id": "damage/invincible",
+  "title": "Invincible after a bite",
+  "description": "The player walks into a snake and loses a heart, then blinks: while he blinks he walks through a second snake unharmed. Back among them, a snake bites him again, and the next bite comes exactly a second later, when the blinking stops.",
+  "spec": "wiki/clips/damage/invincible.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 219,
+  "frames": 220,
+  "fps": 30,
+  "duration": 7.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 55,
+  "frames_hash": "66e564c92c986122",
+  "has_audio": true,
+  "audio_hash": "e1b947e17501b6c0",
+  "encoding": "5c090aa990a2ce5a",
+  "files": {
+    "mp4": "damage/invincible/clip.mp4",
+    "webm": "damage/invincible/clip.webm",
+    "poster": "damage/invincible/poster.png",
+    "replay": "damage/invincible/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

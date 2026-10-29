@@ -1,0 +1,40 @@
+{
+  "id": 1218,
+  "name": "sJarTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 3,
+    "top": 7,
+    "right": 12,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sJarTile/strip.png",
+  "strip_scaled": "sJarTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sJarTile/frames/0.png",
+      "file_scaled": "sJarTile/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 7,
+        "right": 12,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oJarTile"
+  ],
+  "used_by": [
+    "oJarTile"
+  ]
+}

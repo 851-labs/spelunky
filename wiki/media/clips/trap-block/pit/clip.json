@@ -1,0 +1,32 @@
+{
+  "id": "trap-block/pit",
+  "title": "The Sacrifice Pit's trap blocks",
+  "description": "At the top of the Sacrifice Pit, the player picks up the golden idol beside a damsel. The four skull blocks under them vanish at once, and the player, the idol and the damsel fall down the pit into the lava at its bottom, where he dies.",
+  "spec": "wiki/clips/trap-block/pit.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/trap-sacrifice-pit.txt"
+  },
+  "from": 850,
+  "to": 999,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 920,
+  "frames_hash": "68103cf61f234b5e",
+  "has_audio": true,
+  "audio_hash": "9bd7154f71a54676",
+  "encoding": "9568ec7592f7b868",
+  "files": {
+    "mp4": "trap-block/pit/clip.mp4",
+    "webm": "trap-block/pit/clip.webm",
+    "poster": "trap-block/pit/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

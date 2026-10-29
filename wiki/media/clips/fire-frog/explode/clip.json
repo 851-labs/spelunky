@@ -1,0 +1,33 @@
+{
+  "id": "fire-frog/explode",
+  "title": "Fire frog explodes",
+  "description": "The player whips a fire frog as it leaps at him. Its burning body falls to the ground and explodes four seconds later.",
+  "spec": "wiki/clips/fire-frog/explode.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 1
+  },
+  "from": 0,
+  "to": 199,
+  "frames": 200,
+  "fps": 30,
+  "duration": 6.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 60,
+  "frames_hash": "62ede9621a9e37a6",
+  "has_audio": true,
+  "audio_hash": "792229a47114ffdd",
+  "encoding": "4a0e997b4ab74312",
+  "files": {
+    "mp4": "fire-frog/explode/clip.mp4",
+    "webm": "fire-frog/explode/clip.webm",
+    "poster": "fire-frog/explode/poster.png",
+    "replay": "fire-frog/explode/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

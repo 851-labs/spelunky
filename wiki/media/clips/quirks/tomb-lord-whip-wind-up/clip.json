@@ -1,0 +1,32 @@
+{
+  "id": "quirks/tomb-lord-whip-wind-up",
+  "title": "The Tomb Lord takes the Whip's wind-up from its own floor",
+  "description": "With his back to a tomb lord, the player swings the Whip: the wind-up behind him takes three of its hit points. Turned to face it, from the same floor, the crack of the whip takes none.",
+  "spec": "wiki/clips/quirks/tomb-lord-whip-wind-up.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-tomb-lord-whip-wind-up.txt"
+  },
+  "from": 241,
+  "to": 340,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 246,
+  "frames_hash": "c4b2601dd407a44c",
+  "has_audio": true,
+  "audio_hash": "282d4be7a2b173e4",
+  "encoding": "d62f4f35b6d5820b",
+  "files": {
+    "mp4": "quirks/tomb-lord-whip-wind-up/clip.mp4",
+    "webm": "quirks/tomb-lord-whip-wind-up/clip.webm",
+    "poster": "quirks/tomb-lord-whip-wind-up/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

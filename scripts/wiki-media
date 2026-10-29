@@ -1,0 +1,148 @@
+#!/bin/sh
+# The wiki's media, committed in wiki/media (docs/wiki-media.md): the sprites, the clips, the source viewer's
+# GML, and LICENSE.txt and NOTICE.txt beside them. A change to what they're made from (a clip spec, a replay a
+# clip is cut from, the game, the renderer) commits what it renders in the same pull request.
+#
+#   scripts/wiki-media [SPEC...]      renders them into wiki/media: the sprites, the GML and the license files,
+#                                     and every clip (with specs, only those), keeping the videos of a clip
+#                                     whose frames, sound and encoding didn't change; removes the clips whose
+#                                     spec is gone
+#   scripts/wiki-media --full [SPEC...]  the same, encoding every clip again
+#   scripts/wiki-media --check        renders them all into a scratch directory, and fails if it differs from
+#                                     wiki/media at all, keeping the committed videos as above (CI, pr.yml)
+#   scripts/wiki-media --check --full the same, encoding every clip again
+#   scripts/wiki-media --check --since REV
+#                                     nothing if nothing the media are made from changed since REV; otherwise
+#                                     the check, encoding again the clips whose videos changed since REV, and
+#                                     all of them if their encoding did
+#
+# On an Apple silicon Mac: the app captures the clips on its GPU, and they're encoded with the pinned ffmpeg
+# (scripts/release/tools), so they come out byte for byte the same on any of them.
+set -eu
+usage() {
+  echo "usage: scripts/wiki-media [--full] [SPEC...] | --check [--full | --since REV]" >&2
+  exit 2
+}
+check=
+full=
+since=
+case ${1-} in
+  --check)
+    check=1
+    shift
+    case $#:${1-} in
+      0:) ;;
+      1:--full) full=1 ;;
+      2:--since) since=$2 ;;
+      *) usage ;;
+    esac
+    set --
+    ;;
+  --full)
+    full=1
+    shift
+    ;;
+esac
+# The specs, from where it was run, as absolute paths: it runs from the repository.
+n=$#
+while [ "$n" -gt 0 ]; do
+  spec=$1
+  shift
+  n=$((n - 1))
+  case $spec in
+    -*) usage ;;
+    /*) ;;
+    *) spec=$PWD/$spec ;;
+  esac
+  set -- "$@" "$spec"
+done
+cd "$(dirname "$0")/.."
+[ "$(uname -s)/$(uname -m)" = Darwin/arm64 ] ||
+  { echo "scripts/wiki-media: renders on an Apple silicon Mac (docs/wiki-media.md)" >&2; exit 1; }
+
+# What the media are made from (git pathspecs): the specs and the committed media; the replays clips are cut
+# from; the game, the app's capture and drawing, the sound, the renderer, the sprite exporter and the
+# extractor (crates/, and vendor/'s math they use), with the original's source (reference/); the toolchain,
+# the pinned ffmpeg, the license and the scripts. And what they're encoded with: wiki-clips (its encoders' options are in each clip's
+# `encoding`, but how it feeds them isn't) and the pinned ffmpeg.
+made_from="wiki/clips wiki/media fidelity/replays crates vendor reference Cargo.toml Cargo.lock rust-toolchain.toml LICENSE scripts/cargo
+  scripts/extract scripts/wiki-media scripts/release/tools"
+encoded_with="crates/harness/src/bin/wiki-clips.rs scripts/release/tools"
+if [ -n "$since" ]; then
+  git rev-parse -q --verify "$since^{commit}" >/dev/null || { echo "scripts/wiki-media: no commit $since" >&2; exit 2; }
+  # shellcheck disable=SC2086 # the pathspecs, split
+  if git diff --quiet "$since" HEAD -- $made_from; then
+    echo "scripts/wiki-media: nothing the wiki's media are made from changed since $since"
+    exit 0
+  fi
+  # shellcheck disable=SC2086
+  git diff --quiet "$since" HEAD -- $encoded_with || full=1
+fi
+
+scripts/cargo build --quiet --release --locked -p app -p harness -p tools --bin app --bin wiki-clips --bin wiki-sprites
+bin=${CARGO_TARGET_DIR:-$PWD/target}/release
+scripts/extract >/dev/null
+scripts/release/tools ffmpeg
+ffmpeg=${SPELUNKY_RELEASE_TOOLS:-$PWD/target/release-tools}/ffmpeg-$(sed -n 's/^FFMPEG=//p' scripts/release/tools)/ffmpeg
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+media=wiki/media
+reuse=$media/clips
+if [ -n "$check" ]; then
+  out=$tmp/media
+  if [ -n "$full" ]; then
+    reuse=
+  elif [ -n "$since" ]; then
+    # The committed clips but those whose videos changed: those are encoded again, to check they're what the
+    # render makes. A copy-on-write clone (APFS), so it costs nothing.
+    reuse=$tmp/reuse
+    cp -cR "$media/clips" "$reuse"
+    git diff --name-only "$since" HEAD -- "$media/clips/*.mp4" "$media/clips/*.webm" |
+      sed -n "s|^$media/clips/\(.*\)/clip\.[a-z0-9]*$|\1|p" | sort -u | while read -r id; do
+        rm -rf "${reuse:?}/$id"
+      done
+  fi
+else
+  out=$media
+  [ -z "$full" ] || reuse=
+fi
+mkdir -p "$out"
+
+# The sprites replace their directory as a whole, and the GML is the extractor's as it is.
+"$bin/wiki-sprites" --assets assets --out "$out/sprites" >/dev/null
+rm -rf "$out/gml"
+cp -R assets/gml "$out/gml"
+# The license and the notice the Spelunky User License asks Covered Works to come with (docs/wiki-license.md).
+# LICENSE is the original's COPYING.txt, so windows-1252 (its ® is the byte AE), and the site serves a .txt as
+# UTF-8 (site/public/_headers), as site/build.sh writes /LICENSE.txt.
+iconv -f WINDOWS-1252 -t UTF-8 LICENSE >"$out/LICENSE.txt"
+cat >"$out/NOTICE.txt" <<EOF
+spelunky.ai wiki media
+
+Sprites, animation strips, gameplay clips and the GML source of Spelunky Classic 1.1 for spelunky.ai's
+unofficial fan wiki. The sprites are exported from the game's assets (scripts/wiki-sprites); the clips are
+recorded from the spelunky.ai port, an unofficial, fan-made port (a mod) of the game, not the original
+(scripts/wiki-clips); gml/ is spelunky.gmk's code as spelunky.ai's extractor writes it, one file per script
+or object event, the "// ====" lines naming each action of an event (scripts/extract). Some scripts are
+others' work that Derek Yu credits in the source's readme.txt: Martin Piecyk's platform engine, ChevyRay's
+view scaling scripts and tsg1zzn's Super Sound System.
+Source: https://github.com/851-labs/spelunky (docs/wiki-media.md).
+
+Spelunky is Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User
+License v1.1b, in LICENSE.txt beside this file. Not affiliated with or endorsed by Mossmouth. These files
+may not be sold.
+
+The clips' sound: music by George Buzinkai and Jonathan Perry; sound effects made in SFXR. From Spelunky
+Classic 1.1, Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC.
+EOF
+"$bin/wiki-clips" --app "$bin/app" --ffmpeg "$ffmpeg" --out "$out/clips" ${reuse:+--reuse "$reuse"} "$@"
+
+[ -n "$check" ] || exit 0
+# Not dot files, which are never the media's (.gitignore): Finder's .DS_Store, a stopped render's .scratch.
+if ! diff -rq -x '.*' "$media" "$out" >"$tmp/diff"; then
+  sed "s|$out|(rendered)|g" "$tmp/diff" | head -n 100 >&2
+  echo "scripts/wiki-media: wiki/media isn't what the media render ($(wc -l <"$tmp/diff" | tr -d ' ') differences): run scripts/wiki-media and commit it" >&2
+  exit 1
+fi
+echo "scripts/wiki-media: wiki/media is what the media render"

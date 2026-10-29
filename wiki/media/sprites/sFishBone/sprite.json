@@ -1,0 +1,42 @@
+{
+  "id": 510,
+  "name": "sFishBone",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 2,
+    "right": 7,
+    "bottom": 6
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sFishBone/strip.png",
+  "strip_scaled": "sFishBone/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sFishBone/frames/0.png",
+      "file_scaled": "sFishBone/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 7,
+        "bottom": 6
+      }
+    }
+  ],
+  "objects": [
+    "oFishBone"
+  ],
+  "used_by": [
+    "oFishBone",
+    "oPDummy",
+    "oPDummy2"
+  ]
+}

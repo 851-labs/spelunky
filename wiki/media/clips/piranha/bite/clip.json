@@ -1,0 +1,33 @@
+{
+  "id": "piranha/bite",
+  "title": "Piranhas bite",
+  "description": "The player drops into a pool, and the piranhas in it swim at him and bite, a heart at a time.",
+  "spec": "wiki/clips/piranha/bite.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 20,
+  "to": 109,
+  "frames": 90,
+  "fps": 30,
+  "duration": 3.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 55,
+  "frames_hash": "f5f8e846ec4ec90e",
+  "has_audio": true,
+  "audio_hash": "15fe9c1c4a30a1f3",
+  "encoding": "4b6e4203064c9e6c",
+  "files": {
+    "mp4": "piranha/bite/clip.mp4",
+    "webm": "piranha/bite/clip.webm",
+    "poster": "piranha/bite/poster.png",
+    "replay": "piranha/bite/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

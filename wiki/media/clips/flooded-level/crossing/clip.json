@@ -1,0 +1,32 @@
+{
+  "id": "flooded-level/crossing",
+  "title": "Across a flooded level",
+  "description": "A Jungle level loads flooded, with the message \"I CAN HEAR RUSHING WATER...\" The player crosses it above the lake that fills its bottom, and takes the exit, which stands on a strip of earth just above the water.",
+  "spec": "wiki/clips/flooded-level/crossing.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/flow-lake-jungle-seed-1.txt"
+  },
+  "from": 1110,
+  "to": 1560,
+  "frames": 451,
+  "fps": 30,
+  "duration": 15.033333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1500,
+  "frames_hash": "d899b9edd7a5e309",
+  "has_audio": true,
+  "audio_hash": "8ff7ddc23c65c147",
+  "encoding": "1bfbeea22ffba7a8",
+  "files": {
+    "mp4": "flooded-level/crossing/clip.mp4",
+    "webm": "flooded-level/crossing/clip.webm",
+    "poster": "flooded-level/crossing/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,42 @@
+{
+  "id": 884,
+  "name": "sAlienBossDead",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 22,
+    "right": 31,
+    "bottom": 31
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oAlienBoss",
+    "via": "uses",
+    "image_speed": 0.25
+  },
+  "strip": "sAlienBossDead/strip.png",
+  "strip_scaled": "sAlienBossDead/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sAlienBossDead/frames/0.png",
+      "file_scaled": "sAlienBossDead/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 22,
+        "right": 31,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oAlienBoss"
+  ]
+}

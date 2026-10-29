@@ -1,0 +1,42 @@
+{
+  "id": 778,
+  "name": "sDesertTop",
+  "width": 16,
+  "height": 17,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 13,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDesertTop/strip.png",
+  "strip_scaled": "sDesertTop/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sDesertTop/frames/0.png",
+      "file_scaled": "sDesertTop/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 13,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oDesertTop",
+    "oDesertTopScroll"
+  ],
+  "used_by": [
+    "oDesertTop",
+    "oDesertTopScroll"
+  ]
+}

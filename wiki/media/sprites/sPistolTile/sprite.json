@@ -1,0 +1,40 @@
+{
+  "id": 1232,
+  "name": "sPistolTile",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 3,
+    "top": 9,
+    "right": 11,
+    "bottom": 14
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sPistolTile/strip.png",
+  "strip_scaled": "sPistolTile/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sPistolTile/frames/0.png",
+      "file_scaled": "sPistolTile/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 9,
+        "right": 11,
+        "bottom": 14
+      }
+    }
+  ],
+  "objects": [
+    "oPistolTile"
+  ],
+  "used_by": [
+    "oPistolTile"
+  ]
+}

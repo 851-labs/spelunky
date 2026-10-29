@@ -1,0 +1,124 @@
+{
+  "id": 557,
+  "name": "sBubble",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 7,
+    "bottom": 6
+  },
+  "fps": 6.0,
+  "fps_source": {
+    "object": "oBubble",
+    "via": "sprite",
+    "image_speed": 0.2
+  },
+  "strip": "sBubble/strip.png",
+  "strip_scaled": "sBubble/strip@4x.png",
+  "anim": "sBubble/anim.png",
+  "anim_scaled": "sBubble/anim@4x.png",
+  "frames": [
+    {
+      "file": "sBubble/frames/0.png",
+      "file_scaled": "sBubble/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 3,
+        "right": 4,
+        "bottom": 4
+      }
+    },
+    {
+      "file": "sBubble/frames/1.png",
+      "file_scaled": "sBubble/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 5,
+        "bottom": 5
+      }
+    },
+    {
+      "file": "sBubble/frames/2.png",
+      "file_scaled": "sBubble/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBubble/frames/3.png",
+      "file_scaled": "sBubble/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 5,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBubble/frames/4.png",
+      "file_scaled": "sBubble/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBubble/frames/5.png",
+      "file_scaled": "sBubble/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 7,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBubble/frames/6.png",
+      "file_scaled": "sBubble/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBubble/frames/7.png",
+      "file_scaled": "sBubble/frames/7@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBubble/frames/8.png",
+      "file_scaled": "sBubble/frames/8@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 6
+      }
+    }
+  ],
+  "objects": [
+    "oBubble"
+  ],
+  "used_by": [
+    "oBubble"
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "id": 791,
+  "name": "sCrawlLeft",
+  "width": 20,
+  "height": 16,
+  "origin": {
+    "x": 9,
+    "y": 8
+  },
+  "bbox": {
+    "left": 0,
+    "top": 6,
+    "right": 17,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCrawlLeft/strip.png",
+  "strip_scaled": "sCrawlLeft/strip@4x.png",
+  "anim": "sCrawlLeft/anim.png",
+  "anim_scaled": "sCrawlLeft/anim@4x.png",
+  "frames": [
+    {
+      "file": "sCrawlLeft/frames/0.png",
+      "file_scaled": "sCrawlLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 7,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCrawlLeft/frames/1.png",
+      "file_scaled": "sCrawlLeft/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 6,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCrawlLeft/frames/2.png",
+      "file_scaled": "sCrawlLeft/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 6,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCrawlLeft/frames/3.png",
+      "file_scaled": "sCrawlLeft/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 7,
+        "right": 16,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCrawlLeft/frames/4.png",
+      "file_scaled": "sCrawlLeft/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 7,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCrawlLeft/frames/5.png",
+      "file_scaled": "sCrawlLeft/frames/5@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 7,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCrawlLeft/frames/6.png",
+      "file_scaled": "sCrawlLeft/frames/6@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 6,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCrawlLeft/frames/7.png",
+      "file_scaled": "sCrawlLeft/frames/7@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 6,
+        "right": 17,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCrawlLeft/frames/8.png",
+      "file_scaled": "sCrawlLeft/frames/8@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 7,
+        "right": 16,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sCrawlLeft/frames/9.png",
+      "file_scaled": "sCrawlLeft/frames/9@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 7,
+        "right": 16,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

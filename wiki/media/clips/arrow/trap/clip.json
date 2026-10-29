@@ -1,0 +1,32 @@
+{
+  "id": "arrow/trap",
+  "title": "Arrow trap",
+  "description": "The player climbs a ladder into an arrow trap's line of fire. The trap shoots an arrow that hits him with his last heart, and he dies.",
+  "spec": "wiki/clips/arrow/trap.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/action-skull-bomb-rope-arrow.txt"
+  },
+  "from": 1660,
+  "to": 1789,
+  "frames": 130,
+  "fps": 30,
+  "duration": 4.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1705,
+  "frames_hash": "4145c95af5237100",
+  "has_audio": true,
+  "audio_hash": "d3d240fd3cfae4b7",
+  "encoding": "91e6553d17ee8d54",
+  "files": {
+    "mp4": "arrow/trap/clip.mp4",
+    "webm": "arrow/trap/clip.webm",
+    "poster": "arrow/trap/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

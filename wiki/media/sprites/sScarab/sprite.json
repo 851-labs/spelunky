@@ -1,0 +1,64 @@
+{
+  "id": 1121,
+  "name": "sScarab",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 2,
+    "right": 13,
+    "bottom": 12
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oScarab",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sScarab/strip.png",
+  "strip_scaled": "sScarab/strip@4x.png",
+  "anim": "sScarab/anim.png",
+  "anim_scaled": "sScarab/anim@4x.png",
+  "frames": [
+    {
+      "file": "sScarab/frames/0.png",
+      "file_scaled": "sScarab/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 13,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sScarab/frames/1.png",
+      "file_scaled": "sScarab/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 13,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sScarab/frames/2.png",
+      "file_scaled": "sScarab/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 13,
+        "bottom": 12
+      }
+    }
+  ],
+  "objects": [
+    "oScarab"
+  ],
+  "used_by": [
+    "oScarab"
+  ]
+}

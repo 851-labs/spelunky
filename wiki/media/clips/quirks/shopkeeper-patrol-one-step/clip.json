@@ -1,0 +1,32 @@
+{
+  "id": "quirks/shopkeeper-patrol-one-step",
+  "title": "A patrolling Shopkeeper's walk lasts one step",
+  "description": "A Shopkeeper on patrol in open ground sets off walking, but his walk's check for a wall ahead sends him back to patrolling on the very next step. He coasts a few pixels to a stop, waits, and shuffles again, every second or so.",
+  "spec": "wiki/clips/quirks/shopkeeper-patrol-one-step.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-shopkeeper-patrol-one-step.txt"
+  },
+  "from": 241,
+  "to": 540,
+  "frames": 300,
+  "fps": 30,
+  "duration": 10.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 274,
+  "frames_hash": "797c75e9f02d294f",
+  "has_audio": true,
+  "audio_hash": "371881be1e897c72",
+  "encoding": "55a8007abac06c61",
+  "files": {
+    "mp4": "quirks/shopkeeper-patrol-one-step/clip.mp4",
+    "webm": "quirks/shopkeeper-patrol-one-step/clip.webm",
+    "poster": "quirks/shopkeeper-patrol-one-step/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

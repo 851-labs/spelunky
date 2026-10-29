@@ -1,0 +1,33 @@
+{
+  "id": "spring-shoes/jump",
+  "title": "Spring Shoes jump",
+  "description": "The player jumps at a ledge three blocks up and falls well short. He picks up spring shoes, jumps again, catches the ledge's edge, and climbs up to the gold bar on it, then jumps on the spot, nearly three blocks high, and lands unhurt.",
+  "spec": "wiki/clips/spring-shoes/jump.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 299,
+  "frames": 300,
+  "fps": 30,
+  "duration": 10.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 176,
+  "frames_hash": "dc034eb884fec397",
+  "has_audio": true,
+  "audio_hash": "ab1aa4f7900690c9",
+  "encoding": "4cbcab9632c5a9b6",
+  "files": {
+    "mp4": "spring-shoes/jump/clip.mp4",
+    "webm": "spring-shoes/jump/clip.webm",
+    "poster": "spring-shoes/jump/poster.png",
+    "replay": "spring-shoes/jump/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

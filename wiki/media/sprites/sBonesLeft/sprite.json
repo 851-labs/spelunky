@@ -1,0 +1,40 @@
+{
+  "id": 880,
+  "name": "sBonesLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 11,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBonesLeft/strip.png",
+  "strip_scaled": "sBonesLeft/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBonesLeft/frames/0.png",
+      "file_scaled": "sBonesLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 11,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oBones"
+  ],
+  "used_by": [
+    "oBones"
+  ]
+}

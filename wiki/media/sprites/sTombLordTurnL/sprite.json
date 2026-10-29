@@ -1,0 +1,102 @@
+{
+  "id": 1140,
+  "name": "sTombLordTurnL",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 4,
+    "top": 2,
+    "right": 27,
+    "bottom": 31
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oTombLord",
+    "via": "uses",
+    "image_speed": 0.25
+  },
+  "strip": "sTombLordTurnL/strip.png",
+  "strip_scaled": "sTombLordTurnL/strip@4x.png",
+  "anim": "sTombLordTurnL/anim.png",
+  "anim_scaled": "sTombLordTurnL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sTombLordTurnL/frames/0.png",
+      "file_scaled": "sTombLordTurnL/frames/0@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 2,
+        "right": 27,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordTurnL/frames/1.png",
+      "file_scaled": "sTombLordTurnL/frames/1@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 2,
+        "right": 26,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordTurnL/frames/2.png",
+      "file_scaled": "sTombLordTurnL/frames/2@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 2,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordTurnL/frames/3.png",
+      "file_scaled": "sTombLordTurnL/frames/3@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 2,
+        "right": 25,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordTurnL/frames/4.png",
+      "file_scaled": "sTombLordTurnL/frames/4@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 2,
+        "right": 23,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordTurnL/frames/5.png",
+      "file_scaled": "sTombLordTurnL/frames/5@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 2,
+        "right": 24,
+        "bottom": 31
+      }
+    },
+    {
+      "file": "sTombLordTurnL/frames/6.png",
+      "file_scaled": "sTombLordTurnL/frames/6@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 25,
+        "bottom": 31
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oTombLord"
+  ]
+}

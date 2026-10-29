@@ -1,0 +1,32 @@
+{
+  "id": "black-market-route/bomb",
+  "title": "A bomb in a Black Market shop",
+  "description": "In the Black Market, the player walks up to the Shopkeeper of Wang's Supply Shop and drops a lit bomb in the shop. \"TERRORIST!\": the Shopkeeper shoots him dead on the next step, and the market's other Shopkeepers are angered too.",
+  "spec": "wiki/clips/black-market-route/bomb.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-9-market-bomb.txt"
+  },
+  "from": 1140,
+  "to": 1239,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1188,
+  "frames_hash": "bc46a17fed4688d9",
+  "has_audio": true,
+  "audio_hash": "ed7d9d8fa3a97fc6",
+  "encoding": "0e36ff538f41878e",
+  "files": {
+    "mp4": "black-market-route/bomb/clip.mp4",
+    "webm": "black-market-route/bomb/clip.webm",
+    "poster": "black-market-route/bomb/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

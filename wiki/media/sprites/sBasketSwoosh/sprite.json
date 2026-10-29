@@ -1,0 +1,89 @@
+{
+  "id": 990,
+  "name": "sBasketSwoosh",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBasketSwoosh/strip.png",
+  "strip_scaled": "sBasketSwoosh/strip@4x.png",
+  "anim": "sBasketSwoosh/anim.png",
+  "anim_scaled": "sBasketSwoosh/anim@4x.png",
+  "frames": [
+    {
+      "file": "sBasketSwoosh/frames/0.png",
+      "file_scaled": "sBasketSwoosh/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sBasketSwoosh/frames/1.png",
+      "file_scaled": "sBasketSwoosh/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sBasketSwoosh/frames/2.png",
+      "file_scaled": "sBasketSwoosh/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sBasketSwoosh/frames/3.png",
+      "file_scaled": "sBasketSwoosh/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sBasketSwoosh/frames/4.png",
+      "file_scaled": "sBasketSwoosh/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sBasketSwoosh/frames/5.png",
+      "file_scaled": "sBasketSwoosh/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oBasket",
+    "oBasketball"
+  ]
+}

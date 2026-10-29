@@ -1,0 +1,41 @@
+{
+  "id": 515,
+  "name": "sSapphire",
+  "width": 4,
+  "height": 4,
+  "origin": {
+    "x": 2,
+    "y": 2
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 3,
+    "bottom": 3
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sSapphire/strip.png",
+  "strip_scaled": "sSapphire/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSapphire/frames/0.png",
+      "file_scaled": "sSapphire/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 3,
+        "bottom": 3
+      }
+    }
+  ],
+  "objects": [
+    "oSapphire"
+  ],
+  "used_by": [
+    "oSapphire",
+    "oTransition"
+  ]
+}

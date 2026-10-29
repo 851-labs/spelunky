@@ -1,0 +1,64 @@
+{
+  "id": 1208,
+  "name": "sLampRed",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oLampRed",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sLampRed/strip.png",
+  "strip_scaled": "sLampRed/strip@4x.png",
+  "anim": "sLampRed/anim.png",
+  "anim_scaled": "sLampRed/anim@4x.png",
+  "frames": [
+    {
+      "file": "sLampRed/frames/0.png",
+      "file_scaled": "sLampRed/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLampRed/frames/1.png",
+      "file_scaled": "sLampRed/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sLampRed/frames/2.png",
+      "file_scaled": "sLampRed/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oLampRed"
+  ],
+  "used_by": [
+    "oLampRed"
+  ]
+}

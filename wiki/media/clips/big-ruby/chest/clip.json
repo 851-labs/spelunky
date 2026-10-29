@@ -1,0 +1,32 @@
+{
+  "id": "big-ruby/chest",
+  "title": "A big ruby from a Chest",
+  "description": "The player opens a chest on a high ledge of the Tutorial. An emerald, a sapphire, a ruby and a big ruby spill out around his feet. He stands among them, collecting nothing, until 20 steps later he takes the big ruby and walks off; the small ruby, which fell off the ledge, he collects below.",
+  "spec": "wiki/clips/big-ruby/chest.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/movement-ladder-crawl.txt"
+  },
+  "from": 995,
+  "to": 1094,
+  "frames": 100,
+  "fps": 30,
+  "duration": 3.3333333333333335,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1024,
+  "frames_hash": "61b5e87a4b5ef4ad",
+  "has_audio": true,
+  "audio_hash": "cbf296cbb75f3cb4",
+  "encoding": "39f277267bbdb8b7",
+  "files": {
+    "mp4": "big-ruby/chest/clip.mp4",
+    "webm": "big-ruby/chest/clip.webm",
+    "poster": "big-ruby/chest/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

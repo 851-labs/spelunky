@@ -2,7 +2,7 @@
 //! previews, with JSON metadata and an object-to-sprites index.
 //!
 //! ```sh
-//! wiki-sprites --assets assets/ --out target/wiki-media/sprites [--scale 4]
+//! wiki-sprites --assets assets/ --out wiki/media/sprites [--scale 4]
 //! ```
 //!
 //! `scripts/wiki-sprites` runs it with those defaults. The input is what `scripts/extract` writes:

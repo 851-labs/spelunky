@@ -1,0 +1,33 @@
+{
+  "id": "damsel/throw",
+  "title": "Damsel whipped and thrown",
+  "description": "The player cracks the whip at a damsel: she cries out and hops, unhurt, and lies stunned where she lands. He picks her up and throws her; she lies stunned for 120 steps where she lands, then gets up and runs.",
+  "spec": "wiki/clips/damsel/throw.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 299,
+  "frames": 300,
+  "fps": 30,
+  "duration": 10.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 113,
+  "frames_hash": "1c80296864f0f490",
+  "has_audio": true,
+  "audio_hash": "3e5b0941e6a8cee6",
+  "encoding": "17a50bb5ac25124d",
+  "files": {
+    "mp4": "damsel/throw/clip.mp4",
+    "webm": "damsel/throw/clip.webm",
+    "poster": "damsel/throw/poster.png",
+    "replay": "damsel/throw/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

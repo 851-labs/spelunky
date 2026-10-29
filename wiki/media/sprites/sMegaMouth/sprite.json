@@ -1,0 +1,38 @@
+{
+  "id": 1268,
+  "name": "sMegaMouth",
+  "width": 64,
+  "height": 32,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 2,
+    "top": 1,
+    "right": 57,
+    "bottom": 30
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMegaMouth/strip.png",
+  "strip_scaled": "sMegaMouth/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMegaMouth/frames/0.png",
+      "file_scaled": "sMegaMouth/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 57,
+        "bottom": 30
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oTransition"
+  ]
+}

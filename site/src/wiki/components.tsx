@@ -59,7 +59,7 @@ export interface ClipProps {
 // (docs/wiki-license.md, Decisions). Played on request, not autoplayed: a page has several, and the prose
 // beside each says what it shows. So it needn't be muted: the reader's press on play is what browsers ask
 // before they play sound, and the native controls set its volume. One without sound is, so a phone doesn't
-// pause the reader's music for it. A clip the media haven't got yet (a new spec, before the next release
+// pause the reader's music for it. A clip the media haven't got (a new spec, before scripts/wiki-media
 // renders it) is its title and description in a box its size.
 export function Clip({ id, title, description, width, height, loop, audio, mp4, webm, poster, replay, from, seek }: ClipProps) {
   const anchor = `clip-${id.replaceAll("/", "-")}`;

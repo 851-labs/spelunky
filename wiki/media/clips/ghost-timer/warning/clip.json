@@ -1,0 +1,32 @@
+{
+  "id": "ghost-timer/warning",
+  "title": "The ghost's warning",
+  "description": "The player has stood still on a level of the Mines for 4,000 steps. A CHILL RUNS UP YOUR SPINE... LET'S GET OUT OF HERE! appears at the foot of the screen, and the music slows and deepens.",
+  "spec": "wiki/clips/ghost-timer/warning.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-ghost-seed-2.txt"
+  },
+  "from": 7600,
+  "to": 7779,
+  "frames": 180,
+  "fps": 30,
+  "duration": 6.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 7660,
+  "frames_hash": "ed1634e671b83718",
+  "has_audio": true,
+  "audio_hash": "5fb6cf6629558d2b",
+  "encoding": "55c1a2712a02f834",
+  "files": {
+    "mp4": "ghost-timer/warning/clip.mp4",
+    "webm": "ghost-timer/warning/clip.webm",
+    "poster": "ghost-timer/warning/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

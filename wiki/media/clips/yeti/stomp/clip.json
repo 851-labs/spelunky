@@ -1,0 +1,33 @@
+{
+  "id": "yeti/stomp",
+  "title": "Yeti stomped",
+  "description": "The player drops off a ledge onto a walking yeti, which falls stunned. About eight seconds later it gets up and walks on.",
+  "spec": "wiki/clips/yeti/stomp.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 20,
+  "to": 359,
+  "frames": 340,
+  "fps": 30,
+  "duration": 11.333333333333334,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 72,
+  "frames_hash": "386eb9c183de8a73",
+  "has_audio": true,
+  "audio_hash": "960d5fc034399ed7",
+  "encoding": "b2f04b9dc8929745",
+  "files": {
+    "mp4": "yeti/stomp/clip.mp4",
+    "webm": "yeti/stomp/clip.webm",
+    "poster": "yeti/stomp/poster.png",
+    "replay": "yeti/stomp/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

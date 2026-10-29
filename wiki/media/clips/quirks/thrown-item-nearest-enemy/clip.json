@@ -1,0 +1,32 @@
+{
+  "id": "quirks/thrown-item-nearest-enemy",
+  "title": "A thrown rock hurts the nearest enemy, not the one it hits",
+  "description": "The player throws a rock up at a spider and a bat hanging side by side. It hits the spider, but the bat dies: a fast thrown item hurts the enemy nearest to it, not the one it touched.",
+  "spec": "wiki/clips/quirks/thrown-item-nearest-enemy.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/action-throw-rock-nearest-enemy.txt"
+  },
+  "from": 241,
+  "to": 360,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 309,
+  "frames_hash": "b25d1e92faecb2f6",
+  "has_audio": true,
+  "audio_hash": "d961ddad6dd077a2",
+  "encoding": "6f02051eee7f9122",
+  "files": {
+    "mp4": "quirks/thrown-item-nearest-enemy/clip.mp4",
+    "webm": "quirks/thrown-item-nearest-enemy/clip.webm",
+    "poster": "quirks/thrown-item-nearest-enemy/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

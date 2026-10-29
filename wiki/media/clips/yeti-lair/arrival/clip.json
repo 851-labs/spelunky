@@ -1,0 +1,32 @@
+{
+  "id": "yeti-lair/arrival",
+  "title": "Arriving in a Yeti lair",
+  "description": "A Yeti lair loads, its blocks nearly all ice, with the message \"IT SMELLS LIKE WET FUR IN HERE!\" The player runs right from the entrance and drops into the Yeti King's room, where he whips a Yeti and the Yeti King starts to yell.",
+  "spec": "wiki/clips/yeti-lair/arrival.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-yeti-king-swat-seed-47.txt"
+  },
+  "from": 1689,
+  "to": 1780,
+  "frames": 92,
+  "fps": 30,
+  "duration": 3.066666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1765,
+  "frames_hash": "7f65acc94dd1f73d",
+  "has_audio": true,
+  "audio_hash": "3aa88ce23556720a",
+  "encoding": "4fba835a143530e5",
+  "files": {
+    "mp4": "yeti-lair/arrival/clip.mp4",
+    "webm": "yeti-lair/arrival/clip.webm",
+    "poster": "yeti-lair/arrival/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

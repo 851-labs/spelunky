@@ -1,21 +1,21 @@
 // The wiki's media (docs/wiki-media.md) as search engines see them: a clip's VideoObject and a sprite's
 // ImageObject for a page's JSON-LD, and which page shows which, for the video and image sitemaps
-// (sitemap.ts). The media are the pinned package's, read at build time (media-package.ts).
+// (sitemap.ts). The media are wiki/media's, read at build time (media-package.ts).
 //
 // A wiki page's nodes are made when the wiki is compiled (src/wiki/build/compile.ts's mediaJsonLd) and come
 // with the page: a route's code is the browser's too, so a route that imported "virtual:wiki-media" for its
 // head would put the whole index in every page's script. Only the sitemaps' routes, which are the Worker's
 // alone, import it (site/test.sh checks no browser script has it).
 //
-// Everything here takes the media as an argument, so site/test-media.mjs can run it on a stand-in package.
+// Everything here takes the media as an argument, so site/test-media.mjs can run it on stand-in media.
 import { imageObject, videoObject } from "./jsonld.ts";
 import type { JsonLd } from "./jsonld.ts";
 
-// What the pages need of the package's indexes. Paths are relative to the package, as in its JSON.
+// What the pages need of the media's indexes. Paths are relative to the media, as in their JSON.
 export interface WikiMedia {
-  // Where the package is served: /wiki/media/HASH (site/wiki-media.sh).
+  // Where the media are served: /wiki/media (site/build.sh).
   url: string;
-  // ISO 8601: when the pinned release was published (wiki-media.txt's `date`), every clip's uploadDate.
+  // ISO 8601: when the media last changed (the last commit to wiki/media, build.sh), every clip's uploadDate.
   date: string;
   // By id (snake/bite).
   clips: Record<string, MediaClip>;
@@ -46,7 +46,7 @@ export interface MediaSprite {
   anim: string | null;
 }
 
-// A file of the package, site-relative. Each segment is escaped: the asset store redirects a sprite's
+// A file of the media, site-relative. Each segment is escaped: the asset store redirects a sprite's
 // 0@4x.png to 0%404x.png (docs/web-deploy.md, "Wiki media"), so that's the URL that's a 200.
 export function mediaUrl(media: Pick<WikiMedia, "url">, file: string): string {
   return `${media.url}/${file.split("/").map(encodeURIComponent).join("/")}`;
@@ -64,9 +64,9 @@ export function mediaSprite(media: WikiMedia, name: string): MediaSprite {
   return sprite;
 }
 
-// "virtual:wiki-media" is null while site/wiki-media.txt pins no package, when a page can't show any.
+// "virtual:wiki-media" is null without the media (`vite dev`), when a page can't show any.
 function pinned(media: WikiMedia | null, what: string): WikiMedia {
-  if (!media) throw new Error(`no wiki media for ${what}: site/wiki-media.txt pins none`);
+  if (!media) throw new Error(`no wiki media for ${what}: the build had no WIKI_MEDIA_DIR`);
   return media;
 }
 
@@ -140,14 +140,14 @@ export interface PageSprite {
   anim?: boolean;
 }
 
-// The file of a sprite a page shows, in the package.
+// The file of a sprite a page shows, in the media.
 export function spriteFile(sprite: MediaSprite, anim = false): string {
   return (anim && sprite.anim) || sprite.image;
 }
 
 // Each page among `pages` that shows media, with its clips and sprites (each once, in the sources' order),
-// in the order of `pages`. A clip the package doesn't have is left out: a page may show a clip whose spec is
-// newer than the pinned media, which the next release renders (src/wiki/build/compile.ts warns of it). So is
+// in the order of `pages`. A clip the media don't have is left out: a page may show a clip whose spec has no
+// render yet, which scripts/check fails a pull request for (src/wiki/build/compile.ts warns of it). So is
 // a sprite it hasn't got or has no pixels of, which compile.ts fails the build for anyway.
 export function mediaOnPages(
   media: WikiMedia | null,

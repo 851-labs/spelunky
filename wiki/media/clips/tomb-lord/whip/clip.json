@@ -1,0 +1,33 @@
+{
+  "id": "tomb-lord/whip",
+  "title": "Tomb Lord whipped from above",
+  "description": "From a step one block above the floor, the player whips a tomb lord across the top of its head and takes a hit point. Then its flies reach him.",
+  "spec": "wiki/clips/tomb-lord/whip.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 119,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 10,
+  "frames_hash": "e6a3a72c961d5c47",
+  "has_audio": true,
+  "audio_hash": "1e9b555db125e3c5",
+  "encoding": "2af4d08bc1d3983d",
+  "files": {
+    "mp4": "tomb-lord/whip/clip.mp4",
+    "webm": "tomb-lord/whip/clip.webm",
+    "poster": "tomb-lord/whip/poster.png",
+    "replay": "tomb-lord/whip/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

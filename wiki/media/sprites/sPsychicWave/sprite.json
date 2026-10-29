@@ -1,0 +1,204 @@
+{
+  "id": 895,
+  "name": "sPsychicWave",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 1,
+    "right": 14,
+    "bottom": 14
+  },
+  "fps": 7.5,
+  "fps_source": {
+    "object": "oPsychicWave",
+    "via": "sprite",
+    "image_speed": 0.25
+  },
+  "strip": "sPsychicWave/strip.png",
+  "strip_scaled": "sPsychicWave/strip@4x.png",
+  "anim": "sPsychicWave/anim.png",
+  "anim_scaled": "sPsychicWave/anim@4x.png",
+  "frames": [
+    {
+      "file": "sPsychicWave/frames/0.png",
+      "file_scaled": "sPsychicWave/frames/0@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 7,
+        "right": 8,
+        "bottom": 8
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/1.png",
+      "file_scaled": "sPsychicWave/frames/1@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 6,
+        "right": 9,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/2.png",
+      "file_scaled": "sPsychicWave/frames/2@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 5,
+        "right": 10,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/3.png",
+      "file_scaled": "sPsychicWave/frames/3@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 3,
+        "right": 12,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/4.png",
+      "file_scaled": "sPsychicWave/frames/4@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 3,
+        "right": 12,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/5.png",
+      "file_scaled": "sPsychicWave/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/6.png",
+      "file_scaled": "sPsychicWave/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/7.png",
+      "file_scaled": "sPsychicWave/frames/7@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/8.png",
+      "file_scaled": "sPsychicWave/frames/8@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/9.png",
+      "file_scaled": "sPsychicWave/frames/9@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/10.png",
+      "file_scaled": "sPsychicWave/frames/10@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/11.png",
+      "file_scaled": "sPsychicWave/frames/11@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/12.png",
+      "file_scaled": "sPsychicWave/frames/12@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/13.png",
+      "file_scaled": "sPsychicWave/frames/13@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/14.png",
+      "file_scaled": "sPsychicWave/frames/14@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/15.png",
+      "file_scaled": "sPsychicWave/frames/15@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sPsychicWave/frames/16.png",
+      "file_scaled": "sPsychicWave/frames/16@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 14,
+        "bottom": 14
+      }
+    }
+  ],
+  "objects": [
+    "oPsychicWave"
+  ],
+  "used_by": [
+    "oPsychicWave"
+  ]
+}

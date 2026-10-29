@@ -1,0 +1,40 @@
+{
+  "id": 918,
+  "name": "sBullet",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 2,
+    "right": 5,
+    "bottom": 5
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBullet/strip.png",
+  "strip_scaled": "sBullet/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBullet/frames/0.png",
+      "file_scaled": "sBullet/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 5,
+        "bottom": 5
+      }
+    }
+  ],
+  "objects": [
+    "oBullet"
+  ],
+  "used_by": [
+    "oBullet"
+  ]
+}

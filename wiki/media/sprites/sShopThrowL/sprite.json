@@ -1,0 +1,102 @@
+{
+  "id": 921,
+  "name": "sShopThrowL",
+  "width": 24,
+  "height": 16,
+  "origin": {
+    "x": 4,
+    "y": 0
+  },
+  "bbox": {
+    "left": 4,
+    "top": 0,
+    "right": 22,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oShopkeeper",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sShopThrowL/strip.png",
+  "strip_scaled": "sShopThrowL/strip@4x.png",
+  "anim": "sShopThrowL/anim.png",
+  "anim_scaled": "sShopThrowL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sShopThrowL/frames/0.png",
+      "file_scaled": "sShopThrowL/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 1,
+        "right": 19,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sShopThrowL/frames/1.png",
+      "file_scaled": "sShopThrowL/frames/1@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 1,
+        "right": 20,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sShopThrowL/frames/2.png",
+      "file_scaled": "sShopThrowL/frames/2@4x.png",
+      "bbox": {
+        "left": 7,
+        "top": 1,
+        "right": 22,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sShopThrowL/frames/3.png",
+      "file_scaled": "sShopThrowL/frames/3@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 16,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sShopThrowL/frames/4.png",
+      "file_scaled": "sShopThrowL/frames/4@4x.png",
+      "bbox": {
+        "left": 5,
+        "top": 0,
+        "right": 16,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sShopThrowL/frames/5.png",
+      "file_scaled": "sShopThrowL/frames/5@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sShopThrowL/frames/6.png",
+      "file_scaled": "sShopThrowL/frames/6@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oShopkeeper"
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "id": 1420,
+  "name": "sTunnelExit",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTunnelExit/strip.png",
+  "strip_scaled": "sTunnelExit/strip@4x.png",
+  "anim": "sTunnelExit/anim.png",
+  "anim_scaled": "sTunnelExit/anim@4x.png",
+  "frames": [
+    {
+      "file": "sTunnelExit/frames/0.png",
+      "file_scaled": "sTunnelExit/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/1.png",
+      "file_scaled": "sTunnelExit/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/2.png",
+      "file_scaled": "sTunnelExit/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/3.png",
+      "file_scaled": "sTunnelExit/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/4.png",
+      "file_scaled": "sTunnelExit/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/5.png",
+      "file_scaled": "sTunnelExit/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/6.png",
+      "file_scaled": "sTunnelExit/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/7.png",
+      "file_scaled": "sTunnelExit/frames/7@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/8.png",
+      "file_scaled": "sTunnelExit/frames/8@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/9.png",
+      "file_scaled": "sTunnelExit/frames/9@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/10.png",
+      "file_scaled": "sTunnelExit/frames/10@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/11.png",
+      "file_scaled": "sTunnelExit/frames/11@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/12.png",
+      "file_scaled": "sTunnelExit/frames/12@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/13.png",
+      "file_scaled": "sTunnelExit/frames/13@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 4,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/14.png",
+      "file_scaled": "sTunnelExit/frames/14@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sTunnelExit/frames/15.png",
+      "file_scaled": "sTunnelExit/frames/15@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1",
+    "oPDummy",
+    "oPDummy2",
+    "oBullet",
+    "oCape",
+    "oFly"
+  ]
+}

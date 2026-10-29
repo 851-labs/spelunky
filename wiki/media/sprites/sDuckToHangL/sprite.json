@@ -1,0 +1,119 @@
+{
+  "id": 825,
+  "name": "sDuckToHangL",
+  "width": 32,
+  "height": 32,
+  "origin": {
+    "x": 24,
+    "y": 8
+  },
+  "bbox": {
+    "left": 8,
+    "top": 1,
+    "right": 31,
+    "bottom": 28
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sDuckToHangL/strip.png",
+  "strip_scaled": "sDuckToHangL/strip@4x.png",
+  "anim": "sDuckToHangL/anim.png",
+  "anim_scaled": "sDuckToHangL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sDuckToHangL/frames/0.png",
+      "file_scaled": "sDuckToHangL/frames/0@4x.png",
+      "bbox": {
+        "left": 17,
+        "top": 7,
+        "right": 31,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDuckToHangL/frames/1.png",
+      "file_scaled": "sDuckToHangL/frames/1@4x.png",
+      "bbox": {
+        "left": 16,
+        "top": 4,
+        "right": 30,
+        "bottom": 16
+      }
+    },
+    {
+      "file": "sDuckToHangL/frames/2.png",
+      "file_scaled": "sDuckToHangL/frames/2@4x.png",
+      "bbox": {
+        "left": 13,
+        "top": 2,
+        "right": 26,
+        "bottom": 16
+      }
+    },
+    {
+      "file": "sDuckToHangL/frames/3.png",
+      "file_scaled": "sDuckToHangL/frames/3@4x.png",
+      "bbox": {
+        "left": 8,
+        "top": 1,
+        "right": 24,
+        "bottom": 16
+      }
+    },
+    {
+      "file": "sDuckToHangL/frames/4.png",
+      "file_scaled": "sDuckToHangL/frames/4@4x.png",
+      "bbox": {
+        "left": 13,
+        "top": 2,
+        "right": 26,
+        "bottom": 16
+      }
+    },
+    {
+      "file": "sDuckToHangL/frames/5.png",
+      "file_scaled": "sDuckToHangL/frames/5@4x.png",
+      "bbox": {
+        "left": 9,
+        "top": 5,
+        "right": 24,
+        "bottom": 14
+      }
+    },
+    {
+      "file": "sDuckToHangL/frames/6.png",
+      "file_scaled": "sDuckToHangL/frames/6@4x.png",
+      "bbox": {
+        "left": 11,
+        "top": 5,
+        "right": 23,
+        "bottom": 20
+      }
+    },
+    {
+      "file": "sDuckToHangL/frames/7.png",
+      "file_scaled": "sDuckToHangL/frames/7@4x.png",
+      "bbox": {
+        "left": 11,
+        "top": 9,
+        "right": 23,
+        "bottom": 24
+      }
+    },
+    {
+      "file": "sDuckToHangL/frames/8.png",
+      "file_scaled": "sDuckToHangL/frames/8@4x.png",
+      "bbox": {
+        "left": 10,
+        "top": 13,
+        "right": 23,
+        "bottom": 28
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1",
+    "oArrowTrapTest"
+  ]
+}

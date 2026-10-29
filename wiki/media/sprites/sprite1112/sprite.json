@@ -1,0 +1,36 @@
+{
+  "id": 1112,
+  "name": "sprite1112",
+  "width": 480,
+  "height": 240,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 479,
+    "bottom": 239
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sprite1112/strip.png",
+  "strip_scaled": "sprite1112/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sprite1112/frames/0.png",
+      "file_scaled": "sprite1112/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 479,
+        "bottom": 239
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

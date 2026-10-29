@@ -1,0 +1,42 @@
+{
+  "id": 543,
+  "name": "sCavemanDieLL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 1,
+    "top": 0,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oCaveman",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sCavemanDieLL/strip.png",
+  "strip_scaled": "sCavemanDieLL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCavemanDieLL/frames/0.png",
+      "file_scaled": "sCavemanDieLL/frames/0@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 0,
+        "right": 14,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oCaveman"
+  ]
+}

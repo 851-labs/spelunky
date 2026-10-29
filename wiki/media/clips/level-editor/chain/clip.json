@@ -1,0 +1,32 @@
+{
+  "id": "level-editor/chain",
+  "title": "A chain of custom levels",
+  "description": "After the first level's tally, its next level, SECOND, loads, and the player starts at the entrance named for the level he left. He takes the first exit, named THIRD, and after SECOND COMPLETED! the level THIRD loads in place of SECOND's own next level.",
+  "spec": "wiki/clips/level-editor/chain.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/custom-chain-end.txt"
+  },
+  "from": 390,
+  "to": 620,
+  "frames": 231,
+  "fps": 30,
+  "duration": 7.7,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 430,
+  "frames_hash": "a5a15a521624d6c9",
+  "has_audio": true,
+  "audio_hash": "b7621c23a0202630",
+  "encoding": "9386c647b54aad3c",
+  "files": {
+    "mp4": "level-editor/chain/clip.mp4",
+    "webm": "level-editor/chain/clip.webm",
+    "poster": "level-editor/chain/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

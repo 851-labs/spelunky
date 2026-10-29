@@ -1,8 +1,8 @@
 // The source viewer's build (docs/wiki-media.md, "Source"): the game's GML, a page per script and object event
-// at /wiki/source/<path> (src/routes/wiki/source/), from the gml/ tree in the wiki's media package, which
-// scripts/wiki-media-package copies from scripts/extract's. The site's build can't extract it (Workers Builds
-// has no Rust), as it can't render the clips. A package from before the viewer has no gml/, and then nor
-// does the site: no /wiki/source pages, as without the media.
+// at /wiki/source/<path> (src/routes/wiki/source/), from the gml/ tree in the wiki's media (wiki/media), which
+// scripts/wiki-media copies from scripts/extract's. The site's build can't extract it (Workers Builds has no
+// Rust), as it can't render the clips. Media without a gml/ (a stand-in's) give the site no /wiki/source pages,
+// as no media do.
 //
 // The Vite plugin highlights every file once (gml-highlight.ts) and serves them as virtual modules, which the
 // routes import when they load, so no other page carries them:

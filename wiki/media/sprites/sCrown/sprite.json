@@ -1,0 +1,40 @@
+{
+  "id": 1150,
+  "name": "sCrown",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCrown/strip.png",
+  "strip_scaled": "sCrown/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sCrown/frames/0.png",
+      "file_scaled": "sCrown/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oCrown"
+  ],
+  "used_by": [
+    "oCrown"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "gold-nugget/shopkeeper",
+  "title": "Shopkeeper's gold nuggets",
+  "description": "A bomb the player set down kills a shopkeeper in his shop and costs the player a heart. The shopkeeper leaves four gold nuggets on the floor; the player walks over two of them, and his money counts up by $1,000 while he throws another bomb up at the ceiling.",
+  "spec": "wiki/clips/gold-nugget/shopkeeper.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-22-red-lamp.txt"
+  },
+  "from": 1295,
+  "to": 1504,
+  "frames": 210,
+  "fps": 30,
+  "duration": 7.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1330,
+  "frames_hash": "4eb5e2835189f9c2",
+  "has_audio": true,
+  "audio_hash": "373606ff12a89b2d",
+  "encoding": "6ffe6f6ced92da7a",
+  "files": {
+    "mp4": "gold-nugget/shopkeeper/clip.mp4",
+    "webm": "gold-nugget/shopkeeper/clip.webm",
+    "poster": "gold-nugget/shopkeeper/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

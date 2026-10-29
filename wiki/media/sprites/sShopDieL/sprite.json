@@ -1,0 +1,42 @@
+{
+  "id": 903,
+  "name": "sShopDieL",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 9,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oShopkeeper",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sShopDieL/strip.png",
+  "strip_scaled": "sShopDieL/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sShopDieL/frames/0.png",
+      "file_scaled": "sShopDieL/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 9,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oShopkeeper"
+  ]
+}

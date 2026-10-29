@@ -1,0 +1,32 @@
+{
+  "id": "kalis-altar/defile",
+  "title": "Kali's altar defiled",
+  "description": "In the Mines, the player drops a bomb beside Kali's altar and jumps clear over it. The blast destroys the altar: \"YOU DARE DEFILE MY ALTAR? I WILL PUNISH YOU!\", and six spiders spill out of the statue's head.",
+  "spec": "wiki/clips/kalis-altar/defile.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/weapon-seed-38-web-cannon.txt"
+  },
+  "from": 1370,
+  "to": 1560,
+  "frames": 191,
+  "fps": 30,
+  "duration": 6.366666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1512,
+  "frames_hash": "e08fa12794c24aca",
+  "has_audio": true,
+  "audio_hash": "fcb653f54f07c9b9",
+  "encoding": "6b9eccadb6115be7",
+  "files": {
+    "mp4": "kalis-altar/defile/clip.mp4",
+    "webm": "kalis-altar/defile/clip.webm",
+    "poster": "kalis-altar/defile/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

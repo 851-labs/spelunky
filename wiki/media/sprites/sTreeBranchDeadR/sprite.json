@@ -1,0 +1,38 @@
+{
+  "id": 1070,
+  "name": "sTreeBranchDeadR",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 9
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTreeBranchDeadR/strip.png",
+  "strip_scaled": "sTreeBranchDeadR/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sTreeBranchDeadR/frames/0.png",
+      "file_scaled": "sTreeBranchDeadR/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 9
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oTreeBranch"
+  ]
+}

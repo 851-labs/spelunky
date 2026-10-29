@@ -1,0 +1,198 @@
+{
+  "id": 1349,
+  "name": "sDamselExit2",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 13,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oDamsel",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sDamselExit2/strip.png",
+  "strip_scaled": "sDamselExit2/strip@4x.png",
+  "anim": "sDamselExit2/anim.png",
+  "anim_scaled": "sDamselExit2/anim@4x.png",
+  "frames": [
+    {
+      "file": "sDamselExit2/frames/0.png",
+      "file_scaled": "sDamselExit2/frames/0@4x.png",
+      "bbox": null
+    },
+    {
+      "file": "sDamselExit2/frames/1.png",
+      "file_scaled": "sDamselExit2/frames/1@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/2.png",
+      "file_scaled": "sDamselExit2/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/3.png",
+      "file_scaled": "sDamselExit2/frames/3@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/4.png",
+      "file_scaled": "sDamselExit2/frames/4@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/5.png",
+      "file_scaled": "sDamselExit2/frames/5@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/6.png",
+      "file_scaled": "sDamselExit2/frames/6@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/7.png",
+      "file_scaled": "sDamselExit2/frames/7@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 1,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/8.png",
+      "file_scaled": "sDamselExit2/frames/8@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/9.png",
+      "file_scaled": "sDamselExit2/frames/9@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/10.png",
+      "file_scaled": "sDamselExit2/frames/10@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/11.png",
+      "file_scaled": "sDamselExit2/frames/11@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/12.png",
+      "file_scaled": "sDamselExit2/frames/12@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/13.png",
+      "file_scaled": "sDamselExit2/frames/13@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/14.png",
+      "file_scaled": "sDamselExit2/frames/14@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/15.png",
+      "file_scaled": "sDamselExit2/frames/15@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 3,
+        "right": 13,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sDamselExit2/frames/16.png",
+      "file_scaled": "sDamselExit2/frames/16@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 13,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1",
+    "oDamsel"
+  ]
+}

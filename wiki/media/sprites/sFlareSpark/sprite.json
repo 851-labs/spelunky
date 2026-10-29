@@ -1,0 +1,84 @@
+{
+  "id": 816,
+  "name": "sFlareSpark",
+  "width": 4,
+  "height": 4,
+  "origin": {
+    "x": 2,
+    "y": 2
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 3,
+    "bottom": 3
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oFlareSpark",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sFlareSpark/strip.png",
+  "strip_scaled": "sFlareSpark/strip@4x.png",
+  "anim": "sFlareSpark/anim.png",
+  "anim_scaled": "sFlareSpark/anim@4x.png",
+  "frames": [
+    {
+      "file": "sFlareSpark/frames/0.png",
+      "file_scaled": "sFlareSpark/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 3,
+        "bottom": 3
+      }
+    },
+    {
+      "file": "sFlareSpark/frames/1.png",
+      "file_scaled": "sFlareSpark/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 3,
+        "bottom": 3
+      }
+    },
+    {
+      "file": "sFlareSpark/frames/2.png",
+      "file_scaled": "sFlareSpark/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 2,
+        "bottom": 2
+      }
+    },
+    {
+      "file": "sFlareSpark/frames/3.png",
+      "file_scaled": "sFlareSpark/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 2,
+        "bottom": 1
+      }
+    },
+    {
+      "file": "sFlareSpark/frames/4.png",
+      "file_scaled": "sFlareSpark/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 3,
+        "bottom": 0
+      }
+    }
+  ],
+  "objects": [
+    "oFlareSpark"
+  ],
+  "used_by": [
+    "oFlareSpark"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "skeleton/whip",
+  "title": "Skeleton whipped apart",
+  "description": "A skeleton walks at the player, who whips it once: it falls apart into three bones and a skull, which shatters as it lands.",
+  "spec": "wiki/clips/skeleton/whip.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 70,
+  "to": 179,
+  "frames": 110,
+  "fps": 30,
+  "duration": 3.6666666666666665,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 140,
+  "frames_hash": "8d746faa70eeed83",
+  "has_audio": true,
+  "audio_hash": "104bb369f4439639",
+  "encoding": "59ec7b3d1fd5d267",
+  "files": {
+    "mp4": "skeleton/whip/clip.mp4",
+    "webm": "skeleton/whip/clip.webm",
+    "poster": "skeleton/whip/poster.png",
+    "replay": "skeleton/whip/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

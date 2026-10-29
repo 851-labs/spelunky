@@ -1,0 +1,47 @@
+{
+  "id": 1305,
+  "name": "sVampireLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 2,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oVampire",
+    "via": "sprite",
+    "image_speed": 0.5
+  },
+  "strip": "sVampireLeft/strip.png",
+  "strip_scaled": "sVampireLeft/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sVampireLeft/frames/0.png",
+      "file_scaled": "sVampireLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [
+    "oVampire",
+    "oVampireTile"
+  ],
+  "used_by": [
+    "oTransition",
+    "oVampire",
+    "oVampireTile"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "spike-shoes/stomp",
+  "title": "Spike Shoes stomp a caveman",
+  "description": "Out of a shop with stolen spike shoes still in his hands, the player drops them and picks them up again, which puts them on. Then he drops onto a caveman just as it gets up from being stunned, and the one stomp kills it.",
+  "spec": "wiki/clips/spike-shoes/stomp.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/item-seed-7-spike-stomp.txt"
+  },
+  "from": 1450,
+  "to": 1559,
+  "frames": 110,
+  "fps": 30,
+  "duration": 3.6666666666666665,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1522,
+  "frames_hash": "9320767613812304",
+  "has_audio": true,
+  "audio_hash": "c776975134d80580",
+  "encoding": "d74202388e13bcbd",
+  "files": {
+    "mp4": "spike-shoes/stomp/clip.mp4",
+    "webm": "spike-shoes/stomp/clip.webm",
+    "poster": "spike-shoes/stomp/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

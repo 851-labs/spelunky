@@ -1,0 +1,36 @@
+{
+  "id": 531,
+  "name": "sTempleRight",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 1,
+    "bottom": 14
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sTempleRight/strip.png",
+  "strip_scaled": "sTempleRight/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sTempleRight/frames/0.png",
+      "file_scaled": "sTempleRight/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 1,
+        "bottom": 14
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": []
+}

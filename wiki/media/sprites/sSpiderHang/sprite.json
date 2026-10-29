@@ -1,0 +1,46 @@
+{
+  "id": 354,
+  "name": "sSpiderHang",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 9
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oSpiderHang",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sSpiderHang/strip.png",
+  "strip_scaled": "sSpiderHang/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sSpiderHang/frames/0.png",
+      "file_scaled": "sSpiderHang/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 9
+      }
+    }
+  ],
+  "objects": [
+    "oSpiderHang",
+    "oSpiderTile"
+  ],
+  "used_by": [
+    "oSpiderHang",
+    "oSpiderTile"
+  ]
+}

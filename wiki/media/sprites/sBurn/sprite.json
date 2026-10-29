@@ -1,0 +1,121 @@
+{
+  "id": 708,
+  "name": "sBurn",
+  "width": 8,
+  "height": 16,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 1,
+    "right": 7,
+    "bottom": 14
+  },
+  "fps": 12.0,
+  "fps_source": {
+    "object": "oBurn",
+    "via": "sprite",
+    "image_speed": 0.4
+  },
+  "strip": "sBurn/strip.png",
+  "strip_scaled": "sBurn/strip@4x.png",
+  "anim": "sBurn/anim.png",
+  "anim_scaled": "sBurn/anim@4x.png",
+  "frames": [
+    {
+      "file": "sBurn/frames/0.png",
+      "file_scaled": "sBurn/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 6,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sBurn/frames/1.png",
+      "file_scaled": "sBurn/frames/1@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 14
+      }
+    },
+    {
+      "file": "sBurn/frames/2.png",
+      "file_scaled": "sBurn/frames/2@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 1,
+        "right": 6,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sBurn/frames/3.png",
+      "file_scaled": "sBurn/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 7,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sBurn/frames/4.png",
+      "file_scaled": "sBurn/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 7,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sBurn/frames/5.png",
+      "file_scaled": "sBurn/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 4,
+        "right": 6,
+        "bottom": 11
+      }
+    },
+    {
+      "file": "sBurn/frames/6.png",
+      "file_scaled": "sBurn/frames/6@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 4,
+        "right": 5,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sBurn/frames/7.png",
+      "file_scaled": "sBurn/frames/7@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 4,
+        "right": 4,
+        "bottom": 6
+      }
+    },
+    {
+      "file": "sBurn/frames/8.png",
+      "file_scaled": "sBurn/frames/8@4x.png",
+      "bbox": null
+    }
+  ],
+  "objects": [
+    "oBurn",
+    "oRopeBurn"
+  ],
+  "used_by": [
+    "oBurn",
+    "oRopeBurn"
+  ]
+}

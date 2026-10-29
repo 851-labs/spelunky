@@ -1,0 +1,232 @@
+{
+  "id": 594,
+  "name": "sUFOBlast",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 15,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oUFO",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sUFOBlast/strip.png",
+  "strip_scaled": "sUFOBlast/strip@4x.png",
+  "anim": "sUFOBlast/anim.png",
+  "anim_scaled": "sUFOBlast/anim@4x.png",
+  "frames": [
+    {
+      "file": "sUFOBlast/frames/0.png",
+      "file_scaled": "sUFOBlast/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/1.png",
+      "file_scaled": "sUFOBlast/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/2.png",
+      "file_scaled": "sUFOBlast/frames/2@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/3.png",
+      "file_scaled": "sUFOBlast/frames/3@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/4.png",
+      "file_scaled": "sUFOBlast/frames/4@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/5.png",
+      "file_scaled": "sUFOBlast/frames/5@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/6.png",
+      "file_scaled": "sUFOBlast/frames/6@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/7.png",
+      "file_scaled": "sUFOBlast/frames/7@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/8.png",
+      "file_scaled": "sUFOBlast/frames/8@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/9.png",
+      "file_scaled": "sUFOBlast/frames/9@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/10.png",
+      "file_scaled": "sUFOBlast/frames/10@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/11.png",
+      "file_scaled": "sUFOBlast/frames/11@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/12.png",
+      "file_scaled": "sUFOBlast/frames/12@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/13.png",
+      "file_scaled": "sUFOBlast/frames/13@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 14
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/14.png",
+      "file_scaled": "sUFOBlast/frames/14@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/15.png",
+      "file_scaled": "sUFOBlast/frames/15@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/16.png",
+      "file_scaled": "sUFOBlast/frames/16@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/17.png",
+      "file_scaled": "sUFOBlast/frames/17@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 1,
+        "right": 15,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/18.png",
+      "file_scaled": "sUFOBlast/frames/18@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sUFOBlast/frames/19.png",
+      "file_scaled": "sUFOBlast/frames/19@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 2,
+        "right": 15,
+        "bottom": 13
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oUFO"
+  ]
+}

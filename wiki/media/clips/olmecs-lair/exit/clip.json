@@ -1,0 +1,32 @@
+{
+  "id": "olmecs-lair/exit",
+  "title": "Leaving Olmec's Lair",
+  "description": "Olmec, sunk in the lava, dies, and the door at the right end of the lair's hall opens. The player climbs out of the shaft his slams dug on ropes, runs along the hall to the door and goes through it to the ending.",
+  "spec": "wiki/clips/olmecs-lair/exit.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/ending-seed-1.txt"
+  },
+  "from": 5180,
+  "to": 5700,
+  "frames": 521,
+  "fps": 30,
+  "duration": 17.366666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 5600,
+  "frames_hash": "224aebc718f63b0a",
+  "has_audio": true,
+  "audio_hash": "022219deca48a765",
+  "encoding": "e421c0d47d3ec0f8",
+  "files": {
+    "mp4": "olmecs-lair/exit/clip.mp4",
+    "webm": "olmecs-lair/exit/clip.webm",
+    "poster": "olmecs-lair/exit/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

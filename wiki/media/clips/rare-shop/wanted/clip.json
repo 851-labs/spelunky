@@ -1,0 +1,32 @@
+{
+  "id": "rare-shop/wanted",
+  "title": "A Rare Shop on a thief's next level",
+  "description": "On the level after the player stole from a shop, a Rare Shop has a Wanted poster of him on its wall. Its shopkeeper doesn't greet him, but leaves his place and walks about the shop.",
+  "spec": "wiki/clips/rare-shop/wanted.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-3-thief-next-level.txt"
+  },
+  "from": 1660,
+  "to": 1779,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1700,
+  "frames_hash": "bcc0720d2330a16c",
+  "has_audio": true,
+  "audio_hash": "f96387f906ff6ee2",
+  "encoding": "73094b91bb9132b4",
+  "files": {
+    "mp4": "rare-shop/wanted/clip.mp4",
+    "webm": "rare-shop/wanted/clip.webm",
+    "poster": "rare-shop/wanted/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

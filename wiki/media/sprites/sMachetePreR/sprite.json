@@ -1,0 +1,41 @@
+{
+  "id": 969,
+  "name": "sMachetePreR",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 9,
+    "top": 0,
+    "right": 15,
+    "bottom": 8
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sMachetePreR/strip.png",
+  "strip_scaled": "sMachetePreR/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sMachetePreR/frames/0.png",
+      "file_scaled": "sMachetePreR/frames/0@4x.png",
+      "bbox": {
+        "left": 9,
+        "top": 0,
+        "right": 15,
+        "bottom": 8
+      }
+    }
+  ],
+  "objects": [
+    "oMachetePre"
+  ],
+  "used_by": [
+    "oPlayer1",
+    "oMachetePre"
+  ]
+}

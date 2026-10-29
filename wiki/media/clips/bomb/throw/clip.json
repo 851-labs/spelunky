@@ -1,0 +1,32 @@
+{
+  "id": "bomb/throw",
+  "title": "Bomb thrown at a snake",
+  "description": "The player throws a bomb along the floor ahead of a snake walking his way. It rolls to a stop, flashes, and explodes as the snake reaches it, killing it.",
+  "spec": "wiki/clips/bomb/throw.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/action-skull-bomb-rope-arrow.txt"
+  },
+  "from": 1425,
+  "to": 1574,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1556,
+  "frames_hash": "469ba5218cb1b9de",
+  "has_audio": true,
+  "audio_hash": "ed59336529bff806",
+  "encoding": "d125b6314ea29a09",
+  "files": {
+    "mp4": "bomb/throw/clip.mp4",
+    "webm": "bomb/throw/clip.webm",
+    "poster": "bomb/throw/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

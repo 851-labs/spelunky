@@ -1,0 +1,41 @@
+{
+  "id": 513,
+  "name": "sRuby",
+  "width": 4,
+  "height": 4,
+  "origin": {
+    "x": 2,
+    "y": 2
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 3,
+    "bottom": 3
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sRuby/strip.png",
+  "strip_scaled": "sRuby/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sRuby/frames/0.png",
+      "file_scaled": "sRuby/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 3,
+        "bottom": 3
+      }
+    }
+  ],
+  "objects": [
+    "oRuby"
+  ],
+  "used_by": [
+    "oRuby",
+    "oTransition"
+  ]
+}

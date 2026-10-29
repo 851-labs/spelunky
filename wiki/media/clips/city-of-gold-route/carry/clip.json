@@ -1,0 +1,32 @@
+{
+  "id": "city-of-gold-route/carry",
+  "title": "Carrying the Sceptre to level 14",
+  "description": "Holding the Sceptre, the player takes level 13's exit. After the screen between levels, level 14 loads with the Sceptre still in his hands.",
+  "spec": "wiki/clips/city-of-gold-route/carry.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-9.txt"
+  },
+  "from": 6400,
+  "to": 6560,
+  "frames": 161,
+  "fps": 30,
+  "duration": 5.366666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 6530,
+  "frames_hash": "f13b5ceae73414ec",
+  "has_audio": true,
+  "audio_hash": "6c9fba2606eda7ab",
+  "encoding": "3a19788e95aabbf9",
+  "files": {
+    "mp4": "city-of-gold-route/carry/clip.mp4",
+    "webm": "city-of-gold-route/carry/clip.webm",
+    "poster": "city-of-gold-route/carry/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

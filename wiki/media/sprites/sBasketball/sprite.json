@@ -1,0 +1,40 @@
+{
+  "id": 992,
+  "name": "sBasketball",
+  "width": 8,
+  "height": 8,
+  "origin": {
+    "x": 4,
+    "y": 4
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 7,
+    "bottom": 7
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sBasketball/strip.png",
+  "strip_scaled": "sBasketball/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sBasketball/frames/0.png",
+      "file_scaled": "sBasketball/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 7,
+        "bottom": 7
+      }
+    }
+  ],
+  "objects": [
+    "oBasketball"
+  ],
+  "used_by": [
+    "oBasketball"
+  ]
+}

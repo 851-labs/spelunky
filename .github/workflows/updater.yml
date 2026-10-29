@@ -35,9 +35,16 @@ jobs:
       "Linux x64": "ubuntu-24.04", "Linux ARM64": "ubuntu-24.04-arm"}')[matrix.os] }}
     timeout-minutes: 30
     steps:
+      # Everything but the wiki's media (docs/wiki-media.md), which the updater doesn't need: about 200 MB a
+      # fresh machine would otherwise download. A partial clone, so their files aren't fetched at all.
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
       # rust-toolchain.toml's toolchain (its wasm targets come along; they're small).
       - run: rustup toolchain install --no-self-update
         shell: bash

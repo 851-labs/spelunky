@@ -1,0 +1,32 @@
+{
+  "id": "quirks/xoc-statue-in-sacrifice-pit",
+  "title": "The Lady Xoc statue in a sacrifice pit",
+  "description": "The City of Gold's Lady Xoc statue took the third room of a sacrifice pit's shaft. The player lifts the pit's golden idol, the floor under it gives way, and he falls a room down onto the statue, not three rooms down into the pit's lava.",
+  "spec": "wiki/clips/quirks/xoc-statue-in-sacrifice-pit.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/city-of-gold-seed-9-xoc-pit.txt"
+  },
+  "from": 7520,
+  "to": 7650,
+  "frames": 131,
+  "fps": 30,
+  "duration": 4.366666666666666,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 7600,
+  "frames_hash": "c011fa33c5ace447",
+  "has_audio": true,
+  "audio_hash": "d720e10e73a11749",
+  "encoding": "e686b21beccaec95",
+  "files": {
+    "mp4": "quirks/xoc-statue-in-sacrifice-pit/clip.mp4",
+    "webm": "quirks/xoc-statue-in-sacrifice-pit/clip.webm",
+    "poster": "quirks/xoc-statue-in-sacrifice-pit/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

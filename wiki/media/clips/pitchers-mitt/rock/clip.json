@@ -1,0 +1,33 @@
+{
+  "id": "pitchers-mitt/rock",
+  "title": "Pitcher's Mitt standing throw",
+  "description": "The player throws a rock along a corridor; it arcs and rolls to a stop. He puts on a pitcher's mitt, picks the rock up and throws it again: it leaves almost twice as fast, flat along the floor, and stops sooner.",
+  "spec": "wiki/clips/pitchers-mitt/rock.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 269,
+  "frames": 270,
+  "fps": 30,
+  "duration": 9.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 222,
+  "frames_hash": "01249303a8e13e28",
+  "has_audio": true,
+  "audio_hash": "96e0fa4efe5873b0",
+  "encoding": "277d005cae4c8543",
+  "files": {
+    "mp4": "pitchers-mitt/rock/clip.mp4",
+    "webm": "pitchers-mitt/rock/clip.webm",
+    "poster": "pitchers-mitt/rock/poster.png",
+    "replay": "pitchers-mitt/rock/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

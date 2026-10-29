@@ -3,7 +3,8 @@
 # $SPELUNKY_RELEASE_TOOLS (default target/release-tools), and adds the Rust targets to the pinned
 # toolchain. Each download is checked against its SHA-256 and unpacked once; later runs reuse it.
 #   scripts/release/tools [linux|windows|macos|ffmpeg ...]   (default: linux, windows and macos)
-# ffmpeg isn't for the apps: build-native.yml encodes the wiki's clips with it (scripts/wiki-clips).
+# ffmpeg isn't for the apps: scripts/wiki-media encodes the wiki's clips with it, so they come out the same
+# on every Mac (docs/wiki-media.md, "Committing").
 # All of it is open source: no Windows SDK or MSVC, and nothing that needs a license.
 set -eu
 cd "$(dirname "$0")/../.."

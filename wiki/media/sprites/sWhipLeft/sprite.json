@@ -1,0 +1,39 @@
+{
+  "id": 669,
+  "name": "sWhipLeft",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 3,
+    "top": 6,
+    "right": 15,
+    "bottom": 10
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sWhipLeft/strip.png",
+  "strip_scaled": "sWhipLeft/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sWhipLeft/frames/0.png",
+      "file_scaled": "sWhipLeft/frames/0@4x.png",
+      "bbox": {
+        "left": 3,
+        "top": 6,
+        "right": 15,
+        "bottom": 10
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oPlayer1",
+    "oWhip"
+  ]
+}

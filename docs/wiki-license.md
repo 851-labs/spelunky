@@ -21,13 +21,13 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 
 | What | May show? | Conditions |
 | --- | --- | --- |
-| Sprites, tiles, animation strips (from `assets/`, extracted from the `.gmk`) | Yes, scaled or recoloured too | The page notices below. Downloadable files (the `wiki-media` release asset) ship with `LICENSE` and a notice, as the releases do (`scripts/release/NOTICE.txt`). |
+| Sprites, tiles, animation strips (from `assets/`, extracted from the `.gmk`) | Yes, scaled or recoloured too | The page notices below. The committed files (`wiki/media`) have `LICENSE.txt` and a notice beside them, as the releases do (`scripts/release/NOTICE.txt`). |
 | Gameplay clips recorded from the port | Yes | The page's footer, and the notice in the video files' metadata. No caption under clips and no notice burned into the picture (decided below). Music and sound effects may play, with the audio credit below when they do. |
 | Sound effects (`sound/*.wav`) | Yes, in clips or a page's small player | The page notices, plus the audio credit below |
 | Music (`sound/*.ogg`) | Yes (decided below) | The audio credit below |
 | Numbers and behaviour derived from the code (speeds, damage, drop rates, quirks) | Yes | Facts aren't the work itself; cite the source as for GML. |
 | Short GML excerpts | Yes | The excerpt caption below. Keep them short and only where they explain something, and keep any credit or copyright comment of the script's (condition 1). |
-| Whole GML files (`/wiki/source/`, the source viewer) | Yes ([below](#the-source-viewer)) | The source notice at the top of every page, above the code; the file whole and unchanged, its comments too. The `wiki-media` package that carries them ships with `LICENSE` and the notice. |
+| Whole GML files (`/wiki/source/`, the source viewer) | Yes ([below](#the-source-viewer)) | The source notice at the top of every page, above the code; the file whole and unchanged, its comments too. The media that carry them (`wiki/media/gml`) have `LICENSE.txt` and the notice beside them. |
 | Generated OG images with sprites | Yes | Our own layout and the text "Unofficial fan wiki · spelunky.ai"; the Spelunky logo may appear (decided below) |
 | JSON-LD | Yes | `VideoGame` names Derek Yu and Mossmouth as its author and publisher; our `WebSite` and `Organization` are ours, never Mossmouth's. Media get `creditText`, `copyrightNotice` and `license` (`https://spelunky.ai/LICENSE.txt`); a clip with sound's `creditText` names the music's authors too. |
 
@@ -44,7 +44,7 @@ there (decided below): the notice is the footer's.
 
 **Clips** carry no caption of their own (decided below): the page's footer covers them.
 The video files keep the notice in their metadata (`copyright`, and `comment`: "Recorded from the
-spelunky.ai port vX.Y.Z, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek
+spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek
 Yu and Mossmouth, LLC."). Clips play the game's sound and music; a page with a clip that has them
 (`has_audio`, docs/wiki-media.md) adds the audio credit below to its footer, and the video files have it
 in `copyright` after the notice.
@@ -86,8 +86,8 @@ not only short excerpts. The repository, which is public, already redistributes 
 `spelunky.gmk` (`reference/spelunky_1_1_src.zip`) on the same terms. The conditions, as they apply:
 
 1. **The license and the source's notices intact.** Every page links `/LICENSE.txt`, served unchanged, and
-   shows the file whole, the scripts' own credit and copyright comments with it; the package the pages are
-   built from (`gml/` in `wiki-media`, docs/wiki-media.md) has `LICENSE.txt` and `NOTICE.txt` beside it.
+   shows the file whole, the scripts' own credit and copyright comments with it; the GML the pages are
+   built from (`wiki/media/gml`, docs/wiki-media.md) has `LICENSE.txt` and `NOTICE.txt` beside it.
 2. **Not sold.** As the rest of the wiki: no ads, paywalls or sponsorships.
 3. **A notice at the beginning.** The source notice above, at the top of each page before the code, besides
    the footer's: unlike a wiki page, a source page is the Source Code itself, so the footer alone isn't

@@ -1,0 +1,32 @@
+{
+  "id": "alien/parachute",
+  "title": "Alien parachute",
+  "description": "An alien ejected from a UFO the player has destroyed opens its parachute, drifts down to a ledge, lands and walks about.",
+  "spec": "wiki/clips/alien/parachute.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/enemy-ufo-alien-seed-14.txt"
+  },
+  "from": 1950,
+  "to": 2089,
+  "frames": 140,
+  "fps": 30,
+  "duration": 4.666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1985,
+  "frames_hash": "9af188b7b6de6321",
+  "has_audio": true,
+  "audio_hash": "9cd768babcb58a83",
+  "encoding": "63461433c6565407",
+  "files": {
+    "mp4": "alien/parachute/clip.mp4",
+    "webm": "alien/parachute/clip.webm",
+    "poster": "alien/parachute/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

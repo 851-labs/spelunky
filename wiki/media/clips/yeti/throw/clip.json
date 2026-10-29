@@ -1,0 +1,33 @@
+{
+  "id": "yeti/throw",
+  "title": "Yeti throw",
+  "description": "The player walks into a yeti in an open cave. It grabs him and flings him back over its head, stunned, and he loses a heart when he lands.",
+  "spec": "wiki/clips/yeti/throw.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 20,
+  "to": 139,
+  "frames": 120,
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 62,
+  "frames_hash": "199149c3191e46b6",
+  "has_audio": true,
+  "audio_hash": "e621dafa2a3f8cb9",
+  "encoding": "730d9838ebac9441",
+  "files": {
+    "mp4": "yeti/throw/clip.mp4",
+    "webm": "yeti/throw/clip.webm",
+    "poster": "yeti/throw/poster.png",
+    "replay": "yeti/throw/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

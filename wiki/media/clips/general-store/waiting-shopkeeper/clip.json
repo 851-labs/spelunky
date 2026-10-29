@@ -1,0 +1,32 @@
+{
+  "id": "general-store/waiting-shopkeeper",
+  "title": "A shopkeeper waiting by the exit",
+  "description": "On the level after a theft, a shopkeeper with a shotgun stands guard by the exit. As the player comes down to it, the shopkeeper leaps at him, and the player takes the exit unhurt.",
+  "spec": "wiki/clips/general-store/waiting-shopkeeper.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-3-thief-next-level.txt"
+  },
+  "from": 1880,
+  "to": 1975,
+  "frames": 96,
+  "fps": 30,
+  "duration": 3.2,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1941,
+  "frames_hash": "0905574beaa02977",
+  "has_audio": true,
+  "audio_hash": "c41af6477b15aa3e",
+  "encoding": "bec0ccabcd12f176",
+  "files": {
+    "mp4": "general-store/waiting-shopkeeper/clip.mp4",
+    "webm": "general-store/waiting-shopkeeper/clip.webm",
+    "poster": "general-store/waiting-shopkeeper/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "scoring/reset",
+  "title": "Resetting the high scores",
+  "description": "The high scores room, with a gold trophy beside each record and the four doors they unlock. The player pushes a block along the floor; past the middle a warning reads THIS WILL CLEAR EVERYTHING!, and when the block covers the button at the end, the trophies and doors vanish, the screen shakes and every record reads 0.",
+  "spec": "wiki/clips/scoring/reset.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/flow-highscores-reset-crush.txt"
+  },
+  "from": 546,
+  "to": 838,
+  "frames": 293,
+  "fps": 30,
+  "duration": 9.766666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 600,
+  "frames_hash": "db2c56a8b38052cc",
+  "has_audio": true,
+  "audio_hash": "de0db98fef0c162b",
+  "encoding": "8ce3e34dd4ff480f",
+  "files": {
+    "mp4": "scoring/reset/clip.mp4",
+    "webm": "scoring/reset/clip.webm",
+    "poster": "scoring/reset/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

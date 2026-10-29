@@ -1,0 +1,40 @@
+{
+  "id": 781,
+  "name": "sIntroBG",
+  "width": 480,
+  "height": 112,
+  "origin": {
+    "x": 0,
+    "y": 0
+  },
+  "bbox": {
+    "left": 0,
+    "top": 3,
+    "right": 479,
+    "bottom": 111
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sIntroBG/strip.png",
+  "strip_scaled": "sIntroBG/strip@4x.png",
+  "anim": null,
+  "anim_scaled": null,
+  "frames": [
+    {
+      "file": "sIntroBG/frames/0.png",
+      "file_scaled": "sIntroBG/frames/0@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 3,
+        "right": 479,
+        "bottom": 111
+      }
+    }
+  ],
+  "objects": [
+    "oIntroBG"
+  ],
+  "used_by": [
+    "oIntroBG"
+  ]
+}

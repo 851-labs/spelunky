@@ -1,0 +1,33 @@
+{
+  "id": "mattock/dig",
+  "title": "Mattock digging",
+  "description": "The player picks up a mattock and walks into a wall two blocks thick. Each swing breaks one block of it, and he walks on through.",
+  "spec": "wiki/clips/mattock/dig.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 149,
+  "frames": 150,
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 60,
+  "frames_hash": "5232b856ce2b14bd",
+  "has_audio": true,
+  "audio_hash": "cb33678bc0370f5b",
+  "encoding": "f7436efd29a8e9f3",
+  "files": {
+    "mp4": "mattock/dig/clip.mp4",
+    "webm": "mattock/dig/clip.webm",
+    "poster": "mattock/dig/poster.png",
+    "replay": "mattock/dig/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

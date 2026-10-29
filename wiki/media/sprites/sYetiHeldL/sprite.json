@@ -1,0 +1,82 @@
+{
+  "id": 1362,
+  "name": "sYetiHeldL",
+  "width": 24,
+  "height": 16,
+  "origin": {
+    "x": 4,
+    "y": 0
+  },
+  "bbox": {
+    "left": 4,
+    "top": 0,
+    "right": 19,
+    "bottom": 15
+  },
+  "fps": 15.0,
+  "fps_source": {
+    "object": "oYeti",
+    "via": "uses",
+    "image_speed": 0.5
+  },
+  "strip": "sYetiHeldL/strip.png",
+  "strip_scaled": "sYetiHeldL/strip@4x.png",
+  "anim": "sYetiHeldL/anim.png",
+  "anim_scaled": "sYetiHeldL/anim@4x.png",
+  "frames": [
+    {
+      "file": "sYetiHeldL/frames/0.png",
+      "file_scaled": "sYetiHeldL/frames/0@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 3,
+        "right": 19,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sYetiHeldL/frames/1.png",
+      "file_scaled": "sYetiHeldL/frames/1@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 2,
+        "right": 19,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sYetiHeldL/frames/2.png",
+      "file_scaled": "sYetiHeldL/frames/2@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 1,
+        "right": 19,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sYetiHeldL/frames/3.png",
+      "file_scaled": "sYetiHeldL/frames/3@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 0,
+        "right": 19,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sYetiHeldL/frames/4.png",
+      "file_scaled": "sYetiHeldL/frames/4@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 1,
+        "right": 19,
+        "bottom": 15
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oYeti"
+  ]
+}

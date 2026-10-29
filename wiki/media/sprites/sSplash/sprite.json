@@ -1,0 +1,94 @@
+{
+  "id": 506,
+  "name": "sSplash",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 8
+  },
+  "bbox": {
+    "left": 1,
+    "top": 2,
+    "right": 14,
+    "bottom": 15
+  },
+  "fps": 18.0,
+  "fps_source": {
+    "object": "oSplash",
+    "via": "sprite",
+    "image_speed": 0.6000000000000001
+  },
+  "strip": "sSplash/strip.png",
+  "strip_scaled": "sSplash/strip@4x.png",
+  "anim": "sSplash/anim.png",
+  "anim_scaled": "sSplash/anim@4x.png",
+  "frames": [
+    {
+      "file": "sSplash/frames/0.png",
+      "file_scaled": "sSplash/frames/0@4x.png",
+      "bbox": {
+        "left": 6,
+        "top": 5,
+        "right": 8,
+        "bottom": 10
+      }
+    },
+    {
+      "file": "sSplash/frames/1.png",
+      "file_scaled": "sSplash/frames/1@4x.png",
+      "bbox": {
+        "left": 4,
+        "top": 5,
+        "right": 10,
+        "bottom": 9
+      }
+    },
+    {
+      "file": "sSplash/frames/2.png",
+      "file_scaled": "sSplash/frames/2@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 2,
+        "right": 13,
+        "bottom": 12
+      }
+    },
+    {
+      "file": "sSplash/frames/3.png",
+      "file_scaled": "sSplash/frames/3@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 2,
+        "right": 14,
+        "bottom": 13
+      }
+    },
+    {
+      "file": "sSplash/frames/4.png",
+      "file_scaled": "sSplash/frames/4@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 3,
+        "right": 14,
+        "bottom": 15
+      }
+    },
+    {
+      "file": "sSplash/frames/5.png",
+      "file_scaled": "sSplash/frames/5@4x.png",
+      "bbox": {
+        "left": 1,
+        "top": 5,
+        "right": 14,
+        "bottom": 13
+      }
+    }
+  ],
+  "objects": [
+    "oSplash"
+  ],
+  "used_by": [
+    "oSplash"
+  ]
+}

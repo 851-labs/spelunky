@@ -1,0 +1,48 @@
+{
+  "id": 1049,
+  "name": "sCapeUR",
+  "width": 16,
+  "height": 16,
+  "origin": {
+    "x": 8,
+    "y": 16
+  },
+  "bbox": {
+    "left": 0,
+    "top": 0,
+    "right": 13,
+    "bottom": 14
+  },
+  "fps": 15.0,
+  "fps_source": null,
+  "strip": "sCapeUR/strip.png",
+  "strip_scaled": "sCapeUR/strip@4x.png",
+  "anim": "sCapeUR/anim.png",
+  "anim_scaled": "sCapeUR/anim@4x.png",
+  "frames": [
+    {
+      "file": "sCapeUR/frames/0.png",
+      "file_scaled": "sCapeUR/frames/0@4x.png",
+      "bbox": {
+        "left": 2,
+        "top": 0,
+        "right": 13,
+        "bottom": 14
+      }
+    },
+    {
+      "file": "sCapeUR/frames/1.png",
+      "file_scaled": "sCapeUR/frames/1@4x.png",
+      "bbox": {
+        "left": 0,
+        "top": 0,
+        "right": 12,
+        "bottom": 14
+      }
+    }
+  ],
+  "objects": [],
+  "used_by": [
+    "oCape"
+  ]
+}

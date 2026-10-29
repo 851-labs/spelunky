@@ -1,0 +1,33 @@
+{
+  "id": "alien-boss/bomb",
+  "title": "Alien Boss bombed",
+  "description": "The player drops a bomb beside the Alien Boss and runs out of its reach before it can send a wave. The explosion kills it, and it leaves four big gems.",
+  "spec": "wiki/clips/alien-boss/bomb.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 10,
+  "to": 229,
+  "frames": 220,
+  "fps": 30,
+  "duration": 7.333333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 162,
+  "frames_hash": "bc7b73c7d446b61e",
+  "has_audio": true,
+  "audio_hash": "aec48b619a2f4faa",
+  "encoding": "24dfe8ae069e004a",
+  "files": {
+    "mp4": "alien-boss/bomb/clip.mp4",
+    "webm": "alien-boss/bomb/clip.webm",
+    "poster": "alien-boss/bomb/poster.png",
+    "replay": "alien-boss/bomb/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

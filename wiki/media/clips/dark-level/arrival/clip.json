@@ -1,0 +1,32 @@
+{
+  "id": "dark-level/arrival",
+  "title": "A dark level",
+  "description": "Level 2 of the Mines loads dark, with the message \"I CAN'T SEE A THING! I'D BETTER USE THESE FLARES!\" A crate of flares glows by the entrance, and the player climbs down through the dark by the small light around him.",
+  "spec": "wiki/clips/dark-level/arrival.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/mines-seed-2.txt"
+  },
+  "from": 1690,
+  "to": 2139,
+  "frames": 450,
+  "fps": 30,
+  "duration": 15.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1745,
+  "frames_hash": "ab7a2074f5c0937c",
+  "has_audio": true,
+  "audio_hash": "986540631db64c6a",
+  "encoding": "23436418d3cb3fbb",
+  "files": {
+    "mp4": "dark-level/arrival/clip.mp4",
+    "webm": "dark-level/arrival/clip.webm",
+    "poster": "dark-level/arrival/poster.png"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
