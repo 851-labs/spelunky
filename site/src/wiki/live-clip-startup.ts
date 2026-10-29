@@ -2,10 +2,10 @@
 // clip's first, which the game runs unshown, as fast as the device runs them, before it says it's ready. One that
 // takes too long goes back to the video. Its own module, without React, so that test-wiki.mjs can test it.
 //
-// Kali's spiders, the latest clip (from frame 8,850), get there in 3.3 s on an M1 Pro in Chromium, 10 s with its
-// CPU slowed twice, and 16 to 32 s slowed four times (Lighthouse's mid-range phone; the machine was busy), where
-// even at the slowest every clip from before about frame 6,000 makes it: all but 17 of the 276. Twenty seconds is
-// long to look at a poster for a few seconds' clip, even one with a progress bar; the video's there.
+// Kali's spiders, the latest clip (from frame 8,850), get there in 3.5 s on an M1 Pro in Chromium, 9 s with its CPU
+// slowed twice, and 17 to 21 s slowed four times (Lighthouse's mid-range phone), so there every clip makes it, or
+// all but the latest few; slowed eight times, it goes back 3 s into its run. (Timed on a busy machine.) Twenty
+// seconds is long to look at a poster for a few seconds' clip, even one with a progress bar; the video's there.
 export const START_MS = 20000;
 // With the game's progress (its reports' `lead`), the player needn't wait that long to know: a run that's gone on
 // for START_JUDGE_MS at a pace that would take it past START_MS, from the first report it counted, goes back then.
