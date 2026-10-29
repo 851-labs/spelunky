@@ -45,6 +45,11 @@ impl Notice {
         Some(self.draw(fade, size, scale))
     }
 
+    /// Whether there's anything to draw after tick `tick` ([`commands`](Self::commands)).
+    pub fn shows(&self, tick: u64) -> bool {
+        fade(tick, SHOWN).is_some()
+    }
+
     /// The notice for a clip (`--notice-frames`, `scripts/wiki-clips`): shown for `shown` ticks instead
     /// of a session's few seconds, still fading out over its last second (all of it, if it's shorter),
     /// and in the game's own pixels, wrapped to fit, so that the picture can be scaled back down to them.

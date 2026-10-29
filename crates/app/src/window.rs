@@ -18,6 +18,7 @@ use crate::notice::Notice;
 use crate::present::{Presenter, window_to_content};
 use crate::render::{Renderer, Surfaces};
 use crate::textures::Textures;
+use crate::unrendered::Unrendered;
 use draw::{Command, Frame};
 use std::any::Any;
 use std::collections::BTreeMap;
@@ -344,6 +345,18 @@ enum Start<'a> {
 struct Graphics {
     renderer: Renderer,
     presenter: Presenter,
+    /// An embedded replay's unshown frames not rendered yet: only the ones whose pixels last until the
+    /// renderer's are next needed get rendered (`crate::unrendered`).
+    unrendered: Unrendered,
+}
+
+impl Graphics {
+    /// Renders the frames left unrendered that need it, so the renderer's pixels are as if it had rendered
+    /// every frame.
+    fn catch_up(&mut self) {
+        let renderer = &mut self.renderer;
+        self.unrendered.flush(|frame| renderer.render(frame));
+    }
 }
 
 pub struct App<G> {
@@ -570,6 +583,7 @@ impl<G: Game> App<G> {
         self.graphics = Some(Graphics {
             renderer,
             presenter,
+            unrendered: Unrendered::new(),
         });
         // The first tick runs straight away.
         self.next_tick = Some(Instant::now());
@@ -678,6 +692,7 @@ impl<G: Game> App<G> {
                     // The replay is over, or the game. Show the last frame now, not on a redraw that a
                     // minimised window never gets, and close.
                     if let Some(g) = &mut self.graphics {
+                        g.catch_up();
                         g.presenter.present(&g.renderer);
                     }
                     // Unless the page embeds it: it holds the frame, for the reader to take over from or seek
@@ -704,9 +719,11 @@ impl<G: Game> App<G> {
                 self.fail(event_loop, e);
                 return None;
             }
-            // Every tick's frame is rendered, even ones never shown, because surfaces carry state.
             let g = self.graphics.as_mut()?;
             if let Some(switch) = self.game.take_switch() {
+                // The renderer keeps no pixels of the old program's: none of its frames left unrendered
+                // need rendering.
+                g.unrendered = Unrendered::new();
                 g.renderer.set_textures(switch.textures);
                 self.notice = switch.notice;
                 self.notice_from = self.ticks - 1;
@@ -715,7 +732,24 @@ impl<G: Game> App<G> {
                     let _ = window.request_inner_size(LogicalSize::new(w, h));
                 }
             }
-            g.renderer.render(&self.frame);
+            // An unshown frame is left unrendered, until a frame shown, a savestate or a seek needs the
+            // pixels that last of it: surfaces carry state, but most of what a frame draws, the next
+            // clears. Unless the app draws over its picture, which only the picture rendered has.
+            let drawn_over = self.overlay.is_some()
+                || self
+                    .notice
+                    .as_ref()
+                    .is_some_and(|n| n.shows(self.ticks - 1 - self.notice_from));
+            if skipping && !drawn_over {
+                let renderer = &mut g.renderer;
+                g.unrendered.push(std::mem::take(&mut self.frame), |frame| {
+                    renderer.render(frame)
+                });
+            } else {
+                g.catch_up();
+                g.renderer.render(&self.frame);
+            }
+            // Nothing draws over a frame left unrendered.
             if let Some(size) = g.renderer.shown_size() {
                 // One pass for both: the renderer only draws over a picture once.
                 let mut over = Vec::new();
@@ -799,7 +833,10 @@ impl<G: Game> App<G> {
             && let Some(state) = self.game.savestate()
         {
             // As the last frame left them, as the state is from before the next.
-            let surfaces = self.graphics.as_ref().map(|g| g.renderer.surfaces());
+            let surfaces = self.graphics.as_mut().map(|g| {
+                g.catch_up();
+                g.renderer.surfaces()
+            });
             e.savestates.insert(self.ticks, Kept { state, surfaces });
         }
     }
@@ -865,12 +902,16 @@ impl<G: Game> App<G> {
                 self.held = false;
                 // GM's surfaces aren't the game's to restore, but the renderer's, kept beside it. Without
                 // them they start blank, as after a savestate loaded from disk, rather than with a later
-                // frame's pixels.
+                // frame's pixels. The back buffer and the shown picture aren't restored: they stay as the
+                // frames run so far left them, which are rendered as far as that needs first.
                 if let Some(g) = &mut self.graphics {
+                    g.catch_up();
                     match &kept.surfaces {
                         Some(surfaces) => g.renderer.restore_surfaces(surfaces),
                         None => g.renderer.forget_surfaces(),
                     }
+                    // What it followed of the surfaces is gone with them.
+                    g.unrendered = Unrendered::new();
                 }
             }
             Start::Nowhere => return,
@@ -953,7 +994,10 @@ impl<G: Game> App<G> {
     /// they change, as GM's runner does.
     fn follow_game(&mut self) {
         let Some(window) = &self.window else { return };
+        // Not to a picture not shown yet, which the renderer may not have drawn (an embedded replay's
+        // unshown frames).
         if self.game.sizes_window()
+            && self.showing()
             && let Some(size) = self.graphics.as_ref().and_then(|g| g.renderer.shown_size())
             && self.fitted != Some(size)
         {

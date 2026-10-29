@@ -1300,6 +1300,7 @@ pub(crate) fn log_warning(message: &str) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::BTreeMap;
 
     /// A renderer on the machine's GPU with no images, or `None` (the test is skipped) without one.
     fn gpu_renderer() -> Option<Renderer> {
@@ -1592,15 +1593,10 @@ mod tests {
         );
     }
 
-    /// Frames before a capture's first left to [`Unrendered`](crate::unrendered::Unrendered) show the
-    /// same pictures from then on as frames all rendered, in a game drawn like Spelunky's `oScreen`: a
-    /// `screen` surface cleared and redrawn every frame, a pause screen drawn into once, and a dark level's
-    /// surface that nothing clears.
-    #[test]
-    fn unrendered_frames_show_the_same_pictures() {
-        let (Some(mut all), Some(mut skipping)) = (gpu_renderer(), gpu_renderer()) else {
-            return;
-        };
+    /// 40 frames of a game drawn like Spelunky's `oScreen`: a `screen` surface cleared and redrawn every
+    /// frame, a pause screen drawn into once (frame 20, shown until 31), and a dark level's surface that
+    /// nothing clears (drawn into in frames 5 to 11 and from 34).
+    fn oscreen_frames() -> Vec<Frame> {
         let (screen, pause, dark) = (SurfaceId(1), SurfaceId(2), SurfaceId(3));
         let rect = |x: f64, y: f64, size: f64, color: u32, alpha: f64| Command::Rectangle {
             x1: x,
@@ -1627,7 +1623,7 @@ mod tests {
             alpha: 1.0,
         };
         let (dark_level, paused) = (|i| (5..12).contains(&i) || i >= 34, 20..32);
-        let frames: Vec<Frame> = (0..40u32)
+        (0..40u32)
             .map(|i| {
                 let mut frame = Frame::new(8, 8);
                 frame.surfaces = [screen, pause, dark]
@@ -1657,7 +1653,17 @@ mod tests {
                 }
                 frame
             })
-            .collect();
+            .collect()
+    }
+
+    /// Frames before a capture's first left to [`Unrendered`](crate::unrendered::Unrendered) show the
+    /// same pictures from then on as frames all rendered, in a game drawn like Spelunky's `oScreen`.
+    #[test]
+    fn unrendered_frames_show_the_same_pictures() {
+        let (Some(mut all), Some(mut skipping)) = (gpu_renderer(), gpu_renderer()) else {
+            return;
+        };
+        let frames = oscreen_frames();
         let from = 30;
         let mut unrendered = crate::unrendered::Unrendered::new();
         let mut rendered = 0;
@@ -1684,5 +1690,66 @@ mod tests {
         // The first (which made the surfaces), the dark level's, the pause's first and the one before
         // (whose `screen` it drew), and the last before the capture.
         assert_eq!(rendered, 1 + 7 + 2 + 1);
+    }
+
+    /// An embedded replay's unshown frames ([`App::with_embed`](crate::window::App::with_embed)) left
+    /// to [`Unrendered`](crate::unrendered::Unrendered) show the same pictures as frames all rendered,
+    /// through its savestates' surfaces and its seeks: the first play to the clip's start, a seek on past
+    /// where it played (keeping savestates on the way), and one back to a savestate before the pause.
+    #[test]
+    fn unrendered_frames_keep_the_embeds_savestates_and_seeks_exact() {
+        let (Some(mut all), Some(mut skipping)) = (gpu_renderer(), gpu_renderer()) else {
+            return;
+        };
+        let frames = oscreen_frames();
+        let mut unrendered = crate::unrendered::Unrendered::new();
+        let mut savestates: BTreeMap<usize, (Surfaces, Surfaces)> = BTreeMap::new();
+        let (mut at, mut rendered, mut run) = (0, 0, 0);
+        // Each a frame to run from, the first to show, and the one to stop before. The clip starts at 10,
+        // with a savestate every 5 frames from there.
+        for (start, shown, end) in [(0, 10, 14), (14, 33, 37), (20, 22, 30)] {
+            if start != at {
+                let (all_kept, skipping_kept) = &savestates[&start];
+                all.restore_surfaces(all_kept);
+                // As `App::seek` does.
+                unrendered.flush(|frame| {
+                    skipping.render(frame);
+                    rendered += 1;
+                });
+                skipping.restore_surfaces(skipping_kept);
+                unrendered = crate::unrendered::Unrendered::new();
+            }
+            for (i, frame) in frames.iter().enumerate().take(end).skip(start) {
+                if i >= 10 && (i - 10) % 5 == 0 && !savestates.contains_key(&i) {
+                    unrendered.flush(|frame| {
+                        skipping.render(frame);
+                        rendered += 1;
+                    });
+                    savestates.insert(i, (all.surfaces(), skipping.surfaces()));
+                }
+                all.render(frame);
+                run += 1;
+                if i < shown {
+                    unrendered.push(frame.clone(), |frame| {
+                        skipping.render(frame);
+                        rendered += 1;
+                    });
+                    continue;
+                }
+                unrendered.flush(|frame| {
+                    skipping.render(frame);
+                    rendered += 1;
+                });
+                skipping.render(frame);
+                rendered += 1;
+                assert_eq!(
+                    skipping.read_screen().unwrap(),
+                    all.read_screen().unwrap(),
+                    "frame {i}, run from {start}"
+                );
+            }
+            at = end;
+        }
+        assert!(rendered < run, "{rendered} of {run} frames rendered");
     }
 }
