@@ -134,8 +134,8 @@ with one <Cite replay="fidelity/replays/bonus-stars-shotgun.txt" />. In custom l
 
 Paying for one, or carrying one out of a shop without paying, which angers the Shopkeeper, shows "YOU GOT A
 SHOTGUN!", and it stays in the player's hands <Cite gml="scripts/scrStealItem.gml:293-302" />.
-A stolen one shows it only if the player leaves the shop first: one carried out ahead of him is made free,
-with no message ([[stolen-ware-unequipped]]) <Cite gml="objects/oItem/step.gml:17-25" /> <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />.
+But a stolen one that's out of the shop before the player is made free by its own check, with no message
+([[stolen-ware-unequipped]]) <Cite gml="objects/oItem/step.gml:17-33" /> <Cite quirk="1" row="Whether stealing a ware equips it depends on which leaves the shop's room first." />.
 
 ## Interactions
 
