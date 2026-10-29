@@ -778,6 +778,9 @@ check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/p
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.
 node test-wiki.mjs || fail "test-wiki.mjs"
+# Every pre-rendered page's links on the site, the wiki's pages reachable from /wiki, and none to come that no
+# ticket is writing.
+node test-links.mjs dist/client || fail "test-links.mjs"
 # The content types the Worker sets itself, against an asset store like Cloudflare's rather than wrangler dev's,
 # which adds the .txt files' charset that spelunky.ai's doesn't.
 node test-server.mjs || fail "test-server.mjs"

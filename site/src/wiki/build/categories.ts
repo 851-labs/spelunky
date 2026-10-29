@@ -69,12 +69,12 @@ const DESCRIPTIONS: Record<HubId, string> = {
     "picked up.",
   "items/weapons": "The weapons of Spelunky Classic, from the whip to the shotgun, with the damage each does.",
   "items/carryables":
-    "The things the player can carry and throw in Spelunky Classic: rocks, pots, jars, crates, bombs and more.",
+    "The things the player can carry and throw in Spelunky Classic: rocks, jars, crates, bombs and more.",
   treasure: "The treasure of Spelunky Classic: gold, gems and idols, and what each is worth.",
   traps: "The traps of Spelunky Classic: arrow traps, spikes, boulders and the rest, with what sets them off.",
   places: "The places of Spelunky Classic: its four areas, Olmec's Lair and the special levels between them.",
   shops: "The shops of Spelunky Classic, what each sells, and what happens to a thief.",
-  mechanics: "How Spelunky Classic works underneath: health, stunning, throwing, money, Kali's favour and more.",
+  mechanics: "How Spelunky Classic works underneath: health, stunning, throwing, stomping, Kali's favour and more.",
   guides: "Guides to Spelunky Classic's harder goals: the Black Market, the City of Gold, beating Olmec.",
   quirks:
     "The bugs and oddities of Spelunky Classic 1.1 that the spelunky.ai port keeps, each traced to the code " +
