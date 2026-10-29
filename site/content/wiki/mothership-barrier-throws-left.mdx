@@ -1,0 +1,95 @@
+---
+slug: mothership-barrier-throws-left
+title: The mothership's barrier throwing items left
+type: quirk
+categories: [quirks]
+aliases: [barrier-item-thrown-through, items-through-the-barrier]
+card: { sprite: sBarrier }
+lede: >-
+  The mothership's barrier throwing items left is a quirk of Spelunky Classic in which an item from the Alien
+  Boss's side is thrown on through it.
+quirk:
+  status: GML + Oracle
+  where: objects/oBarrier/collision_oItem.gml:1-12
+  pinned_by: fidelity/replays/ice-seed-63-barrier-through.txt
+  entry: "1"
+  rows:
+    - The mothership's barrier throws every item left.
+relations:
+  related: [mothership, alien-boss]
+clips: [quirks/barrier-item-thrown-through]
+faq:
+  - q: Can an item get through the mothership's barrier?
+    a: >-
+      From the [[alien-boss|Alien Boss]]'s side, yes. The barrier throws every item that touches it to the left,
+      which sends one coming from the right on through it. One thrown from the left bounces back.
+  - q: Does the barrier throw the player the same way?
+    a: >-
+      No. It throws the player away from it, to whichever side he came from, and takes a heart.
+  - q: Can you get the free Jetpack past the barrier without killing the Alien Boss?
+    a: >-
+      Yes, if a blast sends it left into the barrier: the barrier throws it on. Bombs have to go off
+      well clear of the boss and the barrier's emitter, as either one's end brings the barrier down.
+sources:
+  - objects/oBarrier/collision_oItem.gml
+  - objects/oBarrier/collision_oCharacter.gml
+  - objects/oBarrierEmitter/step.gml
+  - objects/oBarrierEmitter/collision_oItem.gml
+  - objects/oBarrierEmitter/collision_oBullet.gml
+  - objects/oExplosion/collision_oBarrierEmitter.gml
+  - objects/oAlienBoss/other_animation_end.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+The [[mothership|mothership]]'s barrier keeps the player away from the [[alien-boss|Alien Boss]], throwing him back
+the way he came. It throws items too, but always to the left, the side the player comes from, whichever side the
+item reaches it from. So an item from the boss's side, behind the barrier, is thrown on through it.
+
+## What happens
+
+Behind the Alien Boss, a bomb at the foot of a shaft the player has dug breaks the rock holding the free
+[[jetpack|Jetpack]] and blows it left. It hits the Alien Boss on its way, costing it a hit point, and reaches the
+barrier, which throws it on to the left, and it lands beyond the barrier, which still stands
+<Cite clip="quirks/barrier-item-thrown-through" />.
+
+<Clip id="quirks/barrier-item-thrown-through" />
+
+## Why
+
+The barrier's collision with an item lights a [[bomb|Bomb]], and then throws the item, whatever it is:
+
+```gml objects/oBarrier/collision_oItem.gml:11-12
+other.xVel = -rand(4,6);
+other.yVel = -2;
+```
+
+`xVel` is always negative, to the left. Its collision with the player tests which side he's on, and throws him away
+from it:
+
+```gml objects/oBarrier/collision_oCharacter.gml:6-9
+    if (other.x < x)
+        other.xVel = -6
+    else
+        other.xVel = 6
+```
+
+The item's has no such test, so an item that reaches the barrier from the right, the boss's side, is thrown on in
+the way it was going <Cite quirk="1" />.
+
+## Reproducing it
+
+Get an item behind the barrier and send it left into it, with the barrier still standing. That's the hard part:
+the barrier comes down when the Alien Boss dies <Cite gml="objects/oAlienBoss/other_animation_end.gml:1-5" />, and
+when its emitter is destroyed: by an explosion, a bullet, or an item faster than 2 pixels a
+step <Cite gml="objects/oExplosion/collision_oBarrierEmitter.gml:1" /> <Cite gml="objects/oBarrierEmitter/collision_oBullet.gml:1" />
+<Cite gml="objects/oBarrierEmitter/collision_oItem.gml:1-4" />, or once it's on screen with the block above it
+gone <Cite gml="objects/oBarrierEmitter/step.gml:1-5" />. So bombs have to go off well clear of both. The replay, with
+seed 63, reaches the mothership on level 10. Four bombs dig a shaft down the craft's right edge, and the last
+breaks the rock holding the Jetpack and blows it left: it hits the boss, meets the barrier, which throws it on to
+the left, and lands beyond it. The barrier, its emitter and the boss stand throughout
+<Cite replay="fidelity/replays/ice-seed-63-barrier-through.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the Jetpack's path. No option turns it off.

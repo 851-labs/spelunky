@@ -133,7 +133,7 @@ hits a Damsel the same way, knocking her down, and angers the Shopkeeper if she'
 
 A stunned monster thrown, or knocked flying, hurts the monsters it touches the same way while it moves faster
 than 2 pixels per step, but pushes them harder: one that isn't stunned or dead itself takes all of its speed,
-not 0.3 of it, and one that is keeps its own <Cite gml="objects/oEnemy/step.gml:169-262" /> <Cite quirk="1" />.
+not 0.3 of it, and one that is keeps its own ([[thrown-monster-full-push]]) <Cite gml="objects/oEnemy/step.gml:169-262" /> <Cite quirk="1" />.
 A clip shows both: a Rock thrown at 8 pixels per step knocks a Caveman back at 2.4, and the stunned Caveman,
 thrown on the run, sends a Yeti across the room at 6.7 <Cite clip="quirks/thrown-monster-full-push" />.
 
@@ -177,6 +177,7 @@ Rock instead.
 - **Items freeze outside the view**, in mid-air if that's where they are <Cite quirk="1" />.
 - **A thrown monster pushes the one it hits with all of its speed**, where a thrown item pushes with 0.3 of
   its: the code that sets the item's push sets it twice, and the monster's second line is commented out
+  ([[thrown-monster-full-push]])
   <Cite quirk="1" /> <Cite clip="quirks/thrown-monster-full-push" />.
 - **Every use of a held item moves it to the player's height**: the last line of the code that uses it only
   half belongs to its `if` <Cite gml="scripts/scrUseItem.gml:683" />. The item's own step, later in the same

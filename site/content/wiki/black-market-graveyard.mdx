@@ -1,0 +1,102 @@
+---
+slug: black-market-graveyard
+title: Black Markets on graveyard levels
+type: quirk
+categories: [quirks]
+aliases: [market-graveyard, graveyard-market, the-silent-graveyard]
+card: { sprite: sGrave }
+lede: >-
+  Black Markets on graveyard levels is a quirk of Spelunky Classic in which one Black Market in ten is a
+  graveyard, and the game never says so.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrInitLevel.gml:145-148
+  pinned_by: fidelity/replays/jungle-seed-9-market-graveyard.txt
+  entry: "1"
+  rows:
+    - A Black Market can be a graveyard level, and never says so.
+relations:
+  related: [black-market, restless-dead, jungle]
+clips: [quirks/market-graveyard]
+faq:
+  - q: Can the Black Market be a graveyard level?
+    a: >-
+      Yes, one time in ten. The roll for a [[restless-dead|graveyard level]] is made for every Jungle level, the
+      market's too, so a graveyard market has graves on its earth and Zombies and Vampires where the Jungle's
+      monsters would be.
+  - q: Why doesn't the Black Market say THE DEAD ARE RESTLESS?
+    a: >-
+      The market's welcome takes the level's first message. The graveyard's message would come second only on a
+      dark level, and the Black Market is never dark.
+  - q: Can a graveyard market's grave hold the Shotgun?
+    a: >-
+      Yes. Its graves are made as on any graveyard level, so one can be the Ash grave, with a free
+      [[shotgun|Shotgun]] in it.
+sources:
+  - scripts/scrInitLevel.gml
+  - scripts/scrEntityGen.gml
+  - objects/oPlayer1/alarm_0.gml
+  - objects/oPlayer1/alarm_1.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+The [[black-market|Black Market]] is a Jungle level, and every Jungle level rolls for being a
+[[restless-dead|graveyard]]. The market's is rolled too, once its rooms are laid out, so one market in ten is a
+graveyard, with its graves and its dead. But the market's welcome is the level's message, and the graveyard's
+comes second only on a dark level, which the market never is, so the game never says so.
+
+## What happens
+
+The player drops from the Black Market's entrance onto a grave below its shops. The market rolled the graveyard,
+with eight graves and three Zombies, and the game welcomes him to the Black Market. THE DEAD ARE RESTLESS! never
+comes <Cite clip="quirks/market-graveyard" />.
+
+<Clip id="quirks/market-graveyard" />
+
+## Why
+
+`scrInitLevel` lays out the level's rooms, the market's included, and then rolls the graveyard for any Jungle level:
+
+```gml scripts/scrInitLevel.gml:145-148
+scrLevelGen();
+
+global.cemetary = false;
+if (global.levelType == 1 and rand(1,global.probCemetary) == 1) global.cemetary = true;
+```
+
+Nothing there skips the market, and `scrEntityGen`'s Jungle branch, which the market runs, makes a graveyard of
+it: graves on its earth, with their treasure <Cite gml="scripts/scrEntityGen.gml:176-205" />,
+[[zombie|Zombies]] and [[vampire|Vampires]] in place of the Jungle's monsters, without the market's rule that
+keeps Mantraps off its shops' floors <Cite gml="scripts/scrEntityGen.gml:280-288" />, and
+[[dead-fish|Dead Fish]] in place of Piranhas <Cite gml="scripts/scrEntityGen.gml:332" />.
+
+The level's first message, from `oPlayer1`'s alarm 0, takes the market before the graveyard
+<Cite gml="objects/oPlayer1/alarm_0.gml:14-33" />. The second, from alarm 1, shows the graveyard's only on a dark
+level:
+
+```gml objects/oPlayer1/alarm_1.gml:11-17
+else if (global.cemetary and global.darkLevel)
+{
+    global.message = "THE DEAD ARE RESTLESS!";
+    global.message2 = "";
+    global.messageTimer = 200;
+    if (global.lake) alarm[4] = 210;
+}
+```
+
+`scrInitLevel` clears `global.darkLevel` on the market, `if (global.blackMarket) global.darkLevel = false;`
+<Cite gml="scripts/scrInitLevel.gml:176" />, so the graveyard's message never shows there <Cite quirk="1" />.
+
+## Reproducing it
+
+Take the Black Market's hidden door on level 5, 6 or 7, until a market comes with graves on its earth; one in ten
+does. It welcomes the player as any market does, and says nothing more. The replay, with seed 9, reaches the
+market on level 6 as a graveyard, with eight graves and three Zombies: "WELCOME TO THE BLACK MARKET!" shows, and
+"THE DEAD ARE RESTLESS!" never does. The player drops from the entrance onto the edge of a grave, which is solid
+<Cite replay="fidelity/replays/jungle-seed-9-market-graveyard.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the graves, the Zombies and the messages. No
+option turns it off.

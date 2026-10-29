@@ -80,9 +80,9 @@ three or four rooms long <Cite gml="scripts/scrLevelGen.gml:224-231" />:
 
 The hull and the floor are blocks, which a bomb breaks as it does the rock, into dark rubble <Cite gml="scripts/scrRoomGen3.gml:408-418" /> <Cite gml="objects/oAlienShip/destroy.gml:1-5" />
 <Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" />. Like [[ice-caves#trivia|the rock's]], it comes out off-centre, to the
-right of the block and below it: the line that places it draws a number from -8 to 0 where it means 0 to 8 <Cite quirk="1" />
+right of the block and below it ([[dark-rubble-off-centre]]): the line that places it draws a number from -8 to 0 where it means 0 to 8 <Cite quirk="1" />
 <Cite clip="quirks/dark-rubble-off-centre" /> <Cite replay="fidelity/replays/ice-seed-63-barrier-through.txt" />. And its big piece
-falls straight through the hull, rock and ice below, as the rock's does, since it stops only on a brick or a stone block <Cite gml="objects/oRubbleDark/step.gml:1-8" />
+falls straight through the hull, rock and ice below, as the rock's does ([[dark-rubble-falls-through]]), since it stops only on a brick or a stone block <Cite gml="objects/oRubbleDark/step.gml:1-8" />
 <Cite quirk="1" /> <Cite clip="quirks/dark-rubble-falls-through" /> <Cite replay="fidelity/replays/ice-seed-63-barrier-through.txt" />. Seven of the last room's ten floor blocks are
 each, one time in 2, a block of the area's rock or ice instead <Cite gml="scripts/scrRoomGen3.gml:419-432" />. The windows and
 the machinery inside are drawn behind, and stop nothing <Cite gml="scripts/scrRoomGen3.gml:451-460" />.
@@ -110,7 +110,7 @@ The Alien Boss doesn't move on its own, and sends psychic waves after a player w
   second) <Cite gml="objects/oBarrier/collision_oCharacter.gml:1-13" />. Items that touch it are thrown to
   the left whichever side they come from, and out of the player's hands; a [[bomb|Bomb]] is lit, set to go off
   in 4 to 8 steps <Cite gml="objects/oBarrier/collision_oItem.gml:1-17" />. So an item that reaches it from the
-  Alien Boss's side goes on through it (below) <Cite quirk="1" />. Bullets and the [[web-cannon|Web Cannon]]'s webs
+  Alien Boss's side goes on through it (below, and [[mothership-barrier-throws-left]]) <Cite quirk="1" />. Bullets and the [[web-cannon|Web Cannon]]'s webs
   stop at it <Cite gml="objects/oBarrier/collision_oBullet.gml:1-6" />
   <Cite gml="objects/oBarrier/collision_oWebBall.gml:1-4" />.
 - **Bringing the barrier down.** Destroying the emitter destroys the barrier

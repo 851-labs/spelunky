@@ -1,0 +1,93 @@
+---
+slug: yeti-never-charges
+title: Yetis never charging
+type: quirk
+categories: [quirks]
+aliases: [unused-charge, yeti-attack-state, piranha-sets-off-a-yeti]
+card: { sprite: sYetiLeft }
+lede: >-
+  Yetis never charging is a quirk of Spelunky Classic in which a Yeti has a charge but its sight never sets it off,
+  only the Cavemen and Hawkmen near the player.
+quirk:
+  status: GML + Oracle
+  where: objects/oEnemySight/collision_oCharacter.gml:1-17
+  pinned_by: fidelity/replays/enemy-yeti-sight-never-charges.txt
+  entry: "1"
+  rows:
+    - A yeti never charges.
+relations:
+  related: [yeti, caveman, hawkman, piranha]
+clips: [quirks/yeti-never-charges]
+faq:
+  - q: Do Yetis charge at the player in Spelunky Classic?
+    a: >-
+      No. A [[yeti|Yeti]] has a charge, and looks for the player as a Caveman does, but its sight sets off only
+      the Cavemen and Hawkmen near him. The Yeti walks up and grabs him instead.
+  - q: Can anything make a Yeti charge?
+    a: >-
+      Only a [[piranha|Piranha]]'s bite, on a Yeti that's swimming. No generated level has both, so it takes a
+      custom level with a Yeti and Piranhas in water, and no Caveman, Shopkeeper or Hawkman for the Piranhas to go
+      for first.
+  - q: Why did a Caveman charge when a Yeti saw me?
+    a: >-
+      Any monster's sight check that reaches the player sets off every Caveman and Hawkman within 100 pixels of
+      him, whichever monster sent it ([[caveman-sight-alerts-others]]).
+sources:
+  - objects/oYeti/create.gml
+  - objects/oYeti/step.gml
+  - objects/oEnemySight/collision_oCharacter.gml
+  - objects/oPiranha/step.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+A [[yeti|Yeti]] is written to charge, as a [[caveman|Caveman]] does: it has a charge, at 3 pixels a step, and it
+sends sight checks ahead of it every 6 steps. But when a sight check reaches the player, it sets off only the
+Cavemen and [[hawkman|Hawkmen]] near him, so a Yeti's sight can set off a Caveman, but never a Yeti. The only thing that
+sets a Yeti charging is a [[piranha|Piranha]]'s bite, and no generated level has both.
+
+## What happens
+
+A Yeti's sight check reaches the player, and a Caveman walled in under him starts charging. The Yeti that saw him
+never charges: it walks up and throws him <Cite clip="quirks/yeti-never-charges" />.
+
+<Clip id="quirks/yeti-never-charges" />
+
+## Why
+
+A Yeti's create event names its charge, `ATTACK = 2` <Cite gml="objects/oYeti/create.gml:16" />, and its step
+runs it: 3 pixels a step the way it faces, turning at walls <Cite gml="objects/oYeti/step.gml:126-136" />. While it
+stands or walks, it sends a sight check, `oEnemySight`, every 6 steps
+<Cite gml="objects/oYeti/step.gml:65-74" /> <Cite gml="objects/oYeti/step.gml:115-124" />. The check's collision
+with the player is what sets monsters charging:
+
+```gml objects/oEnemySight/collision_oCharacter.gml:1-8
+with oCaveman
+{
+    if (distance_to_object(oPlayer1) < 100 and status < 98)
+    {
+        status = 2;
+        playSound(global.sndAlert);
+    }
+}
+```
+
+The same follows `with oHawkman`, and there's no `with oYeti`
+<Cite gml="objects/oEnemySight/collision_oCharacter.gml:10-17" />. So the Yeti's sight sets off the Cavemen and
+Hawkmen within 100 pixels of the player, and never a Yeti. The only code that sets a Yeti's `status` to 2 is a
+Piranha's bite: a Piranha goes for the nearest live Caveman, or with none the nearest Shopkeeper, Hawkman or Yeti,
+if it's swimming, and sets what it reaches charging <Cite gml="objects/oPiranha/step.gml:77-117" />. Piranhas live
+only in the Jungle and Yetis only in the Ice Caves <Cite quirk="1" />.
+
+## Reproducing it
+
+Let any Yeti in the [[ice-caves|Ice Caves]] see the player: it walks up to him, and never charges. The replay of the
+clip's staged scene, a custom level, has a Yeti on the player's floor and a Caveman walled in under him. The Yeti's
+sight check reaches the player, and the Caveman, which can't see him, charges; the Yeti walks on, sends more checks,
+and throws him when it reaches him <Cite replay="fidelity/replays/enemy-yeti-sight-never-charges.txt" />. In another
+custom level, with a Yeti swimming in a pool with two Piranhas and nothing else for them to go for, their bite sets
+it charging, turning at the walls <Cite replay="fidelity/replays/enemy-yeti-piranha-charge.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of both replays pins who charges. No option turns it off.

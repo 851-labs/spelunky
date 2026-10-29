@@ -1,0 +1,99 @@
+---
+slug: city-of-gold-stone-blocks
+title: Stone blocks without gold
+type: quirk
+categories: [quirks]
+aliases: [city-stone-block-no-gold, clean-death, no-rubble]
+card: { sprite: sGoldBlock }
+lede: >-
+  Stone blocks without gold is a quirk of Spelunky Classic in which a stone block on a Temple level breaks without
+  a trace, so the City of Gold's give no gold.
+quirk:
+  status: GML + Oracle
+  where: scripts/scrEntityGen.gml:497-499
+  pinned_by: fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt
+  entry: "1"
+  rows:
+    - Every stone block on a Temple level breaks without a trace, so the City of Gold's give no gold.
+relations:
+  related: [city-of-gold, temple]
+clips: [quirks/city-stone-block-no-gold]
+faq:
+  - q: Why do some gold blocks in the City of Gold give no gold?
+    a: >-
+      One block in ten of the City is a stone block, drawn gold like the rest. Level generation marks every
+      stone block on a Temple level to break cleanly, and a block that breaks cleanly makes neither its rubble
+      nor, in the City, its gold.
+  - q: How can I tell a stone block from a temple block in the City of Gold?
+    a: >-
+      You can't by its look: both are drawn as gold. Only breaking it tells, by whether gold flies.
+  - q: Do the Temple's stone blocks leave rubble?
+    a: >-
+      No. A stone block bombed or dug on any Temple level vanishes without rubble, where the Mines' stone blocks
+      leave theirs.
+sources:
+  - scripts/scrEntityGen.gml
+  - scripts/scrRoomGen4.gml
+  - objects/oBlock/create.gml
+  - objects/oBlock/destroy.gml
+  - objects/oTemple/destroy.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+In the [[city-of-gold|City of Gold]], every block of stone is gold, and breaking one gives three
+[[gold-chunk|Gold Chunks]] and a [[gold-nugget|Gold Nugget]]. One in ten is a stone block rather than temple
+stone, drawn gold all the same, and it gives nothing: level generation marks every stone block of a
+[[temple|Temple]] level to break cleanly, which leaves no rubble and no gold.
+
+## What happens
+
+A bomb in the City of Gold breaks a stone block and the block of temple stone beside it. The temple stone gives
+three chunks of gold and a nugget; the stone block, the same gold to look at, gives nothing
+<Cite clip="quirks/city-stone-block-no-gold" />.
+
+<Clip id="quirks/city-stone-block-no-gold" />
+
+## Why
+
+The Temple's room script makes about one block in ten of its `1` and `2` tiles a stone block (`oBlock`), and the
+rest temple stone (`oTemple`) or, for a `1` tile one time in a hundred, the Jungle's earth
+<Cite gml="scripts/scrRoomGen4.gml:317-327" />. In the
+City, a stone block's create event gives it the gold sprite <Cite gml="objects/oBlock/create.gml:3-4" />. Then
+`scrEntityGen`'s Temple branch turns some stone blocks into arrow traps, and so that those go without rubble, it
+sets the flag on all of them first:
+
+```gml scripts/scrEntityGen.gml:497-500
+    with oBlock
+    {   
+        cleanDeath = true;
+        if (not isInShop(x, y))
+```
+
+Nothing sets it back on the blocks it leaves <Cite gml="scripts/scrEntityGen.gml:497-524" />. A stone block's
+destroy event makes its rubble, or in the City its gold, only without the flag:
+
+```gml objects/oBlock/destroy.gml:1-4
+if (not cleanDeath)
+{
+
+    if (not global.cityOfGold)
+```
+
+So a stone block bombed or dug on a Temple level leaves nothing, and one in the City gives no gold. The temple
+stone has no such flag, and gives three chunks and a nugget <Cite gml="objects/oTemple/destroy.gml:21-32" />. The
+Mines' pass over stone blocks doesn't set it, so theirs leave rubble <Cite gml="scripts/scrEntityGen.gml:145-171" />
+<Cite quirk="1" />.
+
+## Reproducing it
+
+Bomb or dig the blocks of the City of Gold: about one in ten gives no gold. On any Temple level, a stone block
+leaves no rubble. The replay, with seed 9, reaches the City as a
+sacrifice pit, and the player throws a bomb onto a stone block by the entrance. It breaks that block and the
+temple stone beside it, and only one nugget and three chunks fly: the temple stone's
+<Cite replay="fidelity/replays/city-of-gold-seed-9-sacrifice-pit.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the blocks and the gold. No option turns it
+off.

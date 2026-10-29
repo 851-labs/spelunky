@@ -1,0 +1,94 @@
+---
+slug: moon-room-goal-any-win
+title: The Moon Room's goal for any win
+type: quirk
+categories: [quirks]
+aliases: [moon-gold, moon-room-unlocked, shoot-the-moving-targets]
+card: { sprite: sSilverTrophy }
+lede: >-
+  The Moon Room's goal for any win is a quirk of Spelunky Classic in which the high scores room shows the Moon
+  Room's goal for a win too slow to open it.
+quirk:
+  status: GML + Oracle
+  where: objects/oHighscores/draw.gml:41-66
+  pinned_by: fidelity/replays/flow-highscores-moon-room-slow-win.txt
+  entry: "1"
+  rows:
+    - The Moon Room's goal shows for any winning time.
+relations:
+  related: [scoring]
+clips: [quirks/moon-room-goal-any-win]
+faq:
+  - q: Why does the Moon Room show its goal when it's still locked?
+    a: >-
+      The panel beside the trophies compares the best time with 600,000, as if the time were kept in
+      milliseconds, but it's kept in seconds. So any win's time passes, while the Moon Room's door needs 600
+      seconds or less.
+  - q: How fast do you have to win to open the Moon Room?
+    a: >-
+      In 10:00 or less on the game's clock, from level 1 without a shortcut. The time's gold trophy and the
+      Moon Room's door come with it.
+  - q: Do the Sun Room and the Stars Room have the same mistake?
+    a: >-
+      No. Their panels' goals match what their doors need.
+sources:
+  - objects/oHighscores/create.gml
+  - objects/oHighscores/draw.gml
+  - scripts/scrUpdateHighscores.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+The [[scoring#the-high-scores-room|high scores room]] has a column of trophies, and climbing up beside them shows
+a panel for each secret room: its goal if it's unlocked, LOCKED. if not. The Moon Room's panel tests the best time
+against 600,000, a number of milliseconds, but the time is kept in seconds. So after any win the panel shows the
+Moon Room's goal, while its door needs a win in 10:00 or less.
+
+## What happens
+
+With one win timed at 11:40, the high scores room has the time's silver trophy but no Moon Room door. The player
+climbs the ledges beside the trophies: the Changing Room and the Stars Room read LOCKED., but beside the trophy the
+Moon Room's goal shows as if it were unlocked <Cite clip="quirks/moon-room-goal-any-win" />.
+
+<Clip id="quirks/moon-room-goal-any-win" />
+
+## Why
+
+When a game ends, `scrUpdateHighscores` turns the clock's milliseconds into seconds before it keeps the best time:
+
+```gml scripts/scrUpdateHighscores.gml:54-55
+// convert time from 1000/sec to sec to prevent overflow
+global.time = floor(global.time / 1000);
+```
+
+The high scores room reads it back as `tTime`, in seconds, and makes the Moon Room's door only for 600 or less
+<Cite gml="objects/oHighscores/create.gml:20" /> <Cite gml="objects/oHighscores/create.gml:61-65" />. But the
+panel's limit is kept in milliseconds, `moonGold = 600000` <Cite gml="objects/oHighscores/create.gml:16" />, and
+it's what the draw event tests while the player is at the Moon Room's height:
+
+```gml objects/oHighscores/draw.gml:41-47
+else if (oPlayer1.y < 80+16)
+{
+    draw_set_color(c_yellow);
+    draw_text(168, 96, "MOON ROOM");
+    draw_set_color(c_white);
+    if (tTime > 0 and tTime <= moonGold)
+    {
+```
+
+Any win under 600,000 seconds, nearly a week on the clock, passes, and the panel shows SHOOT THE MOVING TARGETS
+WITH YOUR BOW AND ARROWS! rather than LOCKED. The Sun Room's limit, `sunGold`, is in dollars and the Stars Room's,
+`starsGold`, in kills, and both match their doors <Cite gml="objects/oHighscores/create.gml:15-17" />
+<Cite quirk="1" />.
+
+## Reproducing it
+
+Win a game slower than 10:00, without a shortcut, so that it's the best time, then go into the high scores room
+and climb the ledges beside the trophies to the time's trophy. Most players' first wins are slower than that. The
+replay starts with one win at 11:40: the room has the silver trophy and no Moon Room door. The player climbs the
+trophy column ledge by ledge, past the Changing Room's and the Stars Room's LOCKED. panels, and beside the trophy
+the Moon Room's goal shows <Cite replay="fidelity/replays/flow-highscores-moon-room-slow-win.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the panel's text. No option turns it off.

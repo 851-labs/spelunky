@@ -1,0 +1,101 @@
+---
+slug: dice-angers-next-shop
+title: Dice angering the next shop
+type: quirk
+categories: [quirks]
+aliases: [market-die-angers-next-shop, carrying-the-die-out, wrong-shopkeeper]
+card: { sprite: sDice1 }
+lede: >-
+  Dice angering the next shop is a quirk of Spelunky Classic in which a die carried out of a shop's room angers the
+  nearest Shopkeeper, whoever he is.
+quirk:
+  status: GML + Oracle
+  where: objects/oDice/step.gml:1-17
+  pinned_by: fidelity/replays/shop-seed-9-market-dice-carried-out.txt
+  entry: "1"
+  rows:
+    - A Dice House's die angers the nearest Shopkeeper wherever it's outside a shop's room.
+relations:
+  related: [dice-house, black-market, shopkeeper, clothing-shop]
+clips: [quirks/market-die-angers-next-shop]
+faq:
+  - q: Can you carry a Dice House's die into another shop?
+    a: >-
+      Yes. The die angers a Shopkeeper only outside a shop's room, and any shop's room counts, so in the
+      [[black-market|Black Market]] a die carried into the next shop angers no one.
+  - q: Which Shopkeeper does a stolen die anger?
+    a: >-
+      The nearest one to the die, whichever shop is his. On an ordinary level that's the Dice House's own, but in
+      the Black Market it can be another shop's, while the Dice House's stays calm.
+  - q: Does carrying a die out make you a thief?
+    a: >-
+      Yes. It angers the Shopkeeper as a theft does, with "COME BACK HERE, THIEF!", and raises the thief level the
+      same way.
+sources:
+  - objects/oDice/step.gml
+  - scripts/isInShop.gml
+  - scripts/scrShopkeeperAnger.gml
+  - scripts/scrRoomGenMarket.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+A [[dice-house|Dice House]]'s die mustn't leave the shop: carried out, it angers a [[shopkeeper|Shopkeeper]]. But
+the die's check is only whether it's in a shop's room, any shop's, and the Shopkeeper it angers is the nearest one,
+any shop's. On an ordinary level the two are the Dice House's. In the [[black-market|Black Market]], whose shops
+stand side by side, a die can pass through the next shop unnoticed and anger that shop's Shopkeeper when it leaves.
+
+## What happens
+
+In the Black Market, the Dice House's die is carried left through the [[clothing-shop|Clothing Shop]], a shop's
+room, so no one minds. Carried on out of it, the die angers the nearest Shopkeeper: the Clothing Shop's runs out
+after the player, while the Dice House's stays where he is <Cite clip="quirks/market-die-angers-next-shop" />.
+
+<Clip id="quirks/market-die-angers-next-shop" />
+
+## Why
+
+On every step a die is near the screen on a level, its step checks whether it's in a shop:
+
+```gml objects/oDice/step.gml:10-17
+    // stealing makes shopkeeper angry
+    if (isLevel())
+    {
+        if (not isInShop(x, y))
+        {
+            scrShopkeeperAnger(0);
+        }
+    }
+```
+
+`isInShop` is true in any room of the level that's a shop's or a Dice House's, not only the die's own
+<Cite gml="scripts/isInShop.gml:7-13" />. And the anger falls on the nearest Shopkeeper to the die, whoever's he
+is:
+
+```gml scripts/scrShopkeeperAnger.gml:7-12
+shp = instance_nearest(x, y, oShopkeeper);
+if (shp)
+{
+    if (not shp.dead and not shp.angered)
+    {
+        shp.status = 2;
+```
+
+On an ordinary level there's one shop, so the two are the Dice House's room and Shopkeeper, unless the die is
+nearer the Shopkeeper who waits by the exit for a thief or a murderer. The Black Market's Dice House opens on its
+left into an item shop, and that one onto the way down <Cite gml="scripts/scrRoomGenMarket.gml:117-146" />. A die
+carried into the item shop is still in a shop's room, and carried on out of it, it's nearest that shop's
+Shopkeeper <Cite quirk="1" />.
+
+## Reproducing it
+
+In any Black Market, pick up the Dice House's die and walk left through the shop beside it and out of it: the
+market's rooms are always laid out the same way <Cite gml="scripts/scrLevelGen.gml:44-69" />. The replay, with seed 9, does it in the market on level 6: the player picks up a die in Tarn's Dice House
+and carries it left through Wang's Clothing Shop, where nothing happens. Out in the next room, "COME BACK HERE,
+THIEF!": the Clothing Shop's Shopkeeper runs out after him and knocks him down, and the Dice House's is never
+angered <Cite replay="fidelity/replays/shop-seed-9-market-dice-carried-out.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins which Shopkeeper is angered. No option turns it
+off.

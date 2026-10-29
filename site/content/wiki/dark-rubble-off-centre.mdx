@@ -1,0 +1,89 @@
+---
+slug: dark-rubble-off-centre
+title: Dark rubble landing off-centre
+type: quirk
+categories: [quirks]
+aliases: [rand-0-8, off-centre-rubble, off-center-rubble]
+card: { sprite: sRubbleDark }
+lede: >-
+  Dark rubble landing off-centre is a quirk of Spelunky Classic in which the Ice Caves' rock leaves its rubble 8
+  pixels right of and below where it should.
+quirk:
+  status: GML + Oracle
+  where: objects/oDark/destroy.gml:5-7
+  pinned_by: fidelity/replays/terrain-dark-rubble-off-centre.txt
+  entry: "1"
+  rows:
+    - Dark rock's rubble lands off-centre.
+relations:
+  related: [ice-caves, mothership]
+clips: [quirks/dark-rubble-off-centre]
+faq:
+  - q: Why does the Ice Caves' rubble fall to the right of the block?
+    a: >-
+      The line that places it has a typo: `rand(0-8)` where it means `rand(0,8)`. That draws a number from -8 to
+      0 instead of 0 to 8, and subtracting it puts the rubble 8 to 24 pixels right of and below the block's
+      corner, not around its middle.
+  - q: Does the mothership's hull do it too?
+    a: >-
+      Yes. The [[mothership|mothership]]'s hull has the same line, so its rubble lands off-centre as the rock's
+      does.
+  - q: Does it change anything but where the rubble falls?
+    a: >-
+      No. Both lines draw the same random numbers, so what comes after is the same; only the rubble's place
+      differs.
+sources:
+  - objects/oDark/destroy.gml
+  - objects/oAlienShip/destroy.gml
+  - objects/oBrick/destroy.gml
+  - scripts/rand.gml
+verified: { port: v0.1.11, date: 2026-10-28 }
+---
+
+A block that breaks leaves three pieces of rubble around its middle. The [[ice-caves|Ice Caves]]' dark rock, and
+the [[mothership|mothership]]'s hull, leave theirs off-centre, to the right of where the block stood and below
+it, because of a typo in the line that places them: `rand(0-8)`, a minus where a comma should be.
+
+## What happens
+
+The player breaks a brick with a [[mattock|Mattock]], and its rubble falls where the brick stood. He jumps a pit
+and breaks a block of the Ice Caves' dark rock: its rubble comes out to the right of the block and below it, and
+falls past the block's edge <Cite clip="quirks/dark-rubble-off-centre" />.
+
+<Clip id="quirks/dark-rubble-off-centre" />
+
+## Why
+
+A brick's destroy event puts each piece of its rubble at the block's middle, plus or minus up to 8 pixels:
+
+```gml objects/oBrick/destroy.gml:5
+    instance_create(x+8+rand(0,8)-rand(0,8), y+8+rand(0,8)-rand(0,8), oRubble);
+```
+
+The dark rock's has `rand(0-8)` in place of the second `rand(0,8)`:
+
+```gml objects/oDark/destroy.gml:5-7
+    instance_create(x+8+rand(0,8)-rand(0-8), y+8+rand(0,8)-rand(0-8), oRubbleDark);
+    instance_create(x+8+rand(0,8)-rand(0-8), y+8+rand(0,8)-rand(0-8), oRubbleDarkSmall);
+    instance_create(x+8+rand(0,8)-rand(0-8), y+8+rand(0,8)-rand(0-8), oRubbleDarkSmall);
+```
+
+`0-8` is one argument, -8. `rand` returns a whole number from its first argument to its second
+<Cite gml="scripts/rand.gml:1-2" />, and the missing second is 0, so `rand(0-8)` is -8 to 0. Subtracted, it adds 0
+to 8, and the rubble lands 8 to 24 pixels right of and below the block's corner, where `rand(0,8)-rand(0,8)`'s -8
+to 8 centres it on the block. Both draw the same random numbers, so only the rubble's place differs. The
+mothership's hull has the same line <Cite gml="objects/oAlienShip/destroy.gml:3-5" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Break any block of the Ice Caves' dark rock, with a bomb or the Mattock, and watch where its rubble starts. The
+replay of the clip's staged scene, a custom level, has a brick and a block of dark rock each over a pit. The
+brick's rubble starts over the brick's own place; the dark rock's starts 13 to 23 pixels right of its corner
+and 16 to 19 below it, and falls past its right edge
+<Cite replay="fidelity/replays/terrain-dark-rubble-off-centre.txt" />. In play, a bomb that breaks the hull of
+the mothership leaves the same off-centre rubble <Cite replay="fidelity/replays/ice-seed-63-barrier-through.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins every piece's place. No option turns it off.
