@@ -547,16 +547,22 @@ impl<G: Game> App<G> {
     /// The page has already heard the default (`web::run` says it as it starts).
     pub fn with_embed(mut self, embed: Embed) -> App<G> {
         if let Source::Replay(replay) = &self.source {
+            // The clip's frames run through to the replay's end before the first shows, if it has any: a
+            // replay that ends before them holds its last frame, as without.
+            let through = (replay.len() > embed.from).then(Vec::new);
             self.embed = Some(Embedded {
-                // The clip's frames run through to the replay's end before the first shows.
-                seek: replay.len().max(embed.from),
+                seek: if through.is_some() {
+                    replay.len()
+                } else {
+                    embed.from
+                },
                 savestates: Savestates::new(embed.from),
                 embed,
                 told: Playback::default(),
                 length: replay.len(),
                 sought: None,
                 replay: None,
-                through: Some(Vec::new()),
+                through,
                 state: None,
                 states: None,
             });
@@ -699,6 +705,11 @@ impl<G: Game> App<G> {
         let now = Instant::now();
         let mut ticks = 0;
         loop {
+            // The run through the clip is over: its seek back to the first frame comes first, at the next call,
+            // even paused, rather than a tick past the replay's end, which would hold the last frame.
+            if self.embed.as_ref().is_some_and(|e| e.sought.is_some()) {
+                break;
+            }
             let skipping = self.skipping();
             if skipping {
                 if now.elapsed() >= SKIP_SLICE {

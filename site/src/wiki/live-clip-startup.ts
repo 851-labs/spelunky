@@ -1,6 +1,7 @@
 // The live clip player's bound on the game's start-up run (live-clip-player.tsx): the replay's frames before the
 // clip's first (and the clip's own, for a game that runs it through first), which the game runs unshown, as fast as
-// the device runs them, before it says it's ready. One that takes too long goes back to the video. Its own module, without React, so that test-wiki.mjs can test it.
+// the device runs them, before it says it's ready. One that takes too long goes back to the video. Its own module,
+// without React, so that test-wiki.mjs can test it.
 //
 // Kali's spiders, the latest clip (from frame 8,850), get there in 3.5 s on an M1 Pro in Chromium, 9 s with its CPU
 // slowed twice, and 17 to 21 s slowed four times (Lighthouse's mid-range phone), so there every clip makes it, or
