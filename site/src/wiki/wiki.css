@@ -118,7 +118,7 @@ h3 { font-size: 16px; }
    whether its disclosure is open or not but on a phone, where its title is the toggle; or on a wide screen,
    the rail. */
 .toc {
-  display: flow-root; width: fit-content; max-width: 100%; margin: 16px var(--ring) 8px; padding: 10px 20px 12px 14px;
+  display: flow-root; width: fit-content; max-width: calc(100% - 2 * var(--ring)); margin: 16px var(--ring) 8px; padding: 10px 20px 12px 14px;
   background: var(--panel); box-shadow: 0 0 0 var(--ring) var(--dirt);
 }
 .toc-title { margin: 0 0 4px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); font-size: 14px; }
@@ -287,7 +287,7 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .references, .sources { font-size: 14px; padding-left: 0; }
 .references li, .sources li { break-inside: avoid; overflow-wrap: anywhere; }
 .references li { margin-left: 3ch; }
-.references:has(> li:nth-child(10)) li { margin-left: 4ch; }
+.references:has(> li:nth-child(10)) > li { margin-left: 4ch; }
 .sources li { margin-left: 2ch; }
 @media (min-width: 1000px) {
   .references, .sources { columns: 2; column-gap: 32px; }

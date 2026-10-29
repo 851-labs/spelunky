@@ -31,7 +31,7 @@ const SIDE_MARGINS = {
 };
 
 // The stylesheet's rules, with the media query each is in: { media, selectors, decls: [[property, value]] }.
-export function parseCss(source) {
+function parseCss(source) {
   const rules = [];
   const parse = (src, media) => {
     let i = 0;
@@ -43,11 +43,15 @@ export function parseCss(source) {
       let j = open + 1;
       for (; depth > 0; j++) {
         if (j >= src.length) throw new Error(`unbalanced braces after ${head}`);
-        if (src[j] === "{") depth++;
+        if (src[j] === '"' || src[j] === "'") j = src.indexOf(src[j], j + 1);
+        else if (src[j] === "{") depth++;
         else if (src[j] === "}") depth--;
       }
       const body = src.slice(open + 1, j - 1);
       if (head.startsWith("@media")) parse(body, head.slice("@media".length).trim());
+      // Any other block's rules (@supports, @layer, @container) would be read as one rule: say so, rather than
+      // leave them unchecked.
+      else if (head.startsWith("@")) throw new Error(`wiki.css: ${head.split(/\s/)[0]}, which the keyline's check doesn't read`);
       else {
         const decls = splitTop(body, ";")
           .map((d) => d.trim())
@@ -62,15 +66,20 @@ export function parseCss(source) {
   return rules;
 }
 
-// SRC split on SEP outside parentheses (a selector's :is(a, b), a shadow's calc(2 * x)).
+// SRC split on SEP outside parentheses (a selector's :is(a, b), a shadow's calc(2 * x)) and strings (a
+// content: "·" / "").
 function splitTop(src, sep) {
   const parts = [];
   let depth = 0;
+  let quote = null;
   let cur = "";
   for (const ch of src) {
-    if (ch === "(") depth++;
+    if (quote) {
+      if (ch === quote) quote = null;
+    } else if (ch === '"' || ch === "'") quote = ch;
+    else if (ch === "(") depth++;
     else if (ch === ")") depth--;
-    if (ch === sep && depth === 0) {
+    if (ch === sep && depth === 0 && !quote) {
       parts.push(cur);
       cur = "";
     } else cur += ch;
@@ -121,7 +130,7 @@ function outsideEdge(value) {
 const ZERO = new Set(["0", "auto", undefined]);
 
 // The keyline's problems in SOURCE, wiki.css's text: a message each.
-export function keylineProblems(source) {
+function keylineProblems(source) {
   const rules = parseCss(source);
   const problems = [];
   const declsOf = (selector) => rules.filter((r) => r.selectors.includes(selector));
@@ -154,8 +163,10 @@ export function keylineProblems(source) {
           problems.push(`${selector}: box-shadow draws ${edge}, which the keyline's check can't read`);
           continue;
         }
-        if (selector in OUT_OF_COLUMN) continue;
-        const holder = INSET_BY[selector] ?? selector;
+        // A state's ring (a:hover's, [data-pressed]'s) is the block's own, which its base selector insets.
+        const base = selector.replace(/:(hover|focus|focus-visible|focus-within|active)\b|\[data-[\w-]+\]/g, "");
+        if (base in OUT_OF_COLUMN) continue;
+        const holder = INSET_BY[base] ?? base;
         const token = `var(--${edge})`;
         const margins = rules.filter((r) => r.selectors.includes(holder)).map((r) => sideMargins(r.decls));
         const lefts = margins.map((m) => m.left).filter((m) => m !== undefined);
