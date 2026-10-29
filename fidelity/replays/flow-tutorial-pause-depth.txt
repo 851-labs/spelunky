@@ -1,0 +1,32 @@
+# The pause screen's depth in rTutorial is below zero (851-3661): the Tutorial is level 0, and oScreen's
+# begin step works the depth out as for any level, 174.8*(currLevel-1)+(py+8)*0.34 feet. As
+# fidelity/replays/movement-tutorial-exit.txt into rTutorial (frame 565), with its input after that 60 frames
+# later. The player pauses where he starts (568, py 72: DEPTH: -147.60 FEET), unpauses (628), walks right,
+# whipping the snake, and drops into the lower cave, landing on its floor stunned and a heart down (947), and
+# pauses again there (980, py 264: -82.32 FEET, still below zero at the cave's bottom), then unpauses (1040).
+# story: room=rTutorial@565 currLevel=0@565 oScreen.paused=1@568 oScreen.py=72@568 oScreen.paused=0@628
+# story: oScreen.paused=1@980 oScreen.py=264@980 oScreen.paused=0@1040 plife=3@949 !oPlayer1.dead=1
+seed 12345
+frames 1080
+# Start (frames 0-569): a fresh highscore table, so a first-time player. Skips the intro with the attack
+# key (X, twice), walks left on the title screen into the START door, which leads into rTutorial (frame 565).
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+# The first pause, where the player starts.
+568 hold escape 2
+628 hold escape 2
+# movement-tutorial-exit.txt's movement, 60 frames later, to the lower cave.
+630 hold right 90
+658 hold Z 10
+685 hold Z 14
+702 hold Z 8
+768 hold X 2
+782 hold X 2
+796 hold X 2
+812 hold right 135
+902 hold Z 10
+# The second pause, on the lower cave's floor.
+980 hold escape 2
+1040 hold escape 2

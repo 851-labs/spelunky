@@ -7315,6 +7315,42 @@
       "width": 640
     },
     {
+      "audio_hash": "22eb2b5b7e7ae602",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player enters the Tutorial cave and pauses: the pause screen gives his depth as -147.60 feet. He walks on, drops into the lower cave and pauses again on its floor, the lowest he can stand, and the depth is still below zero, -82.32 feet.",
+      "duration": 16.7,
+      "encoding": "337b00f13dc4b7f6",
+      "files": {
+        "mp4": "quirks/tutorial-negative-depth/clip.mp4",
+        "poster": "quirks/tutorial-negative-depth/poster.png",
+        "replay": "quirks/tutorial-negative-depth/replay.txt",
+        "webm": "quirks/tutorial-negative-depth/clip.webm"
+      },
+      "fps": 30,
+      "frames": 501,
+      "frames_hash": "a63c4845fe0d968a",
+      "from": 560,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/tutorial-negative-depth",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 600,
+      "replay_from": 560,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/flow-tutorial-pause-depth.txt"
+      },
+      "spec": "wiki/clips/quirks/tutorial-negative-depth.toml",
+      "state_hash": "f8e4da0e1549a20a",
+      "states_hash": "fec4a3b5e61be4ae",
+      "title": "The Tutorial's negative depth",
+      "to": 1060,
+      "width": 640
+    },
+    {
       "audio_hash": "094e2e568cac9a52",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The player carries two damsels onto a custom level's exit, one after the other, and goes through. The screen between levels shows both damsels in his loot, but only one kisses him, and only one heart rises.",
