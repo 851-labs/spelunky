@@ -818,6 +818,8 @@ node test-wiki.mjs || fail "test-wiki.mjs"
 # Every pre-rendered page's links on the site, the wiki's pages reachable from /wiki, and none to come that no
 # ticket is writing.
 node test-links.mjs dist/client || fail "test-links.mjs"
+# Every block's left edge on its column's keyline, from the stylesheet.
+node test-keyline.mjs || fail "test-keyline.mjs"
 # The content types the Worker sets itself, against an asset store like Cloudflare's rather than wrangler dev's,
 # which adds the .txt files' charset that spelunky.ai's doesn't.
 node test-server.mjs || fail "test-server.mjs"

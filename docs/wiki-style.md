@@ -244,6 +244,20 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   - **The width**: the frame is up to 1400 pixels wide, but the prose and the tables stop at 75 characters,
     so on a wide screen the room goes to the rail, the infobox and the References, which are in two columns
     (read down the first, then the second) from 1000 pixels up. Below 1200 the frame stays 1000 wide.
+  - **The keyline** (851-3640): every block in a column starts on the column's left edge, `--gutter` (16
+    pixels) in from the window's: the title, the text, the headings, the forms, the card grids, the clips,
+    the tables, the lists, the References, the navboxes, the footer. A layout has one keyline per column: a
+    page's main column, and on a wide screen the rail's, which is the page's, under the logo (its entries'
+    highlight and gold bar hang into the gutter). What sits on it is the block's edge as drawn: its text, its
+    border, or the ring or stone frame drawn outside its box (`box-shadow`), so a block with a ring has
+    `margin-inline: var(--ring)` (4 pixels) and one with a frame `var(--frame)` (8), and the ring, not the box,
+    is on the line; a grid of ringed tiles is inset as a whole. A list's markers are on it, its text after
+    them (a bullet is 2 characters of the monospace font, a number 3, or 4 from a tenth item). A clip's video
+    keeps its 640 pixels inside its ring. The right edge is the column's too: nothing runs past it at 390,
+    1024 or 1280 pixels but the stone frames' drop shadow, a shadow and not an edge, and what scrolls in a box
+    of its own (code, a wide table on a phone). The tokens are `wiki.css`'s `:root`'s, and
+    `site/test-keyline.mjs` checks the stylesheet keeps to them: a box drawn with a ring is inset by it, no
+    block has a left margin of its own, and the lists' padding is their markers'.
   - **See also**, after the FAQ and the Gallery: the other relations and inverses (Damaged by, Damages,
     Found here, Related), and **What links here**, after the References ([Relations](#relations), [Links
     and navboxes](#links-and-navboxes)).
@@ -317,7 +331,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   set of pages that link and relate to each other (inverses, What links here, their twins' links and
   `/llms.txt`), their citations' links to the source viewer, their replays' and quirk rows' links (to
   GitHub, the clips and the quirk pages), and a set of broken ones, each of which must
-  fail the build with its error, searches the index of the committed pages, and checks their hover cards.
+  fail the build with its error, searches the index of the committed pages, and checks their hover cards; and
+  `site/test-keyline.mjs`, which checks `wiki.css` keeps every block on the keyline (The keyline, above).
 
 ## Tone
 
