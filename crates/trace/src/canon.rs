@@ -244,14 +244,14 @@ pub fn encode_frame(out: &mut Vec<u8>, f: &Frame) {
     e.vars(builtins.as_ref());
 }
 
-/// A fixed 64-bit hash: replay fingerprints' (`harness::fingerprint`), and the wiki clips' state at their first
-/// frame (`gm::World::frame_hash`). It's defined here, not the platform's `Hasher`, so what's committed stays the
-/// same across Rust releases and targets, native and wasm32 (gm's tests pin it, and run on both). Four lanes, each starting from its own seed and the length, take turns at the
-/// 8-byte little-endian words (in 32-byte blocks, the last zero-padded), mixing each in by xor, multiply and
-/// rotate; then the lanes are folded together and MurmurHash3's finalizer applied. Each step is a bijection
-/// of a lane, so two inputs of the same length that differ in one word always differ after it. Four lanes
-/// run four times as fast as one, which matters at hundreds of KB a frame. Not cryptographic: it only has
-/// to catch accidental differences.
+/// A fixed 64-bit hash: replay fingerprints' (`harness::fingerprint`), and the wiki clips' state at their
+/// first frame (`gm::World::frame_hash`). It's defined here, not the platform's `Hasher`, so what's committed
+/// stays the same across Rust releases and targets, native and wasm32 (gm's tests pin it, and run on both).
+/// Four lanes, each starting from its own seed and the length, take turns at the 8-byte little-endian words
+/// (in 32-byte blocks, the last zero-padded), mixing each in by xor, multiply and rotate; then the lanes are
+/// folded together and MurmurHash3's finalizer applied. Each step is a bijection of a lane, so two inputs of
+/// the same length that differ in one word always differ after it. Four lanes run four times as fast as one,
+/// which matters at hundreds of KB a frame. Not cryptographic: it only has to catch accidental differences.
 pub fn hash(bytes: &[u8]) -> u64 {
     const K: u64 = 0x9e37_79b9_7f4a_7c15;
     let mix = |h: u64, w: u64| (h ^ w).wrapping_mul(K).rotate_left(31);

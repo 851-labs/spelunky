@@ -305,6 +305,15 @@ fn check_media(
                 wrong.push(format!("{}: clip.json's {key} isn't the spec's", clip.id));
             }
         }
+        // Nor one it left out: a `state_hash` from when the clip had a replay to play it from.
+        for key in got.as_object().into_iter().flatten().map(|(k, _)| k) {
+            if want.get(key).is_none() {
+                wrong.push(format!(
+                    "{}: clip.json has {key}, which the spec doesn't",
+                    clip.id
+                ));
+            }
+        }
         for file in ["clip.mp4", "clip.webm", "poster.png"] {
             if !dir.join(file).is_file() {
                 wrong.push(format!("{}: no {file}", clip.id));
@@ -387,6 +396,13 @@ fn check(
     let failed = watcher.finish()?;
     if !failed.is_empty() {
         return Err(format!("story facts failed: {}", failed.join("; ")));
+    }
+    // The run got to the clip's last frame, so past its first: a page with no state to hold the game to would
+    // fail its build.
+    if live && state_hash.is_none() {
+        return Err(format!(
+            "the run never showed the clip's first frame, {first}"
+        ));
     }
     if !source.settings {
         return Ok((GAME_SIZE, state_hash));
@@ -763,9 +779,15 @@ fn render(
     }
     // The page's live play holds the web build's game to `state_hash`, and that game is the app's: so the
     // app's run must get there too, or every page would show the video rather than the game.
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let prefix = format!("state at frame {first}: ");
+    // Whatever else the app says, as it would have said it.
+    let said: String = (stdout.lines())
+        .filter(|l| !l.starts_with(&prefix))
+        .map(|l| format!("{l}\n"))
+        .collect();
+    write_stdout(&said)?;
     if let Some(want) = state_hash {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        let prefix = format!("state at frame {first}: ");
         let got = stdout.lines().find_map(|l| l.strip_prefix(&prefix));
         if got != Some(want.as_str()) {
             return Err(format!(
