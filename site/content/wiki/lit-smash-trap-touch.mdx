@@ -1,0 +1,92 @@
+---
+slug: lit-smash-trap-touch
+title: The lit Smash Trap's harmless touch
+type: quirk
+categories: [quirks]
+aliases: [crush-only, no-ten-hearts, lit-trap-touch]
+card: { sprite: sSmashTrapLit }
+lede: >-
+  The lit Smash Trap's harmless touch is a quirk of Spelunky Classic in which a dark level's Smash Trap's touch
+  takes no hearts: it only crushes.
+quirk:
+  status: GML + Oracle
+  where: objects/oPlayer1/step.gml:1649-1668
+  pinned_by: fidelity/replays/trap-dark-smash.txt
+  entry: "1"
+  rows:
+    - A lit smash trap isn't a smash trap to the player.
+relations:
+  related: [smash-trap, dark-level, temple]
+clips: [smash-trap/lit]
+faq:
+  - q: Does a Smash Trap hurt the player on a dark level?
+    a: >-
+      Not by touching him. A dark level's [[smash-trap|Smash Trap]] is the lit kind, which the player's code
+      doesn't count as a Smash Trap, so its touch takes none of the 10 hearts a plain one's does. It still
+      kills him by sliding on into him until he's crushed.
+  - q: Does the lit Smash Trap knock the player back or make him drop what he holds?
+    a: >-
+      No. Both are part of the plain Smash Trap's hit, which the lit kind never sets off.
+  - q: What does a lit Smash Trap's kill count as in the statistics?
+    a: >-
+      Crushed, as anything solid's crush is, not the smash trap row.
+sources:
+  - objects/oPlayer1/step.gml
+  - objects/oSmashTrapLit/step.gml
+  - scripts/scrEntityGen.gml
+verified: { port: v0.1.12, date: 2026-10-28 }
+---
+
+A [[smash-trap|Smash Trap]] hits the player for 10 hearts on every step it touches him, throws him and makes him
+drop what he holds. On a [[dark-level|dark level]] the [[temple|Temple]] makes the lit kind instead, which glows
+and slides as the plain one does, but isn't a Smash Trap to the one check that hits the player, so its touch
+does nothing. It kills only by sliding on into him until he's crushed.
+
+## What happens
+
+On a dark Temple level, the player jumps into the line of a lit Smash Trap. It slides at him, and its touch
+neither takes hearts nor throws him: it slides on into him, and crushes him <Cite clip="smash-trap/lit" />.
+
+<Clip id="smash-trap/lit" />
+
+## Why
+
+On a dark level, `scrEntityGen` makes `oSmashTrapLit` where it would make `oSmashTrap`
+<Cite gml="scripts/scrEntityGen.gml:469-470" />. The lit kind has the plain one's code
+<Cite gml="objects/oSmashTrapLit/step.gml:1-137" />, but not the plain one as its parent: both are children of
+`oMovingSolid`, where the lit Arrow and Spear Traps are children of their plain kinds <Cite quirk="1" />. The
+player's step looks for a Smash Trap by name:
+
+```gml objects/oPlayer1/step.gml:1649-1657
+if (collision_rectangle(x-6, y-6, x+6, y+7, oSmashTrap, 0, 0))
+{
+    if (global.plife > 0 and isRealLevel()) global.miscDeaths[8] += 1;
+
+    obj = instance_nearest(x, y, oSmashTrap);
+    global.plife -= 10;
+    if (obj.x+8 < x) xVel = -rand(4,6);
+    else xVel = rand(4,6);
+    yVel = -6;
+```
+
+A check for `oSmashTrap` finds its children, and the lit kind isn't one, so none of it runs: no 10 hearts, no
+throw, no dropping what he holds <Cite gml="objects/oPlayer1/step.gml:1658-1668" />, and no count in the deaths
+table's `SMASH TRAP` row (`miscDeaths[8]`). The lit trap is still solid, so once it has slid into him until his
+middle is inside it, the crush check any solid sets off takes 99 hearts, counted as `CRUSHED`
+(`miscDeaths[2]`) <Cite gml="objects/oPlayer1/step.gml:1492-1511" />.
+
+## Reproducing it
+
+Reach a dark Temple level with a Smash Trap, which one block in sixty gets once the monsters' rolls fail, and
+step into its line <Cite gml="scripts/scrEntityGen.gml:466-471" />. The replay, with
+seed 1, waits at level 13's exit until level 14 comes up dark, with six lit Smash Traps, and jumps the player
+into one's line. It slides at him, and his 4 hearts go all at once, on the step it crushes him, with the
+crush's `yVel` of -3; no step before has the hit's -6. The kill is counted as crushed, never as the smash trap
+<Cite replay="fidelity/replays/trap-dark-smash.txt" />. A plain Smash Trap's touch, on a lit level, takes 10 hearts
+a step before it crushes him <Cite replay="fidelity/replays/trap-smash-crush.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprint of the replay pins the hearts, the player's `yVel` and the
+deaths table. No option turns it off.
