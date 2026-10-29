@@ -185,8 +185,17 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .clip-slider[data-disabled] .clip-slider-control { cursor: default; }
 .clip-slider[data-disabled] .clip-slider-indicator, .clip-slider[data-disabled] .clip-slider-thumb { background: var(--dirt-light); box-shadow: none; }
 .clip-time { color: var(--dim); font-size: 13px; font-variant-numeric: tabular-nums; }
-/* A phone keeps the video: the game needs a keyboard, and it's megabytes. */
-@media (hover: none), (pointer: coarse) { .clip-live { display: none; } }
+/* A touch screen: the button only where the game plays on phones (live-clip.tsx), the note without the keys
+   to take over with, and the controls a finger's size. */
+.clip-live-touch { display: none; }
+@media (hover: none), (pointer: coarse) {
+  .clip-live:not([data-phones]) { display: none; }
+  .clip-live-keys { display: none; }
+  .clip-live-touch { display: inline; }
+  .clip-button { min-height: 44px; padding: 8px 14px; }
+  .clip-slider-control { height: 44px; }
+  .clip-slider-thumb { width: 20px; height: 32px; }
+}
 .gml { margin: 12px 0; }
 .gml pre { margin: 0; padding: 12px; overflow-x: auto; background: #000a; box-shadow: 0 0 0 var(--px) var(--dirt); }
 .gml figcaption { margin-top: 6px; color: var(--dim); font-size: 12px; }
