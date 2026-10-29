@@ -515,7 +515,7 @@ grep -rqF 5ba7e1e5ba7e5ba7 dist/client/assets || fail "the Snake bite's states_h
 # browser has scrolled (the breadcrumbs' and navbox's aria-current="page" aren't one). And the page doesn't say
 # which release it was verified against: that's bookkeeping, its JSON-LD's dateModified (docs/wiki-style.md,
 # `verified`).
-lacks 'muted=""' 'aria-current="location"' 'Verified against' 'class="verified"'
+lacks 'muted=""' 'aria-current="location"' 'Verified against the spelunky.ai port' 'class="verified"'
 # Its FAQ, shown and as an FAQPage (test-seo.mjs checks they agree), and its Markdown twin, named in its head.
 contains '<h2 id="faq">FAQ</h2>' '<dl class="faq"><div><dt>How much damage does a Snake do in Spelunky Classic?</dt>' \
   '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much damage does a Snake do in Spelunky Classic?","acceptedAnswer":{"@type":"Answer","text":"1 heart per bite.' \

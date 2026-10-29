@@ -57,7 +57,7 @@ Every page:
 | `faq` | Three to five [questions and answers](#faq-blocks). Not on guides, which are the answer. |
 | `sources` | The code that defines the thing: object events and scripts, without lines (`objects/oSnake/step.gml`). Rendered as a "Source code" list under References; line-level citations go in the body ([Citing](#citing-the-code)). |
 | `spoiler` | `true` on a page about a secret ([Spoilers](#spoilers)). Optional. |
-| `verified` | `{ port: v0.1.7, date: 2026-10-27 }`: the port release the page was last checked against and when ([Verify](#verify-before-publishing)). Not shown on the page or in its Markdown twin (it's bookkeeping, not something a reader needs): the date is the page's `dateModified` in its Article JSON-LD and its `lastmod` in `/sitemap.xml`, and orders `/wiki`'s featured pages. |
+| `verified` | `{ port: v0.1.7, date: 2026-10-27 }`: the port release the page was last checked against and when ([Verify](#verify-before-publishing)). Not shown on the page or in its Markdown twin (it's bookkeeping, not something a reader needs): the date is the page's `dateModified` in its Article JSON-LD and its `lastmod` in `/sitemap.xml`, and orders `/wiki`'s featured pages; the port is the record of which release the facts were checked against, for whoever re-verifies the page. |
 
 Strings in `lede`, `hatnote`, infobox `text` and FAQ answers are inline MDX: they may use `[[links]]` and
 `<Stat>`, and are rendered to plain text where plain text is needed (meta tags, JSON-LD).

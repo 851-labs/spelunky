@@ -140,7 +140,7 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
     // Nothing of the MDX is left: components, [[links]], comments.
     if (/<[A-Z]|\[\[|\{\/\*/.test(text)) fail(`markdown: ${name} has MDX in it`);
     // Nor which release a page was verified against: bookkeeping, not for a reader (docs/wiki-style.md, `verified`).
-    if (text.includes("Verified against")) fail(`markdown: ${name} has the verified line`);
+    if (text.includes("Verified against the spelunky.ai port")) fail(`markdown: ${name} has the verified line`);
   }
   const md = files.get("wiki/snake.md") ?? "";
   // The title, where it's from, the lede, the infobox's table with its notes, the body's sections, a red

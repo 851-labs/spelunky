@@ -158,7 +158,7 @@ export const frontmatter = z
       date: z
         .string()
         .regex(/^\d{4}-\d{2}-\d{2}$/, "a date (2026-10-27)")
-        // A real one: the layout writes its month out, and the sitemap and JSON-LD carry it.
+        // A real one: the sitemap and JSON-LD carry it.
         .refine((date) => !Number.isNaN(Date.parse(date)) && new Date(date).toISOString().startsWith(date), "a date that exists"),
     }),
   })
