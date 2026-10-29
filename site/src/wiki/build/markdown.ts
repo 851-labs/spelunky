@@ -295,7 +295,6 @@ function reference({ kind, target, href, clips, quirk }: Reference, page: string
       return [text("Clip "), clipLink(target, target)];
     case "quirk": {
       if (!quirk) return [text(`docs/quirks.md §${target}`)];
-      if (quirk.rows.length === 0) return [link(quirk.href, text(`docs/quirks.md §${target}, ${quirk.section}`))];
       return [
         ...quirk.rows.flatMap((row, i) => [
           ...(i === 0 ? [] : [text(" ")]),

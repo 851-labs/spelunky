@@ -698,11 +698,10 @@ Spelunky Classic does.
   it, linking to the quirk page that names the row in its `rows`, or to the row's line in `docs/quirks.md` on
   GitHub (at the commit too) where no page does, then the section's name, linking to the row on GitHub when
   the quote went to a quirk page, and to the section's heading when it didn't. Two openings of one row are one
-  note. A quirk citation
-  without `row=` is its section's, by title, linked to the section's heading: say which row (`row=`) instead,
-  except on a quirk page citing its own rows (851-3644 to 851-3648 and 851-3691 name the rest, and 851-3649
-  then makes the build fail without one). A quirk box's Pinned by links to its replay (or a test's file; a test named only by
-  its name is text) and its rows to their lines. A room citation links to the room's page in the source
+  note. The build fails on a quirk citation without `row=`, as a section as a whole is a table of up to 150
+  rows, except on a quirk page citing its own section (its `entry`), which cites the page's rows. A quirk box's
+  Pinned by links to its replay (or a test's file; a test named only by its name is text) and its rows to their
+  lines. A room citation links to the room's page in the source
   viewer (`/wiki/source/rooms/rOlmec`), which lists its settings and every instance the room editor placed,
   by object, with their positions: what a room citation says is there. Not the place's page: many are on that
   very page (the Tutorial's and Olmec's Lair's cite their own rooms), and most rooms have none (the title
