@@ -101,7 +101,7 @@ started from a shortcut doesn't set a best time <Cite gml="scripts/scrUpdateHigh
 A new high score table owes $1 more than each price, and the screen where the Tunnel Man would wait only takes
 that $1 off, with no Tunnel Man; so he first appears the next time the screen is reached
 ([[tunnel-man-skips-first-visit]]). Paying off the level
-9 shortcut does the same to the level 13 one <Cite gml="scripts/scrResetHighscores.gml:32-33" /> <Cite gml="objects/oTransition/create.gml:47-61" /> <Cite quirk="1" />.
+9 shortcut does the same to the level 13 one <Cite gml="scripts/scrResetHighscores.gml:32-33" /> <Cite gml="objects/oTransition/create.gml:47-61" /> <Cite quirk="1" row="The Tunnel Man skips his first visit." />.
 
 ### Playing as him
 
@@ -132,4 +132,4 @@ It breaks blocks as the Mattock does <Cite gml="objects/oMattockHit/other_animat
   <Cite gml="objects/oHighscores/draw.gml:19-27" />.
 - The up key raises the donation even before he has asked for one, while the player walks up to him and
   while he introduces himself, so his request can start above $0; and after he's been answered, where
-  nothing reads it <Cite gml="objects/oTransition/step.gml:35-58" /> <Cite quirk="1" />.
+  nothing reads it <Cite gml="objects/oTransition/step.gml:35-58" /> <Cite quirk="1" row="oTransition's step adds $100 to the Tunnel Man's donate on every press of up while he exists" />.

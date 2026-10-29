@@ -12,7 +12,7 @@ infobox:
   image: { sprite: sOlmec, alt: "A giant golden head with a red jewel in its headband and white eyes" }
   health: { text: "Can't be harmed; lava kills it", cite: objects/oOlmec/step.gml:35-43 }
   damage: { text: "Crushes the player under a slam", cite: objects/oPlayer1/step.gml:1493-1505 }
-  speed: { text: '10–12 pixels per step in a slam (300–360 per second) <Cite quirk="1" />', cite: objects/oOlmec/step.gml:145-155 }
+  speed: { text: '10–12 pixels per step in a slam (300–360 per second) <Cite quirk="1" row="Olmec and the idol''s boulder move twice their velocity each step." />', cite: objects/oOlmec/step.gml:145-155 }
   behaviour: { text: "Hops after the player and slams down on him", cite: objects/oOlmec/step.gml:92-177 }
 relations:
   found_in:
@@ -104,7 +104,7 @@ the whole awakening, 437 steps (about 15 seconds) from the player's arrival to h
 
 Olmec covers twice the speeds his code sets ([[double-speed-olmec-and-boulder]]): the game moves every moving block by its speed each step, and
 Olmec's own step then moves him by it again <Cite gml="scripts/gameStepEvent.gml:23-233" />
-<Cite gml="objects/oOlmec/step.gml:8" /> <Cite quirk="1" />. He rests on the ground, 100 steps after the
+<Cite gml="objects/oOlmec/step.gml:8" /> <Cite quirk="1" row="Olmec and the idol's boulder move twice their velocity each step." />. He rests on the ground, 100 steps after the
 awakening, 40–100 steps after a hop that lands without a slam and 60 after a slam, then hops: he leaves the
 ground at 8 pixels per step (240 per second) upward, twice the <Stat id="olmec.hop-speed" /> his code sets,
 and gravity brings him down <Cite gml="objects/oOlmec/alarm_5.gml:6-7" /> <Cite gml="objects/oOlmec/step.gml:68-79" />
@@ -119,7 +119,7 @@ If, while he's in the air, the player is lower than his top and within 32 pixels
 <Stat id="olmec.slam-speed" /> his code sets, gaining speed up to 12 (360 per second) as he falls
 <Cite gml="objects/oOlmec/step.gml:121-129" /> <Cite gml="objects/oOlmec/step.gml:145-155" />. The
 check skips a slam while he's drifting left at half his top speed or more, so he passes over the player, but
-not right, where he stops at any speed ([[olmec-slam-drifting-left]]) <Cite gml="objects/oOlmec/step.gml:121-122" /> <Cite quirk="1" />. When a slam lands, it shakes the screen and breaks every
+not right, where he stops at any speed ([[olmec-slam-drifting-left]]) <Cite gml="objects/oOlmec/step.gml:121-122" /> <Cite quirk="1" row="Olmec doesn't stop to slam while drifting left." />. When a slam lands, it shakes the screen and breaks every
 block he lands on <Cite gml="objects/oOlmec/step.gml:156-166" />
 <Cite gml="objects/oOlmecSlam/collision_oSolid.gml:1-7" />, so he drops through to whatever is below. The
 clip shows Olmec hopping toward the player, stopping in the air over him, and slamming down as he runs clear,
@@ -146,14 +146,14 @@ three balls land as a Snake, a Bat and a Frog <Cite clip="olmec/slam" />.
 
 Olmec's only attack is his weight. A player who ends up inside him, when he slams down on him, is crushed:
 he dies with however many hearts he had, and the death is counted against Olmec, as any crush in his lair is
-<Cite gml="objects/oPlayer1/step.gml:1490-1505" /> <Cite quirk="1" />. The clip shows a player who stands still under Olmec
+<Cite gml="objects/oPlayer1/step.gml:1490-1505" /> <Cite quirk="1" row="In Olmec's lair, any crush is Olmec's." />. The clip shows a player who stands still under Olmec
 crushed with all four hearts <Cite clip="olmec/crush" />. Touching Olmec otherwise does nothing: he's a
 block the player can stand on.
 
 Even a crush Olmec has no part in is counted against him. When he dies, a block of stone appears under the
 lair's door if the floor there is gone <Cite gml="objects/oFinalBoss/step.gml:8-12" />, so a player who has
 blown it out with a bomb and stands in its place is crushed by the exit's own block, and the death is still
-Olmec's ([[olmec-door-block-crush]]) <Cite quirk="1" /> <Cite replay="fidelity/replays/olmec-door-block-crush-seed-1.txt" /> <Cite clip="quirks/olmec-door-block-crush" />.
+Olmec's ([[olmec-door-block-crush]]) <Cite quirk="1" row="In Olmec's lair, any crush is Olmec's." /> <Cite replay="fidelity/replays/olmec-door-block-crush-seed-1.txt" /> <Cite clip="quirks/olmec-door-block-crush" />.
 
 The rest of the danger is what he brings: the [[caveman|Cavemen]] who charge as he wakes, which can beat a
 player who stands still to death <Cite replay="fidelity/replays/olmec-death-seed-1.txt" />, and the
@@ -180,7 +180,7 @@ his feet and over his top, and bumping off the wall leaves that edge inside it, 
 there's never lava. When his slams dig him down into the lava there, he sits in it, out of sight, and hops out
 and lands back in it unharmed, until a hop drifts him right, off the wall, which it does only if the player is
 past his right side as the drift starts ([[olmec-lava-left-wall]]) <Cite gml="objects/oOlmec/create.gml:3" /> <Cite gml="scripts/isCollisionLeft.gml:6-10" />
-<Cite gml="objects/oOlmec/step.gml:22-27" /> <Cite gml="objects/oOlmec/step.gml:35-43" /> <Cite gml="objects/oOlmec/step.gml:104-111" /> <Cite quirk="1" />.
+<Cite gml="objects/oOlmec/step.gml:22-27" /> <Cite gml="objects/oOlmec/step.gml:35-43" /> <Cite gml="objects/oOlmec/step.gml:104-111" /> <Cite quirk="1" row="Olmec at the left wall sits in the lava without drowning." />.
 A clip shows his last slam taking him into the lava by the wall, where he sits for two seconds; he starts to
 sink only when he hops out and drifts toward the player <Cite clip="quirks/olmec-lava-left-wall" />. A player
 who stays over him keeps him there: in one run, from a rope above him, through two hops

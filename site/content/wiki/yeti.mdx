@@ -144,7 +144,7 @@ Machete's and a Mattock's do and the Whip's doesn't <Cite gml="objects/oYeti/col
 <Cite gml="objects/oWhip/create.gml:5" /> <Cite gml="objects/oSlash/create.gml:6" />.
 
 Rounding a stomp's steps up means one landed while the player is still rising, before he has fallen a step,
-takes nothing, though it stuns the Yeti ([[yeti-stomp-rising]]) <Cite quirk="1" />
+takes nothing, though it stuns the Yeti ([[yeti-stomp-rising]]) <Cite quirk="1" row="Stomping a Yeti, the Yeti King or a Shopkeeper on the way up takes nothing." />
 <Cite replay="fidelity/replays/enemy-yeti-stomp-rising.txt" />.
 
 When its hit points run out, a Yeti dies and leaves its body, which can be picked up and thrown
@@ -184,8 +184,8 @@ already −8 or less <Cite gml="objects/oEnemy/step.gml:130-167" />.
 
 - The Yeti has a charging state, at 3 pixels per step, but its own sight checks never set it off
   <Cite gml="objects/oYeti/step.gml:126-136" />. The only code that does is a [[piranha|Piranha]] biting a swimming Yeti
-  <Cite gml="objects/oPiranha/step.gml:85-110" /> <Cite quirk="1" />.
+  <Cite gml="objects/oPiranha/step.gml:85-110" /> <Cite quirk="1" row="A yeti never charges." />.
 - Its sight check records which Yeti sent it, and nothing ever reads it
   <Cite gml="objects/oYeti/step.gml:72" />.
 - The Ice Caves' room script can place a Yeti on a tile `Y`, but none of its rooms has one
-  <Cite gml="scripts/scrRoomGen3.gml:404-407" /> <Cite quirk="1" />.
+  <Cite gml="scripts/scrRoomGen3.gml:404-407" /> <Cite quirk="1" row="The Ice Caves' room script (scrRoomGen3) makes a yeti for a Y tile" />.

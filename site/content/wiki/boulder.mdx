@@ -61,7 +61,7 @@ Picking up the idol on a Mines level shakes the screen and sets the nearest gian
 The boulder falls and, the first time it's on the ground and still, sets off toward the side the player is
 on at <Stat id="boulder.roll-speed" /> <Cite gml="objects/oBoulder/step.gml:33-56" />. It moves twice its
 speed a step in the open ([[double-speed-olmec-and-boulder]]), 8 and 10 pixels on alternate steps at first, because both the game's pass over
-moving platforms and its own step move it <Cite quirk="1" />. On the ground it loses 1% of its speed a step,
+moving platforms and its own step move it <Cite quirk="1" row="Olmec and the idol's boulder move twice their velocity each step." />. On the ground it loses 1% of its speed a step,
 and stops once it's below 0.5 pixels a step; it turns back at the edges of the level, and edges off a block
 it's balanced on <Cite gml="objects/oBoulder/step.gml:11-64" />. It's kept active wherever it is, rather than only
 near the screen as most things are <Cite gml="objects/oLevel/step.gml:95-97" />.
@@ -74,7 +74,7 @@ then rolls on to the wall.
 The boulder hurts nothing directly: it's solid, and kills what ends up inside it. A player whose middle is
 inside it, because it fell or rolled onto him, is crushed, losing every heart, and is counted in the
 end-of-game statistics' crushed row <Cite gml="objects/oPlayer1/step.gml:1492-1511" />, never the boulder row,
-which nothing adds to <Cite gml="scripts/scrWriteStats.gml:162" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/trap-boulder-crush.txt" />.
+which nothing adds to <Cite gml="scripts/scrWriteStats.gml:162" /> <Cite quirk="1" row="Nothing counts a boulder's kill in the deaths table's boulder row." /> <Cite replay="fidelity/replays/trap-boulder-crush.txt" />.
 
 Rolling, it smashes the blocks in its way, as long as it's going at least 1 pixel a step and the block isn't
 the floor under it, taking any spikes on them too, and loses 0.1 pixels a step of speed for each. An
@@ -119,4 +119,4 @@ The idol does something else in the other areas: in the Jungle the floor around 
 - Its step has a commented-out end that would have turned a stopped boulder into a static one, an object
   the game doesn't have <Cite gml="objects/oBoulder/step.gml:81-87" />.
 - The boulder's destruction of blocks tries to remove their decoration tiles too, but the function it uses
-  never finds a tile in GameMaker 8.0, so the decoration stays behind <Cite quirk="5" />.
+  never finds a tile in GameMaker 8.0, so the decoration stays behind <Cite quirk="5" row="tile_layer_find never finds a tile in GM 8.0" />.
