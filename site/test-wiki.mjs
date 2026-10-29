@@ -507,8 +507,7 @@ try {
 
 // Every reference links somewhere (docs/wiki-style.md, "Citing the code"): a replay to it on GitHub at the
 // build's commit, and to the page's clips cut from it; a quirk citation to its row, by the row's opening, at the
-// quirk page that names it or else on GitHub, or to its section as a whole; a quirk box's replay and rows. On
-// the page and in its twin.
+// quirk page that names it or else on GitHub; a quirk box's replay and rows. On the page and in its twin.
 {
   const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
   try {
@@ -517,9 +516,9 @@ try {
     const jarRow = "A whipped Jar rolls its contents twice.";
     const nearestRow = "instance_nearest measures to instances' positions";
     // The double whip cites its own row; the Snake the double whip's (twice, by two openings: one note), a §5
-    // row, §1 as a whole, two replays (one its Rock clip's) and a clip.
+    // row, two replays (one its Rock clip's) and a clip.
     writeFileSync(join(content, "double-whip.mdx"), quirkPage.replace("It hits twice.", 'It hits twice <Cite quirk="1" />.'));
-    const snakeCites = `\nIt rolls twice <Cite quirk="1" row="${jarRow}" /> <Cite quirk="1" row="A whipped Jar rolls" />, nearest <Cite quirk="5" row="${nearestRow}" />, oddly <Cite quirk="1" />, and hit <Cite replay="fidelity/replays/action-throw-rock-snake.txt" /> <Cite replay="fidelity/replays/mines-seed-1.txt" /> <Cite clip="snake/stomp" />.\n`;
+    const snakeCites = `\nIt rolls twice <Cite quirk="1" row="${jarRow}" /> <Cite quirk="1" row="A whipped Jar rolls" />, nearest <Cite quirk="5" row="${nearestRow}" />, and hit <Cite replay="fidelity/replays/action-throw-rock-snake.txt" /> <Cite replay="fidelity/replays/mines-seed-1.txt" /> <Cite clip="snake/stomp" />.\n`;
     writeFileSync(join(content, "snake.mdx"), readFileSync(here("content/wiki/snake.mdx"), "utf8") + snakeCites);
     const planned = join(dir, "planned.yaml");
     writeFileSync(planned, snakePlanned);
@@ -535,15 +534,14 @@ try {
     const refs = (slug, kind) => page(slug)?.meta.references.filter((ref) => ref.kind === kind) ?? [];
     const json = (value) => JSON.stringify(value);
     const quirkRefs = refs("snake", "quirk");
-    if (quirkRefs.length !== 3) fail(`reference links: the Snake has ${quirkRefs.length} quirk notes, not 3`);
-    const [jar, nearest, whole] = quirkRefs.map((ref) => ref.quirk);
-    if (json(jar) !== json({ section: "Bugs and leftovers in the 1.1 source", href: rowUrl(jarRow), rows: [{ name: jarRow, href: rowUrl(jarRow), page: { slug: "double-whip", title: "Double whip" } }] })) {
+    if (quirkRefs.length !== 2) fail(`reference links: the Snake has ${quirkRefs.length} quirk notes, not 2`);
+    const [jar, nearest] = quirkRefs.map((ref) => ref.quirk);
+    if (json(jar) !== json({ href: rowUrl(jarRow), rows: [{ name: jarRow, href: rowUrl(jarRow), page: { slug: "double-whip", title: "Double whip" } }] })) {
       fail(`reference links: the Snake's Jar row is ${json(jar)}`);
     }
     if (nearest?.rows[0]?.href !== rowUrl("instance_nearest measures") || nearest.rows[0].page || !nearest.href.endsWith("/docs/quirks.md#5-runner-frame-instances-and-events")) {
       fail(`reference links: the Snake's §5 row is ${json(nearest)}`);
     }
-    if (whole?.rows.length !== 0 || whole.href !== section1) fail(`reference links: the Snake's §1 citation is ${json(whole)}`);
     // A quirk page's citation of its own section is its rows', which link to GitHub, not to itself.
     const own = refs("double-whip", "quirk")[0]?.quirk;
     if (json(own?.rows) !== json([{ name: jarRow, href: rowUrl(jarRow) }])) fail(`reference links: the double whip's own rows are ${json(own?.rows)}`);
@@ -562,7 +560,6 @@ try {
     const snakeMd = md.get("wiki/snake.md") ?? "";
     for (const line of [
       `[“${jarRow}”](https://spelunky.ai/wiki/double-whip), [docs/quirks.md §1](${rowUrl(jarRow)})`,
-      `[docs/quirks.md §1, Bugs and leftovers in the 1.1 source](${section1})`,
       `Replay [\`fidelity/replays/action-throw-rock-snake.txt\`](${blob}/fidelity/replays/action-throw-rock-snake.txt), which the clip [`,
       `](https://spelunky.ai/wiki/snake#clip-snake-thrown-rock) plays`,
       `Clip [snake/stomp](https://spelunky.ai/wiki/snake#clip-snake-stomp)`,
@@ -1046,6 +1043,9 @@ const cases = [
   ["a replay that isn't a committed replay's path", { "snake.mdx": `${source}\nIt <Cite replay="replays/snake.txt" />.\n` }, "a committed replay's path"],
   ["a quirk citation's row docs/quirks.md hasn't got", { "snake.mdx": `${source}\nIt <Cite quirk="1" row="Snakes bite twice." />.\n` }, 'no row of docs/quirks.md §1 starts "Snakes bite twice."'],
   ["a quirk citation's row that starts several", { "snake.mdx": `${source}\nIt <Cite quirk="1" row="The" />.\n` }, 'rows of docs/quirks.md §1 start "The" (lines '],
+  // Only a quirk page's citation of its own section may leave out the row, as it cites the page's rows.
+  ["a quirk citation that names no row", { "snake.mdx": `${source}\nIt <Cite quirk="1" />.\n` }, '<Cite quirk="1">: name the row it means, row="<the row\'s opening>"'],
+  ["a quirk page's citation of another section that names no row", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("It hits twice.", 'It hits twice <Cite quirk="5" />.') }, '<Cite quirk="5">: name the row it means'],
   ["a quirk citation's section docs/quirks.md hasn't got", { "snake.mdx": `${source}\nIt <Cite quirk="42" />.\n` }, '<Cite quirk="42">: docs/quirks.md has no section 42'],
   ["a row on a citation that isn't a quirk's", { "snake.mdx": `${source}\nIt <Cite gml="objects/oSnake/step.gml:41-54" row="A whipped Jar" />.\n` }, "only a quirk citation names a row="],
   ["a quirk box's replay the repo hasn't got", { "snake.mdx": source, "double-whip.mdx": quirkPage.replace("item-jar-whip-rolls-twice.txt", "no-such-replay.txt") }, "quirk.pinned_by: fidelity/replays/no-such-replay.txt: the repo has no such replay"],

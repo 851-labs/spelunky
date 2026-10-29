@@ -110,9 +110,8 @@ export interface Reference {
   href?: string;
   // A replay's clips on the page, the ones cut from it, which play it.
   clips?: { id: string; title: string }[];
-  // A quirk citation's section of docs/quirks.md, the rows it cites, and where the section's name links
-  // (quirkReference).
-  quirk?: { section: string; href: string; rows: QuirkRowLink[] };
+  // A quirk citation's rows of docs/quirks.md, and where the section's name links (quirkReference).
+  quirk?: { href: string; rows: QuirkRowLink[] };
 }
 
 // A docs/quirks.md row a citation cites: its opening, as the page names it, the row on GitHub, and the quirk
@@ -517,21 +516,21 @@ function replayError(path: string, repoDir: string): string | null {
   return null;
 }
 
-// A quirk citation's section and rows (Reference.quirk), linked: the row it names (row=); or, on a quirk page
-// citing its own section, the page's rows, which its text is about; or none, the section as a whole. A row a
-// quirk page names links to it, unless it's this page, and then the section's name links to the row on GitHub;
-// otherwise the rows link there, and the name to the section's heading. compileFragment has checked the section
-// and the row.
+// A quirk citation's rows (Reference.quirk) and its section, linked: the row it names (row=); or, on a quirk page
+// citing its own section, the page's rows, which its text is about. A row a quirk page names links to it, unless
+// it's this page, and then the section's name links to the row on GitHub; otherwise the rows link there, and the
+// name to the section's heading. compileFragment has checked the section and the row, and that a citation
+// without one is its quirk page's own.
 function quirkReference(ref: Reference, page: Frontmatter, ctx: Context): NonNullable<Reference["quirk"]> {
   const section = ctx.quirks.get(ref.target)!;
-  const names = ref.row !== undefined ? [ref.row] : page.quirk?.entry === ref.target ? page.quirk.rows : [];
+  const names = ref.row !== undefined ? [ref.row] : page.quirk!.rows;
   const rows = names.map((name): QuirkRowLink => {
     const row = findRow(section, ref.target, name) as QuirkRow;
     const named = ctx.quirkPages.get(row);
     return { name, href: row.href, ...(named && named.slug !== page.slug ? { page: named } : {}) };
   });
   const href = rows.length === 1 && rows[0].page ? rows[0].href : section.href;
-  return { section: section.title, href, rows };
+  return { href, rows };
 }
 
 // The media's gml/ tree's files and how many lines each has, by path in it (objects/oSnake/step.gml), or
@@ -1349,12 +1348,16 @@ function component(node: Node, fail: (node: Node, message: string) => void, ctx:
       }
       if (row !== undefined && kind !== "quirk") fail(node, `<Cite ${kind}>: only a quirk citation names a row=`);
       if (kind === "quirk") {
-        // The section, and the row it names by its opening, as a quirk box's `rows` does (quirks.ts).
+        // The section, and the row it names by its opening, as a quirk box's `rows` does (quirks.ts). Only a quirk
+        // page's citation of its own section may leave the row out, as it cites the page's rows: a section as a
+        // whole is a table of up to 150 rows, which tells a reader nothing.
         const section = ctx.quirks.get(target);
         if (!section) fail(node, `<Cite quirk="${target}">: ${noSection(target, ctx.quirks)}`);
         else if (row !== undefined) {
           const found = findRow(section, target, row);
           if (typeof found === "string") fail(node, `<Cite quirk="${target}" row=...>: ${found}`);
+        } else if (state.page.quirk?.entry !== target) {
+          fail(node, `<Cite quirk="${target}">: name the row it means, row="<the row's opening>" (only a quirk page citing its own section may leave it out)`);
         }
       }
       // Two openings of one row are one note.

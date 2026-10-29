@@ -203,10 +203,8 @@ function Reference({ reference: { kind, target, href, clips, quirk } }: { refere
 
 // A quirk citation (compile.ts's quirkReference): the rows it cites, by their openings, each linking to the
 // quirk page that names it, or else to the row on GitHub, then the section, linking where quirkReference says.
-// A citation of no row is the section's, by its title.
 function QuirkReference({ entry, quirk }: { entry: string; quirk: NonNullable<ReferenceData["quirk"]> }) {
   const { rows } = quirk;
-  if (rows.length === 0) return <a href={quirk.href}>{`docs/quirks.md §${entry}, ${quirk.section}`}</a>;
   return (
     <>
       {rows.map((row, i) => (

@@ -156,7 +156,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   plugin, serves the results as modules, one per page, and fails the build with every error at once:
   frontmatter that doesn't fit the schema, a quirk page's `rows` entry or a quirk citation's `row=` that no
   row of its `docs/quirks.md` section starts with, or that more than one does (`quirks.ts`), a quirk citation's
-  section `docs/quirks.md` hasn't got, a row two quirk pages (or two of a page's `rows`) name, a replay a
+  section `docs/quirks.md` hasn't got, a quirk citation without `row=` (but a quirk page's of its own section), a row two quirk pages (or two of a page's `rows`) name, a replay a
   citation or a file a quirk box's `pinned_by` names that the repo hasn't got, a slug that isn't the file's name, is a hub's or `media`, or is
   another page's slug or alias, an object on two pages, a stat `stats.json` hasn't got (or one that's text, or
   that the create event changes again under a condition), a clip without a spec, a sprite the media
@@ -698,18 +698,16 @@ Spelunky Classic does.
   it, linking to the quirk page that names the row in its `rows`, or to the row's line in `docs/quirks.md` on
   GitHub (at the commit too) where no page does, then the section's name, linking to the row on GitHub when
   the quote went to a quirk page, and to the section's heading when it didn't. Two openings of one row are one
-  note. A quirk citation
-  without `row=` is its section's, by title, linked to the section's heading: say which row (`row=`) instead,
-  except on a quirk page citing its own rows (851-3644 to 851-3648 and 851-3691 name the rest, and 851-3649
-  then makes the build fail without one). A quirk box's Pinned by links to its replay (or a test's file; a test named only by
-  its name is text) and its rows to their lines. A room citation links to the room's page in the source
-  viewer (`/wiki/source/rooms/rOlmec`), which lists its settings and every instance the room editor placed,
-  by object, with their positions: what a room citation says is there. Not the place's page: many are on that
-  very page (the Tutorial's and Olmec's Lair's cite their own rooms), and most rooms have none (the title
-  screen, the bonus rooms).
+  note. A quirk citation names its row: a section as a whole is a table of up to 150 rows. Only a quirk page
+  citing its own section (its `entry`) may leave `row=` out, as that cites the page's rows. A quirk box's
+  Pinned by links to its replay (or a test's file; a test named only by its name is text) and its rows to their
+  lines. A room citation links to the room's page in the source viewer (`/wiki/source/rooms/rOlmec`), which
+  lists its settings and every instance the room editor placed, by object, with their positions: what a room
+  citation says is there. Not the place's page: many are on that very page (the Tutorial's and Olmec's Lair's
+  cite their own rooms), and most rooms have none (the title screen, the bonus rooms).
   The Markdown twins (and so `llms-full.txt`) link the same, absolutely. The build fails on a replay or a
-  `pinned_by` file the repo hasn't got, a row `docs/quirks.md` hasn't got (above), and a room the media's
-  `rooms/` hasn't got.
+  `pinned_by` file the repo hasn't got, a row `docs/quirks.md` hasn't got (above), a quirk citation without
+  `row=` (but a quirk page's of its own section), and a room the media's `rooms/` hasn't got.
 - **A bug in the GML** the page describes (a test that's always true, a `type` string never set) is
   behaviour: describe it, cite the lines, and quote them in Trivia if the code is the point. If
   `docs/quirks.md` doesn't have it, file a ticket to add it (and its quirk page) rather than leaving it
