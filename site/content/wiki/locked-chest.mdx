@@ -4,7 +4,7 @@ title: Locked Chest
 type: item
 categories: [items/carryables]
 objects: [oLockedChest, oKey]
-aliases: [key, golden-key, udjat-key, udjat-chest, locked-chests]
+aliases: [golden-key, udjat-key, udjat-chest, locked-chests]
 hatnote: "For the chest of gems, see [[chest]]."
 lede: >-
   The Locked Chest is a carryable item in Spelunky Classic, on one of the Mines' levels 2 to 4, that opens on
@@ -50,7 +50,7 @@ spoiler: true
 verified: { port: v0.1.15, date: 2026-10-29 }
 ---
 
-The Locked Chest and its Key are made together, on the one level of the [[mines|Mines]] that holds the
+The Locked Chest and its Key are made on the same level, the one level of the [[mines|Mines]] that holds the
 [[udjat-eye|Udjat Eye]]: the chest in a nook in the rock, and the Key in place of one of the level's treasures.
 Carrying the Key to the chest opens it, and the Eye pops out. Unlike a [[chest|Chest]], it can't be opened with
 up and the attack key, and it never holds a bomb.
@@ -81,8 +81,8 @@ monster, takes 1 hit point from the monster nearest it, as any thrown item does
 
 ## Locations
 
-The level that makes them is level 2 one time in 3, level 3 one time in 2, and otherwise level 4, once a game:
-the roll is made on each of those levels until one has made the Key
+The level that makes them is level 2 one time in 3, level 3 one time in 2, and otherwise level 4: the roll is
+made on each of those levels until one has made the Key
 <Cite gml="scripts/scrInitLevel.gml:178-184" /> <Cite gml="scripts/scrEntityGen.gml:143" />. On it:
 
 - **The chest** goes in a nook, a space one block high with rock above it and a wall beside it. Each nook
@@ -92,7 +92,9 @@ the roll is made on each of those levels until one has made the Key
   its left if that's open, else on its right, else on the exit <Cite gml="scripts/scrEntityGen.gml:76-106" />.
 - **The Key** takes the place of one of the level's treasures (gems, gold) that isn't inside a block. Each
   takes a roll of 1 in 8, for up to seven passes over them, and if none wins, the first of them is taken
-  <Cite gml="scripts/scrEntityGen.gml:108-141" />.
+  <Cite gml="scripts/scrEntityGen.gml:108-141" />. Only the Key's making ends the rolls for later levels: a
+  level with no treasure lying in the open would make the chest and no Key, and the next of levels 3 and 4
+  would roll again <Cite gml="scripts/scrEntityGen.gml:143" /> <Cite gml="scripts/scrInitLevel.gml:179-184" />.
 
 The Key can be anywhere in the level, and sometimes in a pocket of rock that nothing leads into
 ([[udjat-key-sealed]]), the chest with it at times, which a [[bomb|Bomb]] or the [[mattock|Mattock]] has to break

@@ -532,7 +532,7 @@
       "name": "Locked Chest",
       "object": "oLockedChest",
       "stats": {
-        "nook-chance": {"at":["scripts/scrEntityGen.gml:28"],"label":"Chance in a nook (1 in)","value":8}
+        "nook-chance": {"at":["scripts/scrEntityGen.gml:28"],"label":"Odds in the first nook","unit":"1 in","value":8}
       }
     },
     "machete": {

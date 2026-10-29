@@ -663,7 +663,8 @@ object = "oLockedChest"
 
 [[entity.stat]]
 id = "nook-chance"
-label = "Chance in a nook (1 in)"
+label = "Odds in the first nook"
+unit = "1 in"
 script = "scrEntityGen"
 find = "global.lockedChestChance = ?"
 note = "For the first nook that rolls for it; each one that fails makes the next 1 likelier, so by the eighth it's certain."

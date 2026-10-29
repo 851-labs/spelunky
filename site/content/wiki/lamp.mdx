@@ -66,7 +66,7 @@ A hanging lamp isn't an item: it can't be picked up, and it flickers where it ha
 <Cite gml="objects/oLamp/create.gml:1" />. When the block above it is destroyed, the block's last act is to
 replace it with a Lamp, red if the hanging lamp was, which then falls
 <Cite gml="objects/oSolid/destroy.gml:24-33" />. A shop's lamp hangs from the shop's ceiling, out of reach of a
-[[bomb|Bomb]] on the floor, and a lit bomb in a shop within 96 pixels of a living [[shopkeeper|Shopkeeper]]
+[[bomb|Bomb]] on the floor, and a lit bomb in a shop within 96 pixels of the [[shopkeeper|Shopkeeper]]
 angers him <Cite gml="objects/oBomb/step.gml:6-17" /> <Cite quirk="1" row="The rare items' only sources" />.
 In the clip, in a Weapon shop whose shopkeeper is dead, the player throws a lit bomb up toward the lamp; it
 goes off under the ceiling, the block the lamp hangs from breaks, and the lamp drops to the floor
@@ -104,7 +104,7 @@ Lamp carried through a dark level lights nothing but its tint.
 | Lamp | Where | |
 | --- | --- | --- |
 | Plain, hanging | In every shop, from the ceiling, in [[mines\|the Mines]], [[jungle\|the Jungle]], [[ice-caves\|the Ice Caves]] (and the [[yeti-lair\|Yeti Lair]]) and [[temple\|the Temple]], and in each of the [[black-market\|Black Market]]'s shops | <Cite gml="scripts/scrRoomGen.gml:427-431" /> <Cite gml="scripts/scrRoomGen2.gml:442-446" /> <Cite gml="scripts/scrRoomGen3.gml:369-373" /> <Cite gml="scripts/scrRoomGenYeti.gml:388-392" /> <Cite gml="scripts/scrRoomGen4.gml:468-471" /> <Cite gml="scripts/scrRoomGenMarket.gml:338-341" /> |
-| Red, hanging | In the [[kissing-parlor\|Kissing Parlor]], in place of the plain one | <Cite gml="scripts/scrRoomGen.gml:186" /> <Cite gml="scripts/scrRoomGen.gml:429" /> <Cite gml="scripts/scrRoomGen4.gml:169" /> <Cite gml="scripts/scrRoomGen4.gml:472-475" /> |
+| Red, hanging | In the [[kissing-parlor\|Kissing Parlor]], in place of the plain one: the Temple's has its own red lamp tile, and the other areas' room scripts hang the red lamp on a level whose shop is the Kissing Parlor | <Cite gml="scripts/scrRoomGen.gml:186" /> <Cite gml="scripts/scrRoomGen.gml:429" /> <Cite gml="scripts/scrRoomGen2.gml:444" /> <Cite gml="scripts/scrRoomGen3.gml:371" /> <Cite gml="scripts/scrRoomGenYeti.gml:390" /> <Cite gml="scripts/scrRoomGen4.gml:169" /> <Cite gml="scripts/scrRoomGen4.gml:472-475" /> |
 | Plain, hanging | On a [[dark-level\|dark level]] in the Mines: 1 in 60 under a block with two open tiles below, once the [[giant-spider\|Giant Spider]]'s roll fails | <Cite gml="scripts/scrEntityGen.gml:52-61" /> |
 
 The Lamp itself, the item, only ever comes from a hanging lamp's block: [[level-generation|level generation]]

@@ -48,8 +48,8 @@ sources:
 verified: { port: v0.1.15, date: 2026-10-29 }
 ---
 
-Every [[dark-level|dark level]] has a crate of Flares beside its entrance, and the level's opening message,
-"I'D BETTER USE THESE FLARES!", points the player to it. A Flare is a light he can carry: held,
+Level generation puts a crate of Flares beside the entrance of every [[dark-level|dark level]] it makes, and the
+level's opening message, "I'D BETTER USE THESE FLARES!", points the player to it. A Flare is a light he can carry: held,
 thrown or lying on the ground, it lights a circle of the cave around it, and his own small light widens
 beside it. Nothing burns it out, so one carried through the level's exit is still lit on the next level.
 
@@ -101,7 +101,7 @@ holding it on the screen between levels, and while he holds it the HUD shows it 
 ## Locations
 
 - **[[dark-level|Dark levels]]**, in [[mines|the Mines]], [[jungle|the Jungle]] and [[temple|the Temple]]:
-  one crate by the entrance, on its left if there's no block there, else on its right, else on it
+  one crate by the entrance of each that level generation makes dark (not one a defiled altar darkens later), on its left if there's no block there, else on its right, else on it
   <Cite gml="scripts/scrEntityGen.gml:527-545" />.
 - **The title screen**, which has one of its own ([Trivia](#trivia)).
 
@@ -135,7 +135,7 @@ no tile for one or for the crate.
 <Clip id="flare/title" />
 
 - The title screen starts dark, and its intro drops a Flare in from the top: the darkness lifts as it falls
-  and is gone once the Flare is 160 pixels down <Cite gml="objects/oTitle/alarm_2.gml:1-4" />
+  and is gone once the Flare is 160 pixels from the top <Cite gml="objects/oTitle/alarm_2.gml:1-4" />
   <Cite gml="objects/oTitle/draw.gml:1-7" />. The clip shows it <Cite clip="flare/title" />. When the title
   screen is entered at one of its doors or its rope rather than through the intro, a Flare lies on its floor
   at the right instead <Cite gml="objects/oTitle/create.gml:72-98" />.
