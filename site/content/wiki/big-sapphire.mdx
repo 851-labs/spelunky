@@ -94,7 +94,7 @@ The [[tutorial|Tutorial]]'s bricks roll as the Mines' do <Cite gml="scripts/isLe
 one block of rock in 100 is the Jungle's earth, which rolls at the Jungle's odds, and one in ten a stone block,
 which holds no gem <Cite gml="scripts/scrRoomGen4.gml:317-322" /> <Cite gml="objects/oBlock/create.gml:1-4" />.
 The [[city-of-gold|City of Gold]]'s temple blocks are gold instead, and don't roll for gems
-<Cite gml="objects/oTemple/create.gml:7-10" />, but its blocks of earth still do <Cite quirk="1" />. A buried gem stays where it is, hidden behind the rock, until the block around it is
+<Cite gml="objects/oTemple/create.gml:7-10" />, but its blocks of earth still do ([[city-jungle-earth]]) <Cite quirk="1" row="One block in a hundred of the City of Gold is the Jungle's earth." />. A buried gem stays where it is, hidden behind the rock, until the block around it is
 destroyed, by a [[bomb|Bomb]] or a [[mattock|Mattock]] for instance; then it drops out. With the
 [[spectacles|Spectacles]] or the [[udjat-eye|Udjat Eye]], treasure is drawn in front of the rock, so the buried
 gems show through it <Cite gml="objects/oTreasure/step.gml:63-67" />.
@@ -120,8 +120,8 @@ big gem comes late in it:
 
 On a Mines level that's still to place the Udjat Eye's locked chest, a nook that gets no web rolls for the
 chest and nothing else <Cite gml="scripts/scrTreasureGen.gml:56-64" />. On a level with the chest, level
-generation then turns one treasure that isn't inside rock, picked at random, into the chest's key
-<Cite gml="scripts/scrEntityGen.gml:108-141" /> <Cite quirk="1" />. The Tutorial has one lying on a high ledge
+generation then turns one treasure that isn't inside rock, picked at random, into the chest's key ([[udjat-key-sealed]])
+<Cite gml="scripts/scrEntityGen.gml:108-141" /> <Cite quirk="1" row="The locked chest's key can be sealed in rock." />. The Tutorial has one lying on a high ledge
 <Cite room="rTutorial" />, and the
 [[level-editor|level editor]]'s `6` tile is one <Cite gml="scripts/scrCreateTileObj.gml:273-276" />.
 
@@ -134,7 +134,7 @@ generation then turns one treasure that isn't inside rock, picked at random, int
 | A [[giant-spider\|Giant Spider]] killed | One to three big gems, each a Big Sapphire one chance in three | <Cite gml="objects/oGiantSpider/step.gml:16-29" /> |
 | An [[alien-boss\|Alien Boss]] killed | Four big gems, each a Big Sapphire one chance in three | <Cite gml="objects/oAlienBoss/step.gml:9-25" /> |
 | A [[yeti-king\|Yeti King]] killed | Four rolls, each a Big Sapphire 1 in 2 once the roll for [[spike-shoes\|Spike Shoes]] (1 in 12) fails, and otherwise a [[rope-pile\|Rope Pile]] | <Cite gml="objects/oYetiKing/step.gml:16-40" /> |
-| The Lady Xoc statue, in the City of Gold | Two of its blocks, each dropping two when it's destroyed | <Cite gml="scripts/scrRoomGen4.gml:378-393" /> <Cite gml="objects/oXocBlock/destroy.gml:24-27" /> <Cite quirk="1" /> |
+| The Lady Xoc statue, in the City of Gold ([[lady-xoc-room-in-the-way]]) | Two of its blocks, each dropping two when it's destroyed | <Cite gml="scripts/scrRoomGen4.gml:378-393" /> <Cite gml="objects/oXocBlock/destroy.gml:24-27" /> <Cite quirk="1" row="The City of Gold's Lady Xoc room can seal the way to the exit." /> |
 
 ## Collecting
 
@@ -162,7 +162,7 @@ falls into holds it, and lava it sinks into destroys it <Cite gml="objects/oTrea
 A [[ghost|Ghost]] that touches a Big Sapphire turns it into a [[diamond|Diamond]], in the same place
 <Cite gml="objects/oSapphireBig/collision_oGhost.gml:1-2" />. The Ghost drifts through walls, so it does this
 to gems still buried in the rock too <Cite replay="fidelity/replays/item-seed-2-diamond.txt" />
-<Cite quirk="1" />. In the clip, a Ghost drifting toward the player passes over a Big Sapphire lying in a
+<Cite quirk="1" row="The rare items' only sources" />. In the clip, a Ghost drifting toward the player passes over a Big Sapphire lying in a
 nook, and the sapphire becomes a Diamond <Cite clip="diamond/ghost" />.
 
 ## Trivia

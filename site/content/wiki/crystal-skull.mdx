@@ -67,7 +67,7 @@ rooms in three, once [[kalis-altar|an altar]]'s 1 in 12 fails, and one a level a
 Golden Idol <Cite gml="scripts/scrRoomGen2.gml:79-114" />. The room is a tomb of temple stone with a small
 chamber in it: the skull in the middle, and four piles of bones that rise as [[skeleton|Skeletons]] in the
 corners, the code's `if (rand(1,2))` choosing between bones and a [[jar|Jar]] for them, which is always true
-<Cite gml="scripts/scrRoomGen2.gml:490-494" /> <Cite quirk="1" />. In custom levels, it's the
+<Cite gml="scripts/scrRoomGen2.gml:490-494" /> <Cite quirk="1" row="if (rand(1,2)) is always true, and so is the Temple's rand(1,1) == 1." />. In custom levels, it's the
 [[level-editor|level editor]]'s `O` tile <Cite gml="scripts/scrCreateTileObj.gml:265-268" />.
 
 ## Collecting
@@ -93,9 +93,9 @@ between levels shows a crystal skull among the loot <Cite gml="objects/oPlayer1/
 
 - Its `type` is "Gold Idol", the Golden Idol's, which is how it gets every idol rule
   <Cite gml="objects/oCrystalSkull/create.gml:3" />. The code that holds an idol at the player's height also
-  names a "Crystal Skull" type, which nothing has <Cite gml="objects/oItem/step.gml:46" /> <Cite quirk="1" />.
+  names a "Crystal Skull" type, which nothing has <Cite gml="objects/oItem/step.gml:46" /> <Cite quirk="1" row="Treasure leftovers:" />.
 - One sold to a Shopkeeper is counted among the level's golden idols, so the screen between levels shows a
   golden idol for it, where one carried to the exit shows as a crystal
-  skull <Cite gml="objects/oGoldIdol/step.gml:19" /> <Cite gml="objects/oPlayer1/step.gml:2079-2080" /> <Cite quirk="1" />.
+  skull <Cite gml="objects/oGoldIdol/step.gml:19" /> <Cite gml="objects/oPlayer1/step.gml:2079-2080" /> <Cite quirk="1" row="A Crystal Skull sold to a Shopkeeper shows as a golden idol between levels." />.
   Sold in Lazlo's Kissing Parlor, one shows as a golden idol on the screen after the
   level ([[skull-sold-as-idol]]) <Cite replay="fidelity/replays/item-seed-213-crystal-skull-sold.txt" />.

@@ -111,7 +111,7 @@ others from replays of the moves and the high scores room.
 - A level left fast keeps the next one lit. The screen between levels rules out a dark next level when the
   level just left took 20 seconds or less past the minute on its clock, which the code's comment calls
   not creating "a dark level if player is attempting a speed run" ([[ghost-timer#quirks|the clock's quirks]])
-  <Cite gml="objects/oTransition/draw.gml:89-102" /> <Cite quirk="1" />. It reads only the seconds, so a
+  <Cite gml="objects/oTransition/draw.gml:89-102" /> <Cite quirk="1" row="A dark level needs the previous level's clock to read more than 20" />. It reads only the seconds, so a
   level that took 1:05 rules one out as well as one that took 0:05 ([[dark-level#the-roll|the dark roll]]).
 - The gold trophy's <Stat id="scoring.time-gold" bare /> seconds on the clock are 20,000 steps in levels, 11
   minutes 6⅔ seconds at the game's 30 steps a second <Cite gml="objects/oGame/step.gml:18-19" />.
@@ -125,7 +125,7 @@ others from replays of the moves and the high scores room.
 - **Winning from a shortcut** ([[shortcut-win-no-time]]). The win counts, but the time stays as it was; with no best time before it,
   the high scores room shows TIME: 0:00 all the same, as it shows the time whenever there's a win
   ([[scoring#quirks|the scores' quirks]]) <Cite gml="scripts/scrUpdateHighscores.gml:57-62" />
-  <Cite gml="objects/oHighscores/draw.gml:126-142" /> <Cite quirk="1" />. In the clip, after the run's win
+  <Cite gml="objects/oHighscores/draw.gml:126-142" /> <Cite quirk="1" row="A win from a shortcut shows TIME: 0:00." />. In the clip, after the run's win
   from the level 13 shortcut, the room has WINS: 1 and TIME: 0:00
   <Cite clip="speedrunning-basics/shortcut-win" /> <Cite replay="fidelity/replays/ending-seed-1.txt" />.
 
@@ -136,12 +136,12 @@ others from replays of the moves and the high scores room.
   <Cite gml="objects/oPlayer1/step.gml:1853-1872" />.
 - **Reading the Moon Room's goal as unlocked.** Climbing up beside the trophies, the panel shows the Moon
   Room's goal for any best time, though only the door means it's fast enough
-  ([[moon-room-goal-any-win]]) <Cite gml="objects/oHighscores/draw.gml:46" /> <Cite quirk="1" />.
+  ([[moon-room-goal-any-win]]) <Cite gml="objects/oHighscores/draw.gml:46" /> <Cite quirk="1" row="The Moon Room's goal shows for any winning time." />.
   In the clip, with a win at 11:40, the time's trophy is silver and there's no door, but the goal shows
   <Cite clip="quirks/moon-room-goal-any-win" />.
 
   <Clip id="quirks/moon-room-goal-any-win" />
 
 - **A best time of exactly 16:00.** It earns no trophy, while 15:59 earns the bronze
-  ([[no-trophy-at-sixteen-minutes]]) <Cite gml="objects/oHighscores/create.gml:50-56" /> <Cite quirk="1" />
+  ([[no-trophy-at-sixteen-minutes]]) <Cite gml="objects/oHighscores/create.gml:50-56" /> <Cite quirk="1" row="A best time of exactly 960 seconds earns no trophy." />
   <Cite replay="fidelity/replays/flow-highscores-time-960-no-trophy.txt" />.

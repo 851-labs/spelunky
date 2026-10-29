@@ -45,7 +45,7 @@ Its Shopkeeper greets the player with "I HAVE SOMETHING SPECIAL..." and nothing 
 <Cite gml="objects/oShopkeeper/step.gml:133" /> <Cite gml="objects/oShopkeeper/step.gml:145" />. The
 shop is a ledge at the top of one of the [[black-market|Black Market]]'s rooms, with the [[ankh|Ankh]] on
 it beside the [[shopkeeper|Shopkeeper]] and a lamp, and no sign; it's open only above, where two rooms
-drop to it <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> <Cite quirk="1" />. The source names it
+drop to it <Cite gml="scripts/scrRoomGenMarket.gml:112-116" /> <Cite quirk="1" row="The Ankh is never marked for sale." />. The source names it
 the "Ankh" shop <Cite gml="scripts/scrRoomGenMarket.gml:115" />.
 
 ## Stock
@@ -72,7 +72,7 @@ rules): he names its price while it's held, and the [[controls|pay key]] with <S
 buys it, which puts it on ("YOU GOT THE ANKH! YOU FEEL PROTECTED.") <Cite gml="objects/oShopkeeper/step.gml:72-85" />
 <Cite gml="objects/oPlayer1/step.gml:1359-1389" /> <Cite gml="scripts/scrStealItem.gml:35-45" />. What
 angers him angers every Shopkeeper, and the market has seven close together: a bomb lit in one shop angers
-them all ([[black-market#hazards|the Black Market]]) <Cite quirk="1" />.
+them all ([[black-market#hazards|the Black Market]], [[bomb-angers-every-shopkeeper]]) <Cite quirk="1" row="A lit bomb in a shop angers every active Shopkeeper, and those off screen again on every step." />.
 
 ## Stealing
 
@@ -89,10 +89,10 @@ the Ankh shatters and he's back at the level's entrance <Cite clip="ankh/revive"
 The Ankh is never marked for sale, so the check that angers the Shopkeeper when a ware itself leaves the
 shop passes it by. Thrown up out of the shop, it lies outside with its price and nobody minds, until the
 player picks it up there: then it's his, and the Shopkeeper attacks ([[ankh-throw-out]]) <Cite
-gml="objects/oItem/step.gml:17-34" /> <Cite quirk="1" /> <Cite replay="fidelity/replays/item-seed-9-ankh-thrown-out.txt" />.
+gml="objects/oItem/step.gml:17-34" /> <Cite quirk="1" row="The Ankh is never marked for sale." /> <Cite replay="fidelity/replays/item-seed-9-ankh-thrown-out.txt" />.
 The theft marks the player a thief for
 the next level, as any does ([[general-store#stealing|the General Store]] has the rules), though no shop
-comes after the Black Market <Cite quirk="1" />.
+comes after the Black Market ([[no-shops-after-black-market]]) <Cite quirk="1" row="No shop for the rest of the game once the Black Market is made." />.
 
 ## Locations
 
