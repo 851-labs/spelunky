@@ -1,0 +1,38 @@
+# The wiki clip quirks/tutorial-negative-depth's replay (wiki/clips/quirks/tutorial-negative-depth.toml), made by wiki-clips: fidelity/replays/flow-tutorial-pause-depth.txt up to the clip's last
+# frame, 1060.
+seed 12345
+frames 1061
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+568 press escape
+570 release escape
+628 press escape
+630 release escape
+630 press right
+658 press Z
+668 release Z
+685 press Z
+699 release Z
+702 press Z
+710 release Z
+720 release right
+768 press X
+770 release X
+782 press X
+784 release X
+796 press X
+798 release X
+812 press right
+902 press Z
+912 release Z
+947 release right
+980 press escape
+982 release escape
+1040 press escape
+1042 release escape
