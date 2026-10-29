@@ -133,7 +133,7 @@ function viewText(v: SourceRoom["views"][number]): string {
 // A room (/wiki/source/rooms/<name>): what the room editor shows of it, as text. Its settings; its instances by
 // object, each object's row with its positions in creation order, an anchor of its name (#oSnake), and a link
 // to its events in the index where it has any; its tiles; and its creation code and its instances', if any.
-export function RoomPage({ data: { name, room, linked } }: { data: RoomData }) {
+export function RoomPage({ data: { name, room, linked, pages, place } }: { data: RoomData }) {
   const objects = new Map<string, SourceRoom["instances"]>();
   for (const instance of room.instances) {
     const list = objects.get(instance.object);
@@ -157,6 +157,11 @@ export function RoomPage({ data: { name, room, linked } }: { data: RoomData }) {
         {`The room ${room.name} as the room editor placed it: ${count(room.instances.length, "instance")} of ` +
           `${count(names.length, "object")}${room.tiles.length > 0 ? ` and ${count(room.tiles.length, "tile")}` : ""}.`}
       </p>
+      {place && (
+        <p className="source-about">
+          The wiki's page on this room: <a href={`/wiki/${place.slug}`}>{place.title}</a>.
+        </p>
+      )}
       <h2 id="settings">Settings</h2>
       <table className="room-settings">
         <tbody>
@@ -232,6 +237,11 @@ export function RoomPage({ data: { name, room, linked } }: { data: RoomData }) {
                     </a>
                   ) : (
                     <code>{name}</code>
+                  )}
+                  {Object.hasOwn(pages, name) && (
+                    <a className="room-page" href={`/wiki/${pages[name].slug}`}>
+                      {pages[name].title}
+                    </a>
                   )}
                 </th>
                 <td>{instances.length}</td>

@@ -211,6 +211,8 @@ export interface PageMeta {
   categories: Frontmatter["categories"];
   aliases: string[];
   objects: string[];
+  // A place's editor-built rooms (the frontmatter's `rooms`), which the source viewer's room pages link it from.
+  rooms: string[];
   // The lede as plain text: the meta description and the answer engines' snippet.
   lede: string;
   spoiler: boolean;
@@ -931,6 +933,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     categories: page.categories,
     aliases: page.aliases ?? [],
     objects: page.objects ?? [],
+    rooms: page.rooms ?? [],
     lede: lede.text,
     spoiler: page.spoiler ?? false,
     image,

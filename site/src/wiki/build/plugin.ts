@@ -16,6 +16,9 @@
 // - `virtual:wiki/hover-cards`: every page's hover card (cards.ts), which src/wiki/hover-card.tsx imports
 //   the first time a link is hovered or focused: its own chunk too.
 // - `virtual:wiki/aliases`: each page's aliases, to its slug, which the Worker (src/server.ts) redirects.
+// - `virtual:wiki/source-links`: the page each object and room is on (sourceLinks), which the source viewer's
+//   room pages link to (src/wiki/source.ts). In the Worker's build, which pre-renders them; empty in the
+//   browser's, which never runs their loader, as `virtual:wiki-source/files` is (build/source.ts).
 //
 // And it writes the Markdown (markdown.ts) into the browser's build, dist/client, as static files: each
 // page's twin at wiki/<slug>.md, llms.txt and llms-full.txt. Not routes: the Worker would carry every page's
@@ -29,7 +32,7 @@ import { buildSearchIndex } from "../search.ts";
 import { hoverCards } from "./cards.ts";
 import { CATEGORY_NAMES } from "./categories.ts";
 import { loadWiki } from "./compile.ts";
-import type { CompiledPage, WikiOptions } from "./compile.ts";
+import type { CompiledPage, PageMeta, WikiOptions } from "./compile.ts";
 import type { Hubs } from "./hubs.ts";
 import { markdownFiles } from "./markdown.ts";
 
@@ -42,6 +45,25 @@ const HUB = "virtual:wiki/hub/";
 const SEARCH_INDEX = "virtual:wiki/search-index";
 const HOVER_CARDS = "virtual:wiki/hover-cards";
 const ALIASES = "virtual:wiki/aliases";
+const SOURCE_LINKS = "virtual:wiki/source-links";
+
+// A page an object or a room is on, by its slug and title.
+export interface PageLink {
+  slug: string;
+  title: string;
+}
+
+// The page each object is on (its `objects`) and each room (a place's `rooms`): one at most, which the build
+// has checked (compile.ts, relations.ts).
+export function sourceLinks(pages: PageMeta[]): { objects: Record<string, PageLink>; rooms: Record<string, PageLink> } {
+  const objects: Record<string, PageLink> = {};
+  const rooms: Record<string, PageLink> = {};
+  for (const { slug, title, objects: names, rooms: roomNames } of pages) {
+    for (const name of names) objects[name] = { slug, title };
+    for (const name of roomNames) rooms[name] = { slug, title };
+  }
+  return { objects, rooms };
+}
 
 export function wiki(options: WikiOptions): Plugin {
   // Compiled once for both of the build's environments (the Worker's and the browser's).
@@ -113,7 +135,7 @@ export function wiki(options: WikiOptions): Plugin {
       for (const [path, source] of og) this.emitFile({ type: "asset", fileName: path.slice(1), source });
     },
     resolveId(id) {
-      if ([PAGES, LOADERS, HUBS, HOME, SEARCH_INDEX, HOVER_CARDS, ALIASES].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;
+      if ([PAGES, LOADERS, HUBS, HOME, SEARCH_INDEX, HOVER_CARDS, ALIASES, SOURCE_LINKS].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;
     },
     async load(id) {
       if (!id.startsWith("\0virtual:wiki/")) return;
@@ -169,6 +191,11 @@ export function wiki(options: WikiOptions): Plugin {
         // compile.ts has already failed an alias that's a page's slug, another alias, or reserved.
         const aliases = [...pages.values()].flatMap(({ meta }) => meta.aliases.map((alias) => [alias, meta.slug]));
         return `export const aliases = new Map(${JSON.stringify(aliases)});`;
+      }
+      if (name === SOURCE_LINKS) {
+        if (this.environment.name === "client") return "export const objectPages = {};\nexport const roomPages = {};";
+        const { objects, rooms } = sourceLinks([...pages.values()].map(({ meta }) => meta));
+        return `export const objectPages = ${JSON.stringify(objects)};\nexport const roomPages = ${JSON.stringify(rooms)};`;
       }
       const page = pages.get(name.slice(PAGE.length));
       if (!page) throw new Error(`no wiki page ${name.slice(PAGE.length)}`);
