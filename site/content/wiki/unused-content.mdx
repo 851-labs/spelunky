@@ -88,15 +88,15 @@ names one, or names it only in a comment or in a branch no level reaches (the th
 
 | | Object | What its code would do |
 | --- | --- | --- |
-| <Sprite name="sGold" alt="" /> | Gold in the rock (`oGold`) | Breaks into three [[gold-chunk\|gold chunks]] <Cite gml="objects/oGold/destroy.gml:1-6" />. Only the [[ufo\|UFO]]'s laser names it, to destroy it <Cite gml="objects/oLaser/collision_oSolid.gml:1-14" />. |
+| <Sprite name="sGold" alt="" /> | Gold in the rock (`oGold`) | Breaks into three [[gold-chunk\|gold chunks]] <Cite gml="objects/oGold/destroy.gml:1-6" />. Only the [[ufo\|UFO]]'s laser names it, to destroy it <Cite gml="objects/oLaser/collision_oSolid.gml:1-14" /> <Cite quirk="1" row="Nothing creates oGold or oGoldBig." />. |
 | <Sprite name="sGoldBig" alt="" /> | Big gold in the rock (`oGoldBig`) | Breaks into a [[gold-nugget\|gold nugget]] and two or three gold chunks <Cite gml="objects/oGoldBig/destroy.gml:1-10" />; the laser names it too. |
 | <Sprite name="sCaveBG1" alt="" /> | Cave background (`oCaveBG`) | One of two background pictures, at random <Cite gml="objects/oCaveBG/create.gml:1-8" />; its only `instance_create` is commented out <Cite gml="scripts/scrInitLevel.gml:231" />. |
-| <Sprite name="sSmallCollect" alt="" /> | Collecting sparkle (`oSmallCollect`) | Rises for a second <Cite gml="objects/oSmallCollect/create.gml:3" /> <Cite gml="objects/oSmallCollect/step.gml:1" />; the line that made one when the player collects a treasure is commented out <Cite gml="objects/oPlayer1/step.gml:2001" /> <Cite quirk="1" row="Unreachable terrain and effects" />. |
+| <Sprite name="sSmallCollect" alt="" /> | Collecting sparkle (`oSmallCollect`) | Rises for a second <Cite gml="objects/oSmallCollect/create.gml:3" /> <Cite gml="objects/oSmallCollect/step.gml:1" />; the line that made one when the player collects a treasure is commented out <Cite gml="objects/oPlayer1/step.gml:2001" /> <Cite quirk="1" row="oCaveBG's and oSmallCollect's only instance_creates are commented out" />. |
 | <Sprite name="sArrowTrapLeft" alt="" /> | Old arrow trap (`oTemp`) | An [[arrow-trap\|Arrow Trap]] facing left that fires once at the player, a monster, a push block or a moving item in front of it, playing a sound the game doesn't have <Cite gml="objects/oTemp/step.gml:1-45" /> <Cite quirk="1" row="oTemp (solid) calls sound_play on sndArrowTrap" />. |
 | <Sprite name="sSight" alt="" /> | Entrance check (`oEntranceCheck`) | Moves 16 pixels a step until it touches a block, then destroys itself, and the block too if it's an Arrow Trap <Cite gml="objects/oEntranceCheck/step.gml:1-4" /> <Cite gml="objects/oEntranceCheck/collision_oSolid.gml:1-2" />. |
 | | `oBackdrop`, `oForeground`, `oFrill`, `oCaveUp` | Set a depth, or do nothing <Cite gml="objects/oBackdrop/create.gml:1" /> <Cite gml="objects/oForeground/create.gml:1" /> <Cite quirk="1" row="The rest of the game's objects that nothing makes." />. |
 
-The mothership's `oAlienShipFloor` is a [[block|Block]] nothing makes either <Cite quirk="1" row="Unreachable terrain and effects" />.
+The mothership's `oAlienShipFloor` is a [[block|Block]] nothing makes either: the mothership's floor is its hull given the floor's sprite <Cite quirk="1" row="Nothing creates oAlienShipFloor." />.
 
 ### The settings program's controls
 
@@ -121,7 +121,8 @@ Each object here is in a row of `docs/quirks.md`'s leftovers, unreachable in 1.1
 
 - The Jordans, the Rope Bag, the basketball, the armed fire frog and the Moon Room's target <Cite quirk="1" row="oJordans, oRopeBag, oBasketball and oFireFrogArmed are unreachable" />.
 - The thwomp trap <Cite quirk="1" row="oThwompTrap is unreachable" />.
-- The gold in the rock, the cave background and the collecting sparkle <Cite quirk="1" row="Unreachable terrain and effects" />.
+- The gold in the rock <Cite quirk="1" row="Nothing creates oGold or oGoldBig." />.
+- The cave background and the collecting sparkle <Cite quirk="1" row="oCaveBG's and oSmallCollect's only instance_creates are commented out" />.
 - The old arrow trap <Cite quirk="1" row="oTemp (solid) calls sound_play on sndArrowTrap" />.
 - The settings program's buttons <Cite quirk="1" row="Dangling references to config.exe resources" />.
 - The rest <Cite quirk="1" row="The rest of the game's objects that nothing makes." />.
