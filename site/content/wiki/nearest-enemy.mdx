@@ -17,9 +17,10 @@ quirk:
     - A fast thrown item hurts the nearest enemy, not the one it hit.
     - Picking up a stunned enemy takes the nearest enemy, not the one under the player.
     - The arrow and spear checks take the nearest one, not the one touching.
+    - Collecting treasure takes the nearest treasure, and nothing while that one can't be collected.
 relations:
-  related: [rock, jar, skull, throwing, spider, bat, caveman, yeti, arrow, spear-trap]
-clips: [quirks/thrown-item-nearest-enemy, quirks/pickup-nearest-enemy]
+  related: [rock, jar, skull, throwing, spider, bat, caveman, yeti, arrow, spear-trap, chest, emerald, gold-bar]
+clips: [quirks/thrown-item-nearest-enemy, quirks/pickup-nearest-enemy, quirks/treasure-nearest-pick]
 faq:
   - q: Why did my thrown rock kill the wrong monster in Spelunky Classic?
     a: >-
@@ -40,7 +41,7 @@ sources:
 verified: { port: v0.1.10, date: 2026-10-28 }
 ---
 
-The same two lines go wrong in both places: a test for a monster touching the thing, then a pick of the
+The same two lines go wrong in each place: a test for a monster touching the thing, then a pick of the
 monster nearest it. They usually agree, and disagree when two monsters are close together, so a
 [[rock|Rock]] thrown at one can kill its neighbour, and a crouching player can lift a stunned enemy he isn't
 standing over.
@@ -56,6 +57,12 @@ The player stuns a [[caveman|Caveman]] and a [[yeti|Yeti]], then crouches over t
 lifts the Caveman beside it <Cite clip="quirks/pickup-nearest-enemy" />.
 
 <Clip id="quirks/pickup-nearest-enemy" />
+
+The player opens a [[chest|Chest]] beside a [[gold-bar|Gold Bar]], and its [[emerald|Emerald]] lands between him
+and the bar. He steps onto the Gold Bar and collects nothing, for 5 steps, until the Emerald can be collected:
+then he takes the Emerald, and the Gold Bar the step after <Cite clip="quirks/treasure-nearest-pick" />.
+
+<Clip id="quirks/treasure-nearest-pick" />
 
 ## Why
 
@@ -96,8 +103,14 @@ else if (collision_rectangle(x-8, y, x+8, y+8, oEnemy, 0, 0))
 ```
 
 So a live enemy beside a stunned one can keep the stunned one on the ground. Items come first, with the same
-pick, and collecting treasure does it as well <Cite gml="objects/oPlayer1/step.gml:1206-1209" />
+pick <Cite gml="objects/oPlayer1/step.gml:1206-1209" />
 <Cite quirk="1" row="Picking up a stunned enemy takes the nearest enemy, not the one under the player." />.
+
+Collecting treasure has it as well: the player's step looks for a treasure touching him, then takes the nearest
+one, touching him or not, and collects it only if it can be collected yet, so one treasure a step at most
+<Cite gml="objects/oPlayer1/step.gml:1990-1993" />. A gem fresh out of a Chest waits 20 steps before it can be
+<Cite gml="objects/oEmerald/create.gml:7" />, and while it's the nearest, a treasure the player touches waits
+with it <Cite quirk="1" row="Collecting treasure takes the nearest treasure, and nothing while that one can't be collected." />.
 
 The pick works the other way too. The player's check for an [[arrow|arrow]] hitting him finds one touching
 him, then tests the nearest arrow's speed, so a fast arrow does nothing while a slow one lies nearer
@@ -112,11 +125,13 @@ right side of the one on the left. The replays of the clips' staged scenes pin b
 box and the Bat dying <Cite replay="fidelity/replays/action-throw-rock-nearest-enemy.txt" />, and the player
 crouched over the stunned Yeti's right side lifting the stunned Caveman
 <Cite replay="fidelity/replays/action-pickup-nearest-enemy.txt" />. In the same scenes without the Bat, the
-Rock kills the Spider, and without the Caveman, the player lifts the Yeti.
+Rock kills the Spider, and without the Caveman, the player lifts the Yeti. For treasure, open a Chest
+beside a treasure that can already be collected and step onto that one while the Chest's gems wait: the third
+scene's replay pins it <Cite replay="fidelity/replays/treasure-nearest-pick.txt" />.
 
 ## In the port
 
-The spelunky.ai port reproduces it exactly: the three rows are in docs/quirks.md's list of the 1.1 source's bugs
+The spelunky.ai port reproduces it exactly: the four rows are in docs/quirks.md's list of the 1.1 source's bugs
 <Cite quirk="1" />, and `instance_nearest` measures as GameMaker 8 does, to positions
 <Cite quirk="5" row="instance_nearest measures to instances' positions, not their boxes" />. The arrows' and spears' version is read in the code and not yet in a replay, as it needs
 two at once. No option turns it off.

@@ -77,8 +77,9 @@ one <Cite gml="scripts/scrCreateTileObj.gml:253-256" />.
 <Clip id="gold-bar/tutorial" />
 
 The player collects a bar by touching it while he isn't stunned or dead: it's collectable from the start, and
-he takes the treasure nearest him, one a step <Cite gml="objects/oGoldBar/create.gml:6-7" />
-<Cite gml="objects/oPlayer1/step.gml:1990-2016" />. Its value shows under his money and is counted into it
+he takes the treasure nearest him, one a step, so a nearer gem that can't be collected yet holds the bar back
+([[nearest-enemy]]) <Cite gml="objects/oGoldBar/create.gml:6-7" /> <Cite gml="objects/oPlayer1/step.gml:1990-2016" />
+<Cite quirk="1" row="Collecting treasure takes the nearest treasure, and nothing while that one can't be collected." />. Its value shows under his money and is counted into it
 after a short pause <Cite gml="objects/oPlayer1/step.gml:1953-1971" />; gold plays the coin sound
 <Cite gml="objects/oPlayer1/step.gml:2000-2014" />, and the screen between levels shows each bar collected on
 the level <Cite gml="objects/oTransition/alarm_0.gml:53-58" />.

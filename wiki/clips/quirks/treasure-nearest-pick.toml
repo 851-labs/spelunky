@@ -1,0 +1,9 @@
+title = "Collecting treasure takes the nearest one"
+description = "The player opens a chest beside a gold bar, and its emerald lands between him and the bar. He steps onto the gold bar, which could be collected, and nothing is: the emerald, nearer, has to wait out its first moments first. Once it can be collected he takes it, and the gold bar the step after."
+# A staged scene (a custom level), committed as a replay so the oracle's fingerprint pins it; its header
+# has the level and the geometry (docs/quirks.md §1). Frame 241 is the scene's first in the level.
+replay = "fidelity/replays/treasure-nearest-pick.txt"
+from = 241
+to = 360
+poster = 320
+story = "+oEmerald@303 oPlayer1.x>=157@316..319 !goldbar>0@..323 -oEmerald@323..323 goldbar=1@324..324"
