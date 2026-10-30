@@ -331,6 +331,42 @@
       "width": 640
     },
     {
+      "audio_hash": "ade990ad45fed917",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "An arrow trap watches the corridor below a ledge. The player pushes a stone block off the ledge, staying up on it himself; the block falls into the corridor, and the trap fires as it falls.",
+      "duration": 6.0,
+      "encoding": "b94463c67db72c2b",
+      "files": {
+        "mp4": "arrow-trap/falling-block/clip.mp4",
+        "poster": "arrow-trap/falling-block/poster.png",
+        "replay": "arrow-trap/falling-block/replay.txt",
+        "webm": "arrow-trap/falling-block/clip.webm"
+      },
+      "fps": 30,
+      "frames": 180,
+      "frames_hash": "55bbdbc3c07a1fef",
+      "from": 0,
+      "has_audio": true,
+      "height": 480,
+      "id": "arrow-trap/falling-block",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 136,
+      "replay_from": 241,
+      "scale": 2,
+      "source": {
+        "kind": "scene",
+        "seed": 0
+      },
+      "spec": "wiki/clips/arrow-trap/falling-block.toml",
+      "state_hash": "f33d6e43735dda92",
+      "states_hash": "be8b31d67bac2fea",
+      "title": "A falling block sets a trap off",
+      "to": 179,
+      "width": 640
+    },
+    {
       "audio_hash": "ca9e2a0fefe70b98",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The player stands in front of an arrow trap three blocks away without setting it off, then takes a step toward it: it fires an arrow across the floor, which hits him for two hearts and knocks him down.",
@@ -400,6 +436,42 @@
       "states_hash": "cef707012f592886",
       "title": "Arrow trap firing short",
       "to": 99,
+      "width": 640
+    },
+    {
+      "audio_hash": "ac9abd3c876fc61e",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player pushes a stone block along a corridor and into the stretch an arrow trap watches, stopping just short of it himself: the block moves into the trap's sights and nothing fires. Then he jumps over the block into the stretch, and the trap fires, missing him.",
+      "duration": 7.0,
+      "encoding": "ab41bef62cacf308",
+      "files": {
+        "mp4": "arrow-trap/pushed-block/clip.mp4",
+        "poster": "arrow-trap/pushed-block/poster.png",
+        "replay": "arrow-trap/pushed-block/replay.txt",
+        "webm": "arrow-trap/pushed-block/clip.webm"
+      },
+      "fps": 30,
+      "frames": 210,
+      "frames_hash": "eff4278f45ed508c",
+      "from": 0,
+      "has_audio": true,
+      "height": 480,
+      "id": "arrow-trap/pushed-block",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 115,
+      "replay_from": 241,
+      "scale": 2,
+      "source": {
+        "kind": "scene",
+        "seed": 0
+      },
+      "spec": "wiki/clips/arrow-trap/pushed-block.toml",
+      "state_hash": "38d13acead888a0b",
+      "states_hash": "2c2b9b7cd9219958",
+      "title": "A pushed block in the trap's sights",
+      "to": 209,
       "width": 640
     },
     {
