@@ -126,8 +126,9 @@ fn a_recorded_session_plays_back_identically() {
         played.iter().map(Vec::as_slice),
     );
     assert_eq!(playback, live);
-    // The session did reach the game: the tap, the repeat, the mouse and the stick.
+    // The session did reach the game: the tap, the repeat (held, not pressed again), the mouse and the
+    // stick.
     assert!(live.starts_with("o1.press90 z011"), "{live}");
-    assert!(live.contains("o1.press90 z110 k90 m(17, 230)1"), "{live}");
+    assert!(live.contains("j0101 z100 k90 m(17, 230)1"), "{live}");
     assert!(live.contains("j1105"), "{live}");
 }

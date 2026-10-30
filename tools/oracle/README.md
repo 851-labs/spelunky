@@ -514,6 +514,14 @@ input (`Input::CloseButton`, which `set_input_from_frame` skips) and before the 
 them without stopping the frame. OpenGMK never runs the event: it ends the game when its window closes
 (`close_requested`), which a replay never does.
 
+### `opengmk/0034-gm8-key-repeat.patch`
+
+A press of a key that is already down isn't a press, as in GM8 (851-3774, `docs/quirks.md` §5, measured by
+`tools/gm8-probe`'s `key-repeat`): `Input::button_press` sets no pressed flag for a key that's held, but still sets
+`keyboard_key` and `keyboard_lastkey`, as GM8 does for keyboard auto-repeat, so a replay's `press` of a held key
+means what the port's (`InputState::apply`) does. OpenGMK set the flag again. Mouse buttons, which come through
+the same function, are pressed as before.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
