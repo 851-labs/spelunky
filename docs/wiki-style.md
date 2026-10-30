@@ -88,8 +88,8 @@ Relations shown in the infobox (`found_in`, `sold_in`, `drops`, `part_of`) come 
 `relations.json` for one of the page's `objects` (counting inherited events, its `runs_as`), or
 `{ slug, cite, note }` for one the data can't see, such as a mechanic or a thrown item. The build fails on a
 plain slug the data doesn't back, and lists (as a warning) what the data has that the page leaves out, so a
-page curates its relations but can't contradict the code. A page without `objects` (a place, a shop) has
-nothing to check a plain slug against, so its entries take a `cite`. `related` is the editors' own and
+page curates its relations but can't contradict the code. A page without `objects` (an area, most special levels
+and shops) has nothing to check a plain slug against, so its entries take a `cite`. `related` is the editors' own and
 needs no backing.
 
 | Relation | On | Points to | Inverse (generated) |
@@ -214,7 +214,7 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   - **A card's sprite** is a page's infobox image, or its `card` ([Infobox values](#infobox-values)), or a
     page without an infobox's own `card` ([Frontmatter](#frontmatter)). One to
     come shows its first object's sprite, or what `build/hubs.ts`'s `CARD_SPRITES` (wiki-data's places and
-    shops, which have no object: a shop's sign, a special level's tiles or what it's named for) or its
+    shops, whose cards no object gives: a shop's sign, a special level's tiles or what it's named for) or its
     `wiki-planned.yaml` entry's `card` names. The build fails on a `CARD_SPRITES` slug that has a page
     (the page's infobox says now) or isn't wiki-data's, and, with the media, on a sprite or frame it hasn't
     got.

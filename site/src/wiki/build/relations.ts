@@ -142,7 +142,7 @@ export function targets(pages: Frontmatter[], plan: Planned, plannedName: string
   for (const [slug, place] of Object.entries(data.places)) {
     // An area is the relations' slug, which every page found in it points at: it's made of all their objects,
     // so it names none. A special level names the fixtures it's made of (the Moai's head, the mothership's
-    // hull), as a place that's a thing in a level (Kali's altar) does.
+    // barrier), as a place that's a thing in a level (Kali's altar) does.
     const page = map.get(slug);
     if (place.kind === "area" && page?.slug === slug && page.objects.length) errors.push(`${slug}.mdx: an area has no objects`);
     unwritten(slug, place.name, "place");

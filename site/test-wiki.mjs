@@ -151,6 +151,17 @@ else {
     if (groupsOf(slug) !== want) fail(`kalis-altar: the places' navbox has ${slug} in ${groupsOf(slug)}, not ${want}`);
   }
 }
+// A special level (the Moai) and a shop (the Dice House) name their fixtures, which the source viewer links
+// to them, and which back a shop's plain found_in.
+{
+  const { objects } = sourceLinks(committed.pages);
+  for (const [object, want] of [["oMoaiInside", "moai"], ["oBarrier", "mothership"], ["oGrave", "restless-dead"], ["oDice", "dice-house"]]) {
+    if (objects[object]?.slug !== want) fail(`fixtures: ${object} is ${objects[object]?.slug}'s page, not ${want}'s`);
+  }
+  const dice = committed.pages.find((p) => p.meta.slug === "dice-house")?.meta;
+  const foundIn = dice?.relations.find((r) => r.relation === "found_in")?.links.map((l) => l.slug).join();
+  if (foundIn !== "mines,jungle,ice-caves,temple,black-market,yeti-lair") fail(`dice-house: found_in is ${foundIn}`);
+}
 if (committed.warnings.some((w) => !w.startsWith("no wiki media"))) fail(`content/wiki: warnings ${JSON.stringify(committed.warnings)}`);
 // Without the media's gml/, no citation links to the source viewer.
 if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content/wiki: a citation links to the source viewer, without its gml/");
