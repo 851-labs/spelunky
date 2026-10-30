@@ -28,9 +28,14 @@ export const Route = createFileRoute("/wiki/$slug")({
     const page = pages.loadPage(params.slug);
     if (!page) throw notFound();
     const { meta } = await page;
+    // Its links to docs/quirks.md, which its chunk has only by key (src/wiki/quirk-links.ts): pre-rendered, so
+    // they're in the HTML and its hydration data. The browser's build of the module is empty, as the browser
+    // hydrates with this data rather than running the loader.
+    const { quirkLinks } = await import("virtual:wiki/quirk-links");
     // What the head needs, which the browser gets with the page rather than loading the page's chunk.
     return {
       page: {
+        quirkLinks: quirkLinks[params.slug] ?? {},
         title: meta.title,
         lede: meta.lede,
         verified: meta.verified.date,
@@ -91,14 +96,14 @@ function Page() {
       {/* Only the browser ever waits here, hydrating before the page's chunk has loaded: it keeps the
           pre-rendered page meanwhile (src/wiki/pages.ts). */}
       <Suspense fallback={null}>
-        <Loaded slug={slug} />
+        <Loaded slug={slug} quirkLinks={page?.quirkLinks} />
       </Suspense>
     </WikiFrame>
   );
 }
 
-function Loaded({ slug }: { slug: string }) {
+function Loaded({ slug, quirkLinks }: { slug: string; quirkLinks?: Record<string, string> }) {
   const page = loadPage(slug);
   if (!page) throw notFound();
-  return <WikiPage page={use(page)} />;
+  return <WikiPage page={use(page)} quirkLinks={quirkLinks} />;
 }

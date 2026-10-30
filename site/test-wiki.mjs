@@ -12,6 +12,7 @@ import { parse as parseYaml } from "yaml";
 import { clipLive, loadWiki } from "./src/wiki/build/compile.ts";
 import { hoverCards } from "./src/wiki/build/cards.ts";
 import { filePins } from "./src/wiki/build/repo.ts";
+import { keyQuirkLinks, resolveQuirkLinks } from "./src/wiki/quirk-links.ts";
 import { hubById } from "./src/wiki/build/categories.ts";
 import { cardScale, makeHubs } from "./src/wiki/build/hubs.ts";
 import { markdownFiles } from "./src/wiki/build/markdown.ts";
@@ -68,6 +69,22 @@ const HEAD = git("rev-parse", "HEAD");
 const committed = await loadWiki(options(here("content/wiki")));
 for (const error of committed.errors) fail(`content/wiki: ${error}`);
 if (committed.pages.length === 0) fail("content/wiki: no pages");
+// A page's links to docs/quirks.md aren't in its module, which has a key for each (quirk-links.ts), as a change
+// to quirks.md would rename every page that cites a quirk (851-3744); its route's loader gives it them, which
+// put back are its meta's exactly.
+{
+  const before = failures;
+  const quirksLink = /github\.com\/851-labs\/spelunky\/blob\/[^"]*\/docs\/quirks\.md/;
+  const inCode = committed.pages.filter((p) => quirksLink.test(p.code)).map((p) => p.meta.slug);
+  if (inCode.length > 0) fail(`quirk links: ${inCode.length} pages' modules link docs/quirks.md: ${inCode.slice(0, 5).join(", ")}`);
+  const keyed = committed.pages.filter((p) => Object.keys(p.quirkLinks).length > 0);
+  for (const p of committed.pages) {
+    const back = resolveQuirkLinks(keyQuirkLinks(p.meta).meta, p.quirkLinks);
+    if (JSON.stringify(back) !== JSON.stringify(p.meta)) fail(`quirk links: ${p.meta.slug}'s links by key aren't its meta's`);
+  }
+  if (keyed.length < 100) fail(`quirk links: only ${keyed.length} pages link docs/quirks.md`);
+  if (failures === before) console.log(`ok   quirk links: ${keyed.length} pages' links to docs/quirks.md by key, none in their modules`);
+}
 // A table stat's row: a shop's price on level 5, 10% of the base price more for each level past the second.
 {
   const row = resolveStat(readSnapshot(here("content/wiki-data/stats.json")), "spectacles.price-by-level", { at: 5 });
