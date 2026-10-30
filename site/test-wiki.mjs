@@ -1114,17 +1114,18 @@ cases.push(
     },
     "general-store.mdx: relations.found_in: mines: a page without objects cites each relation",
   ],
-  // A place may name objects only when it's a thing in a level (Kali's altar), not an area or special level.
+  // A place may name objects when it's a thing in a level (Kali's altar) or a special level (the Moai), not an
+  // area.
   [
-    "a special level with objects",
+    "an area with objects",
     {
       "snake.mdx": source,
-      "snake-pit.mdx": itemPage("snake-pit", "Snake pit", "oX")
+      "mines.mdx": itemPage("mines", "The Mines", "oX")
         .replace("type: item", "type: place")
         .replace("categories: [items/weapons]", "categories: [places]")
         .replace("  kind: weapon\n", ""),
     },
-    "snake-pit.mdx: an area or special level has no objects",
+    "mines.mdx: an area has no objects",
   ],
   ["a planned page that's wiki-data's", { "snake.mdx": source, "planned.yaml": `${planned}whip: { title: Whip }\n` }, "whip is wiki-data's already (Whip)"],
   ["a planned page with a page", { "snake.mdx": source, "level-editor.mdx": itemPage("level-editor", "Level editor", "oX") }, "level-editor has a page now: remove it"],

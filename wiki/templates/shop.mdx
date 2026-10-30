@@ -6,6 +6,7 @@ title: Shop Name                    # relations.toml's name: the signs are pictu
                                     # greeting names some differently ("SUPPLY SHOP"), which go in aliases
 type: shop
 categories: [shops]
+objects: []                         # its fixtures no other page is about (the Dice House's oDice), if any
 aliases: []
 lede: >-
   The Shop Name is a shop in Spelunky Classic that sells <what>, found in <areas>.
@@ -14,7 +15,7 @@ infobox:
   chance: { text: "1 in 7 of the shops levels 2–15 build", cite: scripts/scrRoomGen.gml:173-204 }
   shopkeeper: { text: "[[shopkeeper]]" }
 relations:
-  found_in:                        # a shop has no objects to check against, so each entry cites
+  found_in:                        # without objects, or where they aren't found, an entry cites
     - { slug: mines, cite: scripts/scrRoomGen.gml:173-204 }  # each area's room script's shop rooms
   related: [shopkeeper]
 clips: []

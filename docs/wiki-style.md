@@ -46,7 +46,7 @@ Every page:
 | `title` | An entity's name as the game writes it, in title case: `Snake`, `Pitcher's Mitt`, `Olmec's Lair`. A mechanic, guide or quirk page's is a short description in sentence case: `Stomping`, `Reaching the City of Gold`, `Stomping while jumping`. |
 | `type` | The page type, which picks the template, the infobox and the JSON-LD: `monster`, `item`, `treasure`, `trap`, `terrain`, `place`, `shop`, `character`, `mechanic`, `guide` or `quirk`. One per page. |
 | `categories` | The hubs that list it (one or more): `monsters`, `characters`, `items/equipment`, `items/weapons`, `items/carryables`, `treasure`, `traps`, `terrain`, `places`, `shops`, `mechanics`, `guides`, `quirks`, `the-game`. The Shopkeeper is `[characters, monsters]`; the URL doesn't change with them. |
-| `objects` | The game objects the page is about (`[oSpider, oSpiderHang]`): the keys into `stats.json`, `relations.json` and the sprite index. An object belongs to one page at most; that's how the build maps an object to a slug. Places and shops have none: their slug is the relations' area, level or shop slug, and a place lists the editor-built rooms it covers in `rooms` (`[rOlmec]`). A place that's a thing in a level rather than an area or a special level, Kali's altar, names its objects (`[oSacAltarLeft, oSacAltarRight]`), which back its `part_of` and its `drops`; the build fails on an area or special level that names any. |
+| `objects` | The game objects the page is about (`[oSpider, oSpiderHang]`): the keys into `stats.json`, `relations.json` and the sprite index. An object belongs to one page at most; that's how the build maps an object to a slug. A place's or a shop's slug is the relations' area, level or shop slug, and a place lists the editor-built rooms it covers in `rooms` (`[rOlmec]`). An area names no objects (it's made of everything found in it; the build fails on one that names any). A special level or a shop names the fixtures it's made of that no other page is about: the Moai's head (`[oMoai, oMoai2, oMoai3, oMoaiInside]`), the mothership's barrier, the graveyard level's graves, the Dice House's dice. So does a place that's a thing in a level, Kali's altar (`[oSacAltarLeft, oSacAltarRight]`). Its objects back its `part_of`, its `drops` and a shop's `found_in`, and the build warns on what the data has for them that the page leaves out. |
 | `lede` | The [one-sentence lede](#the-lede). It's also the meta description and the answer engines' snippet. |
 | `aliases` | Other names people search for (`[mega-mouth, jaws]`): redirects and search terms. Optional. See [Naming and slugs](#naming-and-slugs) for how they're served. |
 | `hatnote` | One line above the lede for a confusable page: `For the bigger spider, see [[giant-spider]].` Optional. |
@@ -893,7 +893,7 @@ engines, and collapsed text is harder to use with a screen reader. Instead:
 Before approving a page (and before opening its PR):
 
 - [ ] Frontmatter complete for the type, as its template has it: `slug` (= the file name and the data
-      spec's slug), `title`, `type`, `categories`, `objects` (not on shops or guides, nor places but Kali's altar), `lede`,
+      spec's slug), `title`, `type`, `categories`, `objects` (not on guides or areas), `lede`,
       `relations`, `clips`, `faq` (not on guides), `sources`, `verified`.
 - [ ] The lede is one sentence of 160 characters or fewer, starts with the title, names Spelunky Classic,
       and answers "what is it".

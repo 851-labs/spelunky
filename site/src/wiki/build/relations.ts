@@ -140,10 +140,11 @@ export function targets(pages: Frontmatter[], plan: Planned, plannedName: string
     unwritten(slug, entity.name, KIND_TYPES[entity.kind] ?? null, entity.object ? [entity.object] : []);
   }
   for (const [slug, place] of Object.entries(data.places)) {
-    // An area or special level is the relations' slug, which its relations are checked by: only a place that's
-    // a thing in a level (Kali's altar) names objects.
+    // An area is the relations' slug, which every page found in it points at: it's made of all their objects,
+    // so it names none. A special level names the fixtures it's made of (the Moai's head, the mothership's
+    // hull), as a place that's a thing in a level (Kali's altar) does.
     const page = map.get(slug);
-    if (page?.slug === slug && page.objects.length) errors.push(`${slug}.mdx: an area or special level has no objects`);
+    if (place.kind === "area" && page?.slug === slug && page.objects.length) errors.push(`${slug}.mdx: an area has no objects`);
     unwritten(slug, place.name, "place");
   }
   for (const [slug, name] of Object.entries(data.shops)) unwritten(slug, name, "shop");
