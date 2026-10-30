@@ -10,7 +10,7 @@ use assets::Bundle;
 use serde_json::Value;
 
 fn reference() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../reference")
+    transpile::reference::repo_root().join("reference")
 }
 
 fn wiki_sprites(assets: &Path, out: &Path) -> Output {

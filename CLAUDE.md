@@ -44,8 +44,13 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
 - In a linked worktree with no `target/`, `scripts/cargo`'s first build clones the main worktree's
   (`scripts/seed-target`: APFS copy-on-write, so no extra disk). It then rebuilds only three things: what the
   main worktree's would, what the branch changed, and the units that compiled in a path of the main
-  worktree's (`env!("CARGO_MANIFEST_DIR")`: the fidelity tools, `transpile`, some tests). So a new worktree
-  is as warm as the main worktree's `target/` is.
+  worktree's (`env!("CARGO_MANIFEST_DIR")`, `CARGO_BIN_EXE_*`: the fidelity tools, the tests that run a
+  binary). So a new worktree is as warm as the main worktree's `target/` is. To keep it that way, code finds
+  the repository's files at run time, with `transpile::reference::repo_root()` or
+  `std::env::var_os("CARGO_MANIFEST_DIR")` (which `cargo test` and `cargo run` set), not `env!`. Only the
+  harness's binaries (`fidelity`, `fidelity-check`, `fuzz-sweep`, `wiki-clips`, `replay-*`), which are also
+  run without Cargo (`--no-build`, the soak's copied `fuzz-sweep`), keep `env!`, and tests keep
+  `CARGO_BIN_EXE_*`, which Cargo sets only as it compiles.
   `SPELUNKY_NO_SEED=1` turns it off. `assets/` isn't cloned: once the extractor is built,
   `scripts/extract` takes a second.
 - `scripts/check` also runs `gm`'s unit tests on wasm32 under Node (`scripts/wasm-test`). wasm can't unwind, so a

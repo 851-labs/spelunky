@@ -6,10 +6,10 @@ use std::sync::OnceLock;
 fn gmk() -> &'static gmk::Gmk {
     static GMK: OnceLock<gmk::Gmk> = OnceLock::new();
     GMK.get_or_init(|| {
-        let path = concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../reference/spelunky_1_1_src.zip"
-        );
+        let path = std::path::Path::new(
+            &std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR: run it with cargo"),
+        )
+        .join("../../reference/spelunky_1_1_src.zip");
         let file = std::fs::File::open(path).expect("reference/spelunky_1_1_src.zip");
         let mut zip = zip::ZipArchive::new(file).unwrap();
         let mut bytes = Vec::new();

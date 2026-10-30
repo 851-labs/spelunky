@@ -61,9 +61,11 @@ fn script(name: &str) -> String {
 }
 
 fn golden(file: &str, actual: &str) {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/golden")
-        .join(file);
+    let path = Path::new(
+        &std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR: run it with cargo"),
+    )
+    .join("tests/golden")
+    .join(file);
     if std::env::var_os("UPDATE_GOLDEN").is_some() {
         std::fs::write(&path, actual).unwrap();
         return;

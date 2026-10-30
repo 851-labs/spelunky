@@ -78,9 +78,6 @@ pub fn assets() -> Arc<gm::Assets> {
 // Not every test plays one (`clip_sound` plays a clip's scene).
 #[allow(dead_code)]
 pub fn replay(name: &str) -> trace::Replay {
-    let path = format!(
-        "{}/../../fidelity/replays/{name}",
-        env!("CARGO_MANIFEST_DIR")
-    );
+    let path = reference::repo_root().join("fidelity/replays").join(name);
     trace::Replay::parse(&std::fs::read_to_string(path).unwrap()).unwrap()
 }

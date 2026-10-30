@@ -3,6 +3,8 @@
 
 mod common;
 
+use std::path::Path;
+
 use common::{assets, replay};
 use game::replay::Playback;
 use harness::route::{Goal, held, hurt, step_events, thrown_hit};
@@ -46,7 +48,11 @@ fn hits(replay: &Replay, object: &str) -> Vec<(u64, bool, bool)> {
 }
 
 fn fixture(name: &str) -> Replay {
-    let path = format!("{}/tests/fixtures/{name}", env!("CARGO_MANIFEST_DIR"));
+    let path = Path::new(
+        &std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR: run it with cargo"),
+    )
+    .join("tests/fixtures")
+    .join(name);
     Replay::parse(&std::fs::read_to_string(path).unwrap()).unwrap()
 }
 

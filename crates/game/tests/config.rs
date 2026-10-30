@@ -2,11 +2,10 @@
 //! byte for byte, so every frontend boots the same game.
 
 use std::io::Read;
-use std::path::Path;
 
 #[test]
 fn the_default_config_files_are_the_shipped_ones() {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../reference/spelunky_1_1.zip");
+    let path = transpile::reference::default_path().with_file_name("spelunky_1_1.zip");
     let mut zip = zip::ZipArchive::new(std::fs::File::open(&path).unwrap()).unwrap();
     let files = game::Config::default().host.files;
     for name in ["settings.cfg", "keys.cfg", "gamepad.cfg"] {

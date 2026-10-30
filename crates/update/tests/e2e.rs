@@ -19,7 +19,6 @@ use update::manifest::{self, Asset, Format, Manifest};
 
 const FIXTURE: &str = env!("CARGO_BIN_EXE_update-fixture");
 const TEST_KEY: &str = include_str!("../keys/test.key");
-const TEST_PUB: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/keys/test.pub");
 
 /// Serves `files` (by path) over HTTP on 127.0.0.1 until the test ends.
 #[derive(Clone)]
@@ -208,10 +207,14 @@ fn update(
     report: &Path,
     dir: bool,
 ) -> String {
+    let test_pub = Path::new(
+        &std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR: run it with cargo"),
+    )
+    .join("keys/test.pub");
     let mut args = vec![
         "update",
         url,
-        TEST_PUB,
+        test_pub.to_str().unwrap(),
         platform,
         data.to_str().unwrap(),
         report.to_str().unwrap(),

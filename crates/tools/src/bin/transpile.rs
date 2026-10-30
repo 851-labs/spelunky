@@ -26,7 +26,7 @@ fn main() -> ExitCode {
     let mut check = false;
     let mut out = None;
     let mut program = None;
-    let mut zip = reference::default_path();
+    let mut zip: Option<PathBuf> = None;
     let mut prefixes = None;
     let mut args = std::env::args().skip(1);
     while let Some(a) = args.next() {
@@ -41,7 +41,7 @@ fn main() -> ExitCode {
                 };
                 program = Some(p);
             }
-            "--reference" => zip = args.next().expect("--reference needs a zip").into(),
+            "--reference" => zip = Some(args.next().expect("--reference needs a zip").into()),
             // Everything after `--print` is a prefix.
             "--print" => prefixes = Some(args.by_ref().collect::<Vec<_>>()),
             _ => {
@@ -58,6 +58,9 @@ fn main() -> ExitCode {
         eprintln!("--out needs --program");
         return ExitCode::FAILURE;
     }
+    // The default only now, so --print, or --out with --program, needs no repository around a --reference
+    // ZIP (writing the crates' generated code in place does).
+    let zip = zip.unwrap_or_else(reference::default_path);
     if let Some(prefixes) = prefixes {
         let src = Source::new(reference::load_program(
             &zip,
@@ -78,8 +81,9 @@ fn main() -> ExitCode {
     let mut ok = true;
     for p in programs {
         let dir = out.clone().unwrap_or_else(|| {
-            Path::new(env!("CARGO_MANIFEST_DIR"))
-                .with_file_name(p.crate_name())
+            reference::repo_root()
+                .join("crates")
+                .join(p.crate_name())
                 .join("src/generated")
         });
         let src = Source::new(reference::load_program(&zip, p));

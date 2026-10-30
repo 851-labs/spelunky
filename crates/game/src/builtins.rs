@@ -868,7 +868,10 @@ mod tests {
     /// by the smoke test).
     #[test]
     fn unreachable_built_ins_stay_unreachable() {
-        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/generated");
+        let dir = std::path::Path::new(
+            &std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR: run it with cargo"),
+        )
+        .join("src/generated");
         let mut units = Vec::new();
         for sub in ["objects", "scripts"] {
             for e in std::fs::read_dir(dir.join(sub)).unwrap() {

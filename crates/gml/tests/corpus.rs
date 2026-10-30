@@ -8,7 +8,10 @@ use gml::visit::clear_spans;
 
 #[test]
 fn corpus_snapshots() {
-    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/corpus");
+    let dir = Path::new(
+        &std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR: run it with cargo"),
+    )
+    .join("tests/corpus");
     let bless = std::env::var_os("GML_BLESS").is_some();
     let mut paths: Vec<_> = fs::read_dir(&dir)
         .unwrap()

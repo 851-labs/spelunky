@@ -41,7 +41,13 @@ fn run(ss: &mut SuperSound, script: Script, args: &[Value]) -> Result<Value, gm:
 
 fn main() -> Result<(), Box<dyn Error>> {
     let dir = std::env::args().nth(1).map_or_else(
-        || Path::new(env!("CARGO_MANIFEST_DIR")).join("../../assets/sounds"),
+        || {
+            Path::new(
+                &std::env::var_os("CARGO_MANIFEST_DIR")
+                    .expect("CARGO_MANIFEST_DIR: run it with cargo"),
+            )
+            .join("../../assets/sounds")
+        },
         PathBuf::from,
     );
     let mut bank = SoundBank::new();
