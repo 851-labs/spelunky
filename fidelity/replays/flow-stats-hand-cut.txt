@@ -1,0 +1,31 @@
+# A hand-cut stats.txt (851-3778): flow-stats-returning-player's file up to the misc deaths' fifth row (SPIKES),
+# with no line break after it, as a player's edit might leave it. scrReadStats reads on past the end without an
+# error: each file_text_read_string there gives "" and real("") is 0, so the rest of the misc deaths, every kill and
+# the monkeys stay at the 0 its defaults gave them (what this pins is that the reads past the end raise no error),
+# while what the file has reads as in the full one (SPIKES 61, its last line). The same play as
+# flow-stats-returning-player: rLevel at 565, death by F1 at 900, rHighscores at 1000 (level 1's deaths 2.5 -> 3.5),
+# F10 from the pause at 1060, whose scrWriteStats writes the zeroed rows as "???".
+# story: totalCrates=2147483648@0 enemyDeaths[23]=10@0 miscDeaths[4]=61@0 miscDeaths[5]=0@0 enemyKills[0]=0@0
+# story: totalMonkeyKills=0@0 room=rLevel@565 plife=0@900 room=rHighscores@1000 levelDeaths[0]=3.5@1000
+seed 1
+frames 1100
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+file stats.txt "+---------------------------+\r\n|  SPELUNKY EXTENDED STATS  |\r\n+---------------------------+\r\n\r\nCRATES OPENED:      2147483648\r\nCHESTS OPENED:      389\r\n\r\nIDOLS GRABBED:      57\r\nIDOLS CONVERTED:    41\r\n\r\nDAMSELS GRABBED:    212\r\nKISSES BOUGHT:      9\r\nDAMSELS BOUGHT:     3\r\nDAMSELS SAVED:      150\r\nDAMSELS KILLED:     31\r\n\r\nITEMS BOUGHT:       88\r\nITEMS STOLEN:       17\r\n\r\nDICE GAMES PLAYED:  64\r\nDICE GAMES WON:     20\r\nDICE GAMES LOST:    44\r\n\r\nLEVEL        DEATHS\r\n------------+------------\r\n 1          | 2.50\r\n 2          | 0.125\r\n 3          | 61\r\n 4          | 40\r\n 5          | 38\r\n 6          | 27\r\n 7          | 22\r\n 8          | 19\r\n 9          | 12\r\n 10         | 9\r\n 11         | 8\r\n 12         | 6\r\n 13         | 5\r\n 14         | 3\r\n 15         | 2\r\n 16         | 9007199254740993\r\n------------+------------\r\n TOTAL      | 9007199254740992\r\n\r\nENEMY        DEATHS\r\n------------+------------\r\n BAT        | 31\r\n SNAKE      | 48\r\n SPIDER     | 26\r\n G. SPIDER  | 7\r\n CAVEMAN    | 52\r\n SKELETON   | 14\r\n ZOMBIE     | 11\r\n VAMPIRE    | 4\r\n FROG       | 9\r\n FIRE FROG  | 13\r\n MANTRAP    | 17\r\n PIRANHA    | 6\r\n MEGAMOUTH  | 3\r\n YETI       | 8\r\n YETI KING  | 2\r\n ALIEN      | 5\r\n UFO        | 1\r\n ALIEN BOSS | 1\r\n HAWKMAN    | 4\r\n SHOPKEEPER | 23\r\n TOMB LORD  | 6\r\n MAGMA MAN  | 12\r\n OLMEC      | 2\r\n GHOST      | 10\r\n\r\nMISC         DEATHS\r\n------------+------------\r\n ROCK       | 5\r\n EXPLOSION  | 44\r\n CRUSHED    | 9\r\n LONG FALL  | 37\r\n SPIKES     | 61"
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+870 hold escape 2
+900 hold F1 2
+1000 hold X 2
+1040 hold escape 2
+1060 hold F10 2
