@@ -14,12 +14,17 @@ python3 -I tools/oracle/sync-gm8-arith --check
 # Every sh script parses: macOS's sh passes one that stops at a syntax error after an EXIT trap (851-3741).
 scripts/check-sh
 [ "${1:-}" = "--fast" ] && exit 0
+# A build of one package must resolve the workspace's features, so a worktree reuses the main checkout's
+# builds (crates/workspace-hack, 851-3738).
+scripts/workspace-hack --check
 $cargo clippy --workspace --all-targets $features --quiet -- -D warnings
 # Default features that may be turned off must keep building without them: the app's gamepad support.
 $cargo clippy -p app --no-default-features --all-targets --quiet -- -D warnings
 # The committed game code must be what the transpiler generates from the reference .gmk.
 scripts/transpile --check
 $cargo test --workspace $features --quiet
+# Which a member's own test build reuses whole (crates/workspace-hack): as a worktree's would, off the main checkout's.
+scripts/workspace-hack --reused
 # Every committed replay, on the port, against its fingerprint of the oracle's run (no Docker needed).
 # The assets are rebuilt first (it's quick when they're current), so the check never runs on stale ones.
 scripts/extract >/dev/null

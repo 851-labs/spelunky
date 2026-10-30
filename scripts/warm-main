@@ -1,0 +1,30 @@
+#!/bin/sh
+# Builds, in the main checkout, what a new worktree's first builds reuse (scripts/seed-target clones its
+# target/): everything scripts/check compiles, with the same commands and flags, and the release binaries
+# (scripts/extract's, scripts/wiki-media's, the fidelity tools). Builds only: it runs no test. Run it there after
+# a pull. crates/workspace-hack makes a build of one package (`scripts/cargo test -p game`) resolve as these do,
+# so they cover it too. Keep it in step with scripts/check.
+# shellcheck disable=SC2086 # $features and $angles are lists of arguments, as in scripts/check.
+set -eu
+cd "$(dirname "$0")/.."
+# The main checkout's (git's common dir is its own): a linked worktree's target/ is no one's to clone.
+[ "$(cd "$(git rev-parse --absolute-git-dir)" && pwd -P)" = "$(cd "$(git rev-parse --git-common-dir)" && pwd -P)" ] ||
+  { echo "scripts/warm-main: run it in the main checkout, which scripts/seed-target clones" >&2; exit 1; }
+failed=
+run() { "$@" || failed="$failed
+  $*"; }
+features="--features audio/backend"
+angles="--manifest-path tools/gm8-probe/angles/Cargo.toml --target-dir target/gm8-angle-probes"
+run scripts/cargo build --release --workspace --bins
+run scripts/cargo test --workspace $features --no-run
+run scripts/cargo clippy --workspace --all-targets $features -- -D warnings
+run scripts/cargo clippy -p app --no-default-features --all-targets -- -D warnings
+run scripts/cargo test --manifest-path vendor/pxfm/Cargo.toml --no-run
+run scripts/cargo clippy $angles --all-targets -- -D warnings
+run scripts/cargo test $angles --no-run
+run scripts/cargo check --target wasm32-unknown-unknown -p gm -p trace -p game -p app -p gmk -p assets -p audio
+run scripts/cargo check --target wasm32-unknown-unknown -p audio $features
+# scripts/wasm-test's.
+run scripts/cargo test -p gm --lib --target wasm32-wasip1 --no-run
+# Every step, whichever fails (a clippy warning stops only its own), so the rest are warm.
+[ -z "$failed" ] || { echo "scripts/warm-main: these failed (the rest are warm):$failed" >&2; exit 1; }

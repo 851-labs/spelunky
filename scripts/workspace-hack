@@ -1,0 +1,119 @@
+#!/bin/sh
+# crates/workspace-hack (851-3738): the workspace's features for a build of one package, so a worktree's
+# `scripts/cargo test -p game` or scripts/extract reuses what the main checkout's workspace-wide builds made.
+#
+#   scripts/workspace-hack          regenerates it (cargo hakari, pinned below, installed into target/dev-tools)
+#                                   after a change to the workspace's dependencies or their features
+#   scripts/workspace-hack --check  fails if a member's tests, or the release builds of one package the scripts
+#                                   make (scripts/extract's, scripts/fidelity's, scripts/clip's), would resolve a
+#                                   crate's features otherwise than the workspace's builds do (scripts/check)
+#   scripts/workspace-hack --reused fails if, after the workspace's test build, a member's own test build would
+#                                   compile anything (scripts/check, after `cargo test --workspace`): whatever the
+#                                   cause, which the features alone don't show (a profile's, as with naga's
+#                                   unicode-ident: Cargo.toml's [profile.dev.build-override])
+#
+# The check needs no hakari: it compares `cargo tree`'s features, package by package. A member's own features
+# may differ (`-p audio` alone hasn't the backend the app gives it: a package can't ask for its own), which only
+# rebuilds that member. The hack is Apple silicon Macs' only (.config/hakari.toml), so the check is too.
+set -eu
+cd "$(dirname "$0")/.."
+HAKARI=0.9.39
+
+if [ "${1:-}" = --reused ]; then
+  [ "$(uname -s) $(uname -m)" = "Darwin arm64" ] ||
+    { echo "scripts/workspace-hack: skipped (the hack is Apple silicon Macs')" >&2; exit 0; }
+  bad=
+  members() { scripts/cargo tree --quiet --locked "$@" --depth 0 -e normal,build,dev --prefix none -f '{p} [{f}]' |
+    sed -E 's/ \([^)]*\)//' | sort -u; }
+  workspace=$(members --workspace)
+  for member in $(echo "$workspace" | sed 's/ .*//'); do
+    case $member in workspace-hack | update) continue ;; esac
+    # A member whose own features differ when it's built alone (audio, draw, gmk: --check's exception)
+    # compiles its own units; nothing else may.
+    own=
+    echo "$workspace" | grep -qxF "$(members -p "$member" | grep "^$member ")" || own=$member
+    built=$(scripts/cargo test --quiet --locked --no-run -p "$member" --message-format=json 2>/dev/null |
+      OWN=$own perl -MJSON::PP -ne 'my $m = eval { decode_json($_) } or next;
+        next unless ($m->{reason} // "") eq "compiler-artifact" && !$m->{fresh};
+        # "registry+…#name@1.0", or a path package'"'"'s "path+file:///…/crates/audio#0.1.0" (its name, its directory'"'"'s).
+        my $id = $m->{package_id};
+        my ($package) = $id =~ m{#([^@#]+)@} ? ($1) : $id =~ m{/([^/#]+)#[^@]*$} ? ($1) : ("");
+        print "$m->{target}{name} " unless $ENV{OWN} && $package eq $ENV{OWN}')
+    [ -z "$built" ] || { echo "scripts/workspace-hack: \`cargo test -p $member\` compiled $built, which the workspace's build had" >&2; bad=1; }
+  done
+  [ -z "$bad" ] || { echo "scripts/workspace-hack: so a worktree rebuilds them (features: scripts/workspace-hack --check)" >&2; exit 1; }
+  exit 0
+fi
+
+if [ "${1:-}" != --check ]; then
+  root=target/dev-tools/cargo-hakari-$HAKARI
+  [ -x "$root/bin/cargo-hakari" ] ||
+    scripts/cargo install --quiet --locked --root "$root" cargo-hakari --version "$HAKARI"
+  PATH="$PWD/$root/bin:$PATH"
+  export PATH
+  # Until it stops changing: the hack's own dependencies can bring crates whose features differ in turn.
+  settled=
+  for _ in 1 2 3 4 5; do
+    scripts/cargo hakari generate --quiet
+    if scripts/cargo hakari generate --diff --quiet >/dev/null; then settled=1; break; fi
+  done
+  [ -n "$settled" ] || { echo "scripts/workspace-hack: cargo hakari generate hasn't settled after five runs" >&2; exit 1; }
+  scripts/cargo hakari verify
+  # The lock file, for the hack's new dependencies, which the check's --locked needs current.
+  scripts/cargo metadata --quiet --format-version 1 >/dev/null
+fi
+
+[ "$(uname -s) $(uname -m)" = "Darwin arm64" ] ||
+  { echo "scripts/workspace-hack: skipped (the hack is Apple silicon Macs')" >&2; exit 0; }
+# --locked: a check, which mustn't update Cargo.lock.
+tree() { scripts/cargo tree --quiet --locked "$@" --prefix none -f '{p} [{f}]'; }
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+tree --workspace -e normal,build,dev >"$tmp/workspace" &
+# Not update's: its tests run cold on a GitHub runner (updater.yml), which the hack would only slow, and a
+# worktree seldom builds it alone.
+for member in $(tree --workspace --depth 0 | sed 's/ .*//' | sort -u); do
+  case $member in workspace-hack | update) continue ;; esac
+  tree -p "$member" -e normal,build,dev >"$tmp/test -p $member" &
+done
+# The release builds of one package, which haven't the dev-dependencies: scripts/extract's, scripts/fidelity's
+# and scripts/clip's (whose app has no hack: its own builds resolve as the workspace's, which this keeps so).
+for member in tools harness app; do tree -p "$member" -e normal,build >"$tmp/build -p $member" & done
+wait
+# A `cargo tree` that failed in the background left its file empty, which would compare as nothing differing.
+for file in "$tmp"/*; do
+  [ -s "$file" ] || { echo "scripts/workspace-hack: \`cargo tree\` failed for ${file##*/}" >&2; exit 1; }
+done
+perl -e '
+  my ($dir) = @ARGV;
+  my %workspace;
+  my $read = sub {
+    my ($file) = @_;
+    open(my $h, "<", $file) or die "$file: $!";
+    my @packages;
+    while (<$h>) {
+      next unless /^(\S+) (v\S+)(?: \([^)]*\))* \[([^\]]*)\]/;
+      push @packages, [$1, "$1 $2", $3];
+    }
+    return @packages;
+  };
+  $workspace{$_->[1]}{$_->[2]} = 1 for $read->("$dir/workspace");
+  my $bad = 0;
+  for my $file (sort glob("\"$dir/test -p \"* \"$dir/build -p \"*")) {
+    (my $build = $file) =~ s{.*/}{};
+    my ($member) = $build =~ /-p (\S+)$/;
+    my %seen;
+    for my $p ($read->($file)) {
+      my ($name, $package, $features) = @$p;
+      next if $name eq $member || $name eq "workspace-hack" || $workspace{$package}{$features} || $seen{"$package $features"}++;
+      my $has = join(" or ", map { "[$_]" } sort keys %{ $workspace{$package} });
+      print STDERR "scripts/workspace-hack: `$build` gives $package [$features], the workspace $has\n";
+      $bad = 1;
+    }
+  }
+  if ($bad) {
+    print STDERR "scripts/workspace-hack: so a worktree rebuilds them. Run scripts/workspace-hack to regenerate crates/workspace-hack;\n";
+    print STDERR "  a member (audio) it leaves out: ask for its features in the package'"'"'s Apple silicon section, as game does\n";
+    exit 1;
+  }
+' "$tmp"

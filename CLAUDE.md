@@ -50,9 +50,13 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   `std::env::var_os("CARGO_MANIFEST_DIR")` (which `cargo test` and `cargo run` set), not `env!`. Only the
   harness's binaries (`fidelity`, `fidelity-check`, `fuzz-sweep`, `wiki-clips`, `replay-*`), which are also
   run without Cargo (`--no-build`, the soak's copied `fuzz-sweep`), keep `env!`, and tests keep
-  `CARGO_BIN_EXE_*`, which Cargo sets only as it compiles.
-  `SPELUNKY_NO_SEED=1` turns it off. `assets/` isn't cloned: once the extractor is built,
-  `scripts/extract` takes a second.
+  `CARGO_BIN_EXE_*`, which Cargo sets only as it compiles. `SPELUNKY_NO_SEED=1` turns the cloning off.
+  `assets/` isn't cloned: once the extractor is built, `scripts/extract` takes a second.
+- `scripts/warm-main`, run in the main checkout after a pull, builds what new worktrees reuse: what
+  `scripts/check` compiles, and the release binaries. A build of one package (`scripts/cargo test -p game`,
+  `scripts/extract`) reuses them too, as `crates/workspace-hack` gives it the workspace's features (on Apple
+  silicon Macs; the shipped builds don't have it). After a change to the dependencies or their features,
+  `scripts/workspace-hack` regenerates it; `scripts/check` fails until it's current.
 - `scripts/check` also runs `gm`'s unit tests on wasm32 under Node (`scripts/wasm-test`). wasm can't unwind, so a
   panic aborts the whole run: mark `#[should_panic]` tests `#[cfg_attr(target_family = "wasm", ignore)]`.
 - Every committed replay (`fidelity/replays/`, `fidelity/settings/`) has a fingerprint of the oracle's run in
