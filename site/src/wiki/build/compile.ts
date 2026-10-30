@@ -46,6 +46,7 @@ import { readSnapshot, resolveStat } from "./stats.ts";
 import type { Snapshot } from "./stats.ts";
 import { roomUrl, sourceUrl } from "../source-url.ts";
 import { clipAnchor } from "../anchors.ts";
+import { keyQuirkLinks } from "../quirk-links.ts";
 
 export interface WikiOptions {
   // The pages: content/wiki/*.mdx.
@@ -250,8 +251,10 @@ export interface CompiledPage {
   file: string;
   meta: PageMeta;
   // The module: `export default { meta, Body, Lede, Hatnote, Answers, Infobox }`, the components compiled
-  // MDX functions taking `components` (src/wiki/components.tsx).
+  // MDX functions taking `components` (src/wiki/components.tsx). Its meta's links to docs/quirks.md are keys,
+  // which `quirkLinks` has (quirk-links.ts); `meta` here has the links.
   code: string;
+  quirkLinks: Record<string, string>;
   // What the page says, as plain text: its body, then its FAQ's questions and answers. The search index's
   // (src/wiki/search.ts), which the page's module doesn't carry.
   text: string;
@@ -422,7 +425,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
         frame: own?.frame,
       }, meta.slug);
     }
-    pages.push({ file: page.file, meta, code: page.code(), text: page.text, markdown: page.markdown, rooms: bySlugPage.get(meta.slug)!.rooms ?? [] });
+    pages.push({ file: page.file, meta, code: page.code(), quirkLinks: page.quirkLinks(), text: page.text, markdown: page.markdown, rooms: bySlugPage.get(meta.slug)!.rooms ?? [] });
   }
   // A planned page is one that's linked (by a page, or a planned quirk's `related`), or on a hub (by its type
   // or its category), the wiki's scope: one that's neither any more comes off the list.
@@ -769,8 +772,10 @@ interface Compiled {
   links: Set<string>;
   anchors: Set<string>;
   anchorLinks: AnchorLink[];
-  // The module, once meta is complete.
+  // The module, once meta is complete, its links to docs/quirks.md as keys; and those links, by key
+  // (quirk-links.ts).
   code: () => string;
+  quirkLinks: () => Record<string, string>;
   text: string;
   markdown: MdNode[];
 }
@@ -985,13 +990,16 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     const more = missing.length > 3 ? ` and ${missing.length - 3} more` : "";
     ctx.warnings.push(`${name}: the wiki media's gml/ hasn't got ${missing.slice(0, 3).join(", ")}${more}: not linked to the source viewer`);
   }
+  // Once meta is complete (as code() is called), the module's meta and the links by key, one result for both.
+  let keyedOnce: ReturnType<typeof keyQuirkLinks> | undefined;
+  const keyed = () => (keyedOnce ??= keyQuirkLinks(meta));
   const code = () => [
     'import * as runtime from "react/jsx-runtime";',
     // Each fragment is MDX's function-body output, which takes the JSX runtime as its argument: run here,
     // once, as the module loads, rather than evaluated from a string at render (no eval in a Worker).
     ...fragments.map((f, i) => `const f${i} = (function () {\n${f}\n}).call(undefined, runtime).default;`),
     `export default {`,
-    `  meta: ${JSON.stringify(meta)},`,
+    `  meta: ${JSON.stringify(keyed().meta)},`,
     `  Body: ${body.ref},`,
     `  Lede: ${lede.ref},`,
     `  Hatnote: ${hatnote ? hatnote.ref : "null"},`,
@@ -1006,7 +1014,8 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     body: body.markdown,
     answers: answers.map((answer) => answer.markdown),
   });
-  return { file: p.file, meta, links: state.links, anchors: state.anchors, anchorLinks: state.anchorLinks, code, text: text.join(" "), markdown };
+  const quirkLinks = () => keyed().links;
+  return { file: p.file, meta, links: state.links, anchors: state.anchors, anchorLinks: state.anchorLinks, code, quirkLinks, text: text.join(" "), markdown };
 }
 
 // The page's media as search engines see them: a VideoObject per clip, in its `clips`' order (the main one

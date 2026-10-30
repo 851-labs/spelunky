@@ -30,6 +30,11 @@ declare module "virtual:wiki/aliases" {
   export const aliases: Map<string, string>;
 }
 
+declare module "virtual:wiki/quirk-links" {
+  // Each page's links to docs/quirks.md, by key (src/wiki/quirk-links.ts), by slug; empty in the browser.
+  export const quirkLinks: Record<string, Record<string, string>>;
+}
+
 declare module "virtual:wiki/source-links" {
   import type { PageLink } from "./build/plugin";
   // The page each object and room is on, by name.

@@ -22,6 +22,7 @@ import { trail } from "./crumbs";
 import { CardLink, HoverCards } from "./hover-card";
 import { AUDIO_CREDIT, NOTICE } from "./notices.ts";
 import type { PageMeta, PageModule } from "./pages";
+import { resolveQuirkLinks } from "./quirk-links.ts";
 import { RelationLinks, SeeAlso, WhatLinksHere } from "./relations";
 import { SearchBox } from "./search-box";
 
@@ -63,8 +64,12 @@ function generatedSections(meta: PageMeta): Section[] {
   ];
 }
 
-export function WikiPage({ page }: { page: PageModule }) {
-  const { meta, Body, Lede, Hatnote, Answers } = page;
+// `quirkLinks`: the page's links to docs/quirks.md by key, which its module's meta has in their place
+// (quirk-links.ts), from its route's loader.
+export function WikiPage({ page, quirkLinks }: { page: PageModule; quirkLinks?: Record<string, string> }) {
+  const { Body, Lede, Hatnote, Answers } = page;
+  const meta = resolveQuirkLinks(page.meta, quirkLinks);
+  const resolved = { ...page, meta };
   const clips = new Map(meta.clips.map((clip) => [clip.id, clip]));
   const sections = [...meta.sections, ...generatedSections(meta)];
   const body: WikiComponents = { ...components, Toc: () => <Contents sections={sections} /> };
@@ -81,7 +86,7 @@ export function WikiPage({ page }: { page: PageModule }) {
           </div>
         )}
         <div className="intro">
-          <Infobox page={page} />
+          <Infobox page={resolved} />
           <div className="lede">
             <Lede components={components} />
           </div>

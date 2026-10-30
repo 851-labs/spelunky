@@ -165,13 +165,16 @@ are gone with its deploy: the page reloads for them (below).
 
 How much that covers: a build is about 11,400 files of Workers' 20,000 (Limits, below), and its hashed files
 are about 535 (284 scripts and styles, 6.8 MB; 251 cards, 1 MB). How many a deploy renames depends on what it
-changes: none for a commit that changes nothing the site shows or links, 14 for one page (its chunk, the search
-index and the chunks that name them, up to the entry), but 221 for a change to `docs/quirks.md` (about a third
-of commits), as the ~209 pages that cite a quirk row have its last change and the row's line in their links
-(851-3744), and most of them for a change to the shared code. A card changes only with its page's numbers or
-sprite. (Until 851-3740, every deploy renamed about 225, as every page's chunk had the commit built in its links
-to GitHub; they're at each file's last change now.) So 6,000 is the last 25 or so deploys that change
-`docs/quirks.md` or the shared code, with any number of the rest between them: a day or more at main's busiest.
+changes: none for a commit that changes nothing the site shows, none for a change to `docs/quirks.md`, a row
+added mid-table included (but a row, section or status a quirk page quotes, whose text is in its chunk, renames
+it), 14 for one page (its chunk, the search index and the chunks that name them, up to the
+entry), and most of them for a change to the shared code. A card changes only with its page's numbers or sprite.
+(Until 851-3740, every deploy renamed about 225, as every page's chunk had the commit built in its links to
+GitHub; they're at each file's last change now. Until 851-3744, a `docs/quirks.md` change still renamed 221, as
+the ~209 pages that cite a quirk row had its last change and the row's line in their chunks; those links are by
+key in the chunks now, and the pages get them from their route's loader as they're pre-rendered:
+`src/wiki/quirk-links.ts`.) So 6,000 is the last 25 or so deploys that change the shared code, with any number
+of the rest between them: the week, unless the shared code changes most days.
 It downloads in about half a minute of the build.
 
 Why this way: Workers keeps no previous version's assets for the live one (a version is its own assets,

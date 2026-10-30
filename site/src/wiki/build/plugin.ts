@@ -19,6 +19,9 @@
 // - `virtual:wiki/source-links`: the page each object and room is on (sourceLinks), which the source viewer's
 //   room pages link to (src/wiki/source.ts). In the Worker's build, which pre-renders them; empty in the
 //   browser's, which never runs their loader, as `virtual:wiki-source/files` is (build/source.ts).
+// - `virtual:wiki/quirk-links`: each page's links to docs/quirks.md by key (src/wiki/quirk-links.ts), which its
+//   route's loader gives it as it's pre-rendered, so they're in its HTML and hydration data, not in its chunk.
+//   In the Worker's build; empty in the browser's, which hydrates a page with its loader's data.
 //
 // And it writes the Markdown (markdown.ts) into the browser's build, dist/client, as static files: each
 // page's twin at wiki/<slug>.md, llms.txt and llms-full.txt. Not routes: the Worker would carry every page's
@@ -46,6 +49,7 @@ const SEARCH_INDEX = "virtual:wiki/search-index";
 const HOVER_CARDS = "virtual:wiki/hover-cards";
 const ALIASES = "virtual:wiki/aliases";
 const SOURCE_LINKS = "virtual:wiki/source-links";
+const QUIRK_LINKS = "virtual:wiki/quirk-links";
 
 // A page an object or a room is on, by its slug and title.
 export interface PageLink {
@@ -136,7 +140,7 @@ export function wiki(options: WikiOptions): Plugin {
       for (const [path, source] of og) this.emitFile({ type: "asset", fileName: path.slice(1), source });
     },
     resolveId(id) {
-      if ([PAGES, LOADERS, HUBS, HOME, SEARCH_INDEX, HOVER_CARDS, ALIASES, SOURCE_LINKS].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;
+      if ([PAGES, LOADERS, HUBS, HOME, SEARCH_INDEX, HOVER_CARDS, ALIASES, SOURCE_LINKS, QUIRK_LINKS].includes(id) || id.startsWith(PAGE) || id.startsWith(HUB)) return `\0${id}`;
     },
     async load(id) {
       if (!id.startsWith("\0virtual:wiki/")) return;
@@ -197,6 +201,11 @@ export function wiki(options: WikiOptions): Plugin {
         if (this.environment.name === "client") return "export const objectPages = {};\nexport const roomPages = {};";
         const { objects, rooms } = sourceLinks([...pages.values()]);
         return `export const objectPages = ${JSON.stringify(objects)};\nexport const roomPages = ${JSON.stringify(rooms)};`;
+      }
+      if (name === QUIRK_LINKS) {
+        if (this.environment.name === "client") return "export const quirkLinks = {};";
+        const links = Object.fromEntries([...pages.values()].map(({ meta, quirkLinks }) => [meta.slug, quirkLinks]));
+        return `export const quirkLinks = JSON.parse(${JSON.stringify(JSON.stringify(links))});`;
       }
       const page = pages.get(name.slice(PAGE.length));
       if (!page) throw new Error(`no wiki page ${name.slice(PAGE.length)}`);
