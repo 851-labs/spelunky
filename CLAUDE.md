@@ -37,6 +37,10 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   minis' caches are warm; locally, agents share the cores). So leave it to CI: locally, run `scripts/check --fast`
   (the instant pre-commit subset: formatting) and the tests the change touches, then open the PR and push fixes
   if `pr-ok` fails.
+- The same goes for the site's suite, `site/test.sh`: it builds and pre-renders the whole site to check it, and
+  CI's site test runs it on every pull request in under a minute. Locally, run the checks that need no build
+  (in `site/`: `npm run typecheck`, `node test-wiki.mjs`, and `test-keyline.mjs` or `test-server.mjs` if the
+  change touches what they check) and look at pages with `npm run dev`. Leave the full suite to CI.
 - `scripts/check` also runs `gm`'s unit tests on wasm32 under Node (`scripts/wasm-test`). wasm can't unwind, so a
   panic aborts the whole run: mark `#[should_panic]` tests `#[cfg_attr(target_family = "wasm", ignore)]`.
 - Every committed replay (`fidelity/replays/`, `fidelity/settings/`) has a fingerprint of the oracle's run in
