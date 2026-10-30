@@ -124,35 +124,47 @@ export function roomNames(dir: string | null): string[] | null {
 }
 
 // A PNG's width and height, from its IHDR chunk.
-function pngSize(bytes: Buffer): [number, number] {
+function pngSize(bytes: Buffer, file: string): [number, number] {
+  const signature = "89504e470d0a1a0a";
+  if (bytes.length < 24 || bytes.subarray(0, 8).toString("hex") !== signature || bytes.subarray(12, 16).toString("latin1") !== "IHDR") {
+    throw new Error(`${file}: not a PNG (scripts/wiki-media's wiki-rooms draws the rooms' pictures)`);
+  }
   return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+}
+
+type SpriteMeta = { width: number; height: number; origin?: { x: number; y: number } } | null;
+
+// What the rooms' pictures read of the media's sprites/: each object's sprite (index.json) and each sprite's
+// size and origin (its sprite.json), read once for every room.
+export function spriteBoxes(spritesDir: string): (object: string) => SpriteMeta {
+  const index = JSON.parse(readFileSync(join(spritesDir, "index.json"), "utf8")) as { objects: { name: string; sprite: string | null }[] };
+  const spriteOf = new Map(index.objects.map((o) => [o.name, o.sprite]));
+  const sprites = new Map<string, SpriteMeta>();
+  return (object) => {
+    const sprite = spriteOf.get(object);
+    if (!sprite) return null;
+    if (!sprites.has(sprite)) {
+      const meta = join(spritesDir, sprite, "sprite.json");
+      sprites.set(sprite, existsSync(meta) ? JSON.parse(readFileSync(meta, "utf8")) : null);
+    }
+    return sprites.get(sprite)!;
+  };
 }
 
 // The room's JSON with its picture, where rooms/ has one: each instance's box is its object's sprite, placed by
 // its origin, as wiki-rooms draws it.
-export function withPicture(roomsDir: string, name: string, json: string, pictures: RoomPictures | null): string {
+export function withPicture(roomsDir: string, name: string, json: string, url: string, spriteOf: (object: string) => SpriteMeta): string {
   const file = join(roomsDir, `${name}.png`);
-  if (!pictures || !existsSync(file)) return json;
+  if (!existsSync(file)) return json;
   const room = JSON.parse(json) as SourceRoom;
-  const index = JSON.parse(readFileSync(join(pictures.spritesDir, "index.json"), "utf8")) as { objects: { name: string; sprite: string | null }[] };
-  const spriteOf = new Map(index.objects.map((o) => [o.name, o.sprite]));
-  const sprites = new Map<string, { width: number; height: number; origin?: { x: number; y: number } } | null>();
-  const sprite = (name: string) => {
-    if (!sprites.has(name)) {
-      const meta = join(pictures.spritesDir, name, "sprite.json");
-      sprites.set(name, existsSync(meta) ? JSON.parse(readFileSync(meta, "utf8")) : null);
-    }
-    return sprites.get(name)!;
-  };
-  const [width, height] = pngSize(readFileSync(file));
+  const [width, height] = pngSize(readFileSync(file), file);
   room.picture = {
-    src: `${pictures.url}/rooms/${encodeURIComponent(name)}.png`,
+    src: `${url}/rooms/${encodeURIComponent(name)}.png`,
     width,
     height,
     boxes: room.instances.map((instance) => {
-      const name = spriteOf.get(instance.object);
-      const s = name ? sprite(name) : null;
-      return s?.origin ? [instance.x - s.origin.x, instance.y - s.origin.y, s.width, s.height] : null;
+      const sprite = spriteOf(instance.object);
+      return sprite?.origin ? [instance.x - sprite.origin.x, instance.y - sprite.origin.y, sprite.width, sprite.height] : null;
     }),
   };
   return JSON.stringify(room);
@@ -187,7 +199,11 @@ export function wikiSource(dir: string | null, roomsDir: string | null, pictures
       // Each file's and room's JSON as a string, parsed only when its page is rendered. A room's is the media's
       // file, with its picture.
       const entries = [...all].map(([path, text]) => `  ${JSON.stringify(path)}: ${JSON.stringify(json(index, path, text))},`);
-      const roomEntries = rooms.map((room) => `  ${JSON.stringify(room)}: ${JSON.stringify(withPicture(roomsDir!, room, readFileSync(join(roomsDir!, `${room}.json`), "utf8"), pictures))},`);
+      const spriteOf = pictures ? spriteBoxes(pictures.spritesDir) : null;
+      const roomEntries = rooms.map((room) => {
+        const json = readFileSync(join(roomsDir!, `${room}.json`), "utf8");
+        return `  ${JSON.stringify(room)}: ${JSON.stringify(pictures && spriteOf ? withPicture(roomsDir!, room, json, pictures.url, spriteOf) : json)},`;
+      });
       return [
         `const files = {\n${entries.join("\n")}\n};`,
         `const rooms = {\n${roomEntries.join("\n")}\n};`,

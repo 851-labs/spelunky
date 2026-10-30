@@ -132,8 +132,9 @@ function viewText(v: SourceRoom["views"][number]): string {
   return parts.filter(Boolean).join(", ");
 }
 
-// The widest a room's picture is drawn, in screen pixels: the page's column. A room this narrow or less is drawn at
-// a whole number of screen pixels a game pixel, the most that fits; a wider one at one, scrolling across.
+// The widest a room's picture is drawn, in screen pixels: the page's column. A room is drawn at the most whole
+// screen pixels a game pixel that fit it (three for a 320-pixel bonus room, one for the 672-pixel Tutorial or the
+// 960-pixel intro), and none of Spelunky's is wider; one that were would be drawn at one, scrolling across.
 const PICTURE_WIDTH = 960;
 
 // A room's picture (scripts/wiki-media's wiki-rooms), at a whole-number scale, with a box over each instance of
@@ -173,7 +174,11 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
   }
   const names = [...objects.keys()].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   const withCode = room.instances.filter((instance) => instance.creation_code);
-  const [highlight, setHighlight] = useState<string | null>(null);
+  // The object whose row is hovered, and the one whose row has the focus: the hovered one is boxed, or, with
+  // none, the focused one, so leaving a row with the mouse doesn't take the box from a row the keyboard is on.
+  const [hovered, setHovered] = useState<string | null>(null);
+  const [focused, setFocused] = useState<string | null>(null);
+  const highlight = hovered ?? focused;
   return (
     <article className="source-page">
       <Breadcrumbs crumbs={roomTrail(name)} />
@@ -270,12 +275,13 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
                 key={name}
                 id={name}
                 className={highlight === name ? "room-highlight" : undefined}
-                onMouseEnter={() => setHighlight(name)}
-                onMouseLeave={() => setHighlight((h) => (h === name ? null : h))}
-                onFocus={() => setHighlight(name)}
-                onBlur={() => setHighlight((h) => (h === name ? null : h))}
+                onMouseEnter={() => setHovered(name)}
+                onMouseLeave={() => setHovered((h) => (h === name ? null : h))}
+                onFocus={() => setFocused(name)}
+                onBlur={() => setFocused((f) => (f === name ? null : f))}
               >
-                <th scope="row">
+                {/* A row with no link takes the focus itself, so the keyboard can box any object's instances. */}
+                <th scope="row" tabIndex={room.picture && !linked.includes(name) && !Object.hasOwn(pages, name) ? 0 : undefined}>
                   {linked.includes(name) ? (
                     <a href={`/wiki/source#${name}`}>
                       <code>{name}</code>

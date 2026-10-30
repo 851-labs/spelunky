@@ -855,7 +855,7 @@ contains '<title>rTutorial – Room source – Spelunky Classic wiki</title>' '<
   '<th scope="row">Size</th><td>672 × 304 pixels</td>' '<td><div>bgCave, tiled across and down</div></td>' \
   'View 0: 320 × 240 at (0, 0), shown at 640 × 480, following oPlayer1 with borders of 128 and 96' \
   '<tr id="oBrick"><th scope="row"><code>oBrick</code><a id="' '" href="/wiki/block" data-slug="block" class="room-page">Block</a></th><td>2</td><td><ul class="room-positions"><li title="Instance 134002">(0, 0)</li><li title="Instance 134003">(16, 0)</li></ul></td></tr>' \
-  '<tr id="oDrawnSprite"><th scope="row"><code>oDrawnSprite</code></th><td>1</td>' \
+  '<tr id="oDrawnSprite"><th scope="row" tabindex="0"><code>oDrawnSprite</code></th><td>1</td>' \
   '<tr id="oSnake"><th scope="row"><a href="/wiki/source#oSnake"><code>oSnake</code></a><a id="' \
   '" href="/wiki/snake" data-slug="snake" class="room-page">Snake</a></th><td>1</td>' \
   '<tr id="oGoldBar"><th scope="row"><code>oGoldBar</code><a id="' '" href="/wiki/gold-bar" data-slug="gold-bar" class="room-page">Gold Bar</a></th><td>1</td>' \

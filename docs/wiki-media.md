@@ -637,9 +637,10 @@ level in code (`rOlmec`) shows only what's placed: there, the room generator's m
 runner's at the room's start, which OpenGMK's `draw_view` has and the port's `gm::drawing` follows (the oracle
 confirms it): instances and tiles merged by depth, highest first, an instance before a tile at its depth, each
 list in its own order (the instances in creation order, at their objects' depths). The room editor's own
-order isn't something the oracle can run. The room's page draws the picture at the most whole screen pixels
-a game pixel that fit 960 (two for a 320-pixel bonus room, one for the Tutorial, which scrolls across), and
-pointing at an object's row in the instances' table, or focusing its link, boxes its instances in it: the
+order isn't something the oracle can run. Each picture is named as the extractor names its room's JSON. The
+room's page draws the picture at the most whole screen pixels a game pixel that fit 960 (three for a
+320-pixel bonus room, one for the 672-pixel Tutorial), and pointing at an object's row in the instances'
+table, or focusing it (its link, or the row's object where it has none), boxes its instances in it: the
 build gives the page each instance's box, from its object's sprite's size and origin in the media's
 `sprites/`. The site serves the pictures, not the JSON, from the asset store (`site/build.sh`,
 `wrangler.jsonc`), with the media's day of caching.

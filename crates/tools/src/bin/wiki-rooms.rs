@@ -32,7 +32,7 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use assets::{Background, Bundle, Room};
-use tools::{Arg, Args, WIKI_NOTICE as NOTICE};
+use tools::{Arg, Args, UniqueNames, WIKI_NOTICE as NOTICE};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -95,9 +95,13 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
     };
     fs::create_dir_all(&out).map_err(|e| format!("{}: {e}", out.display()))?;
     let mut written = 0;
-    for room in bundle.rooms.iter().flatten() {
+    // Named as the extractor names the room's JSON (its `room_names`), so each picture is its room's: a name
+    // made safe for a file, and a duplicate's with its id.
+    let mut names = UniqueNames::default();
+    for (id, room) in bundle.rooms.iter().enumerate() {
+        let Some(room) = room else { continue };
         let png = encode(&art.room(room)?)?;
-        let path = out.join(format!("{}.png", room.name));
+        let path = out.join(format!("{}.png", names.get(&room.name, id)));
         fs::write(&path, png).map_err(|e| format!("{}: {e}", path.display()))?;
         written += 1;
     }
