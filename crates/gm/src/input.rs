@@ -84,8 +84,9 @@ impl InputState {
     ///
     /// A press of a key that is already down (keyboard auto-repeat, or a replay that repeats `press`) isn't
     /// pressed again, but sets `keyboard_key` and `keyboard_lastkey`, as GM8 does (probe `key-repeat`) and
-    /// the oracle's `button_press` with patch 0034; OpenGMK reported it pressed again. Releasing any mouse button clears `mouse_button`, even if another is
-    /// still down (OpenGMK `mouse_release`). Both are recorded in `docs/quirks.md`.
+    /// the oracle's `button_press` with patch 0035; OpenGMK reported it pressed again. Releasing any mouse
+    /// button clears `mouse_button`, even if another is still down (OpenGMK `mouse_release`). Both are recorded
+    /// in `docs/quirks.md`.
     pub fn apply(&mut self, e: &Event) {
         match *e {
             Event::Press(Button::Key(vk)) => {
