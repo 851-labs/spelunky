@@ -1,0 +1,192 @@
+# The bow put down while ducking (851-3782): scrUseItem's Bow branch with the player ducking. Seed 66:
+# weapon-seed-66-shop.txt (the bow held from 2067, fired at 2100 and 2135), then by hand: he ducks (down, 2202)
+# and presses X (2206), facing right, which lays the bow down instead of drawing it. Ends at 2249.
+# story: held=oBow@2067 held!=oBow@2206..2206 !+oArrow@2202..
+seed 66
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+660 release right
+660 press left
+690 release left
+690 press right
+720 release right
+720 press left
+840 release left
+840 press Z
+846 press left
+852 release Z
+858 press Z
+864 release Z
+894 release left
+894 press down
+894 press Z
+900 release down
+900 release Z
+900 press left
+900 press X
+906 release left
+906 release X
+906 press up
+930 release up
+930 press right
+960 release right
+960 press Z
+966 press right
+972 release Z
+978 press Z
+984 release Z
+1014 release right
+1014 press up
+1020 release up
+1020 press left
+1046 release left
+1046 press X
+1048 release X
+1054 press X
+1056 release X
+1062 press X
+1064 release X
+1070 press X
+1072 release X
+1078 press X
+1080 release X
+1086 press X
+1087 release X
+1087 press right
+1117 release right
+1117 press Z
+1123 release Z
+1123 press right
+1129 press Z
+1135 release Z
+1165 release right
+1165 press left
+1231 release left
+1243 press Z
+1249 press left
+1255 release Z
+1261 press Z
+1267 release left
+1267 release Z
+1267 press up
+1291 release up
+1291 press left
+1291 press Z
+1297 release Z
+1327 release left
+1327 press right
+1327 press Z
+1333 release right
+1333 release Z
+1333 press up
+1381 release up
+1381 press left
+1381 press Z
+1387 release Z
+1393 press X
+1399 release X
+1429 release left
+1435 press Z
+1441 release Z
+1441 press left
+1447 press Z
+1453 release left
+1453 release Z
+1453 press down
+1459 release down
+1459 press left
+1459 press Z
+1465 release Z
+1495 release left
+1495 press right
+1555 release right
+1555 press Z
+1561 release Z
+1561 press right
+1567 press Z
+1573 release Z
+1633 release right
+1633 press left
+1639 release left
+1639 press down
+1645 release down
+1645 press right
+1645 press Z
+1651 release Z
+1657 release right
+1657 press down
+1663 release down
+1663 press left
+1663 press Z
+1669 release Z
+1669 press X
+1675 release X
+1675 press Z
+1681 release left
+1681 release Z
+1687 press right
+1705 press X
+1711 release right
+1711 release X
+1711 press left
+1711 press Z
+1717 release left
+1717 release Z
+1717 press right
+1747 release right
+1747 press left
+1747 press Z
+1753 release left
+1753 release Z
+1753 press right
+1783 press X
+1789 release right
+1789 release X
+1789 press up
+1813 release up
+1813 press down
+1813 press X
+1814 release down
+1814 release X
+1820 hold left 1
+1825 hold X 2
+1855 hold right 1
+1870 hold X 2
+1915 hold left 8
+1930 press down
+1931 hold X 1
+1937 hold X 1
+1939 release down
+1950 hold X 2
+1975 hold right 1
+1985 hold X 2
+2010 hold right 10
+2025 hold X 2
+2050 hold left 5
+2060 press down
+2061 hold X 1
+2067 hold X 1
+2069 release down
+2080 hold X 20
+2110 hold right 1
+2120 hold X 15
+2202 hold down 12
+2206 hold X 2
+frames 2250
