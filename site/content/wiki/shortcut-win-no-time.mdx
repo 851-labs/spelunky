@@ -26,7 +26,7 @@ faq:
       it reads 0:00.
   - q: Do shortcut wins count for the time record?
     a: >-
-      No. Only a game started from the start door or the tutorial's keeps its time. A shortcut win still adds
+      No. Only a game started from the start door or the Tutorial's keeps its time. A shortcut win still adds
       to WINS, and to money, kills and saves as any game does.
   - q: Does a 0:00 time unlock the Moon Room?
     a: >-
@@ -67,7 +67,7 @@ if (argument0 == 1 and (global.time < tTime or tTime == 0) and not global.usedSh
 else highscore_add("TIME", tTime + 8000000);
 ```
 
-So a shortcut win writes back the time that was there: 0, until a win from the start or the tutorial. It still
+So a shortcut win writes back the time that was there: 0, until a win from the start or the Tutorial. It still
 adds 1 to WINS <Cite gml="scripts/scrUpdateHighscores.gml:81-84" />. The high scores room draws the time row
 whenever WINS is above 0, with the comment "only display time if won", and 0 seconds reads 0:00
 <Cite gml="objects/oHighscores/draw.gml:126-142" />. The time's trophy is made only for a time above 0

@@ -588,7 +588,7 @@ function sourceHref(cite: string, source: Map<string, number> | null, missing: S
 const entrySlug = (entry: RelationEntry) => (typeof entry === "string" ? entry : entry.slug);
 // The areas and special levels a page is found in, by slug, what a hub filters it by and the navboxes group
 // it by: its `found_in`, or a place's `part_of`, which says where it's found as `found_in` does a monster's
-// (Kali's altar, in the Mines' side rooms; the Snake Pit, a Mines level).
+// (Kali's altar, in the Mines' side rooms; the snake pit, a Mines level).
 const hubPlaces = (page: Frontmatter) => [...(page.relations.found_in ?? []), ...(page.relations.part_of ?? [])].map(entrySlug);
 
 // Each category's navbox: its pages by title, grouped by the areas they're in (`hubPlaces`: a page in two is

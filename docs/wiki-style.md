@@ -43,7 +43,7 @@ Every page:
 | Field | Contents |
 | --- | --- |
 | `slug` | The page's URL, `/wiki/<slug>`; the file's name. See [Naming](#naming-and-slugs). |
-| `title` | An entity's name as the game writes it, in title case: `Snake`, `Pitcher's Mitt`, `Olmec's Lair`. A mechanic, guide or quirk page's is a short description in sentence case: `Stomping`, `Reaching the City of Gold`, `Stomping while jumping`. |
+| `title` | An entity's name as the game writes it, in title case: `Snake`, `Pitcher's Mitt`, `Olmec's Lair`. A place is an entity when it has a name of its own: an area (`The Mines`, `Olmec's Lair`) or a place the game names on screen (`Black Market`, `City of Gold`, `Sun Room`, `Tutorial`), in title case. A place the game never names is a kind of level or a thing in one, and its title is a description in sentence case, as the body writes it in lowercase like any generic word: `Dark level`, `Snake pit`, `Sacrifice pit`, `Yeti lair`, `Kali's altar`, `High scores room` ("a dark level", "the Temple's sacrifice pit"; a name in it keeps its capital: "a Yeti lair"). A mechanic, guide or quirk page's is a short description in sentence case: `Stomping`, `Reaching the City of Gold`, `Stomping while jumping`. |
 | `type` | The page type, which picks the template, the infobox and the JSON-LD: `monster`, `item`, `treasure`, `trap`, `terrain`, `place`, `shop`, `character`, `mechanic`, `guide` or `quirk`. One per page. |
 | `categories` | The hubs that list it (one or more): `monsters`, `characters`, `items/equipment`, `items/weapons`, `items/carryables`, `treasure`, `traps`, `terrain`, `places`, `shops`, `mechanics`, `guides`, `quirks`, `the-game`. The Shopkeeper is `[characters, monsters]`; the URL doesn't change with them. |
 | `objects` | The game objects the page is about (`[oSpider, oSpiderHang]`): the keys into `stats.json`, `relations.json` and the sprite index. An object belongs to one page at most; that's how the build maps an object to a slug. A place's or a shop's slug is the relations' area, level or shop slug, and a place lists the editor-built rooms it covers in `rooms` (`[rOlmec]`). An area names no objects (it's made of everything found in it; the build fails on one that names any). A special level or a shop names the fixtures it's made of that no other page is about: the Moai's head (`[oMoai, oMoai2, oMoai3, oMoaiInside]`), the mothership's barrier, the graveyard level's graves, the Dice House's dice. So does a place that's a thing in a level, Kali's altar (`[oSacAltarLeft, oSacAltarRight]`). Its objects back its `part_of`, its `drops` and a shop's `found_in`, and the build warns on what the data has for them that the page leaves out. |
@@ -833,7 +833,7 @@ the page's FAQ section, its FAQPage JSON-LD and its Markdown twin's FAQ.
 - **Relations, not prose lists.** "Damaged by" and "found in" go in `relations`, which render the infobox,
   the inverse lists and "What links here"; the prose explains them.
 - **Navboxes** are generated: a page appears in the navbox of each of its categories, grouped by area where
-  the type has one (Monsters: the Mines, the Jungle...; Places, by their `part_of`: the Snake Pit under the
+  the type has one (Monsters: the Mines, the Jungle...; Places, by their `part_of`: the snake pit under the
   Mines): a page `found_in` (or `part_of`) two areas is in both, and a category's pages in none come last:
   the areas' own pages as Areas (the places'), then the rest as Other (the Tutorial). There's no navbox list
   to maintain; getting `categories`, `found_in` and `part_of` right is enough.
