@@ -55,7 +55,7 @@ const git = (...args) => execFileSync("git", ["-C", here(".."), ...args], { enco
 const HEAD = git("rev-parse", "HEAD");
 {
   const pin = filePins(here(".."), HEAD);
-  const lastChange = (path) => git("log", "-1", "--format=%H", HEAD, "--", path);
+  const lastChange = (path) => git("log", "-1", "--first-parent", "--format=%H", HEAD, "--", path);
   const paths = ["docs/quirks.md", "fidelity/replays/item-jar-whip-rolls-twice.txt", "site/src/wiki/build/repo.ts"];
   const wrong = paths.filter((path) => pin(path) !== lastChange(path));
   if (wrong.length > 0) fail(`pins: ${wrong.map((path) => `${path} at ${pin(path)}, not ${lastChange(path)}`).join("; ")}`);
@@ -617,10 +617,11 @@ try {
     // Built at a real commit, the same links are at their files' last changes, and the pages' code hasn't got
     // the commit, unless it changed one of them.
     const atHead = await loadWiki({ ...options(content, planned), commit: HEAD });
-    const rockAt = git("log", "-1", "--format=%H", HEAD, "--", "fidelity/replays/action-throw-rock-snake.txt");
+    const rockAt = git("log", "-1", "--first-parent", "--format=%H", HEAD, "--", "fidelity/replays/action-throw-rock-snake.txt");
     const rockHead = atHead.pages.find((p) => p.meta.slug === "snake")?.meta.references.find((ref) => ref.target?.endsWith("action-throw-rock-snake.txt"));
     if (rockHead?.href !== `https://github.com/851-labs/spelunky/blob/${rockAt}/fidelity/replays/action-throw-rock-snake.txt`) fail(`pins: the Snake's Rock replay at HEAD is ${json(rockHead)}`);
-    const touched = git("show", "--name-only", "--format=", HEAD).split("\n");
+    // The commit's own changes, a merge's (CI's) against its first parent.
+    const touched = git("diff", "--name-only", `${HEAD}^1`, HEAD).split("\n");
     if (!touched.some((f) => f === "docs/quirks.md" || f.startsWith("fidelity/")) && atHead.pages.some((p) => p.code.includes(HEAD))) fail("pins: a page's code has the commit built");
     const md = markdownFiles(wiki.pages);
     const snakeMd = md.get("wiki/snake.md") ?? "";

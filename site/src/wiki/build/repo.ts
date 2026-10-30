@@ -11,29 +11,45 @@ export const REPO_URL = "https://github.com/851-labs/spelunky";
 // it, so every deploy would throw away readers' cached scripts and the carried files would be most of a build's
 // (851-3740). The last commit to change a file changes only with the file. `commit` where git can't say (a file
 // it hasn't got, a commit it doesn't know: test-wiki.mjs's stand-in), and "main", unpinned, under `npm run dev`.
+// Read once a repo and commit, for every load of the wiki that asks (test-wiki.mjs loads it many times).
+const histories = new Map<string, Map<string, string>>();
+
 export function filePins(repoDir: string, commit: string): (path: string) => string {
-  let pins: Map<string, string> | null = null;
+  const key = `${repoDir}\0${commit}`;
   // One pass over the history, newest first, read the first time it's asked (a few hundredths of a second): each
-  // file's first commit in it is its last change. Not a `git log` a file, which took the build seconds.
+  // file's first commit in it is its last change. Not a `git log` a file, which took the build seconds. The first
+  // parents only, as `git log -1 -- FILE` reads a merge (CI's checkout of a pull request merged into main): a
+  // merge's own changes are its first parent's diff.
   const read = () => {
     const map = new Map<string, string>();
+    const git = (...args: string[]) =>
+      execFileSync("git", ["-C", repoDir, "-c", "core.quotePath=false", ...args], { encoding: "utf8", maxBuffer: 1 << 30, stdio: ["ignore", "pipe", "pipe"] });
+    let log: string;
     try {
-      const log = execFileSync("git", ["-C", repoDir, "-c", "core.quotePath=false", "log", "--format=@%H", "--name-only", "--no-renames", commit], {
-        encoding: "utf8",
-        maxBuffer: 256 * 1024 * 1024,
-        stdio: ["ignore", "pipe", "ignore"],
-      });
-      let at = "";
-      for (const line of log.split("\n")) {
-        if (line.startsWith("@")) at = line.slice(1);
-        else if (line && !map.has(line)) map.set(line, at);
+      log = git("log", "--first-parent", "--format=@%H", "--name-only", "--no-renames", commit);
+    } catch (error) {
+      // A commit git doesn't know (test-wiki.mjs's stand-in) links every file at it. One it knows whose history it
+      // can't read fails the build, rather than quietly putting the commit back in every page's code.
+      try {
+        git("rev-parse", "--verify", "--quiet", `${commit}^{commit}`);
+      } catch {
+        return map;
       }
-    } catch {
-      // No git, or a commit it doesn't know: every file at `commit`.
+      throw new Error(`git can't read the history of ${commit}, which the wiki's links to the repo are pinned by: ${error}`);
+    }
+    let at = "";
+    for (const line of log.split("\n")) {
+      if (line.startsWith("@")) at = line.slice(1);
+      else if (line && !map.has(line)) map.set(line, at);
     }
     return map;
   };
-  return (path) => (commit === "main" ? commit : ((pins ??= read()).get(path) ?? commit));
+  return (path) => {
+    if (commit === "main") return commit;
+    let pins = histories.get(key);
+    if (!pins) histories.set(key, (pins = read()));
+    return pins.get(path) ?? commit;
+  };
 }
 
 // A file, or a line of it: a Markdown file's line in its source (`?plain=1`), as GitHub renders the rest without

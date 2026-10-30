@@ -739,7 +739,7 @@ contains '<title>Quirks and glitches – Spelunky Classic wiki</title>' 'role="g
 check "$site/wiki/double-jar-roll" 200 "$no_cache"
 # Its links to the repo's files on GitHub, each at the last commit to change the file (src/wiki/build/repo.ts), not
 # the one built, which would be in every page's code and rename its chunk at every build (851-3740).
-pinned() { echo "https://github.com/851-labs/spelunky/blob/$(git log -1 --format=%H HEAD -- "../$1")/$1"; }
+pinned() { echo "https://github.com/851-labs/spelunky/blob/$(git log -1 --first-parent --format=%H HEAD -- "../$1")/$1"; }
 quirks=$(pinned docs/quirks.md)
 jar_replay=$(pinned fidelity/replays/item-jar-whip-rolls-twice.txt)
 held_jar_replay=$(pinned fidelity/replays/item-held-jar-shot.txt)
