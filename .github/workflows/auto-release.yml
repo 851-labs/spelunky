@@ -1,0 +1,269 @@
+# Releases after a merge to main that changes what a release is made from (scripts/release/auto: the crates
+# the apps build from, vendor/, reference/, the toolchain and the packaging; not docs/, site/, wiki/, the
+# harness or tests), then opens the pull request that puts it live (scripts/bump-web-release), which pr-ok
+# checks like any other. docs/ci.md, "Releases".
+#
+# Merges that land close together go out together: a release starts once main has had no such merge for 10
+# minutes (at most 30 after the first), each merge's run cancelling the wait before it, and one release runs at
+# a time, the merges that land during it going out together in the next. Every merge to main starts a run, as a
+# `paths` filter sees only the first 300 files a merge changes (re-rendered wiki media can be more); one that
+# finds nothing to release ends in seconds.
+#
+# release.yml tags the commit itself, with this run's token: a tag or pull request pushed with GITHUB_TOKEN
+# starts no workflow, which keeps the tag from starting a second release. For the same reason the pull request
+# is opened with the `release-bot` environment's GitHub App (or token), so that pr-ok runs on it; without one,
+# the run says what to do by hand.
+#
+# Run by hand with `dry_run` (the default) to see what it would release and try the credential and the bump
+# without pushing anything; without `dry_run`, to release main now. The repository variable AUTO_RELEASE=off
+# turns the automatic runs off.
+name: Auto release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Only say what it would release, and try the bump's pull request without opening it
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  # As in release.yml.
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
+
+jobs:
+  plan:
+    name: Plan
+    if: github.event_name != 'push' || vars.AUTO_RELEASE != 'off'
+    runs-on: ubuntu-24.04
+    # The wait is at most 30 minutes.
+    timeout-minutes: 40
+    # A later merge's run cancels this one while it waits: its commit has this one's changes too, and it waits
+    # until the same time, which only a merge that changes what a release is made from moves.
+    concurrency:
+      group: auto-release-plan-${{ github.event_name }}
+      cancel-in-progress: true
+    outputs:
+      release: ${{ steps.plan.outputs.release }}
+    steps:
+      # The tags and their history, which scripts/release/auto reads, without the files.
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: scripts/release
+      - id: plan
+        run: |
+          plan() { scripts/release/auto plan "$GITHUB_SHA" | tee "$RUNNER_TEMP/plan"; }
+          value() { sed -n "s/^$1=//p" "$RUNNER_TEMP/plan"; }
+          plan
+          # After a merge, the wait; then the plan again, with the tags pushed meanwhile (this commit's, by hand).
+          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$(value release)" = true ] && [ "$(value wait)" != 0 ]; then
+            sleep "$(value wait)"
+            git fetch -q --tags --force origin
+            plan
+          fi
+          cat "$RUNNER_TEMP/plan" >>"$GITHUB_OUTPUT"
+          base=$(value base)
+          {
+            echo "### ${GITHUB_SHA::7} since $base"
+            if [ "$(value release)" = true ]; then
+              echo "Releasing. What a release is made from that changed ($(value changes) files):"
+              echo '```'
+              scripts/release/auto changes "$base" "$GITHUB_SHA" | sed -n 1,100p
+              echo '```'
+            elif [ -n "$(value covered)" ]; then
+              echo "Already tagged, in $(value covered): released, or, if that release's run failed, to re-run."
+            else
+              echo "Nothing a release is made from changed."
+            fi
+          } >>"$GITHUB_STEP_SUMMARY"
+
+  release:
+    name: Release
+    needs: plan
+    # Only main is released (and signed: the release environment allows main and tags).
+    if: >-
+      needs.plan.outputs.release == 'true' && github.ref == 'refs/heads/main' &&
+      !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+    # One release at a time. A later merge's waits for it, and replaces an earlier one's still waiting.
+    concurrency:
+      group: auto-release
+      cancel-in-progress: false
+    # release.yml's version job pushes the tag, and its draft and publish jobs write the release.
+    permissions:
+      contents: write
+    uses: ./.github/workflows/release.yml
+    # As release.yml passes them to build-native.yml: its signing jobs need the `release` environment's.
+    secrets: inherit
+    with:
+      auto: true
+
+  # The pull request that puts the release live, opened as the release-bot App so that pr-ok runs on it. Run by
+  # hand with `dry_run`, for the latest release, stopping short of pushing.
+  bump:
+    name: Site bump PR
+    needs: [plan, release]
+    # On main only, as the environment allows: a dry run elsewhere stops at the plan.
+    if: >-
+      always() && github.ref == 'refs/heads/main' && (needs.release.result == 'success' ||
+      (github.event_name == 'workflow_dispatch' && inputs.dry_run && needs.plan.result == 'success'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    # Its secrets, for main only (docs/ci.md, "Releases").
+    environment: release-bot
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - id: credential
+        env:
+          CLIENT_ID: ${{ vars.RELEASE_BOT_CLIENT_ID }}
+          PRIVATE_KEY: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          TOKEN: ${{ secrets.RELEASE_BOT_TOKEN }}
+        run: |
+          if [ -n "$CLIENT_ID" ] && [ -n "$PRIVATE_KEY" ]; then
+            kind=app
+          elif [ -n "$TOKEN" ]; then
+            kind=token
+          else
+            kind=none
+          fi
+          echo "kind=$kind" | tee -a "$GITHUB_OUTPUT"
+      # Asking for exactly these fails here if the App's installation lacks one, which a dry run shows.
+      - id: app
+        if: steps.credential.outputs.kind == 'app'
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      # Main as it is now, which has moved on since the release's commit. The checkout keeps the credential for
+      # the push (a fresh GitHub machine, gone after the job).
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          token: ${{ steps.app.outputs.token || secrets.RELEASE_BOT_TOKEN || github.token }}
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
+      # For scripts/release/manifest, which checks the release's latest.json. Up front, as in release.yml.
+      - run: rustup toolchain install --no-self-update
+      - id: bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release.outputs.tag }}
+        run: |
+          # Run by hand: the latest release.
+          [ -n "$TAG" ] || TAG=$(gh release view --json tagName --jq .tagName)
+          echo "tag=$TAG" >>"$GITHUB_OUTPUT"
+          # Never back to an older version than main pins (a re-run of an older release's job).
+          pinned=$(sed -n 's/^tag //p' site/web-release.txt)
+          if [ "$pinned" != "$TAG" ] && [ "$(printf '%s\n' "$pinned" "$TAG" | sort -V | tail -n 1)" = "$pinned" ]; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            echo "main already pins $pinned, newer than $TAG." >>"$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          scripts/bump-web-release "$TAG"
+          if git diff --quiet; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            echo "main already pins $TAG." >>"$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >>"$GITHUB_OUTPUT"
+            git diff
+          fi
+      - if: steps.bump.outputs.changed == 'true' && (env.DRY_RUN == 'true' || steps.credential.outputs.kind == 'none')
+        env:
+          TAG: ${{ steps.bump.outputs.tag }}
+          KIND: ${{ steps.credential.outputs.kind }}
+        run: |
+          if [ "$KIND" = none ]; then
+            how="There's no release-bot credential (docs/ci.md, \"Releases\"): run \`scripts/bump-web-release $TAG\` and open its pull request by hand (docs/web-deploy.md)."
+            [ "$DRY_RUN" = true ] || echo "::warning::$TAG is published but not live: no release-bot credential to open its pull request with"
+          else
+            how="A dry run: with the $KIND credential, it would push this to auto-release/$TAG and open its pull request."
+          fi
+          {
+            echo "### $TAG"
+            echo "$how"
+            echo '```diff'
+            git diff
+            echo '```'
+          } >>"$GITHUB_STEP_SUMMARY"
+      - if: steps.bump.outputs.changed == 'true' && env.DRY_RUN != 'true' && steps.credential.outputs.kind != 'none'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token || secrets.RELEASE_BOT_TOKEN }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
+          TAG: ${{ steps.bump.outputs.tag }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # The commit's author: the App's bot account, or the token's owner, by its no-reply address, so GitHub
+          # attributes the commit to it.
+          if [ -n "$APP_SLUG" ]; then
+            name="${APP_SLUG}[bot]"
+          else
+            name=$(gh api user --jq .login)
+          fi
+          id=$(gh api "users/$name" --jq .id)
+          git config user.name "$name"
+          git config user.email "$id+$name@users.noreply.github.com"
+          branch=auto-release/$TAG
+          title="Release: put $TAG live on spelunky.ai"
+          # The versions of the open pull requests of releases: a newer one's leaves this one out.
+          open=$(gh pr list --state open --limit 200 --json headRefName \
+            --jq '.[].headRefName | select(startswith("auto-release/")) | ltrimstr("auto-release/")')
+          newest=$(printf '%s\n' "$open" "$TAG" | sort -V | tail -n 1)
+          if [ "$newest" != "$TAG" ]; then
+            echo "### $TAG: not opened, as $newest's pull request is open" >>"$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git switch -q -c "$branch"
+          git commit -q -am "$title"
+          # A re-run's push replaces its last.
+          git push -q --force origin "$branch"
+          pr=$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')
+          if [ -z "$pr" ]; then
+            cat >"$RUNNER_TEMP/body.md" <<EOF
+          ## Why
+
+          $TAG is published ($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG; its notes list the pull requests it
+          ships). Merging this puts it live: the web build at spelunky.ai/play and the native apps' update.
+
+          ## What
+
+          - \`scripts/bump-web-release $TAG\`: pins its web build and its \`latest.json\`, checked against the release key.
+            Only \`site/web-release.txt\` changes.
+          - Merging deploys it (docs/web-deploy.md).
+
+          Opened by [auto-release.yml]($RUN_URL) once the release passed (docs/ci.md, "Releases"). It has no Linear
+          ticket: the workflow has no Linear credential, and the release and this run are its record.
+          EOF
+            pr=$(gh pr create --base main --head "$branch" --title "$title" --body-file "$RUNNER_TEMP/body.md")
+          fi
+          # Earlier releases' pull requests that haven't merged: this one has their changes and more.
+          for old in $open; do
+            [ "$old" = "$TAG" ] || gh pr close "auto-release/$old" --delete-branch --comment "Superseded by $pr."
+          done
+          # Merged as soon as pr-ok passes, if the repository allows auto-merge; otherwise by whoever merges it.
+          if gh pr merge "$pr" --auto --squash 2>"$RUNNER_TEMP/merge.log"; then
+            merge="It merges itself once pr-ok passes."
+          else
+            merge="Merge it once pr-ok passes: auto-merge is off ($(cat "$RUNNER_TEMP/merge.log"))."
+          fi
+          echo "### $TAG: $pr" >>"$GITHUB_STEP_SUMMARY"
+          echo "$merge" >>"$GITHUB_STEP_SUMMARY"
