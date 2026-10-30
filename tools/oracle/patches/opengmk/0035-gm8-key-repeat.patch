@@ -1,0 +1,20 @@
+diff --git a/gm8emulator/src/input.rs b/gm8emulator/src/input.rs
+--- a/gm8emulator/src/input.rs
++++ b/gm8emulator/src/input.rs
+@@ -1139,8 +1139,15 @@
+ 
+     pub fn button_press(&mut self, code: u8, store_cur_prev: bool) {
+         let code = VK_FN_INPUT_REMAP[code as usize];
++        // Spelunky oracle: GM8 doesn't report a key that is already down pressed again (keyboard auto-repeat, or a
++        // replay's press of a held key), though it still sets keyboard_key and keyboard_lastkey (the port's
++        // `InputState::apply`, probe `key-repeat`, 851-3774). Mouse buttons, which come through here with
++        // `store_cur_prev` false, are pressed as before.
++        let repeat = store_cur_prev && self.button_state[code as usize];
+         self.button_state[code as usize] = true;
+-        self.button_state_press[code as usize] = true;
++        if !repeat {
++            self.button_state_press[code as usize] = true;
++        }
+         if store_cur_prev {
+             self.key_current = code;
+             self.key_previous = code;

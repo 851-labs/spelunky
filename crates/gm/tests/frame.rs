@@ -559,19 +559,34 @@ fn traces_hold_instances_variables_and_globals() {
     assert_eq!(t.deactivated, Some(Vec::new()));
 }
 
+/// Logs whether any key is pressed this step.
+fn any_pressed(g: &mut World, _: &mut Ctx) -> R<()> {
+    if g.input().check(KeyState::Pressed, gm::input::VK_ANYKEY) {
+        log(g, "any");
+    }
+    Ok(())
+}
+
 #[test]
-fn input_follows_opengmk() {
+fn key_repeat_and_mouse_release() {
     let prog = build(|b| {
         let o = b.push_object(ObjectInfo::new("o"));
-        b.event(o, Event::KeyPress(90), note);
+        b.event(o, Event::KeyPress(90), note)
+            .event(o, Event::Step, any_pressed);
     });
     let mut g = world(prog, &[ObjectId(0)]);
     let z = Button::Key(90);
     g.step(&[InputEvent::Press(z)]).unwrap();
-    // Pressing a key that is already down reports it pressed again, like auto-repeat.
+    // Pressing a key that is already down, as auto-repeat does, isn't a press, but sets keyboard_key and
+    // keyboard_lastkey (GM8, probe `key-repeat`).
+    let (key, last) = (Builtin::KeyboardKey.var(), Builtin::KeyboardLastkey.var());
+    g.bset(key, 0, Value::Real(0.0)).unwrap();
+    g.bset(last, 0, Value::Real(0.0)).unwrap();
     g.step(&[InputEvent::Press(z)]).unwrap();
     step(&mut g);
-    assert_eq!(take_log(&mut g), "o1.press90 o1.press90");
+    assert_eq!(take_log(&mut g), "o1.press90 any");
+    assert_eq!(g.bget(key, 0), Ok(Value::Real(90.0)));
+    assert_eq!(g.bget(last, 0), Ok(Value::Real(90.0)));
 
     // Releasing either mouse button clears mouse_button, even with the other still down.
     let (left, right) = (
@@ -586,7 +601,6 @@ fn input_follows_opengmk() {
     assert_eq!(g.bget(mb, 0), Ok(Value::Real(0.0)));
 
     // Assignments GM8 can't represent are ignored.
-    let key = Builtin::KeyboardKey.var();
     g.bset(key, 0, Value::Real(300.0)).unwrap();
     assert_eq!(g.bget(key, 0), Ok(Value::Real(90.0)));
     g.bset(key, 0, Value::Real(65.0)).unwrap();

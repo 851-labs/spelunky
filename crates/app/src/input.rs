@@ -3,7 +3,9 @@
 //!
 //! Events reach the game at the 30 Hz tick boundary, in the order they happened, so a key or pad button
 //! pressed and released between two ticks still reports both edges to that tick (`gm::input`). Keyboard
-//! auto-repeat is passed on as repeated presses, which GM8 reports as pressed again (`docs/quirks.md`).
+//! auto-repeat is passed on as presses of a key that's already down, as Windows sent GM8 `WM_KEYDOWN`s:
+//! GM8 doesn't report such a key pressed again, but sets `keyboard_key` to it (`gm::input`,
+//! `docs/quirks.md`).
 //!
 //! Keys get the virtual-key code the keyboard layout gives them, as GM8 got from Windows: the key labelled
 //! `Z` is `Z` on every layout ([`KeyMap::Layout`]). [`KeyMap::Physical`] names keys by their place on a US
@@ -645,7 +647,8 @@ mod tests {
         c.key(KeyCode::KeyZ, &typed("z"), false);
         let left = Key::Named(winit::keyboard::NamedKey::ArrowLeft);
         c.key(KeyCode::ArrowLeft, &left, true);
-        c.key(KeyCode::ArrowLeft, &left, true); // auto-repeat
+        // Auto-repeat reaches the game, which doesn't count it as a press (`gm::input`).
+        c.key(KeyCode::ArrowLeft, &left, true);
         let z = Button::Key(b'Z');
         let left = Button::Key(VK_LEFT);
         assert_eq!(
