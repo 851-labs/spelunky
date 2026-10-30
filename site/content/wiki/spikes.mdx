@@ -42,7 +42,8 @@ sources:
   - scripts/scrRoomGen.gml
   - scripts/scrRoomGen2.gml
   - scripts/scrRoomGen3.gml
-verified: { port: v0.1.10, date: 2026-10-27 }
+  - scripts/scrRoomGenMarket.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
 ---
 
 Spikes stand on top of a block, in pits and along floors, in [[mines|the Mines]], [[jungle|the Jungle]] and
@@ -89,7 +90,7 @@ a 1 in 3 chance; some are always Spikes:
 | --- | --- | --- |
 | [[mines\|The Mines]] | 1 in 3 for each spike tile | <Cite gml="scripts/scrRoomGen.gml:343" /> |
 | [[jungle\|The Jungle]] | 1 in 3 for each spike tile, and always on the floor of one pit room, all spike tiles | <Cite gml="scripts/scrRoomGen2.gml:351-352" /> |
-| [[black-market\|The Black Market]] | As the Jungle | <Cite gml="scripts/scrRoomGenMarket.gml:266-267" /> |
+| [[black-market\|The Black Market]] | Always, on the floor of one pit room, its only spike tiles | <Cite gml="scripts/scrRoomGenMarket.gml:87" /> <Cite gml="scripts/scrRoomGenMarket.gml:266-267" /> <Cite replay="fidelity/replays/jungle-seed-9-market-no-shop.txt" /> |
 | [[ice-caves\|The Ice Caves]] | Always, on every spike tile | <Cite gml="scripts/scrRoomGen3.gml:307" /> |
 | [[yeti-lair\|A Yeti lair]] | 1 in 3 for each spike tile, and always on its own spike-floored tiles | <Cite gml="scripts/scrRoomGenYeti.gml:317" /> <Cite gml="scripts/scrRoomGenYeti.gml:423-426" /> |
 
