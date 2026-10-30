@@ -6,4 +6,4 @@ replay = "fidelity/replays/treasure-nearest-pick.txt"
 from = 241
 to = 360
 poster = 320
-story = "+oEmerald@303 oPlayer1.x>=157@316..319 !goldbar>0@..323 -oEmerald@323..323 goldbar=1@324..324"
+story = "+oEmerald@303 oPlayer1.x>=157@316..319 !oEmerald.canCollect=1@..322 !goldbar>0@..323 -oEmerald@323..323 goldbar=1@324..324"

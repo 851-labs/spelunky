@@ -17,7 +17,8 @@
 # yet: from 318 to 322 nothing is collected. The emerald's wait ends and it's collected at 323, and the gold
 # bar the next step (324: goldbar 0 -> 1), one treasure a step. The sapphires lie behind him, out of reach.
 # Stands until 360.
-# story: customLevelName=WIKI@240 +oEmerald@303 oPlayer1.x>=157@316..319 !goldbar>0@..323 -oEmerald@323..323
+# story: customLevelName=WIKI@240 +oEmerald@303 oPlayer1.x>=157@316..319 !oEmerald.canCollect=1@..322
+# story: !goldbar>0@..323 -oEmerald@323..323
 # story: goldbar=1@324..324 !plife<4
 seed 0
 frames 361
