@@ -42,7 +42,14 @@ scripts/cargo run --release -p app                 # play: arrows to move, Z jum
 scripts/cargo run --release -p app -- --record out.txt --trace out.jsonl   # record a session (and its trace)
 scripts/cargo run --release -p app -- --replay out.txt                     # watch it again
 scripts/cargo run --release -p app -- --preview --room rTutorial           # a room's placed state, for debugging
+scripts/cargo run --release -p app -- --settings                           # the settings program (1.1's config.exe)
 ```
+
+The settings program (keys, gamepad buttons, volumes, window size, fullscreen, running on down) is 1.1's
+`config.exe`: its OK with START GAME ON EXIT starts the game. In the apps, between runs, it's "Settings…" (Cmd-,)
+in the macOS app menu, and SETTINGS in the menu F7 opens on Windows and Linux; either ends the run as the
+window's close button does and opens the settings program. The Linux AppImage's desktop entry has a Settings
+action too. In the browser it's the Settings link on spelunky.ai and on the game's page (`/play/?settings`).
 
 Saves (`stats.txt`, the `.cfg` files, highscores) go in the per-user data directory (`~/Library/Application
 Support/Spelunky Classic` on macOS) and in `localStorage` in the browser. A recording starts from the shipped
@@ -55,7 +62,8 @@ Use `scripts/cargo` in place of `cargo` if a Homebrew `rust` install shadows rus
 
 `scripts/web` builds `app` for `wasm32-unknown-unknown`, runs the `wasm-bindgen` CLI (installed into `target/tools`
 at Cargo.lock's version on first use) and serves the page with the assets next to it. The page's URL query takes
-the native options: `?replay=out.txt&mute&no-gamepad&physical-keys`, or `?preview&room=rTutorial&view=0,64&scale=3`.
+the native options: `?replay=out.txt&mute&no-gamepad&physical-keys`, `?settings`, or
+`?preview&room=rTutorial&view=0,64&scale=3`.
 `?replay=out.txt&embed&from=F` is a replay a page embeds and drives, shown from frame F (the wiki's live clips,
 docs/wiki-media.md).
 Sound starts at the first key press (browsers need a user gesture); each music track is decoded whole when it
