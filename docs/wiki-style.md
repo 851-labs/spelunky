@@ -723,9 +723,9 @@ Spelunky Classic does.
   (`<Cite quirk="5" row="instance_nearest measures to instances' positions" />`) or a replay that shows it.
   A bug the GML has cites its §1 row the same way.
 - **Every reference links somewhere**, so a reader can check it in a click. A gml citation links to the
-  source viewer (above). A replay links to the file on GitHub (the repo is public), at the commit the site
-  was built from (`site/build.sh`'s `WIKI_COMMIT`), so the link shows what the page was checked against and
-  doesn't rot when the replay changes or goes; and to the page's clips cut from it (their spec's `replay`),
+  source viewer (above). A replay links to the file on GitHub (the repo is public), at the last commit to
+  change it as of the one the site was built from (`site/build.sh`'s `WIKI_COMMIT`), which has the same file,
+  so the link shows what the page was checked against and doesn't rot when the replay changes or goes; and to the page's clips cut from it (their spec's `replay`),
   which play it. A clip links to itself on the page. A quirk citation shows its row's opening, as `row=` has
   it, linking to the quirk page that names the row in its `rows`, or to the row's line in `docs/quirks.md` on
   GitHub (at the commit too) where no page does, then the section's name, linking to the row on GitHub when

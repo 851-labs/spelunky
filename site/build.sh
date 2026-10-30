@@ -196,9 +196,10 @@ else
   media_log=
 fi
 export WIKI_MEDIA_DIR="$media" WIKI_MEDIA_URL=/wiki/media WIKI_MEDIA_DATE="$media_date" WIKI_MEDIA_LOG="$media_log"
-# The commit being built, which the wiki's links to the repo's files on GitHub (a replay, a docs/quirks.md row)
-# are pinned to, so that they show what the pages were checked against (src/wiki/build/repo.ts). Workers Builds
-# checks out the commit it builds (its WORKERS_CI_COMMIT_SHA), so HEAD is it.
+# The commit being built, as of which the wiki's links to the repo's files on GitHub (a replay, a docs/quirks.md
+# row) are pinned, each at the last commit to change its file, so that they show what the pages were checked
+# against (src/wiki/build/repo.ts, from the history fetched above). Workers Builds checks out the commit it
+# builds (its WORKERS_CI_COMMIT_SHA), so HEAD is it.
 WIKI_COMMIT=$(git rev-parse --verify HEAD 2>/dev/null) || die "site/ isn't in a git checkout, whose commit the wiki's links to GitHub pin"
 export WIKI_COMMIT
 
@@ -260,7 +261,7 @@ else
   echo "site/build.sh: no update manifest: the native apps find no update"
 fi
 echo "site/build.sh: and the wiki's media from ${wiki_media:-wiki/media} at /wiki/media/ (last changed $media_date)"
-echo "site/build.sh: the wiki's links to the repo's files pinned to its commit $WIKI_COMMIT"
+echo "site/build.sh: the wiki's links to the repo's files pinned to their last changes as of $WIKI_COMMIT"
 echo "site/build.sh: $files static asset files, of the 20,000 Workers takes"
 # wrangler dev holds a file descriptor per asset, and macOS's posix_spawn refuses one past OPEN_MAX (10,240),
 # so it can't start on this many there (docs/web-deploy.md, "Testing locally"). Deploying is unaffected.
