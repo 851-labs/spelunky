@@ -1,0 +1,36 @@
+{
+  "id": "arrow-trap/pushed-block",
+  "title": "A pushed block in the trap's sights",
+  "description": "The player pushes a stone block along a corridor and into the stretch an arrow trap watches, stopping just short of it himself: the block moves into the trap's sights and nothing fires. Then he jumps over the block into the stretch, and the trap fires, missing him.",
+  "spec": "wiki/clips/arrow-trap/pushed-block.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 209,
+  "frames": 210,
+  "replay_from": 241,
+  "state_hash": "38d13acead888a0b",
+  "states_hash": "2c2b9b7cd9219958",
+  "fps": 30,
+  "duration": 7.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 115,
+  "frames_hash": "eff4278f45ed508c",
+  "has_audio": true,
+  "audio_hash": "ac9abd3c876fc61e",
+  "encoding": "ab41bef62cacf308",
+  "files": {
+    "mp4": "arrow-trap/pushed-block/clip.mp4",
+    "webm": "arrow-trap/pushed-block/clip.webm",
+    "poster": "arrow-trap/pushed-block/poster.png",
+    "replay": "arrow-trap/pushed-block/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

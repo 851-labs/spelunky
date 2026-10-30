@@ -1,0 +1,36 @@
+{
+  "id": "arrow-trap/falling-block",
+  "title": "A falling block sets a trap off",
+  "description": "An arrow trap watches the corridor below a ledge. The player pushes a stone block off the ledge, staying up on it himself; the block falls into the corridor, and the trap fires as it falls.",
+  "spec": "wiki/clips/arrow-trap/falling-block.toml",
+  "source": {
+    "kind": "scene",
+    "seed": 0
+  },
+  "from": 0,
+  "to": 179,
+  "frames": 180,
+  "replay_from": 241,
+  "state_hash": "f33d6e43735dda92",
+  "states_hash": "be8b31d67bac2fea",
+  "fps": 30,
+  "duration": 6.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 136,
+  "frames_hash": "55bbdbc3c07a1fef",
+  "has_audio": true,
+  "audio_hash": "ade990ad45fed917",
+  "encoding": "b94463c67db72c2b",
+  "files": {
+    "mp4": "arrow-trap/falling-block/clip.mp4",
+    "webm": "arrow-trap/falling-block/clip.webm",
+    "poster": "arrow-trap/falling-block/poster.png",
+    "replay": "arrow-trap/falling-block/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
