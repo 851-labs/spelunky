@@ -13,13 +13,21 @@
 #                                 PATH.sha256 if it's there, and FILE as latest.json
 #   site/build.sh ... --wiki-media DIR
 #                                 and other wiki media than wiki/media (site/test.sh's stand-in)
+#   site/build.sh ... --no-carry  and none of the live site's builds' hashed files (docs/web-deploy.md, "Version
+#                                 skew"): test.sh's, which mustn't depend on spelunky.ai
 set -eu
 die() { echo "site/build.sh: $*" >&2; exit 1; }
-usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]] [--wiki-media DIR]" >&2; exit 2; }
+usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]] [--wiki-media DIR] [--no-carry]" >&2; exit 2; }
 given=
 manifest=
 wiki_media=
+carry_from=https://spelunky.ai
 while [ $# -gt 0 ]; do
+  if [ "$1" = --no-carry ]; then
+    carry_from=-
+    shift
+    continue
+  fi
   [ $# -ge 2 ] || usage
   case $1 in
     --local) given=$2 ;;
@@ -228,6 +236,14 @@ done
 # (src/wiki/build/source.ts), not files to serve: another 1,140 assets, each a Worker request.
 mkdir -p $assets/wiki/media
 cp -R "$media/sprites" "$media/clips" "$media/LICENSE.txt" "$media/NOTICE.txt" $assets/wiki/media/
+# The builds before this one's content-hashed files (its scripts and Open Graph images), which the pages they
+# served still name, from the live site's build-assets.json, and this build's list of its own (carry-assets.mjs;
+# docs/web-deploy.md, "Version skew"), dated by its commit, as the deploy follows it. Within the 20,000, less
+# 500 for the next build's growth. Nothing carried (but the list written) with --no-carry, or if the live site
+# can't say: never a failed build.
+built=$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y-%m-%dT%H:%M:%SZ HEAD) ||
+  die "git can't say when HEAD was committed, which dates the build's files"
+node carry-assets.mjs $assets "$carry_from" "$built" 19500
 # Workers static assets take files of up to 25 MiB each, and 20,000 of them a version on the free plan
 # (docs/web-deploy.md, "Limits"), most of them the wiki's media. Wrangler reads _headers and .assetsignore
 # (the Cloudflare plugin's) and uploads neither.

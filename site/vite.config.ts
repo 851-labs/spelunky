@@ -67,6 +67,9 @@ const SOURCES = sourcePaths(SOURCE_DIR);
 const ROOMS = roomNames(ROOMS_DIR) ?? [];
 
 export default defineConfig({
+  // The commit being built (build.sh's), which a page names in its head and its code knows, so that a chunk that
+  // fails to load can tell a deploy since from the network (src/skew.ts). None under `vite dev`.
+  define: { __SITE_BUILD__: JSON.stringify(process.env.WIKI_COMMIT ?? "") },
   plugins: [
     wiki(WIKI),
     wikiSource(SOURCE_DIR, ROOMS_DIR),

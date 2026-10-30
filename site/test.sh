@@ -207,7 +207,7 @@ rm -rf "$media"
 git -C "$tmp/wiki-media-origin" config uploadpack.allowFilter true
 git clone -q --depth 1 "file://$tmp/wiki-media-origin" "$media"
 media_url=/wiki/media
-./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$media"
+./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$media" --no-carry
 
 # running PID: PID hasn't exited (a zombie has, though kill -0 still finds it until the shell reaps it).
 running() {
@@ -350,7 +350,10 @@ contains '<html lang="en">' \
   'autoPlay="" loop="" muted="" playsInline=""' \
   '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
   '.play:hover, .play:focus-visible { background: #ffd860; outline: none; }'
-# Its head (src/seo/): the canonical URL and the JSON-LD; test-seo.mjs, below, checks every page's.
+# Its head (src/seo/): the canonical URL and the JSON-LD; test-seo.mjs, below, checks every page's. And the
+# commit it was built from, which a page's code compares with the live page's when a chunk fails to load
+# (src/skew.ts).
+contains "<meta name=\"spelunky-build\" content=\"$(git rev-parse HEAD)\"/>"
 contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
   '<link rel="search" type="application/opensearchdescription+xml" title="spelunky.ai wiki" href="https://spelunky.ai/opensearch.xml"/>' \
   '<link rel="icon" href="/favicon.ico" sizes="32x32"/>' '<link rel="icon" type="image/svg+xml" href="/icon.svg"/>' \
@@ -872,6 +875,22 @@ check "$site$media_url/gml/objects/oSnake/step.gml" 404
 
 check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/json"
 same "$tmp/latest.json"
+# The build's list of its hashed files, which the next deploy reads to carry them (carry-assets.mjs;
+# docs/web-deploy.md, "Version skew"): through the Worker, no-cache, as each build has its own. With
+# --no-carry, every one of its own scripts and Open Graph images, dated by its commit, and nothing else.
+check "$site/build-assets.json" 200 "$no_cache" "content-type: application/json"
+node --input-type=module -e '
+import { readFileSync } from "node:fs";
+import { ownFiles } from "./carry-assets.mjs";
+const [body, date] = process.argv.slice(1);
+const list = JSON.parse(readFileSync(body, "utf8"));
+const own = ownFiles("dist/client");
+const listed = Object.keys(list.files);
+if (list.format !== 1 || list.date !== date || own.length < 100 || listed.join() !== own.join() || Object.values(list.files).some((d) => d !== date)) {
+  console.error(`build-assets.json: format ${list.format}, date ${list.date} (not ${date}), ${listed.length} files listed of ${own.length}`);
+  process.exit(1);
+}
+' "$tmp/body" "$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y-%m-%dT%H:%M:%SZ HEAD)" || fail "$site/build-assets.json"
 # The license, in UTF-8 as it's served (build.sh), as the media's is above.
 check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
 same "$tmp/LICENSE.txt"
@@ -893,6 +912,8 @@ check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/p
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.
 node test-wiki.mjs || fail "test-wiki.mjs"
+# The carrying itself, against a stand-in live site.
+node test-carry.mjs || fail "test-carry.mjs"
 # Every pre-rendered page's links on the site, the wiki's pages reachable from /wiki, none to come that no
 # ticket is writing, and every alias a redirect to its page.
 node test-links.mjs dist/client "$site" || fail "test-links.mjs"
