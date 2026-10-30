@@ -1,0 +1,29 @@
+#!/bin/sh
+# Every shell script in the repo parses: `sh -n` for an sh script, `bash -n` for a bash one, by its first line.
+# macOS's sh is bash 3.2, which runs a script command by command and, at a syntax error after an EXIT trap is set,
+# runs the trap and exits with its status: 0, for a trap that cleans up. So a script with an error halfway down
+# stops there and passes, as site/test.sh did, skipping every check after it (851-3741). This catches a syntax
+# error anywhere at the top level of a script; one inside a $(...) isn't parsed until it runs (and fails the
+# script then, trap or not), and an error at run time, an unset variable under set -u, is each script's own to
+# catch (site/test.sh's cleanup fails a run that didn't reach its end). scripts/check --fast runs this, so CI
+# does too.
+set -eu
+cd "$(dirname "$0")/.."
+failed=0
+# The tracked files with a shell's shebang somewhere (one git grep, not a process a file; not the media), then by
+# their first line.
+list=$(mktemp)
+git grep -lI -e '^#!/bin/sh' -e '^#!/bin/bash' -e '^#!/usr/bin/env bash' -- ':!wiki/media' >"$list"
+while IFS= read -r file; do
+  case $(head -1 "$file" | tr -d '\r') in
+    '#!/bin/sh' | '#!/bin/sh '*) shell=sh ;;
+    '#!/bin/bash' | '#!/bin/bash '* | '#!/usr/bin/env bash' | '#!/usr/bin/env bash '*) shell=bash ;;
+    *) continue ;;
+  esac
+  if ! $shell -n "$file"; then
+    echo "scripts/check-sh: $file doesn't parse ($shell -n)" >&2
+    failed=1
+  fi
+done <"$list"
+rm -f "$list"
+exit $failed
