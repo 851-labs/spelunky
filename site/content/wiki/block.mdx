@@ -83,7 +83,7 @@ made, each block of rock rolls for a vein of gold or a hidden gem.
 | Smooth earth | Shop floors | Tan rubble | <Cite gml="scripts/scrRoomGen.gml:422-426" /> <Cite gml="objects/oBrickSmooth/destroy.gml:3-11" /> |
 | Hard block | The rooms outside the levels: the Tutorial, the title screen, the bonus rooms | Nothing: it can't be destroyed | <Cite gml="objects/oHardBlock/create.gml:3" /> |
 | Lady Xoc's blocks | The statue of a [[city-of-gold\|City of Gold]] room | Gold, and two gems from six of its thirty blocks | <Cite gml="scripts/scrRoomGen4.gml:378-392" /> <Cite gml="objects/oXocBlock/destroy.gml:12-28" /> |
-| The ship's hull and floor | The [[mothership\|mothership]] | Dark rubble, as the Ice Caves' rock | <Cite gml="objects/oAlienShip/destroy.gml:3-5" /> <Cite gml="objects/oAlienShipFloor/destroy.gml:3-5" /> |
+| The ship's hull | The [[mothership\|mothership]], its floor drawn with another picture | Dark rubble, as the Ice Caves' rock | <Cite gml="scripts/scrRoomGen3.gml:413-418" /> <Cite gml="objects/oAlienShip/destroy.gml:3-5" /> |
 
 In [[city-of-gold|the City of Gold]], the Temple stone is gold, and every block of it breaks into three
 [[gold-chunk|Gold Chunks]] and a [[gold-nugget|Gold Nugget]] <Cite gml="objects/oTemple/create.gml:7" />
@@ -122,9 +122,12 @@ blocks hold nothing.
 Breaking a block of the areas' earth, rock or Temple stone, or smooth earth or the ship's hull, takes
 [[spikes|Spikes]] and a [[tiki-torch|Tiki Torch]] on top of it with it, brings down a lamp hanging under it as a
 [[lamp|Lamp]], and lets water around it drain <Cite gml="objects/oSolid/destroy.gml:9-35" />
-<Cite gml="objects/oBrick/destroy.gml:1-2" />. A stone block, a [[push-block|Push Block]], Lady Xoc's blocks and
-the idol's [[altar|Altar]] have destroy events of their own that don't run that code, so none of it happens when
-one breaks <Cite gml="objects/oBlock/destroy.gml:1-25" />.
+<Cite gml="objects/oBrick/destroy.gml:1-2" />. Many other blocks have destroy events of their own that don't run
+that code, so none of it happens when one breaks: a stone block, a [[push-block|Push Block]], [[ice|Ice]], both
+altars (the idol's [[altar|Altar]] and [[kalis-altar|Kali's]]), Lady Xoc's blocks, the traps' blocks, a
+[[shop-sign|Shop Sign]] and a grave <Cite gml="objects/oBlock/destroy.gml:1-25" />
+<Cite quirk="1" row="Most blocks but an area's plain rock skip what breaking a block does." />. A bomb breaking the stone block a Dice House's lamp hangs from leaves the lamp in the air
+<Cite replay="fidelity/replays/terrain-stone-block-lamp.txt" />.
 
 ### Blocks that can't be destroyed
 
@@ -139,7 +142,8 @@ blocks <Cite gml="objects/oHardBlock/create.gml:3" />.
 - **Shops.** A shop's walls, bricks or one time in ten stone blocks, and its smooth floor are marked as the
   shop's, and breaking one angers its [[shopkeeper|Shopkeeper]] <Cite gml="scripts/scrRoomGen.gml:413-426" />
   <Cite gml="objects/oSolid/destroy.gml:1-7" />, unless it's a stone block, whose own destroy event skips the
-  check <Cite gml="objects/oBlock/destroy.gml:1-25" />.
+  check <Cite gml="objects/oBlock/destroy.gml:1-25" />
+  <Cite quirk="1" row="Most blocks but an area's plain rock skip what breaking a block does." />.
 - **[[spectacles|Spectacles]]** and the [[udjat-eye|Udjat Eye]] draw the treasure hidden in the rock in front of
   it, so it shows <Cite gml="objects/oTreasure/step.gml:63-66" />.
 - **Crushing.** A player whose middle ends up inside a block is crushed, losing every heart
@@ -157,3 +161,5 @@ blocks <Cite gml="objects/oHardBlock/create.gml:3" />.
   earth after it's made, so no block of a custom level shows or holds gold; its gems and items still roll
   <Cite gml="scripts/scrCreateTileObj.gml:36-68" />.
 - One brick in ten in the Mines is drawn with a second picture <Cite gml="objects/oBrick/create.gml:3-5" />.
+- The game has an object for the mothership's floor that nothing makes: the floor is hull with the floor's
+  picture <Cite gml="scripts/scrRoomGen3.gml:413-418" /> <Cite quirk="1" row="Unreachable terrain and effects" />.
