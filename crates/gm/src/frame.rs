@@ -233,7 +233,7 @@ impl World {
     /// One keyboard stage: the events of every key in this state, by key code, then "any key" or "no key",
     /// once. GM8 runs a key press "any key" event once per press, after the specific keys' (probe
     /// `keypress-anykey`); OpenGMK's key-code pass took in codes 0 and 1 too, so it ran them twice
-    /// (`game/events.rs` `run_key_press_events` and siblings, fixed in the oracle by patch 0035). The held and
+    /// (`game/events.rs` `run_key_press_events` and siblings, fixed in the oracle by patch 0036). The held and
     /// release stages are built the same way, unprobed: no object in the game or the settings program has a
     /// held or release "any key" or "no key" event. Spelunky's "any key" events are key presses:
     /// `oKeyConfig`'s and `oLevelEditor`'s and `oLoadLevel`'s, which type a level name.

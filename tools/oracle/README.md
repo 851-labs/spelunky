@@ -522,7 +522,7 @@ A press of a key that is already down isn't a press, as in GM8 (851-3774, `docs/
 means what the port's (`InputState::apply`) does. OpenGMK set the flag again. Mouse buttons, which come through
 the same function, are pressed as before.
 
-### `opengmk/0035-gm8-any-key-once.patch`
+### `opengmk/0036-gm8-any-key-once.patch`
 
 The "no key" and "any key" keyboard events run once a stage, after every specific key's, as GM8 runs a key press
 "any key" event (851-3773, `docs/quirks.md` §5 and §7, measured by `tools/gm8-probe`'s `keypress-anykey`): the
