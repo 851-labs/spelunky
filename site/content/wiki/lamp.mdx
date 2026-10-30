@@ -65,8 +65,9 @@ red, and falls as a red Lamp, which, unlike the plain one, lights nothing once i
 A hanging lamp isn't an item: it can't be picked up, and it flickers where it hangs
 <Cite gml="objects/oLamp/create.gml:1" />. When the block above it is destroyed, the block's last act is to
 replace it with a Lamp, red if the hanging lamp was, which then falls
-<Cite gml="objects/oSolid/destroy.gml:24-33" />. Not when that block is a stone [[block|block]]: a stone block's
-destroy event doesn't run that code, so the lamp stays hanging in the air <Cite quirk="1" row="Breaking a stone block, a push block, Lady Xoc's blocks or the idol's altar skips what breaking any other block does." />
+<Cite gml="objects/oSolid/destroy.gml:24-33" />. Not when that block is a stone [[block|block]], or another
+block whose destroy event is its own (ice, a trap's): that doesn't run this code, so the lamp stays hanging in the
+air <Cite quirk="1" row="Most blocks but an area's plain rock skip what breaking a block does." />
 <Cite replay="fidelity/replays/terrain-stone-block-lamp.txt" />. A shop's lamp hangs from the shop's ceiling, out of reach of a
 [[bomb|Bomb]] on the floor, and a lit bomb in a shop within 96 pixels of the [[shopkeeper|Shopkeeper]]
 angers him <Cite gml="objects/oBomb/step.gml:6-17" /> <Cite quirk="1" row="The rare items' only sources" />.

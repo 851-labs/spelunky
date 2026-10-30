@@ -110,8 +110,9 @@ The [[high-scores-room|high scores room]] has the one the player pushes onto its
   only while it falls, as pushing moves it a pixel at a time without one
   <Cite gml="scripts/moveTo.gml:57" /> <Cite gml="scripts/gameStepEvent.gml:236-256" />.
 - **Breaking it.** A [[bomb|Bomb]] or the [[mattock|Mattock]] breaks a push block like any block, leaving
-  rubble <Cite gml="objects/oPushBlock/destroy.gml:1-11" />, but its destroy event is its own: unlike most blocks',
-  it doesn't take what stands on it or bring down a lamp hanging under it <Cite quirk="1" row="Breaking a stone block, a push block, Lady Xoc's blocks or the idol's altar skips what breaking any other block does." />.
+  rubble <Cite gml="objects/oPushBlock/destroy.gml:1-11" />, but its destroy event is its own: unlike an area's
+  rock, it doesn't take what stands on it or bring down a lamp hanging under it
+  <Cite quirk="1" row="Most blocks but an area's plain rock skip what breaking a block does." />.
 - **[[city-of-gold|The City of Gold]].** Every push block there is gold, and breaks into three
   [[gold-chunk|Gold Chunks]] and a [[gold-nugget|Gold Nugget]] <Cite gml="objects/oPushBlock/create.gml:5" />
   <Cite gml="objects/oPushBlock/destroy.gml:12-23" />.

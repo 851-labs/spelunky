@@ -3,11 +3,11 @@
 # and to the left with its lamp, oLamp at 224,64, hanging under a stone block, oBlock at 224,48; the player is a
 # murderer from level 2), then by hand: left from 2832 to 2898, stopping at x 336, out of the Shopkeeper's 96 px;
 # C (2835) takes out a bomb and X (2840) lights it in his hand. Left again from 2930, into the shop, and up + X
-# (2950) throws it up and left, under the lamp. It goes off by the ceiling (2959), destroying the two stone blocks
-# over the lamp (224,48 and 240,48) and not the brick beside them (208,48). oBlock's destroy event doesn't run
-# oSolid's, whose check for a lamp under the block turns it into an oLampItem that falls (as a brick's does,
-# item-seed-38-lamp.txt), so the lamp stays in the air. The Shopkeeper, angered by the lit bomb, shoots the player
-# dead (2960). Stands until 3009.
+# (2950) throws it up and left, under the lamp. It goes off by the ceiling (2959), destroying the stone block the
+# lamp hangs from (224,48) and the one beside it (240,48), and not the brick on its other side (208,48). oBlock's
+# destroy event doesn't run oSolid's, whose check for a lamp under the block turns it into an oLampItem that falls
+# (as a brick's does, item-seed-38-lamp.txt), so the lamp stays in the air. The Shopkeeper, who turns on the
+# player as a murderer, shoots him dead (2960). Stands until 3009.
 # story: currLevel=3@2758 room=rLevel@2830 held=oBomb@2835 +oExplosion@2959 -oBlock*2@2959..2961
 # story: !-oBrick@2955..2970 !-oLamp@2955.. !+oLampItem@2955..
 seed 35

@@ -122,10 +122,12 @@ blocks hold nothing.
 Breaking a block of the areas' earth, rock or Temple stone, or smooth earth or the ship's hull, takes
 [[spikes|Spikes]] and a [[tiki-torch|Tiki Torch]] on top of it with it, brings down a lamp hanging under it as a
 [[lamp|Lamp]], and lets water around it drain <Cite gml="objects/oSolid/destroy.gml:9-35" />
-<Cite gml="objects/oBrick/destroy.gml:1-2" />. A stone block, a [[push-block|Push Block]], Lady Xoc's blocks and
-the idol's [[altar|Altar]] have destroy events of their own that don't run that code, so none of it happens when
-one breaks <Cite gml="objects/oBlock/destroy.gml:1-25" /> <Cite quirk="1" row="Breaking a stone block, a push block, Lady Xoc's blocks or the idol's altar skips what breaking any other block does." />. A bomb breaking the stone block a Dice House's lamp
-hangs from leaves the lamp in the air <Cite replay="fidelity/replays/terrain-stone-block-lamp.txt" />.
+<Cite gml="objects/oBrick/destroy.gml:1-2" />. Many other blocks have destroy events of their own that don't run
+that code, so none of it happens when one breaks: a stone block, a [[push-block|Push Block]], [[ice|Ice]], both
+altars (the idol's [[altar|Altar]] and [[kalis-altar|Kali's]]), Lady Xoc's blocks, the traps' blocks, a
+[[shop-sign|Shop Sign]] and a grave <Cite gml="objects/oBlock/destroy.gml:1-25" />
+<Cite quirk="1" row="Most blocks but an area's plain rock skip what breaking a block does." />. A bomb breaking the stone block a Dice House's lamp hangs from leaves the lamp in the air
+<Cite replay="fidelity/replays/terrain-stone-block-lamp.txt" />.
 
 ### Blocks that can't be destroyed
 
@@ -140,7 +142,8 @@ blocks <Cite gml="objects/oHardBlock/create.gml:3" />.
 - **Shops.** A shop's walls, bricks or one time in ten stone blocks, and its smooth floor are marked as the
   shop's, and breaking one angers its [[shopkeeper|Shopkeeper]] <Cite gml="scripts/scrRoomGen.gml:413-426" />
   <Cite gml="objects/oSolid/destroy.gml:1-7" />, unless it's a stone block, whose own destroy event skips the
-  check <Cite gml="objects/oBlock/destroy.gml:1-25" /> <Cite quirk="1" row="Breaking a stone block, a push block, Lady Xoc's blocks or the idol's altar skips what breaking any other block does." />.
+  check <Cite gml="objects/oBlock/destroy.gml:1-25" />
+  <Cite quirk="1" row="Most blocks but an area's plain rock skip what breaking a block does." />.
 - **[[spectacles|Spectacles]]** and the [[udjat-eye|Udjat Eye]] draw the treasure hidden in the rock in front of
   it, so it shows <Cite gml="objects/oTreasure/step.gml:63-66" />.
 - **Crushing.** A player whose middle ends up inside a block is crushed, losing every heart
