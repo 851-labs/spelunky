@@ -18,6 +18,7 @@ relations:
     - { slug: ice-caves, cite: scripts/scrRoomGen3.gml:122-152 }
     - { slug: temple, cite: scripts/scrRoomGen4.gml:155-188 }
     - { slug: black-market, cite: scripts/scrRoomGenMarket.gml:117-140 }
+    - { slug: yeti-lair, cite: scripts/scrRoomGenYeti.gml:149-181 }
   related: [shopkeeper, bomb, general-store, weapon-shop]
 clips: [bomb-shop/buy]
 faq:
@@ -118,9 +119,10 @@ level, whose exit has a Shopkeeper waiting by it and whose shops' wares are free
 ## Locations
 
 A level from 2 to 15 that rolls a shop builds one of seven kinds, each as likely, so a shop is a Bomb Shop
-one time in seven (one in six on a Temple [[sacrifice-pit|sacrifice pit]] level, which never has a
-[[kissing-parlor|Kissing Parlor]]) <Cite gml="scripts/scrLevelGen.gml:239-297" /> <Cite
-gml="scripts/scrRoomGen.gml:173-204" /> <Cite gml="scripts/scrRoomGenYeti.gml:149-181" />
+one time in seven, in every area and on a [[yeti-lair|Yeti lair]] level too (one in six on a Temple
+[[sacrifice-pit|sacrifice pit]] level, which never has a [[kissing-parlor|Kissing Parlor]]) <Cite
+gml="scripts/scrLevelGen.gml:239-297" /> <Cite gml="scripts/scrRoomGen.gml:173-204" /> <Cite
+gml="scripts/scrRoomGenYeti.gml:149-181" />
 <Cite gml="scripts/scrRoomGen4.gml:155-188" />.
 [[mines#shops|The Mines]] has how levels roll shops. A [[black-market|Black Market]] has five shops that
 sell items, as a rule one of each kind, a Bomb Shop among them ([[two-general-stores]] is the exception) <Cite gml="scripts/scrRoomGenMarket.gml:117-140" /> <Cite quirk="1" row="A Black Market's fifth item shop can be a second General Store." />.
