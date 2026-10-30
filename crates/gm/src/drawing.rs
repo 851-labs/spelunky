@@ -188,7 +188,8 @@ impl World {
         if !self.recording_draw() {
             // Tiles change no state, so headless only the instances' draw events matter. Skipping the
             // tiles' sort is safe too: tiles are only ever appended or removed, so a stable sort by depth
-            // gives the same order whether or not earlier sorts ran. Nor can a tile trap: GM8 only draws the
+            // gives the same order whether or not earlier sorts ran, and `tile_layer_find`, which reads the
+            // tiles' order, only compares tiles at one depth, whose order no sort changes. Nor can a tile trap: GM8 only draws the
             // ones in the view, and nothing in GML scales one (851-3304).
             while let Some(h) = insts.next(&self.insts) {
                 self.draw_instance(h)?;
