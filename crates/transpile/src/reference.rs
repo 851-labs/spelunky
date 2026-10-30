@@ -3,9 +3,33 @@
 use std::io::Read;
 use std::path::{Path, PathBuf};
 
+/// The source zip, in this repository.
+const ZIP: &str = "reference/spelunky_1_1_src.zip";
+
+/// This repository's root, found as it runs, not as it compiles (`env!`), so the build holds no path of the
+/// checkout's: one cloned into a new worktree (scripts/seed-target) needn't rebuild, nor what depends on this
+/// crate. The nearest directory with the source zip above the running executable, which is in its own
+/// checkout's `target/` as the path `env!` gave was its own; or else above the manifest directory of the
+/// package Cargo runs (`cargo test` and `cargo run` set it: a `target/` elsewhere), or the current directory.
+pub fn repo_root() -> PathBuf {
+    let starts = [
+        std::env::current_exe().ok(),
+        std::env::var_os("CARGO_MANIFEST_DIR").map(PathBuf::from),
+        std::env::current_dir().ok(),
+    ];
+    starts
+        .iter()
+        .flatten()
+        .find_map(|start| start.ancestors().find(|dir| dir.join(ZIP).is_file()))
+        .map(Path::to_path_buf)
+        .unwrap_or_else(|| {
+            panic!("no {ZIP} above this executable, CARGO_MANIFEST_DIR or the current directory")
+        })
+}
+
 /// `reference/spelunky_1_1_src.zip` in this repository.
 pub fn default_path() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../reference/spelunky_1_1_src.zip")
+    repo_root().join(ZIP)
 }
 
 /// The two GameMaker programs in the source zip: the game, and the settings program `config.exe` that

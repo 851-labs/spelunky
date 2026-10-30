@@ -9,7 +9,7 @@ use std::process::{Command, Output};
 use serde_json::Value;
 
 fn repo() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
+    transpile::reference::repo_root()
 }
 
 /// Runs it, with the site's snapshots going to `site/` beside `out`.

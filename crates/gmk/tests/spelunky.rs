@@ -8,10 +8,10 @@ use std::sync::OnceLock;
 fn gmk_bytes() -> &'static [u8] {
     static BYTES: OnceLock<Vec<u8>> = OnceLock::new();
     BYTES.get_or_init(|| {
-        let path = concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../reference/spelunky_1_1_src.zip"
-        );
+        let path = std::path::Path::new(
+            &std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR: run it with cargo"),
+        )
+        .join("../../reference/spelunky_1_1_src.zip");
         let file = std::fs::File::open(path).expect("reference/spelunky_1_1_src.zip");
         let mut zip = zip::ZipArchive::new(file).unwrap();
         let mut entry = zip.by_name("spelunky.gmk").unwrap();

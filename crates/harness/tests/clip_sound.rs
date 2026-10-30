@@ -4,7 +4,6 @@
 mod common;
 
 use std::io::Read as _;
-use std::path::Path;
 use std::sync::Arc;
 
 use audio::offline::FRAMES_PER_TICK;
@@ -32,7 +31,7 @@ fn sounds(music: bool) -> Arc<SoundBank> {
 }
 
 fn bite(music: bool) -> Vec<f32> {
-    let repo = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let repo = transpile::reference::repo_root();
     let clip = Clip::read(&repo, &repo.join("wiki/clips/snake/bite.toml")).unwrap();
     let source = clip.source(&repo).unwrap();
     clip.sound(&source, common::assets(), sounds(music))

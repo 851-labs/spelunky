@@ -10,7 +10,7 @@ use std::process::Command;
 use assets::{Bundle, MaskData};
 
 fn reference() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../reference")
+    transpile::reference::repo_root().join("reference")
 }
 
 fn extract(out: &Path) {

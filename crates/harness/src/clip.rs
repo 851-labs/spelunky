@@ -561,7 +561,7 @@ inputs = '''
     }
 
     fn repo() -> PathBuf {
-        std::fs::canonicalize(Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")).unwrap()
+        std::fs::canonicalize(transpile::reference::repo_root()).unwrap()
     }
 
     /// The committed spec `id`, and what it plays.

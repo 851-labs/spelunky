@@ -12,9 +12,10 @@
 #   a crate rebuilds where it would in the main worktree, or where this one's files differ.
 # - A unit that compiled in a path of the main worktree's (`env!("CARGO_MANIFEST_DIR")`, `CARGO_BIN_EXE_*`,
 #   which rustc's dep-info records as `# env-dep:`) would keep it: Cargo doesn't track the variables it sets
-#   itself, so the fidelity tools and the tests would read (and transpile would write) the main worktree's
-#   files. Those units lose their fingerprints, so they rebuild, and with them what depends on them. A build
-#   script's output that names the main worktree's target/ is pointed at this one's.
+#   itself, so the fidelity tools would read the main worktree's files, and the tests that run a binary
+#   (`CARGO_BIN_EXE_*`) would run its. Those units lose their fingerprints, so they rebuild, and with them
+#   what depends on them. The rest of the code finds the repository as it runs (851-3735), so it has none of
+#   these. A build script's output that names the main worktree's target/ is pointed at this one's.
 #
 # The main worktree is only read: git with --no-optional-locks, so it doesn't refresh its index, and a shared
 # lock on each of its build directories' .cargo-build-lock while cloning, so the clone never catches a build
