@@ -160,7 +160,7 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
       </p>
       {place && (
         <p className="source-about">
-          The wiki's page on this room:{" "}
+          {"The wiki's page on this room: "}
           <CardLink href={`/wiki/${place.slug}`} slug={place.slug}>
             {place.title}
           </CardLink>
