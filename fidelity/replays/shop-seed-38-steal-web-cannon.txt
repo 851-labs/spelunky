@@ -1,9 +1,11 @@
 # Stealing the web cannon (851-3784): scrStealItem's Web Cannon branch. Seed 38: weapon-seed-38-web-cannon.txt to
 # frame 1020 (level 2 at 835, in Andy's Armory), then area-route --steps '+oWebCannon$' --wait 2 (holds the
-# unpaid web cannon, "A WEB CANNON FOR $2000.", 1038), then by hand: he runs right (run key, 1041) and jumps (1053)
-# out of the shop's room, which steals it (1057: thiefLevel 2). The shopkeeper's shot kills him (1071). Ends at
+# unpaid web cannon, "A WEB CANNON FOR $2000.", 1038), then by hand: he runs right (run key, 1043) and jumps (1055)
+# out of the shop's room, which steals it (1057: its cost and forSale cleared, thiefLevel 2, "COME BACK HERE,
+# THIEF!" replacing the theft's own message on the same step). The shopkeeper's shot kills him (1071). Ends at
 # 1150.
 # story: currLevel=2@763 held=oWebCannon@1038 thiefLevel=2@1057..1057 plife=0@1071
+# story: oWebCannon.cost=0@1057..1057 oWebCannon.forSale=0@1057..1057
 seed 38
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"

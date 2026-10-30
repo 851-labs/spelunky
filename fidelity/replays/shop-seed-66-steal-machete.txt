@@ -1,9 +1,11 @@
 # Stealing the machete (851-3784): scrStealItem's Machete branch. Seed 66: weapon-seed-66-shop.txt to frame 1800
 # (level 2 at 1086, in its Weapon shop), then area-route --steps '+oMachete$' --wait 2 (holds the unpaid machete,
-# "A MACHETE FOR $7000.", 1812), then by hand: he runs left (run key, 1815) and jumps (1827, a heart lost on the
-# way) out of the shop's room, which steals it (1832: thiefLevel 2). The shopkeeper's shots take a heart (1851),
+# "A MACHETE FOR $7000.", 1812), then by hand: he runs left (run key, 1817) and jumps (1829; a heart lost at 1827)
+# out of the shop's room, which steals it (1832: its cost and forSale cleared, thiefLevel 2, "COME BACK HERE,
+# THIEF!" replacing the theft's own message on the same step). The shopkeeper's shots take a heart (1851),
 # knocking the machete from his hand, and then the rest (1924). Ends at 1924.
 # story: currLevel=2@1014 held=oMachete@1812 thiefLevel=2@1832..1832 plife=2@1851..1851 plife<1@1924..1924
+# story: oMachete.cost=0@1832..1832 oMachete.forSale=0@1832..1832 held!=oMachete@1851..1851
 seed 66
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"

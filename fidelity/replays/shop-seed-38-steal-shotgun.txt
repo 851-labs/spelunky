@@ -2,9 +2,10 @@
 # weapon-seed-38-web-cannon.txt to frame 1036 (level 2 at 835, Andy's Armory; the player holds its unpaid
 # shotgun, "A SHOTGUN FOR $15000.", 1034), then by hand: he runs right (run key, 1038) and jumps (1050) out of the
 # shop's room, which steals it (1055: thiefLevel 2, "COME BACK HERE, THIEF!" from scrShopkeeperAnger replacing
-# the theft's message on the same step). The shopkeeper's shot kills him (1067). Ends at 1145.
+# the theft's "YOU GOT A SHOTGUN!" on the same step), its cost and forSale cleared. The shopkeeper's shot kills
+# him (1067). Ends at 1145.
 # story: currLevel=2@763 held=oShotgun@1034 thiefLevel=2@1055..1055 message="COME BACK HERE, THIEF!"@1055..1055
-# story: plife=0@1067
+# story: plife=0@1067 oShotgun.cost=0@1055..1055 oShotgun.forSale=0@1055..1055
 seed 38
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"
