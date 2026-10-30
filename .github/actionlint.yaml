@@ -2,7 +2,7 @@
 self-hosted-runner:
   labels: [codevisor-macos-arm64]
 paths:
-  .github/workflows/auto-release.yml:
+  .github/workflows/release.yml:
     ignore:
       # actionlint's copy of actions/create-github-app-token's inputs predates v3's client-id.
       - 'missing input "app-id"'
