@@ -122,7 +122,7 @@ fetched everything it needs. Those 404s come with `_headers`' immutable caching 
 Worker, and `_headers` can't tell a miss from a hit), which only matters to that browser if it's rolled back
 to exactly that old build; routing `/play/v/*` through the Worker to fix it would spend ~110 Worker requests
 of the free plan's 100,000 a day on every game start. The pages' scripts under `/assets/` and the wiki's Open
-Graph images under `/wiki/og/` are kept for a week instead ([Version skew](#version-skew)).
+Graph images under `/wiki/og/` are kept a while instead ([Version skew](#version-skew)).
 
 ## Version skew
 
@@ -135,43 +135,60 @@ anything, each of those 404s (`/assets/*` and `/wiki/og/*` skip the Worker), and
 quietly fails.
 
 **The builds carry the files before them.** Each build lists its own hashed files (everything under
-`dist/client/assets/` and `dist/client/wiki/og/`) in `/build-assets.json`, each dated by its commit
+`dist/client/assets/` and `dist/client/wiki/og/`) in `/build-assets.json`, each dated when it was built
 (`site/carry-assets.mjs`, which `build.sh` runs after copying the media in). The next build reads the live
 site's list and downloads into its own assets the files it hasn't got that a build had in the last 7 days,
-the newest first, at most 3,000 of them and never past 19,500 files in all, and lists them with their old
-dates. So a file stays live for a week after the last build that made it, through any number of deploys,
-and no longer. An Open Graph image is checked against its name (its bytes' SHA-256); Vite's names hash its
-output in its own way, so a script is taken as served. They're served as before: from the asset store, with
-`_headers`' immutable caching, no Worker request. A carry that can't happen (the list or a file isn't there,
-the network fails) carries less, never fails a build: the deploy is then what it was before this. The first
-deploy with it finds no list on the live site and carries nothing.
+the newest first, at most 6,000 of them and never past 19,900 files in all (100 short of Workers' 20,000,
+in case Wrangler counts a file the build doesn't), and lists them with their old dates. So a file stays
+live after the last build that made it, through the deploys after it, until it's a week old or 6,000 newer
+ones have pushed it out. A file is checked before it's kept: the content type its extension says (a script,
+a stylesheet, a PNG), not empty, and for an Open Graph image, its name's SHA-256; Vite's names hash its
+output in its own way, so a script's bytes can't be checked. One that fails is left out, and the next in
+line takes its place. They're served as before: from the asset store, with `_headers`' immutable caching,
+no Worker request. A carry that can't happen (the list or a file isn't there, the network fails) carries
+less, never fails a build: the deploy is then what it was before this. The first deploy with it finds no
+list on the live site and carries nothing. A preview (Workers Builds' `WORKERS_CI_BRANCH` names a branch but
+`main`) carries nothing, as no tab from spelunky.ai asks a preview for its files.
 
-Why this way: a build is about 11,400 files of Workers' 20,000 (Limits, below), and its hashed files are
-about 540 (285 scripts and styles, 6.8 MB; 251 cards, 1 MB). A deploy renames only what changed: a page's
-chunk and card for a content change, most of the scripts for a change to the shared code. So 3,000 is about
-ten of the biggest deploys, and a week of the usual ones; the age keeps old files from piling up, and the
-count keeps a busy week within the limit. Workers keeps no previous version's assets for the live one (a
-version is its own assets, which is what makes rollback instant), and Cloudflare's Pages-style asset
-retention isn't something a Worker can ask for. Routing the misses through the Worker to fetch an old version
-would cost a Worker request for every lazy chunk and card, which the free plan's quota is spent on the pages
-for. Downloading from the live site needs nothing but the network Workers Builds already has, and no token.
+How much that covers: a build is about 11,400 files of Workers' 20,000 (Limits, below), and its hashed files
+are about 535 (284 scripts and styles, 6.8 MB; 251 cards, 1 MB). Today a deploy renames about 225 of the
+scripts, whatever it changes, as every page's chunk has the commit in its links to GitHub (851-3740), and a
+card only when its page's numbers or sprite change. So 6,000 is about the last 25 deploys: most of a day at
+main's busiest (up to ~100 deploys a day), and the week when it's quieter. It downloads in about half a
+minute of the build. Once a deploy renames only what it changes, the same 6,000 is many more deploys.
 
-**After a week, the page reloads.** For what's older than that, or a carry that failed, a chunk that fails to
-load reloads the page, which then names the live build's files (`site/src/skew.ts`). Every lazy import of the
-site's goes through Vite's preload helper, which fires `vite:preloadError` when one fails; the page then
-fetches itself (`no-store`) and compares the build its head names (`<meta name="spelunky-build">`, the
-commit, which `vite.config.ts` compiles into the code as `__SITE_BUILD__`) with its own. Only another build
-reloads it, and only once for that build (`sessionStorage`), so a network failure, which a reload wouldn't
-mend, leaves the reader's place alone, and a build whose own chunk fails can't reload forever. Under
-`vite dev` there's no build, and nothing happens.
+Why this way: Workers keeps no previous version's assets for the live one (a version is its own assets,
+which is what makes rollback instant), and Cloudflare's Pages-style asset retention isn't something a Worker
+can ask for. Routing the misses through the Worker to fetch an old version would cost a Worker request for
+every lazy chunk and card, which the free plan's quota is spent on the pages for. Downloading from the live
+site needs nothing but the network Workers Builds already has, and no token.
+
+**Past the carry, the page reloads.** For what's older, or a carry that failed, a chunk that fails to load
+reloads the page, which then names the live build's files (`site/src/skew.ts`). Every lazy import of the
+site's goes through Vite's preload helper, which fires `vite:preloadError` when one fails; the page then asks
+the landing page (`no-store`: it's always there, where the page that failed may be gone) which entry script it
+loads, `/assets/index-HASH.js`, the same on every page of a build, and compares it with its own. The entry's
+hash covers every chunk the build can load, since each chunk's name is in the chunk that imports it, up to
+the entry. Only another entry reloads the page, and only once for it (`sessionStorage`). So a network failure,
+which a reload wouldn't mend, leaves the reader's place alone (a check that found the same build holds for a
+minute, so a flaky network doesn't ask again at every failure), and a build whose own chunk fails can't reload
+forever. No constant in the code names the build: one would rename the chunk it's in, and so the entry and
+every chunk that imports either, on every build. Under `vite dev` there's no built entry, and nothing happens.
 
 `build.sh --no-carry` lists the build's own files and carries nothing: `site/test.sh`'s, which mustn't depend
-on spelunky.ai. It checks the list (every one of the build's hashed files, dated by its commit, served
-`no-cache`) and the landing page's build meta, and runs `site/test-carry.mjs`, which carries from a stand-in
-live site on localhost: the week's files the build hasn't got and nothing older, the newest first within the
-room, an Open Graph image whose bytes aren't its name's or a file that's gone left behind, nothing outside
-`/assets/` and `/wiki/og/`, and no failure without a list. The game's files under `/play/v/` aren't carried
-(above): a new release is rare, and its ~110 files are 20 MB to download on every build for a week.
+on spelunky.ai. It checks the list (every one of the build's hashed files, dated when it was built, served
+`no-cache`) and that the pages load one entry script. It also runs `site/test-carry.mjs`, which carries from a
+stand-in live site on localhost and checks:
+
+- the week's files the build hasn't got, and nothing older;
+- the newest first, within the room and the cap, the next in line taking a failed one's place;
+- an Open Graph image whose bytes aren't its name's, an HTML answer for a script, and a file that's gone, all
+  left behind;
+- nothing outside `/assets/` and `/wiki/og/`;
+- no failure without a list.
+
+The game's files under `/play/v/` aren't carried (Rolling back, above): a new release is rare, and its ~110
+files are 20 MB to download on every build for a week.
 
 ## Wiki media
 
@@ -445,8 +462,8 @@ each), 34 MB unpacked, the largest a 318 KiB clip. With the web build's 107, the
 (one a page and hub: 16 with the first page, about 210 once every page is written, a few KB each) and the
 rest's 9, a build was about 7,690 files at v0.1.7, so over 12,000 to spare: the sprites only change with the
 game's assets, and that's room for about 2,400 more clips. By v0.1.15's wiki (its clips, its cards and its
-scripts) it's 11,435, and a build carries up to 3,000 more from the ones before it ([Version
-skew](#version-skew)), which stops at 19,500 in all, so the carried files give way first. If it ever runs short, the native-size images (3,331 files) can go, since the pages only
+scripts) it's 11,435, and a build carries up to 6,000 more from the ones before it ([Version
+skew](#version-skew)), which stops at 19,900 in all, so the carried files give way first. If it ever runs short, the native-size images (3,331 files) can go, since the pages only
 show the `@4x` ones (`docs/wiki-style.md`, "Clips and images"); or Workers Paid.
 
 Requests for static assets are free; only the Worker's (pages, the landing page's media, the wiki's clips)

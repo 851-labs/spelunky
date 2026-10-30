@@ -7,14 +7,13 @@
 //   node carry-assets.mjs DIR SITE DATE [MAX]
 //
 // DIR is the build's static assets (dist/client), SITE the live site to carry from (https://spelunky.ai, or
-// - for none: build.sh --no-carry, which test.sh's hermetic build is),
-// DATE the build's date (its commit's, ISO 8601) and MAX how many files the build may have in all (Workers'
-// 20,000 a version, less build.sh's margin). It writes DIR/build-assets.json, which lists the build's hashed
-// files (its own under assets/ and wiki/og/, and the ones it carried) with the date each was last a build's
-// own, and copies into DIR the live build's files that this one hasn't got, as its build-assets.json lists
-// them: those a build had in the last RETAIN_DAYS, the newest first, up to MAX_CARRIED and MAX. Anything that
-// goes wrong fetching them (no list, a network error, a file that's gone) carries less, never fails the
-// build: a deploy without the old files is what the site did before.
+// - for none: build.sh --no-carry), DATE the build's time (ISO 8601) and MAX how many files the build may
+// have in all. It writes DIR/build-assets.json, which lists the build's hashed files (its own under assets/
+// and wiki/og/, and the ones it carried) with the time each was last a build's own, and copies into DIR the
+// live build's files that this one hasn't got, as its build-assets.json lists them: those a build had in the
+// last RETAIN_DAYS, the newest first, up to MAX_CARRIED and MAX. Anything that goes wrong fetching them (no
+// list, a network error, a file that's gone) carries less, never fails the build: a deploy without the old
+// files is what the site did before.
 import { createHash } from "node:crypto";
 import { mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -24,13 +23,17 @@ import { pathToFileURL } from "node:url";
 // short enough that the old files leave in time. A file carried is one Workers takes and serves from the
 // asset store, no Worker request.
 export const RETAIN_DAYS = 7;
-// What a deploy's churn can't push past: a change to the shared code renames most of a build's ~285 scripts,
-// and a page's change renames its own chunk and card. 3,000 is ten of the biggest deploys.
-export const MAX_CARRIED = 3000;
+// What a busy day's deploys can't push past. A deploy renames about 225 of a build's ~285 scripts (every
+// page's chunk has the commit in its links to GitHub), so 6,000 is the last 25 or so deploys': a day's, at
+// main's busiest, and the week's when it's quieter. Downloading them takes a build about half a minute.
+export const MAX_CARRIED = 6000;
 // The hashed files' directories: Vite's scripts and styles, and the wiki's Open Graph images (src/wiki/build/og.ts).
 export const HASHED = ["assets", "wiki/og"];
 export const LIST = "build-assets.json";
 const FORMAT = 1;
+// What the asset store serves each kind of hashed file as. A response that isn't it (an error page, a proxy's
+// interstitial) isn't the file, and mustn't be served as it for a year under _headers' immutable caching.
+const TYPES = { js: "javascript", css: "text/css", png: "image/png" };
 
 // The files under `rel` in DIR, by path from DIR.
 function filesUnder(dir, rel) {
@@ -54,27 +57,30 @@ function filesUnder(dir, rel) {
 export const ownFiles = (dir) => HASHED.flatMap((top) => filesUnder(dir, top));
 
 // The files Workers counts against a version's: all of DIR's but _headers and .assetsignore, which Wrangler
-// reads and doesn't upload (build.sh counts them the same way).
+// reads and doesn't upload (as build.sh's own count does).
 const counted = (dir) => filesUnder(dir, "").filter((path) => path !== "_headers" && path !== ".assetsignore").length;
 
-// What to carry of the live build's list: the files this build hasn't got that a build had in the last
-// RETAIN_DAYS, the newest first, as many as `room` lets. A path the list names outside HASHED, or with a
-// `..`, isn't one this build would serve: it's left out.
-export function choose(previous, own, date, room) {
+// What could be carried of the live build's list, in the order to carry it: the files this build hasn't got
+// that a build had in the last RETAIN_DAYS, the newest first. A path the list names outside HASHED, with a
+// `..`, or of a kind TYPES hasn't got, isn't one a build serves: it's left out.
+export function candidates(previous, own, date) {
   const oldest = Date.parse(date) - RETAIN_DAYS * 86400 * 1000;
   const mine = new Set(own);
   return Object.entries(previous?.format === FORMAT ? previous.files ?? {} : {})
     .filter(([path, last]) => !mine.has(path) && hashedPath(path) && Date.parse(last) >= oldest)
-    .sort(([a, x], [b, y]) => Date.parse(y) - Date.parse(x) || (a < b ? -1 : 1))
-    .slice(0, Math.max(0, Math.min(MAX_CARRIED, room)));
+    .sort(([a, x], [b, y]) => Date.parse(y) - Date.parse(x) || (a < b ? -1 : 1));
 }
 
 const hashedPath = (path) =>
-  HASHED.some((top) => path.startsWith(`${top}/`)) && !path.split("/").some((part) => part === "" || part === "." || part === "..");
+  HASHED.some((top) => path.startsWith(`${top}/`)) &&
+  !path.split("/").some((part) => part === "" || part === "." || part === "..") &&
+  Object.hasOwn(TYPES, path.slice(path.lastIndexOf(".") + 1));
 
-// An Open Graph image is named for its bytes (og.ts: the first 16 hex digits of their SHA-256), so a carried
-// one must have them; Vite's names hash its output in its own way, which a file can't be checked against.
-export function intact(path, bytes) {
+// Whether a response is the file its path names: the kind of file its extension says, and for an Open Graph
+// image, which is named for its bytes (og.ts: the first 16 hex digits of their SHA-256), those bytes. Vite's
+// names hash its output in its own way, which a script can't be checked against.
+export function intact(path, type, bytes) {
+  if (bytes.length === 0 || !(type ?? "").includes(TYPES[path.slice(path.lastIndexOf(".") + 1)])) return false;
   const og = /^wiki\/og\/.+\.([0-9a-f]{16})\.png$/.exec(path);
   return !og || createHash("sha256").update(bytes).digest("hex").startsWith(og[1]);
 }
@@ -86,29 +92,34 @@ async function fetchList(site) {
   return response.json();
 }
 
-// Each file, a few at a time; what fails is left out.
-async function download(site, dir, paths) {
-  const got = [];
+// The candidates in order, a few at a time, until `limit` of them are carried: one that fails is left out,
+// and the next takes its place.
+async function download(site, dir, paths, limit) {
+  const got = new Set();
   const failed = [];
   let next = 0;
+  let pending = 0;
   const worker = async () => {
-    while (next < paths.length) {
+    while (next < paths.length && got.size + pending < limit) {
       const path = paths[next++];
+      pending += 1;
       try {
         const response = await fetch(`${site}/${path}`, { signal: AbortSignal.timeout(30_000) });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const bytes = Buffer.from(await response.arrayBuffer());
-        if (!intact(path, bytes)) throw new Error("its bytes aren't its name's");
+        if (!intact(path, response.headers.get("content-type"), bytes)) throw new Error("not the file its name says");
         mkdirSync(dirname(join(dir, path)), { recursive: true });
         writeFileSync(join(dir, path), bytes);
-        got.push(path);
+        got.add(path);
       } catch (error) {
         failed.push(`${path} (${error.message})`);
+      } finally {
+        pending -= 1;
       }
     }
   };
   await Promise.all(Array.from({ length: 16 }, worker));
-  return { got: new Set(got), failed };
+  return { got, failed };
 }
 
 export async function carry(dir, site, date, max, log = console.log) {
@@ -121,14 +132,16 @@ export async function carry(dir, site, date, max, log = console.log) {
   } catch (error) {
     log(`carry-assets: couldn't read ${site}/${LIST} (${error.message}): nothing carried`);
   }
+  const listed = candidates(previous, own, date);
   // The room the rest of DIR (the pages, the web build, the wiki's media) leaves, less the list itself.
-  const chosen = choose(previous, own, date, max - counted(dir) - 1);
-  const { got, failed } = await download(site, dir, chosen.map(([path]) => path));
-  for (const [path, last] of chosen) if (got.has(path)) files[path] = last;
+  const limit = Math.max(0, Math.min(MAX_CARRIED, max - counted(dir) - 1));
+  const { got, failed } = await download(site, dir, listed.map(([path]) => path), limit);
+  for (const [path, last] of listed) if (got.has(path)) files[path] = last;
   for (const line of failed.slice(0, 5)) log(`carry-assets: couldn't carry ${line}`);
   if (failed.length > 5) log(`carry-assets: and ${failed.length - 5} more`);
   writeFileSync(join(dir, LIST), `${JSON.stringify({ format: FORMAT, date, files }, null, 1)}\n`);
-  log(`carry-assets: ${own.length} hashed files of its own, ${site === null ? "none carried" : `${got.size} carried from ${site} (of ${chosen.length} chosen)`}`);
+  const carried = site === null ? "none carried" : `${got.size} carried from ${site} (of ${listed.length} it listed within the week; room for ${limit})`;
+  log(`carry-assets: ${own.length} hashed files of its own, ${carried}`);
   return { own: own.length, carried: got.size, failed: failed.length };
 }
 

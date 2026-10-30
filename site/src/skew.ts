@@ -1,29 +1,44 @@
 // Version skew (docs/web-deploy.md, "Version skew"): a page loads some of its code later, as it's needed (the
 // wiki's search index, hover cards, popups and live clips' player), and a deploy since it loaded may have
-// removed that code. build.sh carries the builds before it's files for a week, so this is for what's older,
-// or a carry that failed: when a chunk fails to load (Vite's vite:preloadError, which every lazy import of
-// the site's goes through) and the live page names another build than this one, the page reloads, once for
-// that build, as the reload will get the new one's code. The same build is a network failure, which a reload
-// wouldn't mend and would lose the reader's place to: it's left to the code that asked (loadOnce tries again).
-
-declare const __SITE_BUILD__: string;
+// removed that code. build.sh carries the files of the builds before it, so this is for what's older, or a
+// carry that failed: when a chunk fails to load (Vite's vite:preloadError, which every lazy import of the
+// site's goes through), the page asks the live site which build it's on, and reloads, once for that build,
+// if it's another: the reload gets the new one's code. The same build means the network failed, which a
+// reload wouldn't mend and would lose the reader's place to: that's left to the code that asked (loadOnce
+// tries again).
+//
+// A build is named by its entry script, /assets/index-HASH.js, which every page loads: its hash covers every
+// chunk the build can load, as each chunk's name is in the chunk that imports it, up to the entry. The landing
+// page asks for it (it's always there, where the page that failed may be gone from the new build), and no
+// constant in the code names the build, which would rename the chunk it's in, and so the entry and every
+// chunk that imports either, at every build.
 
 // The build a reload went to, so that a page whose new build fails too doesn't reload again and again.
 const RELOADED = "spelunky-reloaded-for";
+// How long a check that found the same build holds, so that a flaky network's failures don't each ask again.
+const SAME_FOR_MS = 60_000;
+
+const entry = (doc: Document) => doc.querySelector<HTMLScriptElement>('script[type="module"][src^="/assets/"]')?.getAttribute("src") ?? null;
 
 export function reloadOnSkew() {
-  // Not under `vite dev`, which has no build to compare.
-  if (!__SITE_BUILD__) return () => {};
+  const mine = entry(document);
+  // Under `vite dev` there's no built entry to compare.
+  if (!mine) return () => {};
   let checking = false;
+  let sameAt = -Infinity;
   const check = async () => {
-    if (checking) return;
+    if (checking || performance.now() - sameAt < SAME_FOR_MS) return;
     checking = true;
     try {
-      const response = await fetch(location.href, { cache: "no-store" });
+      const response = await fetch("/", { cache: "no-store" });
       if (!response.ok) return;
-      const page = new DOMParser().parseFromString(await response.text(), "text/html");
-      const live = page.querySelector('meta[name="spelunky-build"]')?.getAttribute("content");
-      if (!live || live === __SITE_BUILD__ || sessionStorage.getItem(RELOADED) === live) return;
+      const live = entry(new DOMParser().parseFromString(await response.text(), "text/html"));
+      if (!live) return;
+      if (live === mine) {
+        sameAt = performance.now();
+        return;
+      }
+      if (sessionStorage.getItem(RELOADED) === live) return;
       sessionStorage.setItem(RELOADED, live);
       location.reload();
     } catch {
@@ -36,6 +51,3 @@ export function reloadOnSkew() {
   window.addEventListener("vite:preloadError", listener);
   return () => window.removeEventListener("vite:preloadError", listener);
 }
-
-// The page's head names its build, which the check above reads from the live page.
-export const buildMeta = () => (__SITE_BUILD__ ? [{ name: "spelunky-build", content: __SITE_BUILD__ }] : []);

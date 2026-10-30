@@ -350,10 +350,7 @@ contains '<html lang="en">' \
   'autoPlay="" loop="" muted="" playsInline=""' \
   '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
   '.play:hover, .play:focus-visible { background: #ffd860; outline: none; }'
-# Its head (src/seo/): the canonical URL and the JSON-LD; test-seo.mjs, below, checks every page's. And the
-# commit it was built from, which a page's code compares with the live page's when a chunk fails to load
-# (src/skew.ts).
-contains "<meta name=\"spelunky-build\" content=\"$(git rev-parse HEAD)\"/>"
+# Its head (src/seo/): the canonical URL and the JSON-LD; test-seo.mjs, below, checks every page's.
 contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
   '<link rel="search" type="application/opensearchdescription+xml" title="spelunky.ai wiki" href="https://spelunky.ai/opensearch.xml"/>' \
   '<link rel="icon" href="/favicon.ico" sizes="32x32"/>' '<link rel="icon" type="image/svg+xml" href="/icon.svg"/>' \
@@ -877,20 +874,27 @@ check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/js
 same "$tmp/latest.json"
 # The build's list of its hashed files, which the next deploy reads to carry them (carry-assets.mjs;
 # docs/web-deploy.md, "Version skew"): through the Worker, no-cache, as each build has its own. With
-# --no-carry, every one of its own scripts and Open Graph images, dated by its commit, and nothing else.
+# --no-carry, every one of its own scripts and Open Graph images, dated when it was built, and nothing else.
 check "$site/build-assets.json" 200 "$no_cache" "content-type: application/json"
 node --input-type=module -e '
 import { readFileSync } from "node:fs";
 import { ownFiles } from "./carry-assets.mjs";
-const [body, date] = process.argv.slice(1);
-const list = JSON.parse(readFileSync(body, "utf8"));
+const list = JSON.parse(readFileSync(process.argv[1], "utf8"));
 const own = ownFiles("dist/client");
 const listed = Object.keys(list.files);
-if (list.format !== 1 || list.date !== date || own.length < 100 || listed.join() !== own.join() || Object.values(list.files).some((d) => d !== date)) {
-  console.error(`build-assets.json: format ${list.format}, date ${list.date} (not ${date}), ${listed.length} files listed of ${own.length}`);
+const age = Date.now() - Date.parse(list.date);
+if (list.format !== 1 || !(age >= 0 && age < 3600_000) || own.length < 100 || listed.join() !== own.join() || Object.values(list.files).some((d) => d !== list.date)) {
+  console.error(`build-assets.json: format ${list.format}, date ${list.date}, ${listed.length} files listed of ${own.length}`);
   process.exit(1);
 }
-' "$tmp/body" "$(TZ=UTC git log -1 --format=%cd --date=format-local:%Y-%m-%dT%H:%M:%SZ HEAD)" || fail "$site/build-assets.json"
+' "$tmp/body" || fail "$site/build-assets.json"
+# What a page that fails to load a chunk asks the landing page (src/skew.ts): the build's entry script, the
+# same on every page, so the landing page's names the build a wiki page or hub is on.
+entries=$(for page in index wiki wiki/snake wiki/monsters; do
+  grep -o '<script type="module" async="" src="/assets/[^"]*"' "dist/client/$page.html" || echo "$page: none"
+done | sort -u)
+[ "$(echo "$entries" | wc -l | tr -d ' ')" = 1 ] && case $entries in *index-*) true ;; *) false ;; esac ||
+  fail "the pages' entry scripts aren't one /assets/index-HASH.js: $entries"
 # The license, in UTF-8 as it's served (build.sh), as the media's is above.
 check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
 same "$tmp/LICENSE.txt"
