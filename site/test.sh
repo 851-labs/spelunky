@@ -872,6 +872,35 @@ check "$site$media_url/gml/objects/oSnake/step.gml" 404
 
 check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/json"
 same "$tmp/latest.json"
+# The build's list of its hashed files, which the next deploy reads to carry them (carry-assets.mjs;
+# docs/web-deploy.md, "Version skew"): through the Worker, no-cache, as each build has its own. Not Workers
+# Builds', which carries, so every one of its own scripts and Open Graph images, dated when it was built, and
+# nothing else; each of a kind the next build can carry.
+check "$site/build-assets.json" 200 "$no_cache" "content-type: application/json"
+node --input-type=module -e '
+import { readFileSync } from "node:fs";
+import { carriable, ownFiles } from "./carry-assets.mjs";
+const list = JSON.parse(readFileSync(process.argv[1], "utf8"));
+const own = ownFiles("dist/client");
+const listed = Object.keys(list.files);
+const age = Date.now() - Date.parse(list.date);
+const unknown = own.filter((path) => !carriable(path));
+if (unknown.length > 0) {
+  console.error(`build-assets.json: ${unknown.join(", ")}: not a kind of file in carry-assets.mjs TYPES, which no build would carry`);
+  process.exit(1);
+}
+if (list.format !== 1 || !(age >= 0 && age < 3600_000) || own.length < 100 || listed.join() !== own.join() || Object.values(list.files).some((d) => d !== list.date)) {
+  console.error(`build-assets.json: format ${list.format}, date ${list.date}, ${listed.length} files listed of ${own.length}`);
+  process.exit(1);
+}
+' "$tmp/body" || fail "$site/build-assets.json"
+# What a page that fails to load a chunk asks the landing page (src/skew.ts): the build's entry script, the
+# same on every page, so the landing page's names the build a wiki page or hub is on.
+entries=$(for page in index wiki wiki/snake wiki/monsters; do
+  grep -o '<script type="module" async="" src="/assets/[^"]*"' "dist/client/$page.html" || echo "$page: none"
+done | sort -u)
+[ "$(echo "$entries" | wc -l | tr -d ' ')" = 1 ] && case $entries in *index-*) true ;; *) false ;; esac ||
+  fail "the pages' entry scripts aren't one /assets/index-HASH.js: $entries"
 # The license, in UTF-8 as it's served (build.sh), as the media's is above.
 check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
 same "$tmp/LICENSE.txt"
@@ -893,6 +922,8 @@ check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/p
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.
 node test-wiki.mjs || fail "test-wiki.mjs"
+# The carrying itself, against a stand-in live site.
+node test-carry.mjs || fail "test-carry.mjs"
 # Every pre-rendered page's links on the site, the wiki's pages reachable from /wiki, none to come that no
 # ticket is writing, and every alias a redirect to its page.
 node test-links.mjs dist/client "$site" || fail "test-links.mjs"

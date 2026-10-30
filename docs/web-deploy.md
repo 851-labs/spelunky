@@ -20,6 +20,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/` | the wiki's sprites and clips, committed in `wiki/media` (`docs/wiki-media.md`); the clips' videos with byte ranges; its `LICENSE.txt` and `NOTICE.txt` in UTF-8, the type from `_headers`. `/wiki/media/HASH/...`, where a release's package was, redirects (301) to `/wiki/media/...` | a day |
 | `/wiki/og/<slug>.HASH.png` | the wiki's Open Graph images, one a page and hub, `HASH` being of the file (SEO, "Open Graph images") | `immutable`, a year |
+| `/build-assets.json` | the build's content-hashed files (`/assets/`, `/wiki/og/`), its own and those it carried from the builds before it, each with the date it was last a build's own, for the next build to carry ([Version skew](#version-skew)) | `no-cache` |
 
 `www.spelunky.ai` redirects (301) to the apex (its pages: the content-hashed files under `/play/v/` and
 `/assets/` and the media under `/wiki/media/` skip the Worker, all but the clips, but only a page on www would
@@ -120,7 +121,86 @@ for its old `v/HASH/` files) and works on a reload, which names the new `v/HASH/
 fetched everything it needs. Those 404s come with `_headers`' immutable caching too (`/play/v/*` skips the
 Worker, and `_headers` can't tell a miss from a hit), which only matters to that browser if it's rolled back
 to exactly that old build; routing `/play/v/*` through the Worker to fix it would spend ~110 Worker requests
-of the free plan's 100,000 a day on every game start. The same goes for the pages' scripts under `/assets/`.
+of the free plan's 100,000 a day on every game start. The pages' scripts under `/assets/` and the wiki's Open
+Graph images under `/wiki/og/` are kept a while instead ([Version skew](#version-skew)).
+
+## Version skew
+
+A Workers deploy replaces the static assets, so the content-hashed files only the build before it had are gone
+the moment it's live (851-3659). The pages are `no-cache`, so a page loaded after the deploy names the new
+files; but a page loaded before it still names the old ones, and asks for some of them later: the wiki's
+search index, hover cards and popups, and the live clips' player, which a page loads only when they're
+needed. A social site that fetched a page before a deploy fetches its `og:image` after it, too. Without
+anything, each of those 404s (`/assets/*` and `/wiki/og/*` skip the Worker), and the search box or the card
+quietly fails.
+
+**The builds carry the files before them.** Each build lists its own hashed files (everything under
+`dist/client/assets/` and `dist/client/wiki/og/`) in `/build-assets.json`, each dated when it was built
+(`site/carry-assets.mjs`, which `build.sh` runs after copying the media in). The next build reads the live
+site's list and downloads into its own assets the files it hasn't got that a build had in the last 7 days,
+the newest first, at most 6,000 of them and never past 19,900 files in all (100 short of Workers' 20,000,
+in case Wrangler counts a file the build doesn't), and lists them with their old dates. So a file stays
+live after the last build that made it, through the deploys after it, until it's a week old or 6,000 newer
+ones have pushed it out. A file is checked before it's kept: the content type its extension says (a script,
+a stylesheet, a PNG), not empty, and for an Open Graph image, its name's SHA-256; Vite's names hash its
+output in its own way, so a script's bytes can't be checked. One that fails is left out, and the next in
+line takes its place. They're served as before: from the asset store, with `_headers`' immutable caching,
+no Worker request. A carry that can't happen (the list or a file isn't there, the network fails) carries
+less, never fails a build: the deploy is then what it was before this, and the whole carry stops after 3
+minutes, keeping what it has, whatever the live site does. The first deploy with it finds no list on the live
+site and carries nothing. Only Workers Builds' builds of `main` carry (its `WORKERS_CI` and
+`WORKERS_CI_BRANCH`), as they're what spelunky.ai serves: not a preview, which no tab from spelunky.ai asks
+for its files, nor a build anywhere else (`site/test.sh`'s, a developer's), which mustn't depend on
+spelunky.ai or mix its old files in; those list their own files and carry none.
+
+A build carries from what's live when it runs. So a build that starts while the one before it is still
+deploying, or after a rollback, carries from the version before that, and the files only the other one had
+are gone with its deploy: the page reloads for them (below).
+
+How much that covers: a build is about 11,400 files of Workers' 20,000 (Limits, below), and its hashed files
+are about 535 (284 scripts and styles, 6.8 MB; 251 cards, 1 MB). Today a deploy renames about 225 of the
+scripts, whatever it changes, as every page's chunk has the commit in its links to GitHub (851-3740), and a
+card only when its page's numbers or sprite change. So 6,000 is about the last 25 deploys: most of a day at
+main's busiest (up to ~100 deploys a day), and the week when it's quieter. It downloads in about half a
+minute of the build. Once a deploy renames only what it changes, the same 6,000 is many more deploys.
+
+Why this way: Workers keeps no previous version's assets for the live one (a version is its own assets,
+which is what makes rollback instant), and Cloudflare's Pages-style asset retention isn't something a Worker
+can ask for. Routing the misses through the Worker to fetch an old version would cost a Worker request for
+every lazy chunk and card, which the free plan's quota is spent on the pages for. Downloading from the live
+site needs nothing but the network Workers Builds already has, and no token.
+
+**Past the carry, the page reloads.** For what's older, or a carry that failed, a chunk that fails to load
+reloads the page, which then names the live build's files (`site/src/skew.ts`). Every lazy import of the
+site's goes through Vite's preload helper, which fires `vite:preloadError` when one fails; the page then asks
+the landing page (`no-store`: it's always there, where the page that failed may be gone) which entry script it
+loads, `/assets/index-HASH.js`, the same on every page of a build, and compares it with its own. The entry's
+hash covers every chunk the build can load, since each chunk's name is in the chunk that imports it, up to
+the entry. Only another entry reloads the page, and only once for it (`sessionStorage`). So a network failure,
+which a reload wouldn't mend, leaves the reader's place alone (a check that found the same build holds for a
+minute, as does one that reloaded for that build already or got no answer, so a flaky network doesn't ask
+again at every failure), and a build whose own chunk fails can't reload
+forever. No constant in the code names the build: one would rename the chunk it's in, and so the entry and
+every chunk that imports either, on every build. Under `vite dev` there's no built entry, and nothing happens.
+
+Route chunks are TanStack Router's own (its lazy route components reload the page once when one fails), but
+the site moves between pages by full loads, so a page loads its route's chunks when it loads.
+
+`site/test.sh`'s build carries nothing. It checks the list (every one of the build's hashed files, dated when
+it was built, served `no-cache`, and each a kind of file `carry-assets.mjs` can carry, so a new kind isn't
+listed and quietly never carried) and that the pages load one entry script. It also runs
+`site/test-carry.mjs`, which carries from a stand-in live site on localhost and checks:
+
+- the week's files the build hasn't got, and nothing older;
+- the newest first, within the room and the cap, the next in line taking a failed one's place;
+- an Open Graph image whose bytes aren't its name's, an HTML answer for a script, and a file that's gone, all
+  left behind;
+- nothing outside `/assets/` and `/wiki/og/`;
+- a live site that stalls: what's downloaded by the deadline is kept;
+- no failure without a list.
+
+The game's files under `/play/v/` aren't carried (Rolling back, above): a new release is rare, and its ~110
+files are 20 MB to download on every build for a week.
 
 ## Wiki media
 
@@ -239,7 +319,8 @@ www redirect, the clips' byte ranges, the wiki's Snake page and hubs, the source
 stand-in GML files), and runs `test-seo.mjs` (SEO, below),
 `test-wiki.mjs` (the wiki's pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md,
 "The pipeline"; and a red link and a card to come render as they should, from a fixture page and hub, as the
-committed wiki has neither), `test-keyline.mjs` (the stylesheet keeps every block on its column's keyline) and
+committed wiki has neither), `test-carry.mjs` (a build carries the hashed files of the ones before it: [Version
+skew](#version-skew)), `test-keyline.mjs` (the stylesheet keeps every block on its column's keyline) and
 `test-links.mjs` (every link a page has is a file on the site, with no redirect, every
 wiki page is reachable from `/wiki`, only pages a ticket is writing are to come: docs/wiki-style.md, "Red
 links", and every alias is a redirect, in one hop, to its page, which nothing names by an alias). `wrangler dev`'s asset store isn't quite Cloudflare's: it serves `.txt` as `text/plain;
@@ -391,8 +472,10 @@ build is about 110 files. The wiki's media are most of the files: v0.1.7's are 7
 frames, strips and previews at native size and 4x, and a `sprite.json` each; and 8 clips of 4 or 5 files
 each), 34 MB unpacked, the largest a 318 KiB clip. With the web build's 107, the wiki's Open Graph images
 (one a page and hub: 16 with the first page, about 210 once every page is written, a few KB each) and the
-rest's 9, a build is about 7,690 files, so over 12,000 to spare: the sprites only change with the game's assets, and that's room for about
-2,400 more clips. If it ever runs short, the native-size images (3,331 files) can go, since the pages only
+rest's 9, a build was about 7,690 files at v0.1.7, so over 12,000 to spare: the sprites only change with the
+game's assets, and that's room for about 2,400 more clips. By v0.1.15's wiki (its clips, its cards and its
+scripts) it's 11,435, and a build carries up to 6,000 more from the ones before it ([Version
+skew](#version-skew)), which stops at 19,900 in all, so the carried files give way first. If it ever runs short, the native-size images (3,331 files) can go, since the pages only
 show the `@4x` ones (`docs/wiki-style.md`, "Clips and images"); or Workers Paid.
 
 Requests for static assets are free; only the Worker's (pages, the landing page's media, the wiki's clips)

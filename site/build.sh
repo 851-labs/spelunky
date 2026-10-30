@@ -228,6 +228,19 @@ done
 # (src/wiki/build/source.ts), not files to serve: another 1,140 assets, each a Worker request.
 mkdir -p $assets/wiki/media
 cp -R "$media/sprites" "$media/clips" "$media/LICENSE.txt" "$media/NOTICE.txt" $assets/wiki/media/
+# The builds before this one's content-hashed files (its scripts and Open Graph images), which the pages they
+# served still name, from the live site's build-assets.json, and this build's list of its own (carry-assets.mjs;
+# docs/web-deploy.md, "Version skew"), dated now, as the deploy follows the build. Up to 19,900 files in all,
+# 100 short of Workers' 20,000 in case Wrangler counts a file this doesn't. Only Workers Builds' builds of main
+# (its WORKERS_CI and WORKERS_CI_BRANCH), which deploy to spelunky.ai, carry: not a preview, which no tab from
+# spelunky.ai asks for its files, nor a build anywhere else (test.sh's, a developer's), which mustn't depend on
+# spelunky.ai or mix its old files in. And never a failed build: if the live site can't say, nothing's carried.
+if [ "${WORKERS_CI:-}" = 1 ] && [ "${WORKERS_CI_BRANCH:-}" = main ]; then
+  carry_from=https://spelunky.ai
+else
+  carry_from=-
+fi
+node carry-assets.mjs $assets "$carry_from" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" 19900
 # Workers static assets take files of up to 25 MiB each, and 20,000 of them a version on the free plan
 # (docs/web-deploy.md, "Limits"), most of them the wiki's media. Wrangler reads _headers and .assetsignore
 # (the Cloudflare plugin's) and uploads neither.

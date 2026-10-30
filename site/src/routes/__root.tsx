@@ -1,4 +1,6 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { reloadOnSkew } from "../skew";
 import { WikiStylesheet } from "../wiki/stylesheet";
 
 export const Route = createRootRoute({
@@ -9,6 +11,7 @@ export const Route = createRootRoute({
 });
 
 function RootDocument() {
+  useEffect(reloadOnSkew, []);
   return (
     <html lang="en">
       <head>
