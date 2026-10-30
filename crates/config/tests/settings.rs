@@ -142,10 +142,12 @@ fn the_key_config_writes_keys_cfg_and_returns_to_rinit() {
     game.world_mut().room_goto(id);
     step(&mut game, &[]).unwrap();
     assert_eq!(room(&game), "rKeyConfig");
-    // The runner runs the "any key" press event twice a frame (docs/quirks.md section 6), so each press
-    // binds two of config.exe's eleven actions (it has no flare binding: docs/quirks.md section 1), and
-    // the sixth press binds pay and leaves for rInit.
-    for vk in [b'W', VK_ESCAPE, 32, b'E', b'Q'] {
+    // The "any key" press event runs once per press (docs/quirks.md section 5), so each press binds the
+    // next of config.exe's eleven actions (it has no flare binding: docs/quirks.md section 1), and the
+    // eleventh binds pay and leaves for rInit.
+    for vk in [
+        b'W', b'W', VK_ESCAPE, VK_ESCAPE, 32, 32, b'E', b'E', b'Q', b'Q',
+    ] {
         tap(&mut game, Button::Key(vk));
     }
     assert_eq!(room(&game), "rKeyConfig");

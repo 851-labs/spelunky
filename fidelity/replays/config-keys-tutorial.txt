@@ -1,6 +1,6 @@
-# Plays with the keys.cfg that rKeyConfig writes after the presses W, Escape, Space, E (851-3165): each press
-# binds two actions in a row (the runner runs the "any key" press event twice), so up and down are both W,
-# jump and attack are both Space, item and run are both E, and the rest keep their defaults. The room
+# Plays with the keys.cfg that rKeyConfig writes after the presses W, W, Escape, Escape, Space, Space, E, E
+# (851-3165): each press binds the next action, so up and down are both W, jump and attack are both Space, item
+# and run are both E, and the rest keep their defaults. The room
 # itself can't be reached in 1.1 (crates/game/tests/config_screens.rs covers it), so this starts with the
 # file it writes. A returning player with zeroed stats skips the intro with Space (attack), runs left to the
 # tutorial door and enters it with W (up and down at once; rTutorial, ~590), then runs right holding E,

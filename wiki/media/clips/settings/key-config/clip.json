@@ -1,7 +1,7 @@
 {
   "id": "settings/key-config",
   "title": "Key config",
-  "description": "KEY CONFIG names each action in turn, with its key under CURRENT. Every key press counts twice, so each binds two actions: W binds UP and DOWN, Escape keeps LEFT and RIGHT, Space binds JUMP and ACTION, E SWITCH and RUN, and Q BOMB and ROPE, leaving PURCHASE.",
+  "description": "KEY CONFIG names each action in turn, with its key under CURRENT, and each key press binds the one shown: W twice binds UP and DOWN, Escape twice keeps LEFT and RIGHT, Space twice binds JUMP and ACTION, E twice SWITCH and RUN, and Q twice BOMB and ROPE, leaving PURCHASE.",
   "spec": "wiki/clips/settings/key-config.toml",
   "source": {
     "kind": "replay",
@@ -18,7 +18,7 @@
   "scale": 2,
   "loop": true,
   "poster_frame": 300,
-  "frames_hash": "058a7a37c2afbc2b",
+  "frames_hash": "06ded06ca9076ae3",
   "has_audio": false,
   "audio_hash": null,
   "encoding": "0be717ab9cd0549a",

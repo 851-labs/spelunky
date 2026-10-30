@@ -1,16 +1,16 @@
 # The HUD's bombs and ropes at oPlayer1's 99 cap, in the level editor's test (851-3293). F2 on the title opens the
-# editor; R types RR (every key types twice, docs/quirks.md section 5) and Enter (230) starts editing. Places the
-# entrance (242), the exit with the wheel (246-250), a Mines floor (S twice, 254-258, dragged 264-299), then 4 for
-# items (304) and S twelve times to lootArray[12], the bomb box (308-352), placed (358), and twice more to the rope
-# pile (362-366), dragged over five rows of seven cells above the floor: 35 rope piles (372-475). The Edit button
-# (488) asks for the info, where each Enter moves two fields on (quirks section 1): Enter (498) to the music, Enter
-# (502) past the lives to the bombs, Backspace and 1 twice make them 1111 (506-514), Enter (518) past the ropes to
-# the next level, Backspace twice and B (522-530), Enter (534). Test (546) runs scrTestLevel, which sets global.bombs to
+# editor; R names the level and Enter (230) starts editing. Places the entrance (242), the exit with the wheel
+# (246-250), a Mines floor (S twice, 254-258, dragged 264-299), then 4 for items (304) and S twelve times to
+# lootArray[12], the bomb box (308-352), placed (358), and twice more to the rope pile (362-366), dragged over five
+# rows of seven cells above the floor: 35 rope piles (372-475). The Edit button (488) asks for the info, a key every
+# two frames, each Enter one field on: four Enters (498-504) keep the name, author, music and hearts, Backspace and 1
+# four times make the bombs 1111 (506-514), two Enters keep the ropes (516, 518), Backspace four times and B make
+# the next level B (520-528), and Enter (530) ends it. Test (546) runs scrTestLevel, which sets global.bombs to
 # real(bombStart) with no clamp (scrLoadLevel(-1) doesn't clamp either): rLoadLevel loads at 548 with 1111 bombs
 # in the HUD, and oPlayer1's step caps them to 99 (549). Walking right (580-649) picks up the rope piles that
 # have fallen to the floor, one a frame (3 ropes each): ropes reach 100 (621), are capped to 99 and reach 102 (622), and are
-# capped again (625); the bomb box makes the bombs 111 (635), capped again (636). Lives can't be raised: the
-# doubled Enter always passes over the lives field. Up at the exit (660) goes back to the editor (691).
+# capped again (625); the bomb box makes the bombs 111 (635), capped again (636). Up at the exit (660) goes back to
+# the editor (691).
 # story: room=rLoadLevel@548 bombs=1111@548 bombs=99@549 rope>99@621 bombs=111@635 bombs=99@636
 # story: room=rLevelEditor@691
 seed 777
@@ -104,16 +104,23 @@ frames 720
 472 mouse 552 360
 486 mouse 72 642
 488 hold mb_left 2
-498 hold enter 2
-502 hold enter 2
-506 hold backspace 2
-510 hold 1 2
-514 hold 1 2
-518 hold enter 2
-522 hold backspace 2
-526 hold backspace 2
-530 hold B 2
-534 hold enter 2
+498 hold enter 1
+500 hold enter 1
+502 hold enter 1
+504 hold enter 1
+506 hold backspace 1
+508 hold 1 1
+510 hold 1 1
+512 hold 1 1
+514 hold 1 1
+516 hold enter 1
+518 hold enter 1
+520 hold backspace 1
+522 hold backspace 1
+524 hold backspace 1
+526 hold backspace 1
+528 hold B 1
+530 hold enter 1
 544 mouse 840 642
 546 hold mb_left 2
 580 hold right 70

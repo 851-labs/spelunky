@@ -1,24 +1,35 @@
 # The settings program (config.exe; scripts/fidelity --settings): the key config button saves the settings and
-# goes to rKeyConfig, where each key press binds two actions (the "any key" press event runs twice a frame) of
-# the eleven it asks for (config.exe has no flare binding): W, Escape (keep), Space, E, Q, then P binds pay and
-# returns to rInit, and rKeyConfig's room end writes keys.cfg: 87 87 37 39 32 32 69 69 81 81 70 80. Escape then
-# saves and quits. The window is 2x (rInit's view port), so a room pixel is two window pixels.
-# story: room=rKeyConfig@4 keyUpVal=87@8 keyJumpVal=32@14 keyItemVal=69@17 keyBombVal=81@20 room=rInit@23
+# goes to rKeyConfig, where each key press binds the next of the eleven actions it asks for (config.exe has no
+# flare binding): W twice, Escape twice (keep), Space twice, E twice, Q twice, then P binds pay and returns to
+# rInit, and rKeyConfig's room end writes keys.cfg: 87 87 37 39 32 32 69 69 81 81 70 80. Escape then saves and
+# quits. The window is 2x (rInit's view port), so a room pixel is two window pixels.
+# story: room=rKeyConfig@4 keyUpVal=87@8 keyDownVal=87@10 keyJumpVal=32@16 keyItemVal=69@20 keyBombVal=81@24
+# story: room=rInit@28
 frames 50
 2 mouse 28 504
 3 press mb_left
 4 release mb_left
 8 press w
 9 release w
-11 press escape
-12 release escape
-14 press space
-15 release space
-17 press e
-18 release e
-20 press q
-21 release q
-23 press p
-24 release p
-30 press escape
-31 release escape
+10 press w
+11 release w
+12 press escape
+13 release escape
+14 press escape
+15 release escape
+16 press space
+17 release space
+18 press space
+19 release space
+20 press e
+21 release e
+22 press e
+23 release e
+24 press q
+25 release q
+26 press q
+27 release q
+28 press p
+29 release p
+35 press escape
+36 release escape

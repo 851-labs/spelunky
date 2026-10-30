@@ -1,7 +1,6 @@
 # A chain of custom levels (851-3135): loaded from the menu, each leading to the next, to the custom end room.
-# Picks FIRST with the mouse (230: oMenuSel) and loads it with Enter (240; the doubled any-key event runs
-# scrLoadLevel once, since the first run leaves the menu). FIRST (3 lives, 2 bombs, 1 rope; no exit names and one
-# sign message, WELCOME) is walked through, over a gold bar, to its exit (260-296). The transition takes
+# Picks FIRST with the mouse (230: oMenuSel) and loads it with Enter (240). FIRST (3 lives, 2 bombs, 1 rope; no
+# exit names and one sign message, WELCOME) is walked through, over a gold bar, to its exit (260-296). The transition takes
 # four attack presses (360-400) and goes back to rLoadLevel, which loads FIRST's next level, SECOND, keeping
 # the lives, bombs and ropes (scrLoadLevel(-1)). SECOND has two entrances and two exits named in scan order:
 # the player starts at the entrance whose name is the level just left (FIRST), not the nearest one, and the

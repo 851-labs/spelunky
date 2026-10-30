@@ -415,7 +415,7 @@ The Settings page (851-3569) added two, both cut from a replay of the settings p
 `fidelity/settings/wiki-window-keys.txt` (the others are at most 80 frames of quick clicks, and a clip is at least 90):
 `settings/window` (X2 and each check box clicked, a click every 15 frames, the music slider dragged down, which
 plays the cave music, and the sound slider held, which plays the jump sound) and `settings/key-config` (KEY
-CONFIG, a key every 18 frames, each binding two actions).
+CONFIG, a key every 9 frames, each binding the next action).
 
 ### Staging a scene
 

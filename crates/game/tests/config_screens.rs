@@ -82,15 +82,15 @@ const KEYS: [&str; 12] = [
 const VK_ESCAPE: u8 = 27;
 
 #[test]
-fn each_key_press_binds_two_keys() {
-    // The runner runs the "any key" press event twice per frame (docs/quirks.md §6), so every press
-    // rebinds two actions in a row: W for up and down, Escape keeps left and right, A for jump and attack.
+fn each_key_press_binds_one_key() {
+    // The "any key" press event runs once per press (docs/quirks.md §5), so each press rebinds the next
+    // action: W for up, Escape keeps down, A for left.
     let mut game = game_in("frames 1\n", "rKeyConfig");
     for vk in [b'W', VK_ESCAPE, b'A'] {
         tap(&mut game, Button::Key(vk)).unwrap();
     }
     let got: Vec<Value> = KEYS[..7].iter().map(|n| global(&game, n)).collect();
-    let want = [87.0, 87.0, 37.0, 39.0, 65.0, 65.0, 67.0].map(Value::Real);
+    let want = [87.0, 40.0, 65.0, 39.0, 90.0, 88.0, 67.0].map(Value::Real);
     assert_eq!(got, want);
 }
 
@@ -98,18 +98,17 @@ fn each_key_press_binds_two_keys() {
 fn the_key_config_ends_in_the_dangling_rinit() {
     let mut game = game_in("frames 1\n", "rKeyConfig");
     let before = game.world().host().files["keys.cfg"].clone();
-    for _ in 0..5 {
+    for _ in 0..11 {
         tap(&mut game, Button::Key(b'Q')).unwrap();
     }
-    // The 6th key binds flare and pay, then `room_goto(rInit)` reads `rInit`, which only `config.gmk`
-    // defines.
+    // The 12th key binds pay, then `room_goto(rInit)` reads `rInit`, which only `config.gmk` defines.
     let err = step(&mut game, &[InputEvent::Press(Button::Key(b'P'))]).unwrap_err();
     assert!(
         err.starts_with("oKeyConfig/") && err.ends_with(": unknown variable rInit"),
         "{err}"
     );
     assert_eq!(global(&game, "keyRopeVal"), Value::Real(81.0));
-    assert_eq!(global(&game, "keyFlareVal"), Value::Real(80.0));
+    assert_eq!(global(&game, "keyFlareVal"), Value::Real(81.0));
     assert_eq!(global(&game, "keyPayVal"), Value::Real(80.0));
     // The room never ends, so `keys.cfg` is never written.
     assert_eq!(game.world().host().files["keys.cfg"], before);
@@ -118,7 +117,7 @@ fn the_key_config_ends_in_the_dangling_rinit() {
 #[test]
 fn leaving_the_key_config_writes_keys_cfg_and_the_game_reads_it_back() {
     let mut game = game_in("frames 1\n", "rKeyConfig");
-    for vk in [b'W', VK_ESCAPE, 32, b'E'] {
+    for vk in [b'W', b'W', VK_ESCAPE, VK_ESCAPE, 32, 32, b'E', b'E'] {
         tap(&mut game, Button::Key(vk)).unwrap();
     }
     // No input leaves the room without the rInit error; any other room change runs its room_end.

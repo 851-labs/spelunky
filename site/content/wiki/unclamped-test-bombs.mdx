@@ -30,8 +30,8 @@ faq:
       frame, before the player's step has capped them to 99. Four digits run over the rope icon.
   - q: Can the test start with more hearts or ropes too?
     a: >-
-      The test doesn't limit them either, but the editor's info prompt skips the hearts and the ropes, so only the
-      bombs can be typed in.
+      The test doesn't limit them either, so they can be typed above 99 too; the player's step caps them at 99 as it
+      does the bombs.
 sources:
   - scripts/scrTestLevel.gml
   - scripts/scrLoadLevel.gml
@@ -42,8 +42,8 @@ verified: { port: v0.1.13, date: 2026-10-28 }
 
 A custom level's info sets the hearts, bombs and ropes it starts with. Played from the menu, the game limits them,
 the bombs and ropes to 0-99 and the hearts to 1-99. The [[level-editor|level editor]]'s Test button starts the level
-with them as they were typed. Only the bombs can be typed in ([[editor-info-skips-fields]]), and the player's step
-caps them at 99 a frame later, so all it shows is a four-digit count on the HUD for the level's first frame.
+with them as they were typed, and the player's step caps them at 99 a frame later, so all it shows is a four-digit
+count on the HUD for the level's first frame.
 
 ## What happens
 
@@ -71,10 +71,9 @@ the player's step caps the hearts, bombs and ropes at 99 <Cite gml="objects/oPla
 
 ## Reproducing it
 
-In the level editor, click Edit, press Enter twice to reach START BOMBS, clear it with Backspace, type a number
-over 99, and finish the info; then click Test. Every key types twice in the editor, so typing 1 makes 11, and one
-Backspace deletes two digits. Few players type more than 99 bombs,
-and the count only shows for a frame. In the clip's replay the bombs are typed as 1111, and the test level loads
+In the level editor, click Edit, press Enter four times to reach START BOMBS, clear it with Backspace, type a
+number over 99, and finish the info; then click Test. Few players type more than 99 bombs, and the count only shows
+for a frame. In the clip's replay the bombs are typed as 1111, and the test level loads
 on frame 548 with 1111 bombs, which are 99 on 549 <Cite replay="fidelity/replays/editor-test-hud-caps.txt" />.
 
 ## In the port

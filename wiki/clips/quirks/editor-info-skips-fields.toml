@@ -1,8 +1,0 @@
-title = "The editor's info prompt skips fields"
-description = "In the level editor, the player clicks Edit and the prompt asks for the level's name. Each Enter on a field that isn't empty moves it two fields on: from the name to the music, past the author; to the bombs, past the starting hearts; to the next level, past the ropes; and back to editing. An Enter on the emptied music does nothing."
-# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
-replay = "fidelity/replays/editor-build-test-save.txt"
-from = 330
-to = 423
-poster = 368
-story = "oLevelEditor.status=2@356..356 oLevelEditor.status=4@366..366 oLevelEditor.status=6@386..386 oLevelEditor.status=8@398..398 oLevelEditor.status=1@414..414 !oLevelEditor.status=3 !oLevelEditor.status=5 !oLevelEditor.status=7"

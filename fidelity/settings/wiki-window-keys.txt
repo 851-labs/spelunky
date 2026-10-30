@@ -2,11 +2,12 @@
 # (wiki/clips/settings/), from the shipped files (0 1 0 1 3 15 15): X2, then each checkbox (fullscreen on, high
 # detail off, down to run on, gamepad off), a click every 15 frames; the music slider dragged from 15 down,
 # playing the cave music; the sound slider dragged up and held, playing the jump sound every 20 frames. KEY
-# CONFIG saves the settings and goes to rKeyConfig, where a key every 18 frames binds two actions each (the
-# "any key" press event runs twice a frame): W, Escape (keep), Space, E, Q, then P binds pay and returns to
-# rInit. Escape then saves and quits. The window is 2x (the view ports), so a room pixel is two window pixels.
+# CONFIG saves the settings and goes to rKeyConfig, where a key every 9 frames binds the next action: W twice,
+# Escape twice (keep), Space twice, E twice, Q twice, then P binds pay and returns to rInit. Escape then saves
+# and quits. The window is 2x (the view ports), so a room pixel is two window pixels.
 # story: screenScale=2@15 fullscreen=1@30 graphicsHigh=0@45 downToRun=1@60 gamepadOn=0@75 musicVol=7@118 soundVol=19@163
-# story: room=rKeyConfig@221 keyUpVal=87@239 keyJumpVal=32@275 keyItemVal=69@293 keyBombVal=81@311 room=rInit@329
+# story: room=rKeyConfig@221 keyUpVal=87@239 keyDownVal=87@248 keyJumpVal=32@275 keyItemVal=69@293 keyBombVal=81@311
+# story: room=rInit@329
 frames 360
 14 mouse 38 86
 15 press mb_left
@@ -59,14 +60,24 @@ frames 360
 221 release mb_left
 239 press w
 240 release w
+248 press w
+249 release w
 257 press escape
 258 release escape
+266 press escape
+267 release escape
 275 press space
 276 release space
+284 press space
+285 release space
 293 press e
 294 release e
+302 press e
+303 release e
 311 press q
 312 release q
+320 press q
+321 release q
 329 press p
 330 release p
 349 press escape

@@ -1,7 +1,7 @@
 title = "Building and testing a level"
-description = "In the level editor, the player names a level GG, places an entrance, an exit and a floor of bricks, then a snake, spikes and gold bars, erasing one. Edit Info sets the music, the bombs and the next level; Test plays the level, where the player walks over the gold bar to the exit, and leaving it returns to the editor."
+description = "In the level editor, the player names a level GO, places an entrance, an exit and a floor of bricks, then a snake, spikes and gold bars, erasing one. Edit Info sets the music, the starting hearts, the bombs and the next level; Test plays the level, where the player walks over the gold bar to the exit, and leaving it returns to the editor."
 replay = "fidelity/replays/editor-build-test-save.txt"
 from = 200
 to = 519
 poster = 340
-story = "room=rLevelEditor@200 oLevelEditor.status=1@230 +oExit@250 oLevelEditor.dropSelect=1@304 oLevelEditor.dropSelect=3@326 oLevelEditor.status=2@356 oLevelEditor.status=1@414 room=rLoadLevel@424 bombs=99@424 money=500@475 room=rLevelEditor@506"
+story = "room=rLevelEditor@200 oLevelEditor.status=1@230 +oExit@250 oLevelEditor.dropSelect=1@304 oLevelEditor.dropSelect=3@326 oLevelEditor.status=2@356 oLevelEditor.status=1@412 room=rLoadLevel@424 bombs=99@424 money=500@475 room=rLevelEditor@506"
