@@ -1,7 +1,10 @@
 # The pistol put down while ducking (851-3782): scrUseItem's Pistol branch with the player ducking. Seed 39:
-# weapon-seed-39-pistol.txt to frame 1500 (the shop's pistol held from 1471), then by hand: he ducks (down, 1502)
-# and presses X (1506), facing left, which lays the pistol down instead of firing it. Ends at 1539.
-# story: held=oPistol@1471 held!=oPistol@1506..1506 !+oBullet@1471..
+# weapon-seed-39-pistol.txt to frame 1500 (the shop's pistol held from 1471, paid for at 1476 and fired left at
+# 1490 into the shopkeeper beside him, hp 20 to 16, stunned), then by hand: he ducks (down, 1502) and presses X
+# (1506), facing left, still inside the shot's 20-step wait, which lays the pistol down instead of firing it. Ends
+# at 1539.
+# story: held=oPistol@1471 oPlayer1.firing=20@1490..1490 oShopkeeper.hp=16@1490..1490 held!=oPistol@1506..1506
+# story: !oPlayer1.firing=20@1491.. !oShopkeeper.hp<16
 seed 39
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"
