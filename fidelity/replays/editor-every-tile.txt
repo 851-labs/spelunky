@@ -1,8 +1,8 @@
 # Every tile code the level editor offers (851-3135), in one level: levels/zo.lvl, five rows of them on
 # brick floors. F2, ZO and Enter (230) open it in the editor, which builds each with scrCreateTile (the editor's
-# own oDrawnSprite tiles, oTreeTile, oLeavesTile, oVineTop, ...). The Test button (262-264) writes levels/test.tmp and plays it, building every tile with
-# scrCreateTileObj, the enemies, traps and items live, and the player walks right (300-319) into it. The
-# window is 3x (screenScale 3).
+# own oDrawnSprite tiles, oTreeTile, oLeavesTile, oVineTop, ...). The Test button (262-264) writes
+# levels/test.tmp and plays it, building every tile with scrCreateTileObj, the enemies, traps and items live, and
+# the player walks right (300-319) into it. The window is 3x (screenScale 3).
 # story: room=rLevelEditor@200 +oTreeTile*2@230 +oLeavesTile@230 +oVineTop@230 room=rLoadLevel@264
 # story: customLevelName=ZO@264
 seed 777

@@ -593,6 +593,14 @@ fn any_key_and_no_key_events_run_once_after_the_keys() {
         take_log(&mut g),
         "o1.Keyboard(0) o1.press0 o1.KeyRelease(90) o1.KeyRelease(1)"
     );
+    // Two keys pressed in one frame: each its own event, by key code, and "any key" still once.
+    let a = Button::Key(65);
+    g.step(&[InputEvent::Press(z), InputEvent::Press(a)])
+        .unwrap();
+    assert_eq!(
+        take_log(&mut g),
+        "o1.Keyboard(65) o1.Keyboard(90) o1.Keyboard(1) o1.press65 o1.press90 o1.press1 o1.KeyRelease(0)"
+    );
 }
 
 #[test]

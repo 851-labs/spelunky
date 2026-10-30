@@ -232,8 +232,8 @@ impl World {
 
     /// One keyboard stage: the events of every key in this state, by key code, then "any key" or "no key",
     /// once. GM8 runs a key press "any key" event once per press, after the specific keys' (probe
-    /// `keypress-anykey`); OpenGMK's key-code pass took in codes 0 and 1 too, so it ran them twice (`game/
-    /// events.rs` `run_key_press_events` and siblings, fixed in the oracle by patch 0035). The held and
+    /// `keypress-anykey`); OpenGMK's key-code pass took in codes 0 and 1 too, so it ran them twice
+    /// (`game/events.rs` `run_key_press_events` and siblings, fixed in the oracle by patch 0035). The held and
     /// release stages are built the same way, unprobed: no object in the game or the settings program has a
     /// held or release "any key" or "no key" event. Spelunky's "any key" events are key presses:
     /// `oKeyConfig`'s and `oLevelEditor`'s and `oLoadLevel`'s, which type a level name.
@@ -244,12 +244,14 @@ impl World {
             KeyState::Released => Event::KeyRelease,
         };
         let program = self.program;
-        let first = crate::input::VK_ANYKEY + 1;
-        for (e, holders) in program.holders_range(event(first), event(u8::MAX)) {
+        for (e, holders) in program.holders_range(event(0), event(u8::MAX)) {
             let (Event::Keyboard(vk) | Event::KeyPress(vk) | Event::KeyRelease(vk)) = e else {
                 unreachable!("key events only");
             };
-            if !self.input.check(state, vk) {
+            if vk == crate::input::VK_NOKEY
+                || vk == crate::input::VK_ANYKEY
+                || !self.input.check(state, vk)
+            {
                 continue;
             }
             for &(object, handler) in holders {
