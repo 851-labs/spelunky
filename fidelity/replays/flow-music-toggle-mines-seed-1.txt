@@ -1,0 +1,23 @@
+# The M key's music toggle in the Mines (851-3785), whose level plays the cave music, the branch for levelType 0.
+# flow-pause-game-over-new-game.txt's input to frame 640 (seed 1, a returning player with zeroed stats; level 1
+# at 565), with M pressed at 600 (global.music false, the music stopped) and 620 (true, the cave music played
+# again). Ends at 659.
+# story: room=rLevel@565 !levelType>0 music=0@600..600 music=1@620..620 !music=0@621..
+seed 1
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+600 hold M 2
+620 hold M 2
+frames 660
