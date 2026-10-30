@@ -1,0 +1,26 @@
+# Magma touching a Magma Man, which it leaves alone (851-3783): oMagma's collision with oEnemy, whose burn is only
+# for an enemy whose type isn't "Magma Man". fidelity/gen-area.sh temple 97 1720 (level 13 loads on 738), standing
+# still at the start. Near the player, blobs of magma (oMagma) come up from the lava from 1618, each turning into a
+# Magma Man (the first at 1641). At 1690 a new blob appears touching a Magma Man: the collision event runs and does
+# nothing to it, no burn and no knockback. Found by a sweep of 200 Temple level starts left standing for 3000 frames.
+# Ends at 1719.
+# story: currLevel=13@738 +oMagmaMan@1641..1641 +oMagma@1690..1690 !plife<4
+seed 97
+frames 1720
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 56
+640 hold Z 6
+708 hold up 5
