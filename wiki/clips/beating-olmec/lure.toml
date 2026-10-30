@@ -1,5 +1,5 @@
 title = "Luring Olmec"
-description = "The player waits at the left end of Olmec's lair, where he arrived. Olmec hops toward him again and again, drifting left across the hall with each hop."
+description = "The player waits at the left end of Olmec's Lair, where he arrived. Olmec hops toward him again and again, drifting left across the hall with each hop."
 replay = "fidelity/replays/ending-seed-1.txt"
 from = 2430
 to = 2790

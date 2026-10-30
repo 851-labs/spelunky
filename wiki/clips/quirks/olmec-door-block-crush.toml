@@ -1,5 +1,5 @@
 title = "The block under Olmec's door crushes the player, counted as Olmec's"
-description = "A bomb has blown out the floor under the exit door of Olmec's lair, and the player jumps the pit onto the block left below it. Olmec, sinking in the lava off screen, dies, and a new block appears under the door, around the player's middle: he's crushed, and the game counts the death against Olmec."
+description = "A bomb has blown out the floor under the exit door of Olmec's Lair, and the player jumps the pit onto the block left below it. Olmec, sinking in the lava off screen, dies, and a new block appears under the door, around the player's middle: he's crushed, and the game counts the death against Olmec."
 # Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
 replay = "fidelity/replays/olmec-door-block-crush-seed-1.txt"
 from = 5360

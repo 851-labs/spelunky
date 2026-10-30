@@ -1,7 +1,7 @@
 {
   "id": "spelunker/moves",
   "title": "The Spelunker's moves",
-  "description": "In the tutorial, the Spelunker walks off a ledge, looks up, ducks, and clears a step with a short jump and a long one. He jumps at a ledge with right held and hangs from its edge, climbs up with a jump, and runs off the far side.",
+  "description": "In the Tutorial, the Spelunker walks off a ledge, looks up, ducks, and clears a step with a short jump and a long one. He jumps at a ledge with right held and hangs from its edge, climbs up with a jump, and runs off the far side.",
   "spec": "wiki/clips/spelunker/moves.toml",
   "source": {
     "kind": "replay",
