@@ -765,11 +765,10 @@ lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" co
 check "$site/wiki/traps" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/spikes">'
 lacks '<meta name="robots" content="noindex"/>'
-# The terrain hub: its written pages are links, the rest to come (wiki-planned.yaml) cards that aren't.
+# The terrain hub: every page written, none to come.
 check "$site/wiki/terrain" 200 "$no_cache"
-contains '<a class="card-body" href="/wiki/ladder">' '<a class="card-body" href="/wiki/water">' \
-  '<span class="card-status">Not written yet</span>'
-lacks '<meta name="robots" content="noindex"/>'
+contains '<a class="card-body" href="/wiki/ladder">' '<a class="card-body" href="/wiki/shop-sign">'
+lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'
 check "$site/wiki/places" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/tutorial">' \
   '<a class="card-body" href="/wiki/mines">' '<a class="card-body" href="/wiki/kalis-altar">' \

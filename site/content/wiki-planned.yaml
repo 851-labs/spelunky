@@ -18,5 +18,3 @@
 # pages it involves, checked as its page's `related` will be, which the hub filters by, and a one-sentence
 # lede, plain text, from its docs/quirks.md row (docs/wiki-style.md, "Red links"). The page takes both over.
 # Each is on one line.
-sign: { title: Sign, type: terrain, objects: [oMsgSign] }
-shop-sign: { title: Shop Sign, type: terrain, objects: [oSign] }

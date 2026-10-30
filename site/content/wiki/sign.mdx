@@ -1,0 +1,80 @@
+---
+slug: sign
+title: Sign
+type: terrain
+categories: [terrain]
+objects: [oMsgSign]
+aliases: [signs, message-sign, tutorial-sign]
+hatnote: For a shop's sign, see [[shop-sign]].
+lede: >-
+  A Sign is terrain in Spelunky Classic, a carved tablet in the Tutorial or a custom level that shows its
+  message while the player stands at it.
+infobox:
+  image: { sprite: sMsgSign, alt: "A small dark stone tablet with lines of writing carved on it" }
+  effect: { text: "Shows its message to the player", cite: objects/oMsgSign/collision_oCharacter.gml:1-3 }
+  destroyed_by: { text: "Nothing: it isn't a block" }
+relations:
+  found_in: [tutorial]
+  related: [tutorial, level-editor, controls]
+clips: [sign/tutorial]
+faq:
+  - q: How do you read signs in Spelunky Classic?
+    a: >-
+      By walking up to one: while the player touches a sign, its message shows at the bottom of the screen,
+      and it stays after he moves on, for 200 steps, or half that on a lit level.
+  - q: What do the Tutorial's signs say in Spelunky Classic?
+    a: >-
+      They teach the controls, in order along the cave: jumping, hanging on ledges, the whip, treasure, chests,
+      ducking and crawling, the flip hang, the ladder, picking up and throwing, ropes, running and bombs, each
+      naming the player's own keys or buttons. The first welcomes him and the last warns of traps.
+  - q: Can you make signs in Spelunky Classic's level editor?
+    a: >-
+      Yes. The [[level-editor|level editor]] has a sign tile, and each sign placed gets a one-line message of
+      its own, saved with the level.
+sources:
+  - objects/oMsgSign/create.gml
+  - objects/oMsgSign/collision_oCharacter.gml
+  - objects/oMsgSign/draw.gml
+  - scripts/scrCreateTileObj.gml
+  - scripts/scrLoadLevel.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Signs stand in the [[tutorial|Tutorial]], where seventeen of them guide the player along the cave and teach
+him the controls, and in
+custom levels, where the [[level-editor|level editor]] gives each one a message of its own. They're part of the
+background, not blocks: nothing breaks one.
+
+## How it works
+
+<Clip id="sign/tutorial" />
+
+While the player touches a sign, it shows its message, one or two lines, at the bottom of the screen, and sets
+the message to last 200 steps, so it stays a while after he walks on <Cite gml="objects/oMsgSign/collision_oCharacter.gml:1-3" />.
+A message lasts half as long on a lit level as on a dark one ([[messages-halved-on-lit-levels]]). The clip shows
+the Tutorial's first signs: the welcome, then how to jump, to hang on ledges and to use the whip, each message
+coming up as the player reaches its sign <Cite clip="sign/tutorial" />.
+
+### The Tutorial's signs
+
+A Tutorial sign's message is set by where the sign stands, which the room editor fixed: one message for each of
+seventeen spots <Cite gml="objects/oMsgSign/create.gml:9-120" /> <Cite room="rTutorial" />. The ones about a key
+name the player's own key for it, or his gamepad's button when he plays with one ("PRESS Z TO JUMP.")
+<Cite gml="objects/oMsgSign/create.gml:15-21" />. They run from "WELCOME TO THE TUTORIAL CAVE!" by the entrance
+to "THERE'S LOTS MORE AHEAD!" by the exit, with jumping, hanging, the whip, treasure, chests, ducking and
+crawling, the flip hang, the ladder, picking up and throwing, ropes, running and bombs between.
+
+### In custom levels
+
+A sign is the [[level-editor|level editor]]'s tile `I` <Cite gml="scripts/scrCreateTileObj.gml:32-35" />. In the
+editor it starts blank, the editor draws its message over it, and the message, one line, is saved with the
+level and read back with it <Cite gml="objects/oMsgSign/create.gml:4-8" /> <Cite gml="objects/oMsgSign/draw.gml:1-7" />
+<Cite gml="scripts/scrLoadLevel.gml:118-128" />. A level saved with neither an entrance nor an exit loses its
+signs' messages ([[lost-sign-messages]]).
+
+## Interactions
+
+- **[[bomb|Bombs]]** pass signs by: a sign isn't solid, and a blast breaks only what is
+  <Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" />.
+- **Other messages.** A sign's message takes the place of whatever message was showing, a pickup's or a
+  shopkeeper's, and the next message replaces it in turn <Cite gml="objects/oMsgSign/collision_oCharacter.gml:1-3" />.

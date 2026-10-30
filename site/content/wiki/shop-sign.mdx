@@ -1,0 +1,81 @@
+---
+slug: shop-sign
+title: Shop Sign
+type: terrain
+categories: [terrain]
+objects: [oSign]
+aliases: [shop-signs, shopsign]
+hatnote: For the Tutorial's and custom levels' signs, see [[sign]].
+lede: >-
+  A Shop Sign is terrain in Spelunky Classic, the painted board over a shop's entrance that shows what the
+  shop sells: a bomb, a pistol, a shirt, a pair of lips.
+infobox:
+  image: { sprite: sSignBomb, alt: "A wooden sign hanging from two chains, with a round black bomb painted on it" }
+  effect: { text: "Shows the shop's kind" }
+  destroyed_by: { text: "Bombs, the Mattock, boulders" }
+relations:
+  found_in: [mines, jungle, ice-caves, temple, black-market, yeti-lair]
+  related: [general-store, bomb-shop, weapon-shop, clothing-shop, rare-shop, dice-house, kissing-parlor]
+clips: [shop-sign/bomb-shop]
+faq:
+  - q: How do you tell what a shop sells in Spelunky Classic?
+    a: >-
+      By the sign over its entrance: a sack for a [[general-store|General Store]], a bomb for a
+      [[bomb-shop|Bomb Shop]], a pistol for a [[weapon-shop|Weapon Shop]], a shirt for a
+      [[clothing-shop|Clothing Shop]], a magnifying glass for a [[rare-shop|Rare Shop]], a die for the
+      [[dice-house|Dice House]] and a pair of lips for the [[kissing-parlor|Kissing Parlor]].
+  - q: Does breaking a shop's sign anger the shopkeeper in Spelunky Classic?
+    a: >-
+      Not by itself: breaking the shop's walls or floor does, but the sign isn't marked as one of them. A
+      [[mattock|Mattock]] breaks it with no trouble, but a lit [[bomb|Bomb]] in the shop near the Shopkeeper
+      angers him before it goes off, whatever it's thrown at.
+  - q: Does every shop have a sign in Spelunky Classic?
+    a: >-
+      Every shop but one: the Black Market's [[ankh-shop|Ankh shop]], a room with no entrance of its own, has
+      none.
+sources:
+  - objects/oSign/destroy.gml
+  - scripts/scrRoomGen.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Every shop but the Black Market's Ankh shop has a sign over its entrance, a board painted with what the shop
+sells, so the player can tell a [[general-store|General Store]] from a [[weapon-shop|Weapon Shop]] before he walks
+in. It's solid, and what breaks blocks breaks it.
+
+## How it works
+
+<Clip id="shop-sign/bomb-shop" />
+
+As a shop's room is laid out, its sign tile makes the sign, and the shop's kind picks its picture
+<Cite gml="scripts/scrRoomGen.gml:437-447" />:
+
+| Shop | The sign shows |
+| --- | --- |
+| [[general-store\|General Store]] | A sack |
+| [[bomb-shop\|Bomb Shop]] | A bomb |
+| [[weapon-shop\|Weapon Shop]] | A pistol |
+| [[clothing-shop\|Clothing Shop]] | A shirt |
+| [[rare-shop\|Rare Shop]] | A magnifying glass |
+| [[dice-house\|Dice House]] | A die |
+| [[kissing-parlor\|Kissing Parlor]] | A pair of lips |
+
+The clip shows a Bomb Shop's: the player drops down beside its sign, a bomb on a board over the entrance, and
+walks in, and the shopkeeper welcomes him <Cite clip="shop-sign/bomb-shop" />.
+
+A [[bomb|Bomb]], a [[mattock|Mattock]] or a rolling [[boulder|Boulder]] breaks a sign, and its destroy event, its
+own, makes rubble and nothing else <Cite gml="objects/oSign/destroy.gml:1-9" />. Breaking it doesn't by itself anger
+the [[shopkeeper|Shopkeeper]]: unlike the shop's walls and floor, the sign isn't marked as part of the shop, and
+its destroy event doesn't run the check the walls' does <Cite gml="scripts/scrRoomGen.gml:413-426" />
+<Cite gml="objects/oSolid/destroy.gml:1-7" />. A lit bomb in the shop within 96 pixels of him angers him anyway,
+before it goes off <Cite gml="objects/oBomb/step.gml:6-17" /> ([[bomb-angers-every-shopkeeper]]).
+
+## Locations
+
+Every area's room script makes shop signs the same way: [[mines|the Mines]]'
+<Cite gml="scripts/scrRoomGen.gml:437-447" />, [[jungle|the Jungle]]'s <Cite gml="scripts/scrRoomGen2.gml:452-462" />,
+[[ice-caves|the Ice Caves]]' <Cite gml="scripts/scrRoomGen3.gml:379-389" />, [[temple|the Temple]]'s
+<Cite gml="scripts/scrRoomGen4.gml:481-491" />, [[black-market|the Black Market]]'s, which has no Kissing Parlor
+<Cite gml="scripts/scrRoomGenMarket.gml:347-356" />, and a [[yeti-lair|Yeti lair]]'s
+<Cite gml="scripts/scrRoomGenYeti.gml:398-408" />. The [[level-editor|level editor]] has no tile for it. The Black Market's
+[[ankh-shop|Ankh shop]], a room open only from above, has no sign <Cite gml="scripts/scrRoomGenMarket.gml:112-116" />.

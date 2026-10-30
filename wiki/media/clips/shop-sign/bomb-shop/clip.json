@@ -1,0 +1,36 @@
+{
+  "id": "shop-sign/bomb-shop",
+  "title": "A shop's sign",
+  "description": "In the Mines, the player drops down beside a Bomb Shop's sign, a board with a bomb painted on it hanging over the shop's entrance, and walks in; the shopkeeper welcomes him.",
+  "spec": "wiki/clips/shop-sign/bomb-shop.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/shop-seed-17-bomb-buy.txt"
+  },
+  "from": 1840,
+  "to": 1940,
+  "frames": 101,
+  "replay_from": 1840,
+  "state_hash": "c7e21b2dcebe2122",
+  "states_hash": "608e84464888ccad",
+  "fps": 30,
+  "duration": 3.3666666666666667,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 1870,
+  "frames_hash": "51e959e8c8b0bf52",
+  "has_audio": true,
+  "audio_hash": "86ae6fdfe488a16b",
+  "encoding": "5916b8b2f30d56f4",
+  "files": {
+    "mp4": "shop-sign/bomb-shop/clip.mp4",
+    "webm": "shop-sign/bomb-shop/clip.webm",
+    "poster": "shop-sign/bomb-shop/poster.png",
+    "replay": "shop-sign/bomb-shop/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

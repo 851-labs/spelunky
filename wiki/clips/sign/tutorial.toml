@@ -1,0 +1,7 @@
+title = "The Tutorial's signs"
+description = "The player starts the Tutorial and walks along its first tunnel. Each sign he passes shows its message at the bottom of the screen, from the welcome to how to jump, hang on ledges and use the whip."
+replay = "fidelity/replays/movement-tutorial-exit.txt"
+from = 566
+to = 700
+poster = 600
+story = "message=\"WELCOME TO THE TUTORIAL CAVE!\"@572 message=\"PRESS Z TO JUMP.\"@588 message=\"YOU CAN HANG ON LEDGES, TOO!\"@620 message=\"PRESS X TO USE YOUR WHIP.\"@650"
