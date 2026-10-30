@@ -43,6 +43,7 @@ sources:
   - scripts/scrRoomGen2.gml
   - scripts/scrRoomGen3.gml
   - scripts/scrRoomGenMarket.gml
+  - scripts/scrRoomGenYeti.gml
 verified: { port: v0.1.15, date: 2026-10-29 }
 ---
 
@@ -90,7 +91,7 @@ a 1 in 3 chance; some are always Spikes:
 | --- | --- | --- |
 | [[mines\|The Mines]] | 1 in 3 for each spike tile | <Cite gml="scripts/scrRoomGen.gml:343" /> |
 | [[jungle\|The Jungle]] | 1 in 3 for each spike tile, and always on the floor of one pit room, all spike tiles | <Cite gml="scripts/scrRoomGen2.gml:351-352" /> |
-| [[black-market\|The Black Market]] | Always, on the floor of one pit room, its only spike tiles | <Cite gml="scripts/scrRoomGenMarket.gml:87" /> <Cite gml="scripts/scrRoomGenMarket.gml:266-267" /> <Cite replay="fidelity/replays/jungle-seed-9-market-no-shop.txt" /> |
+| [[black-market\|The Black Market]] | Always, but only on the floor of its spikes room, one of eight layouts for each room on its path; it has no other spike tiles | <Cite gml="scripts/scrRoomGenMarket.gml:77-87" /> <Cite gml="scripts/scrRoomGenMarket.gml:266-267" /> <Cite quirk="1" row="Room scripts make ladders, vines, spikes or push blocks for tiles none of their strings has." /> <Cite replay="fidelity/replays/jungle-seed-9-market-dark-roll.txt" /> |
 | [[ice-caves\|The Ice Caves]] | Always, on every spike tile | <Cite gml="scripts/scrRoomGen3.gml:307" /> |
 | [[yeti-lair\|A Yeti lair]] | 1 in 3 for each spike tile, and always on its own spike-floored tiles | <Cite gml="scripts/scrRoomGenYeti.gml:317" /> <Cite gml="scripts/scrRoomGenYeti.gml:423-426" /> |
 

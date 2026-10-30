@@ -10,10 +10,11 @@
 # hadDarkLevel stays set until level 9, so level 7 isn't dark. With global.genBlackMarket set since the
 # entrance, oTransition never rolls the lake for levels 7 and 8, which load rLevel. And with
 # global.madeBlackMarket set, level 8 has no shop, though its shop roll (rand(1, currLevel), 2) passes and its
-# room (0, 0) is beside the path.
+# room (0, 0) is beside the path. The market has one spikes room (a path room's case 5 of 8), whose eight `s`
+# floor tiles are all Spikes, as scrRoomGenMarket always makes them (1673): no market tile is a 1 in 3 `7`.
 # story: currLevel=6@1606 noDarkLevel=0@1667 blackMarket=1@1673 hadDarkLevel=1@1673 +oShopkeeper*7@1673
 # story: currLevel=7@2346 room=rLevel@2419 currLevel=8@3040 room=rLevel@3112 !noDarkLevel=1@1668..3100
-# story: !darkLevel=1 !+oShopkeeper@2419.. !plife<4 !lake=1
+# story: !darkLevel=1 !+oShopkeeper@2419.. !plife<4 !lake=1 +oSpikes*8@1673..1673
 seed 9
 frames 3413
 highscore 9000100 "MONEY"
