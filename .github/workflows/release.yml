@@ -1,9 +1,8 @@
-# A release: after a merge to main that changes what it's made from (auto-release.yml, which calls this and tags
-# the commit itself), pushing a `v*` tag, or running this by hand on one. Everything must pass before anything is
+# A release: pushing a `v*` tag, or running this by hand on one. Everything must pass before anything is
 # published: the full suite (scripts/check), the full oracle fidelity run over every committed replay, the web
 # build, the native builds (build-native.yml, which signs and notarizes macOS) and
-# the updater's tests (updater.yml). The GitHub Release is a draft until then; the last job attaches the files
-# and publishes it.
+# the updater's tests (updater.yml). The GitHub Release is a draft until then; `publish` attaches the files and
+# publishes it, and `bump` then opens the pull request that puts it live (scripts/bump-web-release).
 # A tag with a `-` (`v0.1.0-rc1`) is published as a prerelease, any other as the latest release.
 #
 # What it publishes is built on fresh GitHub-hosted machines, or (the native builds) by build-native.yml; the
@@ -22,25 +21,12 @@ on:
         description: Build and check everything, but don't sign, notarize or publish
         type: boolean
         default: true
-  # From auto-release.yml, on a commit of main: the job that works out the version tags the commit.
-  workflow_call:
-    inputs:
-      auto:
-        description: Tag the commit with the next patch version (scripts/release/auto) and release it
-        type: boolean
-        default: false
-    outputs:
-      tag:
-        description: The release's tag
-        value: ${{ jobs.meta.outputs.tag }}
 
 permissions:
   contents: read
 
-# A call's `github.ref` is main, which a run by hand on main shares: a group of its own (auto-release.yml runs
-# one release at a time too), so neither replaces the other while it waits.
 concurrency:
-  group: release-${{ inputs.auto && 'auto' || github.ref }}
+  group: release-${{ github.ref }}
   cancel-in-progress: false
 
 defaults:
@@ -67,39 +53,12 @@ jobs:
       version: ${{ steps.meta.outputs.version }}
       dry_run: ${{ steps.meta.outputs.dry_run }}
       prerelease: ${{ steps.meta.outputs.prerelease }}
-    # To push the tag of a release auto-release.yml calls for.
-    permissions:
-      contents: write
     steps:
-      # For a call, the tags and their history, which scripts/release/auto reads, without the files.
-      - if: inputs.auto
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          filter: blob:none
-          sparse-checkout: scripts/release
       - id: meta
         env:
-          AUTO: ${{ inputs.auto }}
-          # A call's event is its caller's: auto-release.yml run by hand releases for real.
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && !inputs.auto && inputs.dry_run }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
         run: |
-          if [ "$AUTO" = true ]; then
-            # The next patch version, or on a re-run the tag it already pushed. Pushed with this run's token,
-            # which starts no workflow, so the tag doesn't start a second release; and refused if the tag was
-            # pushed meanwhile.
-            tag=$(scripts/release/auto tag "$GITHUB_SHA")
-            if [ -z "$(git tag -l "$tag")" ]; then
-              git -c user.name='github-actions[bot]' \
-                -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-                tag -a "$tag" -m "Spelunky Classic port $tag" "$GITHUB_SHA"
-              git push origin "refs/tags/$tag"
-            elif [ "$GITHUB_RUN_ATTEMPT" = 1 ]; then
-              # Not this run's: pushed by hand while the release waited, which started its own release.
-              echo "::error::$tag was pushed while this release waited, and its own run releases it"
-              exit 1
-            fi
-          elif [ "$GITHUB_REF_TYPE" = tag ] && [[ "$GITHUB_REF_NAME" == v* ]]; then
+          if [ "$GITHUB_REF_TYPE" = tag ] && [[ "$GITHUB_REF_NAME" == v* ]]; then
             tag=$GITHUB_REF_NAME
             # What the apps' updater takes as a version (crates/update's Version): checked now, not after an
             # hour of building.
@@ -258,10 +217,9 @@ jobs:
     timeout-minutes: 180
     strategy:
       fail-fast: false
-      # The organization's projects share GitHub's machines: an automatic release, which nobody is waiting on,
-      # takes three at a time (about an hour of replays instead of 20 minutes), and one pushed or run by hand
-      # all ten.
-      max-parallel: ${{ inputs.auto && 3 || 10 }}
+      # The organization's projects share GitHub's machines: three at a time (about an hour of replays instead
+      # of 20 minutes).
+      max-parallel: 3
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
@@ -430,3 +388,145 @@ jobs:
           else
             gh release edit "$TAG" --draft=false --prerelease=false --latest
           fi
+
+  # The pull request that puts the release live (scripts/bump-web-release), opened as the release-bot App so that
+  # pr-ok runs on it: a pull request opened with GITHUB_TOKEN starts no workflow. Without the App (or a token),
+  # the run's summary says what to do by hand. Not for a dry run, nor a prerelease, which is never put live.
+  bump:
+    name: Site bump PR
+    needs: [meta, publish]
+    if: needs.meta.outputs.dry_run != 'true' && needs.meta.outputs.prerelease != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    # Its secrets, which only `v*` tags should see (docs/ci.md, "The site's bump pull request").
+    environment: release-bot
+    env:
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ needs.meta.outputs.tag }}
+    steps:
+      - id: credential
+        env:
+          CLIENT_ID: ${{ vars.RELEASE_BOT_CLIENT_ID }}
+          PRIVATE_KEY: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          TOKEN: ${{ secrets.RELEASE_BOT_TOKEN }}
+        run: |
+          if [ -n "$CLIENT_ID" ] && [ -n "$PRIVATE_KEY" ]; then
+            kind=app
+          elif [ -n "$TOKEN" ]; then
+            kind=token
+          else
+            kind=none
+          fi
+          echo "kind=$kind" | tee -a "$GITHUB_OUTPUT"
+      # Asking for exactly these fails here if the App's installation lacks one.
+      - id: app
+        if: steps.credential.outputs.kind == 'app'
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+      # Main as it is now, not the tag's commit. The checkout keeps the credential for the push (a fresh GitHub
+      # machine, gone after the job).
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          token: ${{ steps.app.outputs.token || secrets.RELEASE_BOT_TOKEN || github.token }}
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
+      # For scripts/release/manifest, which checks the release's latest.json. Up front, as in the web build.
+      - run: rustup toolchain install --no-self-update
+      - id: bump
+        run: |
+          # Never back to an older version than main pins (a re-run of an older release, or a tag pushed out of
+          # order).
+          pinned=$(sed -n 's/^tag //p' site/web-release.txt)
+          if [ "$pinned" != "$TAG" ] && [ "$(printf '%s\n' "$pinned" "$TAG" | sort -V | tail -n 1)" = "$pinned" ]; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            echo "main already pins $pinned, newer than $TAG." >>"$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          scripts/bump-web-release "$TAG"
+          if git diff --quiet; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            echo "main already pins $TAG." >>"$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >>"$GITHUB_OUTPUT"
+            git diff
+          fi
+      - if: steps.bump.outputs.changed == 'true' && steps.credential.outputs.kind == 'none'
+        run: |
+          echo "::warning::$TAG is published but not live: no release-bot credential to open its pull request with"
+          {
+            echo "### $TAG"
+            echo "There's no release-bot credential (docs/ci.md, \"The site's bump pull request\"): run \`scripts/bump-web-release $TAG\` and open its pull request by hand (docs/web-deploy.md)."
+            echo '```diff'
+            git diff
+            echo '```'
+          } >>"$GITHUB_STEP_SUMMARY"
+      - if: steps.bump.outputs.changed == 'true' && steps.credential.outputs.kind != 'none'
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token || secrets.RELEASE_BOT_TOKEN }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # The commit's author: the App's bot account, or the token's owner, by its no-reply address, so GitHub
+          # attributes the commit to it.
+          if [ -n "$APP_SLUG" ]; then
+            name="${APP_SLUG}[bot]"
+          else
+            name=$(gh api user --jq .login)
+          fi
+          id=$(gh api "users/$name" --jq .id)
+          git config user.name "$name"
+          git config user.email "$id+$name@users.noreply.github.com"
+          branch=bump-web-release/$TAG
+          title="Release: put $TAG live on spelunky.ai"
+          # The versions of the open pull requests of releases: a newer one's leaves this one out.
+          open=$(gh pr list --state open --limit 200 --json headRefName \
+            --jq '.[].headRefName | select(startswith("bump-web-release/")) | ltrimstr("bump-web-release/")')
+          newest=$(printf '%s\n' "$open" "$TAG" | sort -V | tail -n 1)
+          if [ "$newest" != "$TAG" ]; then
+            echo "### $TAG: not opened, as $newest's pull request is open" >>"$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git switch -q -c "$branch"
+          git commit -q -am "$title"
+          # A re-run's push replaces its last.
+          git push -q --force origin "$branch"
+          pr=$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')
+          if [ -z "$pr" ]; then
+            cat >"$RUNNER_TEMP/body.md" <<EOF
+          ## Why
+
+          $TAG is published ($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG; its notes list the pull requests it
+          ships). Merging this puts it live: the web build at spelunky.ai/play and the native apps' update.
+
+          ## What
+
+          - \`scripts/bump-web-release $TAG\`: pins its web build and its \`latest.json\`, checked against the release key.
+            Only \`site/web-release.txt\` changes.
+          - Merging deploys it (docs/web-deploy.md).
+
+          Opened by [release.yml]($RUN_URL) once the release published (docs/ci.md, "The site's bump pull
+          request"). It has no Linear ticket: the workflow has no Linear credential, and the release and this run
+          are its record.
+          EOF
+            pr=$(gh pr create --base main --head "$branch" --title "$title" --body-file "$RUNNER_TEMP/body.md")
+          fi
+          # Earlier releases' pull requests that haven't merged: this one has their changes and more.
+          for old in $open; do
+            [ "$old" = "$TAG" ] || gh pr close "bump-web-release/$old" --delete-branch --comment "Superseded by $pr."
+          done
+          # Merged as soon as pr-ok passes, if the repository allows auto-merge; otherwise by whoever merges it.
+          if gh pr merge "$pr" --auto --squash 2>"$RUNNER_TEMP/merge.log"; then
+            merge="It merges itself once pr-ok passes."
+          else
+            merge="Merge it once pr-ok passes: auto-merge is off ($(cat "$RUNNER_TEMP/merge.log"))."
+          fi
+          echo "### $TAG: $pr" >>"$GITHUB_STEP_SUMMARY"
+          echo "$merge" >>"$GITHUB_STEP_SUMMARY"
