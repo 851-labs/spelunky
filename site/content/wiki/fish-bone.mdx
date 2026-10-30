@@ -41,7 +41,7 @@ sources:
   - objects/oPiranha/step.gml
   - objects/oDeadFish/step.gml
   - objects/oPlayer1/step.gml
-verified: { port: v0.1.14, date: 2026-10-29 }
+verified: { port: v0.1.15, date: 2026-10-29 }
 ---
 
 A Fish Bone is what's left of a [[piranha|Piranha]] or a [[dead-fish|Dead Fish]] that ends up out of the
@@ -57,8 +57,8 @@ it, and the attack key throws it, at 8 pixels a step plus the player's speed, ri
 <Cite gml="objects/oPlayer1/step.gml:1203-1214" /> <Cite gml="scripts/scrUseItem.gml:605-646" />. It moves
 by the code all items share: its own lighter gravity, 0.2, lasts its first step
 ([[mitt-gravity-one-step]]), and then it falls 0.6 pixels a step faster each step, as items do, bouncing off
-walls and floors <Cite gml="objects/oFishBone/create.gml:6" /> <Cite gml="objects/oItem/step.gml:84-111" />
-<Cite gml="objects/oItem/step.gml:160-170" /> <Cite quirk="1" row="The Pitcher's Mitt's light gravity lasts one step" /> <Cite
+walls and floors <Cite gml="objects/oFishBone/create.gml:6" /> <Cite gml="objects/oItem/step.gml:84-111" /> <Cite
+gml="objects/oItem/step.gml:160-170" /> <Cite quirk="1" row="The Pitcher's Mitt's light gravity lasts one step" /> <Cite
 replay="fidelity/replays/item-fish-bone-first-step-gravity.txt" />. It turns to point the way it's flying
 <Cite gml="objects/oFishBone/step.gml:3-25" />.
 

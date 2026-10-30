@@ -14,7 +14,8 @@
 # back to 0.6, so it falls 0.6 faster a step from the next (0.8, 1.4, 2, 2.6, 408-411). He picks the bone up
 # (460), jumps out of the pool and throws it at the Snake (490), which it kills, breaking (491).
 # story: bombs=3@287 +oExplosion@406 -oPiranha@407..407 +oFishBone@407..407 oFishBone.yVel=0.2@407..407
-# story: oFishBone.yVel=0.8@408..408 oFishBone.yVel>1.39@409..409 held=oFishBone@460 held!=oFishBone@490
+# story: oFishBone.yVel=0.8@408..408 oFishBone.yVel>1.39@409..409 oFishBone.yVel=2@410..410
+# story: oFishBone.yVel=2.6@411..411 held=oFishBone@460 held!=oFishBone@490
 # story: -oFishBone@491 -oSnake@491 snakes=1@491 !plife<4
 seed 0
 frames 522
