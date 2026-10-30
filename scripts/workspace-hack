@@ -35,7 +35,9 @@ if [ "${1:-}" = --reused ]; then
     built=$(scripts/cargo test --quiet --locked --no-run -p "$member" --message-format=json 2>/dev/null |
       OWN=$own perl -MJSON::PP -ne 'my $m = eval { decode_json($_) } or next;
         next unless ($m->{reason} // "") eq "compiler-artifact" && !$m->{fresh};
-        my ($package) = $m->{package_id} =~ m{[#/]([^#/@]+)@};
+        # "registry+…#name@1.0", or a path package'"'"'s "path+file:///…/crates/audio#0.1.0" (its name, its directory'"'"'s).
+        my $id = $m->{package_id};
+        my ($package) = $id =~ m{#([^@#]+)@} ? ($1) : $id =~ m{/([^/#]+)#[^@]*$} ? ($1) : ("");
         print "$m->{target}{name} " unless $ENV{OWN} && $package eq $ENV{OWN}')
     [ -z "$built" ] || { echo "scripts/workspace-hack: \`cargo test -p $member\` compiled $built, which the workspace's build had" >&2; bad=1; }
   done
