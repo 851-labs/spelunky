@@ -746,11 +746,49 @@ fn tiles_and_instances_draw_merged_by_depth() {
     );
     // The foreground layer scrolled after the step's draw (not after frame 0's).
     assert_eq!(g.room().backgrounds[1].x, 2.0);
-    // GM 8.0's tile_layer_find never finds a tile, even at its exact position.
-    assert_eq!(g.tile_layer_find(5.0, 3.0, 3.0), -1);
     g.tile_delete(t2).unwrap();
     assert_eq!(g.tile_delete(t2), Err(Error::NoSuchTile(t2)));
     assert_eq!(g.room().tiles.len(), 3);
+}
+
+/// GM 8.0's `tile_layer_find`, case for case as the probe `tile-layer-find` measured it on GM8 (but the scaled
+/// tile: the port has no `tile_set_scale`, which Spelunky never calls).
+#[test]
+fn tile_layer_find_follows_gm8() {
+    let prog = build(|b| {
+        b.push_object(ObjectInfo::new("o"));
+    });
+    let assets = Assets::new(Vec::new(), Vec::new()).with_backgrounds(vec![Some(background("bg"))]);
+    let mut g = start(prog, assets, &[(0, room(640, 480, &[]))]);
+    let a = g.tile_add(0, 0, 0, 16, 48, 100.0, 100.0, 3.0).unwrap();
+    // The half-open box, at exactly the depth.
+    assert_eq!(g.tile_layer_find(3.0, 100.0, 100.0), a);
+    assert_eq!(g.tile_layer_find(3.0, 115.99, 147.99), a);
+    for (depth, x, y) in [
+        (3.0, 99.99, 100.0),
+        (3.0, 116.0, 120.0),
+        (3.0, 108.0, 148.0),
+        (3.0, 108.0, 99.99),
+        (3.4, 108.0, 120.0),
+        (4.0, 108.0, 120.0),
+    ] {
+        assert_eq!(g.tile_layer_find(depth, x, y), -1, "{depth} {x} {y}");
+    }
+    // Ties go to the first added, whatever the depths between them and after a draw sorts them.
+    let mut at_5 = Vec::new();
+    for depth in [5.0, 9.0, 5.0, 1.0, 5.0, 9.0, 5.0] {
+        let t = g.tile_add(0, 0, 0, 16, 16, 300.0, 300.0, depth).unwrap();
+        if depth == 5.0 {
+            at_5.push(t);
+        }
+    }
+    assert_eq!(g.tile_layer_find(5.0, 304.0, 304.0), at_5[0]);
+    assert_eq!(g.tile_layer_find(9.0, 304.0, 304.0), at_5[0] + 1);
+    let mut frame = draw::Frame::default();
+    g.step_drawing(&[], &mut frame).unwrap();
+    assert_eq!(g.tile_layer_find(5.0, 304.0, 304.0), at_5[0]);
+    g.tile_delete(at_5[0]).unwrap();
+    assert_eq!(g.tile_layer_find(5.0, 304.0, 304.0), at_5[1]);
 }
 
 #[test]

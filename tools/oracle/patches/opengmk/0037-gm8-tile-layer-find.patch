@@ -1,0 +1,41 @@
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -2203,15 +2203,18 @@
+ 
+     pub fn tile_layer_find(&self, args: &[Value]) -> gml::Result<Value> {
+         let (depth, x, y) = expect_args!(args, [real, real, real])?;
++        // Spelunky oracle: GM 8.0 finds a tile in its unscaled box, where OpenGMK took 8.0 to multiply the size by 0
++        // and never find one (the port's `World::tile_layer_find`, probe `tile-layer-find`, 851-3787). The first
++        // match in the stably depth-sorted draw order is the first added, as GM8's, since all are at one depth.
+         let use_scaling = self.gm_version == Version::GameMaker8_1; // 8.1 bugfix
+         let mut iter_tile = self.room.tile_list.iter_by_drawing();
+         while let Some(handle) = iter_tile.next(&self.room.tile_list) {
+             let tile = self.room.tile_list.get(handle);
+             if tile.depth.get() == depth
+                 && x >= tile.x.get()
+-                && x < tile.x.get() + if use_scaling { tile.xscale.get() } else { 0.into() } * tile.width.get().into()
++                && x < tile.x.get() + if use_scaling { tile.xscale.get() } else { 1.into() } * tile.width.get().into()
+                 && y >= tile.y.get()
+-                && y < tile.y.get() + if use_scaling { tile.yscale.get() } else { 0.into() } * tile.height.get().into()
++                && y < tile.y.get() + if use_scaling { tile.yscale.get() } else { 1.into() } * tile.height.get().into()
+             {
+                 return Ok(tile.id.get().into())
+             }
+@@ -2221,13 +2224,14 @@
+ 
+     pub fn tile_layer_delete_at(&mut self, args: &[Value]) -> gml::Result<Value> {
+         let (depth, x, y) = expect_args!(args, [real, real, real])?;
++        // Spelunky oracle: the unscaled box, as tile_layer_find's (851-3787; unprobed, and the game never calls it).
+         let use_scaling = self.gm_version == Version::GameMaker8_1; // 8.1 bugfix
+         self.room.tile_list.remove_with(|tile| {
+             tile.depth.get() == depth
+                 && x >= tile.x.get()
+-                && x < tile.x.get() + if use_scaling { tile.xscale.get() } else { 0.into() } * tile.width.get().into()
++                && x < tile.x.get() + if use_scaling { tile.xscale.get() } else { 1.into() } * tile.width.get().into()
+                 && y >= tile.y.get()
+-                && y < tile.y.get() + if use_scaling { tile.yscale.get() } else { 0.into() } * tile.height.get().into()
++                && y < tile.y.get() + if use_scaling { tile.yscale.get() } else { 1.into() } * tile.height.get().into()
+         });
+         Ok(Default::default())
+     }

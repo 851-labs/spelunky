@@ -693,12 +693,23 @@ impl World {
         Ok(())
     }
 
-    /// `tile_layer_find(depth, x, y)`: the first tile in draw order at exactly `depth` containing the
-    /// point, or -1. **GM 8.0 never finds one**: it measures the tile as `0 * width` by `0 * height` (8.1
-    /// multiplies by the tile's scale instead), so `x < tile.x + 0` contradicts `x >= tile.x`. OpenGMK
-    /// `gml/kernel.rs` (`tile_layer_find`, "8.1 bugfix"); `docs/quirks.md` section 5.
-    pub fn tile_layer_find(&self, _depth: f64, _x: f64, _y: f64) -> i32 {
-        -1
+    /// `tile_layer_find(depth, x, y)`: the first tile in the order tiles were added (a draw's depth sort
+    /// doesn't change it) at exactly `depth` with `x <= x < x + width` and `y <= y < y + height`, its unscaled
+    /// size, or -1. GM 8.0 (probe `tile-layer-find`, 851-3787); OpenGMK took 8.0 to measure the tile as 0 by
+    /// 0 and never find one (`gml/kernel.rs` `tile_layer_find`, "8.1 bugfix"; fixed in the oracle by patch
+    /// 0037). `docs/quirks.md` section 5.
+    pub fn tile_layer_find(&self, depth: f64, x: f64, y: f64) -> i32 {
+        self.room
+            .tiles
+            .iter()
+            .find(|t| {
+                t.depth == depth
+                    && x >= t.x
+                    && x < t.x + f64::from(t.width)
+                    && y >= t.y
+                    && y < t.y + f64::from(t.height)
+            })
+            .map_or(-1, |t| t.id)
     }
 
     /// The mouse in room coordinates (`mouse_x`, `mouse_y`). With views on, the window pixel maps through
