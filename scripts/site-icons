@@ -34,7 +34,7 @@ if [ -n "$check" ]; then
 fi
 scripts/cargo run --quiet --release -p tools --bin icon -- --reference reference --sprite sStandLeft \
   --ico "$out/favicon.ico" --svg "$out/icon.svg" --touch-icon f0c040 "$out/apple-touch-icon.png"
-[ -n "$check" ] || exit 0
+[ -n "$check" ] || { finished=1; exit 0; }
 stale=
 for icon in $icons; do
   cmp -s "$out/$icon" "site/public/$icon" || stale="$stale site/public/$icon"

@@ -105,7 +105,9 @@ Every other script with an EXIT trap does the same (851-3743): `site/build.sh` (
 `scripts/seed-target`, and the bash ones, `tools/oracle/build`, `tools/oracle/run` and `tools/gm8-probe/run`
 (macOS's bash is 3.2 too). Each checks that it parses (`sh -n "$0"` or `bash -n "$0"`) before its trap, and its
 cleanup keeps a failing status and fails a run that didn't set `finished=1` where it ends, before an intended
-`exit 0` too. `scripts/check-sh` fails a script that sets an EXIT trap without both.
+`exit 0` too. `scripts/check-sh` fails a script that sets an EXIT trap and doesn't do all of that, line by line:
+the parse check before `trap cleanup EXIT` (no other form), a cleanup that reads `finished`, `finished=1` as the
+last line (unless it ends by `exec`), and `finished=1` before every `exit 0` after the trap.
 
 The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside

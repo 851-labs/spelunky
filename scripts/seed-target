@@ -21,9 +21,6 @@
 # lock on each of its build directories' .cargo-build-lock while cloning, so the clone never catches a build
 # half-written (a build there waits for it; the clone waits up to two minutes for one, then skips).
 set -eu
-# A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's sh, bash 3.2, exits from
-# one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
-sh -n "$0" || exit 2
 [ -z "${CI:-}" ] && [ -z "${CARGO_TARGET_DIR:-}" ] && [ -z "${SPELUNKY_NO_SEED:-}" ] || exit 0
 # Only macOS's cp -c clones; GNU cp's -c is --preserve=context, a full copy.
 [ "$(uname -s)" = Darwin ] || exit 0
@@ -44,6 +41,10 @@ main=$(cd "$listed" && pwd -P)
 # One seeding at a time: another scripts/cargo in this worktree waits while it runs, then finds target/. A lock
 # whose process is gone (killed, so its EXIT trap didn't run), or that has had no pid for ten seconds, is
 # stale: it's cleared, and this one seeds.
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it (but after the exits above, which
+# every scripts/cargo run takes): macOS's sh, bash 3.2, exits from one with the trap's status, 0 (851-3743, as
+# site/test.sh does; scripts/check-sh).
+sh -n "$0" || exit 2
 lock="$root/target.seeding"
 while ! mkdir "$lock" 2>/dev/null; do
   echo "scripts/cargo: waiting for target/ to be cloned from the main worktree" >&2
@@ -100,7 +101,7 @@ perl -e '
     push @locks, $h;
   }
   exit(system("cp", "-cR", $from, $to) == 0 ? 0 : 1);
-' "$main/target" "$lock/target" || exit 0
+' "$main/target" "$lock/target" || { finished=1; exit 0; }
 
 # The files this worktree has as the main worktree's commit has them, which the main worktree hasn't changed,
 # get its mtimes; every other tracked file, now's.
