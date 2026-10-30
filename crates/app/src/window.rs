@@ -4,7 +4,8 @@
 //!
 //! Ticks run on a timer (`ControlFlow::WaitUntil` the next tick's deadline), not on redraws, so the game
 //! keeps time while the window is minimised or hidden and the OS stops sending redraws. Redraws only
-//! present.
+//! present. A session of play stops once the window loses focus, though, as 1.1's game settings have GM8's
+//! runner do ([`Game::freezes_unfocused`]).
 //!
 //! Each tick gets the input events that arrived since the previous one, in the replay format
 //! ([`crate::input`]), or a replay's events for that frame. A live session can be recorded as it goes.
@@ -78,6 +79,13 @@ pub trait Game {
     /// Whether the window's close button goes to the game, as a `close` event, rather than closing the window:
     /// a GameMaker program's, whose close-button event decides ([`App`]'s `close_button`).
     fn close_button(&self) -> bool {
+        false
+    }
+
+    /// Whether the game stops while its window doesn't have focus: a GameMaker program's with "Freeze the
+    /// game when the form loses focus" in its game settings, as Spelunky's and the settings program's have
+    /// ([`App`]'s `frozen`).
+    fn freezes_unfocused(&self) -> bool {
         false
     }
 
@@ -445,6 +453,39 @@ pub struct App<G> {
     held: bool,
     /// What the game was last told of whether the ticks are shown ([`Game::unshown`]).
     unshown: bool,
+    /// Whether the window has focus, for a game that [freezes](Self::frozen) without it.
+    focus: Focus,
+}
+
+/// Whether the window has lost focus, for a game that [freezes](Game::freezes_unfocused) without it.
+#[derive(Default)]
+struct Focus {
+    /// The window has had the keyboard focus.
+    had: bool,
+    /// It has lost it since it last had it.
+    lost: bool,
+}
+
+impl Focus {
+    /// The window gains or loses the focus. GM8's runner freezes once its window is deactivated, so a window
+    /// that opens behind another one runs until it has been in front and isn't any more
+    /// (`docs/quirks.md`): winit's report that it doesn't have the focus as it opens (macOS) isn't a loss.
+    fn set(&mut self, focused: bool) {
+        self.had |= focused;
+        self.lost = self.had && !focused;
+    }
+
+    /// Whether a game that can freeze now ([`App::frozen`]) is frozen.
+    fn freezes(&self, can: bool) -> bool {
+        can && self.lost
+    }
+}
+
+/// When the next tick is due, `next` before a change that took the game from frozen or not (`was`) to frozen
+/// or not (`is`): now, if it thawed, as GM8's runner runs no steps to make up for the time it was frozen; else
+/// as it was.
+fn after_freeze(was: bool, is: bool, next: Option<Instant>, now: Instant) -> Option<Instant> {
+    next.map(|next| if was && !is { now } else { next })
 }
 
 /// Tick timing, with `SPELUNKY_STATS=1` (natively): the tick rate and how long ticks take.
@@ -547,6 +588,7 @@ impl<G: Game> App<G> {
             paused: false,
             held: false,
             unshown: false,
+            focus: Focus::default(),
         }
     }
 
@@ -706,11 +748,30 @@ impl<G: Game> App<G> {
         }
     }
 
+    /// Whether no ticks run, as the window doesn't have focus: a session of play of a game that
+    /// [freezes](Game::freezes_unfocused), as GM8's runner stops the game until its window has focus
+    /// again (`docs/quirks.md`, "Freeze when the window loses focus"). Not a replay, a page's clip or the
+    /// preview, whose input isn't the window's, and not while the close button waits for a tick: a window
+    /// that isn't focused can still be closed (macOS's close button doesn't focus it first), and the game
+    /// decides at the next tick, as ever. Nor once the game has ended (as that tick's may), so the window
+    /// closes.
+    fn frozen(&self) -> bool {
+        self.focus.freezes(
+            matches!(&self.source, Source::Live { collector, .. } if !collector.closing())
+                && self.embed.is_none()
+                && self.game.freezes_unfocused()
+                && !self.game.ended(),
+        )
+    }
+
     /// Runs every tick that's due, rendering each one's frame. Returns when the next one is due; `None`
-    /// before the GPU is ready and once the run is over.
+    /// before the GPU is ready, once the run is over, and while [`frozen`](Self::frozen).
     fn run_due_ticks(&mut self, event_loop: &ActiveEventLoop) -> Option<Instant> {
         if let Some(frame) = self.embed.as_mut().and_then(|e| e.sought.take()) {
             self.seek(frame);
+        }
+        if self.frozen() {
+            return None;
         }
         // Paused, nothing runs but the way to a frame the page seeks to.
         if self.paused && !self.seeking() {
@@ -723,6 +784,10 @@ impl<G: Game> App<G> {
             // The run through the clip is over: its seek back to the first frame comes first, at the next call,
             // even paused, rather than a tick past the replay's end, which would hold the last frame.
             if self.embed.as_ref().is_some_and(|e| e.sought.is_some()) {
+                break;
+            }
+            // Frozen again after the close button's tick, which the game didn't answer by ending.
+            if self.frozen() {
                 break;
             }
             let skipping = self.skipping();
@@ -1107,6 +1172,27 @@ impl<G: Game> App<G> {
         }
     }
 
+    /// The window gains or loses focus. A [frozen](Self::frozen) game starts again from now, as GM8's runs
+    /// no steps to make up for the time it was frozen. What's held stays held for the game: GM8 keeps the
+    /// keys and buttons as their messages left them, so one released while another window had focus is down
+    /// until it's pressed and released again (`docs/quirks.md`, "Freeze when the window loses focus").
+    fn set_focused(&mut self, focused: bool) {
+        // Except the overlay's: the app's own, which the game never sees, they're released wherever.
+        if !focused {
+            self.taken.clear();
+            self.taken_buttons.clear();
+        }
+        self.thaw(|app| app.focus.set(focused));
+    }
+
+    /// Makes `change`, after which the next tick is due now if that ended a [freeze](Self::frozen)
+    /// ([`after_freeze`]).
+    fn thaw(&mut self, change: impl FnOnce(&mut Self)) {
+        let was = self.frozen();
+        change(self);
+        self.next_tick = after_freeze(was, self.frozen(), self.next_tick, Instant::now());
+    }
+
     /// The live session's input collector; `None` while playing a replay, which ignores the devices.
     fn collector(&mut self) -> Option<&mut Collector> {
         match &mut self.source {
@@ -1134,11 +1220,15 @@ impl<G: Game> App<G> {
     /// open, as GM8's does; the next is answered. A replay's input is its own, so a replay, a clip, the
     /// preview and a game not begun or over close at once.
     fn close_button(&mut self, event_loop: &ActiveEventLoop) {
-        let playing = self.playing();
-        match self.collector() {
-            Some(c) if playing => c.close(),
-            _ => event_loop.exit(),
+        if !self.playing() {
+            return event_loop.exit();
         }
+        // A frozen game runs the tick that answers it.
+        self.thaw(|app| {
+            if let Some(c) = app.collector() {
+                c.close();
+            }
+        });
     }
 
     /// Ends a session of play as its close button would, when the app quits without waiting for a tick: the
@@ -1257,6 +1347,9 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                         repeat,
                         ..
                     },
+                // Winit makes up releases of the keys held as the window loses focus, and presses as it gets it
+                // back (on Windows and X11), which GM8's window never hears.
+                is_synthetic: false,
                 ..
             } => {
                 let down = state == ElementState::Pressed;
@@ -1337,11 +1430,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     c.wheel(dy);
                 }
             }
-            WindowEvent::Focused(false) => {
-                if let Some(c) = self.collector() {
-                    c.focus_lost();
-                }
-            }
+            WindowEvent::Focused(focused) => self.set_focused(focused),
             _ => {}
         }
     }
@@ -1427,6 +1516,37 @@ mod tests {
             }
             Start::Nowhere => None,
         }
+    }
+
+    #[test]
+    fn a_game_that_can_freeze_is_frozen_once_its_window_loses_focus() {
+        let mut focus = Focus::default();
+        // A window that opens behind another runs, though winit says it isn't focused: it hasn't lost the
+        // focus.
+        focus.set(false);
+        assert!(!focus.freezes(true));
+        focus.set(true);
+        assert!(!focus.freezes(true));
+        focus.set(false);
+        assert!(focus.freezes(true));
+        // A replay, a page's clip, the preview, a close press waiting for its tick.
+        assert!(!focus.freezes(false));
+        focus.set(true);
+        assert!(!focus.freezes(true));
+    }
+
+    #[test]
+    fn a_thawed_game_ticks_now_and_runs_no_ticks_for_the_time_frozen() {
+        let before = Instant::now();
+        let now = before + Duration::from_secs(10);
+        // Due 10 seconds ago, when it froze: due now, rather than 4 ticks back to back to catch up.
+        assert_eq!(after_freeze(true, false, Some(before), now), Some(now));
+        // Freezing, or no change, leaves the deadline, which the freeze holds back anyway.
+        assert_eq!(after_freeze(false, true, Some(before), now), Some(before));
+        assert_eq!(after_freeze(true, true, Some(before), now), Some(before));
+        assert_eq!(after_freeze(false, false, Some(before), now), Some(before));
+        // Before the GPU is ready, or after the run, nothing is due.
+        assert_eq!(after_freeze(true, false, None, now), None);
     }
 
     #[test]
