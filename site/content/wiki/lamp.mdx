@@ -15,7 +15,7 @@ infobox:
   damage: { stat: lamp.damage }
 relations:
   found_in: [mines, jungle, ice-caves, temple, black-market, yeti-lair, dark-level]
-  related: [dark-level, flare, kissing-parlor, general-store, throwing]
+  related: [dark-level, flare, kissing-parlor, general-store, throwing, red-lamp-no-light]
 clips: [lamp/fall, lamp/red]
 faq:
   - q: How do you get a Lamp in Spelunky Classic?
@@ -100,7 +100,8 @@ red <Cite gml="objects/oScreen/step_begin.gml:156-177" />. The hanging red lamp 
 game's objects, so the code that lights the hanging lamps lights it too; the red Lamp isn't a kind of the plain
 Lamp, and the code that lights a Lamp's circle and widens the player's light names only the plain one
 <Cite gml="objects/oScreen/step_begin.gml:191-194" /> <Cite gml="objects/oPlayer1/step.gml:95-100" />. So a red
-Lamp carried through a dark level lights nothing but its tint.
+Lamp carried through a dark level lights nothing but its tint ([[red-lamp-no-light]])
+<Cite quirk="1" row="A fallen red lamp lights nothing on a dark level." />.
 
 ## Locations
 
@@ -108,7 +109,7 @@ Lamp carried through a dark level lights nothing but its tint.
 | --- | --- | --- |
 | Plain, hanging | In every shop, from the ceiling, in [[mines\|the Mines]], [[jungle\|the Jungle]], [[ice-caves\|the Ice Caves]] (and the [[yeti-lair\|Yeti Lair]]) and [[temple\|the Temple]], and in each of the [[black-market\|Black Market]]'s shops | <Cite gml="scripts/scrRoomGen.gml:427-431" /> <Cite gml="scripts/scrRoomGen2.gml:442-446" /> <Cite gml="scripts/scrRoomGen3.gml:369-373" /> <Cite gml="scripts/scrRoomGenYeti.gml:388-392" /> <Cite gml="scripts/scrRoomGen4.gml:468-471" /> <Cite gml="scripts/scrRoomGenMarket.gml:338-341" /> |
 | Red, hanging | In the [[kissing-parlor\|Kissing Parlor]], in place of the plain one: the Temple's has its own red lamp tile, and the other areas' room scripts hang the red lamp on a level whose shop is the Kissing Parlor | <Cite gml="scripts/scrRoomGen.gml:186" /> <Cite gml="scripts/scrRoomGen.gml:429" /> <Cite gml="scripts/scrRoomGen2.gml:444" /> <Cite gml="scripts/scrRoomGen3.gml:371" /> <Cite gml="scripts/scrRoomGenYeti.gml:390" /> <Cite gml="scripts/scrRoomGen4.gml:169" /> <Cite gml="scripts/scrRoomGen4.gml:472-475" /> |
-| Plain, hanging | On a [[dark-level\|dark level]] in the Mines: 1 in 60 under a block with two open tiles below, once the [[giant-spider\|Giant Spider]]'s roll fails | <Cite gml="scripts/scrEntityGen.gml:52-61" /> |
+| Plain, hanging | On a [[dark-level\|dark level]] in the Mines: 1 in 60 under a block with two open tiles below, once the [[giant-spider\|Giant Spider]]'s roll fails | <Cite gml="scripts/scrEntityGen.gml:52-61" /> <Cite replay="fidelity/replays/item-seed-2-lamp-dark.txt" /> |
 
 The Lamp itself, the item, only ever comes from a hanging lamp's block: [[level-generation|level generation]]
 makes none, and the [[level-editor|level editor]] has no tile for either. In the second clip, the player

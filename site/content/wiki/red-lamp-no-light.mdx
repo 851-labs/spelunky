@@ -1,0 +1,94 @@
+---
+slug: red-lamp-no-light
+title: The red Lamp gives no light
+type: quirk
+categories: [quirks]
+aliases: [red-lamp-dark, red-lamp-light, fallen-red-lamp, kissing-parlor-lamp]
+card: { sprite: sLampRedItem }
+lede: >-
+  The red Lamp gives no light is a quirk of Spelunky Classic in which the Kissing Parlor's lamp, brought down,
+  lights nothing on a dark level.
+quirk:
+  status: GML + Oracle
+  where: objects/oScreen/step_begin.gml:187-194
+  pinned_by: fidelity/replays/item-seed-2-red-lamp-dark.txt
+  entry: "1"
+  rows:
+    - A fallen red lamp lights nothing on a dark level.
+relations:
+  related: [lamp, kissing-parlor, dark-level]
+clips: [quirks/red-lamp-no-light]
+faq:
+  - q: Does the red Lamp light up a dark level in Spelunky Classic?
+    a: >-
+      No. Hanging in the Kissing Parlor it lights the shop as any lamp does, but once its block is broken and
+      it falls, it gives no light at all, carried or lying: only a red tint on the lights near it.
+  - q: Why does the plain Lamp light the dark but the red one doesn't?
+    a: >-
+      The code that lights a fallen Lamp names the plain Lamp only. The red hanging lamp counts as a kind of
+      the plain hanging one, but the red Lamp it falls as doesn't count as a kind of the plain Lamp.
+  - q: Is a plain Lamp a good light on a dark level?
+    a: >-
+      Yes. Carried, it's as close as a light can be, and the darkness lifts round the player completely. It
+      can't leave its level, though.
+sources:
+  - objects/oScreen/step_begin.gml
+  - objects/oPlayer1/step.gml
+  - objects/oLevel/step.gml
+  - objects/oSolid/destroy.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+On a [[dark-level|dark level]], a [[lamp|Lamp]] carried or lying on the ground lights the cave around it, and
+the player's own light widens as he nears it. The [[kissing-parlor|Kissing Parlor]]'s lamp is red, and while it
+hangs it lights the shop like any other. Once its block is broken and it falls, though, the red Lamp lights
+nothing: in the dark, carrying it is the same as carrying nothing, but for a red tint.
+
+## What happens
+
+On a dark level, the player throws a lit bomb up under the Kissing Parlor's ceiling, and the red lamp falls. He
+picks it up and carries it out of the shop into the dark: it casts no light of its own, the dark closes in round
+him as if his hands were empty, and only the red tint shows <Cite clip="quirks/red-lamp-no-light" />.
+
+<Clip id="quirks/red-lamp-no-light" />
+
+## Why
+
+The red hanging lamp, `oLampRed`, is a kind of the plain one, `oLamp`, in the game's objects. The red Lamp it
+falls as, `oLampRedItem`, is an item like any other, not a kind of the plain Lamp, `oLampItem`
+<Cite gml="objects/oSolid/destroy.gml:24-33" />. On a dark level the screen draws a circle of light round every
+hanging lamp, which takes in the red one, and round every fallen Lamp, which names the plain one only:
+
+```gml objects/oScreen/step_begin.gml:187-194
+            with oLamp
+            {
+                draw_circle((x+8)-view_xview[0], (y+8)-view_yview[0], 96, false);
+            }
+            with oLampItem
+            {
+                draw_circle(x-view_xview[0], (y-4)-view_yview[0], 96, false);
+            }
+```
+
+The player's step, which finds the nearest light to set how dark it is round him, looks for the same two
+<Cite gml="objects/oPlayer1/step.gml:89-100" /> <Cite gml="objects/oLevel/step.gml:110-136" />. The red Lamp
+appears in the lighting code only where it tints the lights red while the player is within 96 pixels of it
+<Cite gml="objects/oScreen/step_begin.gml:167-177" /> <Cite quirk="1" />.
+
+## Reproducing it
+
+Find a Kissing Parlor on a dark level: the Mines' levels 2 to 4, the Jungle or the Temple, or any level
+defiling a third [[kalis-altar|altar]], or a later one, makes dark, the Ice Caves' too. Its lamp hangs from
+the shop's ceiling, out of reach of a bomb on the floor, and a lit bomb near the Shopkeeper in his shop angers
+him, so deal with him first, then throw a lit bomb up under the lamp as its fuse runs out. Pick the red Lamp up
+and walk into the dark. The replay of the clip does so on a dark level 2: carrying the red Lamp, the nearest light
+the player has is never closer than 20 pixels, and the darkness reaches its deepest
+<Cite replay="fidelity/replays/item-seed-2-red-lamp-dark.txt" />. Another replay brings a dark level's plain
+lamp down and carries it, and the darkness is gone while he does
+<Cite replay="fidelity/replays/item-seed-2-lamp-dark.txt" />.
+
+## In the port
+
+The spelunky.ai port reproduces it exactly: it's in docs/quirks.md's list of the 1.1 source's bugs
+<Cite quirk="1" />, and the oracle's fingerprints of the two replays pin the light round the player with each
+Lamp. No option turns it off.

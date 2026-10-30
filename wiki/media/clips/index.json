@@ -7423,6 +7423,42 @@
       "width": 640
     },
     {
+      "audio_hash": "c0ee0440bcb1fcfe",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "On a dark level, the player throws a lit bomb up under the Kissing Parlor's ceiling, and its red lamp falls. He picks the red Lamp up and carries it out of the shop into the dark: it casts no light of its own, the dark closes in round him as if he held nothing, and only the red tint shows.",
+      "duration": 15.366666666666667,
+      "encoding": "bc0245ca070c5419",
+      "files": {
+        "mp4": "quirks/red-lamp-no-light/clip.mp4",
+        "poster": "quirks/red-lamp-no-light/poster.png",
+        "replay": "quirks/red-lamp-no-light/replay.txt",
+        "webm": "quirks/red-lamp-no-light/clip.webm"
+      },
+      "fps": 30,
+      "frames": 461,
+      "frames_hash": "b99a01ce645c7d60",
+      "from": 2160,
+      "has_audio": true,
+      "height": 480,
+      "id": "quirks/red-lamp-no-light",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 2560,
+      "replay_from": 2160,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/item-seed-2-red-lamp-dark.txt"
+      },
+      "spec": "wiki/clips/quirks/red-lamp-no-light.toml",
+      "state_hash": "cf0d58f5d6aaefdc",
+      "states_hash": "75b303aed383ec07",
+      "title": "A red Lamp lights nothing on a dark level",
+      "to": 2620,
+      "width": 640
+    },
+    {
       "audio_hash": "cea589be38260642",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The player throws a rock to the left from a running jump, and it flies out of the view. He walks away to the right, then comes back much later: the rock flies in from the left as if it had just been thrown, bounces off the cave's wall and lands, and he picks it up.",
