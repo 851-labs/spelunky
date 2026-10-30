@@ -1,0 +1,171 @@
+# The crystal skull carried out of the exit (851-3779), as trap-jungle-idol-exit carries the idol: arriving on the
+# exit with up already held, so oPlayer1's step #2 takes it before step #8 can cash it in. Seed 213:
+# item-seed-213-crystal-skull-sold.txt to frame 1030 (level 5 at 781, a cemetery level; the skull picked up at
+# 1022, which summons the ghost), then area-route --steps '>@456:488' --wait 5: he carries it to the block right
+# of the exit's platform, one block lower (1747). By hand: holding up, a short jump left (1752) lands on the
+# platform's right block (1762, x 441), and a walk left with up held reaches the exit (x 416-431, 1791): its
+# $15000 times levelType + 1 goes straight to global.money (6500 -> 36500), and, its sprite being sCrystalSkull,
+# it counts in global.skulls, not global.idols. The transition (1818) tallies it with the crystal skull's icon
+# (global.skulls 1 -> 0, 1897); X goes on to level 6 (1980), before the ghost reaches him.
+# story: currLevel=5@781 cemetary=1@781 held=oCrystalSkull@1022 money=36500@1791..1791 skulls=1@1791..1791
+# story: !idols>0 idolsConverted=1@1791..1791 -oCrystalSkull@1791..1791 oPlayer1.sprite_index=sPExit@1791..1791
+# story: room=rTransition2@1818 skulls=0@1897 room=rLevel@1980 currLevel=6@1791 !oPlayer1.dead=1
+seed 213
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press right
+800 press Z
+806 release right
+806 release Z
+806 press up
+830 release up
+830 press right
+830 press Z
+836 release Z
+956 press Z
+962 release Z
+962 press X
+968 release X
+974 release right
+974 press left
+974 press X
+980 release X
+986 release left
+986 press down
+992 release down
+992 press left
+992 press X
+998 release left
+998 release X
+998 press Z
+1004 press right
+1010 release Z
+1016 press Z
+1022 release right
+1022 release Z
+1022 press down
+1022 press X
+1023 release down
+1023 release X
+1023 press left
+1029 release left
+1029 press up
+1054 release up
+1054 press left
+1054 press Z
+1060 release Z
+1090 press Z
+1096 release Z
+1102 press Z
+1108 release Z
+1138 press Z
+1150 release Z
+1156 press Z
+1162 release Z
+1192 press Z
+1198 release Z
+1228 press Z
+1234 release Z
+1240 release left
+1240 press down
+1246 release down
+1246 press left
+1246 press Z
+1252 release Z
+1288 release left
+1288 press right
+1294 release right
+1294 press up
+1318 release up
+1318 press right
+1348 release right
+1348 press left
+1354 release left
+1354 press right
+1354 press Z
+1360 release Z
+1390 release right
+1390 press left
+1396 release left
+1396 press right
+1396 press Z
+1402 release Z
+1432 release right
+1432 press left
+1438 release left
+1438 press right
+1438 press Z
+1444 release right
+1444 release Z
+1456 press right
+1456 press Z
+1462 release right
+1462 release Z
+1462 press up
+1468 release up
+1468 press Z
+1474 release Z
+1474 press right
+1504 release right
+1504 press left
+1504 press Z
+1510 release left
+1510 release Z
+1510 press right
+1540 press Z
+1546 release Z
+1576 release right
+1576 press Z
+1582 release Z
+1582 press right
+1588 press Z
+1594 release Z
+1600 press Z
+1606 release Z
+1636 release right
+1636 press left
+1672 release left
+1672 press right
+1678 release right
+1678 press left
+1678 press Z
+1684 release Z
+1714 release left
+1714 press right
+1720 release right
+1720 press left
+1726 release left
+1726 press down
+1732 release down
+1732 press Z
+1738 release Z
+1738 press left
+1747 release left
+1752 hold up 70
+1752 hold Z 4
+1752 hold left 5
+1786 hold left 20
+1980 hold X 2
+frames 2010
