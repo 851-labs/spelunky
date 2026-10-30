@@ -7,6 +7,9 @@
 # ${XDG_CACHE_HOME:-~/.cache}/spelunky-oracle) and is only re-prepared when a pinned commit, a patch or the
 # Dockerfile changes. The image build and cargo build are incremental, so a re-run with no changes takes seconds.
 set -euo pipefail
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's bash, 3.2, exits from
+# one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
+bash -n "$0" || exit 2
 # shellcheck source=tools/oracle/common.sh
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
@@ -18,7 +21,20 @@ mkdir -p "$CACHE_DIR"
 
 # Every worktree shares the cache dir and the volumes, so builds take turns.
 pxfm="$(mktemp -d)"
-trap 'unlock_all; rm -rf "$pxfm"' EXIT
+# Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+# from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+finished=
+cleanup() {
+  status=$?
+  unlock_all
+  rm -rf "$pxfm"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "tools/oracle/build: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
 trap 'exit 130' INT TERM
 lock "$CACHE_DIR/build.lock"
 
@@ -97,3 +113,4 @@ docker run --rm \
     mv "$EMULATOR.tmp" "$EMULATOR"'
 
 echo "oracle: ready. Run a replay with tools/oracle/run <replay.txt> <out.jsonl>"
+finished=1

@@ -14,6 +14,9 @@
 #   site/build.sh ... --wiki-media DIR
 #                                 and other wiki media than wiki/media (site/test.sh's stand-in)
 set -eu
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's sh, bash 3.2, exits from
+# one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
+sh -n "$0" || exit 2
 die() { echo "site/build.sh: $*" >&2; exit 1; }
 usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]] [--wiki-media DIR]" >&2; exit 2; }
 given=
@@ -51,7 +54,19 @@ sha256() {
 }
 
 tmp=$(mktemp -d)
-trap 'rm -rf "$tmp"' EXIT
+# Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+# from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+finished=
+cleanup() {
+  status=$?
+  rm -rf "$tmp"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "site/build.sh: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
 if [ -n "$given" ]; then
   [ -f "$given" ] || die "no $given"
   tarball=$given
@@ -269,3 +284,4 @@ echo "site/build.sh: $files static asset files, of the 20,000 Workers takes"
 if [ "$files" -gt 9900 ] && [ "$(uname)" = Darwin ]; then
   echo "site/build.sh: too many for wrangler dev on macOS (spawn EBADF): serve it with npx vite preview"
 fi
+finished=1

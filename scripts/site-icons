@@ -4,6 +4,9 @@
 # iOS shows a transparent one on black). `--check` only checks the committed ones are current, as
 # scripts/check does, and writes nothing.
 set -eu
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's sh, bash 3.2, exits from
+# one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
+sh -n "$0" || exit 2
 cd "$(dirname "$0")/.."
 check=
 case "${1-}" in
@@ -15,7 +18,19 @@ icons="favicon.ico icon.svg apple-touch-icon.png"
 out=site/public
 if [ -n "$check" ]; then
   out=$(mktemp -d)
-  trap 'rm -rf "$out"' EXIT
+  # Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+  # from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+  finished=
+  cleanup() {
+    status=$?
+    rm -rf "$out"
+    if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+      echo "scripts/site-icons: stopped before its end, so it fails" >&2
+      status=1
+    fi
+    exit "$status"
+  }
+  trap cleanup EXIT
 fi
 scripts/cargo run --quiet --release -p tools --bin icon -- --reference reference --sprite sStandLeft \
   --ico "$out/favicon.ico" --svg "$out/icon.svg" --touch-icon f0c040 "$out/apple-touch-icon.png"
@@ -25,3 +40,4 @@ for icon in $icons; do
   cmp -s "$out/$icon" "site/public/$icon" || stale="$stale site/public/$icon"
 done
 [ -z "$stale" ] || { echo "scripts/site-icons: stale:$stale (run scripts/site-icons)" >&2; exit 1; }
+finished=1

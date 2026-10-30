@@ -96,8 +96,16 @@ for test.sh's cleanup. So a test.sh that stopped halfway passed, skipping every 
 (851-3741). Now it checks that it parses before anything else (`sh -n "$0"`), and its cleanup fails a run
 that didn't reach its last line. `scripts/check-sh`, which `scripts/check --fast` runs, checks that every sh and
 bash script in the repo parses (`sh -n`, `bash -n`), so a syntax error at a script's top level fails "Test suite"
-too; one inside a `$(...)` is only parsed as it runs, and fails the script then. The repo's other scripts with
-an EXIT trap are 851-3743.
+too; one inside a `$(...)` is only parsed as it runs, and fails the script then.
+
+Every other script with an EXIT trap does the same (851-3743): `site/build.sh` (Workers Builds' build, whose
+`sh` on Linux is dash, which exits with the error's status, but which runs on the Macs too), `scripts/wiki-media`
+(the media check), `scripts/release/auto-test` (run by `scripts/check`), `scripts/web`,
+`scripts/release/macos-dmg`, `scripts/bump-web-release`, `scripts/clip`, `scripts/site-icons`,
+`scripts/seed-target`, and the bash ones, `tools/oracle/build`, `tools/oracle/run` and `tools/gm8-probe/run`
+(macOS's bash is 3.2 too). Each checks that it parses (`sh -n "$0"` or `bash -n "$0"`) before its trap, and its
+cleanup keeps a failing status and fails a run that didn't set `finished=1` where it ends, before an intended
+`exit 0` too. `scripts/check-sh` fails a script that sets an EXIT trap without both.
 
 The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside

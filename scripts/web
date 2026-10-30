@@ -16,6 +16,9 @@
 # version of the wasm-bindgen crate in Cargo.lock, so it's installed from that into target/tools on first
 # use (a minute or two), and nothing global. The server is Node's, which scripts/check already needs.
 set -eu
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's sh, bash 3.2, exits from
+# one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
+sh -n "$0" || exit 2
 usage() { echo "usage: scripts/web [--dev] [--check | --package OUT.tar.gz]" >&2; exit 2; }
 profile=release
 serve=1
@@ -77,7 +80,19 @@ if [ -n "$package" ]; then
   # app.js's import and the app's fetches (assets/, and a ?replay= URL) resolve against; only it
   # (no-cache) changes.
   stage=$(mktemp -d)
-  trap 'rm -rf "$stage"' EXIT
+  # Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+  # from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+  finished=
+  cleanup() {
+    status=$?
+    rm -rf "$stage"
+    if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+      echo "scripts/web: stopped before its end, so it fails" >&2
+      status=1
+    fi
+    exit "$status"
+  }
+  trap cleanup EXIT
   build=$stage/build
   mkdir "$build"
   # With the license, which a Covered Work has to come with.
@@ -96,6 +111,7 @@ if [ -n "$package" ]; then
   (cd "$(dirname "$package")" && shasum -a 256 "$(basename "$package")" >"$package.sha256")
   echo "$package ($hash)"
   cat "$package.sha256"
+  finished=1
   exit 0
 fi
 

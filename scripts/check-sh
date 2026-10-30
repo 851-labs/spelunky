@@ -5,8 +5,9 @@
 # stops there and passes, as site/test.sh did, skipping every check after it (851-3741). This catches a syntax
 # error anywhere at the top level of a script; one inside a $(...) isn't parsed until it runs (and fails the
 # script then, trap or not), and an error at run time, an unset variable under set -u, is each script's own to
-# catch (site/test.sh's cleanup fails a run that didn't reach its end). scripts/check --fast runs this, so CI
-# does too.
+# catch. So a script that sets an EXIT trap must also do as site/test.sh does (851-3743): check that it parses
+# (`sh -n "$0" || exit 2`, or bash's) before the trap, and have the trap fail a run that didn't set `finished=1`
+# where it ends. This checks each has both. scripts/check --fast runs this, so CI does too.
 set -eu
 cd "$(dirname "$0")/.."
 failed=0
@@ -22,6 +23,17 @@ while IFS= read -r file; do
   esac
   if ! $shell -n "$file"; then
     echo "scripts/check-sh: $file doesn't parse ($shell -n)" >&2
+    failed=1
+  fi
+  trap_line=$(grep -n '^ *trap .* EXIT$' "$file" | head -1 | cut -d: -f1)
+  [ -n "$trap_line" ] || continue
+  guard_line=$(grep -nxF "$shell -n \"\$0\" || exit 2" "$file" | head -1 | cut -d: -f1)
+  if [ -z "$guard_line" ] || [ "$guard_line" -gt "$trap_line" ]; then
+    echo "scripts/check-sh: $file sets an EXIT trap (line $trap_line) without '$shell -n \"\$0\" || exit 2' before it" >&2
+    failed=1
+  fi
+  if ! grep -q '^ *finished=1$' "$file"; then
+    echo "scripts/check-sh: $file sets an EXIT trap but never finished=1, which its trap fails a run without" >&2
     failed=1
   fi
 done <"$list"

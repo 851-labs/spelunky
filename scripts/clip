@@ -4,13 +4,28 @@
 # Runs the game headless once (app --capture-from), then encodes the frames at 30 fps. Assets come
 # from the repo's assets/ (scripts/extract) unless SPELUNKY_ASSETS points elsewhere.
 set -eu
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's sh, bash 3.2, exits from
+# one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
+sh -n "$0" || exit 2
 [ $# -ge 4 ] || { echo "usage: scripts/clip REPLAY FROM TO OUT.mp4|OUT.gif [SCALE [APP OPTIONS...]]" >&2; exit 2; }
 replay=$1 from=$2 to=$3 out=$4 scale=${5:-1}
 shift $(($# < 5 ? 4 : 5))
 command -v ffmpeg >/dev/null || { echo "scripts/clip: needs ffmpeg (brew install ffmpeg)" >&2; exit 1; }
 root=$(cd "$(dirname "$0")/.." && pwd)
 frames=$(mktemp -d)
-trap 'rm -rf "$frames"' EXIT
+# Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+# from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+finished=
+cleanup() {
+  status=$?
+  rm -rf "$frames"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "scripts/clip: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
 "$root/scripts/cargo" run --quiet --release --manifest-path "$root/Cargo.toml" -p app -- --mute \
   --assets "${SPELUNKY_ASSETS:-$root/assets}" --replay "$replay" \
   --frames "$((to + 1))" --capture-from "$from" --scale "$scale" --screenshot "$frames" "$@"
@@ -21,3 +36,4 @@ case $out in
            -c:v libx264 -pix_fmt yuv420p -crf 18 "$out" ;;
 esac
 echo "$out"
+finished=1
