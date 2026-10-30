@@ -602,7 +602,7 @@ impl World {
 
     /// Runs an event for every active instance in draw order (not grouped by object like the step
     /// events). OpenGMK `game/events.rs` (`run_other_event`).
-    fn run_other_event(&mut self, e: Event) -> R<()> {
+    pub(crate) fn run_other_event(&mut self, e: Event) -> R<()> {
         let mut it = self.insts.iter_drawing();
         while let Some(h) = it.next(&self.insts) {
             self.run_event(h, h, e)?;

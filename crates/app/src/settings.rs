@@ -106,6 +106,10 @@ impl WindowGame for Settings {
         }
     }
 
+    fn close_button(&self) -> bool {
+        true
+    }
+
     fn fullscreen(&self) -> Option<bool> {
         self.game.as_ref().unwrap_or(&self.settings).fullscreen()
     }
