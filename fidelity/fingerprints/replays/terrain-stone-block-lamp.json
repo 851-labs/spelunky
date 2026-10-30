@@ -1,0 +1,26 @@
+{
+  "replay": "01b60fecc4f93864",
+  "frames": 3010,
+  "trace": "7d51688f286a0a97",
+  "host": "bde8a4897ae89cf1",
+  "checkpoints": [
+    [0,"rIntro","634984d51552389f"],
+    [70,"rTitle","7d1c05c4f75ffb9d"],
+    [299,"rTitle","e9d73eb16d45941b"],
+    [565,"rLevel","7ed8b0ed57432f94"],
+    [599,"rLevel","1a05da53a1caf18b"],
+    [899,"rLevel","24bbd7295c46353f"],
+    [1199,"rLevel","e23fa4a195d13f59"],
+    [1373,"rTransition1","e7612767c1b14079"],
+    [1414,"rLevel","0e4bfa2fb9171980"],
+    [1499,"rLevel","38bc30de0472d23d"],
+    [1799,"rLevel","ba449380338242d4"],
+    [2099,"rLevel","91b4bc0216922490"],
+    [2399,"rLevel","c04bc573a0aa97c4"],
+    [2699,"rLevel","ca5312ac11ea8aae"],
+    [2789,"rTransition1","9a6f2d1ccbbd4721"],
+    [2830,"rLevel","9af3dacf081e09d4"],
+    [2999,"rLevel","e0a50a9d31eb2758"],
+    [3009,"rLevel","7d51688f286a0a97"]
+  ]
+}
