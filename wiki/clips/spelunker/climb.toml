@@ -1,5 +1,5 @@
 title = "Climbing and crawling"
-description = "In the tutorial, the Spelunker jumps onto a ladder and climbs it, then jumps off to the left and opens a chest. Ducking, he crawls over the edge of a step, flips round to hang from it, lets go, and walks off the steps into a fall that stuns him."
+description = "In the Tutorial, the Spelunker jumps onto a ladder and climbs it, then jumps off to the left and opens a chest. Ducking, he crawls over the edge of a step, flips round to hang from it, lets go, and walks off the steps into a fall that stuns him."
 replay = "fidelity/replays/movement-ladder-crawl.txt"
 from = 860
 to = 1279

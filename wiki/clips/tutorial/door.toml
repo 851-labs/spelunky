@@ -1,5 +1,5 @@
 title = "Into the Tutorial"
-description = "On the title screen, the player walks left into the tutorial door. The Tutorial loads with no bombs and two ropes, and as he runs right the first signs welcome him to the tutorial cave and tell him the jump key."
+description = "On the title screen, the player walks left into the tutorial door. The Tutorial loads with no bombs and two ropes, and as he runs right the first signs welcome him to the Tutorial Cave and tell him the jump key."
 replay = "fidelity/replays/title-doors.txt"
 from = 700
 to = 879

@@ -222,7 +222,7 @@ broken over a column of ice, which shows the dark big piece better than the rock
 level editor's Shopkeeper tile makes one, but his death in a custom level isn't added to his kill tally
 (`enemyKills[19]`, only on `isRealLevel`).
 `quirks/compass-arrow-off-screen` is cut from `item-seed-1-compass-olmec-lair.txt`, `ending-seed-1.txt` with the
-Compass buried in Olmec's lair picked up: the quirk needs the lair, where the HUD puts the exit and the view goes
+Compass buried in Olmec's Lair picked up: the quirk needs the lair, where the HUD puts the exit and the view goes
 below it. `quirks/olmec-door-block-crush` is cut from `olmec-door-block-crush-seed-1.txt`, `ending-seed-1.txt` with
 the floor under the lair's door blown out and the player in its place when Olmec dies: the tally only counts a crush
 as Olmec's in the lair.
@@ -305,7 +305,7 @@ editor scene is no area's level): `mines/start` (`mines-seed-1.txt`), `mines/exi
 The traps' second part (851-3492) added two scenes, `web/fall` (a single web at the foot of a one-block
 shaft: where two webs meet, a jump can wear down the other one) and `web/snake`, and two cut from replays made
 for them, for the same reason as the ceiling trap's: `trap-block/crumble` (`trap-jungle-idol-blocks.txt`, Jungle
-seed 4's idol room) and `trap-block/pit` (`trap-sacrifice-pit.txt`, Temple seed 16's Sacrifice Pit), both
+seed 4's idol room) and `trap-block/pit` (`trap-sacrifice-pit.txt`, Temple seed 16's sacrifice pit), both
 `area-route --steps '+oGoldIdol'` from `fidelity/gen-area.sh`.
 The item shops' pages (851-3356) added eight, all cut from replays, as only level generation makes shops:
 `general-store/buy` and `general-store/theft` (`shop-seed-3-buy-theft.txt`), `bomb-shop/buy`

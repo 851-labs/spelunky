@@ -43,7 +43,7 @@ Every page:
 | Field | Contents |
 | --- | --- |
 | `slug` | The page's URL, `/wiki/<slug>`; the file's name. See [Naming](#naming-and-slugs). |
-| `title` | An entity's name as the game writes it, in title case: `Snake`, `Pitcher's Mitt`, `Olmec's Lair`. A place is an entity when it has a name of its own: an area (`The Mines`, `Olmec's Lair`) or a place the game names on screen (`Black Market`, `City of Gold`, `Sun Room`, `Tutorial`), in title case. A place the game never names is a kind of level or a thing in one, and its title is a description in sentence case, as the body writes it in lowercase like any generic word: `Dark level`, `Snake pit`, `Sacrifice pit`, `Yeti lair`, `Kali's altar`, `High scores room` ("a dark level", "the Temple's sacrifice pit"; a name in it keeps its capital: "a Yeti lair"). A mechanic, guide or quirk page's is a short description in sentence case: `Stomping`, `Reaching the City of Gold`, `Stomping while jumping`. |
+| `title` | An entity's name as the game writes it, in title case: `Snake`, `Pitcher's Mitt`, `Olmec's Lair`. A place's follows [Place titles](#naming-and-slugs). A mechanic, guide or quirk page's is a short description in sentence case: `Stomping`, `Reaching the City of Gold`, `Stomping while jumping`. |
 | `type` | The page type, which picks the template, the infobox and the JSON-LD: `monster`, `item`, `treasure`, `trap`, `terrain`, `place`, `shop`, `character`, `mechanic`, `guide` or `quirk`. One per page. |
 | `categories` | The hubs that list it (one or more): `monsters`, `characters`, `items/equipment`, `items/weapons`, `items/carryables`, `treasure`, `traps`, `terrain`, `places`, `shops`, `mechanics`, `guides`, `quirks`, `the-game`. The Shopkeeper is `[characters, monsters]`; the URL doesn't change with them. |
 | `objects` | The game objects the page is about (`[oSpider, oSpiderHang]`): the keys into `stats.json`, `relations.json` and the sprite index. An object belongs to one page at most; that's how the build maps an object to a slug. A place's or a shop's slug is the relations' area, level or shop slug, and a place lists the editor-built rooms it covers in `rooms` (`[rOlmec]`). An area names no objects (it's made of everything found in it; the build fails on one that names any). A special level or a shop names the fixtures it's made of that no other page is about: the Moai's head (`[oMoai, oMoai2, oMoai3, oMoaiInside]`), the mothership's barrier, the graveyard level's graves, the Dice House's dice. So does a place that's a thing in a level, Kali's altar (`[oSacAltarLeft, oSacAltarRight]`). Its objects back its `part_of`, its `drops` and a shop's `found_in`, and the build warns on what the data has for them that the page leaves out. |
@@ -406,6 +406,16 @@ rising pile of bones `oFakeBones` is the Skeleton's, beside `oSkeleton`. Listing
 has `oSkeleton` in no place). Things the game names differently get different pages: `spider` and `giant-spider`, `bat` and
 `vampire`. A page that's both a character and a monster, or a character and a carryable, is one page with
 two categories (`shopkeeper`, `damsel`).
+
+**Place titles.** A place is an entity, in title case, when it has a name of its own: an area (`The Mines`,
+`Olmec's Lair`), or a place the game names on screen (`Black Market`, from "WELCOME TO THE BLACK MARKET!";
+`City of Gold`; `Sun Room`; `Tutorial`). A place the game never names is a kind of level, or a thing in one,
+and its title is a description in sentence case: `Dark level`, `Snake pit`, `Sacrifice pit`, `Yeti lair`,
+`Kali's altar`, `High scores room`. The body writes those in lowercase like any generic word ("a dark
+level", "the Temple's sacrifice pit"), and a name in one keeps its capital ("a Yeti lair", "Kali's altar").
+The test is the game's text, not the source's: the high scores room's "MOON ROOM" (`oHighscores`'s draw)
+names the Moon Room, and the source's `global.yetiLair` names nothing. Shops are named as their template
+says (`relations.toml`'s name, in title case: `Kissing Parlor`).
 
 **Collisions.** When two pages would get the same slug, the one that isn't the plain name takes a kind word
 as a suffix, never a parenthesis: `arrow` (the item) and `arrow-trap`; `ankh` and `ankh-shop`; `olmec` and

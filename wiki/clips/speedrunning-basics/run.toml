@@ -1,5 +1,5 @@
 title = "Walking and running"
-description = "In the tutorial, the player walks left off a pillar at 3 pixels a step and drops to the ledge below. Then, as the sign says \"TO RUN, HOLD DOWN X OR SHIFT.\", he runs left at 6 pixels a step off the ledge's end and jumps, keeping that speed across the gap to the next ledge."
+description = "In the Tutorial, the player walks left off a pillar at 3 pixels a step and drops to the ledge below. Then, as the sign says \"TO RUN, HOLD DOWN X OR SHIFT.\", he runs left at 6 pixels a step off the ledge's end and jumps, keeping that speed across the gap to the next ledge."
 replay = "fidelity/replays/movement-tutorial-exit.txt"
 from = 1195
 to = 1344
