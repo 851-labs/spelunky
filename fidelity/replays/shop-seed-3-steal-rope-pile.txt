@@ -1,0 +1,97 @@
+# Stealing a rope pile (851-3784): scrStealItem's Rope Pile branch, which adds 3 to global.rope. Seed 3:
+# shop-seed-3-bomb-rope-piles.txt to frame 1162 (level 2 at 914, Leon's Supply Shop, the player beside its first
+# rope pile), then area-route --steps '+oRopePile$' --wait 2 (holds it, "EXTRA ROPE FOR $2500.", 1162), then by
+# hand: he runs right (run key, 1167) and jumps (1185) over the block at the shop's door and out of its room,
+# which steals it (1191: thiefLevel 2, global.rope 4 -> 7, the pile used up). Ends at 1274.
+# story: currLevel=2@852 held=oRopePile@1162 thiefLevel=2@1191..1191 rope=7@1191..1191 -oRopePile@1191..1191
+seed 3
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press left
+720 release left
+720 press up
+744 release up
+744 press right
+744 press X
+750 release X
+840 release right
+840 press left
+846 release left
+846 press right
+852 release right
+852 press up
+874 release up
+874 press X
+876 release X
+882 press X
+884 release X
+890 press X
+892 release X
+898 press X
+900 release X
+906 press X
+908 release X
+914 press X
+915 release X
+915 press left
+945 release left
+951 press Z
+957 press left
+963 release Z
+969 press Z
+975 release left
+975 release Z
+975 press down
+981 release down
+981 press left
+981 press Z
+993 release left
+993 release Z
+993 press up
+1017 release up
+1017 press left
+1017 press Z
+1023 release left
+1023 release Z
+1023 press right
+1029 release right
+1029 press down
+1035 release down
+1035 press left
+1035 press Z
+1041 release Z
+1071 release left
+1071 press Z
+1077 press left
+1083 release Z
+1089 press Z
+1095 release Z
+1151 release left
+1155 press right
+1161 release right
+1162 press down
+1162 press X
+1163 release down
+1163 release X
+1167 hold shift 60
+1167 hold right 60
+1185 hold Z 10
+frames 1275
