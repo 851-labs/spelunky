@@ -1,15 +1,18 @@
-# The M key's music toggle (oGame's keypress M) in every area but the Mines (851-3785). city-of-gold-seed-9-to-olmec.txt's
-# input to frame 8200, with M pressed twice, 30 frames apart, on the title (120, 150), on level 5 in the Jungle
-# (800, 830), level 9 in the Ice Caves (4240, 4270), level 13 in the Temple (5630, 5660) and in rOlmec (7680,
-# 7710, then 8120, 8150). Each first press sets global.music false and stops the music; each second sets it true
-# and plays the place's own: the title's (isRoom("rTitle")), and on a level the one for its levelType, 1 to 3.
-# rOlmec's levelType is 4, so it goes on to its own branch, which plays the boss music only once oPlayer1 is
-# active: not during Olmec's entrance (7710, the player inactive from 7661), but after it (8150, active from
-# 8098). Neither changes play. Ends at 8199 in rOlmec.
-# story: room=rTitle@70 music=0@120..120 music=1@150..150 currLevel=5@781 music=0@800..800 music=1@830..830
+# The M key's music toggle (oGame's keypress M) in every area but the Mines (851-3785).
+# city-of-gold-seed-9-to-olmec.txt's input to frame 8200, with M pressed twice, 16 to 30 frames apart, on the title
+# (120, 150), on level 5 in the Jungle (800, 830), in the transition room after it (1084, 1100), level 9 in the Ice
+# Caves (4240, 4270), level 13 in the Temple (5630, 5660) and in rOlmec (7680, 7710, then 8120, 8150). Each first
+# press sets global.music false and stops the music; each second sets it true and plays the place's own: the
+# title's (isRoom("rTitle")), and on a level the one for its levelType, 1 to 3. In the transition room nothing
+# happens: it has no oGame. rOlmec's levelType is 4, so it goes on to its own branch, which plays the boss music
+# only once oPlayer1 is active: not during Olmec's entrance (7710, the player inactive from 7661), but after it
+# (8150, active from 8098). None of the presses changes play. Ends at 8199 in rOlmec.
+# story: room=rTitle@70 music=0@120..120 music=1@150..150 currLevel=5@781 levelType=1@781 music=0@800..800
+# story: music=1@830..830 room=rTransition2@1080 !music=0@831..4239 currLevel=9@4148
 # story: room=rLevel2@4220 levelType=2@4220 music=0@4240..4240 music=1@4270..4270 currLevel=13@5545 levelType=3@5609
 # story: music=0@5630..5630 music=1@5660..5660 room=rOlmec@7661 levelType=4@7661 music=0@7680..7680
-# story: music=1@7710..7710 oPlayer1.active=1@8098..8098 music=0@8120..8120 music=1@8150..8150
+# story: music=1@7710..7710 !oPlayer1.active=1@7661..8097 oPlayer1.active=1@8098..8098 music=0@8120..8120
+# story: music=1@8150..8150
 seed 9
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"
@@ -897,4 +900,6 @@ highscore 0 "MINIGAMES"
 7710 hold M 2
 8120 hold M 2
 8150 hold M 2
+1084 hold M 2
+1100 hold M 2
 frames 8200
