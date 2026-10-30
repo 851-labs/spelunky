@@ -164,11 +164,15 @@ deploying, or after a rollback, carries from the version before that, and the fi
 are gone with its deploy: the page reloads for them (below).
 
 How much that covers: a build is about 11,400 files of Workers' 20,000 (Limits, below), and its hashed files
-are about 535 (284 scripts and styles, 6.8 MB; 251 cards, 1 MB). Today a deploy renames about 225 of the
-scripts, whatever it changes, as every page's chunk has the commit in its links to GitHub (851-3740), and a
-card only when its page's numbers or sprite change. So 6,000 is about the last 25 deploys: most of a day at
-main's busiest (up to ~100 deploys a day), and the week when it's quieter. It downloads in about half a
-minute of the build. Once a deploy renames only what it changes, the same 6,000 is many more deploys.
+are about 535 (284 scripts and styles, 6.8 MB; 251 cards, 1 MB). How many a deploy renames depends on what it
+changes: none for a commit that changes nothing the site shows or links, 14 for one page (its chunk, the search
+index and the chunks that name them, up to the entry), but 221 for a change to `docs/quirks.md` (about a third
+of commits), as the ~209 pages that cite a quirk row have its last change and the row's line in their links
+(851-3744), and most of them for a change to the shared code. A card changes only with its page's numbers or
+sprite. (Until 851-3740, every deploy renamed about 225, as every page's chunk had the commit built in its links
+to GitHub; they're at each file's last change now.) So 6,000 is the last 25 or so deploys that change
+`docs/quirks.md` or the shared code, with any number of the rest between them: a day or more at main's busiest.
+It downloads in about half a minute of the build.
 
 Why this way: Workers keeps no previous version's assets for the live one (a version is its own assets,
 which is what makes rollback instant), and Cloudflare's Pages-style asset retention isn't something a Worker
@@ -219,9 +223,12 @@ the files), `WIKI_MEDIA_LOG` (a file of `git log --name-only` over the clips' vi
 below) and `WIKI_MEDIA_DATE` (when they last changed: the date of the last commit to `wiki/media`; a
 `--wiki-media` directory's modification time, if it isn't a git repository of its own, which has no log); none is set
 under `npm run dev`. The wiki's pipeline and `virtual:wiki-media` read them (SEO, below). It also gets
-`WIKI_COMMIT`, the checkout's commit (`git rev-parse HEAD`: Workers Builds checks out the one it builds), which the
-wiki's links to the repo's files on GitHub (a cited replay, a `docs/quirks.md` row) are pinned to
-(`docs/wiki-style.md`, "Citing the code"); `npm run dev` links them at `main`. The build checks the files and
+`WIKI_COMMIT`, the checkout's commit (`git rev-parse HEAD`: Workers Builds checks out the one it builds), as of which
+the wiki's links to the repo's files on GitHub (a cited replay, a `docs/quirks.md` row) are pinned, each at the last
+commit to change its file, which has it as `WIKI_COMMIT` does (`src/wiki/build/repo.ts`'s `filePins`, from one
+`git log` over the history, which `build.sh`'s unshallowing fetched; `docs/wiki-style.md`, "Citing the code").
+Not at `WIKI_COMMIT` itself, which would be in every page's code and so rename every page's script at every build
+(851-3740). `npm run dev` links them at `main`. The build checks the files and
 reads the rows' lines from the work tree, so a local build of changes not yet pushed links what GitHub hasn't
 got.
 

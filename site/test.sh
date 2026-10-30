@@ -749,23 +749,28 @@ contains '<title>Quirks and glitches – Spelunky Classic wiki</title>' 'role="g
   'aria-pressed="false">Items</button>' '<a class="card-body" href="/wiki/double-jar-roll">' \
   '<span class="card-lede">The double Jar roll is a quirk of Spelunky Classic'
 check "$site/wiki/double-jar-roll" 200 "$no_cache"
-blob="https://github.com/851-labs/spelunky/blob/$(git rev-parse HEAD)"
+# Its links to the repo's files on GitHub, each at the last commit to change the file (src/wiki/build/repo.ts), not
+# the one built, which would be in every page's code and rename its chunk at every build (851-3740).
+pinned() { echo "https://github.com/851-labs/spelunky/blob/$(git log -1 --first-parent --format=%H HEAD -- "../$1")/$1"; }
+quirks=$(pinned docs/quirks.md)
+jar_replay=$(pinned fidelity/replays/item-jar-whip-rolls-twice.txt)
+held_jar_replay=$(pinned fidelity/replays/item-held-jar-shot.txt)
 jar_row=$(grep -n '^| \*\*A whipped Jar rolls its contents twice\.' ../docs/quirks.md | cut -d: -f1)
 [ -n "$jar_row" ] || fail "docs/quirks.md has no row starting \"A whipped Jar rolls its contents twice.\""
-section1="$blob/docs/quirks.md#1-bugs-and-leftovers-in-the-11-source"
+section1="$quirks#1-bugs-and-leftovers-in-the-11-source"
 contains '<p class="infobox-title" id="infobox-title">Quirk</p>' \
   "<a href=\"$section1\">docs/quirks.md §1, Bugs and leftovers in the 1.1 source</a>" \
-  "<a class=\"infobox-row\" href=\"$blob/docs/quirks.md?plain=1#L$jar_row\"><q>A whipped Jar rolls its contents twice.</q></a>" \
-  "<th scope=\"row\">Pinned by</th><td><a href=\"$blob/fidelity/replays/item-jar-whip-rolls-twice.txt\"><code>fidelity/replays/item-jar-whip-rolls-twice.txt</code></a></td>" \
+  "<a class=\"infobox-row\" href=\"$quirks?plain=1#L$jar_row\"><q>A whipped Jar rolls its contents twice.</q></a>" \
+  "<th scope=\"row\">Pinned by</th><td><a href=\"$jar_replay\"><code>fidelity/replays/item-jar-whip-rolls-twice.txt</code></a></td>" \
   '<th scope="row">Where</th><td><a href="/wiki/source/objects/oJar/collision_oWhip#L1-L21"><code>objects/oJar/collision_oWhip.gml:1-21</code></a></td>' \
-  "<a href=\"$blob/docs/quirks.md?plain=1#L$jar_row\"><q>A whipped Jar rolls its contents twice.</q></a>, <a href=\"$section1\">docs/quirks.md §1</a>" \
-  "Replay <a href=\"$blob/fidelity/replays/item-jar-whip-rolls-twice.txt\"><code>fidelity/replays/item-jar-whip-rolls-twice.txt</code></a>, which the clip <a href=\"#clip-quirks-jar-whip-rolls-twice\">"
+  "<a href=\"$quirks?plain=1#L$jar_row\"><q>A whipped Jar rolls its contents twice.</q></a>, <a href=\"$section1\">docs/quirks.md §1</a>" \
+  "Replay <a href=\"$jar_replay\"><code>fidelity/replays/item-jar-whip-rolls-twice.txt</code></a>, which the clip <a href=\"#clip-quirks-jar-whip-rolls-twice\">"
 lacks 'Quirk 1 (docs/quirks.md)'
 leftovers_row=$(grep -n '^| Jar and Skull leftovers' ../docs/quirks.md | cut -d: -f1)
 [ -n "$leftovers_row" ] || fail "docs/quirks.md has no row starting \"Jar and Skull leftovers\""
 check "$site/wiki/jar" 200 "$no_cache"
-contains "<a href=\"$blob/docs/quirks.md?plain=1#L$leftovers_row\"><q>Jar and Skull leftovers</q></a>, <a href=\"$section1\">docs/quirks.md §1</a>" \
-  "Replay <a href=\"$blob/fidelity/replays/item-held-jar-shot.txt\"><code>fidelity/replays/item-held-jar-shot.txt</code></a>"
+contains "<a href=\"$quirks?plain=1#L$leftovers_row\"><q>Jar and Skull leftovers</q></a>, <a href=\"$section1\">docs/quirks.md §1</a>" \
+  "Replay <a href=\"$held_jar_replay\"><code>fidelity/replays/item-held-jar-shot.txt</code></a>"
 lacks 'Quirk 1 (docs/quirks.md)'
 check "$site/wiki/items/weapons" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Weapons – Spelunky Classic wiki</title>' \

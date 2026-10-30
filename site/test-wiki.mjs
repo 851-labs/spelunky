@@ -4,12 +4,14 @@
 // fixture page and hub to HTML (renderFixture).
 //
 //   node test-wiki.mjs
+import { execFileSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { clipLive, loadWiki } from "./src/wiki/build/compile.ts";
 import { hoverCards } from "./src/wiki/build/cards.ts";
+import { filePins } from "./src/wiki/build/repo.ts";
 import { hubById } from "./src/wiki/build/categories.ts";
 import { cardScale, makeHubs } from "./src/wiki/build/hubs.ts";
 import { markdownFiles } from "./src/wiki/build/markdown.ts";
@@ -44,6 +46,22 @@ let failures = 0;
 function fail(message) {
   console.error(`FAIL ${message}`);
   failures++;
+}
+
+// The links to the repo's files, at a real commit (repo.ts's filePins): each at the last commit to change its file,
+// not the one built, which would be in every page's code and rename every page's chunk at every build (851-3740).
+// The reference links' fixture below links them in pages.
+const git = (...args) => execFileSync("git", ["-C", here(".."), ...args], { encoding: "utf8" }).trim();
+const HEAD = git("rev-parse", "HEAD");
+{
+  const pin = filePins(here(".."), HEAD);
+  const lastChange = (path) => git("log", "-1", "--first-parent", "--format=%H", HEAD, "--", path);
+  const paths = ["docs/quirks.md", "fidelity/replays/item-jar-whip-rolls-twice.txt", "site/src/wiki/build/repo.ts"];
+  const wrong = paths.filter((path) => pin(path) !== lastChange(path));
+  if (wrong.length > 0) fail(`pins: ${wrong.map((path) => `${path} at ${pin(path)}, not ${lastChange(path)}`).join("; ")}`);
+  else if (pin("no/such/file") !== HEAD || filePins(here(".."), "main")("docs/quirks.md") !== "main" || filePins(here(".."), COMMIT)("docs/quirks.md") !== COMMIT) {
+    fail("pins: a file git hasn't got, `npm run dev`'s main or a commit git doesn't know isn't the commit given");
+  } else console.log("ok   pins: each file at its last change, the commit given where git can't say");
 }
 
 // The committed pages.
@@ -596,6 +614,15 @@ try {
     if (box?.pinnedHref !== `${blob}/fidelity/replays/item-jar-whip-rolls-twice.txt` || json(box.rowHrefs) !== json([rowUrl(jarRow)])) {
       fail(`reference links: the double whip's box is ${json(box)}`);
     }
+    // Built at a real commit, the same links are at their files' last changes, and the pages' code hasn't got
+    // the commit, unless it changed one of them.
+    const atHead = await loadWiki({ ...options(content, planned), commit: HEAD });
+    const rockAt = git("log", "-1", "--first-parent", "--format=%H", HEAD, "--", "fidelity/replays/action-throw-rock-snake.txt");
+    const rockHead = atHead.pages.find((p) => p.meta.slug === "snake")?.meta.references.find((ref) => ref.target?.endsWith("action-throw-rock-snake.txt"));
+    if (rockHead?.href !== `https://github.com/851-labs/spelunky/blob/${rockAt}/fidelity/replays/action-throw-rock-snake.txt`) fail(`pins: the Snake's Rock replay at HEAD is ${json(rockHead)}`);
+    // The commit's own changes, a merge's (CI's) against its first parent.
+    const touched = git("diff", "--name-only", `${HEAD}^1`, HEAD).split("\n");
+    if (!touched.some((f) => f === "docs/quirks.md" || f.startsWith("fidelity/")) && atHead.pages.some((p) => p.code.includes(HEAD))) fail("pins: a page's code has the commit built");
     const md = markdownFiles(wiki.pages);
     const snakeMd = md.get("wiki/snake.md") ?? "";
     for (const line of [

@@ -26,7 +26,7 @@ import { makeHubs } from "./hubs.ts";
 import { checkQuirk, findRow, noSection, readQuirks } from "./quirks.ts";
 import type { Hubs } from "./hubs.ts";
 import type { QuirkRow, QuirkSection } from "./quirks.ts";
-import { repoUrl } from "./repo.ts";
+import { filePins, repoUrl } from "./repo.ts";
 import { markdownTree, pageMarkdown } from "./markdown.ts";
 import type { MdNode } from "./markdown.ts";
 import { ogRenderer } from "./og.ts";
@@ -63,9 +63,9 @@ export interface WikiOptions {
   relationsSpec: string;
   // The repo's docs/quirks.md, whose rows the quirk pages and quirk citations name (quirks.ts).
   quirksFile: string;
-  // The repo's checkout, which has the replays the pages cite, and the commit it's at (build.sh's WIKI_COMMIT),
-  // which the pages' links to its files on GitHub are pinned to (repo.ts): "main" where there's none to pin to
-  // (`npm run dev`).
+  // The repo's checkout, which has the replays the pages cite, and the commit it's at (build.sh's WIKI_COMMIT), as
+  // of which the pages' links to its files on GitHub are pinned, each at its file's last change (repo.ts):
+  // "main" where there's none to pin to (`npm run dev`).
   repoDir: string;
   commit: string;
   // The media, where they're served, when they last changed and the git log that dates each clip (build.sh's
@@ -323,7 +323,9 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
     if (page) parsed.push(page);
   }
   checkAcrossPages(parsed, errors);
-  const quirks = readQuirks(options.quirksFile, options.commit);
+  // Each repo file's commit to link it at (repo.ts).
+  const pin = filePins(options.repoDir, options.commit);
+  const quirks = readQuirks(options.quirksFile, pin);
   // The quirk page that names each row, by the row, which a citation of the row links to.
   const quirkPages = new Map<QuirkRow, { slug: string; title: string }>();
   for (const { page } of parsed) {
@@ -359,7 +361,7 @@ export async function loadWiki(options: WikiOptions): Promise<Wiki> {
       quirks,
       quirkPages,
       repoDir: options.repoDir,
-      commit: options.commit,
+      pin,
       media,
       seoMedia,
       source,
@@ -505,7 +507,7 @@ function quirkBox(quirk: Frontmatter["quirk"], ctx: Context, href: (cite: string
     href: section.href,
     rowHrefs,
     ...(whereHref ? { whereHref } : {}),
-    ...(pinned ? { pinnedHref: repoUrl(ctx.commit, quirk.pinned_by) } : {}),
+    ...(pinned ? { pinnedHref: repoUrl(ctx.pin(quirk.pinned_by), quirk.pinned_by) } : {}),
   };
 }
 
@@ -717,7 +719,8 @@ interface Context {
   quirks: Map<string, QuirkSection>;
   quirkPages: Map<QuirkRow, { slug: string; title: string }>;
   repoDir: string;
-  commit: string;
+  // A repo file's commit to link it at (repo.ts's filePins).
+  pin: (path: string) => string;
   media: MediaPackage | null;
   // The JSON-LD's view of the media (mediaJsonLd).
   seoMedia: WikiMedia | null;
@@ -952,7 +955,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
         const clips = [...state.clips.values()].filter((clip) => state.clipReplays.get(clip.id) === ref.target);
         return {
           ...ref,
-          href: repoUrl(ctx.commit, ref.target),
+          href: repoUrl(ctx.pin(ref.target), ref.target),
           ...(clips.length > 0 ? { clips: clips.map(({ id, title }) => ({ id, title })) } : {}),
         };
       }

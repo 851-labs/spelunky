@@ -23,9 +23,9 @@ import { pathToFileURL } from "node:url";
 // short enough that the old files leave in time. A file carried is one Workers takes and serves from the
 // asset store, no Worker request.
 export const RETAIN_DAYS = 7;
-// What a busy day's deploys can't push past. A deploy renames about 225 of a build's ~285 scripts (every
-// page's chunk has the commit in its links to GitHub), so 6,000 is the last 25 or so deploys': a day's, at
-// main's busiest, and the week's when it's quieter. Downloading them takes a build about half a minute.
+// What a busy week's deploys can't push past. A deploy renames 14 of a build's ~285 scripts for a page's change,
+// but about 220 for a docs/quirks.md change (851-3744) or the shared code's, so 6,000 is the last 25 or so of
+// those, with any number of the rest between them. Downloading them takes a build about half a minute.
 export const MAX_CARRIED = 6000;
 // How long the carry may take in all, whatever the live site does (a stall, a rate limit): what's downloaded
 // by then is kept, and the build goes on.

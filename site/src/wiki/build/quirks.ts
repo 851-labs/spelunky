@@ -42,8 +42,10 @@ const anchor = (heading: string) =>
     .replace(/[^\p{L}\p{N} _-]/gu, "")
     .replaceAll(" ", "-");
 
-// docs/quirks.md's numbered sections, by number, linked on GitHub at `commit` (repo.ts).
-export function readQuirks(path: string, commit: string): Map<string, QuirkSection> {
+// docs/quirks.md's numbered sections, by number, linked on GitHub at the file's last change (`pin`, repo.ts's
+// filePins).
+export function readQuirks(path: string, pin: (path: string) => string): Map<string, QuirkSection> {
+  const commit = pin(QUIRKS_FILE);
   const sections = new Map<string, QuirkSection>();
   let current: QuirkSection | null = null;
   for (const [i, line] of readFileSync(path, "utf8").split("\n").entries()) {
