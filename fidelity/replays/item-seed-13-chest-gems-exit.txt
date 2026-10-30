@@ -1,0 +1,82 @@
+# The level-end tally's gem rows (851-3779): small emeralds, sapphires and rubies come only from chests, and no
+# replay took an exit after opening one. Seed 13: equip-seed-13-chest-gems.txt (level 1 at 565; the chest opened
+# at 664 into an emerald, a sapphire and two rubies, picked up 684-687), then area-route --steps exit --wait 30:
+# the exit at 1048 (the transition at 1079). oTransition's alarm 0 draws the loot one item a step: the emerald (global.emeralds 1 -> 0,
+# 1111), the sapphire (1112) and the two rubies (1113, 1114). X goes on to level 2 (1120).
+# story: room=rLevel@565 totalChests=1@664 emeralds=1@687 sapphires=1@685 rubies=2@686 room=rTransition1@1079
+# story: emeralds=0@1111..1111 sapphires=0@1112..1112 rubies=1@1113..1113 rubies=0@1114..1114 currLevel=2@1048
+# story: room=rLevel@1120
+seed 13
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press left
+654 release left
+657 press left
+659 release left
+662 press up
+664 press X
+666 release X
+668 release up
+690 press left
+698 release left
+705 press right
+721 release right
+760 press right
+790 release right
+790 press left
+796 release left
+796 press right
+796 press Z
+802 release Z
+832 release right
+832 press left
+892 release left
+892 press down
+892 press Z
+898 release down
+898 release Z
+898 press up
+922 release up
+922 press left
+922 press X
+928 release X
+958 release left
+958 press right
+1018 release right
+1018 press left
+1048 release left
+1048 press up
+1054 release up
+1054 press left
+1080 release left
+1080 press X
+1082 release X
+1088 press X
+1090 release X
+1096 press X
+1098 release X
+1104 press X
+1106 release X
+1112 press X
+1114 release X
+1120 press X
+1121 release X
+frames 1151

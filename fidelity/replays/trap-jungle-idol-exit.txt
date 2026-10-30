@@ -1,0 +1,92 @@
+# The golden idol carried out of the exit (851-3779). oPlayer1's step #8 turns a held idol into money the moment
+# the player touches the exit (global.collect), so step #2's own idol branch, for taking the exit holding it (up on
+# the door), only runs when he arrives on the exit with up already held: on the step he arrives, #2 sees him there
+# before #8 does. Seed 4: trap-jungle-idol-blocks.txt to frame 900 (level 5 at 781, the idol picked up at 884),
+# then area-route --steps '>@136:488' --wait 5: holding it, he gets to the block right of the exit's platform, one
+# block lower (1351). By hand: holding up, a short jump left (1356, the idol makes it a weak one) lands on the
+# platform's right block (1366, x 118), beside the exit (x 96-111), and a walk left with up still held reaches it
+# (1394): step #2 adds the idol's $5000 times levelType + 1 straight to global.money (2500 -> 12500, not through
+# global.collect), counts it in global.idols and global.idolsConverted, destroys it and takes the exit (sPExit).
+# The transition (1423) tallies it (global.idols 1 -> 0, 1496); X goes on to level 6 (1530).
+# story: currLevel=5@781 held=oGoldIdol@884 idolsGrabbed=1@884 money=2500@1351 money=12500@1394..1394
+# story: idolsConverted=1@1394..1394 idols=1@1394..1394 -oGoldIdol@1394..1394 oPlayer1.sprite_index=sPExit@1394..1394
+# story: room=rTransition2@1423 idols=0@1496 room=rLevel@1530 currLevel=6@1394 !plife<4
+seed 4
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+800 press left
+836 press Z
+842 release Z
+872 release left
+872 press right
+872 press X
+878 release X
+884 release right
+884 press down
+884 press X
+885 release down
+885 release X
+900 press right
+906 press Z
+912 release Z
+942 press Z
+954 release right
+954 release Z
+960 press right
+960 press Z
+966 release Z
+996 press Z
+1002 release Z
+1062 press Z
+1068 release Z
+1098 press Z
+1104 release Z
+1134 release right
+1134 press left
+1164 press Z
+1170 release Z
+1200 press Z
+1206 release left
+1206 release Z
+1212 press Z
+1218 release Z
+1218 press left
+1248 release left
+1248 press Z
+1254 press left
+1260 release Z
+1266 press Z
+1272 release Z
+1302 press Z
+1308 release Z
+1338 release left
+1338 press up
+1351 release up
+1356 hold up 70
+1356 hold Z 4
+1356 hold left 6
+1390 hold left 20
+1530 hold X 2
+frames 1560
