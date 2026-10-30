@@ -34,8 +34,8 @@ faq:
       nothing makes them: the Moon Room is an archery challenge.
   - q: Can the level editor place the unused objects?
     a: >-
-      No. The level editor makes what its tiles name, and no code anywhere, the editor's included, creates
-      an unused object, so no level, generated or custom, has one.
+      No. The level editor makes only what its tiles name, and nothing else that runs, the editor's code
+      included, creates an unused object, so no level, generated or custom, has one.
 sources:
   - objects/oJordans/create.gml
   - scripts/scrStealItem.gml
@@ -56,7 +56,7 @@ verified: { port: v0.1.15, date: 2026-10-29 }
 ---
 
 The game's files define about thirty objects that nothing in Spelunky Classic 1.1 ever makes: no room
-places them, and no script, event or action creates them, so no player meets them. Their code is still
+places them, and nothing that runs creates them, so no player meets them. Their code is still
 there, and says what each would do. A few are items, a target and a trap; the rest are blocks, effects
 and the settings program's controls, which the game's files carry too. Each is in a row of
 `docs/quirks.md`'s leftovers.
@@ -65,7 +65,7 @@ and the settings program's controls, which the game's files carry too. Each is i
 
 Every object a game has comes from a room the room editor laid out or from an `instance_create` in the code
 naming it. None of these appears in any of the 30 rooms' 6,330 placed instances, and no `instance_create`
-names one, or names it only in a comment <Cite quirk="1" row="oJordans, oRopeBag, oBasketball and oFireFrogArmed are unreachable" />.
+names one, or names it only in a comment or in a branch no level reaches (the thwomp trap's) <Cite quirk="1" row="oJordans, oRopeBag, oBasketball and oFireFrogArmed are unreachable" />.
 
 ### Items
 
@@ -74,15 +74,15 @@ names one, or names it only in a comment <Cite quirk="1" row="oJordans, oRopeBag
 | <Sprite name="sJordans" alt="" /> | Jordans (`oJordans`) | Sneakers priced at $50,000, "JORDANS FOR $50000!" <Cite gml="objects/oJordans/create.gml:3-8" />. Picked up, they'd show "YOU GOT JORDANS!" and "YOU FEEL LIGHT ON YOUR FEET." <Cite gml="scripts/scrStealItem.gml:193-203" />, and every jump after it would push three times as hard, with twice the speed limit and gravity 0.5 in place of 1, checked before the [[spring-shoes\|Spring Shoes]]' push of half as much again <Cite gml="scripts/characterStepEvent.gml:351-362" />. |
 | <Sprite name="sRopeEnd" alt="" /> | Rope Bag (`oRopeBag`) | Drawn as the end of a rope, but its type is "Bomb Bag" <Cite gml="objects/oRopeBag/create.gml:3" />, so picking it up would be a [[bomb-bag\|Bomb Bag]]'s pickup: three more bombs, "YOU GOT 3 MORE BOMBS!" <Cite gml="scripts/scrStealItem.gml:68-78" />. |
 | <Sprite name="sBasketball" alt="" /> | Basketball (`oBasketball`) | Bounces off a hoop's rim (`oRimDeflect`), and dropping through it (`oRim`) swishes the net (`oBasket`) and adds to the [[moon-room\|Moon Room]]'s count: 1 for a ball carried in, 3 for one off a wall, 2 for any other <Cite gml="objects/oBasketball/step.gml:6-56" />. The Moon Room is an archery challenge, and has no hoop. |
-| <Sprite name="sBasket" alt="" /> | The hoop's net (`oBasket`), rim (`oRim`) and rim's edges (`oRimDeflect`) | What the basketball scores through; only its step names them <Cite gml="objects/oBasket/other_animation_end.gml:1" />. |
-| <Sprite name="sFireFrogArmedL" alt="" /> | Armed fire frog (`oFireFrogArmed`) | The same type and sprite as a dead [[fire-frog\|Fire Frog]]'s bomb, but without the bomb's fuse, the alarm that sets it off <Cite gml="objects/oFireFrogArmed/create.gml:3-10" /> <Cite gml="objects/oFireFrogBomb/create.gml:6" />. |
+| <Sprite name="sBasket" alt="" /> | The hoop's net (`oBasket`), rim (`oRim`) and rim's edges (`oRimDeflect`) | What the basketball scores through <Cite gml="objects/oBasketball/step.gml:6-39" />. The Moon Room's alarm would make them, but those lines are commented out <Cite gml="objects/oMoonRoom/alarm_0.gml:1-4" />. |
+| <Sprite name="sFireFrogArmedL" alt="" /> | Armed fire frog (`oFireFrogArmed`) | A dead [[fire-frog\|Fire Frog]]'s bomb, by its sprite, but with the live frog's type, "Fire Frog", where the bomb's is "Fire Frog Bomb", and without the bomb's fuse, the alarm that sets it off <Cite gml="objects/oFireFrogArmed/create.gml:3-10" /> <Cite gml="objects/oFireFrogBomb/create.gml:3-6" />. |
 
 ### The Moon Room's target and the thwomp trap
 
 | | Object | What its code would do |
 | --- | --- | --- |
 | <Sprite name="sTarget" alt="" /> | Moon Room target (`oTarget`) | A bullseye for the [[moon-room\|Moon Room]] that sways up and down, twice as fast on the right of the room, and swings side to side in the last 30 seconds <Cite gml="objects/oTarget/create.gml:7-8" /> <Cite gml="objects/oTarget/step.gml:10-39" />. An arrow scores 5 for its middle, 3, 2 or 1 farther out <Cite gml="objects/oTarget/collision_oArrow.gml:7-18" />. The Moon Room's targets are bats and UFOs instead, but the arrow's step still checks for this one there, and finds none <Cite gml="objects/oArrow/step.gml:24-37" />. |
-| <Sprite name="sThwompTrap" alt="" /> | Thwomp trap (`oThwompTrap`) | A block that waits until the player is below it, within 96 pixels and 8 pixels of its column, then falls, gathering speed up to 6 pixels a step; landing, it waits 100 steps and rises again until it meets the ceiling <Cite gml="objects/oThwompTrap/step.gml:1-37" />. Only [[olmecs-lair\|Olmec's Lair]]'s room script makes one, for a `t` tile, and none of the lair's room or obstacle strings has that tile <Cite gml="scripts/scrRoomGen5.gml:191-194" /> <Cite quirk="1" row="oThwompTrap is unreachable" />. |
+| <Sprite name="sThwompTrap" alt="" /> | Thwomp trap (`oThwompTrap`) | A block that waits until the player is below it, within 8 pixels of its column, with a character within 96 pixels of it, then falls, gathering speed up to 6 pixels a step; landing, it waits 100 steps and rises again until it meets the ceiling <Cite gml="objects/oThwompTrap/step.gml:1-37" />. Only [[olmecs-lair\|Olmec's Lair]]'s room script makes one, for a `t` tile, and none of the lair's room or obstacle strings has that tile <Cite gml="scripts/scrRoomGen5.gml:191-194" /> <Cite quirk="1" row="oThwompTrap is unreachable" />. |
 
 ### Blocks and effects
 
@@ -93,7 +93,7 @@ names one, or names it only in a comment <Cite quirk="1" row="oJordans, oRopeBag
 | <Sprite name="sCaveBG1" alt="" /> | Cave background (`oCaveBG`) | One of two background pictures, at random <Cite gml="objects/oCaveBG/create.gml:1-8" />; its only `instance_create` is commented out <Cite gml="scripts/scrInitLevel.gml:231" />. |
 | <Sprite name="sSmallCollect" alt="" /> | Collecting sparkle (`oSmallCollect`) | Rises for a second <Cite gml="objects/oSmallCollect/create.gml:3" /> <Cite gml="objects/oSmallCollect/step.gml:1" />; the line that made one when the player collects a treasure is commented out <Cite gml="objects/oPlayer1/step.gml:2001" /> <Cite quirk="1" row="Unreachable terrain and effects" />. |
 | <Sprite name="sArrowTrapLeft" alt="" /> | Old arrow trap (`oTemp`) | An [[arrow-trap\|Arrow Trap]] facing left that fires once at the player, a monster, a push block or a moving item in front of it, playing a sound the game doesn't have <Cite gml="objects/oTemp/step.gml:1-45" /> <Cite quirk="1" row="oTemp (solid) calls sound_play on sndArrowTrap" />. |
-| <Sprite name="sSight" alt="" /> | Entrance check (`oEntranceCheck`) | Moves 16 pixels a step and destroys an Arrow Trap it touches, then itself <Cite gml="objects/oEntranceCheck/step.gml:1-4" /> <Cite gml="objects/oEntranceCheck/collision_oSolid.gml:1-2" />. |
+| <Sprite name="sSight" alt="" /> | Entrance check (`oEntranceCheck`) | Moves 16 pixels a step until it touches a block, then destroys itself, and the block too if it's an Arrow Trap <Cite gml="objects/oEntranceCheck/step.gml:1-4" /> <Cite gml="objects/oEntranceCheck/collision_oSolid.gml:1-2" />. |
 | | `oBackdrop`, `oForeground`, `oFrill`, `oCaveUp` | Set a depth, or do nothing <Cite gml="objects/oBackdrop/create.gml:1" /> <Cite gml="objects/oForeground/create.gml:1" /> <Cite quirk="1" row="The rest of the game's objects that nothing makes." />. |
 
 The mothership's `oAlienShipFloor` is a [[block|Block]] nothing makes either <Cite quirk="1" row="Unreachable terrain and effects" />.

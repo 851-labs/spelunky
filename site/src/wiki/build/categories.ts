@@ -84,7 +84,9 @@ const DESCRIPTIONS: Record<HubId, string> = {
   quirks:
     "The bugs and oddities of Spelunky Classic 1.1 that the spelunky.ai port keeps, each traced to the code " +
     "that causes it.",
-  "the-game": "Spelunky Classic itself: its controls, settings, level editor, scoring, endings, versions and unused content.",
+  "the-game":
+    "Spelunky Classic itself: its controls, settings, level editor, scoring, endings, versions and unused " +
+    "content.",
 };
 
 const ITEMS: readonly Category[] = ["items/equipment", "items/weapons", "items/carryables"];
