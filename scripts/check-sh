@@ -1,0 +1,17 @@
+#!/bin/sh
+# Every sh script in the repo parses (sh -n). macOS's sh is bash 3.2, which runs a script command by command and,
+# at a syntax error after an EXIT trap is set, runs the trap and exits with its status: 0, for a trap that cleans
+# up. So a script with an error halfway down stops there and passes, as site/test.sh did, skipping every check
+# after it (851-3741). A syntax error in a $(...) isn't parsed until it runs, but fails the script then, trap or
+# not. scripts/check --fast runs this, so CI does too: no such error reaches main.
+set -eu
+cd "$(dirname "$0")/.."
+failed=0
+for file in $(git ls-files); do
+  [ -f "$file" ] && head -1 "$file" | grep -qx '#!/bin/sh' || continue
+  if ! sh -n "$file"; then
+    echo "scripts/check-sh: $file doesn't parse" >&2
+    failed=1
+  fi
+done
+exit $failed

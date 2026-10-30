@@ -1,6 +1,7 @@
 #!/bin/sh
 # The full check suite: what CI's `pr-ok` runs on every pull request (docs/ci.md). Pass --fast for the
-# pre-commit subset, which is only what's instant: formatting and the oracle's arithmetic copy.
+# pre-commit subset, which is only what's instant: formatting, the oracle's arithmetic copy and the sh scripts'
+# syntax.
 set -eu
 cd "$(dirname "$0")/.."
 cargo=scripts/cargo
@@ -10,6 +11,8 @@ $cargo fmt --all --check
 $cargo fmt --manifest-path tools/gm8-probe/angles/Cargo.toml --check
 # The oracle's patch 0014 carries a copy of crates/gm/src/gm8.rs, which must be current.
 python3 -I tools/oracle/sync-gm8-arith --check
+# Every sh script parses: macOS's sh passes one that stops at a syntax error after an EXIT trap (851-3741).
+scripts/check-sh
 [ "${1:-}" = "--fast" ] && exit 0
 $cargo clippy --workspace --all-targets $features --quiet -- -D warnings
 # Default features that may be turned off must keep building without them: the app's gamepad support.

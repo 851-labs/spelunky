@@ -8,6 +8,9 @@
 #   SITE_TEST_PORT=N site/test.sh    serves on N and N + 1, and fails if either is taken (by default, the first
 #                                    free pair from 8790)
 set -eu
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's sh, bash 3.2, exits from
+# one with the trap's status, 0 (851-3741; scripts/check-sh).
+sh -n "$0" || exit 2
 cd "$(dirname "$0")"
 export WRANGLER_SEND_METRICS=false
 
@@ -36,9 +39,18 @@ fi
 
 tmp=$(mktemp -d)
 pids=
+# Set by the last line, so a run that stops anywhere before it fails, whatever the shell's status says: the
+# check above catches a syntax error in the script itself, this anything else that ends it early with 0.
+finished=
 cleanup() {
+  status=$?
   for pid in $pids; do kill "$pid" 2>/dev/null || true; done
   rm -rf "$tmp"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "site/test.sh: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
 }
 trap cleanup EXIT
 
@@ -955,3 +967,4 @@ if [ $failures -gt 0 ]; then
   exit 1
 fi
 echo "site/test.sh: all passed"
+finished=1

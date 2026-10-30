@@ -89,6 +89,13 @@ and the command when none of the paths changed. A job-level `if:` can't see the 
 job would fail `pr-ok`. Workers Builds builds each pull request's site too, but tests nothing. The test runs with its home directory
 in the job's temp directory, so wrangler's config, logs and dev registry stay out of the mini's.
 
+The test fails on any error, not only on a check that fails. The minis' `sh` is macOS's bash 3.2, which exits
+from a syntax error, or an unset variable under `set -u`, with the status of the EXIT trap it then runs: 0,
+for test.sh's cleanup. So a test.sh that stopped halfway passed, skipping every check after the error
+(851-3741). Now it checks that it parses before anything else (`sh -n "$0"`), and its cleanup fails a run
+that didn't reach its last line. `scripts/check-sh`, which `scripts/check --fast` runs, checks that every sh
+script in the repo parses, so a syntax error fails "Test suite" too.
+
 The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside
 contributors wait for a maintainer's approval (the Actions setting "Require approval for all external
