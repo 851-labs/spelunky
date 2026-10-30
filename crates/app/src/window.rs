@@ -75,6 +75,12 @@ pub trait Game {
         false
     }
 
+    /// Whether the window's close button goes to the game, as a `close` event, rather than closing the window:
+    /// a GameMaker program's, whose close-button event decides ([`App`]'s `close_button`).
+    fn close_button(&self) -> bool {
+        false
+    }
+
     /// Whether the game wants the window fullscreen, if it decides (GM's `action_fullscreen`).
     fn fullscreen(&self) -> Option<bool> {
         None
@@ -216,7 +222,8 @@ enum Source {
 pub enum UserEvent {
     /// Asynchronous GPU setup finished (web only).
     GpuReady(Result<(Gpu, wgpu::Surface<'static>), String>),
-    /// As if the window's close button were pressed (a signal, say).
+    /// Close now (a signal, say), the game ending as its close button would end it first ([`App`]'s
+    /// `close_now`).
     Exit,
     /// The page embedding the app asks something of it ([`App::with_embed`]).
     Control(Control),
@@ -1108,22 +1115,24 @@ impl<G: Game> App<G> {
         }
     }
 
-    /// Whether a session of play is running, for the close button to reach: begun, not ended or failed,
-    /// and not a replay or a page's clip, whose input isn't the window's.
+    /// Whether a session of play is running, for the close button to reach: a game that takes it, begun, not
+    /// ended or failed, and not a replay or a page's clip, whose input isn't the window's.
     fn playing(&self) -> bool {
         matches!(self.source, Source::Live { .. })
             && self.embed.is_none()
             && self.ticks > 0
             && self.error.is_none()
+            && self.game.close_button()
             && !self.game.ended()
     }
 
-    /// The window's close button (or Ctrl+C, as if it were pressed). GM8's runner never closes its window
-    /// itself: it runs the game's close-button event, between frames, and the game decides
-    /// (`gm::World::step`). So a session of play gets it at the next tick, and the window closes when the
-    /// game ends: Spelunky's `oScreen` calls `game_end`, whose events write `stats.txt`, and the settings
-    /// program's `oInit` saves its settings first. A replay's input is its own, so a replay, a clip and a
-    /// game not begun or over close at once.
+    /// The window's close button. GM8's runner never closes its window itself: it runs the game's
+    /// close-button event, between frames, and the game decides (`gm::World::step`). So a session of play
+    /// gets it at the next tick, and the window closes when the game ends: Spelunky's `oScreen` calls
+    /// `game_end`, whose events write `stats.txt`, and the settings program's `oInit` saves its settings
+    /// first. A press the game doesn't answer (a room change pending, as the frame starts) leaves the window
+    /// open, as GM8's does; the next is answered. A replay's input is its own, so a replay, a clip, the
+    /// preview and a game not begun or over close at once.
     fn close_button(&mut self, event_loop: &ActiveEventLoop) {
         let playing = self.playing();
         match self.collector() {
@@ -1133,30 +1142,21 @@ impl<G: Game> App<G> {
     }
 
     /// Ends a session of play as its close button would, when the app quits without waiting for a tick: the
-    /// OS quitting it (Cmd-Q), the page unloading (winit's `pagehide`), the updater restarting into an
-    /// update. One more tick, with the input since the last and the close button: Spelunky's and the settings
-    /// program's close-button events end the game in it, and the tick saves what they wrote. Recorded like
-    /// any other, so the recording ends the same way.
+    /// OS quitting it (Cmd-Q), Ctrl+C, the page unloading (winit's `pagehide`), the updater restarting into
+    /// an update; any way out of the loop while [`playing`](Self::playing). One more tick, with the input
+    /// since the last and the close button: Spelunky's and the settings program's close-button events end
+    /// the game in it, and the tick saves what they wrote. Recorded like any other, so the recording ends
+    /// the same way.
     fn close_now(&mut self) {
         if !self.playing() {
             return;
         }
-        let frame = self.ticks;
-        let Source::Live {
-            collector, record, ..
-        } = &mut self.source
-        else {
-            return;
-        };
-        collector.close();
-        let events = collector.take_tick();
-        let ticked = match record {
-            Some(r) => r.frame(frame, &events),
-            None => Ok(()),
+        if let Some(c) = self.collector() {
+            c.close();
         }
-        .and_then(|()| {
+        let ticked = self.next_events().and_then(|events| {
             self.ticks += 1;
-            self.game.tick(&events, &mut self.frame)
+            self.game.tick(&events.unwrap_or_default(), &mut self.frame)
         });
         if let Err(e) = ticked {
             self.error.get_or_insert(e);
@@ -1224,7 +1224,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
         match event {
             UserEvent::GpuReady(Ok((gpu, surface))) => self.gpu_ready(event_loop, gpu, surface),
             UserEvent::GpuReady(Err(e)) => self.fail(event_loop, e),
-            UserEvent::Exit => self.close_button(event_loop),
+            UserEvent::Exit => event_loop.exit(),
             UserEvent::Control(control) => self.control(control),
         }
     }
