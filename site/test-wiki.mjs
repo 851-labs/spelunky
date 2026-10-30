@@ -12,7 +12,7 @@ import { hoverCards } from "./src/wiki/build/cards.ts";
 import { cardScale, makeHubs } from "./src/wiki/build/hubs.ts";
 import { markdownFiles } from "./src/wiki/build/markdown.ts";
 import { readSnapshot, resolveStat } from "./src/wiki/build/stats.ts";
-import { wiki } from "./src/wiki/build/plugin.ts";
+import { sourceLinks, wiki } from "./src/wiki/build/plugin.ts";
 import { buildSearchIndex, matchingSections, searchWiki } from "./src/wiki/search.ts";
 import { START_JUDGE_MS, START_MS, leadGoal, newStartup, timeStartup } from "./src/wiki/live-clip-startup.ts";
 
@@ -65,6 +65,17 @@ if (committed.pages.length === 0) fail("content/wiki: no pages");
   for (const page of committed.pages) {
     // Outside what each part covers, which is the row's own words.
     if (page.meta.quirk && /GML|OpenGMK|Oracle|GM8|DLL|undefined/.test(page.meta.quirk.known.replace(/ \([^()]*\)/g, ""))) fail(`quirk box: ${page.meta.slug}'s How we know is ${page.meta.quirk.known}`);
+  }
+}
+// The source viewer's room pages link each object to its page and the room to its place's (plugin.ts's
+// sourceLinks): written pages only, as the committed pages are.
+{
+  const { objects, rooms } = sourceLinks(committed.pages);
+  const json = (value) => JSON.stringify(value);
+  if (json(objects.oSnake) !== json({ slug: "snake", title: "Snake" })) fail(`source links: oSnake is ${json(objects.oSnake)}`);
+  if (objects.oBrick !== undefined) fail(`source links: oBrick is ${json(objects.oBrick)}`);
+  for (const [room, slug] of [["rTutorial", "tutorial"], ["rOlmec", "olmecs-lair"], ["rTitle", "title-screen"], ["rIntro", "title-screen"]]) {
+    if (rooms[room]?.slug !== slug) fail(`source links: ${room} is ${json(rooms[room])}, not ${slug}'s`);
   }
 }
 const snake = committed.pages.find((page) => page.meta.slug === "snake");

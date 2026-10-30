@@ -30,6 +30,13 @@ declare module "virtual:wiki/aliases" {
   export const aliases: Map<string, string>;
 }
 
+declare module "virtual:wiki/source-links" {
+  import type { PageLink } from "./build/plugin";
+  // The page each object and room is on, by name.
+  export const objectPages: Record<string, PageLink>;
+  export const roomPages: Record<string, PageLink>;
+}
+
 // The source viewer's, from src/wiki/build/source.ts.
 declare module "virtual:wiki-source/files" {
   import type { SourceFile, SourceRoom } from "./build/source";

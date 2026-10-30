@@ -838,18 +838,22 @@ contains '<title>GML source – Spelunky Classic wiki</title>' '<meta name="robo
   '<dt id="oSnake">oSnake</dt>' '<a href="/wiki/source/objects/oSnake/step">step</a>' \
   '<h2 id="rooms">Rooms</h2>' '<a href="/wiki/source/rooms/rTutorial">rTutorial</a>'
 # A room's page, from the media's rooms/: its settings, its instances by object, by name, each with its
-# positions and a link to its events where gml/ has them, its tiles, and its instances' creation code, under
-# the room's notice; noindex. The pages' room citations link to it. The .json files themselves aren't served.
+# positions and a link to its events where gml/ has them and to its wiki page where it has one (with its hover
+# card), the place page that lists the room, its tiles, and its instances' creation code, under the room's
+# notice; noindex. The pages' room citations link to it. The .json files themselves aren't served.
 check "$site/wiki/source/rooms/rTutorial" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>rTutorial – Room source – Spelunky Classic wiki</title>' '<meta name="robots" content="noindex"/>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/source/rooms/rTutorial"/>' \
   '<a href="/wiki/source">Source code</a>' '<h1><code>rTutorial</code></h1>' \
   'Derek Yu and Mossmouth, LLC, under the <a href="/LICENSE.txt">Spelunky User License v1.1b</a>. Extracted by spelunky.ai&#x27;s tools' \
   'The room rTutorial as the room editor placed it: 4 instances of 3 objects and 1 tile.' \
+  '<p class="source-about">The wiki&#x27;s page on this room: <a id="' '" href="/wiki/tutorial" data-slug="tutorial">Tutorial</a>.</p>' \
   '<th scope="row">Size</th><td>672 × 304 pixels</td>' '<td><div>bgCave, tiled across and down</div></td>' \
   'View 0: 320 × 240 at (0, 0), shown at 640 × 480, following oPlayer1 with borders of 128 and 96' \
   '<tr id="oBrick"><th scope="row"><code>oBrick</code></th><td>2</td><td><ul class="room-positions"><li title="Instance 134002">(0, 0)</li><li title="Instance 134003">(16, 0)</li></ul></td></tr>' \
-  '<tr id="oSnake"><th scope="row"><a href="/wiki/source#oSnake"><code>oSnake</code></a></th><td>1</td>' \
+  '<tr id="oSnake"><th scope="row"><a href="/wiki/source#oSnake"><code>oSnake</code></a><a id="' \
+  '" href="/wiki/snake" data-slug="snake" class="room-page">Snake</a></th><td>1</td>' \
+  '<tr id="oGoldBar"><th scope="row"><code>oGoldBar</code><a id="' '" href="/wiki/gold-bar" data-slug="gold-bar" class="room-page">Gold Bar</a></th><td>1</td>' \
   '<h2 id="tiles">Tiles</h2>' '<td>(16, 96)</td>' \
   '<h3>Instance 134004 of oGoldBar at (96, 112)</h3>' 'value = 2;'
 lacks 'shown whole under the' 'GML source'

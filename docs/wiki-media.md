@@ -611,9 +611,12 @@ number shift-clicked after another names the lines between them).
 **Rooms.** A room citation (`<Cite room="rOlmec" />`) cites what the room editor placed, which isn't GML, so
 the viewer has a page per room too, at `/wiki/source/rooms/<name>`, listed in the index after the objects. It
 lists the room's settings (size, speed, background colour, backgrounds, views), its instances by object (each
-object's row has its instances' positions in creation order, an anchor of its name, `#oSnake`, and a link to
-its events in the index), its tiles, and its creation code and its instances', which Spelunky's rooms have
-none of, under a notice of its own (docs/wiki-license.md, "Room notice"). A list rather than a picture of the
+object's row has its instances' positions in creation order, an anchor of its name, `#oSnake`, a link to its
+events in the index, and one to the wiki page that has it in its `objects`, a written one), its tiles, and its
+creation code and its instances', which Spelunky's rooms have none of, under a notice of its own
+(docs/wiki-license.md, "Room notice"). A room a place page lists in its `rooms` (`rTutorial`, the Tutorial's)
+links to that page. Those links come from the wiki's pages (the wiki plugin's `virtual:wiki/source-links`),
+which, like the files, only the Worker's build carries. A list rather than a picture of the
 room: what the pages cite a room for is what's in it and how many (the Tutorial's six Gold Bars, the Sun
 room's traps), which a list says exactly. The extractor writes each room as `rooms/<name>.json` (its settings,
 then its tiles and instances one a line, objects and backgrounds by name), which `scripts/wiki-media` copies

@@ -4,6 +4,7 @@
 // and the index of every file and room. The highlighting is the build's (build/gml-highlight.ts): the browser
 // gets markup and a few lines of script.
 import type { Crumb } from "../seo/jsonld";
+import { CardLink } from "./hover-card";
 import { Breadcrumbs } from "./layout";
 import { ROOM_NOTICE, SOURCE_NOTICE, SUPER_SOUND_CREDIT } from "./notices.ts";
 import { roomUrl, sourceSubject, sourceUrl } from "./source-url.ts";
@@ -133,7 +134,7 @@ function viewText(v: SourceRoom["views"][number]): string {
 // A room (/wiki/source/rooms/<name>): what the room editor shows of it, as text. Its settings; its instances by
 // object, each object's row with its positions in creation order, an anchor of its name (#oSnake), and a link
 // to its events in the index where it has any; its tiles; and its creation code and its instances', if any.
-export function RoomPage({ data: { name, room, linked } }: { data: RoomData }) {
+export function RoomPage({ data: { name, room, linked, pages, place } }: { data: RoomData }) {
   const objects = new Map<string, SourceRoom["instances"]>();
   for (const instance of room.instances) {
     const list = objects.get(instance.object);
@@ -157,6 +158,15 @@ export function RoomPage({ data: { name, room, linked } }: { data: RoomData }) {
         {`The room ${room.name} as the room editor placed it: ${count(room.instances.length, "instance")} of ` +
           `${count(names.length, "object")}${room.tiles.length > 0 ? ` and ${count(room.tiles.length, "tile")}` : ""}.`}
       </p>
+      {place && (
+        <p className="source-about">
+          {"The wiki's page on this room: "}
+          <CardLink href={`/wiki/${place.slug}`} slug={place.slug}>
+            {place.title}
+          </CardLink>
+          .
+        </p>
+      )}
       <h2 id="settings">Settings</h2>
       <table className="room-settings">
         <tbody>
@@ -232,6 +242,11 @@ export function RoomPage({ data: { name, room, linked } }: { data: RoomData }) {
                     </a>
                   ) : (
                     <code>{name}</code>
+                  )}
+                  {Object.hasOwn(pages, name) && (
+                    <CardLink className="room-page" href={`/wiki/${pages[name].slug}`} slug={pages[name].slug}>
+                      {pages[name].title}
+                    </CardLink>
                   )}
                 </th>
                 <td>{instances.length}</td>
