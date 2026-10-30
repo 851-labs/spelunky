@@ -80,17 +80,19 @@ impl InputState {
     }
 
     /// Applies one input event. OpenGMK `input.rs` (`button_press`, `button_release`, `mouse_press`,
-    /// `mouse_release`), which the oracle feeds the replay's events to unchanged.
+    /// `mouse_release`), which the oracle feeds the replay's events to, but for key repeats.
     ///
-    /// A press of a key that is already down reports it pressed again, as OpenGMK's `button_press` does: a
-    /// replay that repeats `press` behaves like keyboard auto-repeat. Releasing any mouse button clears
-    /// `mouse_button`, even if another is still down (OpenGMK `mouse_release`). Both are recorded in
-    /// `docs/quirks.md`.
+    /// A press of a key that is already down (keyboard auto-repeat, or a replay that repeats `press`) isn't
+    /// pressed again, but sets `keyboard_key` and `keyboard_lastkey`, as GM8 does (probe `key-repeat`) and
+    /// the oracle's `button_press` with patch 0035; OpenGMK reported it pressed again. Releasing any mouse
+    /// button clears `mouse_button`, even if another is still down (OpenGMK `mouse_release`). Both are recorded
+    /// in `docs/quirks.md`.
     pub fn apply(&mut self, e: &Event) {
         match *e {
             Event::Press(Button::Key(vk)) => {
-                self.held.insert(vk);
-                self.pressed.insert(vk);
+                if self.held.insert(vk) {
+                    self.pressed.insert(vk);
+                }
                 self.keyboard_key = vk;
                 self.keyboard_lastkey = vk;
             }
