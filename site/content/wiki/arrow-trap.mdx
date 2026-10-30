@@ -18,7 +18,7 @@ relations:
   drops:
     - { slug: arrow, cite: objects/oArrowTrapTest/collision_oCharacter.gml:14-23, note: "Fired once; left behind if the trap is destroyed unfired" }
   related: [bow, boulder, spear-trap]
-clips: [arrow-trap/fire, arrow-trap/miss, arrow-trap/dark]
+clips: [arrow-trap/fire, arrow-trap/miss, arrow-trap/dark, arrow-trap/pushed-block, arrow-trap/falling-block]
 faq:
   - q: How much damage does an Arrow Trap do in Spelunky Classic?
     a: >-
@@ -69,10 +69,19 @@ one counts up to 96 pixels from the trap, the right-facing one up to 80 from the
 player midway between two traps facing each other across 11 to 13 open blocks sets off only the left-facing one
 <Cite quirk="1" row="A left-facing arrow trap sees 6 blocks, a right-facing one 5." /> <Cite replay="fidelity/replays/trap-arrow-sensor-left-wider.txt" />.
 
-Anything in the strip that's moving sets the trap off: the player, a monster, an item, a piece of treasure, a
-pushed block or a [[boulder|Boulder]]. The player also sets it off near the end of his drop from a ledge into
-a hang from it, even without moving <Cite gml="objects/oArrowTrapTest/collision_oCharacter.gml:5-8" />
-<Cite gml="objects/oArrowTrapTest/collision_oItem.gml:5" /> <Cite gml="objects/oArrowTrapTest/collision_oBoulder.gml:5" />. Standing still in the strip doesn't.
+Anything in the strip with a speed sets the trap off: the player, a monster, an item or a piece of treasure on
+the move, a rolling [[boulder|Boulder]], a falling [[push-block|push block]]. The player also sets it off near
+the end of his drop from a ledge into a hang from it, even without moving <Cite gml="objects/oArrowTrapTest/collision_oCharacter.gml:5-8" />
+<Cite gml="objects/oArrowTrapTest/collision_oItem.gml:5" /> <Cite gml="objects/oArrowTrapTest/collision_oBoulder.gml:5" /> <Cite gml="objects/oArrowTrapTest/collision_oMoveableSolid.gml:5" />.
+Standing still in the strip doesn't, and nor does a block being pushed: pushing moves it a pixel at a time without
+giving it a speed <Cite gml="scripts/moveTo.gml:46-60" />. In the first clip, the player pushes a block into the
+strip, staying out of it himself, and nothing fires until he jumps in after it
+<Cite clip="arrow-trap/pushed-block" />; in the second, a block he pushes off a ledge falls into the strip below,
+and the trap fires as it falls <Cite clip="arrow-trap/falling-block" />.
+
+<Clip id="arrow-trap/pushed-block" />
+
+<Clip id="arrow-trap/falling-block" />
 
 When it's set off, the trap fires an arrow from its face at 8 pixels a step (240 a second), plays its sound,
 and its sensor is destroyed, so it never fires again <Cite gml="objects/oArrowTrapTest/collision_oCharacter.gml:10-28" />.

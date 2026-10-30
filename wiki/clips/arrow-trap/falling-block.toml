@@ -1,0 +1,19 @@
+title = "A falling block sets a trap off"
+description = "An arrow trap watches the corridor below a ledge. The player pushes a stone block off the ledge, staying up on it himself; the block falls into the corridor, and the trap fires as it falls."
+from = 0
+to = 179
+poster = 136
+story = "oPushBlock.yVel>0@130..133 +oArrow@131 !oPlayer1.y>75 !plife<4"
+
+[scene]
+level = '''
+1111111111111111111111
+1000000000000000000001
+1000000000000000000001
+10@00000000B0000000001
+1111111111111000000<01
+1111111111111111111111
+'''
+inputs = '''
+20 hold right 113
+'''
