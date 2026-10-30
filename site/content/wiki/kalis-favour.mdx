@@ -121,7 +121,7 @@ No sacrifice is worth more than 12, so none reaches 32 from below 16 in one go.
 Destroying either half of an altar, by anything, defiles it: a [[bomb|Bomb]]'s explosion, a [[ufo|UFO]]'s
 laser, or the floor under it taken away, which makes it crumble once it's in view. "YOU DARE DEFILE MY
 ALTAR?" and "I WILL PUNISH YOU!" show, the screen shakes, the favour falls by 16, and both halves go <Cite gml="objects/oSacAltarLeft/step.gml:1-5" />
-<Cite gml="objects/oSacAltarLeft/destroy.gml:11-66" /> <Cite quirk="1" row="The rare items' only sources" />. The punishment depends on how many altars the player has defiled before in the game
+<Cite gml="objects/oSacAltarLeft/destroy.gml:11-66" /> <Cite quirk="1" row="Anything that destroys an altar defiles it" /> <Cite quirk="1" row="Kali's punishment for a defiled altar grows with each one." />. The punishment depends on how many altars the player has defiled before in the game
 <Cite gml="objects/oSacAltarLeft/destroy.gml:20-60" />:
 
 | Altar defiled | Punishment | |
@@ -162,7 +162,7 @@ Kali's page shows each punishment in a clip ([[kali#her-anger]]).
 ## Quirks
 
 - **Anything that destroys an altar defiles it**, not only the player: a UFO's laser does, and the player is
-  punished for it all the same <Cite quirk="1" row="The rare items' only sources" /> <Cite replay="fidelity/replays/item-seed-11-kapala.txt" />.
+  punished for it all the same <Cite quirk="1" row="Anything that destroys an altar defiles it" /> <Cite replay="fidelity/replays/item-seed-11-kapala.txt" />.
 - **An angry Kali's sacrifice has a branch of its own that changes nothing.** Below 0 but above
   <Stat id="kali.devour" bare />, a sacrifice adds the body's worth as above 0, then sets the body's own worth
   to 0 just before the body is destroyed, so a sacrifice is worth the same either way <Cite gml="objects/oEnemy/step.gml:148-153" /> <Cite gml="objects/oDamsel/step.gml:329-334" />

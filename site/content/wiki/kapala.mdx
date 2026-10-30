@@ -66,7 +66,7 @@ There's no limit but the game's own: hearts stop at 99 <Cite gml="objects/oPlaye
 A drop can only be collected once it's 5 steps old <Cite gml="objects/oBlood/create.gml:9-13" />
 <Cite gml="objects/oBlood/alarm_2.gml:1" />. Blood flies when a monster or the player is hurt or killed,
 unless the monster is bloodless, and only while there are fewer than 16 drops and other bits of debris
-about <Cite gml="scripts/scrCreateBlood.gml:24-32" />. Any drop counts, the player's own too <Cite quirk="1" row="The rare items' only sources" />.
+about <Cite gml="scripts/scrCreateBlood.gml:24-32" />. Any drop counts, the player's own too <Cite quirk="1" row="With the kapala, any blood the player touches fills it, his own too." />.
 The clip shows Kali's gift appearing on her altar and the player picking it up; spiders come out of her
 statue when a laser breaks the altar, and as he whips them, the drops he touches fill the Kapala until the
 ninth turns into a heart, taking him from 3 hearts to 4 <Cite clip="kapala/heart" />.
@@ -79,7 +79,7 @@ ninth turns into a heart, taking him from 3 hearts to 4 <Cite clip="kapala/heart
 
 Kali's altars can come in every area but [[olmecs-lair|Olmec's Lair]]. The player gains her [[kalis-favour|favour]] by
 [[sacrifice|putting a body on the altar]]: a [[damsel|Damsel]]'s gives 8, a monster's what it's worth to her, a stunned one more than
-a dead one <Cite quirk="1" row="The rare items' only sources" />. At 8 she gives her first gift, a piece of equipment, and at 16 the Kapala,
+a dead one <Cite quirk="1" row="The kapala's only source is Kali's gift at favor 16." />. At 8 she gives her first gift, a piece of equipment, and at 16 the Kapala,
 which appears on the altar's right half, free to take <Cite gml="scripts/scrGetFavorMsg.gml:52-110" />. A
 favour that jumps straight past 8 to 16 gets the Kapala and never the first gift. She gives it once a game.
 No shop sells it, no [[crate|Crate]] or block holds one, and the
@@ -88,7 +88,7 @@ No shop sells it, no [[crate|Crate]] or block holds one, and the
 ## Interactions
 
 - Blood from the player's own wounds counts like anyone's, so the Kapala gives back some of what a fall onto
-  [[spikes|Spikes]] or a monster's bite costs, if he touches the drops <Cite quirk="1" row="The rare items' only sources" />.
+  [[spikes|Spikes]] or a monster's bite costs, if he touches the drops <Cite quirk="1" row="With the kapala, any blood the player touches fills it, his own too." />.
 - A drop that falls faster than 6 pixels a step vanishes, so blood that falls far is lost
   <Cite gml="objects/oBlood/step.gml:3" />.
 

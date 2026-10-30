@@ -146,7 +146,7 @@ gml="objects/oDamsel/step.gml:289-307" />.
 | A thrown item faster than 2 pixels a step | 1, and a stun of 120 steps | <Cite gml="objects/oItem/step.gml:365-391" /> |
 | A bullet ([[shotgun\|Shotgun]], [[pistol\|Pistol]]) | 4 | <Cite gml="objects/oBullet/collision_oDamsel.gml:1-23" /> |
 | A [[tomb-lord\|Tomb Lord]]'s fly | 2 | <Cite gml="objects/oFly/collision_oDamsel.gml:1-26" /> |
-| A UFO's laser, a psychic wave (the Alien Boss's, the [[sceptre\|Sceptre]]'s) | 3, and flung up; the hit leaves her state alone, so it's the fall that stuns her | <Cite quirk="1" row="Weapons' leftovers." /> <Cite gml="objects/oLaser/collision_oDamsel.gml:1-12" /> <Cite gml="objects/oPsychicWave/collision_oDamsel.gml:1-8" /> <Cite gml="objects/oPsychicWaveP/collision_oDamsel.gml:1-8" /> |
+| A UFO's laser, a psychic wave (the Alien Boss's, the [[sceptre\|Sceptre]]'s) | 3, and flung up; the hit leaves her state alone, so it's the fall that stuns her | <Cite quirk="1" row="A psychic wave's or a laser's hit leaves a Damsel's state alone." /> <Cite gml="objects/oLaser/collision_oDamsel.gml:1-12" /> <Cite gml="objects/oPsychicWave/collision_oDamsel.gml:1-8" /> <Cite gml="objects/oPsychicWaveP/collision_oDamsel.gml:1-8" /> |
 | A [[spear-trap\|Spear Trap]] | 2 on each step of its strike she's in | <Cite gml="objects/oDamsel/step.gml:121-142" /> |
 | A [[bomb\|Bomb]]'s explosion | 100: she dies, burning | <Cite gml="objects/oExplosion/collision_oDamsel.gml:1-9" /> |
 | [[spikes\|Spikes]], falling onto them faster than 2 pixels a step | Killed | <Cite gml="objects/oDamsel/step.gml:93-119" /> |
@@ -190,7 +190,7 @@ The Tunnel Man's door needs 8 saves too ([[tunnel-man#playing-as-him|playing as 
   drawn with his sprites, and the messages say "him" ("I'LL LET YOU HAVE HIM FOR $...", "NOW AIN'T HE
   SWEET!") <Cite gml="objects/oDamsel/create.gml:13-14" /> <Cite gml="objects/oPlayer1/step.gml:1445-1446" />.
 - Her sacrifice has a branch for a stunned Damsel worth half as much again, 12, but she's never in the
-  stunned state it tests for, so it never runs <Cite gml="objects/oDamsel/step.gml:331" /> <Cite quirk="1" row="Unreachable terrain and effects" />.
+  stunned state it tests for, so it never runs <Cite gml="objects/oDamsel/step.gml:331" /> <Cite quirk="1" row="A Damsel's sacrifice never takes its stunned branch." />.
 - A Damsel killed by lava or spikes counts in the end-of-game statistics, but not in the screen between
   levels' kills or the game's kill total, where one crushed, or one whose wounds kill her as she lands, counts
   in all three <Cite gml="objects/oDamsel/step.gml:77-119" /> <Cite gml="objects/oDamsel/step.gml:58-69" />
