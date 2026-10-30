@@ -1,4 +1,5 @@
 #!/bin/sh
+sh -n "$0" || exit 2
 # crates/workspace-hack (851-3738): the workspace's features for a build of one package, so a worktree's
 # `scripts/cargo test -p game` or scripts/extract reuses what the main checkout's workspace-wide builds made.
 #
@@ -68,7 +69,19 @@ fi
 # --locked: a check, which mustn't update Cargo.lock.
 tree() { scripts/cargo tree --quiet --locked "$@" --prefix none -f '{p} [{f}]'; }
 tmp=$(mktemp -d)
-trap 'rm -rf "$tmp"' EXIT
+# Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+# from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+finished=
+cleanup() {
+  status=$?
+  rm -rf "$tmp"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "scripts/workspace-hack: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
 tree --workspace -e normal,build,dev >"$tmp/workspace" &
 # Not update's: its tests run cold on a GitHub runner (updater.yml), which the hack would only slow, and a
 # worktree seldom builds it alone.
@@ -117,3 +130,4 @@ perl -e '
     exit 1;
   }
 ' "$tmp"
+finished=1
