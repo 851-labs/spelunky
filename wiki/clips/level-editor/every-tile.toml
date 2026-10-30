@@ -4,4 +4,4 @@ replay = "fidelity/replays/editor-every-tile.txt"
 from = 200
 to = 599
 poster = 250
-story = "room=rLevelEditor@200 +oTreeTile*2@230 +oLeavesTile@230 +oVineTop@230 room=rLoadLevel@264 customLevelName=ZZOO@264"
+story = "room=rLevelEditor@200 +oTreeTile*2@230 +oLeavesTile@230 +oVineTop@230 room=rLoadLevel@264 customLevelName=ZO@264"

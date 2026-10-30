@@ -1,7 +1,7 @@
 title = "Key config"
-description = "KEY CONFIG names each action in turn, with its key under CURRENT. Every key press counts twice, so each binds two actions: W binds UP and DOWN, Escape keeps LEFT and RIGHT, Space binds JUMP and ACTION, E SWITCH and RUN, and Q BOMB and ROPE, leaving PURCHASE."
+description = "KEY CONFIG names each action in turn, with its key under CURRENT, and each key press binds the one shown: W twice binds UP and DOWN, Escape twice keeps LEFT and RIGHT, Space twice binds JUMP and ACTION, E twice SWITCH and RUN, and Q twice BOMB and ROPE, leaving PURCHASE."
 replay = "fidelity/settings/wiki-window-keys.txt"
 from = 222
 to = 327
 poster = 300
-story = "keyUpVal=87@239 keyDownVal=87@239 keyJumpVal=32@275 keyAttackVal=32@275 keyItemVal=69@293 keyRunVal=69@293 keyBombVal=81@311 keyRopeVal=81@311"
+story = "keyUpVal=87@239 keyDownVal=87@248 keyJumpVal=32@275 keyAttackVal=32@284 keyItemVal=69@293 keyRunVal=69@302 keyBombVal=81@311 keyRopeVal=81@320"

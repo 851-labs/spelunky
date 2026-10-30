@@ -3,7 +3,7 @@ slug: level-editor
 title: Level editor
 type: mechanic
 categories: [the-game]
-aliases: [editor, custom-levels, custom-level, lvl, load-level, level-files]
+aliases: [editor, custom-levels, custom-level, lvl, load-level, level-files, editor-info-skips-fields, info-prompt-skips-fields, editor-info-skips-three-fields, cant-edit-author, cant-edit-lives, cant-edit-ropes]
 card: { sprite: sEditButton }
 lede: >-
   The level editor in Spelunky Classic, opened with F2 on the title screen, builds custom levels of 40 by 32
@@ -19,8 +19,8 @@ faq:
   - q: How do you play custom levels in Spelunky Classic?
     a: >-
       Press F3 on the title screen. A menu lists the levels in the game's levels folder, ten to a page, but not those
-      whose names start with an exclamation mark. Click one, or type its name (each key types twice, as in the
-      editor), then press Enter or the Load button.
+      whose names start with an exclamation mark. Click one, or type its name, then press Enter or the Load
+      button.
   - q: Why can't the level editor place every tile at first?
     a: >-
       The Jungle's, the Ice Caves' and the Temple's blocks, monsters and traps are added as the Tunnel Man's
@@ -60,9 +60,7 @@ name, if there is one, and otherwise starts an empty level <Cite gml="objects/oT
 gml="objects/oLevelEditor/keypress_anykey.gml:1-124" />. An empty level's author is ANONYMOUS, its music CAVE, its
 starting hearts, bombs and ropes 4 each and its next level
 NONE <Cite gml="objects/oLevelEditor/create.gml:20-26" />. Escape at the prompt goes back to the
-title <Cite gml="objects/oLevelEditor/keypress_escape.gml:12-16" />. Every key types twice there, as in every text
-the editor asks for: GO comes out GGOO <Cite quirk="5" row='The keyboard stages run the "no key" and "any key" events twice' /> <Cite
-replay="fidelity/replays/editor-build-test-save.txt" />.
+title <Cite gml="objects/oLevelEditor/keypress_escape.gml:12-16" />.
 
 ### Placing tiles
 
@@ -88,8 +86,8 @@ plays with whatever tiles it has <Cite gml="scripts/scrLoadLevel.gml:96-133" />.
 
 ### Doors and signs
 
-E over an exit or an entrance asks for its LABEL, and over a sign for its MESSAGE, up to 38 characters (each key
-types two); Enter sets it and Escape leaves it as it
+E over an exit or an entrance asks for its LABEL, and over a sign for its MESSAGE, up to 38 characters; Enter sets
+it and Escape leaves it as it
 was <Cite gml="objects/oLevelEditor/keypress_anykey.gml:125-199" /> <Cite
 gml="objects/oLevelEditor/keypress_escape.gml:5-11" />. An exit's label is the level it leads to, in place of the
 level's next level <Cite gml="objects/oPlayer1/step.gml:881-888" />. An entrance's is the level the player must
@@ -99,8 +97,9 @@ if there's none <Cite gml="scripts/scrLoadLevel.gml:162-183" />.
 ### The level's info
 
 The EDIT INFO button asks for the LEVEL NAME, the AUTHOR, the MUSIC, the START LIFE, START BOMBS and START ROPE,
-and the NEXT LEVEL, each ended with Enter <Cite gml="objects/oEditButton/mouse_left_release.gml:1-8" /> <Cite
-gml="objects/oLevelEditor/keypress_anykey.gml:201-322" />. The music is CAVE, LUSH, ICE, TEMPLE or BOSS, the music
+and the NEXT LEVEL, each ended with Enter, which doesn't move on from an empty
+field <Cite gml="objects/oEditButton/mouse_left_release.gml:1-8" /> <Cite
+gml="objects/oLevelEditor/keypress_anykey.gml:201-322" /> <Cite replay="fidelity/replays/editor-build-test-save.txt" />. The music is CAVE, LUSH, ICE, TEMPLE or BOSS, the music
 of the Mines, the Jungle, the Ice Caves, the Temple or Olmec's Lair; anything else plays the
 Mines' <Cite gml="scripts/startMusic.gml:1-35" />. Played from the menu, the starting hearts are 1 to 99 and the
 bombs and ropes 0 to 99, whatever was typed <Cite gml="scripts/scrLoadLevel.gml:138-149" />. The next level is the
@@ -138,7 +137,7 @@ messages <Cite gml="objects/oLevelEditor/keypress_Y.gml:8-62" />. Any text edito
 F3 on the title screen opens LOAD LEVEL:, which lists the levels in the `levels` folder, ten to a page, but not
 those whose names start with `!` <Cite gml="objects/oTitle/keypress_F3.gml:1-8" /> <Cite
 gml="objects/oLoadLevel/create.gml:42-82" /> <Cite gml="objects/oLoadLevel/draw.gml:1-26" />. A click picks a
-level, or the name can be typed, each key twice as in the editor <Cite quirk="5" row='The keyboard stages run the "no key" and "any key" events twice' />; Enter or the LOAD button loads
+level, or its name can be typed; Enter or the LOAD button loads
 it, and a name with no level shows NO SUCH LEVEL EXISTS! <Cite gml="objects/oLoadLevel/keypress_anykey.gml:1-25" /> <Cite
 gml="scripts/scrLoadLevel.gml:152-160" />. Escape goes back to the title. In the clip the player pages through
 twelve levels and loads ALPHA <Cite clip="level-editor/load-level" />.
@@ -195,10 +194,6 @@ What each character makes in a level is `scrCreateTileObj`'s <Cite gml="scripts/
 
 ## Quirks
 
-- **The info prompt skips three fields** ([[editor-info-skips-fields]]). Each Enter moves the prompt two fields on, so the author, the starting
-  hearts and the starting ropes can't be changed <Cite quirk="1" row="The level editor's info prompt skips three fields." /> <Cite
-  replay="fidelity/replays/editor-build-test-save.txt" />. The same doubling types the E that opens a label or
-  message into it.
 - **The test doesn't limit the starting values** that the menu limits to 99 ([[unclamped-test-bombs]]) <Cite quirk="1" row="The editor's test doesn't clamp the start values." /> <Cite
   replay="fidelity/replays/editor-test-hud-caps.txt" />.
 - **A saved level without exits loses its signs' messages** ([[lost-sign-messages]]) <Cite quirk="1" row="A saved level without exits loses its sign messages." /> <Cite
