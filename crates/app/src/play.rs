@@ -322,6 +322,10 @@ impl WindowGame for Play {
         self.game.as_ref().is_some_and(Game::ended)
     }
 
+    fn close_button(&self) -> bool {
+        true
+    }
+
     fn fullscreen(&self) -> Option<bool> {
         Some(self.game.as_ref()?.world().fullscreen())
     }

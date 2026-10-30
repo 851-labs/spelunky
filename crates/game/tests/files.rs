@@ -168,3 +168,19 @@ fn the_game_boots_past_its_file_reading() {
     // Every file is closed again.
     assert_eq!(g.host().clone().file_text_open_read(b"keys.cfg"), Ok(1));
 }
+
+#[test]
+fn the_close_button_writes_stats_txt() {
+    // `oScreen`'s close-button event is `game_end()`, and its game end event `scrWriteStats()`: the only place
+    // the game writes `stats.txt` (851-3777).
+    let mut game = game::Game::new(assets(), game::Config::default());
+    game.start()
+        .unwrap_or_else(|e| panic!("{}", game::describe(&e)));
+    for _ in 0..10 {
+        game.step(&[]).unwrap();
+    }
+    assert!(!game.world().host().files.contains_key("stats.txt"));
+    game.step(&[gm::InputEvent::Close]).unwrap();
+    assert!(game.ended());
+    assert!(game.world().host().files.contains_key("stats.txt"));
+}

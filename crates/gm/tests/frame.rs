@@ -772,3 +772,59 @@ fn exceptions_stop_the_game_while_it_starts_and_ends() {
     assert_eq!(e.error, Error::Value(ValueError::IntOverflow));
     assert_eq!(g.exception(), None);
 }
+
+#[test]
+fn the_close_button_runs_its_event_before_the_frame() {
+    // `oScreen`'s close button: `game_end()`.
+    fn close(g: &mut World, cx: &mut Ctx) -> R<()> {
+        note(g, cx)?;
+        trap_if_set(g)?;
+        g.game_end();
+        Ok(())
+    }
+    let prog = build(|b| {
+        assert_eq!(b.global("mode"), MODE);
+        let a = b.push_object(ObjectInfo::new("a"));
+        b.event(a, Event::CLOSE_BUTTON, close)
+            .event(a, Event::KeyPress(90), note)
+            .event(a, Event::Step, note)
+            .event(a, Event::ROOM_END, note)
+            .event(a, Event::GAME_END, note);
+    });
+    let r = room(320, 240, &numbered(&[(ObjectId(0), 10, 10)]));
+    let mut g = start(prog, Assets::default(), &[(0, r)]);
+    take_log(&mut g);
+    // After the frame's other input, and once per press. An exception there drops the rest of GM8's message pump
+    // (the second press), but not the frame.
+    g.gset(MODE, Value::Real(TRAP)).unwrap();
+    let close_twice = [
+        InputEvent::Close,
+        InputEvent::Press(Button::Key(90)),
+        InputEvent::Close,
+    ];
+    g.step(&close_twice).unwrap();
+    assert_eq!(take_log(&mut g), "a1.close a1.press90 a1.step");
+    let e = g.exception().expect("an exception");
+    assert_eq!(e.error, Error::Value(ValueError::IntOverflow));
+    assert!(!g.ended());
+    // Its game_end leaves the frame no events to run, then ends the game: the room end and game end events.
+    g.gset(MODE, Value::Real(0.0)).unwrap();
+    g.step(&close_twice).unwrap();
+    assert_eq!(take_log(&mut g), "a1.close a1.roomend a1.gameend");
+    assert!(g.ended());
+    assert_eq!(g.frames(), 2);
+}
+
+#[test]
+fn without_a_close_button_event_the_close_button_does_nothing() {
+    let prog = build(|b| {
+        let a = b.push_object(ObjectInfo::new("a"));
+        b.event(a, Event::Step, note);
+    });
+    let r = room(320, 240, &numbered(&[(ObjectId(0), 10, 10)]));
+    let mut g = start(prog, Assets::default(), &[(0, r)]);
+    take_log(&mut g);
+    g.step(&[InputEvent::Close]).unwrap();
+    assert_eq!(take_log(&mut g), "a1.step");
+    assert!(!g.ended());
+}

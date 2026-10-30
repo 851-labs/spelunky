@@ -176,6 +176,7 @@ pub fn event_name(e: Event) -> String {
         Event::Other(4) => "roomstart".into(),
         Event::Other(5) => "roomend".into(),
         Event::Other(7) => "anim".into(),
+        Event::Other(30) => "close".into(),
         Event::KeyPress(k) => format!("press{k}"),
         Event::Collision(o) => format!("hit{}", o.0),
         e => format!("{e:?}"),

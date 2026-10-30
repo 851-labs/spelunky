@@ -48,7 +48,7 @@ pub enum Event {
     Keyboard(u8),
     Mouse(u8),
     /// Other events: 0 outside room, 1 intersect boundary, 2 game start, 3 game end, 4 room start, 5 room
-    /// end, 7 animation end, 10-25 user events, 40-57 view events, ...
+    /// end, 7 animation end, 10-25 user events, 30 close button, 40-57 view events, ...
     Other(u8),
     Draw,
     KeyPress(u8),
@@ -63,6 +63,8 @@ impl Event {
     pub const ROOM_START: Event = Event::Other(4);
     pub const ROOM_END: Event = Event::Other(5);
     pub const ANIMATION_END: Event = Event::Other(7);
+    /// The window's close button (`ev_close_button`), with GM's "treat the close button as Esc" off.
+    pub const CLOSE_BUTTON: Event = Event::Other(30);
     /// Outside view `n` (0-7).
     pub const fn outside_view(n: u8) -> Event {
         Event::Other(40 + n)

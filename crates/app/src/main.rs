@@ -24,6 +24,11 @@
 //! session, start from the replay's own files instead, so a recording plays back the same anywhere:
 //! `replay-run --faithful-audio out.txt` gives the trace `--trace` wrote live. Sound plays unless `--mute`.
 //!
+//! The window's close button reaches the game as GM8's runner delivers it, as its close-button event at the
+//! next tick, and the window closes once the game ends: Spelunky's writes `stats.txt`, and the settings
+//! program's saves its settings first. Quitting the app (Cmd-Q) or Ctrl+C runs that tick before it goes, as
+//! does the browser build when its page unloads (`app::window`, `docs/quirks.md` section 7).
+//!
 //! Input goes through the game's path: GM8 key codes and replay events (`app::input`). Keys get the
 //! layout's codes, as in GM8; `--physical-keys` uses their US positions instead. A gamepad connected by
 //! the first tick is GM's joystick 1 and makes the recording declare `joystick pov`; `--no-gamepad` keeps
@@ -114,8 +119,10 @@ fn settings_window_size(scale: Option<u32>) -> (u32, u32) {
 /// (`?replay=URL&mute&no-gamepad&physical-keys`, `?preview&room=rTutorial&view=0,64&scale=3`, or
 /// `?settings` for the settings program) and the assets fetched from `assets/` next to the page.
 /// `?replay=URL&embed&from=F` is a replay a page embeds and drives (the wiki's live clips, [`Embed`]),
-/// shown from frame F, which it can seek in. Play keeps its saves in `localStorage`; sound starts at
-/// the first key or click, as browsers require. Recording has no file to go to yet: a [`RecordSink`] that
+/// shown from frame F, which it can seek in. Play keeps its saves in `localStorage`; closing the tab or
+/// leaving the page ends the game as the window's close button does, before the page goes (winit's
+/// `pagehide`, `App`'s `exiting`), so `stats.txt` is saved. Sound starts at the first key or click, as
+/// browsers require. Recording has no file to go to yet: a [`RecordSink`] that
 /// downloads or stores it is where it plugs in. There's no screenshot mode: the browser's own does that.
 ///
 /// [`RecordSink`]: app::window::RecordSink
@@ -784,7 +791,8 @@ mod native {
             builder.with_activate_ignoring_other_apps(false);
         }
         let event_loop = builder.build().map_err(|e| e.to_string())?;
-        // Ctrl+C closes the window properly, so a recording gets its end.
+        // Ctrl+C closes the window properly: the game ends as its close button would end it, and a recording
+        // gets its end.
         let proxy = event_loop.create_proxy();
         ctrlc::set_handler(move || {
             let _ = proxy.send_event(UserEvent::Exit);

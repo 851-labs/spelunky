@@ -241,6 +241,8 @@ pub struct Collector {
     sticks: [f64; 3],
     wheel_up: bool,
     wheel_down: bool,
+    /// The window's close button, pressed this many times since the last tick.
+    closes: usize,
 }
 
 impl Collector {
@@ -375,8 +377,15 @@ impl Collector {
         self.sticks = [0.0; 3];
     }
 
+    /// The window's close button is pressed: the next tick gets a `close` (`gm::World::step` runs the game's
+    /// close-button event for it).
+    pub fn close(&mut self) {
+        self.closes += 1;
+    }
+
     /// The events for the tick about to run: the devices' in order, then what's sampled (cursor, sticks,
-    /// wheel) where it changed, in `trace::replay`'s order.
+    /// wheel) where it changed, in `trace::replay`'s order, then the close button's, which the game takes
+    /// after the rest anyway.
     pub fn take_tick(&mut self) -> Vec<Event> {
         let mut next = self.sent;
         if let Some((x, y)) = self.cursor {
@@ -392,6 +401,9 @@ impl Collector {
         }
         // The wheel lasts one frame.
         (self.sent.wheel_up, self.sent.wheel_down) = (false, false);
+        for _ in 0..std::mem::take(&mut self.closes) {
+            self.push(Event::Close);
+        }
         std::mem::take(&mut self.events)
     }
 }
@@ -708,6 +720,16 @@ mod tests {
                 Event::Axis(Axis::X, 0.0),
             ]
         );
+    }
+
+    #[test]
+    fn the_close_button_reaches_the_next_tick_last() {
+        let mut c = Collector::new(KeyMap::Layout);
+        c.close();
+        c.wheel(1.0);
+        c.close();
+        assert_eq!(c.take_tick(), [Event::WheelUp, Event::Close, Event::Close]);
+        assert_eq!(c.take_tick(), []);
     }
 
     #[test]

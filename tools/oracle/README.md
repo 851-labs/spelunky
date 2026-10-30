@@ -88,6 +88,8 @@ Supported:
 - Events: `press`, `release` and `hold` for keys (every name and code in the spec) and `mb_left`/`mb_right`/
   `mb_middle`, `wheel up`/`wheel down`, and `mouse X Y`. A frame's events apply at its start, in file order. The
   mouse starts at (0, 0) and stays where the last `mouse` event put it.
+- `close`, the window's close button: once the frame's other events are in, every instance's close-button event
+  runs, as GM8's does (patch 0034).
 
 Not supported, and rejected with an error: any other `room`, `joystick`, `axis` events and `joy1`-`joy32`.
 OpenGMK's `joystick_*` functions are stubs that report no joystick, so the oracle can't play joystick input.
@@ -500,6 +502,17 @@ Leaving a room carries the persistent instances GM8's does, as the port's `World
 too), as GM8's routine for leaving a room (`Spelunky.exe` 0x53e270) does, and `load_room` then takes the persistent
 instances with `InstanceList::take_persistent`: the active ones, in the order of the array of active instances, where
 `remove_as_vec` took every one, deactivated and destroyed ones too, in slot order.
+
+### `opengmk/0034-gm8-close-button.patch`
+
+A text replay's `close` presses the window's close button as GM8's runner handles it, as the port's `World::step`
+does (851-3777, `docs/quirks.md` §5 and §7). With "treat the close button as Esc" off, as both programs have it, GM8
+refuses the close and runs every instance's close-button event (other 30) there and then, unless a room change is
+pending (`Spelunky.exe` 0x5144a8, the window's close query). That's in the message pump its main loop runs after each
+frame's room change (0x53eabd), inside the frame's exception handler, so `replay` runs the events after the frame's
+input (`Input::CloseButton`, which `set_input_from_frame` skips) and before the frame, and an exception there ends
+them without stopping the frame. OpenGMK never runs the event: it ends the game when its window closes
+(`close_requested`), which a replay never does.
 
 ## Caveats
 

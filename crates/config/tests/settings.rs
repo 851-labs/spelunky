@@ -92,6 +92,19 @@ fn escape_saves_the_settings_and_quits_without_starting_the_game() {
 }
 
 #[test]
+fn the_close_button_saves_the_settings_and_quits() {
+    // `oInit`'s close-button event: `scrSaveSettings(); game_end();` (851-3777).
+    let mut game = settings("settings 0 1 0 1 2 9 30\nframes 1\n");
+    step(&mut game, &[InputEvent::Close]).unwrap();
+    assert!(game.ended());
+    assert_eq!(
+        file(&game, "settings.cfg"),
+        "0\r\n1\r\n0\r\n1\r\n2\r\n9\r\n19"
+    );
+    assert!(!config::launches_game(&game));
+}
+
+#[test]
 fn enter_quits_without_saving() {
     // `oInit`'s Enter press is a bare `game_end()`, unlike Escape and the close button.
     let mut game = settings("settings 0 1 0 1 2 9 30\nframes 1\n");

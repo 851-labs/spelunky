@@ -326,6 +326,9 @@ pub enum Event {
     },
     /// An axis changes to this value.
     Axis(Axis, f64),
+    /// The window's close button (`close`, an extension). It changes no input state: the runtime runs the
+    /// close-button event once the frame's other events are applied.
+    Close,
 }
 
 /// The held input state during one frame, after that frame's events.
@@ -412,6 +415,7 @@ impl InputState {
             Event::WheelDown => self.wheel_down = true,
             Event::MouseMove { x, y } => (self.mouse_x, self.mouse_y) = (x, y),
             Event::Axis(axis, v) => self.joy_axes[axis as usize] = v,
+            Event::Close => {}
         }
     }
 
@@ -862,6 +866,7 @@ fn format_event(e: &Event) -> String {
         Event::WheelDown => "wheel down".into(),
         Event::MouseMove { x, y } => format!("mouse {x} {y}"),
         Event::Axis(a, v) => format!("axis {} {}", a.name(), format_real(v)),
+        Event::Close => "close".into(),
     }
 }
 
@@ -877,6 +882,7 @@ fn parse_event(verb: &str, args: &[&str]) -> Result<Vec<(u64, Event)>, String> {
         }
         ("wheel", ["up"]) => vec![(0, Event::WheelUp)],
         ("wheel", ["down"]) => vec![(0, Event::WheelDown)],
+        ("close", []) => vec![(0, Event::Close)],
         ("mouse", [x, y]) => {
             let x = x.parse().map_err(|_| format!("bad mouse x {x:?}"))?;
             let y = y.parse().map_err(|_| format!("bad mouse y {y:?}"))?;
@@ -1022,6 +1028,7 @@ mod tests {
         r.push(5, Event::Axis(Axis::X, -0.0)).unwrap();
         r.push(5, Event::Axis(Axis::Pov, 270.0)).unwrap();
         r.push(6, Event::Release(Button::Key(255))).unwrap();
+        r.push(7, Event::Close).unwrap();
         r.set_len(10).unwrap();
         r
     }
@@ -1040,6 +1047,12 @@ mod tests {
         assert!(text.contains(
             "\n3 press mb_middle\n3 mouse -4 700\n4 wheel down\n4 press joy32\n5 axis x -0\n"
         ));
+        assert!(text.contains("\n7 close\n"));
+        // It takes no arguments, and changes no state.
+        assert!(Replay::parse("3 close now").is_err());
+        let inputs: Vec<_> = back.inputs().collect();
+        assert_eq!(inputs[7].events, [(7, Event::Close)]);
+        assert_eq!(inputs[7].state, inputs[6].state);
     }
 
     #[test]

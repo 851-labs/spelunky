@@ -55,6 +55,7 @@ sorted by frame.
 | `F wheel up` / `F wheel down` *(ext)* | One mouse wheel event. |
 | `F mouse X Y` *(ext)* | The mouse moves to (X, Y) in window client pixels. The runtime maps this into the room. |
 | `F axis x\|y\|z\|pov V` *(ext)* | A joystick axis (-1 to 1), or the POV hat in degrees (-1 is centred), changes to V. |
+| `F close` *(ext)* | The window's close button is pressed. It changes no input state: once the frame's other events are in, every instance's close-button event runs, as GM8's runner runs it between frames (`gm::World::step`). In Spelunky that's `oScreen`'s `game_end()`, so the frame runs no events and the game ends, writing `stats.txt`. |
 
 A button `B` can be any of these:
 
@@ -465,6 +466,7 @@ panicking later. The port's savestates are unrelated to the oracle's (OpenGMK's 
 - Traces: it writes `deactivated` on every frame, `builtins` with `view_xview[0]`, `view_yview[0]`,
   `view_wview[0]` and `view_hview[0]` (the view drives `oLevel`'s deactivation region), and
   `{"real":"nan"}`-style non-finite values in `vars`/`globals`. It writes no header line.
-- Replays: it accepts `settings`, `keys`, `gamepad`, `file`, `highscore`, mouse buttons, `wheel` and `mouse`.
+- Replays: it accepts `settings`, `keys`, `gamepad`, `file`, `highscore`, mouse buttons, `wheel`, `mouse` and
+  `close` (patch 0034).
   It rejects `room` other than `rScreenInit` and all joystick input, because OpenGMK's `joystick_*` functions
   are stubs that report no joystick.
