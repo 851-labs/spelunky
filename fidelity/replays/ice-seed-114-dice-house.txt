@@ -1,7 +1,7 @@
 # Level generation no committed replay made (851-3786): an Ice Caves Dice House. fidelity/gen-area.sh ice 114 765
 # (level 9 loads on 760), standing still. scrRoomGen3's shop room off the path (roomPath 4) rolls Craps, whose
 # template has the dice sign (Q), the prize on its stand (q, scrGenerateItem), ice-block walls (+, shopWall) and
-# two dice (u); one of the level's obstacle blocks rolls its ninth layout.
+# two dice (u); and a ground obstacle (5) rolls the ninth of its fifteen layouts.
 # story: currLevel=9@760 shop=1@760 oShopkeeper.style=Craps@760 +oDice*2@760..760
 seed 114
 frames 765

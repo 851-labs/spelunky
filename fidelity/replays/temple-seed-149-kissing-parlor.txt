@@ -3,6 +3,7 @@
 # its shop with rand(1,7), there being no damsel yet, and gets Kissing: the damsel for sale (A), the red lamp (p)
 # and the Kissing sign.
 # story: currLevel=13@738 shop=1@738 oShopkeeper.style=Kissing@738 +oDamsel@738..738 +oLampRed@738..738
+# story: oDamsel.forSale=1@738..738
 seed 149
 frames 743
 highscore 9000100 "MONEY"
