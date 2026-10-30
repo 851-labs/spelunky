@@ -1,0 +1,21 @@
+# Level generation no committed replay made (851-3786): a buried mattock and a short snake pit. fidelity/gen-area.sh
+# mines 170 570 (level 1 loads on 565), standing still. scrLevelGen's snake pit takes its shorter form, its room at
+# j+2 its bottom (roomPath 9) rather than its middle with the bottom below; and two blocks' 1-in-1200 rolls for
+# scrGenerateItem's underground set both get the mattock, buried at (248, 376) and (504, 328).
+# story: room=rLevel@565 snakePit=1@565 +oMattock*2@565..565
+seed 170
+frames 570
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
