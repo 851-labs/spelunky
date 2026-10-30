@@ -16,7 +16,7 @@ quirk:
   rows:
     - The Pitcher's Mitt's light gravity lasts one step, as an arrow's does, but a jar, a skull or a die keeps it.
 relations:
-  related: [pitchers-mitt, throwing, rock, jar, skull, arrow, dice-house]
+  related: [pitchers-mitt, throwing, rock, jar, skull, arrow, fish-bone, dice-house]
 clips: [quirks/mitt-gravity-one-step]
 faq:
   - q: Does the Pitcher's Mitt make things fly farther in Spelunky Classic?
@@ -40,7 +40,8 @@ sources:
   - objects/oSkull/step.gml
   - objects/oDice/step.gml
   - objects/oArrow/create.gml
-verified: { port: v0.1.10, date: 2026-10-28 }
+  - objects/oFishBone/create.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
 ---
 
 The [[pitchers-mitt|Pitcher's Mitt]] throws harder and lighter: 6 pixels a step faster, with a sixth of the
@@ -99,7 +100,9 @@ Damsel set their gravity on every step too, and lose it within a step <Cite gml=
 gml="objects/oDamsel/step.gml:47" />. An arrow is made with a gravity of 0.2
 <Cite gml="objects/oArrow/create.gml:6" />, but its step runs `oItem`'s first
 <Cite gml="objects/oArrow/step.gml:1" />, so every arrow, a Bow's or an [[arrow-trap|Arrow Trap]]'s, falls at
-0.2 for one step and at 0.6 after <Cite quirk="1" />.
+0.2 for one step and at 0.6 after <Cite quirk="1" />. A [[fish-bone|Fish Bone]] is made with the same 0.2 and goes the
+same way <Cite gml="objects/oFishBone/create.gml:6" /> <Cite gml="objects/oFishBone/step.gml:1" />
+<Cite replay="fidelity/replays/item-fish-bone-first-step-gravity.txt" />.
 
 ## Reproducing it
 
