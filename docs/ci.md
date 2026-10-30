@@ -183,8 +183,9 @@ token (this repository only, the same two permissions) in the same environment a
 too, but acts as its owner, and lasts until it expires. Without either, the job opens nothing and leaves
 a warning and the command to run by hand in the run's summary.
 
-The "Protect main" ruleset has `require_extra_approval_for_unattributed_changes` on, which may hold an App's pull request for one approval even with no approvals required; if it does, a collaborator
-approves it (`gh pr review --approve`), or the ruleset turns the option off.
+The "Protect main" ruleset has `require_extra_approval_for_unattributed_changes` on, which may hold an App's
+pull request for one approval even with no approvals required; if it does, a collaborator approves it
+(`gh pr review --approve`), or the ruleset turns the option off.
 
 **By hand.** Actions → Auto release → Run workflow, with `dry_run` (the default), plans the branch's commit
 without waiting and releases nothing, then, on `main`, mints the App's token (or reads the token) and runs
