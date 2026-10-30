@@ -23,11 +23,20 @@ if [ "${1:-}" = --reused ]; then
   [ "$(uname -s) $(uname -m)" = "Darwin arm64" ] ||
     { echo "scripts/workspace-hack: skipped (the hack is Apple silicon Macs')" >&2; exit 0; }
   bad=
-  for member in $(scripts/cargo tree --quiet --locked --workspace --depth 0 --prefix none -f '{p}' | sed 's/ .*//' | sort -u); do
+  members() { scripts/cargo tree --quiet --locked "$@" --depth 0 -e normal,build,dev --prefix none -f '{p} [{f}]' |
+    sed -E 's/ \([^)]*\)//' | sort -u; }
+  workspace=$(members --workspace)
+  for member in $(echo "$workspace" | sed 's/ .*//'); do
     case $member in workspace-hack | update) continue ;; esac
+    # A member whose own features differ when it's built alone (audio, draw, gmk: --check's exception)
+    # compiles its own units; nothing else may.
+    own=
+    echo "$workspace" | grep -qxF "$(members -p "$member" | grep "^$member ")" || own=$member
     built=$(scripts/cargo test --quiet --locked --no-run -p "$member" --message-format=json 2>/dev/null |
-      perl -MJSON::PP -ne 'my $m = eval { decode_json($_) } or next;
-        print "$m->{target}{name} " if ($m->{reason} // "") eq "compiler-artifact" && !$m->{fresh}')
+      OWN=$own perl -MJSON::PP -ne 'my $m = eval { decode_json($_) } or next;
+        next unless ($m->{reason} // "") eq "compiler-artifact" && !$m->{fresh};
+        my ($package) = $m->{package_id} =~ m{[#/]([^#/@]+)@};
+        print "$m->{target}{name} " unless $ENV{OWN} && $package eq $ENV{OWN}')
     [ -z "$built" ] || { echo "scripts/workspace-hack: \`cargo test -p $member\` compiled $built, which the workspace's build had" >&2; bad=1; }
   done
   [ -z "$bad" ] || { echo "scripts/workspace-hack: so a worktree rebuilds them (features: scripts/workspace-hack --check)" >&2; exit 1; }
