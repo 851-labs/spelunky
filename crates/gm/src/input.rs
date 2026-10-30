@@ -124,6 +124,8 @@ impl InputState {
                     j.state.apply(e);
                 }
             }
+            // No input state: `World::step` runs the close-button event.
+            Event::Close => {}
         }
     }
 

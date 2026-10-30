@@ -1,0 +1,41 @@
+# Closing the window mid-level writes stats.txt (851-3777, docs/quirks.md §5). item-seed-13-chest-tally.txt
+# (seed 13, level 1 at 565: one chest opened at 664 and pressed twice more, 674 and 684, so global.totalChests is
+# 3) to 759, then the window's close button (760). With "treat the close button as Esc" off, GM8 runs oScreen's
+# close-button event, game_end(), so that frame runs no events and the game ends: oScreen's game end event
+# (scrWriteStats) writes stats.txt, totalChests 3 in it, which the oracle's fingerprint pins. The port used to
+# close the window without the event, and wrote nothing.
+# story: room=rLevel@565 totalChests=3@684..684 !room=rTitle@566..
+seed 13
+frames 761
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+630 release right
+630 press left
+654 release left
+657 hold left 2
+662 hold up 6
+664 hold X 2
+672 hold up 6
+674 hold X 2
+682 hold up 6
+684 hold X 2
+690 hold left 8
+705 hold right 16
+760 close

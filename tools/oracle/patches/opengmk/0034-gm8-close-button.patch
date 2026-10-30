@@ -1,0 +1,62 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -2386,6 +2386,8 @@
+                 replay::Input::MouseRelease(b) => self.input.mouse_release(*b as i8, true),
+                 replay::Input::MouseWheelUp => self.input.mouse_scroll_up(),
+                 replay::Input::MouseWheelDown => self.input.mouse_scroll_down(),
++                // Spelunky oracle: no input state; `replay` runs the close-button event (851-3777).
++                replay::Input::CloseButton => (),
+             }
+         }
+     }
+@@ -2491,6 +2493,21 @@
+                 }
+ 
+                 self.set_input_from_frame(frame);
++
++                // Spelunky oracle: the window's close button (a text replay's `close`, 851-3777), which OpenGMK
++                // doesn't run. GM8's runner refuses the close and runs every instance's close-button event there
++                // and then, unless a room change is pending (Spelunky.exe 0x5144a8, with "treat the close button
++                // as Esc" off, as Spelunky's and the settings program's settings have it). That's in the message
++                // pump its main loop runs after each frame's room change (0x53eabd), under the frame's exception
++                // handler: so here, after this frame's input, and an exception drops only the rest of the pump.
++                // The port's `World::step` does the same.
++                let closes = frame.inputs.iter().filter(|i| matches!(i, replay::Input::CloseButton)).count();
++                for _ in 0..closes {
++                    match self.run_other_event(30) {
++                        Err(e) if e.is_exception() => break,
++                        r => r?,
++                    }
++                }
+             }
+ 
+             // Spelunky oracle: GM8's main loop catches an exception (the x87's traps, running out of memory) with an
+diff --git a/gm8emulator/src/game/replay.rs b/gm8emulator/src/game/replay.rs
+--- a/gm8emulator/src/game/replay.rs
++++ b/gm8emulator/src/game/replay.rs
+@@ -82,6 +82,8 @@
+     MouseRelease(i8),
+     MouseWheelUp,
+     MouseWheelDown,
++    // Spelunky oracle: the window's close button, a text replay's `close`, which `Game::replay` runs (851-3777).
++    CloseButton,
+ }
+ 
+ #[derive(Debug)]
+@@ -252,6 +254,7 @@
+ //   60 hold right 20           (press on 60, release on 80)
+ //   70 wheel up                (or `wheel down`)
+ //   80 mouse 100 50            (the mouse moves to (100, 50) in window pixels)
++//   90 close                   (the window's close button, after the frame's other input)
+ //
+ // Joystick directives and events are rejected: OpenGMK's joystick functions are stubs (no joystick).
+ // ---------------------------------------------------------------------------
+@@ -463,6 +466,7 @@
+                 },
+                 [f, "wheel", "up"] => evs.push((frame(f)?, Input::MouseWheelUp, ln)),
+                 [f, "wheel", "down"] => evs.push((frame(f)?, Input::MouseWheelDown, ln)),
++                [f, "close"] => evs.push((frame(f)?, Input::CloseButton, ln)),
+                 [f, "mouse", x, y] => {
+                     let x = x.parse().map_err(|_| err("bad mouse x"))?;
+                     let y = y.parse().map_err(|_| err("bad mouse y"))?;

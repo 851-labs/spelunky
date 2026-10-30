@@ -1,0 +1,35 @@
+# Closing the window on the game over screen leaves the death out of stats.txt's level table (851-3777,
+# docs/quirks.md §1 and §5). flow-pause-game-over-new-game.txt (seed 1, level 1 at 565: F1 from the pause kills
+# the player at 900) to 959, on the game over screen, then the window's close button (960). oScreen's
+# close-button event is game_end(), whose game end event writes stats.txt; oPlayer1 counts a death in its
+# level's row (global.levelDeaths) only as the game over screen is left with attack or start, so level 1's row
+# reads 0, while the high scores (DEATHS, PLAYS) were updated as he died. The oracle's fingerprint pins both.
+# story: room=rLevel@565 plife=0@900 !levelDeaths[0]>0 !room=rHighscores@566..
+seed 1
+frames 961
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+640 hold right 30
+700 hold escape 2
+720 hold right 30
+730 hold Z 6
+745 hold X 4
+760 hold C 4
+775 hold left 20
+800 hold escape 2
+830 hold right 20
+870 hold escape 2
+900 hold F1 2
+960 close

@@ -13,7 +13,8 @@ use trace::replay::{Event as InputEvent, MouseButton};
 
 impl World {
     /// Runs one frame with this frame's input events (applied in order first, as `trace::replay` gives
-    /// them), then performs the room change the frame requested, if any.
+    /// them, then the close-button event for each `close` among them, [`close_button`](Self::close_button)),
+    /// then performs the room change the frame requested, if any.
     ///
     /// If a stage requests a room change, the frame stops after that stage and the room loads
     /// (`room.rs` `load_room`), frame-0 draw included. A change requested while a room was loading is left
@@ -43,7 +44,9 @@ impl World {
             return Ok(());
         }
         self.input.begin_frame();
+        let mut closes = 0;
         for e in input {
+            closes += usize::from(matches!(e, InputEvent::Close));
             self.input.apply(e);
         }
         // GM8 shows the back buffer at the end of a frame, unless a room change is pending (OpenGMK
@@ -52,13 +55,16 @@ impl World {
         self.presented = false;
         self.exception = None;
         let mut ending = false;
-        let r = self.frame().and_then(|()| {
-            if self.pending.is_none() {
-                self.present();
-            }
-            ending = self.pending == Some(SceneChange::End);
-            self.change_room()
-        });
+        let r = self
+            .close_button(closes)
+            .and_then(|()| self.frame())
+            .and_then(|()| {
+                if self.pending.is_none() {
+                    self.present();
+                }
+                ending = self.pending == Some(SceneChange::End);
+                self.change_room()
+            });
         self.frames += 1;
         match r {
             // A `game_end` before it stays pending too: GM8 only leaves its loop from the room change it drops
@@ -72,6 +78,31 @@ impl World {
                 .and_then(|()| if ending { self.end_game() } else { Ok(()) })
                 .map_err(|e| self.located(e)),
         }
+    }
+
+    /// The window's close button, pressed `n` times since the last frame (a replay's `close`). GM8's runner never
+    /// lets its window close (Spelunky.exe 0x5144a8, the window's close query, refuses it): with "treat the
+    /// close button as Esc" off, as both Spelunky's settings and the settings program's have it, it runs every
+    /// instance's close-button event there and then, unless a room change is pending (0x4b20d8, the routine
+    /// that runs the room end events). Its main loop pumps the window's messages after each frame's room change
+    /// (0x53eabd), so here they run before the frame, once its input is in; a `game_end` there makes that frame
+    /// run no events, then ends the game. A game without the event doesn't close at all.
+    ///
+    /// The pump is inside the frame's exception handler, so an exception drops the rest of it, the further
+    /// presses here, but not the next frame, which runs as usual ([`exception`](Self::exception) reports it
+    /// unless the frame has one of its own). With the option on, GM8 would press Esc instead (keyboard state
+    /// only, not held); neither program has it, so the port doesn't model it.
+    fn close_button(&mut self, n: usize) -> R<()> {
+        for _ in 0..n {
+            match self.run_other_event(Event::CLOSE_BUTTON) {
+                Err(e) if e.is_exception() => {
+                    self.exception = Some(self.located(e));
+                    break;
+                }
+                r => r?,
+            }
+        }
+        Ok(())
     }
 
     /// The exception that cut the last [`step`](Self::step) short, where it happened: GM8 drops the rest of

@@ -1,0 +1,14 @@
+{
+  "replay": "c91703a2cb2f276b",
+  "frames": 761,
+  "trace": "04e4e78a4a8a55aa",
+  "host": "eac8d98fb3c47839",
+  "checkpoints": [
+    [0,"rIntro","aa39c59a2fc17237"],
+    [70,"rTitle","3a8efec116aecaf6"],
+    [299,"rTitle","f94e74c230eeb899"],
+    [565,"rLevel","cc8bb34c781dda54"],
+    [599,"rLevel","72a569a7a9bd4457"],
+    [760,"rLevel","04e4e78a4a8a55aa"]
+  ]
+}
