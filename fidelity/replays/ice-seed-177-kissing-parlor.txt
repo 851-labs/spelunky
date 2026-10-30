@@ -1,0 +1,23 @@
+# Level generation no committed replay made (851-3786): an Ice Caves Kissing Parlor on the path. fidelity/gen-area.sh
+# ice 177 765 (level 9 loads on 760), standing still. scrRoomGen3's shop room on the path (roomPath 5) rolls
+# Kissing: a damsel for sale and the red lamp.
+# story: currLevel=9@760 shop=1@760 oShopkeeper.style=Kissing@760 +oDamsel@760..760 +oLampRed@760..760
+seed 177
+frames 765
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 76
+640 hold Z 6
+730 hold up 5

@@ -1,0 +1,24 @@
+# Level generation no committed replay made (851-3786): a jetpack buried in a block. fidelity/gen-area.sh temple 15 743
+# (level 13 loads on 738), standing still. One block's create rolls 1 in 1200 for scrGenerateItem's underground
+# set and gets its first case, the jetpack; and scrSetupWalls gives a Temple block with nothing above or beside it
+# but a block below the sprite sTempleUp5.
+# story: currLevel=13@738 +oJetpack@738..738
+seed 15
+frames 743
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 56
+640 hold Z 6
+708 hold up 5
