@@ -155,6 +155,7 @@ cat >"$media/rooms/rTutorial.json" <<'EOF2'
     {"id":134001,"object":"oSnake","x":320,"y":112},
     {"id":134002,"object":"oBrick","x":0,"y":0},
     {"id":134003,"object":"oBrick","x":16,"y":0},
+    {"id":134005,"object":"oCaveBG","x":32,"y":0},
     {"id":134004,"object":"oGoldBar","x":96,"y":112,"creation_code":"value = 2;\n"}
   ]
 }
@@ -845,11 +846,12 @@ contains '<title>rTutorial – Room source – Spelunky Classic wiki</title>' '<
   '<link rel="canonical" href="https://spelunky.ai/wiki/source/rooms/rTutorial"/>' \
   '<a href="/wiki/source">Source code</a>' '<h1><code>rTutorial</code></h1>' \
   'Derek Yu and Mossmouth, LLC, under the <a href="/LICENSE.txt">Spelunky User License v1.1b</a>. Extracted by spelunky.ai&#x27;s tools' \
-  'The room rTutorial as the room editor placed it: 4 instances of 3 objects and 1 tile.' \
+  'The room rTutorial as the room editor placed it: 5 instances of 4 objects and 1 tile.' \
   '<p class="source-about">The wiki&#x27;s page on this room: <a id="' '" href="/wiki/tutorial" data-slug="tutorial">Tutorial</a>.</p>' \
   '<th scope="row">Size</th><td>672 × 304 pixels</td>' '<td><div>bgCave, tiled across and down</div></td>' \
   'View 0: 320 × 240 at (0, 0), shown at 640 × 480, following oPlayer1 with borders of 128 and 96' \
-  '<tr id="oBrick"><th scope="row"><code>oBrick</code></th><td>2</td><td><ul class="room-positions"><li title="Instance 134002">(0, 0)</li><li title="Instance 134003">(16, 0)</li></ul></td></tr>' \
+  '<tr id="oBrick"><th scope="row"><code>oBrick</code><a id="' '" href="/wiki/block" data-slug="block" class="room-page">Block</a></th><td>2</td><td><ul class="room-positions"><li title="Instance 134002">(0, 0)</li><li title="Instance 134003">(16, 0)</li></ul></td></tr>' \
+  '<tr id="oCaveBG"><th scope="row"><code>oCaveBG</code></th><td>1</td>' \
   '<tr id="oSnake"><th scope="row"><a href="/wiki/source#oSnake"><code>oSnake</code></a><a id="' \
   '" href="/wiki/snake" data-slug="snake" class="room-page">Snake</a></th><td>1</td>' \
   '<tr id="oGoldBar"><th scope="row"><code>oGoldBar</code><a id="' '" href="/wiki/gold-bar" data-slug="gold-bar" class="room-page">Gold Bar</a></th><td>1</td>' \
