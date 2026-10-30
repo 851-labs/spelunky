@@ -9,6 +9,7 @@
 # story: currLevel=13@738 held=oGoldIdol@1042 oDoor.status=2@1049 bombs=2@1076..1076 +oExplosion@1195..1195
 # story: -oDoor@1199..1199 bombs=1@1281..1281 +oExplosion@1400..1400 -oCeilingTrap*2@1400..1400
 # story: -oCeilingTrap@1402..1402 -oCeilingTrap@1404..1404 oPlayer1.x=651@1318 !plife<4 !oPlayer1.dead=1
+# story: +oRubbleSmall@1199..1199 +oRubble@1400..1400 +oRubble@1402..1402 +oRubble@1404..1404
 seed 8
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"

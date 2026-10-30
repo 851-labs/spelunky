@@ -1,8 +1,8 @@
 # Ice blocks the Yeti King's yell shook loose, bombed (851-3781): oIceBlock's destroy (three drips each). Seed 47:
 # enemy-yeti-king-swat-seed-47.txt (level 12, the Yeti lair, at 1689; the King's yell shakes blocks of ice loose,
 # 1784-1793, two of them falling to the foot of the shaft under the player, x 624 and 640, y 240), then by hand:
-# he drops a bomb (down + A, 1863), which falls down the shaft. The King's next touch kills him (1870, as that
-# replay stops short of); the bomb goes off at the shaft's foot (1982), breaking those two blocks of ice, and
+# he drops a bomb (down + A, 1863), which falls down the shaft. The King's next touch takes his last hearts (1870, as that
+# replay stops short of; dead on 1871); the bomb goes off at the shaft's foot (1982), breaking those two blocks of ice, and
 # throws his body. Ends at 2009.
 # story: currLevel=12@1617 yetiLair=1@1689 +oIceBlock@1784 bombs=3@1863..1863 oPlayer1.dead=1@1871
 # story: +oExplosion@1982..1982 -oIceBlock*2@1982..1982 +oDrip@1982..1982
