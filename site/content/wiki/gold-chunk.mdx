@@ -90,7 +90,9 @@ back to plain rock after the block has rolled for its vein <Cite gml="scripts/sc
 The player collects a chunk by touching it while he isn't stunned or dead, the moment it appears: a chunk is
 collectable from the start <Cite gml="objects/oGoldChunk/create.gml:7-8" />
 <Cite gml="objects/oPlayer1/step.gml:1990-2016" />. He takes one treasure a step, the one nearest him, so a
-vein's three chunks come in on three steps. Its value shows as "+100" under his money and is counted into it
+vein's three chunks come in on three steps, and a nearer gem that can't be collected yet holds a chunk back
+([[nearest-enemy]]) <Cite quirk="1"
+row="Collecting treasure takes the nearest treasure, and nothing while that one can't be collected." />. Its value shows as "+100" under his money and is counted into it
 after a short pause <Cite gml="objects/oPlayer1/step.gml:1953-1971" />; gold plays the coin sound
 <Cite gml="objects/oPlayer1/step.gml:2000-2014" />, and the screen between levels shows each chunk collected
 on the level <Cite gml="objects/oTransition/alarm_0.gml:23-28" />.

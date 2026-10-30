@@ -1,0 +1,36 @@
+{
+  "id": "quirks/treasure-nearest-pick",
+  "title": "Collecting treasure takes the nearest one",
+  "description": "The player opens a chest beside a gold bar, and its emerald lands between him and the bar. He steps onto the gold bar, which could be collected, and nothing is: the emerald, nearer, has to wait out its first moments first. Once it can be collected he takes it, and the gold bar the step after.",
+  "spec": "wiki/clips/quirks/treasure-nearest-pick.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/treasure-nearest-pick.txt"
+  },
+  "from": 241,
+  "to": 360,
+  "frames": 120,
+  "replay_from": 241,
+  "state_hash": "6047925771de4e1a",
+  "states_hash": "551b23fba001a1f3",
+  "fps": 30,
+  "duration": 4.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 320,
+  "frames_hash": "e2e7b4875b075e90",
+  "has_audio": true,
+  "audio_hash": "ae3188dfaadc6c72",
+  "encoding": "13812ffebb22a603",
+  "files": {
+    "mp4": "quirks/treasure-nearest-pick/clip.mp4",
+    "webm": "quirks/treasure-nearest-pick/clip.webm",
+    "poster": "quirks/treasure-nearest-pick/poster.png",
+    "replay": "quirks/treasure-nearest-pick/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
