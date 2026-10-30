@@ -1,0 +1,20 @@
+# The wiki clip sign/tutorial's replay (wiki/clips/sign/tutorial.toml), made by wiki-clips: fidelity/replays/movement-tutorial-exit.txt up to the clip's last
+# frame, 700.
+seed 12345
+frames 701
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+570 press right
+598 press Z
+608 release Z
+625 press Z
+639 release Z
+642 press Z
+650 release Z
+660 release right
