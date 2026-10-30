@@ -29,3 +29,10 @@ zip = { version = "9", default-features = false, features = ["deflate-flate2-zli
 
 [lints]
 workspace = true
+
+# The workspace's features on Apple silicon Macs, so a build of this package alone reuses the workspace's
+# (crates/workspace-hack).
+[target.'cfg(all(target_os = "macos", target_arch = "aarch64"))'.dependencies]
+workspace-hack = { path = "../workspace-hack" }
+# As the workspace's builds have it (the app's), which the hack can't ask for a member.
+audio = { workspace = true, features = ["backend"] }

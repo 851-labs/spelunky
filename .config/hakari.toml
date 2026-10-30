@@ -1,0 +1,8 @@
+# cargo hakari's settings for crates/workspace-hack (851-3738), which scripts/workspace-hack runs.
+hakari-package = "workspace-hack"
+dep-format-version = "4"
+# The v2 resolver's features, which the workspace's v3 shares.
+resolver = "2"
+# Where the main checkout and the worktrees build: the Macs. The members depend on the package on macOS only
+# (wired by hand, not `cargo hakari manage-deps`), so no other platform's build has it.
+platforms = ["aarch64-apple-darwin"]

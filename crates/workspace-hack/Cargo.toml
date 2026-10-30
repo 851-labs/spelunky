@@ -1,0 +1,58 @@
+# The workspace's features, for a build of one package (docs: CLAUDE.md, "Code"; 851-3738). Cargo resolves a
+# dependency's features for the packages a command builds, so `scripts/cargo test -p game` or scripts/extract's
+# `-p tools` would build other versions of shared crates (thiserror without std, syn without full, audio
+# without its backend) than the workspace-wide builds the main checkout is warmed with, and a seeded
+# worktree (scripts/seed-target) would rebuild them. This package asks for every crate with the features the
+# workspace's builds give it, and the members depend on it on macOS (dev-dependencies for the ones the app
+# ships, so the shipped builds resolve as they would without it), so a build of one package resolves as the
+# workspace's does. scripts/workspace-hack regenerates the section below (cargo hakari) and checks it.
+[package]
+name = "workspace-hack"
+description = "The workspace's features for a build of one package (cargo hakari)"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+publish = false
+
+### BEGIN HAKARI SECTION
+[dependencies]
+bytemuck = { version = "1", default-features = false, features = ["derive", "extern_crate_alloc", "min_const_generics"] }
+crc32fast = { version = "1" }
+flate2 = { version = "1", features = ["zlib-rs"] }
+hashbrown = { version = "0.17", default-features = false, features = ["default-hasher", "inline-more"] }
+indexmap = { version = "2" }
+kira = { version = "0.12", default-features = false, features = ["cpal", "ogg", "pcm", "vorbis", "wav"] }
+memchr = { version = "2" }
+miniz_oxide = { version = "0.9", features = ["simd"] }
+serde = { version = "1", features = ["alloc", "derive", "rc"] }
+serde_core = { version = "1", default-features = false, features = ["alloc", "rc", "result", "std"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+simd-adler32 = { version = "0.3" }
+subtle = { version = "2", default-features = false, features = ["const-generics"] }
+ureq = { version = "3", default-features = false, features = ["rustls"] }
+zeroize = { version = "1" }
+zlib-rs = { version = "0.6", default-features = false, features = ["std"] }
+
+[build-dependencies]
+proc-macro2 = { version = "1" }
+quote = { version = "1" }
+syn = { version = "3" }
+
+[target.aarch64-apple-darwin.dependencies]
+bitflags = { version = "2", default-features = false, features = ["std"] }
+block2 = { version = "0.6" }
+crossbeam-utils = { version = "0.8", default-features = false, features = ["std"] }
+dispatch2 = { version = "0.3" }
+libc = { version = "0.2", features = ["extra_traits"] }
+nix = { version = "0.31", default-features = false, features = ["fs", "signal"] }
+num-traits = { version = "0.2", default-features = false, features = ["i128", "libm", "std"] }
+objc2 = { version = "0.6" }
+objc2-core-foundation = { version = "0.3" }
+objc2-foundation = { version = "0.3", default-features = false, features = ["NSArray", "NSAttributedString", "NSBundle", "NSCoder", "NSData", "NSDate", "NSDictionary", "NSEnumerator", "NSError", "NSException", "NSFileWrapper", "NSFormatter", "NSGeometry", "NSItemProvider", "NSKeyValueObserving", "NSLocale", "NSNotification", "NSNull", "NSObjCRuntime", "NSObject", "NSProcessInfo", "NSRange", "NSSet", "NSString", "NSThread", "NSURL", "NSUUID", "NSUndoManager", "NSUserActivity", "NSValue", "NSZone", "objc2-core-foundation", "std"] }
+smallvec = { version = "1", default-features = false, features = ["union"] }
+thiserror = { version = "2" }
+
+[target.aarch64-apple-darwin.build-dependencies]
+syn = { version = "3", default-features = false, features = ["full"] }
+
+### END HAKARI SECTION

@@ -35,3 +35,11 @@ opt-level = 1
 
 [profile.dev.package."*"]
 opt-level = 3
+
+# Proc-macros' and build scripts' dependencies with debuginfo, as the dev profile has it. Cargo's default leaves
+# it out of a dependency that's only a build one, but keeps it in one that's a normal one too (naga's
+# unicode-ident), to build it once; so `scripts/cargo test -p game`, whose graph hasn't naga, built proc-macro2,
+# syn and every crate with a derive (serde, thiserror, bytemuck) again rather than reuse the workspace's
+# (crates/workspace-hack, 851-3738). The dev profile only: the release builds are as they were.
+[profile.dev.build-override]
+debug = true

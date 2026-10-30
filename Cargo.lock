@@ -166,6 +166,7 @@ dependencies = [
  "gmk",
  "postcard",
  "serde",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -189,6 +190,7 @@ dependencies = [
  "serde",
  "wasm-bindgen",
  "web-sys",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -382,11 +384,13 @@ dependencies = [
 name = "config"
 version = "0.1.0"
 dependencies = [
+ "audio",
  "game",
  "gm",
  "gmk",
  "trace",
  "transpile",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -645,6 +649,7 @@ name = "draw"
 version = "0.1.0"
 dependencies = [
  "serde",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -819,6 +824,7 @@ dependencies = [
  "postcard",
  "trace",
  "transpile",
+ "workspace-hack",
  "zip",
 ]
 
@@ -953,6 +959,7 @@ dependencies = [
  "pxfm",
  "serde",
  "trace",
+ "workspace-hack",
  "zip",
 ]
 
@@ -962,12 +969,16 @@ version = "0.1.0"
 dependencies = [
  "miniz_oxide 0.9.1",
  "serde",
+ "workspace-hack",
  "zip",
 ]
 
 [[package]]
 name = "gml"
 version = "0.1.0"
+dependencies = [
+ "workspace-hack",
+]
 
 [[package]]
 name = "gpu-allocator"
@@ -1011,6 +1022,7 @@ dependencies = [
  "tools",
  "trace",
  "transpile",
+ "workspace-hack",
  "zip",
 ]
 
@@ -2753,6 +2765,7 @@ dependencies = [
  "toml",
  "trace",
  "transpile",
+ "workspace-hack",
  "zip",
 ]
 
@@ -2762,6 +2775,7 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -2788,6 +2802,7 @@ dependencies = [
  "gm",
  "gmk",
  "gml",
+ "workspace-hack",
  "zip",
 ]
 
@@ -3579,6 +3594,43 @@ name = "wit-bindgen"
 version = "0.57.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ebf944e87a7c253233ad6766e082e3cd714b5d03812acc24c318f549614536e"
+
+[[package]]
+name = "workspace-hack"
+version = "0.1.0"
+dependencies = [
+ "bitflags 2.13.2",
+ "block2 0.6.2",
+ "bytemuck",
+ "crc32fast",
+ "crossbeam-utils",
+ "dispatch2",
+ "flate2",
+ "hashbrown 0.17.1",
+ "indexmap",
+ "kira",
+ "libc",
+ "memchr",
+ "miniz_oxide 0.9.1",
+ "nix",
+ "num-traits",
+ "objc2 0.6.5",
+ "objc2-core-foundation",
+ "objc2-foundation 0.3.2",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_core",
+ "serde_json",
+ "simd-adler32",
+ "smallvec",
+ "subtle",
+ "syn 3.0.9",
+ "thiserror 2.0.21",
+ "ureq",
+ "zeroize",
+ "zlib-rs",
+]
 
 [[package]]
 name = "x11-dl"
