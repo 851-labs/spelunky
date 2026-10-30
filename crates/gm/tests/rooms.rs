@@ -746,6 +746,8 @@ fn tiles_and_instances_draw_merged_by_depth() {
     );
     // The foreground layer scrolled after the step's draw (not after frame 0's).
     assert_eq!(g.room().backgrounds[1].x, 2.0);
+    // tile_layer_find takes the room's tile (id 7) before an added one at the same depth, t2.
+    assert_eq!(g.tile_layer_find(5.0, 3.0, 3.0), 7);
     g.tile_delete(t2).unwrap();
     assert_eq!(g.tile_delete(t2), Err(Error::NoSuchTile(t2)));
     assert_eq!(g.room().tiles.len(), 3);

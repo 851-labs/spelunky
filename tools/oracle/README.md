@@ -537,7 +537,8 @@ the key config bound two actions.
 `tools/gm8-probe`'s `tile-layer-find`, which the patched oracle answers line for line as GM8 does): a tile's box is
 its unscaled size, where OpenGMK took 8.0 to multiply the size by 0 ("8.1 bugfix") and never find one. The first
 match in the draw order is the first added, as in GM8, since every match is at the one depth and the depth sort is
-stable. `tile_layer_delete_at`, which has the same test, gets the same box (unprobed; the game never calls it).
+stable. `tile_layer_delete_at`, which has the same test, deletes every tile in the same box, as GM 8.0's does (the same probe;
+the game never calls it).
 
 ## Caveats
 

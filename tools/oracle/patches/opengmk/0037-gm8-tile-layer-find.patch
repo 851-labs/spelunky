@@ -26,7 +26,7 @@ diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
  
      pub fn tile_layer_delete_at(&mut self, args: &[Value]) -> gml::Result<Value> {
          let (depth, x, y) = expect_args!(args, [real, real, real])?;
-+        // Spelunky oracle: the unscaled box, as tile_layer_find's (851-3787; unprobed, and the game never calls it).
++        // Spelunky oracle: every tile in the unscaled box, as GM 8.0 (851-3787, probe `tile-layer-find`; unreached).
          let use_scaling = self.gm_version == Version::GameMaker8_1; // 8.1 bugfix
          self.room.tile_list.remove_with(|tile| {
              tile.depth.get() == depth

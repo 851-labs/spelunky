@@ -694,8 +694,8 @@ impl World {
     }
 
     /// `tile_layer_find(depth, x, y)`: the first tile in the order tiles were added (a draw's depth sort
-    /// doesn't change it) at exactly `depth` with `x <= x < x + width` and `y <= y < y + height`, its unscaled
-    /// size, or -1. GM 8.0 (probe `tile-layer-find`, 851-3787); OpenGMK took 8.0 to measure the tile as 0 by
+    /// doesn't change it) at exactly `depth` with `tile.x <= x < tile.x + width` and `tile.y <= y < tile.y +
+    /// height`, its unscaled size, or -1. The room's tiles come first, in the room's order. GM 8.0 (probe `tile-layer-find`, 851-3787); OpenGMK took 8.0 to measure the tile as 0 by
     /// 0 and never find one (`gml/kernel.rs` `tile_layer_find`, "8.1 bugfix"; fixed in the oracle by patch
     /// 0037). `docs/quirks.md` section 5.
     pub fn tile_layer_find(&self, depth: f64, x: f64, y: f64) -> i32 {

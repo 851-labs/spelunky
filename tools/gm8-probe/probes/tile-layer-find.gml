@@ -1,6 +1,7 @@
 // tile_layer_find on GM 8.0 (851-3787): OpenGMK reads 8.0 as measuring a tile 0 wide and 0 high, so never finding
 // one. Which tile does it find, and where: the box's edges, the depth, ties between tiles at one depth (added with
-// tiles at other depths between them, before and after a draw sorts them), a deleted tile, and a scaled one.
+// tiles at other depths between them, before and after a draw sorts them), a deleted tile, and a scaled one; and the
+// box tile_layer_delete_at deletes in.
 var a, b, c, d, e, k, w;
 a = tile_add(bgTrees, 0, 0, 16, 48, 100, 100, 3);
 out("a", a);
@@ -34,3 +35,9 @@ tile_set_scale(w, 2, 2);
 out("w", w);
 out("scaled_unscaled_box", tile_layer_find(7, 508, 508));
 out("scaled_outside", tile_layer_find(7, 520, 520));
+tile_layer_delete_at(7, 520, 520);
+out("delete_at_scaled_outside", tile_exists(w));
+tile_layer_delete_at(7, 508, 508);
+out("delete_at_unscaled_box", tile_exists(w));
+tile_layer_delete_at(5, 304, 304);
+out("delete_at_ties", tile_exists(c) + tile_exists(d) + tile_exists(e));

@@ -18,4 +18,7 @@ tie_after_delete = 416312fb40000000 10000346
 w = 416312fbe0000000 10000351
 scaled_unscaled_box = 416312fbe0000000 10000351
 scaled_outside = bff0000000000000 -1
+delete_at_scaled_outside = 3ff0000000000000 1
+delete_at_unscaled_box = 0000000000000000 0
+delete_at_ties = 0000000000000000 0
 end = "ok"
