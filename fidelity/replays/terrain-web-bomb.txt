@@ -1,0 +1,98 @@
+# A web bombed (851-3781): oExplosion's collision with oWeb. Seed 5: mines-seed-5.txt to frame 600 (level 1 at
+# 565), then area-route --steps '@56:152' --wait 5: the player gets beside the web (x 16, y 144) that
+# scrTreasureGen put in the cave under the start (1103). By hand: he drops a bomb (down + A, 1109) and walks right.
+# The blast (1228) breaks the blocks around it and the web (1232). Ends at 1257.
+# story: room=rLevel@565 +oWeb*4@565..565 bombs=3@1109..1109 +oExplosion@1228..1228 -oWeb@1232..1232 !plife<4
+seed 5
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press right
+606 press Z
+618 release Z
+618 press X
+624 release X
+630 press X
+636 release X
+642 press X
+648 release X
+684 press Z
+696 release right
+696 release Z
+702 press right
+702 press Z
+708 release right
+708 release Z
+708 press left
+714 release left
+714 press right
+714 press Z
+720 release right
+720 release Z
+720 press left
+726 release left
+726 press right
+726 press Z
+732 release Z
+762 release right
+762 press left
+792 release left
+798 press left
+798 press Z
+804 release Z
+864 press Z
+876 release left
+876 release Z
+882 press left
+882 press Z
+888 release Z
+918 release left
+918 press right
+924 press Z
+930 release right
+930 release Z
+930 press up
+954 release up
+954 press Z
+960 release Z
+960 press left
+990 press Z
+996 release Z
+1002 release left
+1002 press up
+1026 release up
+1026 press left
+1026 press Z
+1038 release Z
+1038 press X
+1044 release X
+1044 press Z
+1050 release left
+1050 release Z
+1050 press up
+1074 release up
+1074 press left
+1074 press Z
+1080 release Z
+1086 press Z
+1092 release Z
+1103 release left
+1108 hold down 3
+1109 hold A 2
+1113 hold right 30
+frames 1258

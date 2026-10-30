@@ -1,0 +1,48 @@
+# The idol trap's boulder blown up (851-3781): oExplosion's collision with oBoulder (rubble, rand rocks). Seed 87:
+# trap-boulder-outrun.txt to frame 770 (level 1 at 565; the idol picked up at 714, which sets off the giant tiki
+# head), with a bomb thrown up as he runs from the idol (up + A, 726, x 300) and his run stopped at 770, under the
+# corridor, so the bomb stays active. The head drops the boulder (814), which lands at x 256 (826) and rolls
+# right along the corridor into the blast (845): it's destroyed (847), leaving rubble and three rocks (its rand(1,3)
+# rolls). The player, below, is unhurt. Ends at 899.
+# story: held=oGoldIdol@714 bombs=3@726..726 +oBoulder@814..814 +oExplosion@845..845 -oBoulder@847..847
+# story: +oRock*3@847..847 !plife<4
+seed 87
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+630 press Z
+642 release Z
+642 press X
+648 release X
+648 press Z
+654 release Z
+684 press X
+690 release left
+690 release X
+690 press up
+714 release up
+714 press down
+714 press X
+715 release down
+715 release X
+715 press right
+725 hold up 3
+726 hold A 2
+770 release right
+frames 900
