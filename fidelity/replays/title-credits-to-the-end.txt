@@ -1,13 +1,15 @@
 # The title's credits played to the end (851-3780). title-locked.txt's input (seed 777, a returning player with
-# zeroed stats and the shortcuts locked): the player climbs out of the title by its rope (oPDummy5, ~860), and the
+# zeroed stats and the shortcuts locked): the player climbs out of the title by its rope (oPDummy5, 852), and the
 # title fades out into rCredits1 (926). Then nothing is pressed, so oCredits1 runs every page: its fade-in ends
 # (937) and alarm 0 sends the camel (957), whose arrival at x 160 starts the music and the scroll (1116-1117).
-# Alarm 2 shows the first page (drawStatus 1, 1137), and alarms 3-7 the next five, 180 steps apart and the last two
-# 280 (2: 1316, 3: 1495, 4: 1674, 5: 1853, 6: 2132), each blanked by alarm 11 140 or 240 steps after (2371 the
-# last). Alarm 8 stops the scroll and sends the camel off left (scrolling 0, oCamel.status 2, 2411). Once it's past
-# x -64, oCamel's step sets oCredits1.fadeOut (2516), and the fade-out ends in game_end (2527), whose game end
-# event writes stats.txt.
-# story: room=rCredits1@926 oCredits1.fadeIn=0@937..937 +oCamel@957 oCredits1.scrolling=1@1117..1117
+# Alarm 2 shows the first page (drawStatus 1, 1137), and alarms 3-7 the next five (2: 1316, 3: 1495, 4: 1674,
+# 5: 1853, 6: 2132): each sets the next to 180 (280 from alarm 5 on), which fires 179 steps later (279), since
+# an alarm set in a lower-numbered alarm's event is counted down in the same step; alarm 11 blanks each page in
+# between (2371 the last). Alarm 8 stops the scroll and sends the camel off left (scrolling 0, oCamel.status 2,
+# 2411). Once it's past x -64, oCamel's step sets oCredits1.fadeOut (2516), and the fade-out ends in game_end
+# (2527), whose game end event writes stats.txt.
+# story: room=rTitle@70 +oPDummy5@852 room=rCredits1@926 oCredits1.fadeIn=0@937..937 +oCamel@957
+# story: oCredits1.scrolling=1@1117..1117
 # story: oCredits1.drawStatus=1@1137..1137 oCredits1.drawStatus=2@1316..1316 oCredits1.drawStatus=3@1495..1495
 # story: oCredits1.drawStatus=4@1674..1674 oCredits1.drawStatus=5@1853..1853 oCredits1.drawStatus=6@2132..2132
 # story: oCredits1.drawStatus=0@2371..2371 oCredits1.scrolling=0@2411..2411 oCamel.status=2@2411..2411
