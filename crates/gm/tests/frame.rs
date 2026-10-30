@@ -559,11 +559,20 @@ fn traces_hold_instances_variables_and_globals() {
     assert_eq!(t.deactivated, Some(Vec::new()));
 }
 
+/// Logs whether any key is pressed this step.
+fn any_pressed(g: &mut World, _: &mut Ctx) -> R<()> {
+    if g.input().check(KeyState::Pressed, gm::input::VK_ANYKEY) {
+        log(g, "any");
+    }
+    Ok(())
+}
+
 #[test]
-fn input_follows_opengmk() {
+fn key_repeat_and_mouse_release() {
     let prog = build(|b| {
         let o = b.push_object(ObjectInfo::new("o"));
-        b.event(o, Event::KeyPress(90), note);
+        b.event(o, Event::KeyPress(90), note)
+            .event(o, Event::Step, any_pressed);
     });
     let mut g = world(prog, &[ObjectId(0)]);
     let z = Button::Key(90);
@@ -575,7 +584,7 @@ fn input_follows_opengmk() {
     g.bset(last, 0, Value::Real(0.0)).unwrap();
     g.step(&[InputEvent::Press(z)]).unwrap();
     step(&mut g);
-    assert_eq!(take_log(&mut g), "o1.press90");
+    assert_eq!(take_log(&mut g), "o1.press90 any");
     assert_eq!(g.bget(key, 0), Ok(Value::Real(90.0)));
     assert_eq!(g.bget(last, 0), Ok(Value::Real(90.0)));
 
