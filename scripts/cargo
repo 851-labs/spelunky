@@ -13,4 +13,19 @@ else
   echo "scripts/cargo: rustup's cargo proxy not found; install rustup" >&2
   exit 1
 fi
+# A linked worktree's first build starts from the main worktree's target/ (scripts/seed-target): for the
+# commands that build, the first argument that isn't a flag or a +toolchain. Not for the rest (fmt, clean,
+# metadata), so scripts/check --fast's formatting check stays instant. The global flags that take a value
+# skip it; another's value read as the command only skips the seeding.
+value=
+for arg in "$@"; do
+  [ -z "$value" ] || { value=; continue; }
+  case $arg in
+    -C | --config | -Z | --color | --manifest-path) value=1; continue ;;
+    -* | +*) continue ;;
+    build | b | check | c | test | t | run | r | bench | clippy | doc | d | rustc | rustdoc | fix)
+      "$(dirname "$0")/seed-target" || true ;;
+  esac
+  break
+done
 PATH="$proxies:$PATH" exec cargo "$@"

@@ -41,6 +41,13 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   CI's site test runs it on every pull request in under a minute. Locally, run the checks that need no build
   (in `site/`: `npm run typecheck`, `node test-wiki.mjs`, and `test-keyline.mjs` or `test-server.mjs` if the
   change touches what they check) and look at pages with `npm run dev`. Leave the full suite to CI.
+- In a linked worktree with no `target/`, `scripts/cargo`'s first build clones the main worktree's
+  (`scripts/seed-target`: APFS copy-on-write, so no extra disk). It then rebuilds only three things: what the
+  main worktree's would, what the branch changed, and the units that compiled in a path of the main
+  worktree's (`env!("CARGO_MANIFEST_DIR")`: the fidelity tools, `transpile`, some tests). So a new worktree
+  is as warm as the main worktree's `target/` is.
+  `SPELUNKY_NO_SEED=1` turns it off. `assets/` isn't cloned: once the extractor is built,
+  `scripts/extract` takes a second.
 - `scripts/check` also runs `gm`'s unit tests on wasm32 under Node (`scripts/wasm-test`). wasm can't unwind, so a
   panic aborts the whole run: mark `#[should_panic]` tests `#[cfg_attr(target_family = "wasm", ignore)]`.
 - Every committed replay (`fidelity/replays/`, `fidelity/settings/`) has a fingerprint of the oracle's run in

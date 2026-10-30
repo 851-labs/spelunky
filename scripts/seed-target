@@ -1,0 +1,184 @@
+#!/bin/sh
+# Starts a linked worktree's target/ from the main worktree's, so its first build isn't a cold one (851-3732).
+# scripts/cargo runs it before a cargo command that builds; it does nothing unless this is a linked worktree
+# (not the main one, not CI's checkout) on macOS with no target/ yet, and the main worktree has one on the
+# same APFS volume. Then it clones it (`cp -c`: copy-on-write, so no extra disk until a file changes; about
+# 15 s for 18 GB) and makes Cargo see this worktree as it would the main one:
+#
+# - Cargo records the workspace's files by their path in it, so the new path alone rebuilds nothing; but it
+#   rebuilds a crate whose files are newer than its last build, and a new worktree's are all as new as the
+#   checkout. So each tracked file that's the same as the main worktree's gets that file's mtime, and the rest
+#   (this worktree's commits and uncommitted changes, and the main worktree's uncommitted ones) get now's:
+#   a crate rebuilds where it would in the main worktree, or where this one's files differ.
+# - A unit that compiled in a path of the main worktree's (`env!("CARGO_MANIFEST_DIR")`, `CARGO_BIN_EXE_*`,
+#   which rustc's dep-info records as `# env-dep:`) would keep it: Cargo doesn't track the variables it sets
+#   itself, so the fidelity tools and the tests would read (and transpile would write) the main worktree's
+#   files. Those units lose their fingerprints, so they rebuild, and with them what depends on them. A build
+#   script's output that names the main worktree's target/ is pointed at this one's.
+#
+# The main worktree is only read: git with --no-optional-locks, so it doesn't refresh its index, and a shared
+# lock on each of its build directories' .cargo-build-lock while cloning, so the clone never catches a build
+# half-written (a build there waits for it; the clone waits up to two minutes for one, then skips).
+set -eu
+[ -z "${CI:-}" ] && [ -z "${CARGO_TARGET_DIR:-}" ] && [ -z "${SPELUNKY_NO_SEED:-}" ] || exit 0
+# Only macOS's cp -c clones; GNU cp's -c is --preserve=context, a full copy.
+[ "$(uname -s)" = Darwin ] || exit 0
+root=$(cd "$(dirname "$0")/.." && pwd -P)
+[ ! -e "$root/target" ] || exit 0
+command -v git >/dev/null 2>&1 || exit 0
+# A linked worktree's git dir is under the common one's worktrees/; the main worktree's is the common one.
+git_dir=$(git -C "$root" rev-parse --absolute-git-dir 2>/dev/null) || exit 0
+common=$(cd "$root" && cd "$(git rev-parse --git-common-dir)" && pwd -P)
+[ "$(cd "$git_dir" && pwd -P)" != "$common" ] || exit 0
+# The main worktree is `git worktree list`'s first.
+listed=$(git -C "$root" worktree list --porcelain | sed -n '1s/^worktree //p')
+[ -n "$listed" ] && [ -d "$listed/target" ] || exit 0
+# Resolved, and as listed: a build there may have seen either.
+main=$(cd "$listed" && pwd -P)
+[ "$main" != "$root" ] || exit 0
+
+# One seeding at a time: another scripts/cargo in this worktree waits while it runs, then finds target/. A lock
+# whose process is gone (killed, so its EXIT trap didn't run), or that has had no pid for ten seconds, is
+# stale: it's cleared, and this one seeds.
+lock="$root/target.seeding"
+while ! mkdir "$lock" 2>/dev/null; do
+  echo "scripts/cargo: waiting for target/ to be cloned from the main worktree" >&2
+  unowned=0
+  while [ -d "$lock" ]; do
+    pid=$(cat "$lock/pid" 2>/dev/null || true)
+    if [ -n "$pid" ]; then
+      kill -0 "$pid" 2>/dev/null || { rm -rf "$lock"; break; }
+    else
+      unowned=$((unowned + 1))
+      [ "$unowned" -lt 10 ] || { rm -rf "$lock"; break; }
+    fi
+    sleep 1
+  done
+  [ ! -e "$root/target" ] || exit 0
+done
+echo $$ >"$lock/pid"
+trap 'rm -rf "$lock"' EXIT
+trap 'exit 1' INT TERM HUP
+[ ! -e "$root/target" ] || exit 0
+# Copy-on-write or nothing: a plain copy of 18 GB would be slower than the build it saves.
+for probe in "$main"/target/CACHEDIR.TAG "$main"/target/*/.cargo-lock; do
+  [ -f "$probe" ] && break
+done
+[ -f "$probe" ] && cp -c "$probe" "$lock/probe" 2>/dev/null || exit 0
+
+echo "scripts/cargo: cloning the main worktree's target/ (APFS copy-on-write) for this worktree's first build" >&2
+start=$(date +%s)
+perl -e '
+  use Fcntl qw(:flock);
+  use File::Glob qw(:bsd_glob);
+  my ($from, $to) = @ARGV;
+  my @locks;
+  for my $path (bsd_glob("$from/*/.cargo-build-lock"), bsd_glob("$from/*/*/.cargo-build-lock")) {
+    open(my $h, "<", $path) or next;
+    my $waited = 0;
+    until (flock($h, LOCK_SH | LOCK_NB)) {
+      if ($waited == 0) { print STDERR "scripts/cargo: waiting for the main worktree'"'"'s build to finish\n" }
+      if ($waited++ >= 120) { print STDERR "scripts/cargo: the main worktree is still building; building from scratch\n"; exit 1 }
+      sleep 1;
+    }
+    push @locks, $h;
+  }
+  exit(system("cp", "-cR", $from, $to) == 0 ? 0 : 1);
+' "$main/target" "$lock/target" || exit 0
+
+# The files this worktree has as the main worktree's commit has them, which the main worktree hasn't changed,
+# get its mtimes; every other tracked file, now's.
+base=$(git -C "$main" rev-parse HEAD)
+{
+  git -C "$root" diff --no-renames --name-only -z "$base"
+  git -C "$main" --no-optional-locks diff --no-renames --name-only -z HEAD
+} >"$lock/changed"
+git -C "$root" ls-files -z | (cd "$root" && perl -e '
+  use Time::HiRes qw(lstat utime);
+  my ($main, $changed) = @ARGV;
+  local $/ = "\0";
+  open(my $c, "<", $changed) or die "$changed: $!";
+  my %changed;
+  while (<$c>) { chomp; $changed{$_} = 1 }
+  while (<STDIN>) {
+    chomp;
+    next if -l $_ || !-e _;
+    if ($changed{$_}) { utime(undef, undef, $_); next }
+    my @s = lstat("$main/$_") or do { utime(undef, undef, $_); next };
+    next if -l _;
+    # A microsecond on, as the seconds are a double: rounding can only make a file look newer (a rebuild).
+    utime($s[8], $s[9] + 1e-6, $_);
+  }' "$main" "$lock/changed")
+
+# The units that compiled in a path of the main worktree's, or whose build script printed one, lose their
+# fingerprints, and their binaries go, so a script that runs one without building (--no-build) fails as it would
+# in a new worktree rather than run the main worktree's. A unit's dep-info is <name>-<hash>.d (in deps/,
+# examples/, or a build script's build/<package>-<hash>/), a build script's output build/<package>-<hash>/output,
+# and either's fingerprint .fingerprint/<package>-<hash>/, in the same build directory.
+stale=$(perl -e '
+  use File::Glob qw(:bsd_glob);
+  use File::Path qw(remove_tree);
+  use Time::HiRes ();
+  my ($target, $root, @mains) = @ARGV;
+  my $n = 0;
+  # A path in the main worktree: not this one, which may be in it (.claude/worktrees/).
+  my $mentions = sub {
+    (my $line = $_[0]) =~ s{\Q$root\E(?=/|$)}{}g;
+    for my $main (@mains) { return 1 if index($line, "$main/") >= 0 || $line =~ /\Q$main\E$/ }
+    return 0;
+  };
+  for my $dir (bsd_glob("$target/*/deps"), bsd_glob("$target/*/*/deps")) {
+    (my $build = $dir) =~ s{/deps$}{};
+    my %units;
+    # Not OUT_DIR: it is in target/, which this worktree has a copy of, and only include!() reads it, as it
+    # compiles. A dependency with a build script has one (serde, thiserror), so most of the build would go.
+    for my $d (bsd_glob("$build/deps/*.d"), bsd_glob("$build/examples/*.d"), bsd_glob("$build/build/*/*.d")) {
+      next unless $d =~ m{([^/]+)-([0-9a-f]+)\.d$};
+      my ($name, $hash) = ($1, $2);
+      open(my $h, "<", $d) or next;
+      while (my $line = <$h>) {
+        if ($line =~ /^# env-dep:(?!OUT_DIR=)/ && $mentions->($line)) { $units{$hash} = $d; last }
+      }
+    }
+    # A build script output that names its OUT_DIR (cargo:rustc-link-search) names the target/ of this
+    # worktree now. Any other path of the main worktree, and the script runs again.
+    for my $o (bsd_glob("$build/build/*/output")) {
+      next unless $o =~ m{-([0-9a-f]+)/output$};
+      my $hash = $1;
+      open(my $h, "<", $o) or next;
+      my @lines = <$h>;
+      close($h);
+      next unless grep { $mentions->($_) } @lines;
+      for (@lines) { for my $main (@mains) { s{\Q$main\E/target/}{$root/target/}g } }
+      # With its mtime, which Cargo compares with the build script run, as it would a new one.
+      my @s = Time::HiRes::stat($o);
+      open($h, ">", $o) or next;
+      print $h @lines;
+      close($h);
+      Time::HiRes::utime($s[8], $s[9], $o);
+      $units{$hash} = "" if grep { $mentions->($_) } @lines;
+    }
+    for my $hash (keys %units) {
+      my @fingerprints = bsd_glob("$build/.fingerprint/*-$hash");
+      remove_tree(@fingerprints);
+      $n += @fingerprints;
+      # Its binary, and the copy Cargo puts beside the build directory for a bin or an example (its name,
+      # with the - that the dep-info file name has as _).
+      next unless $units{$hash} =~ m{^(.*)/([^/]+)-\Q$hash\E\.d$};
+      my ($in, $name) = ($1, $2);
+      remove_tree(bsd_glob("$in/$name-$hash"), bsd_glob("$in/$name-$hash.dSYM"));
+      next if $in =~ m{/build/[^/]+$};
+      my $up = $in =~ m{/examples$} ? $in : $build;
+      for my $file ($name, $name =~ tr/_/-/r) { remove_tree(bsd_glob("$up/$file"), bsd_glob("$up/$file.dSYM")) }
+    }
+  }
+  print $n;
+' "$lock/target" "$root" "$main" "$listed")
+# Unless target/ came while it cloned (an editor's own cargo, which this script doesn't run before): then that
+# one stays, and the clone goes with the lock.
+if [ -e "$root/target" ]; then
+  echo "scripts/cargo: target/ appeared while cloning; keeping it" >&2
+  exit 0
+fi
+mv "$lock/target" "$root/target"
+echo "scripts/cargo: cloned in $(($(date +%s) - start)) s; $stale units that used the main worktree's paths will rebuild" >&2

@@ -1,4 +1,6 @@
 /target
+# scripts/seed-target's lock and clone in progress.
+/target.seeding
 .DS_Store
 __pycache__/
 /assets
