@@ -3,7 +3,7 @@ slug: caveman
 title: Caveman
 type: monster
 categories: [monsters]
-objects: [oCaveman]
+objects: [oCaveman, oCavemanWorship]
 lede: >-
   The Caveman is a monster in Spelunky Classic that wanders the ground, charges when it sees the player,
   and is stunned rather than killed by most single hits.
@@ -70,6 +70,8 @@ sources:
   - objects/oEnemy/step.gml
   - scripts/scrEntityGen.gml
   - objects/oFrozenCaveman/destroy.gml
+  - objects/oCavemanWorship/create.gml
+  - objects/oOlmec/alarm_1.gml
   - objects/oOlmec/alarm_6.gml
 verified: { port: v0.1.8, date: 2026-10-27 }
 ---
@@ -181,8 +183,10 @@ Cavemen also come from:
 
 - **[[ice-caves|The Ice Caves]]' frozen cavemen.** Breaking the [[ice|ice]] around one frees a stunned Caveman
   <Cite gml="objects/oFrozenCaveman/destroy.gml:1-7" />.
-- **[[olmecs-lair|Olmec's Lair]].** The Cavemen bowing to [[olmec|Olmec]] get up and charge when he starts
-  to move <Cite gml="objects/oOlmec/alarm_4.gml:1-5" /> <Cite gml="objects/oOlmec/alarm_6.gml:1-7" />.
+- **[[olmecs-lair|Olmec's Lair]].** Three Cavemen bow to [[olmec|Olmec]], placed there by hand
+  <Cite room="rOlmec" />. They stop bowing when he cracks open <Cite gml="objects/oOlmec/alarm_1.gml:22-26" />,
+  and get up charging when he starts to move <Cite gml="objects/oOlmec/alarm_4.gml:1-5" />
+  <Cite gml="objects/oOlmec/alarm_6.gml:1-7" />.
 - **Custom levels**, as the [[level-editor|level editor]]'s tile `h`
   <Cite gml="scripts/scrCreateTileObj.gml:147-150" />.
 
