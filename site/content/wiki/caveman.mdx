@@ -20,7 +20,7 @@ relations:
     - mines
     - jungle
     - temple
-    - { slug: olmecs-lair, cite: objects/oOlmec/alarm_6.gml:1-7 }
+    - olmecs-lair
   damaged_by:
     - whip
     - machete
@@ -59,7 +59,7 @@ faq:
     a: >-
       Level generation puts them on the ground in [[mines|the Mines]] (rarely), [[jungle|the Jungle]] and
       [[temple|the Temple]]. In [[ice-caves|the Ice Caves]] they're frozen in ice, and in
-      [[olmecs-lair|Olmec's Lair]] they bow to [[olmec|Olmec]] until he moves.
+      [[olmecs-lair|Olmec's Lair]] three bow to [[olmec|Olmec]], and get up and charge as he first hops.
 sources:
   - objects/oCaveman/create.gml
   - objects/oCaveman/step.gml
@@ -72,8 +72,9 @@ sources:
   - objects/oFrozenCaveman/destroy.gml
   - objects/oCavemanWorship/create.gml
   - objects/oOlmec/alarm_1.gml
+  - objects/oOlmec/alarm_4.gml
   - objects/oOlmec/alarm_6.gml
-verified: { port: v0.1.8, date: 2026-10-27 }
+verified: { port: v0.1.15, date: 2026-10-30 }
 ---
 
 [[level-generation|Level generation]] puts Cavemen on the ground in [[mines|the Mines]], where they're rare, and in
@@ -184,9 +185,9 @@ Cavemen also come from:
 - **[[ice-caves|The Ice Caves]]' frozen cavemen.** Breaking the [[ice|ice]] around one frees a stunned Caveman
   <Cite gml="objects/oFrozenCaveman/destroy.gml:1-7" />.
 - **[[olmecs-lair|Olmec's Lair]].** Three Cavemen bow to [[olmec|Olmec]], placed there by hand
-  <Cite room="rOlmec" />. They stop bowing when he cracks open <Cite gml="objects/oOlmec/alarm_1.gml:22-26" />,
-  and get up charging when he starts to move <Cite gml="objects/oOlmec/alarm_4.gml:1-5" />
-  <Cite gml="objects/oOlmec/alarm_6.gml:1-7" />.
+  <Cite room="rOlmec" />. They freeze mid-bow when his stone first cracks
+  <Cite gml="objects/oOlmec/alarm_1.gml:22-26" />, and get up and charge 20 steps into his first hop
+  <Cite gml="objects/oOlmec/alarm_4.gml:5" /> <Cite gml="objects/oOlmec/alarm_6.gml:1-7" />.
 - **Custom levels**, as the [[level-editor|level editor]]'s tile `h`
   <Cite gml="scripts/scrCreateTileObj.gml:147-150" />.
 
