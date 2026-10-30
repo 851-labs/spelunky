@@ -568,6 +568,34 @@ fn any_pressed(g: &mut World, _: &mut Ctx) -> R<()> {
 }
 
 #[test]
+fn any_key_and_no_key_events_run_once_after_the_keys() {
+    // GM8 runs a key press "any key" event once per press, after the specific keys' (probe
+    // `keypress-anykey`); the held and release stages are built the same way. Each stage runs "any key" (1)
+    // or "no key" (0), never both, and only at its end.
+    let prog = build(|b| {
+        let o = b.push_object(ObjectInfo::new("o"));
+        for k in [0, 1, 65, 90] {
+            b.event(o, Event::Keyboard(k), note)
+                .event(o, Event::KeyPress(k), note)
+                .event(o, Event::KeyRelease(k), note);
+        }
+    });
+    let mut g = world(prog, &[ObjectId(0)]);
+    take_log(&mut g);
+    let z = Button::Key(90);
+    g.step(&[InputEvent::Press(z)]).unwrap();
+    assert_eq!(
+        take_log(&mut g),
+        "o1.Keyboard(90) o1.Keyboard(1) o1.press90 o1.press1 o1.KeyRelease(0)"
+    );
+    g.step(&[InputEvent::Release(z)]).unwrap();
+    assert_eq!(
+        take_log(&mut g),
+        "o1.Keyboard(0) o1.press0 o1.KeyRelease(90) o1.KeyRelease(1)"
+    );
+}
+
+#[test]
 fn key_repeat_and_mouse_release() {
     let prog = build(|b| {
         let o = b.push_object(ObjectInfo::new("o"));

@@ -1,6 +1,5 @@
-# The level editor, live (851-3254): from the intro, F2, a level named LIVE (typed LLIIVVEE: every key runs the
-# any-key event twice), an entrance, an exit, a dragged brick floor and a gold bar; the info prompt, where each
-# Enter moves two fields (the author, lives and ropes are passed over); Escape and Y save levels/lliivvee.lvl.
+# The level editor, live (851-3254): from the intro, F2, a level named LIVE, an entrance, an exit, a dragged brick
+# floor and a gold bar; the info prompt, where seven Enters keep each field; Escape and Y save levels/live.lvl.
 # Then F3 loads it from the menu and the player walks over the gold to the exit. Coordinates are GM window
 # pixels at 3x: run with --screen 960x720 and the app at --scale 3. Hold times are generous, so a loaded machine
 # doesn't squeeze a hold into one tick (README.md, Timing).
@@ -77,11 +76,18 @@ wait 300
 click left 312 360 150
 wait 400
 shot /tmp/pid-input-level.png
-# The Edit button opens the info prompt: name, then music, bombs, next level, then editing again.
+# The Edit button opens the info prompt: name, author, music, hearts, bombs, ropes, next level, then editing
+# again.
 move 72 642
 wait 300
 click left 72 642 150
 wait 800
+hold enter 150
+wait 600
+hold enter 150
+wait 600
+hold enter 150
+wait 600
 hold enter 150
 wait 600
 hold enter 150

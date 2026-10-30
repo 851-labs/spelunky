@@ -122,7 +122,7 @@ A sacrifice to an angry Kali, with the favor below 0 but above -8: `item-seed-11
 | Area | Replays |
 |---|---|
 | Editor tiles | placing with the left button and dragging, the wheel and A/S changing the tile, 1-4 changing the kind, right-click erase (`editor-build-test-save`, `mouse-level-editor`); every tile it offers (`editor-every-tile`) |
-| Editor info and files | the info prompt's doubled Enter skipping the author, lives and ropes, and the name, music, bombs and next level edited (`editor-build-test-save`); a saved level opened with its exit and sign names, which E edits (`editor-doors-signs-new`); saving with Escape and Y and with New and Y, leaving with Escape and N, each `.lvl` compared byte for byte (`editor-build-test-save`, `editor-doors-signs-new`, `editor-sign-no-exit`) |
+| Editor info and files | every field of the info prompt, one Enter each (an emptied field holding it), and the name, music, hearts, bombs and next level edited (`editor-build-test-save`); a saved level opened with its exit and sign names, which E edits (`editor-doors-signs-new`); saving with Escape and Y and with New and Y, leaving with Escape and N, each `.lvl` compared byte for byte (`editor-build-test-save`, `editor-doors-signs-new`, `editor-sign-no-exit`) |
 | Test | `levels/test.tmp` written and played, back to the editor by the exit (`editor-build-test-save`, `editor-test-hud-caps`) and by dying (`editor-doors-signs-new`); a test with 1111 bombs typed in, which `scrTestLevel` doesn't clamp, and 35 rope piles and a bomb box dragged in, taking bombs and ropes past `oPlayer1`'s 99 cap (`editor-test-hud-caps`, 851-3293) |
 | Load menu | twelve levels on two pages, page down and up, rows chosen with the mouse, the Load button and Enter (`mouse-load-level`, `custom-chain-end`) |
 | Custom levels | a chain through three levels by next-level and named exits, the entrance named after the level left, signs, lives, bombs and ropes kept between levels, and `rEndCustom` to `rHighscores` (`custom-chain-end`); a level saved without exits losing its sign message (`editor-sign-no-exit`) |
@@ -206,9 +206,8 @@ Every replay below is identical to the oracle with `--fields`; the `flow-*` ones
 
 Not covered yet: dying in a transition room is impossible (no `oPlayer1`; `oPDummy*` can't be hurt), and so is
 whipping or bombing there. Life past the 99 cap isn't practical (851-3293). Only the editor's test sets a start value
-without clamping it (`scrTestLevel` 93-95, then `scrLoadLevel(-1)`, which skips the clamp: `if (argument0 != -1)`, 138), and its info
-prompt never stops on the lives or the ropes: each Enter runs the any-key event twice and moves two fields on
-(quirks §1), so only the bombs can be typed above 99. A custom level's start values are floored and clamped to 99
+without clamping it (`scrTestLevel` 93-95, then `scrLoadLevel(-1)`, which skips the clamp: `if (argument0 != -1)`, 138);
+`editor-test-hud-caps` types the bombs above 99, and the lives and ropes could be too. A custom level's start values are floored and clamped to 99
 (`scrLoadLevel` 140-148; quirks §1). In play, life comes 1 at a time (the damsel's kiss, `oDamselKiss`, one however many were saved: two on a custom level give one, `damsel-two-saved-one-heart`, 711, quirks §1; the kapala's ninth
 blood, `oPlayer1`'s `collision_oBlood` 7-10; a bought kiss, `oPlayer1`'s step 1443-1444, at
 `10000 + 5000 * (global.currLevel - 2)` dollars each, `getKissValue`) or 4 to 8 at a time from Kali

@@ -522,6 +522,15 @@ A press of a key that is already down isn't a press, as in GM8 (851-3774, `docs/
 means what the port's (`InputState::apply`) does. OpenGMK set the flag again. Mouse buttons, which come through
 the same function, are pressed as before.
 
+### `opengmk/0035-gm8-any-key-once.patch`
+
+The "no key" and "any key" keyboard events run once a stage, after every specific key's, as GM8 runs a key press
+"any key" event (851-3773, `docs/quirks.md` §5 and §7, measured by `tools/gm8-probe`'s `keypress-anykey`): the
+key-code passes of `run_keyboard_events`, `run_key_press_events` and `run_key_release_events` skip codes 0 and 1,
+which `keyboard_check` and its siblings answer as "no key" and "any key", so only the call after each pass runs
+them. OpenGMK ran them in both, so twice: every letter typed in the level editor came out twice, and each key in
+the key config bound two actions.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.

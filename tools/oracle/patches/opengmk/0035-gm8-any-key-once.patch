@@ -1,0 +1,42 @@
+diff --git a/gm8emulator/src/game/events.rs b/gm8emulator/src/game/events.rs
+--- a/gm8emulator/src/game/events.rs
++++ b/gm8emulator/src/game/events.rs
+@@ -173,6 +173,11 @@
+         Ok(())
+     }
+ 
++    // Spelunky oracle: these three key-code passes skip codes 0 (no key) and 1 (any key), which keyboard_check answers
++    // as no key or any key, so those events run once, after every specific key's. GM8 runs a key press any-key event
++    // once per press, after the specific keys' (the port's `run_key_events`, probe `keypress-anykey`, 851-3773); the
++    // held and release stages are built the same way, unprobed.
++
+     /// Runs all keyboard events for which the relevant key is held
+     pub fn run_keyboard_events(&mut self) -> gml::Result<()> {
+         let mut i = 0;
+@@ -180,7 +185,7 @@
+             self.event_holders[gml::ev::KEYBOARD].get_index(i).map(|(x, y)| (*x, y.clone()))
+         {
+             if let Ok(vk) = u8::try_from(key) {
+-                if self.input.keyboard_check(vk) {
++                if vk > 1 && self.input.keyboard_check(vk) {
+                     // Get all the objects which have this key event registered
+                     for object_id in objects.borrow().iter().copied() {
+                         // Iter all instances of this object
+@@ -208,7 +213,7 @@
+             self.event_holders[gml::ev::KEYPRESS].get_index(i).map(|(x, y)| (*x, y.clone()))
+         {
+             if let Ok(vk) = u8::try_from(key) {
+-                if self.input.keyboard_check_pressed(vk) {
++                if vk > 1 && self.input.keyboard_check_pressed(vk) {
+                     // Get all the objects which have this key event registered
+                     for object_id in objects.borrow().iter().copied() {
+                         // Iter all instances of this object
+@@ -236,7 +241,7 @@
+             self.event_holders[gml::ev::KEYRELEASE].get_index(i).map(|(x, y)| (*x, y.clone()))
+         {
+             if let Ok(vk) = u8::try_from(key) {
+-                if self.input.keyboard_check_released(vk) {
++                if vk > 1 && self.input.keyboard_check_released(vk) {
+                     // Get all the objects which have this key event registered
+                     for object_id in objects.borrow().iter().copied() {
+                         // Iter all instances of this object
