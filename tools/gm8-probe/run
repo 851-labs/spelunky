@@ -10,6 +10,9 @@
 # Writes OUTDIR/probe.txt (the probe's output), OUTDIR/log.txt and, if the game didn't exit in time,
 # OUTDIR/screen.png (wine only). See README.md.
 set -euo pipefail
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's bash, 3.2, exits from
+# one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
+bash -n "$0" || exit 2
 
 here="$(cd "$(dirname "$0")" && pwd)"
 repo="$(cd "$here/../.." && pwd)"
@@ -46,7 +49,19 @@ fi
 # In TMPDIR, which macOS's `mktemp -d` alone ignores: Colima only shares the home directory with its VM, so
 # there TMPDIR must be under it.
 work="$(mktemp -d "${TMPDIR:-/tmp}/gm8-probe.XXXXXX")"
-trap 'rm -rf "$work"' EXIT
+# Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+# from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+finished=
+cleanup() {
+  status=$?
+  rm -rf "$work"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "tools/gm8-probe/run: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
 cp -R "$game_dir/." "$work/"
 python3 -I "$here/build-exe.py" "$game_dir/Spelunky.exe" "$work/Spelunky.exe" "$probe"
 
@@ -78,3 +93,4 @@ cat "$out/probe.txt"
 # The probe's last line; without it, an error stopped the probe (OpenGMK's message is in log.txt, GM8's
 # dialog in screen.png).
 grep -q '^end = "ok"' "$out/probe.txt" || die "$runner: the probe stopped early (see $out/)"
+finished=1

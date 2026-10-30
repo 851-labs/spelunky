@@ -41,6 +41,10 @@ main=$(cd "$listed" && pwd -P)
 # One seeding at a time: another scripts/cargo in this worktree waits while it runs, then finds target/. A lock
 # whose process is gone (killed, so its EXIT trap didn't run), or that has had no pid for ten seconds, is
 # stale: it's cleared, and this one seeds.
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it (but after the exits above, which
+# every scripts/cargo run takes): macOS's sh, bash 3.2, exits from one with the trap's status, 0 (851-3743, as
+# site/test.sh does; scripts/check-sh).
+sh -n "$0" || exit 2
 lock="$root/target.seeding"
 while ! mkdir "$lock" 2>/dev/null; do
   echo "scripts/cargo: waiting for target/ to be cloned from the main worktree" >&2
@@ -58,14 +62,26 @@ while ! mkdir "$lock" 2>/dev/null; do
   [ ! -e "$root/target" ] || exit 0
 done
 echo $$ >"$lock/pid"
-trap 'rm -rf "$lock"' EXIT
+# Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+# from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+finished=
+cleanup() {
+  status=$?
+  rm -rf "$lock"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "scripts/seed-target: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
 trap 'exit 1' INT TERM HUP
-[ ! -e "$root/target" ] || exit 0
+[ ! -e "$root/target" ] || { finished=1; exit 0; }
 # Copy-on-write or nothing: a plain copy of 18 GB would be slower than the build it saves.
 for probe in "$main"/target/CACHEDIR.TAG "$main"/target/*/.cargo-lock; do
   [ -f "$probe" ] && break
 done
-[ -f "$probe" ] && cp -c "$probe" "$lock/probe" 2>/dev/null || exit 0
+[ -f "$probe" ] && cp -c "$probe" "$lock/probe" 2>/dev/null || { finished=1; exit 0; }
 
 echo "scripts/cargo: cloning the main worktree's target/ (APFS copy-on-write) for this worktree's first build" >&2
 start=$(date +%s)
@@ -85,7 +101,7 @@ perl -e '
     push @locks, $h;
   }
   exit(system("cp", "-cR", $from, $to) == 0 ? 0 : 1);
-' "$main/target" "$lock/target" || exit 0
+' "$main/target" "$lock/target" || { finished=1; exit 0; }
 
 # The files this worktree has as the main worktree's commit has them, which the main worktree hasn't changed,
 # get its mtimes; every other tracked file, now's.
@@ -179,7 +195,9 @@ stale=$(perl -e '
 # one stays, and the clone goes with the lock.
 if [ -e "$root/target" ]; then
   echo "scripts/cargo: target/ appeared while cloning; keeping it" >&2
+  finished=1
   exit 0
 fi
 mv "$lock/target" "$root/target"
 echo "scripts/cargo: cloned in $(($(date +%s) - start)) s; $stale units that used the main worktree's paths will rebuild" >&2
+finished=1

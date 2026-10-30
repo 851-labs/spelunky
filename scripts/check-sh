@@ -5,8 +5,10 @@
 # stops there and passes, as site/test.sh did, skipping every check after it (851-3741). This catches a syntax
 # error anywhere at the top level of a script; one inside a $(...) isn't parsed until it runs (and fails the
 # script then, trap or not), and an error at run time, an unset variable under set -u, is each script's own to
-# catch (site/test.sh's cleanup fails a run that didn't reach its end). scripts/check --fast runs this, so CI
-# does too.
+# catch. So a script that sets an EXIT trap must also do as site/test.sh does (851-3743): check that it parses
+# (`sh -n "$0" || exit 2`, or bash's) before the trap, and have the trap, `trap cleanup EXIT`, fail a run that
+# didn't set `finished=1` where it ends and before each `exit 0`. This checks each such script does all of it,
+# line by line (below). scripts/check --fast runs this, so CI does too.
 set -eu
 cd "$(dirname "$0")/.."
 failed=0
@@ -22,6 +24,36 @@ while IFS= read -r file; do
   esac
   if ! $shell -n "$file"; then
     echo "scripts/check-sh: $file doesn't parse ($shell -n)" >&2
+    failed=1
+  fi
+  # The pattern, line by line (awk, one process a script): the parse check before the first trap of EXIT (or 0),
+  # which is `trap cleanup EXIT`; a cleanup that reads `finished`; `finished=1` as the last line (unless it ends by
+  # `exec`, which replaces the shell, trap and all: scripts/web's server); and every `exit 0` after the trap with
+  # `finished=1` on its line or the one before. Comments aside.
+  problems=$(awk -v guard="$shell -n \"\$0\" || exit 2" '
+    /^[ \t]*#/ { next }
+    { gsub(/[ \t]+$/, "") }
+    $0 == guard && !trap { guarded = 1 }
+    !trap && /^[ \t]*trap[ \t]/ && /[ \t](EXIT|0)([ \t]|$)/ {
+      trap = NR
+      if ($0 !~ /^[ \t]*trap cleanup EXIT$/) print "line " NR ": its EXIT trap is `" $0 "`, not `trap cleanup EXIT`"
+      next
+    }
+    /-z "\$finished"/ { reads = 1 }
+    trap && /^exec[ \t]/ { execs = 1 }
+    trap && /(^|[^a-z_])exit 0([^0-9]|$)/ && $0 !~ /finished=1;? *exit 0/ && prev !~ /^[ \t]*finished=1$/ {
+      print "line " NR ": an exit 0 after the trap without finished=1 first, which the trap fails"
+    }
+    NF { last = $0; prev = $0 }
+    END {
+      if (!trap) exit
+      if (!guarded) print "its EXIT trap (line " trap ") has no `" guard "` before it"
+      if (!reads) print "its cleanup never reads finished (if [ \"$status\" -eq 0 ] && [ -z \"$finished\" ])"
+      if (!execs && last !~ /^finished=1$/) print "its last line is `" last "`, not finished=1"
+    }
+  ' "$file")
+  if [ -n "$problems" ]; then
+    echo "$problems" | sed "s|^|scripts/check-sh: $file: |" >&2
     failed=1
   fi
 done <"$list"

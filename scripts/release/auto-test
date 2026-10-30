@@ -2,9 +2,24 @@
 # scripts/release/auto's tests (scripts/check runs them): what counts for a release, when it starts, and the
 # tag it gets, in a scratch repository.
 set -eu
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's sh, bash 3.2, exits from
+# one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
+sh -n "$0" || exit 2
 script=$(cd "$(dirname "$0")" && pwd)/auto
 tmp=$(mktemp -d)
-trap 'rm -rf "$tmp"' EXIT
+# Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+# from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+finished=
+cleanup() {
+  status=$?
+  rm -rf "$tmp"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "scripts/release/auto-test: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
 cd "$tmp"
 git init -q -b main
 git config user.name test
@@ -76,3 +91,4 @@ commit_at 7000 crates/app/src/main.rs
 check "next after v0.2.0" v0.2.1 "$($auto tag HEAD)"
 
 [ "$failures" = 0 ] || { echo "scripts/release/auto-test: $failures failed" >&2; exit 1; }
+finished=1

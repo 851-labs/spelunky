@@ -5,13 +5,28 @@
 # site/web-release.txt. Merging that change is the deploy (docs/web-deploy.md): the web build and the native
 # apps' update go live together. (The wiki's media are committed, in wiki/media: docs/wiki-media.md.)
 set -eu
+# A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's sh, bash 3.2, exits from
+# one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
+sh -n "$0" || exit 2
 [ $# = 1 ] || { echo "usage: scripts/bump-web-release TAG" >&2; exit 2; }
 tag=$1
 cd "$(dirname "$0")/.."
 base=https://github.com/851-labs/spelunky/releases/download/$tag
 url=$base/spelunky-web-$tag.tar.gz
 tmp=$(mktemp -d)
-trap 'rm -rf "$tmp"' EXIT
+# Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+# from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+finished=
+cleanup() {
+  status=$?
+  rm -rf "$tmp"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "scripts/bump-web-release: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
 sha256() {
   if command -v sha256sum >/dev/null; then sum=$(sha256sum "$1"); else sum=$(shasum -a 256 "$1"); fi
   echo "${sum%% *}"
@@ -38,3 +53,4 @@ awk -v tag="$tag" -v sha="$sha" -v manifest="$manifest_sha" '
 ' site/web-release.txt >"$tmp/web-release.txt"
 mv "$tmp/web-release.txt" site/web-release.txt
 echo "site/web-release.txt: $tag ($sha; latest.json $manifest_sha)"
+finished=1
