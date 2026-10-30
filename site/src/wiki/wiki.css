@@ -276,6 +276,15 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .room-settings th[scope="row"], .room-instances th[scope="row"] { white-space: nowrap; }
 .room-page { display: block; width: max-content; font-size: 14px; font-weight: 400; }
 .room-settings th[scope="row"] { color: var(--dim); font-weight: 400; }
+/* A room's picture: its game pixels drawn as squares of screen pixels, scrolling across where it's wider than the
+   column; an object's instances boxed as its row in the table below is pointed at. */
+.room-picture { margin: 16px 0; overflow-x: auto; }
+.room-picture-frame { position: relative; }
+.room-picture img { display: block; image-rendering: pixelated; max-width: none; }
+/* Inside the sprite's box, as the picture's scrolling box would cut off an outline outside it at its edges. */
+.room-box { position: absolute; outline: 2px solid var(--gold); outline-offset: -2px; pointer-events: none; }
+.room-picture figcaption { margin-top: 8px; color: var(--dim); font-size: 14px; }
+.room-instances tr.room-highlight { background: var(--line-hl); }
 .room-positions { display: flex; flex-wrap: wrap; gap: 0 12px; margin: 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }
 .room-code code { padding: 0 12px; }
 /* A red link: a planned page that isn't written yet, which isn't a link (components.tsx). Red, as on

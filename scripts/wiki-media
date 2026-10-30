@@ -79,7 +79,7 @@ if [ -n "$since" ]; then
   git diff --quiet "$since" HEAD -- $encoded_with || full=1
 fi
 
-scripts/cargo build --quiet --release --locked -p app -p harness -p tools --bin app --bin wiki-clips --bin wiki-sprites
+scripts/cargo build --quiet --release --locked -p app -p harness -p tools --bin app --bin wiki-clips --bin wiki-sprites --bin wiki-rooms
 bin=${CARGO_TARGET_DIR:-$PWD/target}/release
 scripts/extract >/dev/null
 scripts/release/tools ffmpeg
@@ -109,11 +109,13 @@ else
 fi
 mkdir -p "$out"
 
-# The sprites replace their directory as a whole, and the GML and the rooms are the extractor's as they are.
+# The sprites replace their directory as a whole, and the GML and the rooms are the extractor's as they are,
+# with a picture of each room beside its JSON (wiki-rooms: its backgrounds, tiles and instances' sprites).
 "$bin/wiki-sprites" --assets assets --out "$out/sprites" >/dev/null
 rm -rf "$out/gml" "$out/rooms"
 cp -R assets/gml "$out/gml"
 cp -R assets/rooms "$out/rooms"
+"$bin/wiki-rooms" --assets assets --out "$out/rooms" >/dev/null
 # The license and the notice the Spelunky User License asks Covered Works to come with (docs/wiki-license.md).
 # LICENSE is the original's COPYING.txt, so windows-1252 (its ® is the byte AE), and the site serves a .txt as
 # UTF-8 (site/public/_headers), as site/build.sh writes /LICENSE.txt.
@@ -126,7 +128,8 @@ unofficial fan wiki. The sprites are exported from the game's assets (scripts/wi
 recorded from the spelunky.ai port, an unofficial, fan-made port (a mod) of the game, not the original
 (scripts/wiki-clips); gml/ is spelunky.gmk's code as spelunky.ai's extractor writes it, one file per script
 or object event, the "// ====" lines naming each action of an event, and rooms/ its rooms, each one's
-settings and the instances the room editor placed in it (scripts/extract). Some scripts are
+settings and the instances the room editor placed in it (scripts/extract), with a picture of each drawn
+from the game's sprites and backgrounds (scripts/wiki-media's wiki-rooms). Some scripts are
 others' work that Derek Yu credits in the source's readme.txt: Martin Piecyk's platform engine, ChevyRay's
 view scaling scripts and tsg1zzn's Super Sound System.
 Source: https://github.com/851-labs/spelunky (docs/wiki-media.md).

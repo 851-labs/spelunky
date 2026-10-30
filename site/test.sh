@@ -88,7 +88,7 @@ for s in $sprites; do
     frames="$frames${frames:+,}{\"file\":\"$s/frames/$i.png\",\"file_scaled\":\"$s/frames/$i@4x.png\"}"
     echo "stand-in $i@4x.png" >"$media/sprites/$s/frames/$i@4x.png"
   done
-  echo "{\"frames\":[$frames],\"anim_scaled\":\"$s/anim@4x.png\"}" >"$media/sprites/$s/sprite.json"
+  echo "{\"width\":16,\"height\":16,\"origin\":{\"x\":0,\"y\":0},\"frames\":[$frames],\"anim_scaled\":\"$s/anim@4x.png\"}" >"$media/sprites/$s/sprite.json"
   echo 'stand-in anim@4x.png' >"$media/sprites/$s/anim@4x.png"
 done
 cat >"$media/sprites/index.json" <<EOF2
@@ -161,6 +161,9 @@ cat >"$media/rooms/rTutorial.json" <<'EOF2'
   ]
 }
 EOF2
+# The room's picture (scripts/wiki-media's wiki-rooms): any PNG, 180x180, which build.sh serves and the room's
+# page draws, boxing its instances' sprites.
+cp public/apple-touch-icon.png "$media/rooms/rTutorial.png"
 echo 'stand-in clip.mp4' >"$media/clips/snake/bite/clip.mp4"
 echo 'stand-in clip.webm' >"$media/clips/snake/bite/clip.webm"
 echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
@@ -852,15 +855,23 @@ contains '<title>rTutorial – Room source – Spelunky Classic wiki</title>' '<
   '<th scope="row">Size</th><td>672 × 304 pixels</td>' '<td><div>bgCave, tiled across and down</div></td>' \
   'View 0: 320 × 240 at (0, 0), shown at 640 × 480, following oPlayer1 with borders of 128 and 96' \
   '<tr id="oBrick"><th scope="row"><code>oBrick</code><a id="' '" href="/wiki/block" data-slug="block" class="room-page">Block</a></th><td>2</td><td><ul class="room-positions"><li title="Instance 134002">(0, 0)</li><li title="Instance 134003">(16, 0)</li></ul></td></tr>' \
-  '<tr id="oDrawnSprite"><th scope="row"><code>oDrawnSprite</code></th><td>1</td>' \
+  '<tr id="oDrawnSprite"><th scope="row" tabindex="0"><code>oDrawnSprite</code></th><td>1</td>' \
   '<tr id="oSnake"><th scope="row"><a href="/wiki/source#oSnake"><code>oSnake</code></a><a id="' \
   '" href="/wiki/snake" data-slug="snake" class="room-page">Snake</a></th><td>1</td>' \
   '<tr id="oGoldBar"><th scope="row"><code>oGoldBar</code><a id="' '" href="/wiki/gold-bar" data-slug="gold-bar" class="room-page">Gold Bar</a></th><td>1</td>' \
   '<h2 id="tiles">Tiles</h2>' '<td>(16, 96)</td>' \
   '<h3>Instance 134004 of oGoldBar at (96, 112)</h3>' 'value = 2;'
+# Its picture at the top, at the most whole screen pixels a game pixel that fit the 960-pixel column (180 at 5),
+# its instances boxed only as their object's row is pointed at, so none in the HTML.
+contains '<figure class="room-picture"><div class="room-picture-frame" style="width:900px;height:900px"><img src="/wiki/media/rooms/rTutorial.png" width="900" height="900" alt="The room rTutorial as the room editor placed it"/></div><figcaption>' \
+  'at 5 times its size. Point at an object below to see where its instances are.</figcaption></figure><h2 id="settings">Settings</h2>'
+lacks 'class="room-box"'
 lacks 'shown whole under the' 'GML source'
 check "$site/wiki/source/rooms/rNowhere" 404 "$no_cache"
 check "$site$media_url/rooms/rTutorial.json" 404
+# Its picture, from the asset store with the media's day of caching, as the room page draws it.
+check "$site$media_url/rooms/rTutorial.png" 200 "$media_cache" "content-type: image/png"
+same "$media/rooms/rTutorial.png"
 check "$site/wiki/tutorial" 200 "$no_cache"
 contains 'Room <a href="/wiki/source/rooms/rTutorial"><code>rTutorial</code></a>, as the room editor placed it'
 check "$site/wiki/tutorial.md" 200

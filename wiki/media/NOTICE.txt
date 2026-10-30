@@ -5,7 +5,8 @@ unofficial fan wiki. The sprites are exported from the game's assets (scripts/wi
 recorded from the spelunky.ai port, an unofficial, fan-made port (a mod) of the game, not the original
 (scripts/wiki-clips); gml/ is spelunky.gmk's code as spelunky.ai's extractor writes it, one file per script
 or object event, the "// ====" lines naming each action of an event, and rooms/ its rooms, each one's
-settings and the instances the room editor placed in it (scripts/extract). Some scripts are
+settings and the instances the room editor placed in it (scripts/extract), with a picture of each drawn
+from the game's sprites and backgrounds (scripts/wiki-media's wiki-rooms). Some scripts are
 others' work that Derek Yu credits in the source's readme.txt: Martin Piecyk's platform engine, ChevyRay's
 view scaling scripts and tsg1zzn's Super Sound System.
 Source: https://github.com/851-labs/spelunky (docs/wiki-media.md).

@@ -20,9 +20,9 @@
     "not_found_handling": "404-page",
     // The Worker sees everything but the content-hashed files and the wiki's media: it redirects www and
     // marks what it serves no-cache. /play/v/* (the game), /assets/* (the pages' scripts) and /wiki/media/*
-    // (the wiki's sprites and clips) are served straight from the asset store (no Worker invocation, so no
-    // request quota spent on the ~100 files a game start fetches, or a wiki page's dozens of images), with
-    // _headers' caching. All but the clips' videos, that is, which the Worker serves with byte ranges for
+    // (the wiki's sprites, rooms' pictures and clips) are served straight from the asset store (no Worker
+    // invocation, so no request quota spent on the ~100 files a game start fetches, or a wiki page's dozens
+    // of images), with _headers' caching. All but the clips' videos, that is, which the Worker serves with byte ranges for
     // Safari (src/server.ts), and the media's old URLs, /wiki/media/HASH/..., under the hash of the package
     // the site served before the media were committed, which it redirects. A negative rule beats a positive
     // one, and `*` spans directories, so the rules pick the media's other files by where they are and their
@@ -35,6 +35,7 @@
       "!/play/v/*",
       "!/assets/*",
       "!/wiki/media/sprites/*",
+      "!/wiki/media/rooms/*.png",
       "!/wiki/media/clips/*.png",
       "!/wiki/media/clips/*.json",
       "!/wiki/media/clips/*.txt",
