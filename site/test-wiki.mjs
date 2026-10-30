@@ -74,8 +74,10 @@ if (committed.pages.length === 0) fail("content/wiki: no pages");
   const json = (value) => JSON.stringify(value);
   if (json(objects.oSnake) !== json({ slug: "snake", title: "Snake" })) fail(`source links: oSnake is ${json(objects.oSnake)}`);
   if (json(objects.oBrick) !== json({ slug: "block", title: "Block" })) fail(`source links: oBrick is ${json(objects.oBrick)}`);
-  // An object no page claims (the cave's background) links nowhere.
-  if (objects.oCaveBG !== undefined) fail(`source links: oCaveBG is ${json(objects.oCaveBG)}`);
+  // An object no page claims (the parent every drawn object inherits) links nowhere; an unused one (the
+  // cave's background) to the page of them.
+  if (objects.oDrawnSprite !== undefined) fail(`source links: oDrawnSprite is ${json(objects.oDrawnSprite)}`);
+  if (objects.oCaveBG?.slug !== "unused-content") fail(`source links: oCaveBG is ${json(objects.oCaveBG)}`);
   for (const [room, slug] of [["rTutorial", "tutorial"], ["rOlmec", "olmecs-lair"], ["rTitle", "title-screen"], ["rIntro", "title-screen"]]) {
     if (rooms[room]?.slug !== slug) fail(`source links: ${room} is ${json(rooms[room])}, not ${slug}'s`);
   }
@@ -634,7 +636,7 @@ try {
     "items/weapons": "bow machete mattock pistol sceptre shotgun teleporter web-cannon whip",
     shops: "ankh-shop bomb-shop clothing-shop dice-house general-store kissing-parlor rare-shop weapon-shop",
     // The Game's mechanic pages, and the two places that are part of it too (the title screen, the high scores room).
-    "the-game": "controls credits endings high-scores-room level-editor scoring settings title-screen versions",
+    "the-game": "controls credits endings high-scores-room level-editor scoring settings title-screen unused-content versions",
     // The terrain pages, written and planned.
     terrain: "altar block door ice ladder push-block shop-sign sign thin-ice tiki-torch tree vine water",
   };

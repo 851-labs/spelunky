@@ -62,20 +62,21 @@ media=$tmp/wiki-media
 mkdir -p "$media/sprites/sBlank" "$media/clips/snake/bite"
 # Every written page's infobox sprite and the hubs' card sprites (the pages' and planned pages' `card`s, a
 # page without an infobox's own `card`, and
-# src/wiki/build/hubs.ts's CARD_SPRITES: a sprite the media haven't got fails the build), each a 16-pixel
-# stand-in of 4 frames whose first test-og.mjs draws, and a blank one.
+# src/wiki/build/hubs.ts's CARD_SPRITES), and the sprites pages show in their text (`<Sprite name="sName">`:
+# a sprite the media haven't got fails the build), each a 16-pixel stand-in of 4 frames whose first
+# test-og.mjs draws, and a blank one.
 # No package (it runs before build.sh's npm ci): hubs.ts imports none, and the pages' and planned pages'
 # sprites are each a `sprite: sName` in the image's or card's flow mapping, on one line (a page's own `card`
-# at the top level).
+# at the top level), or a `<Sprite name="sName"` anywhere in a page.
 sprites=$(node --input-type=module -e '
 import { readdirSync, readFileSync } from "node:fs";
 import { CARD_SPRITES } from "./src/wiki/build/hubs.ts";
 const names = new Set(Object.values(CARD_SPRITES).map((card) => card.sprite));
 const lines = [
-  ...readdirSync("content/wiki").filter((f) => f.endsWith(".mdx")).flatMap((f) => readFileSync(`content/wiki/${f}`, "utf8").split("\n").filter((l) => l.startsWith("  image: ") || l.startsWith("card: "))),
+  ...readdirSync("content/wiki").filter((f) => f.endsWith(".mdx")).flatMap((f) => readFileSync(`content/wiki/${f}`, "utf8").split("\n").filter((l) => l.startsWith("  image: ") || l.startsWith("card: ") || l.includes("<Sprite "))),
   ...readFileSync("content/wiki-planned.yaml", "utf8").split("\n").filter((l) => /^[a-z0-9-]+: .*\bcard: /.test(l)),
 ];
-for (const line of lines) for (const [, name] of line.matchAll(/\bsprite: (s[A-Za-z0-9_]+)/g)) names.add(name);
+for (const line of lines) for (const [, image, body] of line.matchAll(/\bsprite: (s[A-Za-z0-9_]+)|<Sprite name="(s[A-Za-z0-9_]+)"/g)) names.add(image ?? body);
 console.log([...names].filter(Boolean).sort().join("\n"));
 ')
 entries=
@@ -155,7 +156,7 @@ cat >"$media/rooms/rTutorial.json" <<'EOF2'
     {"id":134001,"object":"oSnake","x":320,"y":112},
     {"id":134002,"object":"oBrick","x":0,"y":0},
     {"id":134003,"object":"oBrick","x":16,"y":0},
-    {"id":134005,"object":"oCaveBG","x":32,"y":0},
+    {"id":134005,"object":"oDrawnSprite","x":32,"y":0},
     {"id":134004,"object":"oGoldBar","x":96,"y":112,"creation_code":"value = 2;\n"}
   ]
 }
@@ -839,8 +840,8 @@ contains '<title>GML source – Spelunky Classic wiki</title>' '<meta name="robo
   '<h2 id="rooms">Rooms</h2>' '<a href="/wiki/source/rooms/rTutorial">rTutorial</a>'
 # A room's page, from the media's rooms/: its settings, its instances by object, by name, each with its
 # positions and a link to its events where gml/ has them and to its wiki page where it has one (with its hover
-# card), the place page that lists the room, its tiles, and its instances' creation code, under the room's
-# notice; noindex. The pages' room citations link to it. The .json files themselves aren't served.
+# card; oDrawnSprite, a parent no page claims, has none), the place page that lists the room, its tiles, and
+# its instances' creation code, under the room's notice; noindex. The pages' room citations link to it. The .json files themselves aren't served.
 check "$site/wiki/source/rooms/rTutorial" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>rTutorial – Room source – Spelunky Classic wiki</title>' '<meta name="robots" content="noindex"/>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/source/rooms/rTutorial"/>' \
@@ -851,7 +852,7 @@ contains '<title>rTutorial – Room source – Spelunky Classic wiki</title>' '<
   '<th scope="row">Size</th><td>672 × 304 pixels</td>' '<td><div>bgCave, tiled across and down</div></td>' \
   'View 0: 320 × 240 at (0, 0), shown at 640 × 480, following oPlayer1 with borders of 128 and 96' \
   '<tr id="oBrick"><th scope="row"><code>oBrick</code><a id="' '" href="/wiki/block" data-slug="block" class="room-page">Block</a></th><td>2</td><td><ul class="room-positions"><li title="Instance 134002">(0, 0)</li><li title="Instance 134003">(16, 0)</li></ul></td></tr>' \
-  '<tr id="oCaveBG"><th scope="row"><code>oCaveBG</code></th><td>1</td>' \
+  '<tr id="oDrawnSprite"><th scope="row"><code>oDrawnSprite</code></th><td>1</td>' \
   '<tr id="oSnake"><th scope="row"><a href="/wiki/source#oSnake"><code>oSnake</code></a><a id="' \
   '" href="/wiki/snake" data-slug="snake" class="room-page">Snake</a></th><td>1</td>' \
   '<tr id="oGoldBar"><th scope="row"><code>oGoldBar</code><a id="' '" href="/wiki/gold-bar" data-slug="gold-bar" class="room-page">Gold Bar</a></th><td>1</td>' \

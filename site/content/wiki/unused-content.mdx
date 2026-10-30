@@ -1,0 +1,128 @@
+---
+slug: unused-content
+title: Unused content
+type: mechanic
+categories: [the-game]
+objects:
+  [
+    oJordans, oRopeBag, oBasketball, oBasket, oRim, oRimDeflect, oFireFrogArmed, oTarget, oThwompTrap, oGold,
+    oGoldBig, oCaveBG, oSmallCollect, oTemp, oEntranceCheck, oBackdrop, oForeground, oFrill, oCaveUp, oCheckBox,
+    oCheckBox2, oCheckBox3, oCheckBox4, oRadioBox, oSlider1, oSlider2, oSliderBG, oOKButton, oKeyConfigButton,
+    oJoyConfigButton,
+  ]
+aliases: [unused-objects, cut-content, jordans, rope-bag, basketball, thwomp, thwomp-trap]
+card: { sprite: sJordans }
+lede: >-
+  Unused content in Spelunky Classic is the objects its code defines but nothing in the game makes: the
+  Jordans, a Rope Bag, a basketball, a thwomp trap and more.
+relations:
+  related: [spring-shoes, bomb-bag, moon-room, fire-frog, olmecs-lair, arrow-trap, settings]
+clips: []
+faq:
+  - q: Are there Jordans in Spelunky Classic?
+    a: >-
+      Not in any game. The Jordans are an item in the code, priced at $50,000, that would treble the push
+      of every jump, but no level, room or script ever makes one.
+  - q: Is there a thwomp in Spelunky Classic?
+    a: >-
+      Only in the code. A trap that drops on a player passing under it and rises again is written, and
+      [[olmecs-lair|Olmec's Lair]]'s room script would place one for a `t` tile, but none of its rooms has
+      that tile.
+  - q: Is there a basketball game in Spelunky Classic?
+    a: >-
+      No. A basketball and a hoop that score into the [[moon-room|Moon Room]]'s count are in the code, but
+      nothing makes them: the Moon Room is an archery challenge.
+  - q: Can the level editor place the unused objects?
+    a: >-
+      No. The level editor makes only what its tiles name, and nothing else that runs, the editor's code
+      included, creates an unused object, so no level, generated or custom, has one.
+sources:
+  - objects/oJordans/create.gml
+  - scripts/scrStealItem.gml
+  - scripts/characterStepEvent.gml
+  - objects/oRopeBag/create.gml
+  - objects/oBasketball/step.gml
+  - objects/oFireFrogArmed/create.gml
+  - objects/oTarget/collision_oArrow.gml
+  - objects/oTarget/step.gml
+  - objects/oThwompTrap/step.gml
+  - scripts/scrRoomGen5.gml
+  - objects/oGold/destroy.gml
+  - objects/oGoldBig/destroy.gml
+  - objects/oCaveBG/create.gml
+  - objects/oTemp/step.gml
+  - objects/oEntranceCheck/step.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+The game's files define about thirty objects that nothing in Spelunky Classic 1.1 ever makes: no room
+places them, and nothing that runs creates them, so no player meets them. Their code is still
+there, and says what each would do. A few are items, a target and a trap; the rest are blocks, effects
+and the settings program's controls, which the game's files carry too. Each is in a row of
+`docs/quirks.md`'s leftovers.
+
+## How it works
+
+Every object a game has comes from a room the room editor laid out or from an `instance_create` in the code
+naming it. None of these appears in any of the 30 rooms' 6,330 placed instances, and no `instance_create`
+names one, or names it only in a comment or in a branch no level reaches (the thwomp trap's) <Cite quirk="1" row="oJordans, oRopeBag, oBasketball and oFireFrogArmed are unreachable" />.
+
+### Items
+
+| | Item | What its code would do |
+| --- | --- | --- |
+| <Sprite name="sJordans" alt="" /> | Jordans (`oJordans`) | Sneakers priced at $50,000, "JORDANS FOR $50000!" <Cite gml="objects/oJordans/create.gml:3-8" />. Picked up, they'd show "YOU GOT JORDANS!" and "YOU FEEL LIGHT ON YOUR FEET." <Cite gml="scripts/scrStealItem.gml:193-203" />, and every jump after it would push three times as hard, with twice the speed limit and gravity 0.5 in place of 1, checked before the [[spring-shoes\|Spring Shoes]]' push of half as much again <Cite gml="scripts/characterStepEvent.gml:351-362" />. |
+| <Sprite name="sRopeEnd" alt="" /> | Rope Bag (`oRopeBag`) | Drawn as the end of a rope, but its type is "Bomb Bag" <Cite gml="objects/oRopeBag/create.gml:3" />, so picking it up would be a [[bomb-bag\|Bomb Bag]]'s pickup: three more bombs, "YOU GOT 3 MORE BOMBS!" <Cite gml="scripts/scrStealItem.gml:68-78" />. |
+| <Sprite name="sBasketball" alt="" /> | Basketball (`oBasketball`) | Bounces off a hoop's rim (`oRimDeflect`), and dropping through it (`oRim`) swishes the net (`oBasket`) and adds to the [[moon-room\|Moon Room]]'s count: 1 for a ball carried in, 3 for one off a wall, 2 for any other <Cite gml="objects/oBasketball/step.gml:6-56" />. The Moon Room is an archery challenge, and has no hoop. |
+| <Sprite name="sBasket" alt="" /> | The hoop's net (`oBasket`), rim (`oRim`) and rim's edges (`oRimDeflect`) | What the basketball scores through <Cite gml="objects/oBasketball/step.gml:6-39" />. The Moon Room's alarm would make them, but those lines are commented out <Cite gml="objects/oMoonRoom/alarm_0.gml:1-4" />. |
+| <Sprite name="sFireFrogArmedL" alt="" /> | Armed fire frog (`oFireFrogArmed`) | A dead [[fire-frog\|Fire Frog]]'s bomb, by its sprite, but with the live frog's type, "Fire Frog", where the bomb's is "Fire Frog Bomb", and without the bomb's fuse, the alarm that sets it off <Cite gml="objects/oFireFrogArmed/create.gml:3-10" /> <Cite gml="objects/oFireFrogBomb/create.gml:3-6" />. |
+
+### The Moon Room's target and the thwomp trap
+
+| | Object | What its code would do |
+| --- | --- | --- |
+| <Sprite name="sTarget" alt="" /> | Moon Room target (`oTarget`) | A bullseye for the [[moon-room\|Moon Room]] that sways up and down, twice as fast on the right of the room, and swings side to side in the last 30 seconds <Cite gml="objects/oTarget/create.gml:7-8" /> <Cite gml="objects/oTarget/step.gml:10-39" />. An arrow scores 5 for its middle, 3, 2 or 1 farther out <Cite gml="objects/oTarget/collision_oArrow.gml:7-18" />. The Moon Room's targets are bats and UFOs instead, but the arrow's step still checks for this one there, and finds none <Cite gml="objects/oArrow/step.gml:24-37" />. |
+| <Sprite name="sThwompTrap" alt="" /> | Thwomp trap (`oThwompTrap`) | A block that waits until the player is below it, within 8 pixels of its column, with a character within 96 pixels of it, then falls, gathering speed up to 6 pixels a step; landing, it waits 100 steps and rises again until it meets the ceiling <Cite gml="objects/oThwompTrap/step.gml:1-37" />. Only [[olmecs-lair\|Olmec's Lair]]'s room script makes one, for a `t` tile, and none of the lair's room or obstacle strings has that tile <Cite gml="scripts/scrRoomGen5.gml:191-194" /> <Cite quirk="1" row="oThwompTrap is unreachable" />. |
+
+### Blocks and effects
+
+| | Object | What its code would do |
+| --- | --- | --- |
+| <Sprite name="sGold" alt="" /> | Gold in the rock (`oGold`) | Breaks into three [[gold-chunk\|gold chunks]] <Cite gml="objects/oGold/destroy.gml:1-6" />. Only the [[ufo\|UFO]]'s laser names it, to destroy it <Cite gml="objects/oLaser/collision_oSolid.gml:1-14" /> <Cite quirk="1" row="Nothing creates oGold or oGoldBig." />. |
+| <Sprite name="sGoldBig" alt="" /> | Big gold in the rock (`oGoldBig`) | Breaks into a [[gold-nugget\|gold nugget]] and two or three gold chunks <Cite gml="objects/oGoldBig/destroy.gml:1-10" />; the laser names it too. |
+| <Sprite name="sCaveBG1" alt="" /> | Cave background (`oCaveBG`) | One of two background pictures, at random <Cite gml="objects/oCaveBG/create.gml:1-8" />; its only `instance_create` is commented out <Cite gml="scripts/scrInitLevel.gml:231" />. |
+| <Sprite name="sSmallCollect" alt="" /> | Collecting sparkle (`oSmallCollect`) | Rises for a second <Cite gml="objects/oSmallCollect/create.gml:3" /> <Cite gml="objects/oSmallCollect/step.gml:1" />; the line that made one when the player collects a treasure is commented out <Cite gml="objects/oPlayer1/step.gml:2001" /> <Cite quirk="1" row="oCaveBG's and oSmallCollect's only instance_creates are commented out" />. |
+| <Sprite name="sArrowTrapLeft" alt="" /> | Old arrow trap (`oTemp`) | An [[arrow-trap\|Arrow Trap]] facing left that fires once at the player, a monster, a push block or a moving item in front of it, playing a sound the game doesn't have <Cite gml="objects/oTemp/step.gml:1-45" /> <Cite quirk="1" row="oTemp (solid) calls sound_play on sndArrowTrap" />. |
+| <Sprite name="sSight" alt="" /> | Entrance check (`oEntranceCheck`) | Moves 16 pixels a step until it touches a block, then destroys itself, and the block too if it's an Arrow Trap <Cite gml="objects/oEntranceCheck/step.gml:1-4" /> <Cite gml="objects/oEntranceCheck/collision_oSolid.gml:1-2" />. |
+| | `oBackdrop`, `oForeground`, `oFrill`, `oCaveUp` | Set a depth, or do nothing <Cite gml="objects/oBackdrop/create.gml:1" /> <Cite gml="objects/oForeground/create.gml:1" /> <Cite quirk="1" row="The rest of the game's objects that nothing makes." />. |
+
+The mothership's `oAlienShipFloor` is a [[block|Block]] nothing makes either: the mothership's floor is its hull given the floor's sprite <Cite quirk="1" row="Nothing creates oAlienShipFloor." />.
+
+### The settings program's controls
+
+The game's files carry a copy of the [[settings|settings program]]'s check boxes, radio box and volume
+sliders (`oCheckBox` to `oCheckBox4`, `oRadioBox`, `oSlider1`, `oSlider2`, `oSliderBG`), and its OK, key
+config and gamepad config buttons. None is in the game's rooms, so the game never shows them
+<Cite gml="objects/oCheckBox/create.gml:1-6" /> <Cite quirk="1" row="Dangling references to config.exe resources" /> <Cite quirk="1" row="The rest of the game's objects that nothing makes." />.
+
+## Numbers
+
+| Object | What its code would do | Source |
+| --- | --- | --- |
+| Jordans | Price $50,000; a jump's push ×3, its speed limit 12, gravity 0.5 while it rises | <Cite gml="objects/oJordans/create.gml:8" /> <Cite gml="scripts/characterStepEvent.gml:351-356" /> |
+| Rope Bag | 3 bombs | <Cite gml="scripts/scrStealItem.gml:68-70" /> |
+| Basketball | 1 point carried in, 2 thrown, 3 off a wall | <Cite gml="objects/oBasketball/step.gml:42-52" /> |
+| Moon Room target | 5, 3, 2 or 1 points by how near its middle an arrow hits | <Cite gml="objects/oTarget/collision_oArrow.gml:7-18" /> |
+| Thwomp trap | Falls at up to 6 pixels a step; waits 100 steps; rises at 1 pixel a step | <Cite gml="objects/oThwompTrap/step.gml:11-27" /> |
+
+## Quirks
+
+Each object here is in a row of `docs/quirks.md`'s leftovers, unreachable in 1.1:
+
+- The Jordans, the Rope Bag, the basketball, the armed fire frog and the Moon Room's target <Cite quirk="1" row="oJordans, oRopeBag, oBasketball and oFireFrogArmed are unreachable" />.
+- The thwomp trap <Cite quirk="1" row="oThwompTrap is unreachable" />.
+- The gold in the rock <Cite quirk="1" row="Nothing creates oGold or oGoldBig." />.
+- The cave background and the collecting sparkle <Cite quirk="1" row="oCaveBG's and oSmallCollect's only instance_creates are commented out" />.
+- The old arrow trap <Cite quirk="1" row="oTemp (solid) calls sound_play on sndArrowTrap" />.
+- The settings program's buttons <Cite quirk="1" row="Dangling references to config.exe resources" />.
+- The rest <Cite quirk="1" row="The rest of the game's objects that nothing makes." />.
