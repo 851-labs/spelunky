@@ -35,7 +35,7 @@ export const Route = createFileRoute("/wiki/$slug")({
     // What the head needs, which the browser gets with the page rather than loading the page's chunk.
     return {
       page: {
-        quirkLinks: quirkLinks[params.slug] ?? {},
+        quirkLinks: Object.hasOwn(quirkLinks, params.slug) ? quirkLinks[params.slug] : {},
         title: meta.title,
         lede: meta.lede,
         verified: meta.verified.date,

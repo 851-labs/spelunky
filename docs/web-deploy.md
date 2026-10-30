@@ -166,7 +166,8 @@ are gone with its deploy: the page reloads for them (below).
 How much that covers: a build is about 11,400 files of Workers' 20,000 (Limits, below), and its hashed files
 are about 535 (284 scripts and styles, 6.8 MB; 251 cards, 1 MB). How many a deploy renames depends on what it
 changes: none for a commit that changes nothing the site shows, none for a change to `docs/quirks.md`, a row
-added mid-table included, 14 for one page (its chunk, the search index and the chunks that name them, up to the
+added mid-table included (but a row, section or status a quirk page quotes, whose text is in its chunk, renames
+it), 14 for one page (its chunk, the search index and the chunks that name them, up to the
 entry), and most of them for a change to the shared code. A card changes only with its page's numbers or sprite.
 (Until 851-3740, every deploy renamed about 225, as every page's chunk had the commit built in its links to
 GitHub; they're at each file's last change now. Until 851-3744, a `docs/quirks.md` change still renamed 221, as

@@ -990,13 +990,16 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     const more = missing.length > 3 ? ` and ${missing.length - 3} more` : "";
     ctx.warnings.push(`${name}: the wiki media's gml/ hasn't got ${missing.slice(0, 3).join(", ")}${more}: not linked to the source viewer`);
   }
+  // Once meta is complete (as code() is called), the module's meta and the links by key, one result for both.
+  let keyedOnce: ReturnType<typeof keyQuirkLinks> | undefined;
+  const keyed = () => (keyedOnce ??= keyQuirkLinks(meta));
   const code = () => [
     'import * as runtime from "react/jsx-runtime";',
     // Each fragment is MDX's function-body output, which takes the JSX runtime as its argument: run here,
     // once, as the module loads, rather than evaluated from a string at render (no eval in a Worker).
     ...fragments.map((f, i) => `const f${i} = (function () {\n${f}\n}).call(undefined, runtime).default;`),
     `export default {`,
-    `  meta: ${JSON.stringify(keyQuirkLinks(meta).meta)},`,
+    `  meta: ${JSON.stringify(keyed().meta)},`,
     `  Body: ${body.ref},`,
     `  Lede: ${lede.ref},`,
     `  Hatnote: ${hatnote ? hatnote.ref : "null"},`,
@@ -1011,7 +1014,7 @@ async function compilePage(p: Parsed, ctx: Context, errors: string[]): Promise<C
     body: body.markdown,
     answers: answers.map((answer) => answer.markdown),
   });
-  const quirkLinks = () => keyQuirkLinks(meta).links;
+  const quirkLinks = () => keyed().links;
   return { file: p.file, meta, links: state.links, anchors: state.anchors, anchorLinks: state.anchorLinks, code, quirkLinks, text: text.join(" "), markdown };
 }
 

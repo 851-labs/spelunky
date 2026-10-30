@@ -78,9 +78,12 @@ if (committed.pages.length === 0) fail("content/wiki: no pages");
   const inCode = committed.pages.filter((p) => quirksLink.test(p.code)).map((p) => p.meta.slug);
   if (inCode.length > 0) fail(`quirk links: ${inCode.length} pages' modules link docs/quirks.md: ${inCode.slice(0, 5).join(", ")}`);
   const keyed = committed.pages.filter((p) => Object.keys(p.quirkLinks).length > 0);
+  // The meta the module has, as it has it, with the links the loader gives: the build's meta.
   for (const p of committed.pages) {
-    const back = resolveQuirkLinks(keyQuirkLinks(p.meta).meta, p.quirkLinks);
-    if (JSON.stringify(back) !== JSON.stringify(p.meta)) fail(`quirk links: ${p.meta.slug}'s links by key aren't its meta's`);
+    const line = p.code.split("\n").find((l) => l.startsWith("  meta: "));
+    const moduleMeta = JSON.parse(line.slice("  meta: ".length, -1));
+    const back = resolveQuirkLinks(moduleMeta, p.quirkLinks);
+    if (JSON.stringify(back) !== JSON.stringify(p.meta)) fail(`quirk links: ${p.meta.slug}'s module and its links by key aren't its meta`);
   }
   if (keyed.length < 100) fail(`quirk links: only ${keyed.length} pages link docs/quirks.md`);
   if (failures === before) console.log(`ok   quirk links: ${keyed.length} pages' links to docs/quirks.md by key, none in their modules`);
@@ -639,7 +642,8 @@ try {
     if (rockHead?.href !== `https://github.com/851-labs/spelunky/blob/${rockAt}/fidelity/replays/action-throw-rock-snake.txt`) fail(`pins: the Snake's Rock replay at HEAD is ${json(rockHead)}`);
     // The commit's own changes, a merge's (CI's) against its first parent.
     const touched = git("diff", "--name-only", `${HEAD}^1`, HEAD).split("\n");
-    if (!touched.some((f) => f === "docs/quirks.md" || f.startsWith("fidelity/")) && atHead.pages.some((p) => p.code.includes(HEAD))) fail("pins: a page's code has the commit built");
+    // docs/quirks.md's links aren't in the pages' code at all (quirk-links.ts), so only a replay's can be.
+    if (!touched.some((f) => f.startsWith("fidelity/")) && atHead.pages.some((p) => p.code.includes(HEAD))) fail("pins: a page's code has the commit built");
     const md = markdownFiles(wiki.pages);
     const snakeMd = md.get("wiki/snake.md") ?? "";
     for (const line of [
@@ -792,7 +796,7 @@ const edit = (from, to) => {
 // components load only in the browser (behind import.meta.env.SSR) are stubs that throw if a server render
 // ever loads one, rather than quietly give it nothing. Its own cache, and no dependency scan, so it leaves
 // the dev server's node_modules/.vite alone.
-async function renderFixture(pageCode, hubData) {
+async function renderFixture(pageCode, hubData, quirkLinks) {
   const { createServer } = await import("vite");
   const { renderToStaticMarkup } = await import("react-dom/server");
   const { createElement } = await import("react");
@@ -826,7 +830,7 @@ async function renderFixture(pageCode, hubData) {
       server.ssrLoadModule("fixture:page").then((module) => module.default),
     ]);
     return {
-      page: renderToStaticMarkup(createElement(WikiPage, { page })),
+      page: renderToStaticMarkup(createElement(WikiPage, { page, quirkLinks })),
       hub: renderToStaticMarkup(createElement(HubView, { hub: hubById(hubData.id), data: hubData })),
     };
   } finally {
@@ -872,7 +876,7 @@ async function renderFixture(pageCode, hubData) {
     const whip = snake.meta.seeAlso.find((r) => r.relation === "damaged_by")?.links.find((l) => l.slug === "whip");
     const spider = monsters.cards.find((c) => c.slug === "spider");
     if (!whip || whip.href || spider?.href !== null) fail(`rendered: the fixture's Whip (${JSON.stringify(whip)}) and Spider (${JSON.stringify(spider)}) aren't to come`);
-    const { page, hub } = await renderFixture(snake.code, monsters);
+    const { page, hub } = await renderFixture(snake.code, monsters, snake.quirkLinks);
     const red = '<span class="wikilink-new" data-slug="whip" title="This page hasn&#x27;t been written yet">Whip</span>';
     const damagedBy = page.match(/<dt>Damaged by<\/dt><dd>(.*?)<\/dd>/)?.[1] ?? "";
     const body = page.slice(0, page.indexOf('<h2 id="see-also">'));
