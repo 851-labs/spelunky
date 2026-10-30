@@ -334,7 +334,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   set of pages that link and relate to each other (inverses, What links here, their twins' links and
   `/llms.txt`), their citations' links to the source viewer, their replays' and quirk rows' links (to
   GitHub, the clips and the quirk pages), and a set of broken ones, each of which must
-  fail the build with its error, searches the index of the committed pages, and checks their hover cards; and
+  fail the build with its error, searches the index of the committed pages, checks their hover cards, and
+  renders a fixture page's red links and a hub's card to come to HTML, which the committed wiki has none of; and
   `site/test-keyline.mjs`, which checks `wiki.css` keeps every block on the keyline (The keyline, above).
 
 ## Tone

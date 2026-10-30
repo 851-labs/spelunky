@@ -1,6 +1,7 @@
 // The wiki pipeline's checks (docs/wiki-style.md, "The pipeline"), which site/test.sh runs: the committed
 // pages compile with no errors, and a page that breaks a rule fails the build with an error naming it. Node
-// runs the build's TypeScript as is (type stripping).
+// runs the build's TypeScript as is (type stripping); the components' (TSX) go through Vite, to render a
+// fixture page and hub to HTML (renderFixture).
 //
 //   node test-wiki.mjs
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -9,6 +10,7 @@ import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { clipLive, loadWiki } from "./src/wiki/build/compile.ts";
 import { hoverCards } from "./src/wiki/build/cards.ts";
+import { hubById } from "./src/wiki/build/categories.ts";
 import { cardScale, makeHubs } from "./src/wiki/build/hubs.ts";
 import { markdownFiles } from "./src/wiki/build/markdown.ts";
 import { readSnapshot, resolveStat } from "./src/wiki/build/stats.ts";
@@ -739,6 +741,56 @@ const edit = (from, to) => {
   }
 }
 
+// A compiled page and a hub, rendered to HTML by the site's own components (src/wiki/layout.tsx's WikiPage,
+// src/wiki/hub.tsx's HubView) without building the site: Vite loads the components for a server render in
+// Node, and the page's code as a module of its own. That's the components' markup, not the pre-render's
+// (which runs in workerd, with the wiki plugin's modules: site/test.sh checks that). The virtual: modules the
+// components load only in the browser (behind import.meta.env.SSR) are stubs that throw if a server render
+// ever loads one, rather than quietly give it nothing. Its own cache, and no dependency scan, so it leaves
+// the dev server's node_modules/.vite alone.
+async function renderFixture(pageCode, hubData) {
+  const { createServer } = await import("vite");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { createElement } = await import("react");
+  const FIXTURE = "\0fixture-page";
+  const cacheDir = mkdtempSync(join(tmpdir(), "test-wiki-vite-"));
+  const server = await createServer({
+    root: here("."),
+    configFile: false,
+    cacheDir,
+    logLevel: "error",
+    appType: "custom",
+    optimizeDeps: { noDiscovery: true, include: [] },
+    server: { middlewareMode: true, hmr: false, watch: null },
+    plugins: [
+      {
+        name: "fixture",
+        enforce: "pre",
+        resolveId: (id) => (id === "fixture:page" ? FIXTURE : id.startsWith("virtual:") ? `\0stub:${id}` : null),
+        load: (id) => {
+          if (id === FIXTURE) return pageCode;
+          if (id.startsWith("\0stub:")) return `throw new Error(${JSON.stringify(`${id.slice(6)} loaded in a server render`)});`;
+          return null;
+        },
+      },
+    ],
+  });
+  try {
+    const [{ WikiPage }, { HubView }, page] = await Promise.all([
+      server.ssrLoadModule("/src/wiki/layout.tsx"),
+      server.ssrLoadModule("/src/wiki/hub.tsx"),
+      server.ssrLoadModule("fixture:page").then((module) => module.default),
+    ]);
+    return {
+      page: renderToStaticMarkup(createElement(WikiPage, { page })),
+      hub: renderToStaticMarkup(createElement(HubView, { hub: hubById(hubData.id), data: hubData })),
+    };
+  } finally {
+    await server.close();
+    rmSync(cacheDir, { recursive: true, force: true });
+  }
+}
+
 // A page takes the place of its card: the Bat's, written, is a link, and a monster in its areas.
 {
   const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
@@ -752,7 +804,7 @@ const edit = (from, to) => {
       .replace("    - spikes\n", "")
       .replaceAll("[[bat|Bat]]", "Bat");
     writeFileSync(join(dir, "bat.mdx"), bat);
-    const { hubs, errors } = await loadWiki(options(dir, snakePlannedFile));
+    const { hubs, pages, errors } = await loadWiki(options(dir, snakePlannedFile));
     for (const error of errors) fail(`hub cards: ${error}`);
     const monsters = hubs.hubs.find((h) => h.id === "monsters");
     const cards = monsters.cards.map((c) => `${c.slug}${c.href ? "" : "?"}`).join(" ");
@@ -763,6 +815,33 @@ const edit = (from, to) => {
     else if (monsters.cards.find((c) => c.slug === "bat")?.areas.join() !== "mines,jungle")
       fail(`hub cards: the Bat's areas are ${monsters.cards.find((c) => c.slug === "bat")?.areas}`);
     else console.log(`ok   hub cards: ${cards}`);
+
+    // The same wiki's HTML, as the components render it on the server: the committed wiki has no page to come
+    // left (851-3638), so its build has no red link or card to come to check (851-3671). The Snake's page
+    // links the Whip, to come, in its body and its Damaged by: a red link each, its text marked and no <a>;
+    // and the Bat's, written, as a link. The monsters' hub has the Spider, to come, as a dimmed card that
+    // says so and isn't a link, and the Bat's card as one.
+    const before = failures;
+    const snake = pages.find((p) => p.meta.slug === "snake");
+    // What the checks below take for granted: the Whip is to come, and the Snake relates to it; so is the
+    // Spider, on the monsters' hub.
+    const whip = snake.meta.seeAlso.find((r) => r.relation === "damaged_by")?.links.find((l) => l.slug === "whip");
+    const spider = monsters.cards.find((c) => c.slug === "spider");
+    if (!whip || whip.href || spider?.href !== null) fail(`rendered: the fixture's Whip (${JSON.stringify(whip)}) and Spider (${JSON.stringify(spider)}) aren't to come`);
+    const { page, hub } = await renderFixture(snake.code, monsters);
+    const red = '<span class="wikilink-new" data-slug="whip" title="This page hasn&#x27;t been written yet">Whip</span>';
+    const damagedBy = page.match(/<dt>Damaged by<\/dt><dd>(.*?)<\/dd>/)?.[1] ?? "";
+    const body = page.slice(0, page.indexOf('<h2 id="see-also">'));
+    if (!body.includes(red)) fail("red links: the Snake's body has no red link to the Whip");
+    if (!damagedBy.includes(red)) fail(`red links: the Snake's Damaged by has no red link to the Whip: ${damagedBy.slice(0, 300)}`);
+    if (page.includes('href="/wiki/whip"')) fail("red links: the Snake's page links the Whip, to come");
+    if (!/<a [^>]*class="wikilink"[^>]*href="\/wiki\/bat"|<a [^>]*href="\/wiki\/bat"[^>]*class="wikilink"/.test(page)) fail("red links: the Snake's page doesn't link the Bat's");
+    const card = hub.match(/<li class="card[^"]*"><(?:(?!<\/li>).)*"card-title">Spider<(?:(?!<\/li>).)*<\/li>/)?.[0] ?? "";
+    if (!card.startsWith('<li class="card card-unwritten"><div class="card-body">') || !card.includes('<span class="card-status">Not written yet</span>') || card.includes("<a ")) {
+      fail(`hub cards: the monsters' hub's card for the Spider isn't one to come: ${card}`);
+    }
+    if (!hub.includes('<li class="card"><a class="card-body" href="/wiki/bat">')) fail("hub cards: the monsters' hub doesn't link the Bat's card");
+    if (failures === before) console.log("ok   rendered: the Snake's red links to the Whip, the monsters' hub's card to come for the Spider");
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

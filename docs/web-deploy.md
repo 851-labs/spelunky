@@ -238,7 +238,8 @@ checks every path above (status, caching and other headers, contents, the landin
 www redirect, the clips' byte ranges, the wiki's Snake page and hubs, the source viewer's pages (from a few
 stand-in GML files), and runs `test-seo.mjs` (SEO, below),
 `test-wiki.mjs` (the wiki's pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md,
-"The pipeline"), `test-keyline.mjs` (the stylesheet keeps every block on its column's keyline) and
+"The pipeline"; and a red link and a card to come render as they should, from a fixture page and hub, as the
+committed wiki has neither), `test-keyline.mjs` (the stylesheet keeps every block on its column's keyline) and
 `test-links.mjs` (every link a page has is a file on the site, with no redirect, every
 wiki page is reachable from `/wiki`, only pages a ticket is writing are to come: docs/wiki-style.md, "Red
 links", and every alias is a redirect, in one hop, to its page, which nothing names by an alias). `wrangler dev`'s asset store isn't quite Cloudflare's: it serves `.txt` as `text/plain;
