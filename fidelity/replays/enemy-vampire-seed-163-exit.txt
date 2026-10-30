@@ -4,7 +4,7 @@
 # exit (2036; the transition at 2066). oTransition's alarm 0 draws the zombie (global.zombies 1 -> 0, 2100) and
 # then the vampire (global.vampires 1 -> 0, 2101). X goes on to level 6 (2107), the lake level.
 # story: currLevel=5@781 cemetary=1@781 -oVampire@1616 vampires=1@1616 room=rTransition2@2066
-# story: vampires=0@2101..2101 room=rLevel3@2107 currLevel=6@2036 !plife<4
+# story: vampires=0@2101..2101 zombies=1@1897 zombies=0@2100..2100 room=rLevel3@2107 currLevel=6@2036 !plife<4
 seed 163
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"
