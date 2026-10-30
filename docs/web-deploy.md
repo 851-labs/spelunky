@@ -102,8 +102,14 @@ saying so, so the first build after connecting fails, deploying nothing, until t
 2. `scripts/bump-web-release TAG` downloads them, checks the manifest's signature, and writes the tag and
    both SHA-256s into `site/web-release.txt`. (The wiki's media are committed, and go live with the pull
    request that renders them: `docs/wiki-media.md`.)
-3. Open a PR with that change; merging it to `main` builds and deploys the site (a minute or two). The web
-   build at `/play/` and the native apps' update at `/releases/latest.json` go live together.
+3. A pull request with that change; merging it to `main` builds and deploys the site (a minute or two). The
+   web build at `/play/` and the native apps' update at `/releases/latest.json` go live together.
+
+After an automatic release (a merge that changes the game or the apps, [docs/ci.md](ci.md#automatic-releases)),
+`auto-release.yml` does steps 2 and 3 itself: it opens "Release: put TAG live on spelunky.ai" from the branch
+`auto-release/TAG`, as the `release-bot` GitHub App so that `pr-ok` runs on it, and it merges once that passes
+(itself, if the repository allows auto-merge). After a release by hand, or if the workflow has no credential
+(its run's summary says so), run the script and open the pull request yourself.
 
 `https://spelunky.ai/play/manifest.txt` lists the SHA-256 of every file live at `/play/`, and the build log
 shows which release it unpacked.

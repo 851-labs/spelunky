@@ -1,4 +1,5 @@
-# A release: pushing a `v*` tag, or running this by hand on one. Everything must pass before anything is
+# A release: after a merge to main that changes what it's made from (auto-release.yml, which calls this and tags
+# the commit itself), pushing a `v*` tag, or running this by hand on one. Everything must pass before anything is
 # published: the full suite (scripts/check), the full oracle fidelity run over every committed replay, the web
 # build, the native builds (build-native.yml, which signs and notarizes macOS) and
 # the updater's tests (updater.yml). The GitHub Release is a draft until then; the last job attaches the files
@@ -21,12 +22,25 @@ on:
         description: Build and check everything, but don't sign, notarize or publish
         type: boolean
         default: true
+  # From auto-release.yml, on a commit of main: the job that works out the version tags the commit.
+  workflow_call:
+    inputs:
+      auto:
+        description: Tag the commit with the next patch version (scripts/release/auto) and release it
+        type: boolean
+        default: false
+    outputs:
+      tag:
+        description: The release's tag
+        value: ${{ jobs.meta.outputs.tag }}
 
 permissions:
   contents: read
 
+# A call's `github.ref` is main, which a run by hand on main shares: a group of its own (auto-release.yml runs
+# one release at a time too), so neither replaces the other while it waits.
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ inputs.auto && 'auto' || github.ref }}
   cancel-in-progress: false
 
 defaults:
@@ -53,12 +67,34 @@ jobs:
       version: ${{ steps.meta.outputs.version }}
       dry_run: ${{ steps.meta.outputs.dry_run }}
       prerelease: ${{ steps.meta.outputs.prerelease }}
+    # To push the tag of a release auto-release.yml calls for.
+    permissions:
+      contents: write
     steps:
+      # For a call, the tags and their history, which scripts/release/auto reads, without the files.
+      - if: inputs.auto
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          sparse-checkout: scripts/release
       - id: meta
         env:
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          AUTO: ${{ inputs.auto }}
+          # A call's event is its caller's: auto-release.yml run by hand releases for real.
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && !inputs.auto && inputs.dry_run }}
         run: |
-          if [ "$GITHUB_REF_TYPE" = tag ] && [[ "$GITHUB_REF_NAME" == v* ]]; then
+          if [ "$AUTO" = true ]; then
+            # The next patch version, or on a re-run the tag it already pushed. Pushed with this run's token,
+            # which starts no workflow, so the tag doesn't start a second release.
+            tag=$(scripts/release/auto tag "$GITHUB_SHA")
+            if ! git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
+              git -c user.name='github-actions[bot]' \
+                -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+                tag -a "$tag" -m "Spelunky Classic port $tag" "$GITHUB_SHA"
+              git push origin "refs/tags/$tag"
+            fi
+          elif [ "$GITHUB_REF_TYPE" = tag ] && [[ "$GITHUB_REF_NAME" == v* ]]; then
             tag=$GITHUB_REF_NAME
             # What the apps' updater takes as a version (crates/update's Version): checked now, not after an
             # hour of building.
@@ -217,6 +253,10 @@ jobs:
     timeout-minutes: 180
     strategy:
       fail-fast: false
+      # The organization's projects share GitHub's machines: an automatic release, which nobody is waiting on,
+      # takes three at a time (about an hour of replays instead of 20 minutes), and one pushed or run by hand
+      # all ten.
+      max-parallel: ${{ inputs.auto && 3 || 10 }}
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:

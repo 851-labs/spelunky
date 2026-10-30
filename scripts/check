@@ -30,6 +30,8 @@ $cargo run --quiet --release -p harness --bin wiki-clips -- --check --media wiki
 scripts/wiki-data --check >/dev/null
 # So must the site's icons (site/public/favicon.ico and the rest), made from the game's sprite.
 scripts/site-icons --check
+# What auto-release.yml releases after a merge, and the version it tags (docs/ci.md, "Releases").
+scripts/release/auto-test >/dev/null
 # The wiki's pages against the GML they cite: each path and line range exists and each ```gml excerpt is
 # its lines, which the site's build can't check without the GML (docs/wiki-style.md, "Citing the code").
 scripts/wiki-cites >/dev/null

@@ -1,3 +1,9 @@
 # For `actionlint`: the self-hosted Mac minis' label.
 self-hosted-runner:
   labels: [codevisor-macos-arm64]
+paths:
+  .github/workflows/auto-release.yml:
+    ignore:
+      # actionlint's copy of actions/create-github-app-token's inputs predates v3's client-id.
+      - 'missing input "app-id"'
+      - 'input "client-id" is not defined'
