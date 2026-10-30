@@ -73,7 +73,9 @@ if (committed.pages.length === 0) fail("content/wiki: no pages");
   const { objects, rooms } = sourceLinks(committed.pages);
   const json = (value) => JSON.stringify(value);
   if (json(objects.oSnake) !== json({ slug: "snake", title: "Snake" })) fail(`source links: oSnake is ${json(objects.oSnake)}`);
-  if (objects.oBrick !== undefined) fail(`source links: oBrick is ${json(objects.oBrick)}`);
+  if (json(objects.oBrick) !== json({ slug: "block", title: "Block" })) fail(`source links: oBrick is ${json(objects.oBrick)}`);
+  // An object no page claims (the cave's background) links nowhere.
+  if (objects.oCaveBG !== undefined) fail(`source links: oCaveBG is ${json(objects.oCaveBG)}`);
   for (const [room, slug] of [["rTutorial", "tutorial"], ["rOlmec", "olmecs-lair"], ["rTitle", "title-screen"], ["rIntro", "title-screen"]]) {
     if (rooms[room]?.slug !== slug) fail(`source links: ${room} is ${json(rooms[room])}, not ${slug}'s`);
   }
