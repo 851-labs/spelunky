@@ -1,0 +1,7 @@
+title = "Gold in the rock"
+description = "In the Mines, a boulder rolls along a corridor, breaking the bricks in its way; the ones veined with gold spill gold chunks and a nugget as they break."
+replay = "fidelity/replays/trap-boulder-outrun.txt"
+from = 830
+to = 930
+poster = 860
+story = "-oBrick@840 +oGoldChunk*3@859..859 +oGoldNugget@859..859"

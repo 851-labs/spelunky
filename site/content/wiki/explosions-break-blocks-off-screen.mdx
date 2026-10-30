@@ -16,7 +16,7 @@ quirk:
   rows:
     - An explosion breaks blocks off the screen too.
 relations:
-  related: [bomb, tutorial, items-freeze-off-screen]
+  related: [bomb, tutorial, items-freeze-off-screen, block]
 clips: [quirks/bomb-off-screen]
 faq:
   - q: Does a bomb that explodes off screen break blocks in Spelunky Classic?
@@ -39,7 +39,7 @@ sources:
 verified: { port: v0.1.14, date: 2026-10-29 }
 ---
 
-A [[bomb|Bomb]] that goes off out of sight breaks the blocks around it as one on the screen does. The code that
+A [[bomb|Bomb]] that goes off out of sight breaks the [[block|blocks]] around it as one on the screen does. The code that
 breaks them has a test that looks meant to spare blocks off the screen, everywhere but the
 [[tutorial|Tutorial]], and the test is always passed.
 

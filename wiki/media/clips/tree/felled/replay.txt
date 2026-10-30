@@ -1,0 +1,36 @@
+# The wiki clip tree/felled's replay (wiki/clips/tree/felled.toml), made by wiki-clips: fidelity/replays/terrain-bomb-tree.txt up to the clip's last
+# frame, 1000.
+seed 12
+frames 1001
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+739 release left
+750 press up
+755 release up
+805 press left
+839 release left
+842 press up
+843 press A
+845 release A
+846 release up
+847 press right
+907 release right

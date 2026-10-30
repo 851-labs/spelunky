@@ -1,0 +1,123 @@
+---
+slug: tree
+title: Tree
+type: terrain
+categories: [terrain]
+objects: [oTree, oLeaves, oTreeBranch, oTreeTile, oLeavesTile, oTreeBranchTile]
+aliases: [trees, tree-trunk, leaves, branch, branches]
+lede: >-
+  A Tree is terrain in Spelunky Classic, a trunk with branches and leaves in the Jungle and the Temple, which
+  the player can hang from without Climbing Gloves.
+infobox:
+  image: { sprite: sTreeTop, alt: "The leafy green crown of a tree, its leaves hanging in clusters" }
+  effect: { text: "Hung from and climbed; its branches stood on", cite: scripts/characterStepEvent.gml:423-440 }
+  destroyed_by: { text: "Breaking the block under it" }
+relations:
+  found_in: [jungle, temple, black-market]
+  related: [climbing-gloves, vine, restless-dead]
+clips: [tree/climb, tree/felled]
+faq:
+  - q: Can you climb trees in Spelunky Classic?
+    a: >-
+      Yes. The player can catch hold of a tree's trunk from the side at any height, without
+      [[climbing-gloves|Climbing Gloves]], and each jump from there takes him a block higher. Its branches and
+      leaves are platforms to stand on.
+  - q: How do you cut down a tree in Spelunky Classic?
+    a: >-
+      By breaking the block it stands on, or its lowest trunk block: a trunk block with nothing solid under it
+      is destroyed, so the whole tree goes within a step or two, its branches and leaves with it.
+  - q: Why are the trees dead in some Jungle levels?
+    a: >-
+      On a [[restless-dead|graveyard level]], the trees' leaves and branches are drawn dead. Nothing else about
+      them changes.
+sources:
+  - objects/oTree/create.gml
+  - objects/oTree/step.gml
+  - objects/oLeaves/create.gml
+  - objects/oLeaves/step.gml
+  - objects/oTreeBranch/step.gml
+  - scripts/characterStepEvent.gml
+  - scripts/scrRoomGen2.gml
+  - scripts/scrSetupWalls.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Trees grow from the floor of [[jungle|the Jungle]]'s rooms, [[black-market|the Black Market]]'s and
+[[temple|the Temple]]'s: a trunk a few blocks tall, branches off its sides and two leaves beside its top. The
+trunk is solid; the branches and leaves are platforms. A tree stands only as long as what's under it does.
+
+## How it works
+
+<Clip id="tree/climb" />
+
+### The trunk
+
+A trunk block is solid, as rock is <Cite gml="objects/oTree/create.gml:1-3" />. A player jumping or falling past
+its side, pressing toward it, catches hold of it and hangs there, at any height and without
+[[climbing-gloves|Climbing Gloves]]: unlike a ledge, the trunk doesn't need open space above the spot he
+catches <Cite gml="scripts/characterStepEvent.gml:423-440" /> <Cite gml="scripts/characterStepEvent.gml:441-460" />.
+Each jump from the hang takes him up the trunk by a block, and he catches hold again. The clip shows it: the
+player jumps at a trunk, catches it, and climbs it a block at a jump, to just under its leaves
+<Cite clip="tree/climb" />.
+
+### Branches and leaves
+
+Branches and leaves are platforms: the player stands on them, jumps up through them from below, and drops
+through them by pressing down <Cite gml="scripts/characterStepEvent.gml:546-575" />. A branch with leaves right
+above it is removed as the level is set up <Cite gml="scripts/scrSetupWalls.gml:493-508" />.
+
+### Falling
+
+Each step a tree is in the view, a trunk block with nothing solid under it is destroyed, so breaking the block a
+tree stands on, or its lowest trunk block, brings the trunk down, a block or more a step: in the second clip
+four trunk blocks go in two steps. A branch with no trunk beside it goes, and so do leaves with nothing to hold
+them <Cite gml="objects/oTree/step.gml:1-8" /> <Cite gml="objects/oTreeBranch/step.gml:1-8" />
+<Cite gml="objects/oLeaves/step.gml:10-35" />. The second clip shows a [[bomb|Bomb]] at a tree's foot taking the
+whole tree <Cite clip="tree/felled" />.
+
+<Clip id="tree/felled" />
+
+A trunk block breaks into rubble, and living leaves and branches into falling
+leaves <Cite gml="objects/oTree/destroy.gml:3-8" /> <Cite gml="objects/oLeaves/destroy.gml:1-5" />
+<Cite gml="objects/oTreeBranch/destroy.gml:1-4" />.
+
+## Locations
+
+A room template's tree tile grows a tree: a trunk block on the tile and up to five more above it, the first
+three always, the fourth unless a 1 in 4 roll stops it and the fifth unless a 2 in 5 one does, growth stopping
+under anything solid. The second to the fifth trunk blocks have a 3 in 5 chance of a branch on each side, never
+on the same side as the block below's, and the top block gets leaves on both sides
+<Cite gml="scripts/scrRoomGen2.gml:495-541" />.
+
+| Where | | |
+| --- | --- | --- |
+| [[jungle\|The Jungle]] | Its tree tiles | <Cite gml="scripts/scrRoomGen2.gml:495-541" /> |
+| [[black-market\|The Black Market]] | As the Jungle | <Cite gml="scripts/scrRoomGenMarket.gml:378-424" /> |
+| [[temple\|The Temple]] | As the Jungle | <Cite gml="scripts/scrRoomGen4.gml:513-557" /> |
+
+On a [[restless-dead|graveyard level]], the leaves and branches are dead, and the top of the trunk with
+them <Cite gml="objects/oLeaves/create.gml:1-7" /> <Cite gml="objects/oTreeBranch/create.gml:3" />
+<Cite gml="scripts/scrSetupWalls.gml:485-490" />. In custom levels a tree is built by hand from the
+[[level-editor|level editor]]'s tiles: `|` a trunk block, `x` its top, `)` leaves and `q` a branch
+<Cite gml="scripts/scrCreateTileObj.gml:89-105" />.
+
+## Interactions
+
+- **No traps in trees.** As a Jungle level is made, the roll that turns a block into a
+  [[spear-trap|Spear Trap]], or stands a [[tiki-torch|Tiki Torch]] on it, skips trunk blocks
+  <Cite gml="scripts/scrEntityGen.gml:226-252" />.
+- **[[climbing-gloves|Climbing Gloves]]** add nothing here: with them, a falling player catches any wall, a
+  trunk among them, and rising he still catches a trunk by its own rule
+  <Cite gml="scripts/characterStepEvent.gml:400-440" />.
+
+## Tips
+
+- A trunk is a way up without a rope: catch its side and jump, a block at a time.
+- A Bomb at a tree's foot clears the whole tree, branches, leaves and all.
+
+## Trivia
+
+- A trunk block is set up with a `burning` flag that nothing reads <Cite gml="objects/oTree/create.gml:4" />.
+- The level editor draws its trees with objects of their own, which do nothing but look like a tree; the
+  code that would have let them fall is commented out <Cite gml="objects/oLeavesTile/step.gml:1-10" />
+  <Cite gml="objects/oTreeBranchTile/step.gml:1-10" />.

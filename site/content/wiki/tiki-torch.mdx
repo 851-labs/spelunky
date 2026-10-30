@@ -1,0 +1,73 @@
+---
+slug: tiki-torch
+title: Tiki Torch
+type: terrain
+categories: [terrain]
+objects: [oTikiTorch]
+aliases: [tiki-torches, torch, torches]
+hatnote: For the light the player can carry, see [[lamp]].
+lede: >-
+  A Tiki Torch is terrain in Spelunky Classic, a burning torch on the ground of a dark Jungle level that lights
+  a small circle of the cave around it.
+infobox:
+  image: { sprite: sTikiTorch, anim: true, alt: "A tall wooden post with a flickering flame on top" }
+  effect: { text: "Lights 32 pixels around it", cite: objects/oScreen/step_begin.gml:203-206 }
+  destroyed_by: { text: "Breaking the block it stands on" }
+relations:
+  found_in: [jungle, dark-level]
+  related: [dark-level, lamp, flare, spear-trap]
+clips: [tiki-torch/dark]
+faq:
+  - q: What do tiki torches do in Spelunky Classic?
+    a: >-
+      They light the dark. On a [[dark-level|dark level]] of the Jungle, each lights a circle 32 pixels around
+      it, and the player's own light widens as he nears one.
+  - q: Can you pick up a tiki torch in Spelunky Classic?
+    a: >-
+      No. A tiki torch is part of the level, not an item. For a light to carry, the player has
+      [[flare|Flares]], or a [[lamp|Lamp]] brought down from a ceiling.
+  - q: How do you get rid of a tiki torch in Spelunky Classic?
+    a: >-
+      By breaking the block it stands on, with a [[bomb|Bomb]] or a [[mattock|Mattock]]: the torch goes with
+      it.
+sources:
+  - objects/oTikiTorch/create.gml
+  - scripts/scrEntityGen.gml
+  - objects/oScreen/step_begin.gml
+  - objects/oPlayer1/step.gml
+  - objects/oSolid/destroy.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+Tiki torches are only made on [[dark-level|dark levels]] of [[jungle|the Jungle]], where they stand on the
+ground and burn, one of the level's few lights besides the player's own. A torch can't be carried or moved,
+and it goes with the block it stands on.
+
+## How it works
+
+<Clip id="tiki-torch/dark" />
+
+A tiki torch flickers through its flames, half a frame a step <Cite gml="objects/oTikiTorch/create.gml:1" />. On a
+dark level, it lights a circle of the cave 32 pixels around its middle, as a lit trap or a
+[[fire-frog|Fire Frog]] does, where a [[flare|Flare]] or a [[lamp|Lamp]] lights 96
+<Cite gml="objects/oScreen/step_begin.gml:179-206" />. It also widens the player's own light as he nears it,
+counting as a light 48 pixels farther away than it is <Cite gml="objects/oPlayer1/step.gml:107-112" />
+([[dark-level#the-darkness]]). The clip shows a dark Jungle level: the cave is black but for the circle around the
+player and the smaller ones around what glows, and at the right a tiki torch flickers in a circle of its own
+<Cite clip="tiki-torch/dark" />.
+
+A torch isn't solid, isn't an item and can't be picked up. When the block under it is destroyed, it's destroyed
+too <Cite gml="objects/oSolid/destroy.gml:14-18" />.
+
+## Locations
+
+As a dark Jungle level is made, each block of the ground that a [[spear-trap|Spear Trap]] could replace (open
+above, open on a side, a block under it, away from shops and the entrance) gets a tiki torch standing on it
+with a 1 in 20 chance, unless there's water above it; only if it doesn't, it rolls for the trap
+<Cite gml="scripts/scrEntityGen.gml:226-252" />. A trunk block of a [[tree|Tree]] never gets one. The
+[[level-editor|level editor]] has no tile for it.
+
+## Tips
+
+- Its light is small: a Flare thrown ahead lights three times as far.
+- A Bomb at a torch's foot puts its light out for good, with the block it stands on.

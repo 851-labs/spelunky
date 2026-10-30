@@ -1,0 +1,73 @@
+---
+slug: altar
+title: Altar
+type: terrain
+categories: [terrain]
+objects: [oAltarLeft, oAltarRight]
+aliases: [idol-altar, golden-idol-altar]
+hatnote: For the altar of sacrifice, see [[kalis-altar]].
+lede: >-
+  The Altar is terrain in Spelunky Classic, two carved stone blocks in the floor of the Mines' idol room, on
+  which the Golden Idol lies.
+infobox:
+  image: { sprite: sAltarLeft, alt: "A block of grey carved stone with a vine curling over it" }
+  effect: { text: "Holds the Golden Idol; solid" }
+  destroyed_by: { text: "Bombs, the Mattock, boulders" }
+relations:
+  found_in: [mines]
+  related: [golden-idol, boulder, kalis-altar]
+clips: [altar/idol]
+faq:
+  - q: Where is the altar with the idol in Spelunky Classic?
+    a: >-
+      In [[mines|the Mines]]' idol room, a side room some levels have: the [[golden-idol|Golden Idol]] lies on
+      a two-block altar in its floor, under a giant tiki head.
+  - q: Does the idol's altar do anything in Spelunky Classic?
+    a: >-
+      No. It's two blocks with their own picture and nothing else but their rubble. Lifting the idol off it is
+      what sets the room's trap off, and that's the idol's code, not the altar's.
+  - q: Is the idol's altar Kali's altar?
+    a: >-
+      No. [[kalis-altar|Kali's altar]] is another pair of blocks, in a room of its own, where bodies are
+      sacrificed for her favour. The idol's altar takes nothing.
+sources:
+  - objects/oAltarLeft/destroy.gml
+  - objects/oAltarRight/destroy.gml
+  - scripts/scrRoomGen.gml
+verified: { port: v0.1.15, date: 2026-10-29 }
+---
+
+The Altar is the floor of [[mines|the Mines]]' idol room: two blocks of carved, vine-grown stone set into its
+bottom row, with the [[golden-idol|Golden Idol]] lying on them and a giant tiki head high above. It's where the
+idol is, nothing more: the altar has no code of its own beyond breaking.
+
+## How it works
+
+<Clip id="altar/idol" />
+
+The idol room's layout puts the altar's two blocks in the middle of its floor and the idol on top of
+them <Cite gml="scripts/scrRoomGen.gml:117" /> <Cite gml="scripts/scrRoomGen.gml:358-362" />
+<Cite gml="scripts/scrRoomGen.gml:374-377" />. The clip shows the room: the player walks up to the idol on its
+altar, under the giant tiki head, lifts it off and drops down a shaft with it <Cite clip="altar/idol" />.
+Lifting the idol is what sets off the room's trap, a [[boulder|Boulder]] from the tiki head
+([[golden-idol#collecting]]).
+
+The altar's blocks are solid, and break like any block, to a [[bomb|Bomb]], a [[mattock|Mattock]] or a rolling
+Boulder, into rubble <Cite gml="objects/oAltarLeft/destroy.gml:1-9" /> <Cite gml="objects/oAltarRight/destroy.gml:1-9" />.
+
+## Locations
+
+Only [[mines|the Mines]] have the idol's altar: the idol room is one of the side rooms a Mines level may have, 1
+time in 10 for each side room off the bottom row once the roll for [[kalis-altar|Kali's altar]] fails
+<Cite gml="scripts/scrRoomGen.gml:85-117" />. The idols of the other areas lie on other things: a floor of
+[[trap-block|trap blocks]] in the Jungle, a ledge of [[thin-ice|thin ice]] in the Ice Caves, the floor between
+two doors in the Temple ([[golden-idol#locations]]). The [[level-editor|level editor]] has no tile for it.
+
+## Trivia
+
+- The [[yeti-lair|Yeti lair]]'s room script, a copy of the Mines', still has the idol room's altar, which no
+  lair is built with <Cite gml="scripts/scrRoomGenYeti.gml:332-336" />
+  <Cite quirk="1" row="The Yeti lair's room script is a copy of the Mines' and keeps code no lair reaches." />.
+- The Mines' roll for treasure on top of a block skips blocks of the type "Altar", which only
+  [[kalis-altar|Kali's altar]] has; to it, the idol's altar is two ordinary blocks
+  <Cite gml="scripts/scrEntityGen.gml:35-42" />.

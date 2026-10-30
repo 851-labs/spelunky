@@ -1,0 +1,7 @@
+title = "The idol's altar"
+description = "In the Mines, the player walks up to the Golden Idol, lying on its altar of two carved stone blocks in the floor under a giant tiki head, lifts it off and drops down a shaft with it."
+replay = "fidelity/replays/trap-boulder-outrun.txt"
+from = 690
+to = 790
+poster = 712
+story = "held=oGoldIdol@714 !oPlayer1.dead=1"

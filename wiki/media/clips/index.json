@@ -187,6 +187,42 @@
       "width": 640
     },
     {
+      "audio_hash": "f429cc5233b4180e",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "In the Mines, the player walks up to the Golden Idol, lying on its altar of two carved stone blocks in the floor under a giant tiki head, lifts it off and drops down a shaft with it.",
+      "duration": 3.3666666666666667,
+      "encoding": "39786512da21f671",
+      "files": {
+        "mp4": "altar/idol/clip.mp4",
+        "poster": "altar/idol/poster.png",
+        "replay": "altar/idol/replay.txt",
+        "webm": "altar/idol/clip.webm"
+      },
+      "fps": 30,
+      "frames": 101,
+      "frames_hash": "f128c6f9804beea3",
+      "from": 690,
+      "has_audio": true,
+      "height": 480,
+      "id": "altar/idol",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 712,
+      "replay_from": 690,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/trap-boulder-outrun.txt"
+      },
+      "spec": "wiki/clips/altar/idol.toml",
+      "state_hash": "05712f8e5313e87f",
+      "states_hash": "ea557c629f3692f9",
+      "title": "The idol's altar",
+      "to": 790,
+      "width": 640
+    },
+    {
       "audio_hash": "b11a20c887ff5764",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "In the Black Market, the player drops into the Ankh Shop, and its shopkeeper says \"I have something special...\". He picks up the ankh on display, and the shopkeeper names its price, $50000.",
@@ -796,6 +832,42 @@
       "states_hash": "703e95c5b80c8b8a",
       "title": "Through the Black Market",
       "to": 1590,
+      "width": 640
+    },
+    {
+      "audio_hash": "b911d277eeb71f14",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "In the Mines, a boulder rolls along a corridor, breaking the bricks in its way; the ones veined with gold spill gold chunks and a nugget as they break.",
+      "duration": 3.3666666666666667,
+      "encoding": "37fb7962ff6a11be",
+      "files": {
+        "mp4": "block/boulder/clip.mp4",
+        "poster": "block/boulder/poster.png",
+        "replay": "block/boulder/replay.txt",
+        "webm": "block/boulder/clip.webm"
+      },
+      "fps": 30,
+      "frames": 101,
+      "frames_hash": "f468bc8f5ea66420",
+      "from": 830,
+      "has_audio": true,
+      "height": 480,
+      "id": "block/boulder",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 860,
+      "replay_from": 830,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/trap-boulder-outrun.txt"
+      },
+      "spec": "wiki/clips/block/boulder.toml",
+      "state_hash": "65502538ce280d01",
+      "states_hash": "0e335b3fc19ec694",
+      "title": "Gold in the rock",
+      "to": 930,
       "width": 640
     },
     {
@@ -10045,6 +10117,42 @@
       "width": 640
     },
     {
+      "audio_hash": "b179e933091432e7",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "On a dark level of the Jungle, the cave is black but for the circle of light around the player and smaller ones around what glows; at the right, a tiki torch stands on the ground, flickering in a circle of its own.",
+      "duration": 3.533333333333333,
+      "encoding": "df7117e724a4d8b5",
+      "files": {
+        "mp4": "tiki-torch/dark/clip.mp4",
+        "poster": "tiki-torch/dark/poster.png",
+        "replay": "tiki-torch/dark/replay.txt",
+        "webm": "tiki-torch/dark/clip.webm"
+      },
+      "fps": 30,
+      "frames": 106,
+      "frames_hash": "fb8a404808c281c8",
+      "from": 1594,
+      "has_audio": true,
+      "height": 480,
+      "id": "tiki-torch/dark",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 1650,
+      "replay_from": 1594,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/fuzz-goal-jungle-seed-66-tiki-torch.txt"
+      },
+      "spec": "wiki/clips/tiki-torch/dark.toml",
+      "state_hash": "6f4e51db6cf08adb",
+      "states_hash": "35dbc9a6dc252da0",
+      "title": "Tiki torches on a dark level",
+      "to": 1699,
+      "width": 640
+    },
+    {
       "audio_hash": "523269112afcf846",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "The title screen starts dark, with DEREK YU PRESENTS at the top. A flare falls past the doors and lights the cave as it drops, the Spelunker climbs down the rope beside it and lands, and the player walks left to the nearest of the three doors, SCORES, and goes in.",
@@ -10294,6 +10402,78 @@
       "states_hash": "a86c78af51c91b43",
       "title": "The Sacrifice Pit's trap blocks",
       "to": 999,
+      "width": 640
+    },
+    {
+      "audio_hash": "823f4a9a4bd2081f",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "The player walks to a tree and jumps at its trunk, catching hold of its side without Climbing Gloves; each jump from there takes him a block higher up the trunk, until he hangs just under its leaves.",
+      "duration": 6.0,
+      "encoding": "7d9cf28e955055ef",
+      "files": {
+        "mp4": "tree/climb/clip.mp4",
+        "poster": "tree/climb/poster.png",
+        "replay": "tree/climb/replay.txt",
+        "webm": "tree/climb/clip.webm"
+      },
+      "fps": 30,
+      "frames": 180,
+      "frames_hash": "3ae633fecdbbd922",
+      "from": 0,
+      "has_audio": true,
+      "height": 480,
+      "id": "tree/climb",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 120,
+      "replay_from": 241,
+      "scale": 2,
+      "source": {
+        "kind": "scene",
+        "seed": 0
+      },
+      "spec": "wiki/clips/tree/climb.toml",
+      "state_hash": "8872a200460f7735",
+      "states_hash": "130a07e1b694c8b3",
+      "title": "Climbing a tree",
+      "to": 179,
+      "width": 640
+    },
+    {
+      "audio_hash": "60a7d6a273553414",
+      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
+      "description": "On a graveyard level of the Jungle, the player throws a bomb up to the foot of a dead tree and walks away. The blast breaks the earth and the trunk's lowest block, and the rest of the tree, its branches and its dead leaves go with it.",
+      "duration": 5.533333333333333,
+      "encoding": "3bb8768750c0e2da",
+      "files": {
+        "mp4": "tree/felled/clip.mp4",
+        "poster": "tree/felled/poster.png",
+        "replay": "tree/felled/replay.txt",
+        "webm": "tree/felled/clip.webm"
+      },
+      "fps": 30,
+      "frames": 166,
+      "frames_hash": "e14a66fe2529ddc2",
+      "from": 835,
+      "has_audio": true,
+      "height": 480,
+      "id": "tree/felled",
+      "license": "https://spelunky.ai/LICENSE.txt",
+      "loop": true,
+      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+      "poster_frame": 964,
+      "replay_from": 835,
+      "scale": 2,
+      "source": {
+        "kind": "replay",
+        "replay": "fidelity/replays/terrain-bomb-tree.txt"
+      },
+      "spec": "wiki/clips/tree/felled.toml",
+      "state_hash": "6717d7a57129da54",
+      "states_hash": "1551f67b226c1859",
+      "title": "Felling a tree",
+      "to": 1000,
       "width": 640
     },
     {

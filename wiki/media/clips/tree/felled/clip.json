@@ -1,0 +1,36 @@
+{
+  "id": "tree/felled",
+  "title": "Felling a tree",
+  "description": "On a graveyard level of the Jungle, the player throws a bomb up to the foot of a dead tree and walks away. The blast breaks the earth and the trunk's lowest block, and the rest of the tree, its branches and its dead leaves go with it.",
+  "spec": "wiki/clips/tree/felled.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/terrain-bomb-tree.txt"
+  },
+  "from": 835,
+  "to": 1000,
+  "frames": 166,
+  "replay_from": 835,
+  "state_hash": "6717d7a57129da54",
+  "states_hash": "1551f67b226c1859",
+  "fps": 30,
+  "duration": 5.533333333333333,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 964,
+  "frames_hash": "e14a66fe2529ddc2",
+  "has_audio": true,
+  "audio_hash": "60a7d6a273553414",
+  "encoding": "3bb8768750c0e2da",
+  "files": {
+    "mp4": "tree/felled/clip.mp4",
+    "webm": "tree/felled/clip.webm",
+    "poster": "tree/felled/poster.png",
+    "replay": "tree/felled/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}

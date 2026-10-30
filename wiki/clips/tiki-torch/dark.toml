@@ -1,0 +1,7 @@
+title = "Tiki torches on a dark level"
+description = "On a dark level of the Jungle, the cave is black but for the circle of light around the player and smaller ones around what glows; at the right, a tiki torch stands on the ground, flickering in a circle of its own."
+replay = "fidelity/replays/fuzz-goal-jungle-seed-66-tiki-torch.txt"
+from = 1594
+to = 1699
+poster = 1650
+story = "message=\"I CAN'T SEE A THING!\"@1602 oTikiTorch.image_index=0@1612..1612 oTikiTorch.image_index=2@1616..1616"
