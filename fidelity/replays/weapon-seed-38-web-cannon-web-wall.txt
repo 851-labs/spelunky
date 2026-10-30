@@ -7,7 +7,7 @@
 # altar, and fires right (1361): the ball flies over the snake into the altar's block and webs there (x about 389,
 # 1371). Ends at 1399.
 # story: currLevel=2@763 held=oWebCannon@1152 +oWebBall@1240..1240 +oWeb@1244..1244 +oWebBall@1361..1361
-# story: +oWeb@1371..1371 oWeb.x=115@1244..1244 oWeb.x>380@1371..1371 !held!=oWebCannon@1152..
+# story: +oWeb@1371..1371 oWeb.x=115@1244..1244 oWeb.y=216.2@1371..1371 !held!=oWebCannon@1152..
 seed 38
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"
