@@ -107,10 +107,10 @@ saying so, so the first build after connecting fails, deploying nothing, until t
    web build at `/play/` and the native apps' update at `/releases/latest.json` go live together.
 
 After a release, `release.yml` does steps 2 and 3 itself ([docs/ci.md](ci.md#the-sites-bump-pull-request)):
-it opens "Release: put TAG live on spelunky.ai" from the branch `bump-web-release/TAG`, as the `release-bot`
-GitHub App so that `pr-ok` runs on it, and it merges once that passes (itself, if the repository allows
-auto-merge). Without the App (or a token), the run's summary says so: run the script and open the pull request
-yourself.
+it opens "Release: put TAG live on spelunky.ai" from the branch `bump-web-release/TAG`, as the GitHub App in
+the `release-bot` environment so that `pr-ok` runs on it, and it merges once that passes (itself, if the
+repository allows auto-merge). Without the App (or a token), the run's summary says so: run the script and
+open the pull request yourself.
 
 `https://spelunky.ai/play/manifest.txt` lists the SHA-256 of every file live at `/play/`, and the build log
 shows which release it unpacked.

@@ -100,12 +100,13 @@ too; one inside a `$(...)` is only parsed as it runs, and fails the script then.
 Every other script with an EXIT trap does the same (851-3743): `site/build.sh` (Workers Builds' build, whose
 `sh` on Linux is dash, which exits with the error's status, but which runs on the Macs too), `scripts/wiki-media`
 (the media check), `scripts/web`, `scripts/release/macos-dmg`, `scripts/bump-web-release`, `scripts/clip`,
-`scripts/site-icons`, `scripts/seed-target`, and the bash ones, `tools/oracle/build`, `tools/oracle/run` and `tools/gm8-probe/run`
-(macOS's bash is 3.2 too). Each checks that it parses (`sh -n "$0"` or `bash -n "$0"`) before its trap, and its
-cleanup keeps a failing status and fails a run that didn't set `finished=1` where it ends, before an intended
-`exit 0` too. `scripts/check-sh` fails a script that sets an EXIT trap and doesn't do all of that, line by line:
-the parse check before `trap cleanup EXIT` (no other form), a cleanup that reads `finished`, `finished=1` as the
-last line (unless it ends by `exec`), and `finished=1` before every `exit 0` after the trap.
+`scripts/site-icons`, `scripts/seed-target`, and the bash ones, `tools/oracle/build`, `tools/oracle/run` and
+`tools/gm8-probe/run` (macOS's bash is 3.2 too). Each checks that it parses (`sh -n "$0"` or `bash -n "$0"`)
+before its trap, and its cleanup keeps a failing status and fails a run that didn't set `finished=1` where it
+ends, before an intended `exit 0` too. `scripts/check-sh` fails a script that sets an EXIT trap and doesn't do
+all of that, line by line: the parse check before `trap cleanup EXIT` (no other form), a cleanup that reads
+`finished`, `finished=1` as the last line (unless it ends by `exec`), and `finished=1` before every `exit 0`
+after the trap.
 
 The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside
@@ -122,10 +123,10 @@ The port's releases are numbered from v0.1.0 (tags `v0.x.y`), so they're never c
 game's 1.1. A release is cut by hand, by the user or the supervisor: CI never tags one itself, as each release
 prompts every installed native app to update. First, if the night's [chaos soak](#the-chaos-soak) didn't run on
 the commit to release, run it by hand and check it files nothing new. Then push the next version's tag
-(`v0.1.N` for the next patch, `v0.2.0`, or a prerelease `v0.2.0-rc1`):
+(`v0.1.N` for the next patch, `v0.2.0`, or a prerelease `v0.2.0-rc1`), annotated as every release's is:
 
 ```sh
-git tag v0.1.N && git push origin v0.1.N
+git tag -a v0.1.N -m "Spelunky Classic port v0.1.N" && git push origin v0.1.N
 ```
 
 and `release.yml`:
@@ -173,8 +174,8 @@ would never report on it, and the repository doesn't let Actions open pull reque
 it as a GitHub App installed on this repository alone, with the permissions **Contents: read and write** and
 **Pull requests: read and write** (and Metadata: read, which every App has). Its client ID is the variable
 `RELEASE_BOT_CLIENT_ID` and its private key the secret `RELEASE_BOT_PRIVATE_KEY`, both in the `release-bot`
-environment, whose deployment rules should allow only `v*` tags (the job runs on the release's tag), so no
-pull request's run (nor any branch's) can read the key. The job mints a token from them for the one run,
+environment, whose deployment rules allow only `main` and `v*` tags (the job runs on the release's tag), so no
+pull request's run (nor another branch's) can read the key. The job mints a token from them for the one run,
 asking for exactly those two permissions, so an installation without them fails at once. The commit is the
 App's bot account's (`NAME[bot]`). A fine-grained personal access token (this repository only, the same two
 permissions) in the same environment as `RELEASE_BOT_TOKEN` works too, but acts as its owner, and lasts until

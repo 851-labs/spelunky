@@ -398,7 +398,7 @@ jobs:
     if: needs.meta.outputs.dry_run != 'true' && needs.meta.outputs.prerelease != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    # Its secrets, which only `v*` tags should see (docs/ci.md, "The site's bump pull request").
+    # Its secrets, for `main` and `v*` tags only (docs/ci.md, "The site's bump pull request").
     environment: release-bot
     env:
       GH_REPO: ${{ github.repository }}
