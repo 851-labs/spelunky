@@ -2,16 +2,16 @@
 # held keys down across frames and clicked (the steps of its examples/level-editor.txt, with shorter holds, and
 # a few more at the end). The timing is a live session's, with idle stretches while the driver took window
 # screenshots. After the intro (X, 306 and 348), F2 (vk 113, 820) asks for a name: L, I, V and E, each held 3 to
-# 8 frames (855-885), type LLIIVVEE (the doubled any-key event, docs/quirks.md section 5), and Enter starts
-# editing (1223). Places the entrance (1254), turns the wheel to the exit and places it (1267-1284), presses S
-# twice for the Mines brick (1293, 1305) and drags a floor of 17 bricks (1321-1365), then 4 and a gold bar
-# (1374-1394). The Edit button (1747) opens the info prompt, where each Enter moves two fields (2107 to the
-# music, passing over the author; 2448 to the bombs; 2810 to the next level; 3163 back to editing). Escape and Y
-# (3522, 3876) save levels/lliivvee.lvl and go to the title. F3 (vk 114, 4282) lists it; a click picks it (4673)
-# and Enter loads it (4688). The player walks right over the gold bar (5077-5114) and past the exit: up there
-# (5806) and a tap of up within one tick (6774) don't leave. A step back left (8078) and up (8428) leave, to
-# rTransition1. The window is 3x (screenScale 3).
-# story: room=rLevelEditor@820 room=rTitle@3876 room=rLoadLevel@4282 customLevelName=LLIIVVEE@4688 money=500@5116
+# 8 frames (855-885), type LIVE, and Enter starts editing (1223). Places the entrance (1254), turns the wheel to
+# the exit and places it (1267-1284), presses S twice for the Mines brick (1293, 1305) and drags a floor of 17
+# bricks (1321-1365), then 4 and a gold bar (1374-1394). The Edit button (1747) opens the info prompt, where each
+# Enter moves one field on, keeping each (2107 to the author, 2448 the music, 2810 the hearts, 3163 the bombs;
+# 3250, 3330 and 3410, added by hand when 851-3773 made each Enter move one field, the ropes, the next level and
+# back to editing). Escape and Y (3522, 3876) save levels/live.lvl and go to the title. F3 (vk 114, 4282) lists
+# it; a click picks it (4673) and Enter loads it (4688). The player walks right over the gold bar (5077-5114) and
+# past the exit: up there (5806) and a tap of up within one tick (6774) don't leave. A step back left (8078) and
+# up (8428) leave, to rTransition1. The window is 3x (screenScale 3).
+# story: room=rLevelEditor@820 room=rTitle@3876 room=rLoadLevel@4282 customLevelName=LIVE@4688 money=500@5116
 # story: room=rTransition1@8458
 seed 1935565552
 time 1792862115871057000
@@ -77,6 +77,12 @@ time 1792862115871057000
 2813 release enter
 3163 press enter
 3166 release enter
+3250 press enter
+3253 release enter
+3330 press enter
+3333 release enter
+3410 press enter
+3413 release enter
 3522 press escape
 3525 release escape
 3876 press Y
