@@ -16,7 +16,7 @@ relations:
     - { slug: mines, cite: scripts/scrInitLevel.gml:169 }
     - { slug: jungle, cite: scripts/scrInitLevel.gml:169 }
     - { slug: temple, cite: scripts/scrInitLevel.gml:169 }
-  related: [scarab, hedjet, ghost]
+  related: [scarab, hedjet, ghost, red-lamp-no-light]
 clips: [dark-level/arrival, arrow-trap/dark, scarab/collect, smash-trap/lit]
 faq:
   - q: How do you get a dark level in Spelunky Classic?
@@ -93,7 +93,7 @@ Each step, the screen is filled with black and then lit in circles <Cite gml="ob
 | Light | Radius | |
 | --- | --- | --- |
 | The player | 96 pixels less 64 times the darkness (below): about 38 pixels at the darkest | <Cite gml="objects/oScreen/step_begin.gml:178" /> |
-| A [[flare\|Flare]], the crate of Flares, a [[lamp\|lamp]] (hanging, or a plain one down), an explosion | 96 pixels | <Cite gml="objects/oScreen/step_begin.gml:179-194" /> <Cite gml="objects/oScreen/step_begin.gml:219-222" /> |
+| A [[flare\|Flare]], the crate of Flares, a [[lamp\|lamp]] (hanging, or a plain one down: a red one down lights nothing, [[red-lamp-no-light]]), an explosion | 96 pixels | <Cite gml="objects/oScreen/step_begin.gml:179-194" /> <Cite quirk="1" row="A fallen red lamp lights nothing on a dark level." /> <Cite gml="objects/oScreen/step_begin.gml:219-222" /> |
 | The [[ghost\|Ghost]] | 64 pixels | <Cite gml="objects/oScreen/step_begin.gml:231-234" /> |
 | A lit trap, a tiki torch, a [[fire-frog\|Fire Frog]], [[lava\|Lava]] | 32 pixels | <Cite gml="objects/oScreen/step_begin.gml:195-218" /> <Cite gml="objects/oScreen/step_begin.gml:223-226" /> |
 | A [[scarab\|Scarab]] | 16 pixels | <Cite gml="objects/oScreen/step_begin.gml:227-230" /> |

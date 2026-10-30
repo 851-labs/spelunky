@@ -17,7 +17,7 @@ relations:
     - { slug: jungle, cite: scripts/scrRoomGen2.gml:172 }
     - { slug: ice-caves, cite: scripts/scrRoomGen3.gml:134 }
     - { slug: temple, cite: scripts/scrRoomGen4.gml:169 }
-  related: [damsel, shopkeeper, general-store, dice-house]
+  related: [damsel, shopkeeper, general-store, dice-house, red-lamp-no-light]
 clips: [kissing-parlor/kiss, kissing-parlor/theft]
 faq:
   - q: How much does a kiss cost in Spelunky Classic?
@@ -147,7 +147,8 @@ a Damsel of its own, rolls one of the other six <Cite gml="scripts/scrLevelGen.g
   pair of lips, and its lamp is the game's only red one: the other shops' lamps are the plain kind
   <Cite gml="scripts/scrRoomGen.gml:427-431" /> <Cite gml="scripts/scrRoomGen4.gml:468-475" />. Breaking
   the block it hangs from brings it down as a red lamp to carry <Cite gml="objects/oSolid/destroy.gml:24-28" />
-  <Cite replay="fidelity/replays/item-seed-22-red-lamp.txt" />.
+  <Cite replay="fidelity/replays/item-seed-22-red-lamp.txt" />, which, unlike the plain one, lights nothing on a
+  dark level ([[red-lamp-no-light]]) <Cite quirk="1" row="A fallen red lamp lights nothing on a dark level." />.
 - Playing as the Damsel, the one for sale is drawn as the [[spelunker|Spelunker]], a man, and the messages say so ("I'LL
   LET YOU HAVE HIM FOR $30000!", "NOW AIN'T HE SWEET!")
   <Cite gml="objects/oPlayer1/step.gml:1435-1446" /> <Cite gml="objects/oDamsel/create.gml:13-14" />.

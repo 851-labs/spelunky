@@ -1,0 +1,8 @@
+title = "A red Lamp lights nothing on a dark level"
+description = "On a dark level, the player throws a lit bomb up under the Kissing Parlor's ceiling, and its red lamp falls. He picks the red Lamp up and carries it out of the shop into the dark: it casts no light of its own, the dark closes in round him as if he held nothing, and only the red tint shows."
+# Cut from a replay, so the oracle's fingerprint pins it; its header has the frames (docs/quirks.md §1).
+replay = "fidelity/replays/item-seed-2-red-lamp-dark.txt"
+from = 2160
+to = 2620
+poster = 2560
+story = "-oLampRed@2188 +oLampRedItem@2188 held=oLampRedItem@2275 !held!=oLampRedItem@2276.. !oPlayer1.distToNearestLightSource<20@2500.. oLevel.darkness=0.9@2545"

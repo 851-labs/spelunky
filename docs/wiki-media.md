@@ -229,6 +229,8 @@ as Olmec's in the lair.
 `quirks/bomb-off-screen` is cut from `temple-seed-2-bomb-off-screen.txt`, a Temple route's bomb left behind and
 the walk back to its hole: a custom level would show the quirk too (`rLoadLevel` is a level), but the route's bomb
 already goes off out of sight.
+`quirks/red-lamp-no-light` is cut from `item-seed-2-red-lamp-dark.txt`, a real level's replay: the quirk needs the
+Kissing Parlor on a dark level, and no level editor tile makes a lamp or a dark level.
 `quirks/moon-room-goal-any-win` (`flow-highscores-moon-room-slow-win.txt`) and `quirks/damsel-title-rope-spelunker`
 (`title-damsel-rope.txt`) are cut from replays of the high scores room and the title screen, which no scene reaches:
 they start from the stats in the replay's `highscore` lines. So are `quirks/moon-room-stomped-targets`

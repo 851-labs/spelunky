@@ -62,7 +62,9 @@ Why the rarer items (851-3152) that no replay creates are missing, with their so
 - Replayed (851-3234): `oBall`/`oChain` (the second defiled altar) and `oBall2`/`oChain2` (the transition after it,
   `item-seed-38-ball-and-chain`), `oDiamond` (a ghost through a big sapphire in a block, `item-seed-2-diamond`),
   `oLampItem` and `oLampRedItem` (a bomb lit in the hand and thrown up at the lamp's block, `item-seed-38-lamp`,
-  `item-seed-22-red-lamp`).
+  `item-seed-22-red-lamp`). On a dark level (851-3696): a red one carried, which lights nothing
+  (`item-seed-2-red-lamp-dark`, quirks §1), and a plain one from a lamp `scrEntityGen` hung, which lights the
+  player's way (`item-seed-2-lamp-dark`).
 
 Where the last rarities reachable in normal play come from, and what replays them (851-3253):
 

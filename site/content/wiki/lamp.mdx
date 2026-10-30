@@ -15,7 +15,7 @@ infobox:
   damage: { stat: lamp.damage }
 relations:
   found_in: [mines, jungle, ice-caves, temple, black-market, yeti-lair, dark-level]
-  related: [dark-level, flare, kissing-parlor, general-store, throwing]
+  related: [dark-level, flare, kissing-parlor, general-store, throwing, red-lamp-no-light]
 clips: [lamp/fall, lamp/red]
 faq:
   - q: How do you get a Lamp in Spelunky Classic?
@@ -100,7 +100,7 @@ red <Cite gml="objects/oScreen/step_begin.gml:156-177" />. The hanging red lamp 
 game's objects, so the code that lights the hanging lamps lights it too; the red Lamp isn't a kind of the plain
 Lamp, and the code that lights a Lamp's circle and widens the player's light names only the plain one
 <Cite gml="objects/oScreen/step_begin.gml:191-194" /> <Cite gml="objects/oPlayer1/step.gml:95-100" />. So a red
-Lamp carried through a dark level lights nothing but its tint.
+Lamp carried through a dark level lights nothing but its tint ([[red-lamp-no-light]]) <Cite quirk="1" row="A fallen red lamp lights nothing on a dark level." />.
 
 ## Locations
 
