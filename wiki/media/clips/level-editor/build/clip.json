@@ -1,7 +1,7 @@
 {
   "id": "level-editor/build",
   "title": "Building and testing a level",
-  "description": "In the level editor, the player names a level GG, places an entrance, an exit and a floor of bricks, then a snake, spikes and gold bars, erasing one. Edit Info sets the music, the bombs and the next level; Test plays the level, where the player walks over the gold bar to the exit, and leaving it returns to the editor.",
+  "description": "In the level editor, the player names a level GO, places an entrance, an exit and a floor of bricks, then a snake, spikes and gold bars, erasing one. Edit Info sets the music, the starting hearts, the bombs and the next level; Test plays the level, where the player walks over the gold bar to the exit, and leaving it returns to the editor.",
   "spec": "wiki/clips/level-editor/build.toml",
   "source": {
     "kind": "replay",
@@ -12,7 +12,7 @@
   "frames": 320,
   "replay_from": 200,
   "state_hash": "c01e085fab8c100d",
-  "states_hash": "1f755b7d74c48ef9",
+  "states_hash": "5876879914e76a86",
   "fps": 30,
   "duration": 10.666666666666666,
   "width": 640,
@@ -20,9 +20,9 @@
   "scale": 2,
   "loop": true,
   "poster_frame": 340,
-  "frames_hash": "142067c29719c89c",
+  "frames_hash": "8170b35723115ecc",
   "has_audio": true,
-  "audio_hash": "798311bc9f50ed43",
+  "audio_hash": "6f77cf3a167b76d8",
   "encoding": "f9993b7841f12db0",
   "files": {
     "mp4": "level-editor/build/clip.mp4",

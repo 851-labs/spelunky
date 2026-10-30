@@ -4363,9 +4363,9 @@
       "width": 640
     },
     {
-      "audio_hash": "798311bc9f50ed43",
+      "audio_hash": "6f77cf3a167b76d8",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "In the level editor, the player names a level GG, places an entrance, an exit and a floor of bricks, then a snake, spikes and gold bars, erasing one. Edit Info sets the music, the bombs and the next level; Test plays the level, where the player walks over the gold bar to the exit, and leaving it returns to the editor.",
+      "description": "In the level editor, the player names a level GO, places an entrance, an exit and a floor of bricks, then a snake, spikes and gold bars, erasing one. Edit Info sets the music, the starting hearts, the bombs and the next level; Test plays the level, where the player walks over the gold bar to the exit, and leaving it returns to the editor.",
       "duration": 10.666666666666666,
       "encoding": "f9993b7841f12db0",
       "files": {
@@ -4376,7 +4376,7 @@
       },
       "fps": 30,
       "frames": 320,
-      "frames_hash": "142067c29719c89c",
+      "frames_hash": "8170b35723115ecc",
       "from": 200,
       "has_audio": true,
       "height": 480,
@@ -4393,7 +4393,7 @@
       },
       "spec": "wiki/clips/level-editor/build.toml",
       "state_hash": "c01e085fab8c100d",
-      "states_hash": "1f755b7d74c48ef9",
+      "states_hash": "5876879914e76a86",
       "title": "Building and testing a level",
       "to": 519,
       "width": 640
@@ -4448,7 +4448,7 @@
       },
       "fps": 30,
       "frames": 400,
-      "frames_hash": "ebf7be09e6df89dd",
+      "frames_hash": "63e3d95b495c26f4",
       "from": 200,
       "has_audio": true,
       "height": 480,
@@ -4465,7 +4465,7 @@
       },
       "spec": "wiki/clips/level-editor/every-tile.toml",
       "state_hash": "c01e085fab8c100d",
-      "states_hash": "86e53aea415c9d55",
+      "states_hash": "0cfda23889f67b86",
       "title": "Every tile",
       "to": 599,
       "width": 640
@@ -6451,42 +6451,6 @@
       "width": 640
     },
     {
-      "audio_hash": null,
-      "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "In the level editor, the player clicks Edit and the prompt asks for the level's name. Each Enter on a field that isn't empty moves it two fields on: from the name to the music, past the author; to the bombs, past the starting hearts; to the next level, past the ropes; and back to editing. An Enter on the emptied music does nothing.",
-      "duration": 3.1333333333333333,
-      "encoding": "2715b07b5b304714",
-      "files": {
-        "mp4": "quirks/editor-info-skips-fields/clip.mp4",
-        "poster": "quirks/editor-info-skips-fields/poster.png",
-        "replay": "quirks/editor-info-skips-fields/replay.txt",
-        "webm": "quirks/editor-info-skips-fields/clip.webm"
-      },
-      "fps": 30,
-      "frames": 94,
-      "frames_hash": "04fa080f40f86c65",
-      "from": 330,
-      "has_audio": false,
-      "height": 480,
-      "id": "quirks/editor-info-skips-fields",
-      "license": "https://spelunky.ai/LICENSE.txt",
-      "loop": true,
-      "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-      "poster_frame": 368,
-      "replay_from": 330,
-      "scale": 2,
-      "source": {
-        "kind": "replay",
-        "replay": "fidelity/replays/editor-build-test-save.txt"
-      },
-      "spec": "wiki/clips/quirks/editor-info-skips-fields.toml",
-      "state_hash": "426e49c4dca0d2ae",
-      "states_hash": "5e5e4892fc913f6b",
-      "title": "The editor's info prompt skips fields",
-      "to": 423,
-      "width": 640
-    },
-    {
       "audio_hash": "7e939916ff74d6c1",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
       "description": "A Tomb Lord spits flies at the player, and a caveman between them is hit. Each fly knocks it back at the fly's full speed and 4 up, though a heavy monster, as every monster is, should get half the speed and 2 up.",
@@ -7616,7 +7580,7 @@
       },
       "fps": 30,
       "frames": 131,
-      "frames_hash": "e8a29bf4d947ca12",
+      "frames_hash": "e243a61d43dfe010",
       "from": 215,
       "has_audio": true,
       "height": 480,
@@ -7633,7 +7597,7 @@
       },
       "spec": "wiki/clips/quirks/sign-message-lost.toml",
       "state_hash": "1922f38a428520df",
-      "states_hash": "d8a995fbf12f54a7",
+      "states_hash": "72eaaf13cdc58554",
       "title": "A level without exits loses its sign's message",
       "to": 345,
       "width": 640
@@ -7796,7 +7760,7 @@
       },
       "fps": 30,
       "frames": 96,
-      "frames_hash": "3f1869fefa8dd8cd",
+      "frames_hash": "61536b2de1343b28",
       "from": 520,
       "has_audio": true,
       "height": 480,
@@ -7812,8 +7776,8 @@
         "replay": "fidelity/replays/editor-test-hud-caps.txt"
       },
       "spec": "wiki/clips/quirks/test-bombs-unclamped.toml",
-      "state_hash": "34e78b5b6d3c1c87",
-      "states_hash": "e174ec6099f0bc2c",
+      "state_hash": "0edb00a85fb6d4ea",
+      "states_hash": "fb240118458c813e",
       "title": "A test starts with 1,111 bombs",
       "to": 615,
       "width": 640
@@ -8865,7 +8829,7 @@
     {
       "audio_hash": null,
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "KEY CONFIG names each action in turn, with its key under CURRENT. Every key press counts twice, so each binds two actions: W binds UP and DOWN, Escape keeps LEFT and RIGHT, Space binds JUMP and ACTION, E SWITCH and RUN, and Q BOMB and ROPE, leaving PURCHASE.",
+      "description": "KEY CONFIG names each action in turn, with its key under CURRENT, and each key press binds the one shown: W twice binds UP and DOWN, Escape twice keeps LEFT and RIGHT, Space twice binds JUMP and ACTION, E twice SWITCH and RUN, and Q twice BOMB and ROPE, leaving PURCHASE.",
       "duration": 3.533333333333333,
       "encoding": "0be717ab9cd0549a",
       "files": {
@@ -8875,7 +8839,7 @@
       },
       "fps": 30,
       "frames": 106,
-      "frames_hash": "058a7a37c2afbc2b",
+      "frames_hash": "06ded06ca9076ae3",
       "from": 222,
       "has_audio": false,
       "height": 480,
