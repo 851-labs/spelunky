@@ -1,0 +1,23 @@
+# A first run's title screen has no hint hand after the opening, and gets one on coming back from the scores
+# room (851-3694; docs/quirks.md section 1). No highscore lines, so the runner's empty table, and
+# global.firstTime. Skips rIntro with the attack key (X, twice) and watches the title's own opening through
+# (titleStart 0: oTitle's create makes no oHintHand). The player drops in (439), walks left past the scores
+# door and stands at the START door, within 8 px of where the hand would be (521-600): no hand and no PRESS UP
+# TO ENTER!. He walks back into the scores door (rHighscores, 670), out of its title door (rTitle with
+# titleStart 1, 775), where the hand is made over the START door, walks left under it (816: the text shows)
+# and goes in: firstTime sends a first run to rTutorial (930).
+# story: !+oHintHand@..774 oPlayer1.x<=394@521 !oPlayer1.x<=384@439..669 room=rHighscores@670
+# story: room=rTitle@775 titleStart=1@775 +oHintHand@775 oPlayer1.x<400@816 !oPlayer1.x<=384@775..899
+# story: room=rTutorial@930 firstTime=0@930
+seed 777
+frames 960
+20 hold X 2
+60 hold X 2
+450 hold left 70
+600 hold right 16
+640 hold up 5
+684 hold right 10
+704 hold left 10
+744 hold up 5
+800 hold left 16
+900 hold up 5

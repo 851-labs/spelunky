@@ -231,7 +231,9 @@ the walk back to its hole: a custom level would show the quirk too (`rLoadLevel`
 already goes off out of sight.
 `quirks/moon-room-goal-any-win` (`flow-highscores-moon-room-slow-win.txt`) and `quirks/damsel-title-rope-spelunker`
 (`title-damsel-rope.txt`) are cut from replays of the high scores room and the title screen, which no scene reaches:
-they start from the stats in the replay's `highscore` lines.
+they start from the stats in the replay's `highscore` lines. So are `quirks/moon-room-stomped-targets`
+(`bonus-moon-stomped-targets.txt`), in the Moon Room behind them, and `quirks/title-no-hint-hand`
+(`title-first-run-hint-hand.txt`), whose hint hand needs the empty highscore table of a very first run.
 The Ice Caves monsters' pages (851-3349) added eleven scenes, `yeti/throw`, `yeti/ceiling`, `yeti/stomp`,
 `yeti-king/yell`, `yeti-king/bomb`, `yeti-king/thrown-rock`, `ufo/laser`, `alien/stomp`, `alien-boss/psychic`,
 `alien-boss/whip` and `alien-boss/bomb`, and three cut from replays: `ufo/crash` (`ice-seed-14.txt`),

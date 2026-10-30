@@ -1,0 +1,36 @@
+{
+  "id": "quirks/moon-room-stomped-targets",
+  "title": "Stomped targets come back where they swayed to",
+  "description": "With 3 seconds left in the Moon Room, the player runs off the ledges and lands on three swaying targets in a row. Each comes back as a UFO above the spot where it was stomped, worth 3, the middle and far ones well left of their own paths, before the last bounce takes him onto the Spikes.",
+  "spec": "wiki/clips/quirks/moon-room-stomped-targets.toml",
+  "source": {
+    "kind": "replay",
+    "replay": "fidelity/replays/bonus-moon-stomped-targets.txt"
+  },
+  "from": 2550,
+  "to": 2699,
+  "frames": 150,
+  "replay_from": 2550,
+  "state_hash": "48f1557175fbb545",
+  "states_hash": "ee6088c21bdd6cdc",
+  "fps": 30,
+  "duration": 5.0,
+  "width": 640,
+  "height": 480,
+  "scale": 2,
+  "loop": true,
+  "poster_frame": 2685,
+  "frames_hash": "072cfadb3a22800c",
+  "has_audio": true,
+  "audio_hash": "49be1686d949044b",
+  "encoding": "14d835187fbb92aa",
+  "files": {
+    "mp4": "quirks/moon-room-stomped-targets/clip.mp4",
+    "webm": "quirks/moon-room-stomped-targets/clip.webm",
+    "poster": "quirks/moon-room-stomped-targets/poster.png",
+    "replay": "quirks/moon-room-stomped-targets/replay.txt"
+  },
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/LICENSE.txt",
+  "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
+}
