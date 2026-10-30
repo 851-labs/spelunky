@@ -1,7 +1,7 @@
 {
   "id": "trap-block/pit",
-  "title": "The Sacrifice Pit's trap blocks",
-  "description": "At the top of the Sacrifice Pit, the player picks up the golden idol beside a damsel. The four skull blocks under them vanish at once, and the player, the idol and the damsel fall down the pit into the lava at its bottom, where he dies.",
+  "title": "The sacrifice pit's trap blocks",
+  "description": "At the top of the sacrifice pit, the player picks up the golden idol beside a damsel. The four skull blocks under them vanish at once, and the player, the idol and the damsel fall down the pit into the lava at its bottom, where he dies.",
   "spec": "wiki/clips/trap-block/pit.toml",
   "source": {
     "kind": "replay",
@@ -23,7 +23,7 @@
   "frames_hash": "68103cf61f234b5e",
   "has_audio": true,
   "audio_hash": "9bd7154f71a54676",
-  "encoding": "9568ec7592f7b868",
+  "encoding": "2b279a2802a98c5c",
   "files": {
     "mp4": "trap-block/pit/clip.mp4",
     "webm": "trap-block/pit/clip.webm",

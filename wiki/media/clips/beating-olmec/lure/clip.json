@@ -1,7 +1,7 @@
 {
   "id": "beating-olmec/lure",
   "title": "Luring Olmec",
-  "description": "The player waits at the left end of Olmec's lair, where he arrived. Olmec hops toward him again and again, drifting left across the hall with each hop.",
+  "description": "The player waits at the left end of Olmec's Lair, where he arrived. Olmec hops toward him again and again, drifting left across the hall with each hop.",
   "spec": "wiki/clips/beating-olmec/lure.toml",
   "source": {
     "kind": "replay",

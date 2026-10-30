@@ -1,7 +1,7 @@
 {
   "id": "quirks/compass-arrow-off-screen",
   "title": "The compass arrow leaves the top of the screen",
-  "description": "In Olmec's lair, the player picks up a compass, and its arrow points right, at the top of the screen, toward the exit. When he drops into the bottom of the lair, the view follows him down and the arrow goes up off the top of the screen, all but a sliver.",
+  "description": "In Olmec's Lair, the player picks up a compass, and its arrow points right, at the top of the screen, toward the exit. When he drops into the bottom of the lair, the view follows him down and the arrow goes up off the top of the screen, all but a sliver.",
   "spec": "wiki/clips/quirks/compass-arrow-off-screen.toml",
   "source": {
     "kind": "replay",

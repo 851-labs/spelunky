@@ -657,7 +657,7 @@
     {
       "audio_hash": "ae695973480575da",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "The player waits at the left end of Olmec's lair, where he arrived. Olmec hops toward him again and again, drifting left across the hall with each hop.",
+      "description": "The player waits at the left end of Olmec's Lair, where he arrived. Olmec hops toward him again and again, drifting left across the hall with each hop.",
       "duration": 12.033333333333333,
       "encoding": "e704194bc6f1a3e5",
       "files": {
@@ -5229,7 +5229,7 @@
     {
       "audio_hash": "34be65cd5c9e7700",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "The view pans across Olmec's lair to the giant stone head, which cracks open, flinging its worshipping hawkman away. Its worshipping cavemen get up and charge, and Olmec hops and slams down before the view returns to the player.",
+      "description": "The view pans across Olmec's Lair to the giant stone head, which cracks open, flinging its worshipping hawkman away. Its worshipping cavemen get up and charge, and Olmec hops and slams down before the view returns to the player.",
       "duration": 14.933333333333334,
       "encoding": "2e4fe40c5a660020",
       "files": {
@@ -6165,7 +6165,7 @@
     {
       "audio_hash": "5ca3026c5eb7b170",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "In Olmec's lair, the player picks up a compass, and its arrow points right, at the top of the screen, toward the exit. When he drops into the bottom of the lair, the view follows him down and the arrow goes up off the top of the screen, all but a sliver.",
+      "description": "In Olmec's Lair, the player picks up a compass, and its arrow points right, at the top of the screen, toward the exit. When he drops into the bottom of the lair, the view follows him down and the arrow goes up off the top of the screen, all but a sliver.",
       "duration": 5.0,
       "encoding": "b53de3e40f5d9b5e",
       "files": {
@@ -7173,7 +7173,7 @@
     {
       "audio_hash": "4b53f6db73ac2891",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "A bomb has blown out the floor under the exit door of Olmec's lair, and the player jumps the pit onto the block left below it. Olmec, sinking in the lava off screen, dies, and a new block appears under the door, around the player's middle: he's crushed, and the game counts the death against Olmec.",
+      "description": "A bomb has blown out the floor under the exit door of Olmec's Lair, and the player jumps the pit onto the block left below it. Olmec, sinking in the lava off screen, dies, and a new block appears under the door, around the player's middle: he's crushed, and the game counts the death against Olmec.",
       "duration": 4.0,
       "encoding": "c850746ee8c8b01a",
       "files": {
@@ -9615,7 +9615,7 @@
     {
       "audio_hash": "a62a7a821615dc71",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "In the tutorial, the player walks left off a pillar at 3 pixels a step and drops to the ledge below. Then, as the sign says \"TO RUN, HOLD DOWN X OR SHIFT.\", he runs left at 6 pixels a step off the ledge's end and jumps, keeping that speed across the gap to the next ledge.",
+      "description": "In the Tutorial, the player walks left off a pillar at 3 pixels a step and drops to the ledge below. Then, as the sign says \"TO RUN, HOLD DOWN X OR SHIFT.\", he runs left at 6 pixels a step off the ledge's end and jumps, keeping that speed across the gap to the next ledge.",
       "duration": 5.0,
       "encoding": "f5fa1271b89e2646",
       "files": {
@@ -9723,7 +9723,7 @@
     {
       "audio_hash": "5a367f6a997b62af",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "In the tutorial, the Spelunker jumps onto a ladder and climbs it, then jumps off to the left and opens a chest. Ducking, he crawls over the edge of a step, flips round to hang from it, lets go, and walks off the steps into a fall that stuns him.",
+      "description": "In the Tutorial, the Spelunker jumps onto a ladder and climbs it, then jumps off to the left and opens a chest. Ducking, he crawls over the edge of a step, flips round to hang from it, lets go, and walks off the steps into a fall that stuns him.",
       "duration": 14.0,
       "encoding": "0f9cda3c25caab7b",
       "files": {
@@ -9795,7 +9795,7 @@
     {
       "audio_hash": "d238538046f1e9fb",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "In the tutorial, the Spelunker walks off a ledge, looks up, ducks, and clears a step with a short jump and a long one. He jumps at a ledge with right held and hangs from its edge, climbs up with a jump, and runs off the far side.",
+      "description": "In the Tutorial, the Spelunker walks off a ledge, looks up, ducks, and clears a step with a short jump and a long one. He jumps at a ledge with right held and hangs from its edge, climbs up with a jump, and runs off the far side.",
       "duration": 11.0,
       "encoding": "dd2190658eed6fae",
       "files": {
@@ -10659,9 +10659,9 @@
     {
       "audio_hash": "9bd7154f71a54676",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "At the top of the Sacrifice Pit, the player picks up the golden idol beside a damsel. The four skull blocks under them vanish at once, and the player, the idol and the damsel fall down the pit into the lava at its bottom, where he dies.",
+      "description": "At the top of the sacrifice pit, the player picks up the golden idol beside a damsel. The four skull blocks under them vanish at once, and the player, the idol and the damsel fall down the pit into the lava at its bottom, where he dies.",
       "duration": 5.0,
-      "encoding": "9568ec7592f7b868",
+      "encoding": "2b279a2802a98c5c",
       "files": {
         "mp4": "trap-block/pit/clip.mp4",
         "poster": "trap-block/pit/poster.png",
@@ -10688,7 +10688,7 @@
       "spec": "wiki/clips/trap-block/pit.toml",
       "state_hash": "b54502e29e503ed4",
       "states_hash": "a86c78af51c91b43",
-      "title": "The Sacrifice Pit's trap blocks",
+      "title": "The sacrifice pit's trap blocks",
       "to": 999,
       "width": 640
     },
@@ -10875,7 +10875,7 @@
     {
       "audio_hash": "8223b098ba0c4e91",
       "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC.",
-      "description": "On the title screen, the player walks left into the tutorial door. The Tutorial loads with no bombs and two ropes, and as he runs right the first signs welcome him to the tutorial cave and tell him the jump key.",
+      "description": "On the title screen, the player walks left into the tutorial door. The Tutorial loads with no bombs and two ropes, and as he runs right the first signs welcome him to the Tutorial Cave and tell him the jump key.",
       "duration": 6.0,
       "encoding": "b43bb4d4924a0bc6",
       "files": {
