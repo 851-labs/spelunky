@@ -3,7 +3,7 @@ description = "The player walks off a high ledge and falls into a pool, landing 
 from = 0
 to = 239
 poster = 100
-story = "oPlayer1.fallTimer>16@50..57 oPlayer1.swimming=1@57 +oSplash@57 +oBubble@77 oPlayer1.swimming=0@117 !plife<4"
+story = "oPlayer1.fallTimer>16@50..57 oPlayer1.swimming=1@57 +oSplash@57 +oBubble@77..77 !+oBubble@78..97 +oBubble@98..98 oPlayer1.swimming=0@117 !plife<4"
 
 [scene]
 level = '''

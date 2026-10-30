@@ -78,7 +78,8 @@ keeps only half his falling speed each step, where in the air he keeps all of it
 under, he keeps 0.9 of his speed up or down <Cite gml="scripts/characterStepEvent.gml:750-771" />. He walks along the bottom as on any
 floor. While he swims, he breathes out a bubble each time a timer of <Stat id="water.bubble-interval" /> runs out,
 and the step it's set again on makes that one every 21 steps; a bubble rises until it leaves the water <Cite gml="objects/oPlayer1/step.gml:305-310" />
-<Cite gml="objects/oBubble/step.gml:1-6" />.
+<Cite gml="objects/oBubble/step.gml:1-6" /> <Cite quirk="1" row="A swimming player breathes out a bubble every 21 steps, not every bubbleTimerMax (20)." />. In the
+clip, the player's first two bubbles come 21 steps apart <Cite clip="water/swim" />.
 
 ### Swimming up
 
@@ -137,7 +138,10 @@ Level generation makes water from the [[jungle|Jungle]]'s room tiles:
 ## Trivia
 
 - Only water in the top 512 pixels of a level drains, except in a custom level, and none drains in
-  [[olmecs-lair|Olmec's Lair]] <Cite gml="objects/oGame/step.gml:55-57" />. A safety count stops the draining
+  [[olmecs-lair|Olmec's Lair]] <Cite gml="objects/oGame/step.gml:55-57" />. It changes nothing in the game's own
+  levels: only a flooded level's lake has water lower down, and the lake, wall to wall over the level's
+  unbreakable floor, with water in its bed's blocks too, can't drain anyway
+  <Cite quirk="1" row="Only water above y 512 drains, except in a custom level, and none drains in rOlmec." />. A safety count stops the draining
   after 100,000 blocks have been looked at <Cite gml="objects/oGame/step.gml:96-97" />.
 - Every block of water is set up with the type "Water", which the draining code reads to tell it from lava's
   <Cite gml="objects/oWater/create.gml:3" /> <Cite gml="objects/oGame/step.gml:62-66" />.
