@@ -962,6 +962,9 @@ node test-bundle.mjs dist/client || fail "test-bundle.mjs"
 # Every wiki page's and hub's Open Graph image, served, and named in its head.
 node test-og.mjs check dist "$site" "$media" "$media_url" || fail "test-og.mjs"
 
+# DELIBERATELY BROKEN (851-3741): an if that never closes, to prove CI fails; reverted next.
+if true; then
+  echo "unclosed"
 if [ $failures -gt 0 ]; then
   echo "site/test.sh: $failures failed" >&2
   exit 1
