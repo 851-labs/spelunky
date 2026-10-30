@@ -5,7 +5,9 @@
 #
 # Merges that land close together go out together: a release starts once main has had no such merge for 10
 # minutes (at most 30 after the first), each merge's run cancelling the wait before it, and one release runs at
-# a time, the merges that land during it going out together in the next.
+# a time, the merges that land during it going out together in the next. Every merge to main starts a run, as a
+# `paths` filter sees only the first 300 files a merge changes (re-rendered wiki media can be more); one that
+# finds nothing to release ends in seconds.
 #
 # release.yml tags the commit itself, with this run's token: a tag or pull request pushed with GITHUB_TOKEN
 # starts no workflow, which keeps the tag from starting a second release. For the same reason the pull request
@@ -20,20 +22,6 @@ name: Auto release
 on:
   push:
     branches: [main]
-    # What scripts/release/auto's `made_from` lists, which it narrows down: a merge of nothing else starts no run.
-    paths:
-      - crates/**
-      - vendor/**
-      - reference/**
-      - Cargo.toml
-      - Cargo.lock
-      - rust-toolchain.toml
-      - LICENSE
-      - scripts/cargo
-      - scripts/extract
-      - scripts/web
-      - scripts/release/**
-      - .github/workflows/build-native.yml
   workflow_dispatch:
     inputs:
       dry_run:
@@ -61,7 +49,8 @@ jobs:
     runs-on: ubuntu-24.04
     # The wait is at most 30 minutes.
     timeout-minutes: 40
-    # A later merge's run cancels this one while it waits: its commit has this one's changes too.
+    # A later merge's run cancels this one while it waits: its commit has this one's changes too, and it waits
+    # until the same time, which only a merge that changes what a release is made from moves.
     concurrency:
       group: auto-release-plan-${{ github.event_name }}
       cancel-in-progress: true
@@ -77,26 +66,30 @@ jobs:
           sparse-checkout: scripts/release
       - id: plan
         run: |
-          scripts/release/auto plan "$GITHUB_SHA" | tee "$RUNNER_TEMP/plan" >>"$GITHUB_OUTPUT"
+          plan() { scripts/release/auto plan "$GITHUB_SHA" | tee "$RUNNER_TEMP/plan"; }
           value() { sed -n "s/^$1=//p" "$RUNNER_TEMP/plan"; }
+          plan
+          # After a merge, the wait; then the plan again, with the tags pushed meanwhile (this commit's, by hand).
+          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$(value release)" = true ] && [ "$(value wait)" != 0 ]; then
+            sleep "$(value wait)"
+            git fetch -q --tags --force origin
+            plan
+          fi
+          cat "$RUNNER_TEMP/plan" >>"$GITHUB_OUTPUT"
           base=$(value base)
           {
             echo "### ${GITHUB_SHA::7} since $base"
             if [ "$(value release)" = true ]; then
-              echo "Releasing in $(value wait) seconds. What a release is made from that changed ($(value changes) files):"
+              echo "Releasing. What a release is made from that changed ($(value changes) files):"
               echo '```'
               scripts/release/auto changes "$base" "$GITHUB_SHA" | sed -n 1,100p
               echo '```'
             elif [ -n "$(value covered)" ]; then
-              echo "Already released, in $(value covered)."
+              echo "Already tagged, in $(value covered): released, or, if that release's run failed, to re-run."
             else
               echo "Nothing a release is made from changed."
             fi
           } >>"$GITHUB_STEP_SUMMARY"
-      - if: github.event_name == 'push' && steps.plan.outputs.release == 'true'
-        env:
-          WAIT: ${{ steps.plan.outputs.wait }}
-        run: sleep "$WAIT"
 
   release:
     name: Release
@@ -179,6 +172,13 @@ jobs:
           # Run by hand: the latest release.
           [ -n "$TAG" ] || TAG=$(gh release view --json tagName --jq .tagName)
           echo "tag=$TAG" >>"$GITHUB_OUTPUT"
+          # Never back to an older version than main pins (a re-run of an older release's job).
+          pinned=$(sed -n 's/^tag //p' site/web-release.txt)
+          if [ "$pinned" != "$TAG" ] && [ "$(printf '%s\n' "$pinned" "$TAG" | sort -V | tail -n 1)" = "$pinned" ]; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            echo "main already pins $pinned, newer than $TAG." >>"$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           scripts/bump-web-release "$TAG"
           if git diff --quiet; then
             echo "changed=false" >>"$GITHUB_OUTPUT"
@@ -224,6 +224,14 @@ jobs:
           git config user.email "$id+$name@users.noreply.github.com"
           branch=auto-release/$TAG
           title="Release: put $TAG live on spelunky.ai"
+          # The versions of the open pull requests of releases: a newer one's leaves this one out.
+          open=$(gh pr list --state open --limit 200 --json headRefName \
+            --jq '.[].headRefName | select(startswith("auto-release/")) | ltrimstr("auto-release/")')
+          newest=$(printf '%s\n' "$open" "$TAG" | sort -V | tail -n 1)
+          if [ "$newest" != "$TAG" ]; then
+            echo "### $TAG: not opened, as $newest's pull request is open" >>"$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           git switch -q -c "$branch"
           git commit -q -am "$title"
           # A re-run's push replaces its last.
@@ -247,16 +255,15 @@ jobs:
           EOF
             pr=$(gh pr create --base main --head "$branch" --title "$title" --body-file "$RUNNER_TEMP/body.md")
           fi
-          # An earlier release's pull request that hasn't merged: this one has its changes and more.
-          gh pr list --state open --json number,headRefName \
-            --jq ".[] | select(.headRefName | startswith(\"auto-release/\")) | select(.headRefName != \"$branch\") | .number" |
-            while read -r n; do gh pr close "$n" --delete-branch --comment "Superseded by $pr."; done
+          # Earlier releases' pull requests that haven't merged: this one has their changes and more.
+          for old in $open; do
+            [ "$old" = "$TAG" ] || gh pr close "auto-release/$old" --delete-branch --comment "Superseded by $pr."
+          done
           # Merged as soon as pr-ok passes, if the repository allows auto-merge; otherwise by whoever merges it.
-          if [ "$(gh api "repos/$GH_REPO" --jq .allow_auto_merge)" = true ]; then
-            gh pr merge "$pr" --auto --squash
+          if gh pr merge "$pr" --auto --squash 2>"$RUNNER_TEMP/merge.log"; then
             merge="It merges itself once pr-ok passes."
           else
-            merge="Merge it once pr-ok passes (the repository doesn't allow auto-merge)."
+            merge="Merge it once pr-ok passes: auto-merge is off ($(cat "$RUNNER_TEMP/merge.log"))."
           fi
           echo "### $TAG: $pr" >>"$GITHUB_STEP_SUMMARY"
           echo "$merge" >>"$GITHUB_STEP_SUMMARY"

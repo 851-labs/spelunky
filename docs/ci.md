@@ -6,7 +6,7 @@ one that makes them), a nightly one, and the pieces they're made of.
 | Workflow | When | What | Where |
 | --- | --- | --- | --- |
 | `pr.yml` | every pull request | `scripts/check`, `scripts/web --check`, `scripts/wiki-media --check` for changes to what the wiki's media are made from, `site/test.sh` for the site's, the updater's tests, then `pr-ok` | the Mac minis, and GitHub's machines for the updater |
-| `auto-release.yml` | a merge to `main` that changes what a release is made from, or by hand | a release (`release.yml`) once `main` is quiet, then the pull request that puts it live ([below](#automatic-releases)) | `ubuntu-24.04` |
+| `auto-release.yml` | every merge to `main`, or by hand | a release (`release.yml`) once `main` is quiet, then the pull request that puts it live ([below](#automatic-releases)) | `ubuntu-24.04` |
 | `release.yml` | from `auto-release.yml`, a `v*` tag, or by hand | the suite, the oracle fidelity run, the web and native builds, the updater's tests, then the GitHub Release | the Mac minis and `ubuntu-24.04` |
 | `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | a Mac mini, then each OS |
 | `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
@@ -138,31 +138,35 @@ push either.
 
 ### Automatic releases
 
-`auto-release.yml` runs on every push to `main` that touches what a release is made from, which
-`scripts/release/auto` decides: the crates the apps and the asset extractor build from, `vendor/`, the original's
+`auto-release.yml` runs on every push to `main`, and releases the ones that change what a release is made from,
+which `scripts/release/auto` decides: the crates the apps and the asset extractor build from, `vendor/`, the original's
 files in `reference/`, `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`, `LICENSE`, and what packages them
 (`scripts/cargo`, `scripts/extract`, `scripts/web`, `scripts/release/`, `build-native.yml`). Not `crates/harness`,
 the wiki's tools in `crates/tools`, tests, Markdown, the rule's own script, `docs/`, `site/` (deployed on its own, [docs/web-deploy.md](web-deploy.md)),
-`wiki/` or the other workflows: a merge of only those starts no run. The workflow's `paths` start it and the script
-narrows them down, so a new path goes in both (`scripts/release/auto-test`, which `scripts/check` runs, tests the
-rule). Its jobs:
+`wiki/` or the other workflows: a merge of only those ends in seconds. (Not a `paths` filter on the workflow,
+which sees only the first 300 files a push changes: a merge with re-rendered wiki media can change more.)
+`scripts/release/auto-test`, which `scripts/check` runs, tests the rule. Its jobs:
 
 1. **Plan** compares the commit with the highest release tag, `vMAJOR.MINOR.PATCH` (prereleases don't count),
    and releases it if something it's made from differs and no release tag already has the commit. It waits
    first, until `main` has had no such merge for 10 minutes, but no longer than 30 minutes after the first
-   one since the last release; the next merge's run cancels the wait (its commit has this one's changes too),
-   so merges that land together go out together. The run's summary lists the changed files.
+   one since the last release, then plans again (a tag pushed by hand meanwhile releases the commit itself).
+   The next merge's run cancels the wait, and waits until the same time unless it's such a merge too, so
+   merges that land together go out together. The wait holds one of GitHub's machines, and only ever one.
+   The run's summary lists the changed files.
 2. **Release** is `release.yml`, called with `auto`, one at a time: a later merge's release waits for the one
    running, and replaces an earlier one still waiting, so what merges during a release goes out in one more.
    Its first job tags the commit with the next patch version (or, on a re-run, the tag it already has), an
    annotated tag by `github-actions[bot]`, pushed with the run's own token: a tag pushed with `GITHUB_TOKEN`
-   starts no workflow, so it doesn't start a second release. It refuses to tag a commit older than a release
+   starts no workflow, so it doesn't start a second release. It fails if the commit was tagged by hand while
+   it waited (that tag's own run releases it), and refuses to tag or re-release a commit older than a release
    already out, which would offer the apps a downgrade. Nobody waits on an automatic release, so its replays
    take three of GitHub's machines at a time rather than all ten (about an hour instead of 20 minutes): the
    organization's projects share them.
 3. **Site bump PR**, once the release is published, runs `scripts/bump-web-release` on `main` as it is then,
    pushes it to `auto-release/TAG` and opens its pull request, "Release: put TAG live on spelunky.ai", which
-   closes the pull request of an earlier release that hasn't merged. `pr-ok` runs on it like any other, and it
+   closes the pull requests of earlier releases that haven't merged. It never puts back an older version than
+   `main` pins, nor opens one while a newer release's is open. `pr-ok` runs on it like any other, and it
    merges itself once that passes if the repository allows auto-merge (Settings → General → "Allow
    auto-merge"); otherwise whoever merges pull requests merges it. It has no Linear ticket, and its body says
    why: the workflow has no Linear credential, and the release and the run are its record.
@@ -176,18 +180,19 @@ environment, which allows only `main`, so no pull request's run (nor any other b
 job mints a token from them for the one run, asking for exactly those two permissions, so an installation
 without them fails at once. The commit is the App's bot account's (`NAME[bot]`). A fine-grained personal access
 token (this repository only, the same two permissions) in the same environment as `RELEASE_BOT_TOKEN` works
-too, but acts as its owner, and lasts until it expires. Without either, the job publishes nothing and leaves
+too, but acts as its owner, and lasts until it expires. Without either, the job opens nothing and leaves
 a warning and the command to run by hand in the run's summary.
 
-The "Protect main" ruleset's `require_extra_approval_for_unattributed_changes` (on by default in new rulesets)
-may hold an App's pull request for one approval even with no approvals required; if it does, a collaborator
+The "Protect main" ruleset has `require_extra_approval_for_unattributed_changes` on, which may hold an App's pull request for one approval even with no approvals required; if it does, a collaborator
 approves it (`gh pr review --approve`), or the ruleset turns the option off.
 
 **By hand.** Actions → Auto release → Run workflow, with `dry_run` (the default), plans the branch's commit
 without waiting and releases nothing, then, on `main`, mints the App's token (or reads the token) and runs
 `scripts/bump-web-release` for the latest release without pushing it: a check of the setup. Without `dry_run`,
 on `main`, it releases `main` now if it has changed, and opens the pull request. A failed job of an automatic run
-is re-run like any other: the tag and the draft are reused, and the bump's push replaces its last. The repository
+is re-run like any other: the tag and the draft are reused, and the bump's push replaces its last. Re-run it, as
+nothing else will: the tag is pushed when the release starts, so the plan counts the commit as released (its
+summary says "Already tagged") and only the next change goes out in a new one. The repository
 variable `AUTO_RELEASE=off` (Settings → Secrets and variables → Actions → Variables) turns the automatic runs off;
 releases by tag still work.
 

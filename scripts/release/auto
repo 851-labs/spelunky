@@ -60,14 +60,18 @@ case ${1:-} in
       echo "$me: nothing a release is made from changed since $base" >&2
     else
       release=true
-      # Commit times, which for a pull request merged on GitHub are when it merged. $NOW is for the tests.
+      # The times of the commits since base that changed what a release is made from, which for pull requests
+      # merged on GitHub are when they merged, newest first: other merges since don't move the release. None
+      # when the changes came another way than base's history (base is off main's first parents), and then
+      # REV's. $NOW is for the tests.
       now=${NOW:-$(date +%s)}
-      newest=$(git log -1 --format=%ct "$rev")
       # shellcheck disable=SC2086
-      oldest=$(git log --format=%ct "$base..$rev" -- $made_from | tail -n 1)
-      # None when the changes came another way than base's history (base is off main's first parents).
+      times=$(git log --format=%ct "$base..$rev" -- $made_from)
+      [ -n "$times" ] || times=$(git log -1 --format=%ct "$rev")
+      newest=$(echo "$times" | head -n 1)
+      oldest=$(echo "$times" | tail -n 1)
       until=$((newest + quiet))
-      [ -z "$oldest" ] || [ $((oldest + max_wait)) -ge "$until" ] || until=$((oldest + max_wait))
+      [ $((oldest + max_wait)) -ge "$until" ] || until=$((oldest + max_wait))
       wait=$((until - now))
       [ "$wait" -gt 0 ] || wait=0
       echo "$me: changed since $base, of what a release is made from: $n files; releasing in ${wait}s" >&2
@@ -78,10 +82,11 @@ case ${1:-} in
     [ $# = 2 ] || { echo "usage: $me tag REV" >&2; exit 2; }
     rev=$(commit "$2")
     on=$(tags --points-at "$rev" | head -n 1)
+    # A release tag past REV: releasing REV now, or re-running its release, would offer the apps an older
+    # version than one already out as an update.
+    past=$(tags --contains "$rev" | grep -vxF "$on" | tail -n 1)
+    [ -z "$past" ] || { echo "$me: $2 is already released, in $past" >&2; exit 1; }
     [ -z "$on" ] || { echo "$on"; exit 0; }
-    covered=$(covered "$rev")
-    # A release of an older commit than one already out would offer the apps a downgrade as an update.
-    [ -z "$covered" ] || { echo "$me: $2 is already released, in $covered" >&2; exit 1; }
     base=$(tags | head -n 1)
     [ -n "$base" ] || { echo "$me: no release tag to count from" >&2; exit 1; }
     version=${base#v}

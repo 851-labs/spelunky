@@ -49,6 +49,9 @@ check "another change restarts the wait" "base=v0.1.9 covered= changes=5 release
 commit_at 4700 reference/SHA256SUMS
 check "but never past 30 minutes after the first" "base=v0.1.9 covered= changes=6 release=true wait=100 " \
   "$(plan 4700)"
+commit_at 4750 docs/a.md
+check "a merge of anything else doesn't move it" "base=v0.1.9 covered= changes=6 release=true wait=50 " \
+  "$(plan 4750)"
 check "the changes" "Cargo.lock crates/game/src/lib.rs crates/tools/src/bin/extract.rs reference/SHA256SUMS scripts/web vendor/pxfm/src/lib.rs " \
   "$($auto changes v0.1.9 HEAD | tr '\n' ' ')"
 
@@ -67,6 +70,8 @@ check "an older commit than a release is already out" "base=v0.2.0 covered=v0.2.
   "$(NOW=6000 $auto plan "$older" 2>/dev/null | tr '\n' ' ')"
 if $auto tag "$older" >/dev/null 2>&1; then r=tagged; else r=refused; fi
 check "never tag an older commit than a release" refused "$r"
+if $auto tag v0.1.10 >/dev/null 2>&1; then r=tagged; else r=refused; fi
+check "nor re-release one" refused "$r"
 commit_at 7000 crates/app/src/main.rs
 check "next after v0.2.0" v0.2.1 "$($auto tag HEAD)"
 

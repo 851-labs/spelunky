@@ -86,13 +86,18 @@ jobs:
         run: |
           if [ "$AUTO" = true ]; then
             # The next patch version, or on a re-run the tag it already pushed. Pushed with this run's token,
-            # which starts no workflow, so the tag doesn't start a second release.
+            # which starts no workflow, so the tag doesn't start a second release; and refused if the tag was
+            # pushed meanwhile.
             tag=$(scripts/release/auto tag "$GITHUB_SHA")
-            if ! git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null; then
+            if [ -z "$(git tag -l "$tag")" ]; then
               git -c user.name='github-actions[bot]' \
                 -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
                 tag -a "$tag" -m "Spelunky Classic port $tag" "$GITHUB_SHA"
               git push origin "refs/tags/$tag"
+            elif [ "$GITHUB_RUN_ATTEMPT" = 1 ]; then
+              # Not this run's: pushed by hand while the release waited, which started its own release.
+              echo "::error::$tag was pushed while this release waited, and its own run releases it"
+              exit 1
             fi
           elif [ "$GITHUB_REF_TYPE" = tag ] && [[ "$GITHUB_REF_NAME" == v* ]]; then
             tag=$GITHUB_REF_NAME
