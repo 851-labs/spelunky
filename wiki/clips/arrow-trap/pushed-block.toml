@@ -1,9 +1,9 @@
 title = "A pushed block in the trap's sights"
-description = "The player pushes a stone block along a corridor and into the stretch an arrow trap watches, stopping just short of it himself: the block moves into the trap's sights and nothing fires. Then he jumps over the block into the stretch, and the trap fires at him."
+description = "The player pushes a stone block along a corridor and into the stretch an arrow trap watches, stopping just short of it himself: the block moves into the trap's sights and nothing fires. Then he jumps over the block into the stretch, and the trap fires, missing him."
 from = 0
 to = 209
 poster = 115
-story = "oPushBlock.x>=212@100..110 !+oArrow@..150 +oArrow@167 !plife<4"
+story = "oPushBlock.x>=212@100..110 !oPlayer1.x>214@..150 !+oArrow@..150 +oArrow@167 oPlayer1.x>223@160..170 !plife<4"
 
 [scene]
 level = '''

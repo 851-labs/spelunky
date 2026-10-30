@@ -44,11 +44,16 @@ sources:
   - objects/oArrowTrapLeft/step.gml
   - objects/oArrowTrapRight/alarm_1.gml
   - objects/oArrowTrapTest/collision_oCharacter.gml
+  - objects/oArrowTrapTest/collision_oEnemy.gml
   - objects/oArrowTrapTest/collision_oItem.gml
+  - objects/oArrowTrapTest/collision_oTreasure.gml
+  - objects/oArrowTrapTest/collision_oBoulder.gml
+  - objects/oArrowTrapTest/collision_oMoveableSolid.gml
+  - scripts/moveTo.gml
   - objects/oArrowRepeaterL/step.gml
   - objects/oPlayer1/step.gml
   - scripts/scrEntityGen.gml
-verified: { port: v0.1.10, date: 2026-10-27 }
+verified: { port: v0.1.15, date: 2026-10-29 }
 ---
 
 An Arrow Trap looks like a carved stone block set into a wall, with an opening facing along a corridor. It
@@ -70,14 +75,16 @@ player midway between two traps facing each other across 11 to 13 open blocks se
 <Cite quirk="1" row="A left-facing arrow trap sees 6 blocks, a right-facing one 5." /> <Cite replay="fidelity/replays/trap-arrow-sensor-left-wider.txt" />.
 
 Anything in the strip with a speed sets the trap off: the player, a monster, an item or a piece of treasure on
-the move, a rolling [[boulder|Boulder]], a falling [[push-block|push block]]. The player also sets it off near
-the end of his drop from a ledge into a hang from it, even without moving <Cite gml="objects/oArrowTrapTest/collision_oCharacter.gml:5-8" />
-<Cite gml="objects/oArrowTrapTest/collision_oItem.gml:5" /> <Cite gml="objects/oArrowTrapTest/collision_oBoulder.gml:5" /> <Cite gml="objects/oArrowTrapTest/collision_oMoveableSolid.gml:5" />.
-Standing still in the strip doesn't, and nor does a block being pushed: pushing moves it a pixel at a time without
-giving it a speed <Cite gml="scripts/moveTo.gml:46-60" />. In the first clip, the player pushes a block into the
-strip, staying out of it himself, and nothing fires until he jumps in after it
-<Cite clip="arrow-trap/pushed-block" />; in the second, a block he pushes off a ledge falls into the strip below,
-and the trap fires as it falls <Cite clip="arrow-trap/falling-block" />.
+the move, a moving [[boulder|Boulder]], a falling [[push-block|push block]]. The player also sets it off near
+the end of his drop from a ledge into a hang from it, even without moving <Cite
+gml="objects/oArrowTrapTest/collision_oCharacter.gml:5-8" /> <Cite gml="objects/oArrowTrapTest/collision_oEnemy.gml:5" /> <Cite
+gml="objects/oArrowTrapTest/collision_oItem.gml:5" /> <Cite gml="objects/oArrowTrapTest/collision_oTreasure.gml:5" /> <Cite
+gml="objects/oArrowTrapTest/collision_oBoulder.gml:5" /> <Cite gml="objects/oArrowTrapTest/collision_oMoveableSolid.gml:5" />. Standing still in the strip doesn't, and
+nor does a block being pushed: pushing moves it a pixel at a time without giving it a speed
+<Cite gml="scripts/moveTo.gml:46-60" /> <Cite gml="scripts/moveTo.gml:74-88" />. In the first clip, the player
+pushes a block into the strip, staying out of it himself, and nothing fires until he jumps in after it, when it
+fires and misses him <Cite clip="arrow-trap/pushed-block" />; in the second, a block he pushes off a ledge falls
+into the strip below, and the trap fires as it falls <Cite clip="arrow-trap/falling-block" />.
 
 <Clip id="arrow-trap/pushed-block" />
 

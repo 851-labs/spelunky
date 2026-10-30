@@ -107,7 +107,7 @@ The [[high-scores-room|high scores room]] has the one the player pushes onto its
   <Cite gml="objects/oSpearTrapTop/step.gml:21-28" />.
 - **[[arrow-trap|Arrow Traps]]** fire at a push block falling through what they watch: their sensor counts a
   block by its speed <Cite gml="objects/oArrowTrapTest/collision_oMoveableSolid.gml:5-26" />, which it has
-  only while it falls, as pushing moves it a pixel at a time without one <Cite gml="scripts/moveTo.gml:57" />
+  only while it falls, as pushing moves it a pixel at a time without one <Cite gml="scripts/moveTo.gml:46-60" />
   <Cite gml="scripts/gameStepEvent.gml:236-256" /> <Cite clip="arrow-trap/falling-block" />.
 - **Breaking it.** A [[bomb|Bomb]] or the [[mattock|Mattock]] breaks a push block like any block, leaving
   rubble <Cite gml="objects/oPushBlock/destroy.gml:1-11" />, but its destroy event is its own: unlike an area's
