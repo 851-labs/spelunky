@@ -2,6 +2,7 @@
 # ice 177 765 (level 9 loads on 760), standing still. scrRoomGen3's shop room on the path (roomPath 5) rolls
 # Kissing: a damsel for sale and the red lamp.
 # story: currLevel=9@760 shop=1@760 oShopkeeper.style=Kissing@760 +oDamsel@760..760 +oLampRed@760..760
+# story: oDamsel.forSale=1@760..760
 seed 177
 frames 765
 highscore 9000100 "MONEY"
