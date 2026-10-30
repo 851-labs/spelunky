@@ -69,7 +69,7 @@ const ROOMS = roomNames(ROOMS_DIR) ?? [];
 export default defineConfig({
   plugins: [
     wiki(WIKI),
-    wikiSource(SOURCE_DIR, ROOMS_DIR),
+    wikiSource(SOURCE_DIR, ROOMS_DIR, MEDIA ? { url: MEDIA.url, spritesDir: join(MEDIA.dir, "sprites") } : null),
     // The Worker (wrangler.jsonc, src/server.ts) runs in Vite's SSR environment, so `vite dev` runs it in
     // workerd, and the build writes dist/client (the static assets) and dist/server (the Worker, with the
     // wrangler.json that `wrangler deploy` picks up through .wrangler/deploy/config.json).

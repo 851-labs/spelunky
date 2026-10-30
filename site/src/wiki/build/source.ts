@@ -80,6 +80,17 @@ export interface SourceRoom {
   tiles: { id: number; background: string; x: number; y: number; bg_x: number; bg_y: number; width: number; height: number; depth: number }[];
   // In creation order.
   instances: { id: number; object: string; x: number; y: number; creation_code?: string }[];
+  // Its picture (scripts/wiki-media's wiki-rooms: rooms/<name>.png), where the media have one: its URL and size
+  // in game pixels, and the box each instance's sprite covers in it (x, y, width, height), in the instances'
+  // order, null for one whose object has no sprite. The build adds it; the media's JSON hasn't got it.
+  picture?: { src: string; width: number; height: number; boxes: ([number, number, number, number] | null)[] };
+}
+
+// What a room's picture needs from the media: where they're served, and their sprites/ (index.json's objects'
+// sprites, each sprite.json's size and origin).
+export interface RoomPictures {
+  url: string;
+  spritesDir: string;
 }
 
 // By file name (scrEntityGen.gml, step.gml), and the rooms by name.
@@ -112,8 +123,43 @@ export function roomNames(dir: string | null): string[] | null {
   return names.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
 }
 
-// `dir` is the media's gml/, `roomsDir` their rooms/.
-export function wikiSource(dir: string | null, roomsDir: string | null): Plugin {
+// A PNG's width and height, from its IHDR chunk.
+function pngSize(bytes: Buffer): [number, number] {
+  return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+}
+
+// The room's JSON with its picture, where rooms/ has one: each instance's box is its object's sprite, placed by
+// its origin, as wiki-rooms draws it.
+export function withPicture(roomsDir: string, name: string, json: string, pictures: RoomPictures | null): string {
+  const file = join(roomsDir, `${name}.png`);
+  if (!pictures || !existsSync(file)) return json;
+  const room = JSON.parse(json) as SourceRoom;
+  const index = JSON.parse(readFileSync(join(pictures.spritesDir, "index.json"), "utf8")) as { objects: { name: string; sprite: string | null }[] };
+  const spriteOf = new Map(index.objects.map((o) => [o.name, o.sprite]));
+  const sprites = new Map<string, { width: number; height: number; origin?: { x: number; y: number } } | null>();
+  const sprite = (name: string) => {
+    if (!sprites.has(name)) {
+      const meta = join(pictures.spritesDir, name, "sprite.json");
+      sprites.set(name, existsSync(meta) ? JSON.parse(readFileSync(meta, "utf8")) : null);
+    }
+    return sprites.get(name)!;
+  };
+  const [width, height] = pngSize(readFileSync(file));
+  room.picture = {
+    src: `${pictures.url}/rooms/${encodeURIComponent(name)}.png`,
+    width,
+    height,
+    boxes: room.instances.map((instance) => {
+      const name = spriteOf.get(instance.object);
+      const s = name ? sprite(name) : null;
+      return s?.origin ? [instance.x - s.origin.x, instance.y - s.origin.y, s.width, s.height] : null;
+    }),
+  };
+  return JSON.stringify(room);
+}
+
+// `dir` is the media's gml/, `roomsDir` their rooms/, `pictures` what the rooms' pictures need of the media.
+export function wikiSource(dir: string | null, roomsDir: string | null, pictures: RoomPictures | null = null): Plugin {
   let files: Map<string, string> | null = null;
   // Read once, for both of the build's environments; the rooms' files only for the Worker's.
   const load = () => (files ??= new Map(sourcePaths(dir).map((path) => [path, readFileSync(join(dir!, path), "utf8")])));
@@ -139,9 +185,9 @@ export function wikiSource(dir: string | null, roomsDir: string | null): Plugin 
       if (name === INDEX) return `export default ${JSON.stringify(index)};`;
       if (this.environment.name === "client") return "export const sourceFile = () => null;\nexport const sourceRoom = () => null;";
       // Each file's and room's JSON as a string, parsed only when its page is rendered. A room's is the media's
-      // file as it is.
+      // file, with its picture.
       const entries = [...all].map(([path, text]) => `  ${JSON.stringify(path)}: ${JSON.stringify(json(index, path, text))},`);
-      const roomEntries = rooms.map((room) => `  ${JSON.stringify(room)}: ${JSON.stringify(readFileSync(join(roomsDir!, `${room}.json`), "utf8"))},`);
+      const roomEntries = rooms.map((room) => `  ${JSON.stringify(room)}: ${JSON.stringify(withPicture(roomsDir!, room, readFileSync(join(roomsDir!, `${room}.json`), "utf8"), pictures))},`);
       return [
         `const files = {\n${entries.join("\n")}\n};`,
         `const rooms = {\n${roomEntries.join("\n")}\n};`,

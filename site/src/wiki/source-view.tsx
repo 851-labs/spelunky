@@ -3,6 +3,7 @@
 // lines a link names highlighted (#L66, #L66-L71); a room, its settings and what the room editor placed in it;
 // and the index of every file and room. The highlighting is the build's (build/gml-highlight.ts): the browser
 // gets markup and a few lines of script.
+import { useState } from "react";
 import type { Crumb } from "../seo/jsonld";
 import { CardLink } from "./hover-card";
 import { Breadcrumbs } from "./layout";
@@ -131,6 +132,35 @@ function viewText(v: SourceRoom["views"][number]): string {
   return parts.filter(Boolean).join(", ");
 }
 
+// The widest a room's picture is drawn, in screen pixels: the page's column. A room this narrow or less is drawn at
+// a whole number of screen pixels a game pixel, the most that fits; a wider one at one, scrolling across.
+const PICTURE_WIDTH = 960;
+
+// A room's picture (scripts/wiki-media's wiki-rooms), at a whole-number scale, with a box over each instance of
+// the object `highlight` names, which the instances' table sets as a row is hovered or focused.
+function RoomPicture({ room, picture, highlight }: { room: SourceRoom; picture: NonNullable<SourceRoom["picture"]>; highlight: string | null }) {
+  const scale = Math.max(1, Math.floor(PICTURE_WIDTH / picture.width));
+  const px = (n: number) => `${n * scale}px`;
+  return (
+    <figure className="room-picture">
+      <div className="room-picture-frame" style={{ width: px(picture.width), height: px(picture.height) }}>
+        <img src={picture.src} width={picture.width * scale} height={picture.height * scale} alt={`The room ${room.name} as the room editor placed it`} />
+        {highlight &&
+          room.instances.map((instance, i) => {
+            const box = picture.boxes[i];
+            if (instance.object !== highlight || !box) return null;
+            const [x, y, w, h] = box;
+            return <span key={instance.id} className="room-box" aria-hidden="true" style={{ left: px(x), top: px(y), width: px(w), height: px(h) }} />;
+          })}
+      </div>
+      <figcaption>
+        {`What the room editor placed, as the game draws it: its backgrounds, tiles and each instance's sprite at its first frame` +
+          `${scale > 1 ? `, at ${scale} times its size` : ""}. Point at an object below to see where its instances are.`}
+      </figcaption>
+    </figure>
+  );
+}
+
 // A room (/wiki/source/rooms/<name>): what the room editor shows of it, as text. Its settings; its instances by
 // object, each object's row with its positions in creation order, an anchor of its name (#oSnake), and a link
 // to its events in the index where it has any; its tiles; and its creation code and its instances', if any.
@@ -143,6 +173,7 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
   }
   const names = [...objects.keys()].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   const withCode = room.instances.filter((instance) => instance.creation_code);
+  const [highlight, setHighlight] = useState<string | null>(null);
   return (
     <article className="source-page">
       <Breadcrumbs crumbs={roomTrail(name)} />
@@ -167,6 +198,7 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
           .
         </p>
       )}
+      {room.picture && <RoomPicture room={room} picture={room.picture} highlight={highlight} />}
       <h2 id="settings">Settings</h2>
       <table className="room-settings">
         <tbody>
@@ -234,7 +266,15 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
           {names.map((name) => {
             const instances = objects.get(name)!;
             return (
-              <tr key={name} id={name}>
+              <tr
+                key={name}
+                id={name}
+                className={highlight === name ? "room-highlight" : undefined}
+                onMouseEnter={() => setHighlight(name)}
+                onMouseLeave={() => setHighlight((h) => (h === name ? null : h))}
+                onFocus={() => setHighlight(name)}
+                onBlur={() => setHighlight((h) => (h === name ? null : h))}
+              >
                 <th scope="row">
                   {linked.includes(name) ? (
                     <a href={`/wiki/source#${name}`}>

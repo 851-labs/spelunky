@@ -156,8 +156,8 @@ media=${wiki_media:-$(cd .. && pwd)/wiki/media}
 for f in sprites/index.json clips/index.json LICENSE.txt NOTICE.txt; do
   [ -f "$media/$f" ] || die "$media has no $f: not what scripts/wiki-media renders"
 done
-# wrangler.jsonc's run_worker_first keeps the media's sprites and the clips' posters, JSON and replays off the
-# Worker, leaving it the clips' videos (src/server.ts): another kind of file would cost a Worker request each,
+# wrangler.jsonc's run_worker_first keeps the media's sprites, the rooms' pictures and the clips' posters, JSON and
+# replays off the Worker, leaving it the clips' videos (src/server.ts): another kind of file would cost a Worker request each,
 # and a dot file is what a render that stopped left behind. Not gml/'s files, which the build reads and this
 # doesn't serve (the source viewer's pages are).
 other=$(cd "$media" && find sprites clips -type f \( -path '*/.*' -o ! \( -path 'sprites/*.png' -o \
@@ -225,9 +225,14 @@ for page in $assets/wiki/media $assets/wiki/media.html $assets/wiki/og.html; do
   [ ! -e "$page" ] || die "the app pre-rendered $page, where the wiki's media or Open Graph images go"
 done
 # Not the GML, which is the source viewer's to show, as /wiki/source/ pages the app pre-rendered from it
-# (src/wiki/build/source.ts), not files to serve: another 1,140 assets, each a Worker request.
+# (src/wiki/build/source.ts), not files to serve: another 1,140 assets, each a Worker request. Nor the rooms'
+# JSON, which the same pages show; only their pictures, which the room pages draw.
 mkdir -p $assets/wiki/media
 cp -R "$media/sprites" "$media/clips" "$media/LICENSE.txt" "$media/NOTICE.txt" $assets/wiki/media/
+if [ -d "$media/rooms" ]; then
+  mkdir $assets/wiki/media/rooms
+  find "$media/rooms" -maxdepth 1 -name '*.png' -exec cp {} $assets/wiki/media/rooms/ \;
+fi
 # The builds before this one's content-hashed files (its scripts and Open Graph images), which the pages they
 # served still name, from the live site's build-assets.json, and this build's list of its own (carry-assets.mjs;
 # docs/web-deploy.md, "Version skew"), dated now, as the deploy follows the build. Up to 19,900 files in all,

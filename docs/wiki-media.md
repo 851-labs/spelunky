@@ -620,12 +620,29 @@ events in the index, and one to the wiki page that has it in its `objects`, a wr
 creation code and its instances', which Spelunky's rooms have none of, under a notice of its own
 (docs/wiki-license.md, "Room notice"). A room a place page lists in its `rooms` (`rTutorial`, the Tutorial's)
 links to that page. Those links come from the wiki's pages (the wiki plugin's `virtual:wiki/source-links`),
-which, like the files, only the Worker's build carries. A list rather than a picture of the
-room: what the pages cite a room for is what's in it and how many (the Tutorial's six Gold Bars, the Sun
-room's traps), which a list says exactly. The extractor writes each room as `rooms/<name>.json` (its settings,
-then its tiles and instances one a line, objects and backgrounds by name), which `scripts/wiki-media` copies
-into `wiki/media/rooms` as it does the GML, and the site's build reads as it does the GML (and leaves out of
-what it serves). A room citation of a room it hasn't got fails the build.
+which, like the files, only the Worker's build carries. The list says exactly what's in a room and how many (the
+Tutorial's six Gold Bars, the Sun room's traps); a picture of the room, at the top of its page, shows where
+(851-3692): "on the high ledge", "at the bottom right, by the signs". The extractor writes each room as
+`rooms/<name>.json` (its settings, then its tiles and instances one a line, objects and backgrounds by name),
+which `scripts/wiki-media` copies into `wiki/media/rooms` as it does the GML, and the site's build reads as it
+does the GML (and leaves out of what it serves). A room citation of a room it hasn't got fails the build.
+
+**Room pictures.** `scripts/wiki-media` draws each room beside its JSON as `rooms/<name>.png`
+(`crates/tools`' `wiki-rooms`, from the extracted bundle's sprites and backgrounds), at one game pixel a pixel:
+the room's colour if it draws it, its background layers (tiled or stretched as it says), its instances and
+tiles, then its foreground layers. Each instance is its object's sprite at frame 0, placed by its origin; one
+whose object has no sprite draws nothing, and one whose object isn't visible draws all the same, as the
+picture is of what's placed. Nothing runs (no creation code, no create event), so a room that builds its
+level in code (`rOlmec`) shows only what's placed: there, the room generator's markers. The order is GM8's
+runner's at the room's start, which OpenGMK's `draw_view` has and the port's `gm::drawing` follows (the oracle
+confirms it): instances and tiles merged by depth, highest first, an instance before a tile at its depth, each
+list in its own order (the instances in creation order, at their objects' depths). The room editor's own
+order isn't something the oracle can run. The room's page draws the picture at the most whole screen pixels
+a game pixel that fit 960 (two for a 320-pixel bonus room, one for the Tutorial, which scrolls across), and
+pointing at an object's row in the instances' table, or focusing its link, boxes its instances in it: the
+build gives the page each instance's box, from its object's sprite's size and origin in the media's
+`sprites/`. The site serves the pictures, not the JSON, from the asset store (`site/build.sh`,
+`wrangler.jsonc`), with the media's day of caching.
 
 **From the media.** The pages are built from the `gml/` tree that `scripts/extract` writes, which
 `scripts/wiki-media` copies into `wiki/media/gml` beside the sprites and clips. Workers Builds can't run the
@@ -651,7 +668,7 @@ wiki in search. They have the site's default Open Graph image, not one each (ano
 ## Committing
 
 `wiki/media` holds the media as the site serves them: `sprites/`, `clips/`, `gml/` and `rooms/` (the source
-viewer's, [above](#source)), and `LICENSE.txt` and `NOTICE.txt` (the notice, and the audio credit for the clips' sound).
+viewer's, with the rooms' pictures, [above](#source)), and `LICENSE.txt` and `NOTICE.txt` (the notice, and the audio credit for the clips' sound).
 `LICENSE.txt` is the repo's `LICENSE` in UTF-8: that's the original's `COPYING.txt`, in windows-1252, and the
 site serves the media's `.txt` files as `text/plain; charset=utf-8` (`site/public/_headers`; docs/web-deploy.md).
 `site/build.sh` reads their indexes and serves them at `/wiki/media/` (docs/web-deploy.md, "Wiki media"), so a
