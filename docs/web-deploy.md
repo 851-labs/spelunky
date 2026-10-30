@@ -146,9 +146,16 @@ a stylesheet, a PNG), not empty, and for an Open Graph image, its name's SHA-256
 output in its own way, so a script's bytes can't be checked. One that fails is left out, and the next in
 line takes its place. They're served as before: from the asset store, with `_headers`' immutable caching,
 no Worker request. A carry that can't happen (the list or a file isn't there, the network fails) carries
-less, never fails a build: the deploy is then what it was before this. The first deploy with it finds no
-list on the live site and carries nothing. A preview (Workers Builds' `WORKERS_CI_BRANCH` names a branch but
-`main`) carries nothing, as no tab from spelunky.ai asks a preview for its files.
+less, never fails a build: the deploy is then what it was before this, and the whole carry stops after 3
+minutes, keeping what it has, whatever the live site does. The first deploy with it finds no list on the live
+site and carries nothing. Only Workers Builds' builds of `main` carry (its `WORKERS_CI` and
+`WORKERS_CI_BRANCH`), as they're what spelunky.ai serves: not a preview, which no tab from spelunky.ai asks
+for its files, nor a build anywhere else (`site/test.sh`'s, a developer's), which mustn't depend on
+spelunky.ai or mix its old files in; those list their own files and carry none.
+
+A build carries from what's live when it runs. So a build that starts while the one before it is still
+deploying, or after a rollback, carries from the version before that, and the files only the other one had
+are gone with its deploy: the page reloads for them (below).
 
 How much that covers: a build is about 11,400 files of Workers' 20,000 (Limits, below), and its hashed files
 are about 535 (284 scripts and styles, 6.8 MB; 251 cards, 1 MB). Today a deploy renames about 225 of the
@@ -171,20 +178,25 @@ loads, `/assets/index-HASH.js`, the same on every page of a build, and compares 
 hash covers every chunk the build can load, since each chunk's name is in the chunk that imports it, up to
 the entry. Only another entry reloads the page, and only once for it (`sessionStorage`). So a network failure,
 which a reload wouldn't mend, leaves the reader's place alone (a check that found the same build holds for a
-minute, so a flaky network doesn't ask again at every failure), and a build whose own chunk fails can't reload
+minute, as does one that reloaded for that build already or got no answer, so a flaky network doesn't ask
+again at every failure), and a build whose own chunk fails can't reload
 forever. No constant in the code names the build: one would rename the chunk it's in, and so the entry and
 every chunk that imports either, on every build. Under `vite dev` there's no built entry, and nothing happens.
 
-`build.sh --no-carry` lists the build's own files and carries nothing: `site/test.sh`'s, which mustn't depend
-on spelunky.ai. It checks the list (every one of the build's hashed files, dated when it was built, served
-`no-cache`) and that the pages load one entry script. It also runs `site/test-carry.mjs`, which carries from a
-stand-in live site on localhost and checks:
+Route chunks are TanStack Router's own (its lazy route components reload the page once when one fails), but
+the site moves between pages by full loads, so a page loads its route's chunks when it loads.
+
+`site/test.sh`'s build carries nothing. It checks the list (every one of the build's hashed files, dated when
+it was built, served `no-cache`, and each a kind of file `carry-assets.mjs` can carry, so a new kind isn't
+listed and quietly never carried) and that the pages load one entry script. It also runs
+`site/test-carry.mjs`, which carries from a stand-in live site on localhost and checks:
 
 - the week's files the build hasn't got, and nothing older;
 - the newest first, within the room and the cap, the next in line taking a failed one's place;
 - an Open Graph image whose bytes aren't its name's, an HTML answer for a script, and a file that's gone, all
   left behind;
 - nothing outside `/assets/` and `/wiki/og/`;
+- a live site that stalls: what's downloaded by the deadline is kept;
 - no failure without a list.
 
 The game's files under `/play/v/` aren't carried (Rolling back, above): a new release is rare, and its ~110

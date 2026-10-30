@@ -15,8 +15,9 @@
 
 // The build a reload went to, so that a page whose new build fails too doesn't reload again and again.
 const RELOADED = "spelunky-reloaded-for";
-// How long a check that found the same build holds, so that a flaky network's failures don't each ask again.
-const SAME_FOR_MS = 60_000;
+// How long a check that didn't reload holds (the same build, a build it reloaded for already, or no answer), so
+// that a flaky network's failures don't each ask the live site again.
+const HOLD_MS = 60_000;
 
 const entry = (doc: Document) => doc.querySelector<HTMLScriptElement>('script[type="module"][src^="/assets/"]')?.getAttribute("src") ?? null;
 
@@ -25,27 +26,24 @@ export function reloadOnSkew() {
   // Under `vite dev` there's no built entry to compare.
   if (!mine) return () => {};
   let checking = false;
-  let sameAt = -Infinity;
+  let heldAt = -Infinity;
   const check = async () => {
-    if (checking || performance.now() - sameAt < SAME_FOR_MS) return;
+    if (checking || performance.now() - heldAt < HOLD_MS) return;
     checking = true;
     try {
       const response = await fetch("/", { cache: "no-store" });
-      if (!response.ok) return;
-      const live = entry(new DOMParser().parseFromString(await response.text(), "text/html"));
-      if (!live) return;
-      if (live === mine) {
-        sameAt = performance.now();
+      const live = response.ok ? entry(new DOMParser().parseFromString(await response.text(), "text/html")) : null;
+      if (live && live !== mine && sessionStorage.getItem(RELOADED) !== live) {
+        sessionStorage.setItem(RELOADED, live);
+        location.reload();
         return;
       }
-      if (sessionStorage.getItem(RELOADED) === live) return;
-      sessionStorage.setItem(RELOADED, live);
-      location.reload();
     } catch {
       // Offline, or storage refused: the chunk's failure stands, as it would without this.
     } finally {
       checking = false;
     }
+    heldAt = performance.now();
   };
   const listener = () => void check();
   window.addEventListener("vite:preloadError", listener);

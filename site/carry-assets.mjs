@@ -7,7 +7,7 @@
 //   node carry-assets.mjs DIR SITE DATE [MAX]
 //
 // DIR is the build's static assets (dist/client), SITE the live site to carry from (https://spelunky.ai, or
-// - for none: build.sh --no-carry), DATE the build's time (ISO 8601) and MAX how many files the build may
+// - for none: build.sh's but on Workers Builds' builds of main), DATE the build's time (ISO 8601) and MAX how many files the build may
 // have in all. It writes DIR/build-assets.json, which lists the build's hashed files (its own under assets/
 // and wiki/og/, and the ones it carried) with the time each was last a build's own, and copies into DIR the
 // live build's files that this one hasn't got, as its build-assets.json lists them: those a build had in the
@@ -27,6 +27,9 @@ export const RETAIN_DAYS = 7;
 // page's chunk has the commit in its links to GitHub), so 6,000 is the last 25 or so deploys': a day's, at
 // main's busiest, and the week's when it's quieter. Downloading them takes a build about half a minute.
 export const MAX_CARRIED = 6000;
+// How long the carry may take in all, whatever the live site does (a stall, a rate limit): what's downloaded
+// by then is kept, and the build goes on.
+export const DEADLINE_MS = 180_000;
 // The hashed files' directories: Vite's scripts and styles, and the wiki's Open Graph images (src/wiki/build/og.ts).
 export const HASHED = ["assets", "wiki/og"];
 export const LIST = "build-assets.json";
@@ -71,10 +74,14 @@ export function candidates(previous, own, date) {
     .sort(([a, x], [b, y]) => Date.parse(y) - Date.parse(x) || (a < b ? -1 : 1));
 }
 
+// Whether a build could carry a file of this name: of a kind TYPES has (test.sh fails a build with another, which
+// the next build would list but never carry).
+export const carriable = (path) => Object.hasOwn(TYPES, path.slice(path.lastIndexOf(".") + 1));
+
 const hashedPath = (path) =>
   HASHED.some((top) => path.startsWith(`${top}/`)) &&
   !path.split("/").some((part) => part === "" || part === "." || part === "..") &&
-  Object.hasOwn(TYPES, path.slice(path.lastIndexOf(".") + 1));
+  carriable(path);
 
 // Whether a response is the file its path names: the kind of file its extension says, and for an Open Graph
 // image, which is named for its bytes (og.ts: the first 16 hex digits of their SHA-256), those bytes. Vite's
@@ -92,37 +99,42 @@ async function fetchList(site) {
   return response.json();
 }
 
-// The candidates in order, a few at a time, until `limit` of them are carried: one that fails is left out,
-// and the next takes its place.
-async function download(site, dir, paths, limit) {
+// The candidates in order, 16 at a time, until `limit` of them are carried or DEADLINE_MS is up: in rounds of
+// as many as are still wanted, so that the next ones take the places of those that failed.
+async function download(site, dir, paths, limit, deadlineMs) {
   const got = new Set();
   const failed = [];
-  let next = 0;
-  let pending = 0;
-  const worker = async () => {
-    while (next < paths.length && got.size + pending < limit) {
-      const path = paths[next++];
-      pending += 1;
-      try {
-        const response = await fetch(`${site}/${path}`, { signal: AbortSignal.timeout(30_000) });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const bytes = Buffer.from(await response.arrayBuffer());
-        if (!intact(path, response.headers.get("content-type"), bytes)) throw new Error("not the file its name says");
-        mkdirSync(dirname(join(dir, path)), { recursive: true });
-        writeFileSync(join(dir, path), bytes);
-        got.add(path);
-      } catch (error) {
-        failed.push(`${path} (${error.message})`);
-      } finally {
-        pending -= 1;
-      }
+  const deadline = AbortSignal.timeout(deadlineMs);
+  const one = async (path) => {
+    try {
+      const url = `${site}/${path.split("/").map(encodeURIComponent).join("/")}`;
+      const response = await fetch(url, { signal: AbortSignal.any([AbortSignal.timeout(30_000), deadline]) });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const bytes = Buffer.from(await response.arrayBuffer());
+      if (!intact(path, response.headers.get("content-type"), bytes)) throw new Error("not the file its name says");
+      mkdirSync(dirname(join(dir, path)), { recursive: true });
+      writeFileSync(join(dir, path), bytes);
+      got.add(path);
+    } catch (error) {
+      failed.push(`${path} (${error.message})`);
     }
   };
-  await Promise.all(Array.from({ length: 16 }, worker));
+  let next = 0;
+  while (next < paths.length && got.size < limit && !deadline.aborted) {
+    const round = paths.slice(next, next + (limit - got.size));
+    next += round.length;
+    let i = 0;
+    await Promise.all(
+      Array.from({ length: 16 }, async () => {
+        while (i < round.length && !deadline.aborted) await one(round[i++]);
+      }),
+    );
+  }
+  if (deadline.aborted) failed.push(`the rest (${deadlineMs / 1000} s were up)`);
   return { got, failed };
 }
 
-export async function carry(dir, site, date, max, log = console.log) {
+export async function carry(dir, site, date, max, log = console.log, deadlineMs = DEADLINE_MS) {
   const own = ownFiles(dir);
   const files = Object.fromEntries(own.map((path) => [path, date]));
   let previous = null;
@@ -135,7 +147,7 @@ export async function carry(dir, site, date, max, log = console.log) {
   const listed = candidates(previous, own, date);
   // The room the rest of DIR (the pages, the web build, the wiki's media) leaves, less the list itself.
   const limit = Math.max(0, Math.min(MAX_CARRIED, max - counted(dir) - 1));
-  const { got, failed } = await download(site, dir, listed.map(([path]) => path), limit);
+  const { got, failed } = await download(site, dir, listed.map(([path]) => path), limit, deadlineMs);
   for (const [path, last] of listed) if (got.has(path)) files[path] = last;
   for (const line of failed.slice(0, 5)) log(`carry-assets: couldn't carry ${line}`);
   if (failed.length > 5) log(`carry-assets: and ${failed.length - 5} more`);

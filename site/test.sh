@@ -207,7 +207,7 @@ rm -rf "$media"
 git -C "$tmp/wiki-media-origin" config uploadpack.allowFilter true
 git clone -q --depth 1 "file://$tmp/wiki-media-origin" "$media"
 media_url=/wiki/media
-./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$media" --no-carry
+./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$media"
 
 # running PID: PID hasn't exited (a zombie has, though kill -0 still finds it until the shell reaps it).
 running() {
@@ -873,16 +873,22 @@ check "$site$media_url/gml/objects/oSnake/step.gml" 404
 check "$site/releases/latest.json" 200 "$no_cache" "content-type: application/json"
 same "$tmp/latest.json"
 # The build's list of its hashed files, which the next deploy reads to carry them (carry-assets.mjs;
-# docs/web-deploy.md, "Version skew"): through the Worker, no-cache, as each build has its own. With
-# --no-carry, every one of its own scripts and Open Graph images, dated when it was built, and nothing else.
+# docs/web-deploy.md, "Version skew"): through the Worker, no-cache, as each build has its own. Not Workers
+# Builds', which carries, so every one of its own scripts and Open Graph images, dated when it was built, and
+# nothing else; each of a kind the next build can carry.
 check "$site/build-assets.json" 200 "$no_cache" "content-type: application/json"
 node --input-type=module -e '
 import { readFileSync } from "node:fs";
-import { ownFiles } from "./carry-assets.mjs";
+import { carriable, ownFiles } from "./carry-assets.mjs";
 const list = JSON.parse(readFileSync(process.argv[1], "utf8"));
 const own = ownFiles("dist/client");
 const listed = Object.keys(list.files);
 const age = Date.now() - Date.parse(list.date);
+const unknown = own.filter((path) => !carriable(path));
+if (unknown.length > 0) {
+  console.error(`build-assets.json: ${unknown.join(", ")}: not a kind of file in carry-assets.mjs TYPES, which no build would carry`);
+  process.exit(1);
+}
 if (list.format !== 1 || !(age >= 0 && age < 3600_000) || own.length < 100 || listed.join() !== own.join() || Object.values(list.files).some((d) => d !== list.date)) {
   console.error(`build-assets.json: format ${list.format}, date ${list.date}, ${listed.length} files listed of ${own.length}`);
   process.exit(1);

@@ -13,21 +13,13 @@
 #                                 PATH.sha256 if it's there, and FILE as latest.json
 #   site/build.sh ... --wiki-media DIR
 #                                 and other wiki media than wiki/media (site/test.sh's stand-in)
-#   site/build.sh ... --no-carry  and none of the live site's builds' hashed files (docs/web-deploy.md, "Version
-#                                 skew"): test.sh's, which mustn't depend on spelunky.ai
 set -eu
 die() { echo "site/build.sh: $*" >&2; exit 1; }
-usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]] [--wiki-media DIR] [--no-carry]" >&2; exit 2; }
+usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]] [--wiki-media DIR]" >&2; exit 2; }
 given=
 manifest=
 wiki_media=
-carry_from=https://spelunky.ai
 while [ $# -gt 0 ]; do
-  if [ "$1" = --no-carry ]; then
-    carry_from=-
-    shift
-    continue
-  fi
   [ $# -ge 2 ] || usage
   case $1 in
     --local) given=$2 ;;
@@ -239,11 +231,13 @@ cp -R "$media/sprites" "$media/clips" "$media/LICENSE.txt" "$media/NOTICE.txt" $
 # The builds before this one's content-hashed files (its scripts and Open Graph images), which the pages they
 # served still name, from the live site's build-assets.json, and this build's list of its own (carry-assets.mjs;
 # docs/web-deploy.md, "Version skew"), dated now, as the deploy follows the build. Up to 19,900 files in all,
-# 100 short of Workers' 20,000 in case Wrangler counts a file this doesn't. Nothing carried (but the list
-# written) with --no-carry, or for a preview (Workers Builds' WORKERS_CI_BRANCH, of a branch but main), which
-# no tab from spelunky.ai asks for its files; or if the live site can't say: never a failed build.
-if [ -n "${WORKERS_CI_BRANCH:-}" ] && [ "$WORKERS_CI_BRANCH" != main ]; then
-  echo "site/build.sh: a preview of $WORKERS_CI_BRANCH: carrying none of spelunky.ai's files"
+# 100 short of Workers' 20,000 in case Wrangler counts a file this doesn't. Only Workers Builds' builds of main
+# (its WORKERS_CI and WORKERS_CI_BRANCH), which deploy to spelunky.ai, carry: not a preview, which no tab from
+# spelunky.ai asks for its files, nor a build anywhere else (test.sh's, a developer's), which mustn't depend on
+# spelunky.ai or mix its old files in. And never a failed build: if the live site can't say, nothing's carried.
+if [ "${WORKERS_CI:-}" = 1 ] && [ "${WORKERS_CI_BRANCH:-}" = main ]; then
+  carry_from=https://spelunky.ai
+else
   carry_from=-
 fi
 node carry-assets.mjs $assets "$carry_from" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" 19900

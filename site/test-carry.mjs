@@ -149,11 +149,35 @@ try {
     if (failures === before) console.log("ok   intact: a file of its kind, not empty, an Open Graph image with its name's bytes");
   }
 
-  // No live site, or no list on it (the first deploy with this): the build's own list, nothing carried, no
-  // failure; and --no-carry (test.sh's) the same without asking.
+  // A live site that stalls: what's downloaded when the deadline is up is kept, and the build goes on.
   {
     const before = failures;
-    for (const [what, from] of [["no list", `${site}/nothing`], ["no site", "http://127.0.0.1:9"], ["--no-carry", null]]) {
+    const slow = createServer((request, response) => {
+      const path = new URL(request.url, "http://x").pathname.slice(1);
+      if (path === "build-assets.json") return response.end(JSON.stringify({ format: 1, files: { "assets/fast.js": hoursAgo(1), "assets/slow.js": hoursAgo(2) } }));
+      if (path === "assets/fast.js") return response.writeHead(200, { "content-type": "text/javascript" }).end("x");
+      // Never answers.
+    });
+    await new Promise((resolve) => slow.listen(0, "127.0.0.1", resolve));
+    try {
+      await inDir(async (dir) => {
+        const started = Date.now();
+        const result = await carry(dir, `http://127.0.0.1:${slow.address().port}`, DATE, 20_000, quiet, 1000);
+        const took = Date.now() - started;
+        if (result.carried !== 1 || !existsSync(join(dir, "assets/fast.js")) || took > 5000) fail(`deadline: carried ${result.carried} in ${took} ms`);
+      });
+    } finally {
+      slow.closeAllConnections();
+      slow.close();
+    }
+    if (failures === before) console.log("ok   deadline: a stalled live site's files left behind when it's up, the rest kept");
+  }
+
+  // No live site, or no list on it (the first deploy with this): the build's own list, nothing carried, no
+  // failure; and no live site asked (build.sh's but on Workers Builds' builds of main) the same.
+  {
+    const before = failures;
+    for (const [what, from] of [["no list", `${site}/nothing`], ["no site", "http://127.0.0.1:9"], ["not asked", null]]) {
       await inDir(async (dir) => {
         const result = await carry(dir, from, DATE, 20_000, quiet);
         const list = JSON.parse(readFileSync(join(dir, "build-assets.json"), "utf8"));
