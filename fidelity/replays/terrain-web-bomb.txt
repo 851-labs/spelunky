@@ -2,7 +2,7 @@
 # 565), then area-route --steps '@56:152' --wait 5: the player gets beside the web (x 16, y 144) that
 # scrTreasureGen put in the cave under the start (1103). By hand: he drops a bomb (down + A, 1109) and walks right.
 # The blast (1228) breaks the blocks around it and the web (1232). Ends at 1257.
-# story: room=rLevel@565 bombs=3@1109..1109 +oExplosion@1228..1228 -oWeb@1232..1232 !plife<4
+# story: room=rLevel@565 +oWeb*4@565..565 bombs=3@1109..1109 +oExplosion@1228..1228 -oWeb@1232..1232 !plife<4
 seed 5
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"

@@ -8,6 +8,7 @@
 # player is out of reach and unhurt. Ends at 1419.
 # story: currLevel=2@1146 room=rLevel@1187 bombs=3@1205..1205 message=TERRORIST!@1211..1211 +oExplosion@1324..1324
 # story: message="DIE, YOU VANDAL!"@1324..1324 -oSign@1326..1326 !plife<4 !oPlayer1.dead=1
+# story: thiefLevel=2@1211..1211 thiefLevel=5@1214..1214 thiefLevel>100@1250 !oShopkeeper.angered=1
 seed 11
 highscore 9000000 "MONEY"
 highscore 8000000 "TIME"
