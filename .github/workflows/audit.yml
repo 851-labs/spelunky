@@ -1,0 +1,58 @@
+# The dependency audit (docs/ci.md, "Dependency audit"): known vulnerabilities in what ships. `cargo audit` checks
+# Cargo.lock (the game, its apps and the web build) and the tools' own lockfiles against the RustSec advisory
+# database, and `npm audit --omit=dev` the site's production packages (the pages' scripts and the Worker) against
+# npm's. A vulnerability fails the run; an unmaintained or yanked crate is only a warning in its log.
+#
+# Every night, since an advisory can come out against a crate nothing here changed, and for a pull request or a push
+# to main that changes a lockfile. One job on one of GitHub's machines, never the Mac minis, with no secrets; not
+# a check pr-ok waits for, so a new advisory against what's on main doesn't stop every pull request.
+name: Dependency audit
+
+on:
+  schedule:
+    # 10:47 UTC, half an hour after the chaos soak, off the hour most schedules start on.
+    - cron: "47 10 * * *"
+  push:
+    branches: [main]
+    paths: ["**/Cargo.lock", "site/package-lock.json", ".github/workflows/audit.yml"]
+  pull_request:
+    paths: ["**/Cargo.lock", "site/package-lock.json", ".github/workflows/audit.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  # cargo-audit's version: a new one is a pull request, not whatever crates.io has that night.
+  CARGO_AUDIT: 0.22.2
+
+jobs:
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked --version "$CARGO_AUDIT"
+      # Each lockfile, the game's and the tools', every advisory against what it pins. --deny warnings would fail on
+      # an unmaintained crate too, which has no fix to take (ttf-parser, under winit's Wayland decorations).
+      - name: cargo audit
+        run: |
+          status=0
+          for lock in $(git ls-files '*Cargo.lock'); do
+            echo "::group::$lock"
+            cargo audit --file "$lock" || status=1
+            echo "::endgroup::"
+          done
+          exit $status
+      # The packages the site ships (dependencies), not the build's tools (devDependencies), which only run on
+      # Workers Builds' and our machines.
+      - name: npm audit
+        working-directory: site
+        run: npm audit --omit=dev --audit-level=low
