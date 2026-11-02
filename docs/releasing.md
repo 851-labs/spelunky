@@ -35,12 +35,13 @@ carry `scripts/release/THIRD-PARTY-LICENSES.txt`, and the macOS app's About pane
 `scripts/third-party-licenses` writes it: the runtimes' and the font's notices from
 `scripts/release/licenses/runtimes.txt`, kept by hand (a new runtime, a new AppImage runtime or Zig, goes there);
 the crates' from `Cargo.lock` with [cargo-about](https://github.com/EmbarkStudios/cargo-about) 0.9.3, for every
-target the app is built for, without build or dev dependencies or proc macros, which ship nothing
-(`scripts/release/licenses/about.toml`, whose `accepted` licenses are the only ones it takes: a crate under another
+target the app is built for, without build or dev dependencies (it lists the proc macros the crates use too,
+which run in the compiler and ship nothing; `--check` doesn't require them) (`scripts/release/licenses/about.toml`, whose `accepted` licenses are the only ones it takes: a crate under another
 fails it, and is a decision to make, not to wave through); and the standard library's from the toolchain's
-`COPYRIGHT-library`. `scripts/check` runs it with `--check`, which needs only cargo: it fails when a crate the app
-links on any platform isn't in it, when it lists one `Cargo.lock` hasn't, or when its runtimes or Rust's version
-aren't current. So a dependency change comes with running it (`cargo install cargo-about --locked --features cli
+`COPYRIGHT-library`. `scripts/check` runs it with `--check`, which needs only cargo (and crates.io for any crate it
+hasn't downloaded): it fails when a crate the app links on any platform isn't in it, when it lists one the app no
+longer depends on, when its runtimes or Rust's version aren't current, or when `about.toml` or `about.hbs` changed
+since it was written (its introduction names their hashes). So a dependency change comes with running it (`cargo install cargo-about --locked --features cli
 --version 0.9.3` first), and the file's diff shows what changed.
 
 ## Building them

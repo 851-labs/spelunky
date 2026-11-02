@@ -89,9 +89,10 @@
 </div>
 <!-- The license as spelunky.ai serves it, in UTF-8 (LICENSE is windows-1252, and has no type to show it by), and the
      notices beside app.js in v/HASH/ (scripts/web --package), which the <base> names. Out of the tab order, as
-     #switch is. Not in an embed (the wiki's live clips, ?embed), which shows only the game, on a page with them. -->
-<p id="credits"><a href="/LICENSE.txt" tabindex="-1">License</a> &middot;
-<a href="THIRD-PARTY-LICENSES.txt" tabindex="-1">Third-party licenses</a></p>
+     #switch is, and in a new tab, so following one doesn't end the game. Not in an embed (the wiki's live clips,
+     ?embed), which shows only the game, on a page with them. -->
+<p id="credits"><a href="/LICENSE.txt" target="_blank" rel="noopener" tabindex="-1">License</a> &middot;
+<a href="THIRD-PARTY-LICENSES.txt" target="_blank" rel="noopener" tabindex="-1">Third-party licenses</a></p>
 <script type="module">
   const query = new URLSearchParams(location.search);
   if (query.has("embed")) document.getElementById("credits").remove();

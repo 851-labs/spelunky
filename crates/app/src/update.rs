@@ -939,7 +939,7 @@ mod mac {
     /// docs/releasing.md).
     const CREDITS: &str = "An unofficial, fan-made port of Spelunky Classic 1.1 by Derek Yu. It's built with \
         open-source Rust crates and runtimes, whose licenses are in THIRD-PARTY-LICENSES.txt, in the app's \
-        Contents/Resources and beside the game in every download.";
+        Contents/Resources (and beside the app in the disk image).";
 
     const SETTINGS: &str = "settings";
     const CHECK: &str = "update-check";
