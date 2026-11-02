@@ -16,7 +16,9 @@ kill -INT <pid>   # closes the window, ending the recording
 
 `SPELUNKY_BACKGROUND=1` makes the app open its window without activating, so it doesn't take the keyboard
 from the app in front. Keys still reach it: AppKit hands a key posted to the process to its key window, active
-or not.
+or not. The game runs there because its window has never been deactivated: like 1.1's, it freezes once its
+window loses focus (`docs/quirks.md` §5), so bringing it to the front and then leaving it stops the script's
+game until it's in front again.
 
 ## Scripts
 

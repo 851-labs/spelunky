@@ -110,6 +110,13 @@ impl WindowGame for Settings {
         true
     }
 
+    fn freezes_unfocused(&self) -> bool {
+        self.game
+            .as_ref()
+            .unwrap_or(&self.settings)
+            .freezes_unfocused()
+    }
+
     fn fullscreen(&self) -> Option<bool> {
         self.game.as_ref().unwrap_or(&self.settings).fullscreen()
     }
