@@ -12,8 +12,9 @@ use std::sync::{Arc, Mutex, PoisonError};
 use std::time::Instant;
 
 use harness::fingerprint::{
-    Fingerprint, SUITES, Suite, all_replays, audio_modes_mismatch, fingerprint_path, port_mismatch,
-    replay_hash, run_fingerprint_watched, shown, sorted_with_extension,
+    Fingerprint, Fingerprinter, SUITES, Suite, all_replays, faithful_audio_mismatch,
+    fingerprint_path, port_mismatch, replay_hash, run_fingerprint_watched, shown,
+    sorted_with_extension, sound_handle,
 };
 use harness::story::{Story, Watcher};
 use harness::{load_bundle, load_replay_story, load_sounds};
@@ -102,16 +103,6 @@ fn audio_checked(job: &Job) -> bool {
             .is_some_and(|s| AUDIO_REPLAYS.contains(&s))
 }
 
-/// What's wrong with Faithful audio's run of the replay, if it's one of [`AUDIO_REPLAYS`].
-fn check_audio(
-    job: &Job,
-    assets: &Arc<gm::Assets>,
-    sounds: Option<&Arc<game::audio::SoundBank>>,
-) -> Option<String> {
-    let sounds = sounds.filter(|_| audio_checked(job))?;
-    audio_modes_mismatch(&job.replay, assets.clone(), sounds.clone()).unwrap_or_else(Some)
-}
-
 /// A replay to check.
 struct Job {
     path: PathBuf,
@@ -141,7 +132,13 @@ fn untold(job: &Job, repo: &Path) -> Option<String> {
     })
 }
 
-fn check(job: &Job, assets: Arc<gm::Assets>, repo: &Path) -> Option<String> {
+/// `sounds`: the game's, for Faithful audio's run of one of [`AUDIO_REPLAYS`].
+fn check(
+    job: &Job,
+    assets: Arc<gm::Assets>,
+    repo: &Path,
+    sounds: Option<&Arc<game::audio::SoundBank>>,
+) -> Option<String> {
     let fp_path = fingerprint_path(repo, job.suite, &job.path);
     let replay = shown(repo, &job.path);
     if !fp_path.exists() {
@@ -162,14 +159,36 @@ fn check(job: &Job, assets: Arc<gm::Assets>, repo: &Path) -> Option<String> {
         ));
     }
     let mut watcher = Watcher::new(&job.story);
-    let (port, summary) =
-        match run_fingerprint_watched(&job.replay, assets, job.suite.settings, &mut |frame, w| {
-            watcher.frame(frame, w)
-        }) {
-            Ok(r) => r,
-            Err(e) => return Some(e),
-        };
+    // For one of AUDIO_REPLAYS, the same run fingerprinted again without the sound handles, to hold
+    // Faithful audio's run to.
+    let sounds = sounds.filter(|_| audio_checked(job));
+    let mut quiet = sounds.map(|_| Fingerprinter::skipping_globals(sound_handle));
+    let (port, summary) = match run_fingerprint_watched(
+        &job.replay,
+        assets.clone(),
+        job.suite.settings,
+        &mut |frame, w| {
+            watcher.frame(frame, w);
+            if let Some(q) = &mut quiet {
+                q.world(w);
+            }
+        },
+    ) {
+        Ok(r) => r,
+        Err(e) => return Some(e),
+    };
     let mut problems = Vec::new();
+    if let (Some(quiet), Some(sounds)) = (quiet, sounds) {
+        // The host files are the run's own, which the skipped globals don't touch.
+        let stub = Fingerprint {
+            host: port.host.clone(),
+            ..quiet.finish(&job.replay, None)
+        };
+        match faithful_audio_mismatch(&stub, &summary, &job.replay, assets, sounds.clone()) {
+            Ok(None) => {}
+            Ok(Some(m)) | Err(m) => problems.push(m),
+        }
+    }
     if let Some(m) = port_mismatch(&recorded, &port, &summary) {
         let settings = if job.suite.settings {
             " --settings"
@@ -248,7 +267,7 @@ fn run() -> Result<bool, String> {
                 .any(|j| !j.suite.settings && j.path.file_stem() == Some(name.as_ref()))
             {
                 problems.push((
-                    repo.join("fidelity/replays").join(format!("{name}.txt")),
+                    SUITES[0].dir(&repo).join(format!("{name}.txt")),
                     Some(
                         "gone, but fidelity-check's AUDIO_REPLAYS still names it: name another"
                             .into(),
@@ -258,7 +277,8 @@ fn run() -> Result<bool, String> {
         }
     }
     // The longest first, so that one doesn't start last and hold everything up.
-    jobs.sort_by_key(|j| std::cmp::Reverse(j.replay.len()));
+    // One of AUDIO_REPLAYS is played twice.
+    jobs.sort_by_key(|j| std::cmp::Reverse(j.replay.len() * if audio_checked(j) { 2 } else { 1 }));
     let bundle = load_bundle(&o.assets)?;
     // The game's sounds, for Faithful audio's runs, if any replay checked has one.
     let sounds = if jobs.iter().any(audio_checked) {
@@ -288,8 +308,7 @@ fn run() -> Result<bool, String> {
                     // One without a story is still played, for whatever else is wrong with it.
                     let found: Vec<_> = [
                         untold(job, &repo),
-                        check_audio(job, &assets, sounds.as_ref()),
-                        check(job, assets, &repo),
+                        check(job, assets, &repo, sounds.as_ref()),
                     ]
                     .into_iter()
                     .flatten()

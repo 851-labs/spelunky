@@ -365,36 +365,38 @@ pub fn sound_handle(name: &str) -> bool {
         && name[3..].starts_with(|c: char| c.is_ascii_uppercase())
 }
 
-/// How the replay plays in the audio mode players get, [`game::audio::Mode::Faithful`] with the game's `sounds`,
-/// unlike in the oracle's stub mode the fingerprints are of, or `None` if it doesn't (851-3792). Both runs
-/// are fingerprinted without the [sound handles](sound_handle), which are all that may differ: the game
-/// reads the DLL's answers (`SS_IsSoundPlaying` in `oMusic`, `oScreen`, `oOlmec`...), so a change to the
-/// audio model that leaked into its state would ship unnoticed by the oracle's fingerprints.
-pub fn audio_modes_mismatch(
+/// How the replay plays in the audio mode players get, [`game::audio::Mode::Faithful`] with the game's
+/// `sounds`, unlike in the oracle's stub mode the fingerprints are of, or `None` if it doesn't (851-3792).
+/// `stub` is stub mode's run fingerprinted without the [sound handles](sound_handle), which are all that may
+/// differ (`fidelity-check` takes it from its own run of the replay, `stub_summary` that run's end), and
+/// Faithful's is too. The game reads the DLL's answers (`SS_IsSoundPlaying` in `oMusic`, `oScreen`,
+/// `oOlmec`...), so a change to the audio model that leaked into its state would ship unnoticed by the
+/// oracle's fingerprints.
+pub fn faithful_audio_mismatch(
+    stub: &Fingerprint,
+    stub_summary: &crate::RunSummary,
     replay: &Replay,
     assets: Arc<gm::Assets>,
     sounds: Arc<game::audio::SoundBank>,
 ) -> Result<Option<String>, String> {
-    let run = |sounds: Option<Arc<game::audio::SoundBank>>| {
-        let mut summary = crate::run_replay(
-            replay,
-            assets.clone(),
-            &crate::RunOptions {
-                fingerprint: true,
-                fingerprint_skips: Some(sound_handle),
-                sounds,
-                ..crate::RunOptions::default()
-            },
-        )?;
-        let fp = summary.fingerprint.take().expect("asked for");
-        Ok::<_, String>((fp, summary))
-    };
-    let (stub, _) = run(None)?;
-    let (faithful, summary) = run(Some(sounds))?;
-    Ok(port_mismatch(&stub, &faithful, &summary).map(|m| {
+    let mut summary = crate::run_replay(
+        replay,
+        assets,
+        &crate::RunOptions {
+            fingerprint: true,
+            fingerprint_skips: Some(sound_handle),
+            sounds: Some(sounds),
+            ..crate::RunOptions::default()
+        },
+    )?;
+    let faithful = summary.fingerprint.take().expect("asked for");
+    Ok(port_mismatch(stub, &faithful, &summary).map(|m| {
+        let stub_stopped = (stub_summary.error.as_ref())
+            .map(|e| format!("; stub mode stopped: {}", e.message))
+            .unwrap_or_default();
         format!(
             "Faithful audio, the mode players get, plays it unlike the oracle's stub mode, the sound handles \
-             aside (below, \"oracle\" is stub mode's run and \"port\" Faithful's): {m}"
+             aside (below, \"oracle\" is stub mode's run and \"port\" Faithful's): {m}{stub_stopped}"
         )
     }))
 }
@@ -457,6 +459,8 @@ fn hash_host(h: &crate::host::HostContents) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::BTreeMap;
+    use trace::{Instance, Real, Scalar, Value};
 
     #[test]
     fn sound_handles_are_the_dlls_not_the_games_music_settings() {
@@ -467,8 +471,6 @@ mod tests {
             assert!(!sound_handle(name), "{name}");
         }
     }
-    use std::collections::BTreeMap;
-    use trace::{Instance, Real, Scalar, Value};
 
     fn instance(id: i32, object: &str, x: f64) -> Instance {
         let mut i = Instance::new(id, object);
