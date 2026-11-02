@@ -231,13 +231,15 @@ function markdownTwin(asset: Response, slug: string): Response {
 // The other files keep their ETags (Cloudflare leaves them be), which the asset store answers itself.
 function revalidated(request: Request, asset: Response): Response {
   const response = noCache(asset);
-  const page = asset.status === 200 && asset.headers.get("content-type")?.split(";")[0] === "text/html";
+  // A page, or the asset store's 304 for one (an If-None-Match that matched), which has a 200's headers.
+  const page =
+    (asset.status === 200 || asset.status === 304) && asset.headers.get("content-type")?.split(";")[0] === "text/html";
   if (updated === null || !page) return response;
   response.headers.set("last-modified", updated);
   // An If-None-Match is the asset store's to answer, and If-Modified-Since only counts without one (RFC 9110,
   // section 13.1.3).
   const since = request.headers.get("if-modified-since");
-  if (request.headers.has("if-none-match") || since !== updated) return response;
+  if (asset.status !== 200 || request.headers.has("if-none-match") || since !== updated) return response;
   void response.body?.cancel();
   response.headers.delete("content-length");
   return new Response(null, { status: 304, headers: response.headers });

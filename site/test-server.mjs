@@ -370,7 +370,18 @@ for (const [what, headers, status] of [
     }
   }
 }
-for (const path of ["/wiki/snake.md", "/nowhere"]) {
+// The asset store's own 304 for a page (its If-None-Match matched) has the date too.
+try {
+  const response = await serve(new Request(`https://spelunky.ai${PAGE}`, { headers: { "if-none-match": ETAG } }));
+  assert.equal(response.status, 304, `${PAGE}, its ETag: status`);
+  assert.equal(response.headers.get("last-modified"), UPDATED, `${PAGE}, its ETag: last-modified`);
+  console.log(`ok   ${PAGE}, its ETag: the asset store's 304, dated`);
+} catch (error) {
+  failures++;
+  console.error(`FAIL ${error.message}`);
+}
+// Nor any other file the Worker serves: a text file's, a twin's, a 404.
+for (const path of ["/robots.txt", "/play/manifest.txt", "/wiki/snake.md", "/nowhere"]) {
   try {
     const response = await serve(new Request(`https://spelunky.ai${path}`, { headers: { "if-modified-since": UPDATED } }));
     assert.notEqual(response.status, 304, `${path}: a 304 by date`);
