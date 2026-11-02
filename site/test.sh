@@ -58,13 +58,14 @@ trap cleanup EXIT
 mkdir -p "$tmp/web/v/0123456789abcdef"
 # Its page can be embedded, seeks, plays on phones, plays clips cut from committed replays, reports its start-up
 # run, reports its state at a clip's first frame, runs a clip through, reporting its states at its frames, and fills
-# its frame, as the wiki's clips ask (src/wiki/live-clip.tsx).
-echo '<!doctype html><meta name="spelunky-embed" content="1"><meta name="spelunky-embed-seek" content="1"><meta name="spelunky-embed-held-sound" content="1"><meta name="spelunky-embed-replays" content="1"><meta name="spelunky-embed-progress" content="1"><meta name="spelunky-embed-state" content="1"><meta name="spelunky-embed-states" content="1"><meta name="spelunky-embed-fill" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
+# its frame, as the wiki's clips ask (src/wiki/live-clip.tsx). And it starts with an inline module, as the real one
+# does, which its Content-Security-Policy names (csp.mjs).
+echo '<!doctype html><meta charset="utf-8"><meta name="spelunky-embed" content="1"><meta name="spelunky-embed-seek" content="1"><meta name="spelunky-embed-held-sound" content="1"><meta name="spelunky-embed-replays" content="1"><meta name="spelunky-embed-progress" content="1"><meta name="spelunky-embed-state" content="1"><meta name="spelunky-embed-states" content="1"><meta name="spelunky-embed-fill" content="1"><title>stand-in web build</title><script type="module">import init from "./app.js"; init();</script>' >"$tmp/web/index.html"
 echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 mkdir -p "$tmp/web/v/0123456789abcdef/assets/config"
 echo 'stand-in bundle' >"$tmp/web/v/0123456789abcdef/assets/bundle.bin"
 echo 'stand-in settings bundle' >"$tmp/web/v/0123456789abcdef/assets/config/bundle.bin"
-echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
+(cd "$tmp/web" && shasum -a 256 index.html v/0123456789abcdef/app.js >manifest.txt)
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
 # And for the wiki's media (wiki/media, which scripts/wiki-media renders), with its real LICENSE.txt and
@@ -359,11 +360,16 @@ no_cache="cache-control: no-cache"
 immutable="cache-control: public, max-age=31536000, immutable"
 # The wiki's media keep their names when they're rendered again (public/_headers).
 media_cache="cache-control: public, max-age=86400"
-# On every response, the Worker's (src/server.ts) and the asset store's (public/_headers' /*).
+# On every response, the Worker's (src/server.ts) and the asset store's (public/_headers' /*), which
+# test-server.mjs checks are the same; and on a page, its own policy in a <meta> (csp.mjs).
 hsts="strict-transport-security: max-age=31536000; includeSubDomains"
+frame_csp="content-security-policy: frame-ancestors 'self'; object-src 'none'; base-uri 'self'"
+frame_options="x-frame-options: SAMEORIGIN"
 
 # The pre-rendered landing page.
-check "$site/" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts"
+check "$site/" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts" "$frame_csp" "$frame_options" \
+  "x-content-type-options: nosniff" "referrer-policy: strict-origin-when-cross-origin"
+contains '<meta charSet="utf-8"/><meta http-equiv="Content-Security-Policy" content="default-src '"'self'"'; script-src '"'self'"' '"'sha256-"
 contains '<html lang="en">' \
   '<title>Spelunky Classic in your browser (unofficial port)</title>' \
   '<meta property="og:image" content="https://spelunky.ai/media/card.png"/>' \
@@ -427,13 +433,22 @@ check "$site/apple-touch-icon.png" 200 "$no_cache" "content-type: image/png"
 same public/apple-touch-icon.png
 # Its scripts: content-hashed, so served without the Worker, and cached for good.
 script=$(cd dist/client && ls assets/*.js | head -1)
-check "$site/$script" 200 "$immutable" "x-content-type-options: nosniff" "$hsts"
+check "$site/$script" 200 "$immutable" "x-content-type-options: nosniff" "$hsts" "$frame_csp"
 
 # The web build.
 check "$site/play" 307 "location: /play/" "$no_cache"
-check "$site/play/" 200 "$no_cache" "content-type: text/html; charset=utf-8"
-same "$tmp/web/index.html"
+check "$site/play/" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$frame_csp"
+# The web build's page as it is, but for its policy (csp.mjs), which lets it compile its WebAssembly.
+sed 's|<meta http-equiv="Content-Security-Policy" content="[^"]*">||' "$tmp/body" | cmp -s - "$tmp/web/index.html" ||
+  fail "$url: isn't the web build's page with a Content-Security-Policy"
+contains '<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src '"'self'"'; script-src '"'self'"' '"'sha256-"
+contains "'wasm-unsafe-eval'"
 check "$site/play/manifest.txt" 200 "$no_cache"
+# The page as it's served, with its policy, and the rest as the release has them (build.sh).
+[ "$(grep ' index.html$' "$tmp/body")" = "$(cd dist/client/play && shasum -a 256 index.html)" ] ||
+  fail "$url: doesn't name index.html as it's served"
+[ "$(grep ' v/0123456789abcdef/app.js$' "$tmp/body")" = "$(grep ' v/0123456789abcdef/app.js$' "$tmp/web/manifest.txt")" ] ||
+  fail "$url: doesn't name app.js as the release does"
 check "$site/play/v/0123456789abcdef/app.js" 200 "$immutable" "x-content-type-options: nosniff" "$hsts"
 same "$tmp/web/v/0123456789abcdef/app.js"
 # Its assets, as a type Cloudflare compresses (public/_headers).
@@ -837,7 +852,7 @@ lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" co
 check "$site/wiki/items/nothing" 404 "$no_cache"
 # A slug with no page: the router renders it, finds none, and the 404 page answers.
 check "$site/wiki/no-such-page" 404 "$no_cache" "content-type: text/html; charset=utf-8"
-same public/404.html
+same dist/client/404.html
 # An alias (its page's frontmatter's) is a permanent redirect to the page, no-cache as the pages are; with a
 # slash, straight to the page; and as a twin, to the page's twin; the query kept (test-links.mjs checks
 # every alias). The page has no other URL: its canonical is its own (test-seo.mjs).
@@ -958,11 +973,11 @@ check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf
 same "$tmp/LICENSE.txt"
 contains 'Spelunky® User License v1.1b'
 
-check "$site/nowhere" 404 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts"
-same public/404.html
+check "$site/nowhere" 404 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts" "$frame_csp"
+same dist/client/404.html
 # Not a page, so the Worker doesn't ask the router.
 check "$site/wp-login.php" 404 "$no_cache"
-same public/404.html
+same dist/client/404.html
 # Only GET and HEAD: the asset store answers anything else.
 got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 [ "$got" = 405 ] || fail "POST $site/: status $got, not 405"
@@ -973,6 +988,8 @@ check "http://localhost:$www_port/play/?a=1" 301 "location: https://spelunky.ai/
 # The landing page's card (landing-card.mjs checks it's current, above), served.
 check "$site/media/card.png" 200 "$no_cache" "content-type: image/png"
 same public/media/card.png
+# Every page's Content-Security-Policy names exactly its inline scripts.
+node csp.mjs check dist/client || fail "csp.mjs check"
 # Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemaps against them.
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.

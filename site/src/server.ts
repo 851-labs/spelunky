@@ -36,6 +36,24 @@ interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
 }
 
+// The headers every response from spelunky.ai has, the Worker's and (public/_headers' /*, which test-server.mjs
+// checks against these) the asset store's alike (docs/web-deploy.md, "Security headers"). The policy here is what
+// a <meta> can't carry: who may frame the site (only itself: the wiki's live clips frame /play/, and the game
+// takes the keyboard), and plugins and <base>. The rest of it, which scripts a page may run, is each page's own
+// <meta> (csp.mjs). The game asks for fullscreen, gamepads and autoplaying sound, also in the wiki's frame of it,
+// and nothing on the site wants the rest.
+const EVERY_RESPONSE: [string, string][] = [
+  ["strict-transport-security", HSTS],
+  ["content-security-policy", "frame-ancestors 'self'; object-src 'none'; base-uri 'self'"],
+  ["x-frame-options", "SAMEORIGIN"],
+  ["x-content-type-options", "nosniff"],
+  ["referrer-policy", "strict-origin-when-cross-origin"],
+  [
+    "permissions-policy",
+    "autoplay=(self), fullscreen=(self), gamepad=(self), camera=(), microphone=(), geolocation=(), payment=(), usb=(), midi=(), display-capture=()",
+  ],
+];
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     return secured(await route(request, env));
@@ -118,11 +136,10 @@ async function route(request: Request, env: Env): Promise<Response> {
   return withDefaultCaching(rendered);
 }
 
-// Every response the Worker gives, a redirect or a 404 included, with the headers every response from
-// spelunky.ai has (public/_headers' /* gives the rest the same).
+// Every response the Worker gives, a redirect or a 404 included, with the headers every response has.
 function secured(response: Response): Response {
   const copy = new Response(response.body, response);
-  copy.headers.set("strict-transport-security", HSTS);
+  for (const [name, value] of EVERY_RESPONSE) copy.headers.set(name, value);
   return copy;
 }
 
@@ -140,7 +157,7 @@ function slugOf(name: string): string | null {
     .normalize("NFKD")
     .replace(/\p{M}/gu, "")
     .toLowerCase()
-    .replace(/['\u2019]/g, "")
+    .replace(/['’]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 }

@@ -250,6 +250,14 @@ if [ -d "$media/rooms" ]; then
   mkdir $assets/wiki/media/rooms
   find "$media/rooms" -maxdepth 1 -name '*.png' -exec cp {} $assets/wiki/media/rooms/ \;
 fi
+# Every page's Content-Security-Policy, naming its own inline scripts by their hashes (csp.mjs), now that the
+# pages are all here: the app's, 404.html and the game's. The game's is the release's page with its policy then,
+# so play/manifest.txt, which lists every file at /play/ to check the site against, names it as it's served.
+node csp.mjs write $assets
+page_sum=$(sha256 $assets/play/index.html)
+awk -v sum="$page_sum" '$0 ~ /^[0-9a-f]+  index\.html$/ { print sum "  index.html"; next } { print }' \
+  $assets/play/manifest.txt >"$tmp/manifest.txt"
+mv "$tmp/manifest.txt" $assets/play/manifest.txt
 # The builds before this one's content-hashed files (its scripts and Open Graph images), which the pages they
 # served still name, from the live site's build-assets.json, and this build's list of its own (carry-assets.mjs;
 # docs/web-deploy.md, "Version skew"), dated now, as the deploy follows the build. Up to 19,900 files in all,
