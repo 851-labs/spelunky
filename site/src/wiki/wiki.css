@@ -186,7 +186,7 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
   background: var(--gold); border: 0; border-radius: 0; box-shadow: var(--bevel);
 }
 /* Focus is the links' ring, not hover's lighter yellow (barely 1.2:1 against the gold, and the same as a
-   mouse resting on another button): 851-3891. The offset sets it on the page's dark, not on the button. */
+   mouse resting on another button): 851-3891. The offset sets it on the dark around the button, not on it. */
 .clip-button:hover { background: #ffd860; }
 .clip-button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .clip-button[data-disabled] { color: var(--dim); background: var(--dirt); box-shadow: none; cursor: default; }
@@ -239,7 +239,7 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 /* A box that scrolls sideways is a tab stop while it does (scroll-focus.ts), ringed as a link is, outside its
    own ring if it has one. */
 .gml pre:focus-visible { outline: 2px solid var(--gold); outline-offset: calc(var(--ring) + 2px); }
-.table-wrap:focus-visible, .room-picture:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.table-wrap:focus-visible, .room-picture-scroll:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 /* The source viewer (source-view.tsx): a file's lines, numbered, in one box that scrolls sideways rather than
    wrapping, so a line is always one row. The numbers are generated content, out of a copy's text. The lines a
@@ -287,7 +287,8 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .room-settings th[scope="row"] { color: var(--dim); font-weight: 400; }
 /* A room's picture: its game pixels drawn as squares of screen pixels, scrolling across where it's wider than the
    column; an object's instances boxed as its row in the table below is pointed at. */
-.room-picture { margin: 16px 0; overflow-x: auto; }
+.room-picture { margin: 16px 0; }
+.room-picture-scroll { overflow-x: auto; }
 .room-picture-frame { position: relative; }
 .room-picture img { display: block; image-rendering: pixelated; max-width: none; }
 /* Inside the sprite's box, as the picture's scrolling box would cut off an outline outside it at its edges. */

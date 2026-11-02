@@ -1396,22 +1396,27 @@ for (const [what, files, want] of cases) {
 // scrolling box fails here until it's one or the other.
 {
   const css = readFileSync(here("src/wiki/wiki.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-  const scrolling = [...css.matchAll(/([^{}]+)\{[^{}]*overflow(?:-x)?:\s*(?:auto|scroll)/g)].map((m) => m[1].trim());
+  const scrolling = [...css.matchAll(/([^{}]+)\{[^{}]*overflow(?:-[xy])?:\s*(?:auto|scroll)/g)].map((m) => m[1].trim());
+  // Selector → the component that draws it with useScrollFocus's props, as the element's tag and class; or why
+  // it needs none.
   const reachable = {
-    ".gml pre": ["src/wiki/components.tsx", "<pre ref={ref} {...focus}>"],
-    ".table-wrap": ["src/wiki/components.tsx", '<div className="table-wrap" ref={ref} {...focus}>'],
-    ".room-picture": ["src/wiki/source-view.tsx", '<figure className="room-picture" ref={ref} {...focus}>'],
-    // Its lines' numbers are links.
-    ".source-code": null,
+    ".gml pre": ["src/wiki/components.tsx", /<pre\b[^>]*\{\.\.\.focus\}/],
+    ".table-wrap": ["src/wiki/components.tsx", /<div className="table-wrap"[^>]*\{\.\.\.focus\}/],
+    ".room-picture-scroll": ["src/wiki/source-view.tsx", /<div className="room-picture-scroll"[^>]*\{\.\.\.focus\}/],
+    ".source-code": "its lines' numbers are links",
+    ".wiki-page > .toc-rail": "it's a list of links",
+    ".hover-card": "it's a tooltip, its link's page has all it shows",
   };
   const before = failures;
   for (const selector of scrolling) {
-    if (!(selector in reachable)) fail(`scrolling boxes: wiki.css scrolls ${selector} sideways, but nothing makes it a tab stop (src/wiki/scroll-focus.ts)`);
-    else if (reachable[selector] && !readFileSync(here(reachable[selector][0]), "utf8").includes(reachable[selector][1])) {
-      fail(`scrolling boxes: ${reachable[selector][0]} doesn't draw ${selector} with useScrollFocus's props`);
+    const how = reachable[selector];
+    if (!how) fail(`scrolling boxes: wiki.css scrolls ${selector}, but nothing makes it a tab stop (src/wiki/scroll-focus.ts)`);
+    else if (Array.isArray(how)) {
+      const code = readFileSync(here(how[0]), "utf8");
+      if (!code.includes("useScrollFocus") || !how[1].test(code)) fail(`scrolling boxes: ${how[0]} doesn't draw ${selector} with useScrollFocus's props`);
     }
   }
-  if (failures === before) console.log(`ok   scrolling boxes: ${scrolling.join(", ")} are reachable by keyboard`);
+  if (failures === before) console.log(`ok   scrolling boxes: ${scrolling.join(", ")} can be scrolled by keyboard`);
 }
 
 if (failures > 0) {
