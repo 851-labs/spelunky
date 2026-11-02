@@ -15,7 +15,13 @@
 #[derive(Default)]
 pub struct Awake {
     held: Option<platform::Held>,
+    /// Times it asked since it was last let go: a platform that refuses isn't asked again and again.
+    asked: u32,
 }
+
+/// How many times [`Awake::hold`] asks before giving up until it's let go and held again: on the web, a
+/// browser may refuse before the page has been used, and grant it after.
+const MAX_ASKS: u32 = 3;
 
 impl Awake {
     pub fn new() -> Awake {
@@ -23,13 +29,15 @@ impl Awake {
     }
 
     /// Keeps the display awake from now on, or no longer. Holding it again does nothing more, except on the
-    /// web, where it asks again if the browser dropped it (the tab hidden).
+    /// web, where it asks again if the browser dropped or refused it, a few times.
     pub fn hold(&mut self, on: bool) {
         if !on {
             self.held = None;
+            self.asked = 0;
             return;
         }
-        if self.held.as_ref().is_none_or(platform::Held::dropped) {
+        if self.held.as_ref().is_none_or(platform::Held::dropped) && self.asked < MAX_ASKS {
+            self.asked += 1;
             self.held = platform::Held::new();
         }
     }
@@ -115,7 +123,8 @@ mod platform {
     }
 }
 
-// A raw kernel32 call, as `fatal`'s MessageBoxW: windows-sys would need another feature for one function.
+// A raw kernel32 call: windows-sys has it, but behind a feature of its own (`Win32_System_Power`), for one
+// function.
 #[cfg(windows)]
 #[allow(unsafe_code)]
 mod platform {

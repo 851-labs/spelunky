@@ -670,8 +670,13 @@ impl<G: Game> App<G> {
 
     /// The display, kept awake or not, if this is a session of play that does ([`App::keeping_awake`]).
     fn awake(&mut self) -> Option<&mut Awake> {
-        let play = matches!(self.source, Source::Live { .. }) && self.embed.is_none();
-        self.awake.as_mut().filter(|_| play)
+        let live = self.live();
+        self.awake.as_mut().filter(|_| live)
+    }
+
+    /// Whether the input is the window's: live, not a replay's or a page's clip's (until the reader takes it).
+    fn live(&self) -> bool {
+        matches!(self.source, Source::Live { .. }) && self.embed.is_none()
     }
 
     /// Draws `notice` over the game's picture for its first seconds.
@@ -1319,6 +1324,15 @@ impl<G: Game> App<G> {
         self.next_tick = after_freeze(was, self.frozen(), self.next_tick, Instant::now());
     }
 
+    /// A press means the window has focus. The browser drops a wake lock when the tab is hidden, and may
+    /// refuse one before the page has been used, so the web asks again then; natively it holds once asked.
+    fn ask_awake_again(&mut self) {
+        #[cfg(target_arch = "wasm32")]
+        if let Some(awake) = self.awake() {
+            awake.hold(true);
+        }
+    }
+
     /// The live session's input collector; `None` while playing a replay, which ignores the devices.
     fn collector(&mut self) -> Option<&mut Collector> {
         match &mut self.source {
@@ -1330,8 +1344,7 @@ impl<G: Game> App<G> {
     /// Whether a session of play is running, for the close button to reach: a game that takes it, begun, not
     /// ended or failed, and not a replay or a page's clip, whose input isn't the window's.
     fn playing(&self) -> bool {
-        matches!(self.source, Source::Live { .. })
-            && self.embed.is_none()
+        self.live()
             && self.ticks > 0
             && self.error.is_none()
             && self.game.close_button()
@@ -1399,6 +1412,11 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
             Err(e) => return self.fail(event_loop, format!("can't open a window: {e}")),
         };
         self.window = Some(window.clone());
+        // In front already, if winit doesn't report it: it reports changes from here on.
+        let focused = window.has_focus();
+        if let Some(awake) = self.awake() {
+            awake.hold(focused);
+        }
 
         #[cfg(not(target_arch = "wasm32"))]
         {
@@ -1491,11 +1509,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 let typed = typed(key_event);
                 if down {
                     self.game.user_gesture();
-                    // A key means the window has focus: the browser drops a wake lock when the tab is
-                    // hidden, and may refuse one before the page has been used.
-                    if let Some(awake) = self.awake() {
-                        awake.hold(true);
-                    }
+                    self.ask_awake_again();
                 }
                 // The press the session waited for is the app's, its repeats and release too. Not a
                 // modifier, which may be the start of a browser's or the system's shortcut (Cmd-Tab).
@@ -1553,6 +1567,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 };
                 if state == ElementState::Pressed {
                     self.game.user_gesture();
+                    self.ask_awake_again();
                     if self.waits() {
                         self.start_from_press();
                         self.taken_buttons.push(b);
