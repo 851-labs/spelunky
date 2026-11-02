@@ -32,21 +32,19 @@ function Landing() {
       <a className="play" href="/play/">
         Play in your browser
       </a>
-      <nav className="more" aria-label="More">
+      <p className="more">
         {/* 1.1's settings program, config.exe: the keys, the volumes and the window's size. */}
-        <a className="settings" href="/play/?settings">
-          Settings
-        </a>
+        <a href="/play/?settings">Settings</a>
         <a href="/wiki">Wiki</a>
-      </nav>
+      </p>
       {/* The keys a new player needs in the first level (the game teaches them only in the Tutorial's signs);
           the wiki's Controls page has the rest. */}
       <p className="hint">
         Needs a keyboard or a gamepad: arrows move, <kbd>Z</kbd> jumps, <kbd>X</kbd> whips or uses what you
         hold, <kbd>A</kbd> throws a bomb, <kbd>S</kbd> a rope, <kbd>C</kbd> takes a bomb or rope out to hold,{" "}
         <kbd>Shift</kbd> runs, <kbd>P</kbd> pays in a shop and <kbd>Esc</kbd> pauses.{" "}
-        <a href="/wiki/controls">All the controls</a> are in the wiki. Settings changes the keys and the volumes.
-        Saves stay in your browser.
+        <a href="/wiki/controls">All the controls</a> are in the wiki; Settings changes them. Saves stay in your
+        browser.
       </p>
 
       <div className="frame">

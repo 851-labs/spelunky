@@ -377,7 +377,7 @@ contains '<html lang="en">' \
   '<img class="logo" src="media/logo.png" width="160" height="36" alt="Spelunky"/>' \
   'Spelunky Classic 1.1, ported to Rust tick for tick, bugs included.' \
   '<a class="play" href="/play/">Play in your browser</a>' \
-  '<a class="settings" href="/play/?settings">Settings</a><a href="/wiki">Wiki</a>' \
+  '<p class="more"><a href="/play/?settings">Settings</a><a href="/wiki">Wiki</a></p>' \
   '<a href="/wiki/controls">All the controls</a>' \
   'autoPlay="" loop="" muted="" playsInline=""' \
   '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
@@ -575,6 +575,7 @@ check "$site/wiki/media" 404 "$no_cache"
 # in the page), the sections' anchors and the navbox, its title linking the hub.
 check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Snake – Spelunky Classic wiki</title>' \
+  '<nav class="wiki-site" aria-label="spelunky.ai"><a href="/play/">Play</a><a href="/">spelunky.ai</a></nav>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
   '<meta name="description" content="The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact."/>' \
   '<meta property="og:type" content="article"/>' '<meta property="og:image" content="https://spelunky.ai/wiki/og/snake.' \

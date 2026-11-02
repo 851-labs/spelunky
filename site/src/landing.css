@@ -42,10 +42,10 @@ h1 { margin: 0; }
     0 0 0 var(--px) #000,
     var(--px) calc(2 * var(--px)) 0 var(--px) #000;
 }
-/* Focus is a ring, as the wiki's buttons' (851-3940): hover's lighter yellow is barely 1.2:1 against the gold.
-   The offset sets it past the button's black ring. */
+/* Focus is a gold ring, as the wiki's buttons' (851-3891, 851-3940): hover's lighter yellow is barely 1.2:1
+   against the gold. The offset sets it past the button's black ring and its drop shadow. */
 .play:hover { background: #ffd860; }
-.play:focus-visible { outline: 2px solid var(--gold); outline-offset: calc(2 * var(--px)); }
+.play:focus-visible { outline: 2px solid var(--gold); outline-offset: calc(3 * var(--px)); }
 .play:active { transform: translateY(var(--px)); }
 /* Settings and the wiki, under Play. */
 .more { display: flex; justify-content: center; gap: 24px; margin: 0 auto 12px; font-size: 14px; }
