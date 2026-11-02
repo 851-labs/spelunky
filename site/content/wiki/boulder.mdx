@@ -118,5 +118,5 @@ The idol does something else in the other areas: in the Jungle the floor around 
 
 - Its step has a commented-out end that would have turned a stopped boulder into a static one, an object
   the game doesn't have <Cite gml="objects/oBoulder/step.gml:81-87" />.
-- The boulder's destruction of blocks tries to remove their decoration tiles too, but the function it uses
-  never finds a tile in GameMaker 8.0, so the decoration stays behind <Cite quirk="5" row="tile_layer_find never finds a tile in GM 8.0" />.
+- A block the boulder breaks takes the decoration tile on top of it (grass, or a cave top) with
+  it <Cite gml="objects/oBoulder/collision_oSolid.gml:18-19" /> <Cite quirk="5" row="tile_layer_find finds a tile in GM 8.0" />.

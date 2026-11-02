@@ -531,6 +531,15 @@ which `keyboard_check` and its siblings answer as "no key" and "any key", so onl
 them. OpenGMK ran them in both, so twice: every letter typed in the level editor came out twice, and each key in
 the key config bound two actions.
 
+### `opengmk/0037-gm8-tile-layer-find.patch`
+
+`tile_layer_find` finds tiles, as GM 8.0's does (851-3787, `docs/quirks.md` §5 and §7, measured by
+`tools/gm8-probe`'s `tile-layer-find`, which the patched oracle answers line for line as GM8 does): a tile's box is
+its unscaled size, where OpenGMK took 8.0 to multiply the size by 0 ("8.1 bugfix") and never find one. The first
+match in the draw order is the first added, as in GM8, since every match is at the one depth and the depth sort is
+stable. `tile_layer_delete_at`, which has the same test, deletes every tile in the same box, as GM 8.0's does (the same probe;
+the game never calls it).
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
