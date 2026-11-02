@@ -18,7 +18,9 @@ import { registerHooks } from "node:module";
 // a file, has none. And the wiki's aliases are the build's, whose redirects test.sh and test-links.mjs check on
 // the built site: here there's one.
 const ROUTER = `export default { fetch: async () => new Response("router: no such page", { status: 404 }) };`;
-const ALIASES = 'export const aliases = new Map([["pot", "jar"]]);';
+// Pages called jar (alias pot), snake, yeti-king and olmecs-lair, and a hub called monsters.
+const ALIASES = `export const names = new Map(${JSON.stringify([["jar", "jar"], ["pot", "jar"], ["snake", "snake"], ["yeti-king", "yeti-king"], ["olmecs-lair", "olmecs-lair"], ["monsters", "monsters"]])});
+export const twins = new Set(["jar", "snake", "yeti-king", "olmecs-lair"]);`;
 registerHooks({
   resolve(specifier, context, nextResolve) {
     if (specifier === "@tanstack/react-start/server-entry") {
@@ -192,11 +194,21 @@ for (const [path, worker] of Object.entries(ROUTES)) {
   }
 }
 // An alias is a 301 to its page, or its twin, no-cache, in one hop, the query kept; but only for a GET or HEAD.
+// So is a page's or hub's name in another case, with underscores or spaces, or with its apostrophe (851-3895).
 const ALIAS_REDIRECTS = {
   "/wiki/pot": "/wiki/jar",
   "/wiki/pot/": "/wiki/jar",
   "/wiki/pot.md": "/wiki/jar.md",
   "/wiki/pot?a=1": "/wiki/jar?a=1",
+  "/wiki/Snake": "/wiki/snake",
+  "/wiki/SNAKE/": "/wiki/snake",
+  "/wiki/Snake.md": "/wiki/snake.md",
+  "/wiki/Yeti_King": "/wiki/yeti-king",
+  "/wiki/Yeti%20King?a=1": "/wiki/yeti-king?a=1",
+  "/wiki/Olmec%27s_Lair": "/wiki/olmecs-lair",
+  "/wiki/Olmec's_Lair": "/wiki/olmecs-lair",
+  "/wiki/Pot": "/wiki/jar",
+  "/wiki/Monsters": "/wiki/monsters",
 };
 for (const [path, to] of Object.entries(ALIAS_REDIRECTS)) {
   for (const method of ["GET", "HEAD"]) {
@@ -213,13 +225,27 @@ for (const [path, to] of Object.entries(ALIAS_REDIRECTS)) {
     }
   }
 }
-try {
-  const response = await serve(new Request("https://spelunky.ai/wiki/pot", { method: "POST" }));
-  assert.notEqual(response.status, 301, "POST /wiki/pot: redirected");
-  console.log(`ok   POST /wiki/pot: ${response.status}, no redirect`);
-} catch (error) {
-  failures++;
-  console.error(`FAIL ${error.message}`);
+for (const path of ["/wiki/pot", "/wiki/Snake"]) {
+  try {
+    const response = await serve(new Request(`https://spelunky.ai${path}`, { method: "POST" }));
+    assert.notEqual(response.status, 301, `POST ${path}: redirected`);
+    console.log(`ok   POST ${path}: ${response.status}, no redirect`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
+  }
+}
+// A page's own slug is the asset store's (which has it, or 404s), a hub has no twin, and a name that's no
+// page's or hub's, or that doesn't decode, is a miss: none is redirected.
+for (const path of ["/wiki/snake", "/wiki/snake.md", "/wiki/Monsters.md", "/wiki/Cobra", "/wiki/%E0%A4%A"]) {
+  try {
+    const response = await serve(new Request(`https://spelunky.ai${path}`));
+    assert.notEqual(response.status, 301, `GET ${path}: redirected to ${response.headers.get("location")}`);
+    console.log(`ok   GET ${path}: ${response.status}, no redirect`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
+  }
 }
 // Plain HTTP and www are a 301 to https://spelunky.ai, path and query kept, in one hop (a 308 for a POST, which
 // keeps its method), whether or not the Worker would have served the path; the files that skip it are the zone's

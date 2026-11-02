@@ -26,8 +26,10 @@ declare module "virtual:wiki/hover-cards" {
 }
 
 declare module "virtual:wiki/aliases" {
-  // Each page's aliases, to its slug.
-  export const aliases: Map<string, string>;
+  // Each page's slug and aliases, and each hub's slug, to the page's or hub's slug.
+  export const names: Map<string, string>;
+  // The slugs that have a Markdown twin: the pages', not the hubs'.
+  export const twins: Set<string>;
 }
 
 declare module "virtual:wiki/quirk-links" {

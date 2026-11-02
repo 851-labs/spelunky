@@ -832,6 +832,14 @@ check "$site/wiki/pot" 301 "$no_cache" "location: $site/wiki/jar"
 check "$site/wiki/jaws/" 301 "$no_cache" "location: $site/wiki/megamouth"
 check "$site/wiki/score.md" 301 "$no_cache" "location: $site/wiki/scoring.md"
 check "$site/wiki/shopkeeper-spikes-murderer?a=1" 301 "location: $site/wiki/accidental-murder?a=1"
+# So is a page's or a hub's name written as Fandom writes its URLs: capitalised, underscores for spaces, an
+# apostrophe kept (851-3895).
+check "$site/wiki/Snake" 301 "$no_cache" "location: $site/wiki/snake"
+check "$site/wiki/Yeti_King/" 301 "location: $site/wiki/yeti-king"
+check "$site/wiki/Olmec%27s_Lair" 301 "location: $site/wiki/olmecs-lair"
+check "$site/wiki/Snake.md" 301 "location: $site/wiki/snake.md"
+check "$site/wiki/Monsters" 301 "location: $site/wiki/monsters"
+check "$site/wiki/Pot" 301 "location: $site/wiki/jar"
 check "$site/sitemap.xml" 200
 contains '<loc>https://spelunky.ai/wiki</loc>' '<loc>https://spelunky.ai/wiki/snake</loc>' \
   '<lastmod>2026-10-27</lastmod>' '<loc>https://spelunky.ai/wiki/monsters</loc>'

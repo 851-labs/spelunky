@@ -431,8 +431,10 @@ working. An alias is a permanent redirect (301) to its page: `/wiki/pot` to `/wi
 a map of them (`virtual:wiki/aliases`), rather than a `_redirects` file: the Worker sees every `/wiki/` request
 anyway (`wrangler.jsonc`'s `run_worker_first`), the map is the pages' own (no second list to keep in step, nor
 `_redirects`' cap of 2,000 rules to watch), and the redirect is one hop whatever the asset store's
-trailing-slash handling would do. A redirect is `no-cache`, as the pages are, so an alias that becomes a page
-of its own shows up at once. Nothing on the site names a page by an alias (`test-links.mjs`): its links, canonical
+trailing-slash handling would do. A page's or hub's slug or alias written another way, as Fandom writes its
+URLs, is the same redirect: in another case, with underscores or spaces for hyphens, or with its apostrophes
+(`/wiki/Snake`, `/wiki/Yeti_King`, `/wiki/Olmec%27s_Lair`). A redirect is `no-cache`, as the pages are, so an
+alias that becomes a page of its own shows up at once. Nothing on the site names a page by an alias (`test-links.mjs`): its links, canonical
 URL and sitemap entries are the page's slug, and a link written `[[pot]]` goes to `/wiki/jar`.
 
 ## Page types
