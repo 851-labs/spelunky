@@ -1,11 +1,14 @@
 # A man trap eating a caveman, with no help from the player (851-3783): oManTrap's collision with oCaveman.
-# fidelity/gen-area.sh jungle 137 840 (level 5 loads on 781), standing still at the start. A caveman walks into a
-# man trap near the entrance (793): the trap, neither stunned nor eating, turns to face it, takes the sprite
-# sManTrapEatCavemanL, goes to status EATING (97) and destroys the caveman. Its eating animation ends at 817, and it
-# sleeps (96). Found by a sweep of 200 Jungle level starts left standing for 3000 frames (six of them had it). Ends
-# at 839.
-# story: currLevel=5@781 -oCaveman@793..793 oManTrap.status=97@793..793 oManTrap.sprite_index=sManTrapEatCavemanL@793..793
-# story: oManTrap.status=96@817..817 !plife<4
+# fidelity/gen-area.sh jungle 137 840 (level 5 loads on 781), standing still at the start. A caveman walks into a man
+# trap near the entrance from its left (793): the trap, neither stunned nor eating, faces it (LEFT, 0, as it already
+# did), takes the sprite sManTrapEatCavemanL (the same whichever way it faces), goes to status EATING (97) and
+# destroys the caveman. Its eating animation ends at 817, and it sleeps (96). Found by a port-only sweep with a
+# line-coverage build of 600 level starts (fidelity/gen-area.sh, seeds 1-200 each of the Jungle, the Ice Caves and the
+# Temple) left standing for 3000 frames: monsters act only near the view, so those near the start can meet. Six of the
+# 200 Jungle starts had a man trap eat a caveman; this is the earliest. Ends at 839.
+# story: currLevel=5@781 -oCaveman@793..793 oManTrap.status=97@793..793
+# story: oManTrap.sprite_index=sManTrapEatCavemanL@793..793 !oManTrap.facing=1@783.. oManTrap.status=96@817..817
+# story: !plife<4
 seed 137
 frames 840
 highscore 9000100 "MONEY"

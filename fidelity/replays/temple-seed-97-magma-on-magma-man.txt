@@ -1,10 +1,12 @@
-# Magma touching a Magma Man, which it leaves alone (851-3783): oMagma's collision with oEnemy, whose burn is only
-# for an enemy whose type isn't "Magma Man". fidelity/gen-area.sh temple 97 1720 (level 13 loads on 738), standing
-# still at the start. Near the player, blobs of magma (oMagma) come up from the lava from 1618, each turning into a
-# Magma Man (the first at 1641). At 1690 a new blob appears touching a Magma Man: the collision event runs and does
-# nothing to it, no burn and no knockback. Found by a sweep of 200 Temple level starts left standing for 3000 frames.
-# Ends at 1719.
-# story: currLevel=13@738 +oMagmaMan@1641..1641 +oMagma@1690..1690 !plife<4
+# Magma touching a Magma Man, which it leaves alone (851-3783): oMagma's collision with oEnemy, whose burn is only for
+# an enemy whose type isn't "Magma Man". fidelity/gen-area.sh temple 97 1720 (level 13 loads on 738), standing still
+# at the start. Near the player, blobs of magma (oMagma) come up from the lava at x 296-299 from 1618, each turning
+# into a Magma Man (the first at 1641). At 1690 a new blob appears at (298, 88), touching a Magma Man there: the
+# collision event runs and does nothing to it, so it isn't set burning (its burning only counts down from 0) and isn't
+# knocked back. Found by a port-only sweep with a line-coverage build of 600 level starts (fidelity/gen-area.sh, seeds
+# 1-200 each of the Jungle, the Ice Caves and the Temple) left standing for 3000 frames: monsters act only near the
+# view, so those near the start can meet. Ends at 1719.
+# story: currLevel=13@738 +oMagmaMan@1641 +oMagma@1690 oMagma.x=298@1690 !oMagmaMan.burning>0 !plife<4
 seed 97
 frames 1720
 highscore 9000100 "MONEY"
