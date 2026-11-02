@@ -41,7 +41,10 @@
       "!/wiki/media/clips/*.txt",
       "!/wiki/media/LICENSE.txt",
       "!/wiki/media/NOTICE.txt",
-      "!/wiki/og/*"
+      "!/wiki/og/*",
+      // The landing page's media and the logo every page shows (public/media/): its pictures skip it too, with a
+      // day's caching (_headers), and its video comes through it for byte ranges, as the clips' do.
+      "!/media/*.png"
     ]
   },
   // Zone spelunky.ai (6661e9e5fb33bb71d0d23105fc615009) is in the same account; deploying creates the

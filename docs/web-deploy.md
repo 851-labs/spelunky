@@ -19,6 +19,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/` | the wiki's sprites, clips and rooms' pictures, committed in `wiki/media` (`docs/wiki-media.md`); the clips' videos with byte ranges; its `LICENSE.txt` and `NOTICE.txt` in UTF-8, the type from `_headers`. `/wiki/media/HASH/...`, where a release's package was, redirects (301) to `/wiki/media/...` | a day |
+| `/media/` | the landing page's gameplay video and still, and the logo every page shows (`site/public/media/`): the pictures skip the Worker, and the video comes through it for byte ranges ([Wiki media](#wiki-media), "Byte ranges") | a day |
 | `/wiki/og/<slug>.HASH.png` | the wiki's Open Graph images, one a page and hub, `HASH` being of the file (SEO, "Open Graph images") | `immutable`, a year |
 | `/build-assets.json` | the build's content-hashed files (`/assets/`, `/wiki/og/`), its own and those it carried from the builds before it, each with the date it was last a build's own, for the next build to carry ([Version skew](#version-skew)) | `no-cache` |
 
@@ -364,7 +365,8 @@ Safari HTML5 Audio and Video Guide), and iOS 18 and earlier couldn't be tested (
 the MP4). Clips with audio (851-3395) make ranges matter more: they're bigger, and a player seeks in them by
 range.
 
-So the clips' videos, `clips/**.mp4` and `.webm`, and only they, come through the Worker (`src/server.ts`).
+So the clips' videos, `clips/**.mp4` and `.webm`, and the landing page's, `/media/gameplay.mp4`, which plays as the
+page loads, and only they, come through the Worker (`src/server.ts`).
 A satisfiable single range gets a 206 sliced from the asset (`Content-Range`, `Content-Length`,
 `Accept-Ranges`, and the asset's own headers: the caching, type and ETag); anything else (no
 `Range`, one past the end, several, a malformed one, an If-Range that isn't the ETag) the plain 200 with the
@@ -585,6 +587,7 @@ skew](#version-skew)), which stops at 19,900 in all, so the carried files give w
 show the `@4x` ones (`docs/wiki-style.md`, "Clips and images"); or Workers Paid.
 
 Requests for static assets are free; only the Worker's (pages, the landing page's media, the wiki's clips)
-count against the 100,000 a day on the free plan, which is why `/play/v/*`, `/assets/*`, `/wiki/media/*` and
-`/wiki/og/*` skip it (`run_worker_first` in `wrangler.jsonc`), all but the clips ([Wiki media](#wiki-media), "Byte
-ranges").
+count against the 100,000 a day on the free plan, which is why `/play/v/*`, `/assets/*`, `/wiki/media/*`,
+`/wiki/og/*` and `/media/*` skip it (`run_worker_first` in `wrangler.jsonc`), all but the videos ([Wiki
+media](#wiki-media), "Byte ranges"). A wiki page view is one request (its logo, `/media/logo.png`, skips it), and
+the landing page's one more when its video plays.
