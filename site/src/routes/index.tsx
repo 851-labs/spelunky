@@ -32,13 +32,21 @@ function Landing() {
       <a className="play" href="/play/">
         Play in your browser
       </a>
-      {/* 1.1's settings program, config.exe: the keys, the volumes and the window's size. */}
-      <a className="settings" href="/play/?settings">
-        Settings
-      </a>
+      <nav className="more" aria-label="More">
+        {/* 1.1's settings program, config.exe: the keys, the volumes and the window's size. */}
+        <a className="settings" href="/play/?settings">
+          Settings
+        </a>
+        <a href="/wiki">Wiki</a>
+      </nav>
+      {/* The keys a new player needs in the first level (the game teaches them only in the Tutorial's signs);
+          the wiki's Controls page has the rest. */}
       <p className="hint">
-        Needs a keyboard or a gamepad: arrows move, <kbd>Z</kbd> jumps, <kbd>X</kbd> whips. Settings changes the
-        keys and the volumes. Saves stay in your browser.
+        Needs a keyboard or a gamepad: arrows move, <kbd>Z</kbd> jumps, <kbd>X</kbd> whips or uses what you
+        hold, <kbd>A</kbd> throws a bomb, <kbd>S</kbd> a rope, <kbd>C</kbd> takes a bomb or rope out to hold,{" "}
+        <kbd>Shift</kbd> runs, <kbd>P</kbd> pays in a shop and <kbd>Esc</kbd> pauses.{" "}
+        <a href="/wiki/controls">All the controls</a> are in the wiki. Settings changes the keys and the volumes.
+        Saves stay in your browser.
       </p>
 
       <div className="frame">
@@ -89,7 +97,7 @@ function Landing() {
       </section>
 
       <footer>
-        spelunky.ai &middot; <a href="https://github.com/851-labs/spelunky">GitHub</a>
+        spelunky.ai &middot; <a href="/wiki">Wiki</a> &middot; <a href="https://github.com/851-labs/spelunky">GitHub</a>
       </footer>
     </main>
   );

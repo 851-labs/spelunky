@@ -377,10 +377,11 @@ contains '<html lang="en">' \
   '<img class="logo" src="media/logo.png" width="160" height="36" alt="Spelunky"/>' \
   'Spelunky Classic 1.1, ported to Rust tick for tick, bugs included.' \
   '<a class="play" href="/play/">Play in your browser</a>' \
-  '<a class="settings" href="/play/?settings">Settings</a>' \
+  '<a class="settings" href="/play/?settings">Settings</a><a href="/wiki">Wiki</a>' \
+  '<a href="/wiki/controls">All the controls</a>' \
   'autoPlay="" loop="" muted="" playsInline=""' \
   '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
-  '.play:hover, .play:focus-visible { background: #ffd860; outline: none; }'
+  '.play:focus-visible { outline: 2px solid var(--gold);'
 # Dated when the site was built, which a revalidation with the date gets a 304 for (src/server.ts: Cloudflare drops a
 # page's ETag), and one with another date the page.
 updated=$(grep -i '^last-modified:' "$tmp/h" | cut -d' ' -f2-)
