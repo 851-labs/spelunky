@@ -891,7 +891,9 @@ mod native {
             }
         };
         let title = format!("Spelunky - {room_name}");
-        let app = run_window(preview, textures, &title, size, input, None, None, false, None)?;
+        let app = run_window(
+            preview, textures, &title, size, input, None, None, false, None,
+        )?;
         let view = app.game().room.view;
         println!("{} frames, view at {},{}", app.ticks(), view.x, view.y);
         app.error().map_or(Ok(()), |e| Err(e.to_owned()))
