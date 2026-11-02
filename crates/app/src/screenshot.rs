@@ -12,19 +12,26 @@ use std::path::{Path, PathBuf};
 const FIRST: u32 = 100;
 
 /// Where the next screenshot in `dir` goes: GM8's name for it.
-pub fn next_path(dir: &Path) -> PathBuf {
-    (FIRST..)
-        .map(|n| dir.join(format!("screenshot{n}.png")))
-        .find(|path| !path.exists())
-        .expect("a free name")
+pub fn next_path(dir: &Path) -> Result<PathBuf, String> {
+    for n in FIRST.. {
+        let path = dir.join(format!("screenshot{n}.png"));
+        // One that can't be looked at isn't overwritten, or skipped forever.
+        if !path
+            .try_exists()
+            .map_err(|e| format!("{}: {e}", path.display()))?
+        {
+            return Ok(path);
+        }
+    }
+    Err(format!("{}: no screenshot number left", dir.display()))
 }
 
-/// Saves what `renderer` shows (GM's back buffer) as the next screenshot in `dir`, which it makes if
-/// needed, and returns where.
+/// Saves GM's back buffer (the game's picture, without the app's notice or dialogs over it) as the next
+/// screenshot in `dir`, which it makes if needed, and returns where.
 pub fn take(renderer: &Renderer, dir: &Path) -> Result<PathBuf, String> {
-    let (w, h, rgba) = renderer.read_screen()?;
+    let (w, h, rgba) = renderer.read_back_buffer()?;
     std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
-    let path = next_path(dir);
+    let path = next_path(dir)?;
     write_png(&path, w, h, &rgba)?;
     Ok(path)
 }
@@ -54,11 +61,11 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("spelunky-shots-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
-        assert_eq!(next_path(&dir), dir.join("screenshot100.png"));
+        assert_eq!(next_path(&dir).unwrap(), dir.join("screenshot100.png"));
         write_png(&dir.join("screenshot100.png"), 1, 1, &[1, 2, 3, 255]).unwrap();
         std::fs::write(dir.join("screenshot102.png"), b"").unwrap();
         // The first free one, as GM8 counts up from 100.
-        assert_eq!(next_path(&dir), dir.join("screenshot101.png"));
+        assert_eq!(next_path(&dir).unwrap(), dir.join("screenshot101.png"));
         let png =
             crate::textures::decode_png(&std::fs::read(dir.join("screenshot100.png")).unwrap())
                 .unwrap();

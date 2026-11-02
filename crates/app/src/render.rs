@@ -965,24 +965,45 @@ impl Renderer {
             .sum()
     }
 
-    /// Reads what the window shows ([`screen`](Self::screen)) back as RGBA8 rows. Blocks on the GPU, so
-    /// it's native-only (screenshots).
+    /// Reads what the window shows ([`screen`](Self::screen)) back as RGBA8 rows, with whatever the app
+    /// drew over it. Blocks on the GPU, so it's native-only (screenshots).
     #[cfg(not(target_arch = "wasm32"))]
     pub fn read_screen(&self) -> Result<(u32, u32, Vec<u8>), String> {
-        let screen = self.shown.as_ref().ok_or("nothing presented yet")?;
+        Self::read(
+            self.shown.as_ref().ok_or("nothing presented yet")?,
+            &self.device,
+            &self.queue,
+        )
+    }
+
+    /// Reads GM's back buffer back as RGBA8 rows: the game's picture alone, without what the app draws over
+    /// the one shown (`screen_save`'s, for F9).
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn read_back_buffer(&self) -> Result<(u32, u32, Vec<u8>), String> {
+        Self::read(
+            self.screen.as_ref().ok_or("nothing drawn yet")?,
+            &self.device,
+            &self.queue,
+        )
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    fn read(
+        screen: &RenderTarget,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+    ) -> Result<(u32, u32, Vec<u8>), String> {
         let (w, h) = (screen.width, screen.height);
         let row = (w * 4).next_multiple_of(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT);
-        let buffer = self.device.create_buffer(&wgpu::BufferDescriptor {
+        let buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("readback"),
             size: u64::from(row * h),
             usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
             mapped_at_creation: false,
         });
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("readback"),
-            });
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("readback"),
+        });
         encoder.copy_texture_to_buffer(
             screen.texture.as_image_copy(),
             wgpu::TexelCopyBufferInfo {
@@ -999,12 +1020,12 @@ impl Renderer {
                 depth_or_array_layers: 1,
             },
         );
-        self.queue.submit([encoder.finish()]);
+        queue.submit([encoder.finish()]);
         let (tx, rx) = std::sync::mpsc::channel();
         buffer.map_async(wgpu::MapMode::Read, .., move |r| {
             let _ = tx.send(r);
         });
-        self.device
+        device
             .poll(wgpu::PollType::wait_indefinitely())
             .map_err(|e| e.to_string())?;
         rx.recv()

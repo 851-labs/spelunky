@@ -692,11 +692,11 @@ impl<G: Game> App<G> {
         self
     }
 
-    /// F9 in a session of play: the picture shown, saved ([`App::with_screenshots`]).
+    /// F9 in a session of play: the game's picture, saved ([`App::with_screenshots`], which the frontend
+    /// gives only a session of play).
     #[cfg(not(target_arch = "wasm32"))]
     fn screenshot(&self) {
-        let live = matches!(self.source, Source::Live { .. }) && self.embed.is_none();
-        let (Some(dir), Some(g), true) = (&self.screenshots, &self.graphics, live) else {
+        let (Some(dir), Some(g)) = (&self.screenshots, &self.graphics) else {
             return;
         };
         match crate::screenshot::take(&g.renderer, dir) {
@@ -1532,11 +1532,6 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     let full = window.fullscreen().is_none();
                     window.set_fullscreen(full.then_some(Fullscreen::Borderless(None)));
                 }
-                // F9 saves a screenshot, as in the original's game settings, and goes on to the game.
-                #[cfg(not(target_arch = "wasm32"))]
-                if down && key == KeyCode::F9 && !repeat {
-                    self.screenshot();
-                }
                 let typed = typed(key_event);
                 if down {
                     self.game.user_gesture();
@@ -1582,6 +1577,12 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                         self.taken.push(key);
                     }
                     return;
+                }
+                // F9 saves a screenshot, as in the original's game settings, and goes on to the game. Not
+                // one the app's dialog took.
+                #[cfg(not(target_arch = "wasm32"))]
+                if down && key == KeyCode::F9 && !repeat {
+                    self.screenshot();
                 }
                 if let Some(c) = self.collector() {
                     c.key(key, &typed, down);
