@@ -692,6 +692,9 @@ mod native {
             } else {
                 (None, None)
             };
+        // F9's screenshots, in the data directory, for a session that keeps one: GM8 writes them in the
+        // game's folder (`app::screenshot`).
+        let screenshots = store_dir.as_ref().map(|d| d.join("screenshots"));
         // What the player chose that closed the window: an update to restart into, or the settings.
         let chosen = || handoff.as_ref().and_then(|h| h.borrow_mut().take());
         let then = |next| match next {
@@ -743,6 +746,7 @@ mod native {
                 updater,
                 // 1.1's settings program has "disable screensavers" on too; a replay of it never keeps awake.
                 true,
+                screenshots,
             )?;
             if let Some(next) = chosen() {
                 // The window goes before the next program opens its own.
@@ -769,6 +773,7 @@ mod native {
             updater,
             // The window keeps it only for live input, not a replay's.
             true,
+            screenshots,
         )?;
         let ticks = app.ticks();
         let error = app.error().map(str::to_owned);
@@ -796,6 +801,7 @@ mod native {
         notice: Option<Notice>,
         overlay: Option<Box<dyn Overlay>>,
         keep_awake: bool,
+        screenshots: Option<PathBuf>,
     ) -> Result<App<G>, String> {
         #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
         let mut builder = EventLoop::<UserEvent>::with_user_event();
@@ -824,7 +830,8 @@ mod native {
             input,
         )
         .with_notice(notice)
-        .with_overlay(overlay);
+        .with_overlay(overlay)
+        .with_screenshots(screenshots);
         if keep_awake {
             app = app.keeping_awake();
         }
@@ -884,7 +891,7 @@ mod native {
             }
         };
         let title = format!("Spelunky - {room_name}");
-        let app = run_window(preview, textures, &title, size, input, None, None, false)?;
+        let app = run_window(preview, textures, &title, size, input, None, None, false, None)?;
         let view = app.game().room.view;
         println!("{} frames, view at {},{}", app.ticks(), view.x, view.y);
         app.error().map_or(Ok(()), |e| Err(e.to_owned()))
@@ -1009,7 +1016,7 @@ mod native {
     fn save_screenshot(renderer: &Renderer, out: &Path, scale: u32) -> Result<(), String> {
         let (w, h, rgba) = renderer.read_screen()?;
         let (w, h, rgba) = upscale(w, h, &rgba, scale)?;
-        write_png(out, w, h, &rgba)
+        app::screenshot::write_png(out, w, h, &rgba)
     }
 
     /// Nearest-neighbour upscaling by a whole number, like the window's presentation.
@@ -1034,21 +1041,5 @@ mod native {
             }
         }
         Ok((sw, sh, out))
-    }
-
-    fn write_png(path: &Path, w: u32, h: u32, rgba: &[u8]) -> Result<(), String> {
-        // Opaque, like the window: GM's back buffer alpha isn't part of the picture.
-        let rgb: Vec<u8> = rgba
-            .as_chunks::<4>()
-            .0
-            .iter()
-            .flat_map(|&[r, g, b, _]| [r, g, b])
-            .collect();
-        let file = std::fs::File::create(path).map_err(|e| format!("{}: {e}", path.display()))?;
-        let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), w, h);
-        encoder.set_color(png::ColorType::Rgb);
-        encoder.set_depth(png::BitDepth::Eight);
-        let mut writer = encoder.write_header().map_err(|e| e.to_string())?;
-        writer.write_image_data(&rgb).map_err(|e| e.to_string())
     }
 }
