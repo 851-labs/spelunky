@@ -232,13 +232,15 @@ assets=dist/client
 node -e 'fs.writeFileSync(process.argv[2], new TextDecoder("windows-1252").decode(fs.readFileSync(process.argv[1])))' \
   ../LICENSE $assets/LICENSE.txt
 mv "$tmp/play" $assets/play
-# The game's page gets the head every page has (src/seo/play.ts): its title, description, canonical URL, Open
-# Graph's and Twitter's tags, the viewport and the icons. So it's the release's page with that head, and
-# play/manifest.txt, which lists every file at /play/ to check the site against, names it as it's served.
+# The game's page gets the head every page has (src/seo/play.ts) after its title, the release's copyright notice:
+# its description, canonical URL, Open Graph's and Twitter's tags, the viewport and the icons. So it's the
+# release's page with that head, and play/manifest.txt, which lists every file at /play/ to check the site
+# against, names it as it's served (the rest as the release has them).
 node play-head.mjs $assets/play/index.html
 page_sum=$(sha256 $assets/play/index.html)
-awk -v sum="$page_sum" '$0 ~ /^[0-9a-f]+  index\.html$/ { print sum "  index.html"; next } { print }' \
-  $assets/play/manifest.txt >"$tmp/manifest.txt"
+awk -v sum="$page_sum" '$0 ~ /^[0-9a-f]+  index\.html$/ { print sum "  index.html"; n++; next } { print }
+  END { exit n != 1 }' $assets/play/manifest.txt >"$tmp/manifest.txt" ||
+  die "the web build's manifest.txt hasn't one 'SHA-256  index.html' line to update"
 mv "$tmp/manifest.txt" $assets/play/manifest.txt
 if [ -n "$manifest" ]; then
   mkdir $assets/releases

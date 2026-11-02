@@ -479,10 +479,13 @@ theirs are, its gameplay still twice over and its logo, made by `site/landing-ca
 `<script type="application/ld+json">` per JSON-LD node.
 
 `/play/` is the web build's own page (`crates/app/web/index.html`), which no route renders, so `build.sh` gives it
-the same head, `site/src/seo/play.ts`'s `seo()` call rendered by `site/play-head.mjs` in place of the release's
-`<title>`, with the viewport every route's page has: so a link to the game has a preview, a search result a
-description, and the page a canonical URL, which the wiki's live clips' `/play/?replay=...&embed` frames share. A
-release needn't change for it, and an older one gets it too.
+the same head, `site/src/seo/play.ts`'s `seo()` call rendered by `site/play-head.mjs` after the release's `<title>`,
+with the viewport every route's page has: so a link to the game has a preview, a search result a description, and
+the page a canonical URL, which the wiki's live clips' `/play/?replay=...&embed` frames share. A release needn't
+change for it, and an older one gets it too. The title stays the release's (and is Open Graph's and Twitter's):
+it's the copyright notice the Spelunky User License asks for (`crates/app/src/notice.rs`), the page's only one
+once the game's overlay of it fades. A release whose page has some of that head already fails the build, rather
+than serve it twice. The viewport lays the page out at a phone's width, not 980 pixels, and the game fills it.
 `site/src/seo/jsonld.ts` builds those, typed: `website()` (with a SearchAction for `/wiki?q=`),
 `organization()` and `videoGame()` for the landing page, and `breadcrumbs()`, `article()`, `itemList()`,
 `videoObject()`, `imageObject()` and `faqPage()` for the wiki (a page's FAQ, made at build time with its

@@ -473,7 +473,11 @@ sed 's|<meta http-equiv="Content-Security-Policy" content="[^"]*">||' "$tmp/body
   fail "$url: isn't the web build's page with the site's head and a Content-Security-Policy"
 contains '<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src '"'self'"'; script-src '"'self'"' '"'sha256-"
 contains "'wasm-unsafe-eval'" '<link rel="canonical" href="https://spelunky.ai/play/">' \
-  '<meta name="viewport" content="width=device-width, initial-scale=1">' '<meta property="og:image" content="https://'
+  '<title>stand-in web build</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">' '<meta property="og:image" content="https://'
+# A release whose page has some of the head already fails the build, rather than serve it twice.
+echo '<!doctype html><title>t</title><meta name="viewport" content="width=device-width">' >"$tmp/play-twice.html"
+! node play-head.mjs "$tmp/play-twice.html" 2>/dev/null || fail "play-head.mjs: gave a page a second viewport"
 check "$site/play/manifest.txt" 200 "$no_cache"
 # The page as it's served, with its head and policy, and the rest as the release has them (build.sh).
 [ "$(grep ' index.html$' "$tmp/body")" = "$(cd dist/client/play && shasum -a 256 index.html)" ] ||

@@ -155,7 +155,7 @@ function servedPath(file) {
   return `/${file.slice(0, -".html".length)}`;
 }
 
-const pages = htmlFiles(dist).filter((file) => file !== "404.html" && (file === "play/index.html" || !file.startsWith("play/")));
+const pages = htmlFiles(dist).filter((file) => file !== "404.html" && !file.startsWith("play/v/"));
 if (pages.length === 0) fail(`${dist}: no pre-rendered pages`);
 const seen = { title: new Map(), description: new Map(), canonical: new Map() };
 const canonicals = new Set();
