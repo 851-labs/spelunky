@@ -68,14 +68,17 @@ jobs:
               { echo "::error::$tag isn't a release version: vMAJOR.MINOR.PATCH, or with a -suffix"; exit 1; }
             # Only a commit on main, which a pull request's review and pr-ok brought there, is released: a tag on
             # anything else (a branch, a commit never merged) would get every job after this one, the release
-            # environments' secrets and a published release, running that commit's own workflows. Before any job
-            # that names an environment. Main has it if it's main's or behind it (GitHub's compare of main with it).
-            # A tag's own release.yml could drop this check, so the real lock is the tag ruleset (docs/ci.md,
-            # "Releases"); this is for a mistake.
-            on_main=$(gh api "repos/$GH_REPO/compare/main...$GITHUB_SHA" --jq .status) ||
-              { echo "::error::Couldn't ask GitHub whether main has $tag's commit $GITHUB_SHA"; exit 1; }
+            # environments' secrets and a published release, running that commit's own workflows. So every job
+            # that names an environment, or passes secrets on, must need this one. The tag's commit (an annotated
+            # tag's, peeled) is on the main branch (refs/heads/main: not a tag that happens to be called main) if
+            # GitHub's compare of the two finds it identical or behind; anything else, or no answer, stops here. A
+            # tag's own release.yml could drop this check, so the lock is the tag ruleset (docs/ci.md, "Release
+            # tags"); this is for a mistake.
+            commit=$(gh api "repos/$GH_REPO/commits/refs/tags/$tag" --jq .sha 2>&1) &&
+              on_main=$(gh api "repos/$GH_REPO/compare/refs/heads/main...$commit?per_page=1" --jq .status 2>&1) ||
+              { echo "::error::Can't tell whether main has $tag's commit: ${on_main:-$commit}"; exit 1; }
             [[ "$on_main" == identical || "$on_main" == behind ]] ||
-              { echo "::error::$tag is on $GITHUB_SHA, which isn't on main ($on_main): tag a commit main has"; exit 1; }
+              { echo "::error::$tag is on $commit, which isn't on main ($on_main): tag a commit main has"; exit 1; }
           elif [ "$DRY_RUN" = true ]; then
             tag=dev-${GITHUB_SHA::7}
           else
