@@ -181,6 +181,13 @@ pub trait Overlay {
     fn modal(&self) -> bool;
 }
 
+/// Whether the pointer shows over the window ([`App::follow_cursor`]): over a page's clip (`embedded`), which a
+/// reader points at, while the app's dialog takes the mouse (`modal`), and once the run is `over` (the page
+/// stays up on the web), whatever the game asks; otherwise as the game asks (`game`).
+fn pointer_shown(embedded: bool, modal: bool, over: bool, game: bool) -> bool {
+    embedded || modal || over || game
+}
+
 /// Another program's images, its notice (shown from the switch on, for its first seconds), and the
 /// window size it opens with, in logical pixels, if the window doesn't follow the program's picture
 /// ([`Game::sizes_window`]).
@@ -456,8 +463,9 @@ pub struct App<G> {
     fitted: Option<(u32, u32)>,
     /// The fullscreen state the game last asked for.
     fullscreen: bool,
-    /// Whether the pointer was last set to show over the window ([`App::follow_cursor`]), once set.
-    cursor_shown: Option<bool>,
+    /// Whether the pointer was last set to show over the window ([`App::follow_cursor`]): a new window
+    /// shows it.
+    cursor_shown: bool,
     /// The app's layer over the game, if it has one.
     overlay: Option<Box<dyn Overlay>>,
     /// Keys whose press the overlay took, so the game doesn't see their release either.
@@ -608,7 +616,7 @@ impl<G: Game> App<G> {
             notice_from: 0,
             fitted: None,
             fullscreen: false,
-            cursor_shown: None,
+            cursor_shown: true,
             overlay: None,
             taken: Vec::new(),
             taken_buttons: Vec::new(),
@@ -721,6 +729,8 @@ impl<G: Game> App<G> {
             crate::web::show_error(&error);
             self.error = Some(error);
         }
+        // The page stays up on the web, with the error over a canvas that mustn't keep the pointer hidden.
+        self.follow_cursor();
         event_loop.exit();
     }
 
@@ -949,6 +959,8 @@ impl<G: Game> App<G> {
                         return None;
                     }
                     self.next_tick = None;
+                    // The page stays up on the web, so the pointer comes back over it.
+                    self.follow_cursor();
                     event_loop.exit();
                     return None;
                 }
@@ -1319,13 +1331,17 @@ impl<G: Game> App<G> {
     /// 10x16 arrow after `cr_default`). So Spelunky hides it from its start, and the level editor shows it
     /// while editing. Not over a page's clip, which a reader points at, nor while the app's own dialog takes
     /// the mouse ([`Overlay::modal`]).
+    /// Once the run is over or has failed, it shows again: on the web the page stays up.
     fn follow_cursor(&mut self) {
         let Some(window) = &self.window else { return };
-        let shown = self.embed.is_some()
-            || self.overlay.as_ref().is_some_and(|o| o.modal())
-            || self.game.cursor_visible();
-        if self.cursor_shown != Some(shown) {
-            self.cursor_shown = Some(shown);
+        let shown = pointer_shown(
+            self.embed.is_some(),
+            self.overlay.as_ref().is_some_and(|o| o.modal()),
+            self.game.ended() || self.error.is_some(),
+            self.game.cursor_visible(),
+        );
+        if self.cursor_shown != shown {
+            self.cursor_shown = shown;
             window.set_cursor_visible(shown);
         }
     }
@@ -1577,8 +1593,6 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     if down && !self.taken.contains(&key) {
                         self.taken.push(key);
                     }
-                    // The overlay may have opened or closed a dialog that takes the mouse.
-                    self.follow_cursor();
                     return;
                 }
                 if let Some(c) = self.collector() {
@@ -1648,6 +1662,8 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
     }
 
     fn about_to_wait(&mut self, event_loop: &ActiveEventLoop) {
+        // Whatever woke the loop (a tick, the page's control, a key the overlay took) may have changed it.
+        self.follow_cursor();
         match self.run_due_ticks(event_loop) {
             Some(next) => event_loop.set_control_flow(ControlFlow::WaitUntil(next)),
             None => event_loop.set_control_flow(ControlFlow::Wait),
@@ -1701,6 +1717,17 @@ fn typed(e: &KeyEvent) -> Key {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_pointer_follows_the_game_but_over_a_clip_a_dialog_or_a_run_that_is_over() {
+        // A game playing with cr_none hides it; with cr_default, shows it.
+        assert!(!pointer_shown(false, false, false, false));
+        assert!(pointer_shown(false, false, false, true));
+        // A page's clip, the app's dialog and a run over or failed show it whatever the game asks.
+        assert!(pointer_shown(true, false, false, false));
+        assert!(pointer_shown(false, true, false, false));
+        assert!(pointer_shown(false, false, true, false));
+    }
 
     /// Savestates of a clip from frame 270, before the frames `frames`, each holding its frame.
     fn savestates(frames: &[u64]) -> Savestates {

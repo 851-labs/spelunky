@@ -55,6 +55,11 @@ impl Settings {
     fn launches(&self) -> bool {
         self.settings.ended() && self.settings.game().is_some_and(config::launches_game)
     }
+
+    /// The program running: the game once it's started, the settings program until then.
+    fn current(&self) -> &Play {
+        self.game.as_ref().unwrap_or(&self.settings)
+    }
 }
 
 impl WindowGame for Settings {
@@ -111,25 +116,19 @@ impl WindowGame for Settings {
     }
 
     fn freezes_unfocused(&self) -> bool {
-        self.game
-            .as_ref()
-            .unwrap_or(&self.settings)
-            .freezes_unfocused()
+        self.current().freezes_unfocused()
     }
 
     fn fullscreen(&self) -> Option<bool> {
-        self.game.as_ref().unwrap_or(&self.settings).fullscreen()
+        self.current().fullscreen()
     }
 
     fn sizes_window(&self) -> bool {
-        self.game.as_ref().unwrap_or(&self.settings).sizes_window()
+        self.current().sizes_window()
     }
 
     fn cursor_visible(&self) -> bool {
-        self.game
-            .as_ref()
-            .unwrap_or(&self.settings)
-            .cursor_visible()
+        self.current().cursor_visible()
     }
 
     fn user_gesture(&mut self) {
