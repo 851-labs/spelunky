@@ -144,6 +144,15 @@ impl World {
     }
 
     fn frame(&mut self) -> R<()> {
+        // 0. The runner's hotkeys (Spelunky.exe 0x53daa4, run at the start of each frame, 0x53e577): one that's
+        // the last key pressed (`keyboard_lastkey`, set again by each auto-repeat) is the runner's, which sets
+        // `keyboard_lastkey` to 0 and acts (the window goes fullscreen, a screenshot is saved: the frontend's).
+        // `keyboard_key` and the key's own state stay, so its events run as any key's (GM8 under Wine,
+        // 851-3874). Neither program reads `keyboard_lastkey`.
+        let last = self.input.keyboard_lastkey();
+        if last != 0 && self.assets.hotkeys.contains(&last) {
+            self.input.set_keyboard_lastkey(0);
+        }
         macro_rules! stage {
             ($e:expr) => {
                 $e?;
