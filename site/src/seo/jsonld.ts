@@ -115,7 +115,9 @@ export interface ArticleProps {
   // What the page is about: a Thing for the monster or item (`{ "@type": "Thing", name: "Snake" }`), the game
   // itself by default.
   about?: JsonObject | JsonObject[];
-  image?: string;
+  // Absolute or site-relative URLs, the best first: Google's Article guidelines want an image of at least 50,000
+  // pixels, which a page's Open Graph card is (1200x630) and its 4x sprite (64x64) isn't.
+  image?: string[];
   // ISO 8601 dates: a wiki page's verified date (docs/wiki-style.md, `verified`).
   dateModified?: string;
   datePublished?: string;
@@ -139,7 +141,7 @@ export function article({
     url,
     mainEntityOfPage: url,
     about,
-    image: image === undefined ? undefined : absoluteUrl(image),
+    image: image === undefined || image.length === 0 ? undefined : image.map(absoluteUrl),
     dateModified,
     datePublished,
     inLanguage: "en",

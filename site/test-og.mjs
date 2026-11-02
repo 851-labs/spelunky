@@ -141,6 +141,14 @@ async function check(dist, site, media, mediaUrl) {
     if (meta("name", "twitter:image:alt")[0] !== alt) fail(`${where}: twitter:image:alt isn't og:image:alt`);
     if (named.has(image)) fail(`${where}: the same image as ${named.get(image)}`);
     named.set(image, where);
+    // A page's Article names its card first, the image big enough for Google's Article guidelines (50,000 pixels).
+    const article = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)]
+      .map((m) => JSON.parse(m[1]))
+      .find((node) => node["@type"] === "Article");
+    // (A wiki page, not a hub, which has a Markdown twin.)
+    const page = html.includes('<link rel="alternate" type="text/markdown"');
+    if (page && !article) fail(`${where}: no Article`);
+    else if (article && [article.image].flat()[0] !== image) fail(`${where}: Article.image ${JSON.stringify(article.image)} doesn't start with og:image`);
 
     const path = image.slice(SITE_URL.length);
     const response = await fetch(site + path, { redirect: "manual" });

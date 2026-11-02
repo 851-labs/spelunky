@@ -35,6 +35,13 @@ const MARKDOWN_TWIN = /^\/wiki\/([a-z0-9-]+)\.md$/;
 // A name under /wiki/, as a page, a page with a slash, or a Markdown twin: /wiki/pot, /wiki/pot/ and /wiki/pot.md,
 // and the same written as Fandom writes its URLs, /wiki/Yeti_King or /wiki/Olmec%27s_Lair.
 const WIKI_NAME = /^\/wiki\/([^/]+?)(\/|\.md)?$/i;
+// The 404 page, public/404.html, which the asset store serves at /404 (and redirects /404.html to): a 404 there
+// too, so no crawler indexes it as a page.
+const NOT_FOUND_PAGE = "/404";
+const NOT_FOUND_PATHS = new Set([NOT_FOUND_PAGE, `${NOT_FOUND_PAGE}/`, `${NOT_FOUND_PAGE}.html`]);
+// The wiki for LLMs (src/wiki/build/markdown.ts): every page's text again, so kept out of search engines' indexes,
+// which have the pages.
+const FOR_LLMS = new Set(["/llms.txt", "/llms-full.txt"]);
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
@@ -64,37 +71,66 @@ export default {
   },
 };
 
-async function route(request: Request, env: Env): Promise<Response> {
+// probe: only to learn where a request would be redirected (www's one hop), so a miss isn't rendered by the router.
+async function route(request: Request, env: Env, { probe = false } = {}): Promise<Response> {
   const url = new URL(request.url);
+  const getOrHead = request.method === "GET" || request.method === "HEAD";
   // Plain HTTP and www go to https://spelunky.ai, path and query kept, in one hop (http://www.spelunky.ai/ too),
   // a 308 for other methods than GET and HEAD, which a 301 lets a browser turn into a GET. Only on spelunky.ai's
   // own names: browsers reach a preview (workers.dev, as all of .dev) only over HTTPS, Vite's servers are
   // localhost, and wrangler dev names spelunky.ai over HTTPS (wrangler.jsonc's dev). Plain HTTP for the files
   // that skip the Worker (run_worker_first) is the zone's "Always Use HTTPS" to redirect, which, when it's on,
   // redirects the rest too, before the Worker (docs/web-deploy.md, "HTTPS").
+  //
+  // And to where the apex would send it on (an alias's page, a name written another way, the slash the asset store
+  // adds or drops, an old media URL), straight there: www.spelunky.ai/wiki/pot/ goes to /wiki/jar, not by way of
+  // /wiki/pot/. Asking the asset store costs no Worker request, and the router isn't asked (probe). Not for a
+  // clip's video, which the Worker reads whole to answer. No-cache then, as the apex's own redirects to a page
+  // are, since where a name goes can change.
   const www = url.hostname === `www.${APEX}`;
   if (www || (url.hostname === APEX && url.protocol === "http:")) {
     url.protocol = "https:";
     url.hostname = APEX;
-    return Response.redirect(url.toString(), request.method === "GET" || request.method === "HEAD" ? 301 : 308);
+    const media = url.pathname.startsWith(MEDIA_BASE) ? url.pathname.slice(MEDIA_BASE.length) : null;
+    const clip = media !== null && !OLD_MEDIA.test(media) && CLIP_VIDEO.test(media);
+    if (getOrHead && !clip) {
+      const next = await route(new Request(url, request), env, { probe: true });
+      await next.body?.cancel();
+      const location = next.headers.get("location");
+      if (next.status >= 300 && next.status < 400 && location !== null) {
+        return noCache(Response.redirect(new URL(location, url).toString(), 301));
+      }
+    }
+    return Response.redirect(url.toString(), getOrHead ? 301 : 308);
   }
   // Anything else under /wiki/media/ is the asset store's as it has it, never the router's.
   if (url.pathname.startsWith(MEDIA_BASE)) {
     const path = url.pathname.slice(MEDIA_BASE.length);
     const old = OLD_MEDIA.exec(path);
     if (old) {
-      url.pathname = MEDIA_BASE + old[1];
+      // With its @ escaped, as the asset store's canonical form has it: 0@4x.png would be a 307 more.
+      url.pathname = MEDIA_BASE + old[1].replaceAll("@", "%40");
       return Response.redirect(url.toString(), 301);
     }
     return CLIP_VIDEO.test(path) ? withRanges(request, env) : env.ASSETS.fetch(request);
   }
   if (SITE_VIDEO.test(url.pathname)) return withRanges(request, env);
-  if (url.pathname.startsWith(SERVER_FN_BASE)) return withDefaultCaching(await handler.fetch(request));
+  // The site has no server functions (docs/web-deploy.md), so their path is the 404 page's, not the router's
+  // (which answers a bare /_serverFn/ with a 500, and logs it). A server function would need this gone:
+  // test-server.mjs fails on one while it's here.
+  if (url.pathname.startsWith(SERVER_FN_BASE)) return noCache(await env.ASSETS.fetch(request));
+  if (NOT_FOUND_PATHS.has(url.pathname) && getOrHead) {
+    const page = await env.ASSETS.fetch(new Request(new URL(NOT_FOUND_PAGE, url), { method: request.method }));
+    // Only its type: its ETag isn't the 404's to revalidate by.
+    const type = page.headers.get("content-type");
+    return noCache(new Response(page.body, { status: 404, headers: type === null ? {} : { "content-type": type } }));
+  }
   // /sitemap.xml/ to /sitemap.xml, as the asset store sends /LICENSE.txt/ to /LICENSE.txt, rather than a second
-  // copy rendered on every request. The pre-render asks for the slashed path first, and follows this.
+  // copy rendered on every request: for good, a 301. The pre-render asks for the slashed path first, and follows
+  // this.
   if (url.pathname.endsWith("/") && ROUTED_FILES.has(url.pathname.slice(0, -1))) {
     url.pathname = url.pathname.slice(0, -1);
-    return noCache(Response.redirect(url.toString(), 307));
+    return noCache(Response.redirect(url.toString(), 301));
   }
   // An alias is a permanent redirect to its page, or its page's twin, in one hop: /wiki/pot/ goes straight to
   // /wiki/jar, not by way of /wiki/pot or /wiki/jar/. The build fails on an alias that's a page's slug, so none
@@ -129,7 +165,22 @@ async function route(request: Request, env: Env): Promise<Response> {
     response.headers.set("content-type", OPENSEARCH_TYPE);
     return response;
   }
+  // The asset store's redirects for a page (html_handling: /wiki/ to /wiki, /play to /play/, /index.html to /) are
+  // 307s, temporary, though they're for good: as 301s (308s for other methods), so search engines move a link's
+  // weight to where they go.
+  if (asset.status === 307 && pageRedirect(url.pathname, asset.headers.get("location"))) {
+    const headers = new Headers(asset.headers);
+    headers.set("cache-control", "no-cache");
+    await asset.body?.cancel();
+    return new Response(null, { status: getOrHead ? 301 : 308, headers });
+  }
+  if (FOR_LLMS.has(url.pathname)) {
+    const response = noCache(asset);
+    response.headers.set("x-robots-tag", "noindex");
+    return response;
+  }
   if (asset.status !== 404 || !maybePage(request, url)) return revalidated(request, asset);
+  if (probe) return noCache(asset);
   // The router renders a page that isn't a file: at build time to pre-render it, under `vite dev`, and on
   // spelunky.ai only one that opts out of pre-rendering.
   const rendered = await handler.fetch(request);
@@ -165,6 +216,15 @@ function slugOf(name: string): string | null {
     .replace(/['’]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
+// Whether a 307 of the asset store's is html_handling's, for a page's slash or .html (/wiki/ to /wiki, /play to
+// /play/, /wiki/snake.html and /wiki/snake/index.html to /wiki/snake, /index.html to /), which is for good.
+function pageRedirect(path: string, location: string | null): boolean {
+  if (location === null) return false;
+  const to = new URL(location, "https://spelunky.ai").pathname;
+  const bare = path.replace(/(?:\/index)?\.html$|\/$/, "");
+  return to === bare || to === `${bare}/` || (bare === "" && to === "/");
 }
 
 // Whether the router might have the page: a GET of a path without an extension, or of a file a route makes.

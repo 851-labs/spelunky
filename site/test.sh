@@ -420,15 +420,15 @@ contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
 # What a device with only touch is told above Play (851-3925), shown by landing.css's media query.
 contains '<p class="touch-note">This device seems to have no keyboard or gamepad.' \
   '@media (pointer: coarse) {'
-check "$site/index.html" 307 "location: /"
+check "$site/index.html" 301 "location: /"
 # For crawlers: robots.txt names the sitemaps, which src/seo/sitemap.ts makes at build time.
 check "$site/robots.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
 contains 'User-agent: *' 'Sitemap: https://spelunky.ai/sitemap.xml' 'Sitemap: https://spelunky.ai/sitemap-video.xml' \
   'Sitemap: https://spelunky.ai/sitemap-image.xml'
-check "$site/robots.txt/" 307 "location: $site/robots.txt" "$no_cache"
+check "$site/robots.txt/" 301 "location: $site/robots.txt" "$no_cache"
 check "$site/sitemap.xml" 200 "$no_cache" "content-type: application/xml"
 contains '<loc>https://spelunky.ai/</loc>' '<loc>https://spelunky.ai/play/</loc>'
-check "$site/sitemap.xml/" 307 "location: $site/sitemap.xml" "$no_cache"
+check "$site/sitemap.xml/" 301 "location: $site/sitemap.xml" "$no_cache"
 # The wiki's clips and sprites, by the pages that show them: the Snake page's clip that the media have (not
 # the two they haven't) and its infobox's sprite, animated as it shows it.
 check "$site/sitemap-video.xml" 200 "$no_cache" "content-type: application/xml"
@@ -452,7 +452,7 @@ contains '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"' '
   '<Image width="16" height="16" type="image/x-icon">https://spelunky.ai/favicon.ico</Image>'
 with "If-None-Match: $(grep -i '^etag:' "$tmp/h" | cut -d' ' -f2-)"
 check "$site/opensearch.xml" 304 "$no_cache" "$opensearch_type"
-check "$site/opensearch.xml/" 307 "location: $site/opensearch.xml" "$no_cache"
+check "$site/opensearch.xml/" 301 "location: $site/opensearch.xml" "$no_cache"
 # The landing page's media and the logo every page shows: the pictures without the Worker, cached for a day, and
 # the video through it, with byte ranges for Safari (src/server.ts), as the clips' are below.
 for picture in logo.png gameplay.png; do
@@ -479,7 +479,7 @@ script=$(cd dist/client && ls assets/*.js | head -1)
 check "$site/$script" 200 "$immutable" "x-content-type-options: nosniff" "$hsts" "$frame_csp"
 
 # The web build.
-check "$site/play" 307 "location: /play/" "$no_cache"
+check "$site/play" 301 "location: /play/" "$no_cache"
 check "$site/play/" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$frame_csp"
 # The web build's page, with the site's head after its <title>, which it keeps (src/seo/play.ts, play-head.mjs),
 # and which test-seo.mjs checks as it does every page's, and its policy (csp.mjs), which lets it compile its
@@ -602,6 +602,9 @@ for file in clips/snake/bite/clip.mp4 clips/snake/bite/poster.png sprites/sSnake
   sprites/index.json LICENSE.txt; do
   check "$site/wiki/media/05d8cd2055735618/$file" 301 "location: $site$media_url/$file"
 done
+# One with its @ unescaped goes straight to the escaped name, the asset store's, not by way of its 307.
+check "$site/wiki/media/05d8cd2055735618/sprites/sSnakeWalkL/anim@4x.png" 301 \
+  "location: $site$media_url/sprites/sSnakeWalkL/anim%404x.png"
 # Nor is the directory a page.
 check "$site/wiki/media" 404 "$no_cache"
 
@@ -689,7 +692,7 @@ lacks 'class="wikilink-new"'
 contains '<form role="search" class="search-box" action="/wiki" method="get"><label id="' 'class="visually-hidden">Search the wiki</label>' \
   'role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list"' \
   'type="search" placeholder="Search the wiki" name="q" value=""/><button type="submit">Search</button><div role="status" aria-live="polite"'
-check "$site/wiki/snake/" 307 "location: /wiki/snake"
+check "$site/wiki/snake/" 301 "location: /wiki/snake"
 # The Markdown twin (src/wiki/build/markdown.ts): a static file, revalidated like the page, as Markdown, naming
 # the page as its canonical URL. (https://spelunky.ai/wiki/snake: wrangler dev stands in for spelunky.ai, its
 # route, and puts its own URL for it in headers, though not in bodies.) It starts with the notice, and has
@@ -861,7 +864,7 @@ contains '<title>Weapons – Spelunky Classic wiki</title>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/items/weapons"/>' \
   '<ol><li><a href="/wiki">Wiki</a></li><li><a href="/wiki/items">Items</a></li><li><span aria-current="page">Weapons</span></li></ol>' \
   '<a class="card-body" href="/wiki/whip">'
-check "$site/wiki/items/weapons/" 307 "location: /wiki/items/weapons"
+check "$site/wiki/items/weapons/" 301 "location: /wiki/items/weapons"
 check "$site/wiki/items/carryables" 200 "$no_cache"
 contains '<a class="card-body" href="/wiki/fish-bone">' '<a class="card-body" href="/wiki/rock">'
 lacks '<span class="card-status">Not written yet</span>' '<meta name="robots" content="noindex"/>'
@@ -985,7 +988,7 @@ check "$site/wiki/tutorial" 200 "$no_cache"
 contains 'Room <a href="/wiki/source/rooms/rTutorial"><code>rTutorial</code></a>, as the room editor placed it'
 check "$site/wiki/tutorial.md" 200
 contains 'Room [`rTutorial`](https://spelunky.ai/wiki/source/rooms/rTutorial), as the room editor placed it'
-check "$site/wiki/source/objects/oSnake/step/" 307 "location: /wiki/source/objects/oSnake/step"
+check "$site/wiki/source/objects/oSnake/step/" 301 "location: /wiki/source/objects/oSnake/step"
 check "$site/wiki/source/objects/oSnake/nowhere" 404 "$no_cache"
 check "$site/wiki/source/objects/oSnake/step.gml" 404 "$no_cache"
 check "$site$media_url/gml/objects/oSnake/step.gml" 404
@@ -1047,6 +1050,21 @@ same dist/client/404.html
 got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 [ "$got" = 405 ] || fail "POST $site/: status $got, not 405"
 
+# The 404 page is a 404 at its own paths too, not a page to index.
+for path in 404 404.html; do
+  check "$site/$path" 404 "$no_cache" "content-type: text/html; charset=utf-8"
+  same dist/client/404.html
+done
+# A page's path in another case is no page: the router doesn't render it (src/router.tsx).
+check "$site/WIKI/snake" 404 "$no_cache"
+same dist/client/404.html
+# The site has no server functions: their path is the 404 page, not the router's 500.
+check "$site/_serverFn/" 404 "$no_cache"
+# The wiki for LLMs, kept out of search engines' indexes.
+check "$site/llms.txt" 200 "$no_cache" "x-robots-tag: noindex"
+# An alias and a slash on www: one hop to where the apex would end up.
+check "http://localhost:$www_port/wiki/pot/" 301 "location: https://spelunky.ai/wiki/jar"
+check "http://localhost:$www_port/play" 301 "location: https://spelunky.ai/play/"
 # www redirects to https://spelunky.ai, path and query kept, from plain HTTP too (as wrangler dev is) in one hop.
 check "http://localhost:$www_port/play/?a=1" 301 "location: https://spelunky.ai/play/?a=1" "$hsts"
 

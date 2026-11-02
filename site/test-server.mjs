@@ -10,14 +10,18 @@
 // headers), and every text file the site serves must come out in UTF-8, and the files with a type of their own
 // with it.
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { registerHooks } from "node:module";
 
 // Node runs the TypeScript itself (it strips the types), but the Worker imports "./seo/seo", as Vite resolves
 // it, not "./seo/seo.ts". Every page is pre-rendered, so the router, which the Worker asks for a page that isn't
 // a file, has none. And the wiki's names are the build's, whose redirects test.sh and test-links.mjs check on
 // the built site: here there are a few pages, an alias and a hub (ALIASES).
-const ROUTER = `export default { fetch: async () => new Response("router: no such page", { status: 404 }) };`;
+// It counts its renders, which www's one-hop probe mustn't ask for.
+const ROUTER = `export default { fetch: async () => {
+  globalThis.routerRenders = (globalThis.routerRenders ?? 0) + 1;
+  return new Response("router: no such page", { status: 404 });
+} };`;
 // Pages called jar (alias pot), snake, yeti-king and olmecs-lair, and a hub called monsters.
 const ALIASES = `export const names = new Map(${JSON.stringify([["jar", "jar"], ["pot", "jar"], ["snake", "snake"], ["yeti-king", "yeti-king"], ["olmecs-lair", "olmecs-lair"], ["monsters", "monsters"]])});
 export const twins = new Set(["jar", "snake", "yeti-king", "olmecs-lair"]);`;
@@ -92,6 +96,12 @@ const assets = {
     const { pathname } = new URL(request.url);
     const type =
       pathname === "/wrangler-dev.txt" ? "text/plain; charset=utf-8" : ASSET_TYPES[/\.[a-z]+$/.exec(pathname)?.[0]];
+    // The 404 page at its path (html_handling), and the slash it drops from a page's path, with a 307, as
+    // Cloudflare's does.
+    if (pathname === "/404") return new Response("404 page", { headers: { "content-type": "text/html" } });
+    if (pathname === "/wiki/monsters/") {
+      return new Response(null, { status: 307, headers: { location: pathname.slice(0, -1) } });
+    }
     // The 404 page gets the path's _headers too, as Cloudflare's does.
     const headers = new Headers({ "content-type": type ?? "text/html" });
     if (type !== undefined) headers.set("etag", ETAG);
@@ -318,6 +328,7 @@ for (const path of ["/wiki/snake", "/wiki/snake.md", "/wiki/Monsters.md", "/wiki
 const HTTPS_REDIRECTS = {
   "http://spelunky.ai/": "https://spelunky.ai/",
   "http://spelunky.ai/play/?a=1": "https://spelunky.ai/play/?a=1",
+  // (A GET or HEAD of an alias goes to its page in the same hop: below.)
   "http://spelunky.ai/wiki/pot": "https://spelunky.ai/wiki/pot",
   "http://www.spelunky.ai/wiki/snake": "https://spelunky.ai/wiki/snake",
   "https://www.spelunky.ai/wiki/snake?a=1": "https://spelunky.ai/wiki/snake?a=1",
@@ -325,7 +336,7 @@ const HTTPS_REDIRECTS = {
     "https://spelunky.ai/wiki/media/clips/snake/bite/clip.mp4",
 };
 for (const [from, to] of Object.entries(HTTPS_REDIRECTS)) {
-  for (const method of ["GET", "HEAD", "POST"]) {
+  for (const method of from.endsWith("/wiki/pot") ? ["POST"] : ["GET", "HEAD", "POST"]) {
     try {
       const response = await worker.fetch(new Request(from, { method }), { ASSETS: assets });
       assert.equal(response.status, method === "POST" ? 308 : 301, `${method} ${from}: status`);
@@ -432,6 +443,60 @@ for (const path of ["/robots.txt", "/play/manifest.txt", "/wiki/snake.md", "/now
     assert.notEqual(response.status, 304, `${path}: a 304 by date`);
     assert.equal(response.headers.get("last-modified"), null, `${path}: last-modified`);
     console.log(`ok   ${path}: no date, ${response.status}`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
+  }
+}
+// The Low batch (851-3888): the 404 page is a 404 at its own paths; the server functions' path is the 404 page;
+// the asset store's slash redirects are permanent; the files for LLMs aren't for search engines; www goes where
+// the apex would end up in one hop; and an old media URL with an @ goes to the escaped name.
+const LOW = [
+  ["https://spelunky.ai/404", 404, null],
+  ["https://spelunky.ai/404.html", 404, null],
+  ["https://spelunky.ai/_serverFn/", 404, null],
+  ["https://spelunky.ai/wiki/monsters/", 301, "/wiki/monsters"],
+  ["https://www.spelunky.ai/wiki/pot/", 301, "https://spelunky.ai/wiki/jar"],
+  ["http://spelunky.ai/wiki/pot", 301, "https://spelunky.ai/wiki/jar"],
+  ["https://www.spelunky.ai/wiki/monsters/", 301, "https://spelunky.ai/wiki/monsters"],
+  ["https://www.spelunky.ai/wiki/snake.md", 301, "https://spelunky.ai/wiki/snake.md"],
+  [`https://spelunky.ai${OLD}/sprites/sSnakeWalkL/anim@4x.png`, 301, `https://spelunky.ai${MEDIA}/sprites/sSnakeWalkL/anim%404x.png`],
+  [`https://www.spelunky.ai${OLD}/sprites/sSnakeWalkL/anim@4x.png`, 301, `https://spelunky.ai${MEDIA}/sprites/sSnakeWalkL/anim%404x.png`],
+  // A miss on www isn't rendered to learn it's no redirect (below).
+  ["https://www.spelunky.ai/wiki/nonexistent", 301, "https://spelunky.ai/wiki/nonexistent"],
+];
+for (const [url, status, location] of LOW) {
+  try {
+    const renders = globalThis.routerRenders ?? 0;
+    const response = await worker.fetch(new Request(url), { ASSETS: assets });
+    if (url.startsWith("https://www.")) assert.equal(globalThis.routerRenders ?? 0, renders, `${url}: the router rendered a probe`);
+    assert.equal(response.status, status, `${url}: status`);
+    assert.equal(response.headers.get("location"), location, `${url}: location`);
+    if (status === 404) assert.equal(await response.text(), "404 page", `${url}: body`);
+    // Where an alias goes can change, so www's hop to it is asked again, as the apex's alias redirects are.
+    if (url.includes("/wiki/pot")) assert.equal(response.headers.get("cache-control"), "no-cache", `${url}: cache-control`);
+    console.log(`ok   ${url}: ${status}${location ? ` to ${location}` : ""}`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
+  }
+}
+// The Worker sends /_serverFn/ to the 404 page, as the site has no server functions: one would need that gone.
+const serverFns = readdirSync("src", { recursive: true })
+  .filter((file) => /\.tsx?$/.test(file) && readFileSync(`src/${file}`, "utf8").includes("createServerFn"));
+try {
+  assert.deepEqual(serverFns, [], "src/ has server functions, which src/server.ts sends to the 404 page");
+  console.log("ok   no server functions, so /_serverFn/ is the 404 page");
+} catch (error) {
+  failures++;
+  console.error(`FAIL ${error.message}`);
+}
+for (const path of ["/llms.txt", "/llms-full.txt"]) {
+  try {
+    const response = await serve(new Request(`https://spelunky.ai${path}`));
+    assert.equal(response.headers.get("x-robots-tag"), "noindex", `${path}: x-robots-tag`);
+    assert.equal(response.headers.get("content-type"), UTF8_TEXT, `${path}: content-type`);
+    console.log(`ok   ${path}: noindex`);
   } catch (error) {
     failures++;
     console.error(`FAIL ${error.message}`);
