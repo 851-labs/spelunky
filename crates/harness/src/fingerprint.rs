@@ -250,6 +250,15 @@ impl Fingerprinter {
         Self::default()
     }
 
+    /// One whose frames leave out the globals `skip` names ([`gm::FrameEncoder::skipping_globals`]): only
+    /// for comparing two runs of the port, as the oracle's frames have them all.
+    pub fn skipping_globals(skip: fn(&str) -> bool) -> Self {
+        Fingerprinter {
+            encoder: gm::FrameEncoder::skipping_globals(skip),
+            ..Self::default()
+        }
+    }
+
     /// A frame of a trace (the oracle's, read back).
     pub fn frame(&mut self, f: &Frame) {
         self.buf.clear();
@@ -348,6 +357,48 @@ pub fn run_fingerprint_watched(
     Ok((fp, summary))
 }
 
+/// The globals that hold SuperSound's handles, `global.snd*` and `global.mus*` (`sndJump`, `musCave`): the
+/// DLL's strings in [`game::audio::Mode::Faithful`], the oracle's stub's 0 in `OracleCompat` (docs/quirks.md §7).
+/// Not `global.music` or `global.musicVol`, the game's own.
+pub fn sound_handle(name: &str) -> bool {
+    (name.starts_with("snd") || name.starts_with("mus"))
+        && name[3..].starts_with(|c: char| c.is_ascii_uppercase())
+}
+
+/// How the replay plays in the audio mode players get, [`game::audio::Mode::Faithful`] with the game's `sounds`,
+/// unlike in the oracle's stub mode the fingerprints are of, or `None` if it doesn't (851-3792). Both runs
+/// are fingerprinted without the [sound handles](sound_handle), which are all that may differ: the game
+/// reads the DLL's answers (`SS_IsSoundPlaying` in `oMusic`, `oScreen`, `oOlmec`...), so a change to the
+/// audio model that leaked into its state would ship unnoticed by the oracle's fingerprints.
+pub fn audio_modes_mismatch(
+    replay: &Replay,
+    assets: Arc<gm::Assets>,
+    sounds: Arc<game::audio::SoundBank>,
+) -> Result<Option<String>, String> {
+    let run = |sounds: Option<Arc<game::audio::SoundBank>>| {
+        let mut summary = crate::run_replay(
+            replay,
+            assets.clone(),
+            &crate::RunOptions {
+                fingerprint: true,
+                fingerprint_skips: Some(sound_handle),
+                sounds,
+                ..crate::RunOptions::default()
+            },
+        )?;
+        let fp = summary.fingerprint.take().expect("asked for");
+        Ok::<_, String>((fp, summary))
+    };
+    let (stub, _) = run(None)?;
+    let (faithful, summary) = run(Some(sounds))?;
+    Ok(port_mismatch(&stub, &faithful, &summary).map(|m| {
+        format!(
+            "Faithful audio, the mode players get, plays it unlike the oracle's stub mode, the sound handles \
+             aside (below, \"oracle\" is stub mode's run and \"port\" Faithful's): {m}"
+        )
+    }))
+}
+
 /// How the port's run (`port`, with its `summary`) differs from the oracle's fingerprint, or `None`.
 pub fn port_mismatch(
     oracle: &Fingerprint,
@@ -406,6 +457,16 @@ fn hash_host(h: &crate::host::HostContents) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn sound_handles_are_the_dlls_not_the_games_music_settings() {
+        for name in ["sndJump", "sndTFall", "musCave", "musBoss"] {
+            assert!(sound_handle(name), "{name}");
+        }
+        for name in ["music", "musicVol", "sndx", "snd", "mus", "plife", "sound"] {
+            assert!(!sound_handle(name), "{name}");
+        }
+    }
     use std::collections::BTreeMap;
     use trace::{Instance, Real, Scalar, Value};
 

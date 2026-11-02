@@ -110,6 +110,9 @@ pub struct RunOptions {
     /// Keep the GML lines the run reaches, booting included ([`RunSummary::lines`],
     /// [`game::Config::record_lines`]): line coverage.
     pub lines: bool,
+    /// Leave the globals this names out of the fingerprint ([`fingerprint::Fingerprinter::skipping_globals`]),
+    /// to compare two of the port's runs that may differ only there.
+    pub fingerprint_skips: Option<fn(&str) -> bool>,
 }
 
 /// How a run ended.
@@ -372,7 +375,10 @@ pub fn run_replay_watched(
         fingerprint: None,
         lines: None,
     };
-    let mut fingerprinter = opts.fingerprint.then(fingerprint::Fingerprinter::new);
+    let mut fingerprinter = opts.fingerprint.then(|| match opts.fingerprint_skips {
+        Some(skip) => fingerprint::Fingerprinter::skipping_globals(skip),
+        None => fingerprint::Fingerprinter::new(),
+    });
     let (mut step_time, mut trace_time) = (Duration::ZERO, Duration::ZERO);
     let booted = match resumed {
         Some(game) => Ok(Playback::resume(game, replay)),
