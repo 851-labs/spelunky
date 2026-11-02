@@ -61,6 +61,8 @@ mkdir -p "$tmp/web/v/0123456789abcdef"
 # its frame, as the wiki's clips ask (src/wiki/live-clip.tsx).
 echo '<!doctype html><meta name="spelunky-embed" content="1"><meta name="spelunky-embed-seek" content="1"><meta name="spelunky-embed-held-sound" content="1"><meta name="spelunky-embed-replays" content="1"><meta name="spelunky-embed-progress" content="1"><meta name="spelunky-embed-state" content="1"><meta name="spelunky-embed-states" content="1"><meta name="spelunky-embed-fill" content="1"><title>stand-in web build</title>' >"$tmp/web/index.html"
 echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
+mkdir -p "$tmp/web/v/0123456789abcdef/assets"
+echo 'stand-in bundle' >"$tmp/web/v/0123456789abcdef/assets/bundle.bin"
 echo 'stand-in manifest.txt' >"$tmp/web/manifest.txt"
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
@@ -426,6 +428,9 @@ same "$tmp/web/index.html"
 check "$site/play/manifest.txt" 200 "$no_cache"
 check "$site/play/v/0123456789abcdef/app.js" 200 "$immutable" "x-content-type-options: nosniff"
 same "$tmp/web/v/0123456789abcdef/app.js"
+# Its assets, as a type Cloudflare compresses (public/_headers).
+check "$site/play/v/0123456789abcdef/assets/bundle.bin" 200 "$immutable" "content-type: application/x-protobuf"
+same "$tmp/web/v/0123456789abcdef/assets/bundle.bin"
 # A miss under v/ skips the Worker too (docs/web-deploy.md, "Rolling back").
 check "$site/play/v/fedcba9876543210/app.js" 404 "$immutable"
 

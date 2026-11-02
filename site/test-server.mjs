@@ -75,6 +75,7 @@ const ASSET_TYPES = {
   ".xml": "application/xml",
   ".html": "text/html",
   ".json": "application/json",
+  ".bin": "application/octet-stream",
 };
 const ETAG = '"stand-in"';
 const BODY = "Spelunky is © 2008, 2009 Derek Yu";
@@ -162,6 +163,19 @@ const ROUTES = {
   [`${OLD}/clips/snake/bite/clip.mp4`]: true,
   [`${OLD}/NOTICE.txt`]: true,
 };
+// The game's assets skip the Worker, as a type Cloudflare compresses (public/_headers), which the asset store's
+// .bin, application/octet-stream, isn't.
+for (const path of ["/play/v/0123456789abcdef/assets/bundle.bin", "/play/v/0123456789abcdef/assets/config/bundle.bin"]) {
+  try {
+    assert.equal(toWorker(path), false, `${path}: reaches the Worker`);
+    const response = await serve(new Request(`https://spelunky.ai${path}`));
+    assert.equal(response.headers.get("content-type"), "application/x-protobuf", `${path}: content-type`);
+    console.log(`ok   ${path}: application/x-protobuf`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
+  }
+}
 for (const [path, worker] of Object.entries(ROUTES)) {
   try {
     assert.equal(toWorker(path), worker, `${path}: ${worker ? "doesn't reach" : "reaches"} the Worker`);

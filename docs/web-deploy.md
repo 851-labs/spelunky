@@ -9,7 +9,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/` | the landing page (`site/src/routes/index.tsx`, pre-rendered) | `no-cache` |
 | `/assets/` | the pages' scripts, named by a hash of their contents | `immutable`, a year |
 | `/play/` | the game: a release's web build (`scripts/web --package`) | `no-cache` (the page and `manifest.txt`) |
-| `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents | `immutable`, a year |
+| `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents; its `.bin` assets as `application/x-protobuf` (`_headers`), a type Cloudflare compresses, where the asset store's `application/octet-stream` isn't | `immutable`, a year |
 | `/LICENSE.txt` | the Spelunky User License, the repo's `LICENSE` in UTF-8 (it's windows-1252) | `no-cache` |
 | `/wiki`, `/wiki/<slug>` | the wiki: its hubs (`/wiki`, `/wiki/monsters`, `/wiki/items/weapons`...) and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
 | `/robots.txt`, `/sitemap.xml`, `/sitemap-video.xml`, `/sitemap-image.xml` | for crawlers (SEO, below): pre-rendered | `no-cache` |
