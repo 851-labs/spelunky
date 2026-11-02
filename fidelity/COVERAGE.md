@@ -16,7 +16,7 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-250 replays, 490,937 frames:
+255 replays, 497,703 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
