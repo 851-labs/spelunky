@@ -269,7 +269,7 @@ impl Collector {
             },
             ..Collector::default()
         };
-        c.focus_lost();
+        c.release_all();
         c.pad_lost();
         c
     }
@@ -329,9 +329,11 @@ impl Collector {
         self.cursor = Some((x, y));
     }
 
-    /// The window loses focus: every key and mouse button goes up, as the window won't hear those
-    /// releases.
-    pub fn focus_lost(&mut self) {
+    /// Every key and mouse button goes up: what the game knew held, no device is ([`taking_over`]). Not
+    /// when the window loses focus, which leaves them held, as GM8 does (`crate::window`'s `set_focused`).
+    ///
+    /// [`taking_over`]: Self::taking_over
+    fn release_all(&mut self) {
         let up = InputState {
             keys: KeySet::new(),
             mouse_buttons: 0,
@@ -383,6 +385,11 @@ impl Collector {
     /// close-button event for it).
     pub fn close(&mut self) {
         self.closes += 1;
+    }
+
+    /// Whether a press of the close button waits for the next tick.
+    pub fn closing(&self) -> bool {
+        self.closes > 0
     }
 
     /// The events for the tick about to run: the devices' in order, then what's sampled (cursor, sticks,
@@ -661,10 +668,10 @@ mod tests {
             ]
         );
         assert_eq!(c.take_tick(), []);
-        // A release the game never saw pressed is dropped; focus loss releases what's held.
+        // A release the game never saw pressed is dropped; taking over releases what's held.
         c.key(KeyCode::KeyX, &typed("x"), false);
         c.mouse_button(MouseButton::Left, true);
-        c.focus_lost();
+        c.release_all();
         assert_eq!(
             c.take_tick(),
             [
@@ -672,6 +679,25 @@ mod tests {
                 Event::Release(left),
                 Event::Release(Button::Mouse(MouseButton::Left)),
             ]
+        );
+    }
+
+    #[test]
+    fn a_key_held_as_the_window_loses_focus_stays_down_until_pressed_and_released_again() {
+        // As GM8 under Wine (851-3831): Left held, another window activated, Left released there, the game's
+        // window activated again. The game reads Left held from then on, until it's pressed and released.
+        let left = Key::Named(winit::keyboard::NamedKey::ArrowLeft);
+        let mut c = Collector::new(KeyMap::Layout);
+        c.key(KeyCode::ArrowLeft, &left, true);
+        let vk_left = Button::Key(VK_LEFT);
+        assert_eq!(c.take_tick(), [Event::Press(vk_left)]);
+        // The release went to the other window; the window hears nothing, and nothing goes up.
+        assert_eq!(c.take_tick(), []);
+        c.key(KeyCode::ArrowLeft, &left, true);
+        c.key(KeyCode::ArrowLeft, &left, false);
+        assert_eq!(
+            c.take_tick(),
+            [Event::Press(vk_left), Event::Release(vk_left)]
         );
     }
 
