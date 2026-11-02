@@ -1336,15 +1336,21 @@ for (const [what, files, want] of cases) {
   }
 }
 
-// No table header is blank on a committed page (851-3939), which a screen reader reads as "blank": a column says
+// No table header is blank on a committed page or a template (851-3939), which a screen reader reads as "blank": a column says
 // what it holds. But a column of citations, whose blank header the body's Table names for screen readers
 // (851-3893: a column every filled cell of which cites).
 {
   const before = failures;
   let tables = 0;
   const cells = (line) => line.trim().replace(/^\||\|$/g, "").split(/(?<!\\)\|/).map((cell) => cell.trim());
-  for (const name of readdirSync(here("content/wiki")).filter((n) => n.endsWith(".mdx"))) {
-    const lines = readFileSync(here(`content/wiki/${name}`), "utf8").split("\n");
+  // The pages, and the templates new pages start from.
+  const files = ["content/wiki", "../wiki/templates"].flatMap((dir) =>
+    readdirSync(here(dir))
+      .filter((n) => n.endsWith(".mdx"))
+      .map((n) => `${dir}/${n}`),
+  );
+  for (const name of files) {
+    const lines = readFileSync(here(name), "utf8").split("\n");
     for (let i = 0; i + 1 < lines.length; i++) {
       if (!lines[i].startsWith("|") || !/^\|\s*:?-{3}/.test(lines[i + 1])) continue;
       tables++;
