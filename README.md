@@ -47,9 +47,10 @@ scripts/cargo run --release -p app -- --settings                           # the
 
 The settings program (keys, gamepad buttons, volumes, window size, fullscreen, running on down) is 1.1's
 `config.exe`: its OK with START GAME ON EXIT starts the game. In the apps, between runs, it's "Settings…" (Cmd-,)
-in the macOS app menu, and SETTINGS in the menu F7 opens on Windows and Linux; either ends the run as the
-window's close button does and opens the settings program. The Linux AppImage's desktop entry has a Settings
-action too. In the browser it's the Settings link on spelunky.ai and on the game's page (`/play/?settings`).
+in the macOS app menu, and SETTINGS in the menu F7 opens on Windows and Linux; either closes the game as the
+window's close button does (`stats.txt` is saved) and opens the settings program. The Linux AppImage's desktop
+entry has a Settings action too. In the browser it's the Settings link on spelunky.ai, and in the corner of the
+game's page between runs (`/play/?settings`).
 
 Saves (`stats.txt`, the `.cfg` files, highscores) go in the per-user data directory (`~/Library/Application
 Support/Spelunky Classic` on macOS) and in `localStorage` in the browser. A recording starts from the shipped

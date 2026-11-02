@@ -52,22 +52,27 @@
 </head>
 <body>
 <p id="status">Loading...</p>
-<!-- The way between the game and the settings program (1.1's config.exe, ?settings), outside the canvas. Not
-     on a replay, a page's clip or a preview, which have neither. Leaving ends what runs as the window's close
-     button would: the game writes stats.txt, the settings program saves. -->
-<a id="switch" hidden></a>
+<!-- The way between the game and the settings program (1.1's config.exe, ?settings), outside the canvas: the
+     app shows it (app::web::show_link), with Settings between runs and Play in the settings program. Leaving
+     ends what runs as the window's close button would: the game writes stats.txt, the settings program saves.
+     Out of the tab order, so Enter, a game key, never follows it. Nothing for a replay, a page's clip or a
+     preview, which have neither: the app never shows it without the URLs. -->
+<a id="switch" tabindex="-1" hidden></a>
 <script type="module">
   const query = new URLSearchParams(location.search);
   if (!["replay", "embed", "preview"].some((name) => query.has(name))) {
     const link = document.getElementById("switch");
-    const settings = query.has("settings");
-    if (settings) query.delete("settings");
-    else query.set("settings", "");
     // Flags as the page's own query writes them, `?mute&settings` rather than `?mute=&settings=`.
-    const search = query.toString().replace(/=(?=&|$)/g, "");
-    link.href = location.pathname + (search ? `?${search}` : "");
-    link.textContent = settings ? "Play" : "Settings";
-    link.hidden = false;
+    const url = (q) => {
+      const search = q.toString().replace(/=(?=&|$)/g, "");
+      return location.pathname + (search ? `?${search}` : "");
+    };
+    const play = new URLSearchParams(query);
+    play.delete("settings");
+    const settings = new URLSearchParams(play);
+    settings.set("settings", "");
+    link.dataset.play = url(play);
+    link.dataset.settings = url(settings);
   }
 </script>
 <script type="module">

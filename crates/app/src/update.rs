@@ -42,8 +42,8 @@ use winit::keyboard::KeyCode;
 /// The release's version, from the release build (`docs/updates.md`); none in a development build.
 const VERSION: Option<&str> = option_env!("SPELUNKY_VERSION");
 
-/// Opens the menu (settings and updates) on Windows and Linux, between runs, when no dialog shows: the one key it takes
-/// from the game then. A key neither the game nor GM's runner uses: the game takes F1 and F10 (`oScreen`),
+/// Opens the menu (the settings and the updates) on Windows and Linux, between runs, when no dialog shows:
+/// the one key it takes from the game then. A key neither the game nor GM's runner uses: the game takes F1 and F10 (`oScreen`),
 /// F2 and F3 (`oTitle`: the level editor, loading a level), and Enter and Esc on the title; the runner F4
 /// (fullscreen, the app's too) and F9 (screenshots); F5 and F6 are off. F11 is many systems' fullscreen.
 /// (A player could still bind it as a control in key setup, which then works everywhere but the title.)
@@ -380,7 +380,7 @@ impl Updater {
         };
         match choice {
             Choice::Restart => *self.handoff.borrow_mut() = self.ready.take().map(Next::Update),
-            Choice::Settings => *self.handoff.borrow_mut() = Some(Next::Settings),
+            Choice::Settings => self.open_settings(),
             Choice::Later | Choice::Close => {}
             Choice::Skip(version) => {
                 self.state.skip = Some(version);
@@ -399,6 +399,16 @@ impl Updater {
                 self.dialog = Some(menu);
             }
         }
+    }
+
+    /// Closes the window for the settings program. A download ready to install is cleaned up as the app
+    /// starts again ([`Updater::new`]), so the next session checks again, as it would have offered it.
+    fn open_settings(&mut self) {
+        if self.ready.is_some() {
+            self.state.last_check = None;
+            self.save();
+        }
+        *self.handoff.borrow_mut() = Some(Next::Settings);
     }
 
     fn toggle_automatic(&mut self) {
@@ -421,9 +431,7 @@ impl Overlay for Updater {
         #[cfg(target_os = "macos")]
         for item in mac::chosen() {
             match item {
-                mac::Item::Settings if self.can_open_settings() => {
-                    *self.handoff.borrow_mut() = Some(Next::Settings);
-                }
+                mac::Item::Settings if self.can_open_settings() => self.open_settings(),
                 mac::Item::Check if self.can_check() => self.start_check(true),
                 mac::Item::Automatic => self.toggle_automatic(),
                 _ => {}
@@ -631,19 +639,13 @@ fn open_url(url: &str) {
 /// program is a program of its own, and its OK with START GAME ON EXIT starts the game in its window.
 pub fn open_settings() -> Result<(), String> {
     let exe = std::env::current_exe().map_err(|e| format!("can't find the app: {e}"))?;
-    // An AppImage is started again as itself, from a mount of its own (`launch` clears this one's).
-    let install = match appimage(&exe) {
-        Some(image) => Install {
-            kind: update::install::Kind::File,
-            target: image.clone(),
-            exe: image,
-        },
-        None => Install {
-            kind: update::install::Kind::Dir,
-            target: exe.clone(),
-            exe,
-        },
-    };
+    // Started again as the updater would: an AppImage as itself, from a mount of its own. One the updater
+    // can't replace (a development build outside a bundle, a translocated one) runs from where it is.
+    let install = Install::detect(&exe, appimage(&exe).as_deref()).unwrap_or_else(|_| Install {
+        kind: update::install::Kind::Dir,
+        target: exe.parent().map(Path::to_owned).unwrap_or_default(),
+        exe,
+    });
     let args = settings_args(std::env::args_os().skip(1).collect());
     update::restart::launch(&install, &args, None).map(drop)
 }

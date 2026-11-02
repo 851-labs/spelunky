@@ -9,13 +9,14 @@ build doesn't build them.
 
 - **Checks:** on launch, at most once a day, unless turned off; or when the player asks. On macOS the menu
   bar has **Check for Updates…** and **Check for Updates Automatically** (a checkmark). Windows and Linux
-  get a menu on **F7** with the same two choices, on the title screen: their window has no menu
+  get a menu on **F7** with the same two, on the title screen: their window has no menu
   bar, because a menu bar would take the Alt key from the game (Alt focuses it), and muda's Linux menus
   need GTK, which winit's windows aren't. F7 is a key neither the game (F1, F2 and F3 on the title, F10)
   nor GM's runner (F4, F9; F5 and F6 are off) uses, and it's the only key the updater takes without a
-  dialog showing. Both menus also open the settings program (**Settings…**, Cmd-, on macOS; **SETTINGS** on
-  F7, which a build that can't update opens too, with only that): the session ends as the window's close
-  button would end it, and the app starts again with `--settings` (`app::update::open_settings`).
+  dialog showing. Both menus also open the settings program, between runs: **Settings…** (Cmd-,) on macOS,
+  and **SETTINGS**, first in the F7 menu, which a build that can't update opens too, with only SETTINGS and
+  CLOSE. The game ends as the window's close button would end it, and the app starts again with
+  `--settings` (`app::update::open_settings`). With a download ready, the next session checks again.
 - **Never mid-run:** checks start, and prompts show, only between runs: the intro, the title screen and the
   rooms it opens (highscores, credits). A prompt that arrives during a run waits for
   the next time the player is back on the title screen. Key and joystick setup don't count: they take

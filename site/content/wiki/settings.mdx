@@ -29,7 +29,7 @@ faq:
     a: >-
       No. The settings are a separate program, config.exe, run before the game, which reads them as it starts.
       In the game, M turns the music off and on. The spelunky.ai port opens the same program from a Settings link
-      or menu item, ending the run first.
+      or menu item, between runs.
 sources:
   - scripts/scrInit.gml
   - objects/oScreen/create.gml
@@ -67,10 +67,10 @@ saving <Cite replay="fidelity/settings/sound-joy-exit.txt" />, and so does Enter
 
 1.1 ships it as `config.exe`, beside the game's `Spelunky.exe`, for the player to run before the game. The
 spelunky.ai port runs the same program. In the browser, it's the Settings link beside Play on the front page,
-and in the corner of the game's page. In the desktop apps, between runs, it's Settings… (Cmd-,) in the macOS
-app menu, and SETTINGS in the menu F7 opens on Windows and Linux. The Linux AppImage's desktop entry has a
-Settings action too. Opening it ends the run as the window's close button would, and its OK, with START GAME ON
-EXIT checked, starts the game again.
+and in the corner of the game's page between runs. In the desktop apps, between runs, it's Settings… (Cmd-,) in
+the macOS app menu, and SETTINGS in the menu F7 opens on Windows and Linux. The Linux AppImage's desktop entry
+has a Settings action too. Opening it closes the game as the window's close button would, and its OK, with
+START GAME ON EXIT checked, starts the game again.
 
 ### Keys and gamepad buttons
 
