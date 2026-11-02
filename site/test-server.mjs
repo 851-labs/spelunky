@@ -83,8 +83,9 @@ const assets = {
     const { pathname } = new URL(request.url);
     const type =
       pathname === "/wrangler-dev.txt" ? "text/plain; charset=utf-8" : ASSET_TYPES[/\.[a-z]+$/.exec(pathname)?.[0]];
-    if (type === undefined) return new Response("404 page", { status: 404, headers: { "content-type": "text/html" } });
-    const headers = new Headers({ "content-type": type, etag: ETAG });
+    // The 404 page gets the path's _headers too, as Cloudflare's does.
+    const headers = new Headers({ "content-type": type ?? "text/html" });
+    if (type !== undefined) headers.set("etag", ETAG);
     const given = new Headers();
     const removed = [];
     for (const rule of headerRules.filter((r) => r.path.test(pathname))) {
@@ -92,6 +93,7 @@ const assets = {
     }
     for (const [name, value] of given) headers.set(name, value);
     for (const name of removed) headers.delete(name);
+    if (type === undefined) return new Response("404 page", { status: 404, headers });
     if (request.headers.get("if-none-match") === ETAG) return new Response(null, { status: 304, headers });
     return new Response(request.method === "HEAD" ? null : BODY, { headers });
   },
@@ -99,6 +101,17 @@ const assets = {
 // A request to spelunky.ai, which the Worker sees or not as run_worker_first says.
 const serve = (request) =>
   toWorker(new URL(request.url).pathname) ? worker.fetch(request, { ASSETS: assets }) : assets.fetch(request);
+
+// The headers every response from spelunky.ai has: public/_headers' /* rule's, which the asset store gives, and the
+// Worker (src/server.ts) the same, whatever the status.
+const EVERY_RESPONSE = headerRules.find((r) => r.path.source === pattern("/*").source).headers;
+assert.ok(
+  EVERY_RESPONSE.some(([name]) => name.toLowerCase() === "strict-transport-security"),
+  "public/_headers' /* has no Strict-Transport-Security",
+);
+function assertEveryResponse(response, what) {
+  for (const [name, value] of EVERY_RESPONSE) assert.equal(response.headers.get(name), value, `${what}: ${name}`);
+}
 
 const UTF8_TEXT = "text/plain; charset=utf-8";
 // The wiki's media, cached for a day (_headers), where the Worker marks what it serves no-cache.
@@ -137,6 +150,7 @@ for (const [path, type] of Object.entries(WANT)) {
       assert.equal(response.status, revalidation ? 304 : 200, `${what}: status`);
       assert.equal(response.headers.get("content-type"), type, `${what}: content-type`);
       assert.equal(response.headers.get("cache-control"), caching, `${what}: cache-control`);
+      assertEveryResponse(response, what);
       assert.equal(await response.text(), how === "GET" ? BODY : "", `${what}: body`);
       console.log(`ok   ${what}: ${type}`);
     } catch (error) {
@@ -169,6 +183,7 @@ for (const [path, worker] of Object.entries(ROUTES)) {
       const response = await serve(new Request(`https://spelunky.ai${path}`));
       assert.equal(response.status, 301, `${path}: status`);
       assert.equal(response.headers.get("location"), `https://spelunky.ai${MEDIA}${path.slice(OLD.length)}`, `${path}: location`);
+      assertEveryResponse(response, path);
     }
     console.log(`ok   ${path}: ${worker ? "the Worker" : "the asset store"}`);
   } catch (error) {
@@ -190,6 +205,7 @@ for (const [path, to] of Object.entries(ALIAS_REDIRECTS)) {
       assert.equal(response.status, 301, `${method} ${path}: status`);
       assert.equal(response.headers.get("location"), `https://spelunky.ai${to}`, `${method} ${path}: location`);
       assert.equal(response.headers.get("cache-control"), "no-cache", `${method} ${path}: cache-control`);
+      assertEveryResponse(response, `${method} ${path}`);
       console.log(`ok   ${method} ${path}: 301 to ${to}`);
     } catch (error) {
       failures++;
@@ -204,6 +220,63 @@ try {
 } catch (error) {
   failures++;
   console.error(`FAIL ${error.message}`);
+}
+// Plain HTTP and www are a 301 to https://spelunky.ai, path and query kept, in one hop (a 308 for a POST, which
+// keeps its method), whether or not the Worker would have served the path; the files that skip it are the zone's
+// "Always Use HTTPS" setting's (docs/web-deploy.md, "HTTPS"), so here only the Worker's paths.
+const HTTPS_REDIRECTS = {
+  "http://spelunky.ai/": "https://spelunky.ai/",
+  "http://spelunky.ai/play/?a=1": "https://spelunky.ai/play/?a=1",
+  "http://spelunky.ai/wiki/pot": "https://spelunky.ai/wiki/pot",
+  "http://www.spelunky.ai/wiki/snake": "https://spelunky.ai/wiki/snake",
+  "https://www.spelunky.ai/wiki/snake?a=1": "https://spelunky.ai/wiki/snake?a=1",
+  "https://www.spelunky.ai/wiki/media/clips/snake/bite/clip.mp4":
+    "https://spelunky.ai/wiki/media/clips/snake/bite/clip.mp4",
+};
+for (const [from, to] of Object.entries(HTTPS_REDIRECTS)) {
+  for (const method of ["GET", "HEAD", "POST"]) {
+    try {
+      const response = await worker.fetch(new Request(from, { method }), { ASSETS: assets });
+      assert.equal(response.status, method === "POST" ? 308 : 301, `${method} ${from}: status`);
+      assert.equal(response.headers.get("location"), to, `${method} ${from}: location`);
+      assertEveryResponse(response, `${method} ${from}`);
+      console.log(`ok   ${method} ${from}: ${response.status} to ${to}`);
+    } catch (error) {
+      failures++;
+      console.error(`FAIL ${error.message}`);
+    }
+  }
+}
+// But only spelunky.ai's own names: not Vite's servers, on localhost, nor a preview, on workers.dev.
+for (const url of ["http://localhost:5173/wiki/snake.md", "http://abc123-spelunky.example.workers.dev/wiki/snake.md"]) {
+  try {
+    const response = await worker.fetch(new Request(url), { ASSETS: assets });
+    assert.equal(response.status, 200, `${url}: status`);
+    console.log(`ok   ${url}: no redirect`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
+  }
+}
+// Every other response has them too: a 404, the Worker's or the asset store's, a 405, and a file that skips the
+// Worker.
+for (const [path, method] of [
+  ["/nowhere", "GET"],
+  ["/wp-login.php", "GET"],
+  ["/play/v/0123456789abcdef/nope.js", "GET"],
+  ["/", "POST"],
+  ["/assets/index-0123.js", "GET"],
+  ["/play/v/0123456789abcdef/app.wasm", "GET"],
+  ["/wiki/og/snake.0123456789abcdef.png", "GET"],
+  [`${MEDIA}/sprites/sSnakeWalkL/frames/0%404x.png`, "GET"],
+]) {
+  try {
+    assertEveryResponse(await serve(new Request(`https://spelunky.ai${path}`, { method })), `${method} ${path}`);
+    console.log(`ok   ${method} ${path}: the headers every response has`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
+  }
 }
 if (failures > 0) {
   console.error(`test-server.mjs: ${failures} failed`);

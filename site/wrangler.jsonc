@@ -50,6 +50,10 @@
     { "pattern": "spelunky.ai", "custom_domain": true },
     { "pattern": "www.spelunky.ai", "custom_domain": true }
   ],
+  // wrangler dev (and test.sh) hands the Worker each request as https://spelunky.ai/..., as Cloudflare does
+  // once it's HTTPS: the default, plain http://spelunky.ai/..., is what the Worker redirects to HTTPS
+  // (src/server.ts), so every local request would be a redirect.
+  "dev": { "upstream_protocol": "https" },
   "workers_dev": false,
   // Pull requests that change site/ upload a version (`wrangler versions upload`) whose link Workers Builds
   // posts on the PR. Every deploy applies this setting, so it has to be on here: false turned the previews

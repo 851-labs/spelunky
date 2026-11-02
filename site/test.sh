@@ -353,9 +353,11 @@ no_cache="cache-control: no-cache"
 immutable="cache-control: public, max-age=31536000, immutable"
 # The wiki's media keep their names when they're rendered again (public/_headers).
 media_cache="cache-control: public, max-age=86400"
+# On every response, the Worker's (src/server.ts) and the asset store's (public/_headers' /*).
+hsts="strict-transport-security: max-age=31536000; includeSubDomains"
 
 # The pre-rendered landing page.
-check "$site/" 200 "$no_cache" "content-type: text/html; charset=utf-8"
+check "$site/" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts"
 contains '<html lang="en">' \
   '<title>Spelunky Classic in your browser (unofficial port)</title>' \
   '<meta property="og:image" content="https://spelunky.ai/media/gameplay.png"/>' \
@@ -418,21 +420,21 @@ check "$site/apple-touch-icon.png" 200 "$no_cache" "content-type: image/png"
 same public/apple-touch-icon.png
 # Its scripts: content-hashed, so served without the Worker, and cached for good.
 script=$(cd dist/client && ls assets/*.js | head -1)
-check "$site/$script" 200 "$immutable" "x-content-type-options: nosniff"
+check "$site/$script" 200 "$immutable" "x-content-type-options: nosniff" "$hsts"
 
 # The web build.
 check "$site/play" 307 "location: /play/" "$no_cache"
 check "$site/play/" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 same "$tmp/web/index.html"
 check "$site/play/manifest.txt" 200 "$no_cache"
-check "$site/play/v/0123456789abcdef/app.js" 200 "$immutable" "x-content-type-options: nosniff"
+check "$site/play/v/0123456789abcdef/app.js" 200 "$immutable" "x-content-type-options: nosniff" "$hsts"
 same "$tmp/web/v/0123456789abcdef/app.js"
 # A miss under v/ skips the Worker too (docs/web-deploy.md, "Rolling back").
-check "$site/play/v/fedcba9876543210/app.js" 404 "$immutable"
+check "$site/play/v/fedcba9876543210/app.js" 404 "$immutable" "$hsts"
 
 # The wiki's media: served without the Worker (but the clips' videos, below), and cached for a day.
 check "$site$media_url/sprites/sSnakeWalkL/frames/0%404x.png" 200 "$media_cache" "content-type: image/png" \
-  "x-content-type-options: nosniff"
+  "x-content-type-options: nosniff" "$hsts"
 same "$media/sprites/sSnakeWalkL/frames/0@4x.png"
 # The asset store's canonical form of a path escapes an @, and it redirects to that, so a page asks for
 # 0%404x.png (docs/web-deploy.md, "Wiki media").
@@ -935,7 +937,7 @@ check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf
 same "$tmp/LICENSE.txt"
 contains 'Spelunky® User License v1.1b'
 
-check "$site/nowhere" 404 "$no_cache" "content-type: text/html; charset=utf-8"
+check "$site/nowhere" 404 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts"
 same public/404.html
 # Not a page, so the Worker doesn't ask the router.
 check "$site/wp-login.php" 404 "$no_cache"
@@ -944,8 +946,8 @@ same public/404.html
 got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 [ "$got" = 405 ] || fail "POST $site/: status $got, not 405"
 
-# www redirects to the apex, path and query kept (http here only because wrangler dev is).
-check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/play/?a=1"
+# www redirects to https://spelunky.ai, path and query kept, from plain HTTP too (as wrangler dev is) in one hop.
+check "http://localhost:$www_port/play/?a=1" 301 "location: https://spelunky.ai/play/?a=1" "$hsts"
 
 # Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemaps against them.
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
