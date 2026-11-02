@@ -30,6 +30,12 @@ pub const CHECKPOINT_EVERY: u64 = 300;
 pub struct Fingerprint {
     /// The replay it was recorded for, in [`Replay::to_text`]'s canonical form (so comments don't count).
     pub replay: String,
+    /// The oracle build it was recorded with ([`oracle_build_stamp`]), which `fidelity-check` requires to
+    /// be the checkout's (851-3791): an oracle change can make a fingerprint stale while the port still
+    /// matches it. Each fingerprint keeps its own, so one recorded with an older build can't pass for the
+    /// new one's after a merge. `None` for the port's, which no oracle made.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub oracle: Option<String>,
     /// How many frames the trace holds.
     pub frames: u64,
     /// The whole trace: the last checkpoint's hash.
@@ -48,8 +54,11 @@ pub struct Checkpoint(pub u64, pub String, pub String);
 impl Fingerprint {
     /// The file's text: JSON with one checkpoint per line, so diffs stay readable.
     pub fn to_text(&self) -> String {
+        let oracle = (self.oracle.as_ref())
+            .map(|o| format!("\n  \"oracle\": {},", json(o)))
+            .unwrap_or_default();
         let mut s = format!(
-            "{{\n  \"replay\": {},\n  \"frames\": {},\n  \"trace\": {},\n  \"host\": {},\n  \"checkpoints\": [",
+            "{{\n  \"replay\": {},{oracle}\n  \"frames\": {},\n  \"trace\": {},\n  \"host\": {},\n  \"checkpoints\": [",
             json(&self.replay),
             self.frames,
             json(&self.trace),
@@ -150,22 +159,11 @@ pub fn fingerprint_path(repo: &Path, suite: &Suite, replay: &Path) -> PathBuf {
         .join(name)
 }
 
-/// Where the oracle build the fingerprints were recorded with is kept (docs/formats.md, "Fingerprints").
-pub fn oracle_stamp_path(repo: &Path) -> PathBuf {
-    repo.join("fidelity/fingerprints/ORACLE")
-}
-
-/// What `fidelity/fingerprints/ORACLE` says above the stamp.
-const ORACLE_HEADER: &str = "\
-# The oracle build every fingerprint here was recorded with: tools/oracle/common.sh's build_stamp, a hash of the
-# pinned commits, the oracle's patches, its Dockerfile and vendor/pxfm. `scripts/fidelity --refresh-fingerprints`
-# writes it after recording them all; fidelity-check fails while the checkout's build differs, as an oracle change
-# can make every fingerprint stale (docs/formats.md, \"Fingerprints\").
-";
-
-/// The checkout's oracle build stamp (`tools/oracle/common.sh`'s `build_stamp`). It hashes the oracle's
-/// inputs in the working tree, so it needs neither Docker nor a built oracle: `fidelity-check` takes it
-/// on every run. One definition, the shell's, as `tools/oracle/build` names its builds by it.
+/// The checkout's oracle build stamp (`tools/oracle/common.sh`'s `build_stamp`), as a fingerprint keeps it
+/// ([`Fingerprint::oracle`]): its first 16 hex digits. It hashes the oracle's inputs in the working tree (the
+/// pinned commits, the patches, the Dockerfile, `vendor/pxfm`), so it needs neither Docker nor a built
+/// oracle, and `fidelity-check` takes it on every run. One definition, the shell's, as `tools/oracle/build`
+/// names its builds by it.
 pub fn oracle_build_stamp(repo: &Path) -> Result<String, String> {
     let out = std::process::Command::new("bash")
         .arg("-c")
@@ -180,48 +178,7 @@ pub fn oracle_build_stamp(repo: &Path) -> Result<String, String> {
             String::from_utf8_lossy(&out.stderr).trim()
         ));
     }
-    Ok(stamp)
-}
-
-/// The stamp `fidelity/fingerprints/ORACLE` records, if there's one: its line that isn't a comment.
-pub fn recorded_oracle_stamp(repo: &Path) -> Result<Option<String>, String> {
-    let path = oracle_stamp_path(repo);
-    let text = match std::fs::read_to_string(&path) {
-        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
-        r => r.map_err(|e| format!("{}: {e}", path.display()))?,
-    };
-    Ok(text
-        .lines()
-        .map(str::trim)
-        .find(|l| !l.is_empty() && !l.starts_with('#'))
-        .map(str::to_owned))
-}
-
-/// Records `stamp` as the build the fingerprints come from.
-pub fn write_oracle_stamp(repo: &Path, stamp: &str) -> Result<(), String> {
-    let path = oracle_stamp_path(repo);
-    std::fs::write(&path, format!("{ORACLE_HEADER}{stamp}\n"))
-        .map_err(|e| format!("{}: {e}", path.display()))
-}
-
-/// What's wrong with the fingerprints' oracle build, if anything: none recorded, or not the checkout's.
-pub fn oracle_stamp_problem(recorded: Option<&str>, current: &str) -> Option<String> {
-    match recorded {
-        Some(r) if r == current => None,
-        Some(r) => Some(format!(
-            "the oracle build changed since the fingerprints were recorded ({} then, {} now: \
-             tools/oracle/patches, its Dockerfile, common.sh's pinned commits or vendor/pxfm). Record them \
-             all again with scripts/fidelity --refresh-fingerprints, which needs Docker and about an hour, \
-             and commit fidelity/fingerprints/ with its new ORACLE",
-            &r[..r.len().min(16)],
-            &current[..16]
-        )),
-        None => Some(
-            "no oracle build recorded for the fingerprints: scripts/fidelity --refresh-fingerprints \
-             writes it after recording them all"
-                .to_owned(),
-        ),
-    }
+    Ok(stamp[..16].to_owned())
 }
 
 /// A directory of committed replays, all of one program.
@@ -387,6 +344,7 @@ impl Fingerprinter {
         }
         Fingerprint {
             replay: replay_hash(replay),
+            oracle: None,
             frames: self.frames,
             trace: hex(self.running),
             host: host.map_or_else(|| "none".into(), |h| hex(hash_host(h))),
@@ -547,32 +505,11 @@ mod tests {
     }
 
     #[test]
-    fn the_oracle_stamp_is_recorded_read_and_compared() {
-        let dir = std::env::temp_dir().join(format!("oracle-stamp-{}", std::process::id()));
-        std::fs::create_dir_all(dir.join("fidelity/fingerprints")).unwrap();
-        assert_eq!(recorded_oracle_stamp(&dir).unwrap(), None);
-        let stamp = "ab".repeat(32);
-        write_oracle_stamp(&dir, &stamp).unwrap();
-        // The comment above it is skipped.
-        assert_eq!(recorded_oracle_stamp(&dir).unwrap(), Some(stamp.clone()));
-        std::fs::remove_dir_all(&dir).unwrap();
-        assert_eq!(oracle_stamp_problem(Some(&stamp), &stamp), None);
-        let other = "cd".repeat(32);
-        let changed = oracle_stamp_problem(Some(&stamp), &other).unwrap();
-        assert!(
-            changed.contains("abababababababab then, cdcdcdcdcdcdcdcd now"),
-            "{changed}"
-        );
-        assert!(changed.contains("scripts/fidelity --refresh-fingerprints"));
-        assert!(oracle_stamp_problem(None, &other).is_some());
-    }
-
-    #[test]
     fn the_checkout_has_an_oracle_stamp_without_docker() {
         // The shell's, in this checkout: it only hashes files.
         let repo = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap()).join("../..");
         let stamp = oracle_build_stamp(&repo).unwrap();
-        assert_eq!(stamp.len(), 64);
+        assert_eq!(stamp.len(), 16);
         assert_eq!(oracle_build_stamp(&repo).unwrap(), stamp);
     }
 
@@ -646,6 +583,20 @@ mod tests {
         assert_eq!(fp.trace, fp.checkpoints[4].2);
         assert_eq!(fp.frames, 700);
         assert_eq!(Fingerprint::parse(&fp.to_text()).unwrap(), fp);
+        // An oracle's keeps the build it came from, as its second field; the port's has none.
+        assert!(!fp.to_text().contains("oracle"));
+        let oracle = Fingerprint {
+            oracle: Some("f7b6e49cb611fff8".into()),
+            ..fp.clone()
+        };
+        assert!(
+            oracle
+                .to_text()
+                .contains("\",\n  \"oracle\": \"f7b6e49cb611fff8\",\n  \"frames\"")
+        );
+        assert_eq!(Fingerprint::parse(&oracle.to_text()).unwrap(), oracle);
+        // It isn't the run: the port's matches the oracle's whatever build that was.
+        assert_eq!(oracle.mismatch(&fp), None);
 
         // A change on frame 400 shows up at the checkpoint after it, and not before.
         let mut changed = frames.clone();

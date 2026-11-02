@@ -13,8 +13,8 @@ use std::time::Instant;
 
 use harness::fingerprint::{
     Fingerprint, Fingerprinter, SUITES, Suite, all_replays, faithful_audio_mismatch,
-    fingerprint_path, oracle_build_stamp, oracle_stamp_path, oracle_stamp_problem, port_mismatch,
-    recorded_oracle_stamp, replay_hash, run_fingerprint_watched, shown, sorted_with_extension, sound_handle,
+    fingerprint_path, oracle_build_stamp, port_mismatch, replay_hash, run_fingerprint_watched, shown,
+    sorted_with_extension, sound_handle,
 };
 use harness::story::{Story, Watcher};
 use harness::{load_bundle, load_replay_story, load_sounds};
@@ -30,9 +30,9 @@ oracle's (fidelity/fingerprints/): its trace, checkpoint by checkpoint, and its 
 checks the replay's story facts (its `# story:` lines, docs/formats.md), so that a change that takes
 port and oracle somewhere new together doesn't leave a header describing what no longer happens. A
 replay without a story fact that must hold is an error. It doesn't need the oracle or Docker. Without replays, a
-fingerprint whose replay is gone is an error too. So is an oracle build (tools/oracle/common.sh's build_stamp)
-other than the one the fingerprints were recorded with (fidelity/fingerprints/ORACLE), as an oracle change can
-make them stale while the port still matches them.
+fingerprint whose replay is gone is an error too. So is one recorded with another oracle build than the
+checkout's (its `oracle`, tools/oracle/common.sh's build_stamp), as an oracle change can make a fingerprint
+stale while the port still matches it.
 
 The replays of AUDIO_REPLAYS (music in every area, the pause, Olmec, the ending, the credits, a custom level,
 the bonus rooms) are also played in the audio mode players get, Faithful, with the game's sounds, which must
@@ -134,6 +134,13 @@ fn untold(job: &Job, repo: &Path) -> Option<String> {
     })
 }
 
+/// Whether the replay's fingerprint was recorded with another oracle build than `stamp`, the checkout's
+/// (851-3791), or with none recorded. One that can't be read is [`check`]'s to report.
+fn stale(job: &Job, repo: &Path, stamp: &str) -> bool {
+    Fingerprint::read(&fingerprint_path(repo, job.suite, &job.path))
+        .is_ok_and(|fp| fp.oracle.as_deref() != Some(stamp))
+}
+
 /// `sounds`: the game's, for Faithful audio's run of one of [`AUDIO_REPLAYS`].
 fn check(
     job: &Job,
@@ -224,12 +231,15 @@ fn run() -> Result<bool, String> {
     let started = Instant::now();
     let repo = std::fs::canonicalize(repo_root()).map_err(|e| format!("the repository: {e}"))?;
     let mut problems: Vec<Outcome> = Vec::new();
-    // The oracle's patches, Dockerfile, pinned commits and math crate are the fingerprints' as recorded
-    // (851-3791): a pull request that changes them can't pass on fingerprints the old oracle made.
-    let stamp = oracle_build_stamp(&repo)?;
-    if let Some(p) = oracle_stamp_problem(recorded_oracle_stamp(&repo)?.as_deref(), &stamp) {
-        problems.push((oracle_stamp_path(&repo), Some(p)));
-    }
+    // The oracle build the fingerprints must be of (851-3791). Without it the replays are still played, for
+    // whatever else is wrong.
+    let stamp = match oracle_build_stamp(&repo) {
+        Ok(s) => Some(s),
+        Err(e) => {
+            problems.push((repo.join("tools/oracle/common.sh"), Some(e)));
+            None
+        }
+    };
     let paths: Vec<(PathBuf, &'static Suite)> = if o.replays.is_empty() {
         for suite in &SUITES {
             // A fingerprint left behind by a deleted or renamed replay.
@@ -304,6 +314,7 @@ fn run() -> Result<bool, String> {
     };
     let next = AtomicUsize::new(0);
     let done = Mutex::new(Vec::new());
+    let stale_ones = Mutex::new(Vec::new());
     std::thread::scope(|s| {
         for _ in 0..o.jobs.min(jobs.len()) {
             s.spawn(|| {
@@ -322,6 +333,12 @@ fn run() -> Result<bool, String> {
                     .flatten()
                     .collect();
                     let result = (!found.is_empty()).then(|| found.join("\n  "));
+                    if stamp.as_deref().is_some_and(|s| stale(job, &repo, s)) {
+                        stale_ones
+                            .lock()
+                            .unwrap_or_else(PoisonError::into_inner)
+                            .push(shown(&repo, &job.path));
+                    }
                     done.lock()
                         .unwrap_or_else(PoisonError::into_inner)
                         .push((job.path.clone(), result));
@@ -331,6 +348,31 @@ fn run() -> Result<bool, String> {
     });
     let done = done.into_inner().unwrap_or_else(PoisonError::into_inner);
     let checked = done.len();
+    // Once for them all: an oracle change makes every fingerprint another build's.
+    let mut stale_ones = stale_ones
+        .into_inner()
+        .unwrap_or_else(PoisonError::into_inner);
+    if let (Some(stamp), false) = (&stamp, stale_ones.is_empty()) {
+        stale_ones.sort();
+        let (which, again) = if stale_ones.len() == checked {
+            ("every fingerprint".to_owned(), String::new())
+        } else {
+            let some = format!(" {}", stale_ones.join(" "));
+            (
+                format!("{} of {checked} fingerprints", stale_ones.len()),
+                some,
+            )
+        };
+        problems.push((
+            repo.join("fidelity/fingerprints"),
+            Some(format!(
+                "{which} came from another oracle build than this checkout's ({stamp}: tools/oracle/patches, \
+                 its Dockerfile, common.sh's pinned commits or vendor/pxfm changed since). Record them again \
+                 with scripts/fidelity --refresh-fingerprints{again}, which needs Docker (about an hour for \
+                 all of them), and commit what it writes"
+            )),
+        ));
+    }
     let matched = done.iter().filter(|(_, m)| m.is_none()).count();
     problems.extend(done.into_iter().filter(|(_, m)| m.is_some()));
     problems.sort_by(|a, b| a.0.cmp(&b.0));

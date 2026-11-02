@@ -164,11 +164,20 @@ fn repo_root() -> PathBuf {
 /// What the cached oracle trace depends on: the oracle build, the program, the replay, and `--fields`.
 /// `None` if the oracle's build stamp can't be computed (the trace then isn't cached).
 fn oracle_key(replay_text: &str, exe: &str, fields: bool) -> Option<String> {
-    let stamp = harness::fingerprint::oracle_build_stamp(&repo_root()).ok()?;
+    let stamp = oracle_stamp().ok()?;
     Some(format!(
         "oracle {stamp}\nexe {exe}\nfields {fields}\nreplay {}\n{replay_text}",
         replay_text.len()
     ))
+}
+
+/// The checkout's oracle build stamp ([`harness::fingerprint::oracle_build_stamp`]), taken once: it hashes
+/// the patches and the math crate, and a refresh asks for it for every replay.
+fn oracle_stamp() -> Result<String, String> {
+    static STAMP: std::sync::OnceLock<Result<String, String>> = std::sync::OnceLock::new();
+    STAMP
+        .get_or_init(|| harness::fingerprint::oracle_build_stamp(&repo_root()))
+        .clone()
 }
 
 /// Where the oracle's trace came from.
@@ -324,19 +333,7 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
     let repo = std::fs::canonicalize(repo_root()).map_err(|e| format!("the repository: {e}"))?;
     // Every path, and the assets, are checked before the first oracle run, so a typo can't stop a batch
     // halfway.
-    // The build they're recorded with (851-3791): ORACLE gets it once every fingerprint is this build's.
-    // So some can only be recorded alone while the others are of this build too.
-    let stamp = harness::fingerprint::oracle_build_stamp(&repo)?;
-    let recorded = harness::fingerprint::recorded_oracle_stamp(&repo)?;
-    let all = replays.is_empty();
-    if !all && recorded.as_deref() != Some(&*stamp) {
-        return Err(format!(
-            "the other fingerprints aren't this oracle build's: {}. Recording only some would leave a mix",
-            harness::fingerprint::oracle_stamp_problem(recorded.as_deref(), &stamp)
-                .expect("they differ")
-        ));
-    }
-    let replays = if all {
+    let replays = if replays.is_empty() {
         all_replays(&repo)?
     } else {
         (replays.iter())
@@ -409,21 +406,8 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
     let mut failed = failed.into_inner().unwrap_or_else(PoisonError::into_inner);
     failed.sort();
     if failed.is_empty() {
-        if all && recorded.as_deref() != Some(&*stamp) {
-            harness::fingerprint::write_oracle_stamp(&repo, &stamp)?;
-            write_stdout(&format!(
-                "recorded the oracle build {} in fidelity/fingerprints/ORACLE\n",
-                &stamp[..16]
-            ))?;
-        }
         Ok(Verdict::Identical)
     } else {
-        if recorded.as_deref() != Some(&*stamp) {
-            write_stdout(
-                "fidelity/fingerprints/ORACLE keeps the old oracle build, which fidelity-check fails, until \
-                 every fingerprint is recorded with this one\n",
-            )?;
-        }
         write_stdout(&format!(
             "{} of {} fingerprints not recorded: {}\n",
             failed.len(),
@@ -474,7 +458,10 @@ fn refresh_one(
         .join(path.file_stem().unwrap_or_default());
     std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     let (oracle_path, source) = oracle_trace(&opts, &dir, &replay_text)?;
-    let oracle = fingerprint_trace(&replay, &oracle_path)?;
+    let mut oracle = fingerprint_trace(&replay, &oracle_path)?;
+    // The build it came from, which fidelity-check requires to be the checkout's (851-3791). The key the
+    // trace was cached under has the same stamp, so a cached trace is this build's too.
+    oracle.oracle = Some(oracle_stamp()?);
     if let Some(m) = port_mismatch(&oracle, &port, &summary) {
         let settings = if suite.settings { " --settings" } else { "" };
         return Err(format!(

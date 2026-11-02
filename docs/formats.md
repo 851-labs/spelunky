@@ -354,6 +354,7 @@ takes about 5 s. `fidelity-check <replay>...` checks some.
 ```json
 {
   "replay": "6d5ec24f2683bd1c",
+  "oracle": "f7b6e49cb611fff8",
   "frames": 4,
   "trace": "c4858bdaf7fac30f",
   "host": "6260ca1ed33d8e3b",
@@ -368,6 +369,7 @@ takes about 5 s. `fidelity-check <replay>...` checks some.
   lanes over 8-byte words, then MurmurHash3's finalizer), never the platform's `Hasher`.
 - `replay` hashes the replay in `Replay::to_text`'s canonical form, so a comment can change but an input
   can't without recording again.
+- `oracle` names the oracle build it was recorded with (below).
 - Each frame is hashed in a **canonical encoding of the parsed `trace::Frame`** (`trace::canon`), not its
   JSON: the oracle's trace is read back into frames, and the port's frames are encoded straight from the
   world into the same bytes, so the two writers' formatting never matters. The encoding makes equal what `trace-diff` counts as equal: a missing alarm is
@@ -396,18 +398,17 @@ a removed replay's fingerprint (`fidelity-check` reports one left behind). A new
 [story facts](#stories), which `fidelity-check` requires (recording only warns): `area-route` writes no
 comments, so the header and its facts are written by hand.
 
-**The oracle build they came from** is in `fidelity/fingerprints/ORACLE`: `tools/oracle/common.sh`'s
+**The oracle build each came from** is its `oracle`: the first 16 hex digits of `tools/oracle/common.sh`'s
 `build_stamp`, a hash of the pinned commits, the oracle's patches, its Dockerfile and `vendor/pxfm`, which
-needs no Docker to compute. `fidelity-check` fails while the checkout's stamp differs from it (851-3791), so a
-change to the oracle's inputs can't merge on fingerprints the old oracle made, as it could while the port still
-matched them. `--refresh-fingerprints` writes it once every fingerprint is recorded with the checkout's build
-(a run of them all, with none the port disagrees with), and refuses to record only some while the others are
-another build's. An oracle change that can't affect the replays costs that run all the same: it's what shows
-it doesn't.
+needs no Docker to compute. `fidelity-check` fails on any fingerprint whose `oracle` isn't the checkout's
+(851-3791), so a change to the oracle's inputs can't merge on fingerprints the old oracle made, as it could
+while the port still matched them; and each fingerprint keeps its own, so one recorded with an older build
+can't pass for the newer one's after a merge. An oracle change that can't affect the replays costs a full
+re-record all the same: it's what shows it doesn't.
 
 **After a merge that changes the oracle's output** (an oracle patch or rebuild, or a change that takes the
 port and the oracle somewhere new together), re-record every fingerprint with the one command
-`scripts/fidelity --refresh-fingerprints`, and commit `fidelity/fingerprints/` with its `ORACLE`. It needs Docker and the
+`scripts/fidelity --refresh-fingerprints`, and commit `fidelity/fingerprints/`. It needs Docker and the
 oracle image (`tools/oracle/build`), and takes about an hour for the whole set on a 10-core M-series Mac. A
 port-only change never needs it: the fingerprints are the oracle's, so a port fix either keeps matching them
 or shows up as a `fidelity-check` failure to fix in the port.

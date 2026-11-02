@@ -64,7 +64,7 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   replay means recording its fingerprint with `scripts/fidelity --refresh-fingerprints <replay>`, which needs the
   oracle and refuses while the port disagrees with it. A change to the oracle's inputs (`tools/oracle/patches/`, its
   Dockerfile, `vendor/pxfm`) fails `fidelity-check` until they're all re-recorded with
-  `scripts/fidelity --refresh-fingerprints`, which records the oracle build in `fidelity/fingerprints/ORACLE`
+  `scripts/fidelity --refresh-fingerprints`, as each fingerprint names the oracle build it came from
   (docs/formats.md, "Fingerprints").
 - The wiki's media are committed in `wiki/media`. A change to a clip spec, a replay a clip is cut from, or what
   renders them (the game, drawing, sound, `harness`, the extractor) runs `scripts/wiki-media` and commits what it
