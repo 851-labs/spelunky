@@ -5,17 +5,17 @@
 // build's tools and the Worker's too), with its license file as it ships it; and fails on a package without one,
 // rather than ship it without its notice. Only the client's: the Worker's runs on Cloudflare, and isn't
 // distributed.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { dirname, join, sep } from "node:path";
+//
+// Vite 8's own `build.license` does most of this, but leaves out the bundlers' runtime code it puts in the bundle
+// (its preload helper, Rolldown's runtime: virtual modules), and lists a package without a license file as if
+// that were fine.
+import { readdirSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import type { Plugin } from "vite";
 
-export const LICENSES_FILE = "third-party-licenses.txt";
-
-// The bundlers' own runtime code that they put in the bundle, by the virtual modules' ids, and the package it's from.
-const RUNTIMES: [RegExp, string][] = [
-  [/^\0vite\//, "vite"],
-  [/^\0rolldown\//, "rolldown"],
-];
+const LICENSES_FILE = "third-party-licenses.txt";
+const NODE_MODULES = "/node_modules/";
 
 interface Package {
   name: string;
@@ -25,13 +25,27 @@ interface Package {
 }
 
 // The package a module of the bundle is in: the directory under its last node_modules/ (a scoped name's two).
-export function packageDir(id: string): string | null {
-  const path = id.split("?")[0];
-  const at = path.lastIndexOf(`${sep}node_modules${sep}`);
+// Bundlers' ids use forward slashes on every platform, and a plugin's virtual id for a real file may start with a
+// NUL.
+function packageDir(id: string): string | null {
+  const path = id.replace(/^\0/, "").split("?")[0].replaceAll("\\", "/");
+  const at = path.lastIndexOf(NODE_MODULES);
   if (at === -1) return null;
-  const rest = path.slice(at + `${sep}node_modules${sep}`.length).split(sep);
+  const rest = path.slice(at + NODE_MODULES.length).split("/");
   const parts = rest[0].startsWith("@") ? rest.slice(0, 2) : rest.slice(0, 1);
-  return path.slice(0, at + `${sep}node_modules${sep}`.length) + parts.join(sep);
+  return path.slice(0, at + NODE_MODULES.length) + parts.join("/");
+}
+
+// The bundlers' own runtime code in the bundle, by its virtual modules' ids, and the directory of the package it's
+// from: the Vite this build runs, and the Rolldown it runs with.
+function runtimes(): [RegExp, string][] {
+  const fromHere = createRequire(import.meta.url);
+  const vite = dirname(fromHere.resolve("vite/package.json"));
+  const rolldown = dirname(createRequire(join(vite, "package.json")).resolve("rolldown/package.json"));
+  return [
+    [/^\0vite\//, vite],
+    [/^\0rolldown\//, rolldown],
+  ];
 }
 
 function readPackage(dir: string): Package {
@@ -48,8 +62,9 @@ function readPackage(dir: string): Package {
   return { name: meta.name, version: meta.version, license: meta.license ?? "?", text: text.trim() };
 }
 
-export function licensesText(packages: Package[]): string {
-  const sorted = [...packages].sort((a, b) => (a.name < b.name ? -1 : 1));
+function licensesText(packages: Package[]): string {
+  const order = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+  const sorted = [...packages].sort((a, b) => order(a.name, b.name) || order(a.version, b.version));
   const head = [
     "Third-party software in spelunky.ai's pages",
     "",
@@ -58,7 +73,8 @@ export function licensesText(packages: Package[]): string {
     "",
     ...sorted.map((p) => `- ${p.name} ${p.version} (${p.license})`),
   ];
-  const bodies = sorted.map((p) => [`${"=".repeat(78)}`, `${p.name} ${p.version} (${p.license})`, `${"=".repeat(78)}`, "", p.text].join("\n"));
+  const rule = "=".repeat(78);
+  const bodies = sorted.map((p) => [rule, `${p.name} ${p.version} (${p.license})`, rule, "", p.text].join("\n"));
   return `${[head.join("\n"), ...bodies].join("\n\n")}\n`;
 }
 
@@ -67,30 +83,19 @@ export function thirdPartyLicenses(): Plugin {
     name: "third-party-licenses",
     applyToEnvironment: (environment) => environment.name === "client",
     generateBundle(_options, bundle) {
+      const runtime = runtimes();
       const dirs = new Set<string>();
       for (const output of Object.values(bundle)) {
         if (output.type !== "chunk") continue;
         for (const id of output.moduleIds) {
-          const runtime = RUNTIMES.find(([pattern]) => pattern.test(id));
-          const dir = runtime ? packageDir(require_resolve(runtime[1])) : packageDir(id);
+          const dir = runtime.find(([pattern]) => pattern.test(id))?.[1] ?? packageDir(id);
           if (dir !== null) dirs.add(dir);
         }
       }
       if (dirs.size === 0) this.error("the client's bundle has no third-party package, which can't be right");
-      const packages = [...dirs].map(readPackage);
-      this.emitFile({ type: "asset", fileName: LICENSES_FILE, source: licensesText(packages) });
+      // Two directories of one package at one version (a copy nested elsewhere) are one entry.
+      const packages = new Map([...dirs].map(readPackage).map((p) => [`${p.name}@${p.version}`, p]));
+      this.emitFile({ type: "asset", fileName: LICENSES_FILE, source: licensesText([...packages.values()]) });
     },
   };
-}
-
-// The directory a package is installed in, for the bundlers' runtimes (whose modules are virtual).
-function require_resolve(name: string): string {
-  let dir = dirname(new URL(import.meta.url).pathname);
-  for (;;) {
-    const candidate = join(dir, "node_modules", name, "package.json");
-    if (existsSync(candidate)) return candidate;
-    const up = dirname(dir);
-    if (up === dir) throw new Error(`${name} isn't installed`);
-    dir = up;
-  }
 }
