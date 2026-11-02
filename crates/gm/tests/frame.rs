@@ -649,6 +649,41 @@ fn key_repeat_and_mouse_release() {
 }
 
 #[test]
+fn the_runners_hotkeys_leave_keyboard_lastkey_at_0() {
+    // GM8's hotkey routine (Spelunky.exe 0x53daa4) clears `keyboard_lastkey` before the frame when it's F4 or
+    // F9 and the game settings have them on; `keyboard_key` and the key's events are any key's (GM8 under
+    // Wine, 851-3874: F9 and F4 held read key=120/115, last=0; Left, key=37, last=37).
+    fn keys(g: &mut World, _: &mut Ctx) -> R<()> {
+        let (k, l) = (g.input().keyboard_key(), g.input().keyboard_lastkey());
+        log(g, &format!("key{k} last{l}"));
+        Ok(())
+    }
+    let prog = build(|b| {
+        let o = b.push_object(ObjectInfo::new("o"));
+        b.event(o, Event::KeyPress(1), keys)
+            .event(o, Event::KeyPress(115), note);
+    });
+    let press = |g: &mut World, vk: u8| {
+        g.step(&[InputEvent::Press(Button::Key(vk))]).unwrap();
+        g.step(&[InputEvent::Release(Button::Key(vk))]).unwrap();
+        take_log(g)
+    };
+    let mut g = world_with(
+        prog,
+        Assets::default().with_hotkeys(true, true),
+        &[ObjectId(0)],
+    );
+    assert_eq!(press(&mut g, 115), "o1.press115 key115 last0");
+    assert_eq!(press(&mut g, 120), "key120 last0");
+    assert_eq!(press(&mut g, 37), "key37 last37");
+    // It stays until another key is pressed.
+    assert_eq!(g.input().keyboard_lastkey(), 37);
+    // A program whose settings have them off keeps their codes.
+    let mut g = world_with(prog, Assets::default(), &[ObjectId(0)]);
+    assert_eq!(press(&mut g, 115), "o1.press115 key115 last115");
+}
+
+#[test]
 fn negative_friction_only_acts_on_moving_instances() {
     let prog = build(|b| {
         b.push_object(ObjectInfo::new("o"));

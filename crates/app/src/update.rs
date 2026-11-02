@@ -1,5 +1,6 @@
 //! Updating the native app (851-3255), as the window's [`Overlay`]: the `update` crate checks, downloads,
-//! swaps and rolls back; this decides when, and asks the player.
+//! swaps and rolls back; this decides when, and asks the player. Its menus also open the settings program
+//! ([`open_settings`]), which 1.1 ships as a program of its own, `config.exe`.
 //!
 //! - **When:** on launch, at most once a day, unless the player turned automatic checks off; and whenever
 //!   the player asks: "Check for Updates…" in the macOS menu bar, or the updates menu [`MENU_KEY`] opens
@@ -13,6 +14,11 @@
 //!
 //! The prompts are drawn over the game's picture in its own small font, like the notice, and take the
 //! keys while they show: arrows choose, Enter takes, Esc closes.
+//!
+//! **Settings:** "Settings…" (Cmd-,) in the macOS menu bar, and SETTINGS in the menu [`MENU_KEY`] opens on
+//! Windows and Linux (which it opens in any build, updates or not), between runs. Choosing it ends the
+//! session as the window's close button does (Spelunky writes `stats.txt`), and [`open_settings`] then
+//! starts the app again on the settings program, whose OK with START GAME ON EXIT starts the game.
 //!
 //! A build updates only if it's a release: built with `SPELUNKY_VERSION` (the release's version) and a real
 //! release key (`update::key`). In a debug build, `SPELUNKY_VERSION`, `SPELUNKY_UPDATE_URL` and
@@ -36,15 +42,23 @@ use winit::keyboard::KeyCode;
 /// The release's version, from the release build (`docs/updates.md`); none in a development build.
 const VERSION: Option<&str> = option_env!("SPELUNKY_VERSION");
 
-/// Opens the updates menu on Windows and Linux, between runs, when no dialog shows: the one key it takes
-/// from the game then. A key neither the game nor GM's runner uses: the game takes F1 and F10 (`oScreen`),
+/// Opens the menu (the settings and the updates) on Windows and Linux, between runs, when no dialog shows:
+/// the one key it takes from the game then. A key neither the game nor GM's runner uses: the game takes F1 and F10 (`oScreen`),
 /// F2 and F3 (`oTitle`: the level editor, loading a level), and Enter and Esc on the title; the runner F4
 /// (fullscreen, the app's too) and F9 (screenshots); F5 and F6 are off. F11 is many systems' fullscreen.
 /// (A player could still bind it as a control in key setup, which then works everywhere but the title.)
 pub const MENU_KEY: KeyCode = KeyCode::F7;
 
-/// Where the update the player chose to restart into waits for the window to close.
-pub type Handoff = Rc<RefCell<Option<Ready>>>;
+/// What the player chose that closes the window, for the frontend to do once it has.
+pub enum Next {
+    /// "Restart and update": [`restart`] into it.
+    Update(Ready),
+    /// "Settings": [`open_settings`].
+    Settings,
+}
+
+/// Where what the player chose waits for the window to close.
+pub type Handoff = Rc<RefCell<Option<Next>>>;
 
 const TITLE_COLOR: Color = Color::rgb(255, 216, 0);
 const DIM: Color = Color::rgb(160, 160, 160);
@@ -53,6 +67,7 @@ const DIM: Color = Color::rgb(160, 160, 160);
 #[derive(Clone, Debug, PartialEq)]
 enum Choice {
     Restart,
+    Settings,
     Later,
     Skip(String),
     Open(String),
@@ -194,7 +209,12 @@ impl Updater {
 
     /// Whether the player can ask for a check now.
     fn can_check(&self) -> bool {
-        self.source.is_ok() && self.interruptible && self.running.is_none() && self.dialog.is_none()
+        self.source.is_ok() && self.running.is_none() && self.can_open_settings()
+    }
+
+    /// Whether the player can open the settings program now: between runs, with no dialog showing.
+    fn can_open_settings(&self) -> bool {
+        self.interruptible && self.dialog.is_none()
     }
 
     fn start_check(&mut self, manual: bool) {
@@ -329,21 +349,24 @@ impl Updater {
         }
     }
 
-    /// The updates menu (Windows and Linux; the macOS menu bar has the same two items).
+    /// The menu (Windows and Linux; the macOS menu bar has the same items): the settings program, and the
+    /// updates if this build can check for them now.
     #[cfg_attr(target_os = "macos", allow(dead_code))]
     fn menu_dialog(&self) -> Dialog {
-        let automatic = if self.state.automatic { "ON" } else { "OFF" };
+        let automatic = format!(
+            "CHECK AUTOMATICALLY: {}",
+            if self.state.automatic { "ON" } else { "OFF" }
+        );
+        let mut choices = vec![("SETTINGS", Choice::Settings)];
+        if self.can_check() {
+            choices.push(("CHECK FOR UPDATES", Choice::Check));
+            choices.push((&automatic, Choice::ToggleAutomatic));
+        }
+        choices.push(("CLOSE", Choice::Close));
         Dialog::new(
-            "UPDATES",
+            "MENU",
             vec![format!("SPELUNKY CLASSIC {}", self.current())],
-            vec![
-                ("CHECK FOR UPDATES", Choice::Check),
-                (
-                    &format!("CHECK AUTOMATICALLY: {automatic}"),
-                    Choice::ToggleAutomatic,
-                ),
-                ("CLOSE", Choice::Close),
-            ],
+            choices,
         )
     }
 
@@ -356,7 +379,8 @@ impl Updater {
             return;
         };
         match choice {
-            Choice::Restart => *self.handoff.borrow_mut() = self.ready.take(),
+            Choice::Restart => *self.handoff.borrow_mut() = self.ready.take().map(Next::Update),
+            Choice::Settings => self.open_settings(),
             Choice::Later | Choice::Close => {}
             Choice::Skip(version) => {
                 self.state.skip = Some(version);
@@ -369,11 +393,22 @@ impl Updater {
             Choice::Check => self.start_check(true),
             Choice::ToggleAutomatic => {
                 self.toggle_automatic();
+                // The menu again, as it was: its items are the same, as nothing else changed.
                 let mut menu = self.menu_dialog();
                 menu.selected = dialog.selected;
                 self.dialog = Some(menu);
             }
         }
+    }
+
+    /// Closes the window for the settings program. A download ready to install is cleaned up as the app
+    /// starts again ([`Updater::new`]), so the next session checks again, as it would have offered it.
+    fn open_settings(&mut self) {
+        if self.ready.is_some() {
+            self.state.last_check = None;
+            self.save();
+        }
+        *self.handoff.borrow_mut() = Some(Next::Settings);
     }
 
     fn toggle_automatic(&mut self) {
@@ -386,8 +421,8 @@ impl Overlay for Updater {
     fn started(&mut self) {
         update::restart::confirm_started();
         #[cfg(target_os = "macos")]
-        if self.source.is_ok() {
-            self.menu = mac::Menu::new(self.state.automatic);
+        {
+            self.menu = mac::Menu::new(self.source.is_ok().then_some(self.state.automatic));
         }
     }
 
@@ -396,6 +431,7 @@ impl Overlay for Updater {
         #[cfg(target_os = "macos")]
         for item in mac::chosen() {
             match item {
+                mac::Item::Settings if self.can_open_settings() => self.open_settings(),
                 mac::Item::Check if self.can_check() => self.start_check(true),
                 mac::Item::Automatic => self.toggle_automatic(),
                 _ => {}
@@ -417,9 +453,14 @@ impl Overlay for Updater {
         }
         #[cfg(target_os = "macos")]
         if let Some(menu) = &self.menu {
-            menu.update(self.can_check(), self.state.automatic);
+            menu.update(
+                self.can_open_settings(),
+                self.can_check(),
+                self.state.automatic,
+            );
         }
-        // The player chose "restart and update": the window closes, and `restart` takes over.
+        // The player chose "restart and update" or the settings: the window closes (the game ending as its
+        // close button would end it), and `restart` or `open_settings` takes over.
         self.handoff.borrow().is_some()
     }
 
@@ -491,8 +532,8 @@ impl Overlay for Updater {
 
     fn key_down(&mut self, key: KeyCode) -> bool {
         let Some(dialog) = &mut self.dialog else {
-            // The updates menu where there's no menu bar. Nothing else is taken without a dialog.
-            if cfg!(not(target_os = "macos")) && key == MENU_KEY && self.can_check() {
+            // The menu where there's no menu bar. Nothing else is taken without a dialog.
+            if cfg!(not(target_os = "macos")) && key == MENU_KEY && self.can_open_settings() {
                 self.dialog = Some(self.menu_dialog());
                 return true;
             }
@@ -591,6 +632,31 @@ fn open_url(url: &str) {
     if let Err(e) = std::process::Command::new(opener).arg(url).spawn() {
         eprintln!("app: can't open {url}: {e}");
     }
+}
+
+/// Once the window has closed for "Settings": starts this app again on the settings program (`--settings`),
+/// with the options it was started with, and returns. The process should exit afterwards: 1.1's settings
+/// program is a program of its own, and its OK with START GAME ON EXIT starts the game in its window.
+pub fn open_settings() -> Result<(), String> {
+    let exe = std::env::current_exe().map_err(|e| format!("can't find the app: {e}"))?;
+    // Started again as the updater would: an AppImage as itself, from a mount of its own. One the updater
+    // can't replace (a development build outside a bundle, a translocated one) runs from where it is.
+    let install = Install::detect(&exe, appimage(&exe).as_deref()).unwrap_or_else(|_| Install {
+        kind: update::install::Kind::Dir,
+        target: exe.parent().map(Path::to_owned).unwrap_or_default(),
+        exe,
+    });
+    let args = settings_args(std::env::args_os().skip(1).collect());
+    update::restart::launch(&install, &args, None).map(drop)
+}
+
+/// The settings program's arguments: the session's, which are the settings program's too, with
+/// `--settings`.
+fn settings_args(mut args: Vec<OsString>) -> Vec<OsString> {
+    if !args.iter().any(|a| a == "--settings") {
+        args.push("--settings".into());
+    }
+    args
 }
 
 /// Once the window has closed for "restart and update": swaps the update in and starts it, or, if it
@@ -693,6 +759,58 @@ mod tests {
     }
 
     #[test]
+    fn the_menu_opens_the_settings_in_any_build_and_the_updates_where_it_can_check() {
+        let mut updater = idle();
+        let labels = |u: &Updater| -> Vec<String> {
+            u.menu_dialog()
+                .choices
+                .into_iter()
+                .map(|(label, _)| label)
+                .collect()
+        };
+        assert_eq!(
+            labels(&updater),
+            [
+                "SETTINGS",
+                "CHECK FOR UPDATES",
+                "CHECK AUTOMATICALLY: ON",
+                "CLOSE"
+            ]
+        );
+        // A development build can't check, but has the settings.
+        updater.source = Err("a development build".into());
+        assert_eq!(labels(&updater), ["SETTINGS", "CLOSE"]);
+        assert!(updater.can_open_settings());
+        // Not during a run.
+        updater.tick(false);
+        assert!(!updater.can_open_settings());
+    }
+
+    #[test]
+    fn choosing_settings_closes_the_window_for_the_settings_program() {
+        let (mut updater, handoff) = Updater::new(None, None);
+        updater.auto_due = false;
+        assert!(!updater.tick(true));
+        updater.dialog = Some(updater.menu_dialog());
+        assert!(updater.key_down(KeyCode::Enter));
+        assert!(matches!(*handoff.borrow(), Some(Next::Settings)));
+        assert!(updater.tick(true));
+    }
+
+    #[test]
+    fn the_settings_program_starts_with_the_sessions_options() {
+        let args = |a: &[&str]| a.iter().map(OsString::from).collect::<Vec<_>>();
+        assert_eq!(
+            settings_args(args(&["--data", "d", "--scale", "2"])),
+            args(&["--data", "d", "--scale", "2", "--settings"])
+        );
+        assert_eq!(
+            settings_args(args(&["--settings", "--mute"])),
+            args(&["--settings", "--mute"])
+        );
+    }
+
+    #[test]
     fn writes_what_the_font_has() {
         assert_eq!(text("Check for Updates… #1 ©"), "CHECK FOR UPDATES.  1 ?");
     }
@@ -770,15 +888,20 @@ mod tests {
     }
 }
 
-/// The macOS menu bar: winit's, with the updater's two items in the app menu.
+/// The macOS menu bar: winit's, with "Settings…" and the updater's two items in the app menu.
 #[cfg(target_os = "macos")]
 mod mac {
-    use muda::{CheckMenuItem, Menu as Bar, MenuEvent, MenuItem, PredefinedMenuItem, Submenu};
+    use muda::accelerator::{Accelerator, Code, Modifiers};
+    use muda::{
+        CheckMenuItem, IsMenuItem, Menu as Bar, MenuEvent, MenuItem, PredefinedMenuItem, Submenu,
+    };
 
+    const SETTINGS: &str = "settings";
     const CHECK: &str = "update-check";
     const AUTOMATIC: &str = "update-automatic";
 
     pub enum Item {
+        Settings,
         Check,
         Automatic,
     }
@@ -786,40 +909,52 @@ mod mac {
     pub struct Menu {
         // Kept alive: the menu bar is the app's while it is.
         _bar: Bar,
-        check: MenuItem,
-        automatic: CheckMenuItem,
+        settings: MenuItem,
+        /// "Check for Updates…" and "Check for Updates Automatically", in a build that can update.
+        updates: Option<(MenuItem, CheckMenuItem)>,
     }
 
     impl Menu {
-        pub fn new(automatic: bool) -> Option<Menu> {
-            let check = MenuItem::with_id(CHECK, "Check for Updates…", true, None);
-            let automatic = CheckMenuItem::with_id(
-                AUTOMATIC,
-                "Check for Updates Automatically",
+        /// The menu bar, with the update items if `automatic` says whether automatic checks are on: in a
+        /// build that can update.
+        pub fn new(automatic: Option<bool>) -> Option<Menu> {
+            // Cmd-, as every Mac app's settings.
+            let settings = MenuItem::with_id(
+                SETTINGS,
+                "Settings…",
                 true,
-                automatic,
-                None,
+                Some(Accelerator::new(Modifiers::META, Code::Comma)),
             );
+            let updates = automatic.map(|automatic| {
+                (
+                    MenuItem::with_id(CHECK, "Check for Updates…", true, None),
+                    CheckMenuItem::with_id(
+                        AUTOMATIC,
+                        "Check for Updates Automatically",
+                        true,
+                        automatic,
+                        None,
+                    ),
+                )
+            });
             let separator = PredefinedMenuItem::separator;
-            let app = Submenu::with_items(
-                "Spelunky Classic",
-                true,
-                &[
-                    &PredefinedMenuItem::about(None, None),
-                    &separator(),
-                    &check,
-                    &automatic,
-                    &separator(),
-                    &PredefinedMenuItem::services(None),
-                    &separator(),
-                    &PredefinedMenuItem::hide(None),
-                    &PredefinedMenuItem::hide_others(None),
-                    &PredefinedMenuItem::show_all(None),
-                    &separator(),
-                    &PredefinedMenuItem::quit(None),
-                ],
-            )
-            .ok()?;
+            let (about, sep) = (PredefinedMenuItem::about(None, None), separator());
+            let mut items: Vec<&dyn IsMenuItem> = vec![&about, &sep, &settings];
+            if let Some((check, automatic)) = &updates {
+                items.extend([check as &dyn IsMenuItem, automatic]);
+            }
+            let rest = [
+                separator(),
+                PredefinedMenuItem::services(None),
+                separator(),
+                PredefinedMenuItem::hide(None),
+                PredefinedMenuItem::hide_others(None),
+                PredefinedMenuItem::show_all(None),
+                separator(),
+                PredefinedMenuItem::quit(None),
+            ];
+            items.extend(rest.iter().map(|i| i as &dyn IsMenuItem));
+            let app = Submenu::with_items("Spelunky Classic", true, &items).ok()?;
             let window = Submenu::with_items(
                 "Window",
                 true,
@@ -836,17 +971,22 @@ mod mac {
             window.set_as_windows_menu_for_nsapp();
             Some(Menu {
                 _bar: bar,
-                check,
-                automatic,
+                settings,
+                updates,
             })
         }
 
-        pub fn update(&self, can_check: bool, automatic: bool) {
-            if self.check.is_enabled() != can_check {
-                self.check.set_enabled(can_check);
+        pub fn update(&self, can_open_settings: bool, can_check: bool, automatic: bool) {
+            if self.settings.is_enabled() != can_open_settings {
+                self.settings.set_enabled(can_open_settings);
             }
-            if self.automatic.is_checked() != automatic {
-                self.automatic.set_checked(automatic);
+            if let Some((check, auto)) = &self.updates {
+                if check.is_enabled() != can_check {
+                    check.set_enabled(can_check);
+                }
+                if auto.is_checked() != automatic {
+                    auto.set_checked(automatic);
+                }
             }
         }
     }
@@ -855,6 +995,7 @@ mod mac {
     pub fn chosen() -> Vec<Item> {
         std::iter::from_fn(|| MenuEvent::receiver().try_recv().ok())
             .filter_map(|e| match e.id.0.as_str() {
+                SETTINGS => Some(Item::Settings),
                 CHECK => Some(Item::Check),
                 AUTOMATIC => Some(Item::Automatic),
                 _ => None,

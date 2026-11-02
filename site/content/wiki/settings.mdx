@@ -15,7 +15,8 @@ faq:
   - q: How do you change the controls in Spelunky Classic?
     a: >-
       With the settings program, config.exe, that comes with the game. Its KEY CONFIG button asks for a key for
-      each action and its JOY CONFIG button a gamepad button; the game reads them the next time it starts.
+      each action and its JOY CONFIG button a gamepad button; the game reads them the next time it starts. On
+      spelunky.ai, it's the Settings link beside Play; in the desktop app, Settings in its menu.
   - q: How do you make Spelunky Classic bigger or fullscreen?
     a: >-
       In the settings program: RESOLUTION picks a window of 1 to 4 times the game's 320 by 240 pixels, and
@@ -27,7 +28,8 @@ faq:
   - q: Does Spelunky Classic have a settings menu in the game?
     a: >-
       No. The settings are a separate program, config.exe, run before the game, which reads them as it starts.
-      In the game, M turns the music off and on.
+      In the game, M turns the music off and on. The spelunky.ai port opens the same program from a Settings link
+      or menu item, between runs.
 sources:
   - scripts/scrInit.gml
   - objects/oScreen/create.gml
@@ -62,6 +64,13 @@ quit <Cite replay="fidelity/settings/escape-saves.txt" />; EXIT quits without
 saving <Cite replay="fidelity/settings/sound-joy-exit.txt" />, and so does Enter <Cite quirk="1" row="The settings program (config.gmk, ported as crates/config): its key config asks for eleven keys, with no flare" />.
 
 <Clip id="settings/window" />
+
+1.1 ships it as `config.exe`, beside the game's `Spelunky.exe`, for the player to run before the game. The
+spelunky.ai port runs the same program. In the browser, it's the Settings link beside Play on the front page,
+and in the corner of the game's page between runs. In the desktop apps, between runs, it's Settings… (Cmd-,) in
+the macOS app menu, and SETTINGS in the menu F7 opens on Windows and Linux. The Linux AppImage's desktop entry
+has a Settings action too. Opening it closes the game as the window's close button would, and its OK, with
+START GAME ON EXIT checked, starts the game again.
 
 ### Keys and gamepad buttons
 
