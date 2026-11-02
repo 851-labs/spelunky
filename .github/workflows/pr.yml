@@ -51,7 +51,8 @@ jobs:
   # The site's smoke test (site/test.sh), for a pull request that changes the site, what it reads from outside
   # site/ (wiki/'s specs and media, LICENSE, docs/quirks.md, whose rows the quirk pages name), the script that
   # writes its pin or this job. Any other
-  # passes as soon as it has checked out (mini.yml's `paths`).
+  # passes as soon as it has checked out (mini.yml's `paths`). The site's inputs here (site, wiki, LICENSE,
+  # docs/quirks.md) are Workers Builds' build watch paths too (docs/web-deploy.md), which site/test.sh checks.
   site:
     name: Mac mini
     if: github.event.pull_request.head.repo.full_name == github.repository

@@ -947,6 +947,15 @@ got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 # www redirects to the apex, path and query kept (http here only because wrangler dev is).
 check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/play/?a=1"
 
+# Workers Builds' build watch paths (docs/web-deploy.md, set in the dashboard) are the site's inputs, the same as
+# pr.yml's site test's paths but the scripts and workflows that only test it: a change to one that's only in one
+# list would test the site but never deploy it (851-3919), or deploy it untested.
+watched=$(grep '^| Build watch paths |' ../docs/web-deploy.md | sed 's/, exclude.*//' | grep -o '`[^`]*`' | tr -d '`' |
+  sed 's|/\*$||' | sort | tr '\n' ' ')
+tested=$(awk '/^  site:/ { site = 1 } site && /paths: >-/ { on = 1; next } on && !/^        / { exit } on' \
+  ../.github/workflows/pr.yml | tr ' ' '\n' | grep -v -e '^$' -e '^scripts/' -e '^\.github/' | sort | tr '\n' ' ')
+[ -n "$watched" ] && [ "$watched" = "$tested" ] ||
+  fail "docs/web-deploy.md's build watch paths ($watched) aren't pr.yml's site inputs ($tested)"
 # Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemaps against them.
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.
