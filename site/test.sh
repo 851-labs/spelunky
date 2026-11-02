@@ -182,6 +182,9 @@ echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
 echo 'stand-in replay.txt' >"$media/clips/snake/bite/replay.txt"
 cp ../wiki/media/LICENSE.txt ../wiki/media/NOTICE.txt "$media/"
 node test-og.mjs stand-in "$media"
+# The landing page's card, 1200x630, is what its still and logo make (landing-card.mjs): before the build, which
+# serves it as it is.
+node landing-card.mjs --check
 # Committed, as wiki/media is, so that build.sh dates the clip by git's history: from the commit that last
 # changed its videos, before a later one that changes only its poster (the media's date). And cloned at depth 1,
 # as Workers Builds clones, where git shows the later commit adding the clip, until build.sh fetches the rest.
@@ -948,11 +951,9 @@ got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 # www redirects to the apex, path and query kept (http here only because wrangler dev is).
 check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/play/?a=1"
 
-# The landing page's card, 1200x630 (landing-card.mjs), what its still and logo make.
-node landing-card.mjs --check || fail "landing-card.mjs --check"
-check "$site/media/card.png" 200 "content-type: image/png"
+# The landing page's card (landing-card.mjs checks it's current, above), served.
+check "$site/media/card.png" 200 "$no_cache" "content-type: image/png"
 same public/media/card.png
-[ "$(file -b public/media/card.png | cut -d, -f2)" = " 1200 x 630" ] || fail "public/media/card.png isn't 1200x630"
 # Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemaps against them.
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.
