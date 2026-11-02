@@ -843,7 +843,10 @@ async function renderFixture(pageCode, hubData, quirkLinks) {
 {
   const dir = mkdtempSync(join(tmpdir(), "test-wiki-"));
   try {
-    writeFileSync(join(dir, "snake.mdx"), source);
+    // A table whose blank-headed columns are a row label, a citations' column with a word beside one note, and
+    // a column of sprites: only the citations' gets a name.
+    const tables = "\n\n| | Value | |\n| --- | --- | --- |\n| A | 1 | <Cite gml=\"objects/oSnake/step.gml:88-96\" />, the rest |\n| B | 2 | |\n\n| Name | |\n| --- | --- |\n| Snake | <Sprite name=\"sSnakeWalkL\" alt=\"\" /> |\n";
+    writeFileSync(join(dir, "snake.mdx"), source + tables);
     const bat = edit("slug: snake", "slug: bat")
       .replace("title: Snake", "title: Bat")
       .replace("objects: [oSnake]", "objects: [oBat]")
@@ -894,6 +897,11 @@ async function renderFixture(pageCode, hubData, quirkLinks) {
     const defeating = page.match(/<table>(?:(?!<\/table>).)*Way(?:(?!<\/table>).)*<\/table>/)?.[0] ?? "";
     const heads = [...(defeating.match(/<thead>.*?<\/thead>/)?.[0] ?? "").matchAll(/<th(?: [^>]*)?>(.*?)<\/th>/g)].map((m) => m[1]);
     if (heads.join("|") !== 'Way|Damage|<span class="visually-hidden">Sources</span>') fail(`table headers: the Snake's Defeating table's are ${JSON.stringify(heads)}`);
+    const headsOf = (table) => [...(table.match(/<thead>.*?<\/thead>/)?.[0] ?? "").matchAll(/<th(?: [^>]*)?>(.*?)<\/th>/g)].map((m) => m[1]).join("|");
+    const tablesOf = [...page.matchAll(/<table>(?:(?!<\/table>).)*<\/table>/g)].map((m) => headsOf(m[0]));
+    for (const want of ['|Value|<span class="visually-hidden">Sources</span>', "Name|"]) {
+      if (!tablesOf.includes(want)) fail(`table headers: no table headed ${JSON.stringify(want)} among ${JSON.stringify(tablesOf)}`);
+    }
     if (failures === before) console.log("ok   rendered: the Snake's red links to the Whip, the monsters' hub's card to come for the Spider, its citations' column named");
   } finally {
     rmSync(dir, { recursive: true, force: true });

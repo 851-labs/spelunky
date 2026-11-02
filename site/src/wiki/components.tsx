@@ -221,7 +221,8 @@ function Table({ children, ...props }: ComponentProps<"table">) {
 type Parent = ReactElement<{ children?: ReactNode }>;
 const elements = (node: ReactNode) => Children.toArray(node).filter((child): child is Parent => isValidElement(child));
 const section = (table: ReactNode, tag: string) => elements(table).filter((child) => child.type === tag);
-const cells = (row: Parent) => elements(row.props.children).filter((child) => child.type === "th" || child.type === "td");
+// A row's cells: every element in it, as nameCitationColumns counts them by position.
+const cells = (row: Parent) => elements(row.props.children);
 // A cell's content: nothing but whitespace (`blank`), or one with a citation's note in it (`cites`, which may
 // add a word: "[4], the markup").
 const isBlank = (node: ReactNode) => Children.toArray(node).every((child) => typeof child === "string" && !child.trim());
