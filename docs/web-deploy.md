@@ -10,6 +10,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/assets/` | the pages' scripts, named by a hash of their contents | `immutable`, a year |
 | `/play/` | the game: a release's web build (`scripts/web --package`) | `no-cache` (the page and `manifest.txt`) |
 | `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents; its `.bin` assets as `application/x-protobuf` (`_headers`), a type Cloudflare compresses, where the asset store's `application/octet-stream` isn't | `immutable`, a year |
+| `/third-party-licenses.txt` | the licenses of the packages in the pages' scripts ([Third-party licenses](#third-party-licenses)), written by the build | `no-cache` |
 | `/LICENSE.txt` | the Spelunky User License, the repo's `LICENSE` in UTF-8 (it's windows-1252) | `no-cache` |
 | `/wiki`, `/wiki/<slug>` | the wiki: its hubs (`/wiki`, `/wiki/monsters`, `/wiki/items/weapons`...) and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
 | `/robots.txt`, `/sitemap.xml`, `/sitemap-video.xml`, `/sitemap-image.xml` | for crawlers (SEO, below): pre-rendered | `no-cache` |
@@ -74,6 +75,18 @@ workers.dev too, where no analytics is injected, so it isn't Web Analytics'. A `
 `If-Modified-Since` of exactly that date with a 304 itself. A deploy dates every page anew, so each is a 200 once
 after it; a rollback serves its own date, which a browser holding a later one doesn't match. `site/test-server.mjs`
 checks it against an asset store whose ETags don't count, and `site/test.sh` on a page served by `wrangler dev`.
+
+## Third-party licenses
+
+The pages' scripts bundle React, React DOM, Base UI (with Floating UI), TanStack Router and Start's client and the
+rest, all MIT-licensed, whose license comments the minifier strips; the MIT license asks for its notice in every
+copy. So the build writes `/third-party-licenses.txt` (`site/src/build/third-party-licenses.ts`, a Vite plugin on
+the client's build): every package whose code is in the client's bundle, as the bundle has it (not
+`package.json`, which lists the build's tools and the Worker's packages too, which aren't distributed), with the
+license file it ships, and Vite's and Rolldown's own for the runtime code they put in it. A package without a
+license file fails the build. The landing page's "Credits and license" and every wiki page's footer link it;
+`site/test.sh` checks it's served, lists every dependency `package.json` names, and that the pages link it. The
+game at `/play/` has its own notices (851-3915).
 
 ## Connecting the repo (once)
 

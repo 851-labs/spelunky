@@ -86,6 +86,10 @@ function Landing() {
           It's distributed under the <a href="/LICENSE.txt">Spelunky User License v1.1b</a>, and may not be
           sold.
         </p>
+        <p>
+          The site's pages use open-source libraries (React, Base UI, TanStack Router and others), under their own
+          licenses: <a href="/third-party-licenses.txt">third-party licenses</a>.
+        </p>
       </section>
 
       <footer>

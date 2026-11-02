@@ -11,6 +11,7 @@ import { wiki } from "./src/wiki/build/plugin.ts";
 import { roomNames, sourcePaths, wikiSource } from "./src/wiki/build/source.ts";
 import { roomUrl, sourceUrl } from "./src/wiki/source-url.ts";
 import { wikiMediaPlugin } from "./src/seo/media-package.ts";
+import { thirdPartyLicenses } from "./src/build/third-party-licenses.ts";
 
 // What build.sh adds to dist/client after this build: the release's web build, the license, the update
 // manifest and the wiki's media; and the wiki's Open Graph images, which the wiki plugin writes. The router
@@ -123,6 +124,8 @@ export default defineConfig({
     // "virtual:wiki-media": the media's indexes, for the pages' JSON-LD and the sitemaps.
     wikiMediaPlugin(),
     siteUpdated(),
+    // /third-party-licenses.txt: the licenses of the packages in the pages' scripts.
+    thirdPartyLicenses(),
   ],
   // Sourcemaps for the Worker, for its stack traces (the Cloudflare plugin's default), and none for the
   // browser, as before. Said at the top level, not only as the Worker's environment's: Vite 8.3.5's

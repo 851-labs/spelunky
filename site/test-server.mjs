@@ -138,6 +138,7 @@ const WANT = {
   "/play/manifest.txt": UTF8_TEXT,
   "/llms.txt": UTF8_TEXT,
   "/llms-full.txt": UTF8_TEXT,
+  "/third-party-licenses.txt": UTF8_TEXT,
   // A charset the asset store gave is kept, not given twice.
   "/wrangler-dev.txt": UTF8_TEXT,
   "/wiki/snake.md": "text/markdown; charset=utf-8",
