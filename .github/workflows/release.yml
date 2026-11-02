@@ -79,6 +79,25 @@ jobs:
               { echo "::error::Can't tell whether main has $tag's commit: ${on_main:-$commit}"; exit 1; }
             [[ "$on_main" == identical || "$on_main" == behind ]] ||
               { echo "::error::$tag is on $commit, which isn't on main ($on_main): tag a commit main has"; exit 1; }
+            # And a release (not a prerelease, which is never latest) must come after the ones out: Publish makes it
+            # GitHub's latest release, which the site's downloads and the apps' updater follow, so a mistyped tag
+            # (v0.1.6 for v0.1.17) or one on an older commit would put an older build there. Its version must be
+            # above the highest published vMAJOR.MINOR.PATCH (or that one, for a re-run, which Draft release then
+            # stops if it's published), and its commit come after that release's (851-3765).
+            if [[ "$tag" != *-* ]]; then
+              latest=$(gh release list --limit 1000 --json tagName,isDraft,isPrerelease \
+                --jq '.[] | select(.isDraft | not) | select(.isPrerelease | not) | .tagName' |
+                grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1) ||
+                { echo "::error::Can't list the published releases"; exit 1; }
+              if [ -n "$latest" ] && [ "$latest" != "$tag" ]; then
+                [ "$(printf '%s\n' "$latest" "$tag" | sort -V | tail -1)" = "$tag" ] ||
+                  { echo "::error::$tag isn't above the latest release, $latest: tag the next version"; exit 1; }
+                after=$(gh api "repos/$GH_REPO/compare/refs/tags/$latest...$commit?per_page=1" --jq .status 2>&1) ||
+                  { echo "::error::Can't tell whether $tag's commit comes after $latest's: $after"; exit 1; }
+                [[ "$after" == ahead ]] ||
+                  { echo "::error::$tag's commit $commit isn't after $latest's ($after): tag a newer commit"; exit 1; }
+              fi
+            fi
           elif [ "$DRY_RUN" = true ]; then
             tag=dev-${GITHUB_SHA::7}
           else
