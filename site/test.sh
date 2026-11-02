@@ -182,6 +182,9 @@ echo 'stand-in poster.png' >"$media/clips/snake/bite/poster.png"
 echo 'stand-in replay.txt' >"$media/clips/snake/bite/replay.txt"
 cp ../wiki/media/LICENSE.txt ../wiki/media/NOTICE.txt "$media/"
 node test-og.mjs stand-in "$media"
+# The landing page's card, 1200x630, is what its still and logo make (landing-card.mjs): before the build, which
+# serves it as it is.
+node landing-card.mjs --check
 # Committed, as wiki/media is, so that build.sh dates the clip by git's history: from the commit that last
 # changed its videos, before a later one that changes only its poster (the media's date). And cloned at depth 1,
 # as Workers Builds clones, where git shows the later commit adding the clip, until build.sh fetches the rest.
@@ -360,7 +363,8 @@ hsts="strict-transport-security: max-age=31536000; includeSubDomains"
 check "$site/" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts"
 contains '<html lang="en">' \
   '<title>Spelunky Classic in your browser (unofficial port)</title>' \
-  '<meta property="og:image" content="https://spelunky.ai/media/gameplay.png"/>' \
+  '<meta property="og:image" content="https://spelunky.ai/media/card.png"/>' \
+  '<meta property="og:image:width" content="1200"/>' '<meta property="og:image:height" content="630"/>' \
   '<img class="logo" src="media/logo.png" width="160" height="36" alt="Spelunky"/>' \
   'Spelunky Classic 1.1, ported to Rust tick for tick, bugs included.' \
   '<a class="play" href="/play/">Play in your browser</a>' \
@@ -949,6 +953,9 @@ got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 # www redirects to https://spelunky.ai, path and query kept, from plain HTTP too (as wrangler dev is) in one hop.
 check "http://localhost:$www_port/play/?a=1" 301 "location: https://spelunky.ai/play/?a=1" "$hsts"
 
+# The landing page's card (landing-card.mjs checks it's current, above), served.
+check "$site/media/card.png" 200 "$no_cache" "content-type: image/png"
+same public/media/card.png
 # Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemaps against them.
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.

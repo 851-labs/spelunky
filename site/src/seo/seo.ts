@@ -25,13 +25,14 @@ export const ICON_SVG_PATH = "/icon.svg";
 // Apple's touch icon, for an iPhone's home screen and Safari's favourites: 180 pixels, opaque.
 export const TOUCH_ICON_PATH = "/apple-touch-icon.png";
 
-// The landing page's gameplay still, for a page without an image of its own (the wiki's have one, made at
-// build time from the wiki's media: src/wiki/build/og.ts).
+// The landing page's card, for a page without an image of its own (the wiki's have one, made at build time from
+// the wiki's media: src/wiki/build/og.ts): 1200x630 as theirs are, the gameplay still and the logo scaled by whole
+// factors (site/landing-card.mjs makes it).
 export const DEFAULT_IMAGE: SeoImage = {
-  path: "/media/gameplay.png",
-  width: 320,
-  height: 240,
-  alt: "Spelunky Classic gameplay: the player in the Mines",
+  path: "/media/card.png",
+  width: 1200,
+  height: 630,
+  alt: "Spelunky Classic gameplay: the player in the Mines, beside the Spelunky logo",
 };
 
 export interface SeoImage {

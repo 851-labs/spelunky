@@ -412,7 +412,9 @@ head: () => seo({
 It sets the `<title>`, the meta description, `<link rel="canonical">` (`https://spelunky.ai` plus the path,
 exactly as served: a page pre-rendered to `dir/index.html` is at `/dir/`, the asset store redirecting `/dir`
 there), Open Graph's and Twitter's tags (`summary_large_image`: the wiki's pages and hubs have their own
-image, [below](#open-graph-images), and the landing page its gameplay still), and a
+image, [below](#open-graph-images), and the landing page, as any page without its own, its card, `/media/card.png`: 1200x630 as
+theirs are, its gameplay still twice over and its logo, made by `site/landing-card.mjs` from them, which
+`site/test.sh` checks is current), and a
 `<script type="application/ld+json">` per JSON-LD node.
 `site/src/seo/jsonld.ts` builds those, typed: `website()` (with a SearchAction for `/wiki?q=`),
 `organization()` and `videoGame()` for the landing page, and `breadcrumbs()`, `article()`, `itemList()`,
