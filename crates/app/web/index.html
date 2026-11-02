@@ -43,8 +43,13 @@
   body { display: flex; flex-direction: column; align-items: center; justify-content: center; }
   /* A short window shrinks the picture to fit (the app letterboxes it) rather than cutting it off. */
   canvas { display: block; outline: none; max-width: 100vw; max-height: 100vh; }
+  /* Over the page, so the press-to-start prompt doesn't push the picture down and back. */
+  #status {
+    position: fixed; top: 45%; left: 50%; transform: translateX(-50%); margin: 0; text-align: center;
+    width: max-content; max-width: 90vw;
+  }
   #status:empty { display: none; }
-  #status.error { color: #f66; white-space: pre-wrap; max-width: 60em; }
+  #status.error { color: #f66; white-space: pre-wrap; max-width: min(60em, 90vw); text-align: left; }
   #switch { position: fixed; top: 8px; right: 12px; color: #888; font-size: 13px; text-decoration: none; }
   #switch:hover, #switch:focus-visible { color: #ccc; text-decoration: underline; }
   #switch[hidden] { display: none; }

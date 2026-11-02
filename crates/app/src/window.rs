@@ -48,7 +48,7 @@ const PAD_POLL: Duration = Duration::from_millis(50);
 
 /// What the page says while a session waits for a press ([`App::waiting_for_press`]).
 #[cfg(target_arch = "wasm32")]
-const PRESS_TO_START: &str = "Press any key or gamepad button to start";
+const PRESS_TO_START: &str = "Click, or press any key or gamepad button, to start";
 
 /// How long an embedded replay runs its unshown frames back to back before letting the page have a turn
 /// ([`Embed::from`]): the page stays responsive while the clip's start comes up.
@@ -470,7 +470,8 @@ pub struct App<G> {
     /// What the page's link beside the game was last set to offer ([`App::show_link`]), once set.
     #[cfg(target_arch = "wasm32")]
     link: Option<Option<crate::web::Link>>,
-    /// The session waits for a press before its first tick ([`App::waiting_for_press`]).
+    /// The session waits for a press before its first tick, if it's live and not a page's clip
+    /// ([`App::waiting_for_press`], [`App::waits`]).
     waiting: bool,
 }
 
@@ -644,10 +645,16 @@ impl<G: Game> App<G> {
     /// on the page. 1.1 settles whether there's a joystick once, at its start (`scrInit`), as the session's
     /// header does at its first tick, so a pad that shows up after that is ignored for the session; a press
     /// on it here makes it joystick 1. The press is also the gesture browsers want before sound. Only for
-    /// live input; a replay starts at once.
+    /// live input; a replay or a page's clip starts at once.
     pub fn waiting_for_press(mut self) -> App<G> {
-        self.waiting = matches!(self.source, Source::Live { .. }) && self.embed.is_none();
+        self.waiting = true;
         self
+    }
+
+    /// Whether the session waits for a press now: [asked to](Self::waiting_for_press), not had it yet, and a
+    /// session of play, not a replay or a page's clip.
+    fn waits(&self) -> bool {
+        self.waiting && matches!(self.source, Source::Live { .. }) && self.embed.is_none()
     }
 
     /// Draws `notice` over the game's picture for its first seconds.
@@ -719,7 +726,7 @@ impl<G: Game> App<G> {
         // The first tick runs straight away, or once the player presses something.
         self.next_tick = Some(Instant::now());
         #[cfg(target_arch = "wasm32")]
-        if self.waiting {
+        if self.waits() {
             crate::web::show_status(PRESS_TO_START);
         }
     }
@@ -737,11 +744,15 @@ impl<G: Game> App<G> {
 
     /// The press the session waited for: the first tick is due now.
     fn start_from_press(&mut self) {
-        if !std::mem::replace(&mut self.waiting, false) {
+        if !self.waits() {
             return;
         }
+        self.waiting = false;
+        // Not an error the page shows instead.
         #[cfg(target_arch = "wasm32")]
-        crate::web::clear_status();
+        if self.error.is_none() {
+            crate::web::clear_status();
+        }
         if self.next_tick.is_some() {
             self.next_tick = Some(Instant::now());
         }
@@ -835,10 +846,18 @@ impl<G: Game> App<G> {
         if self.paused && !self.seeking() {
             return None;
         }
-        // Nothing runs before the press the session waits for; a gamepad's is polled.
-        if self.waiting && self.next_tick.is_some() {
+        // Nothing runs before the press the session waits for; a gamepad's is polled, a key's or a click's
+        // wakes the loop.
+        if self.waits() && self.next_tick.is_some() {
             if !self.pad_pressed() {
-                return Some(Instant::now() + PAD_POLL);
+                let polling = matches!(
+                    self.source,
+                    Source::Live {
+                        gamepads: Some(_),
+                        ..
+                    }
+                );
+                return polling.then(|| Instant::now() + PAD_POLL);
             }
             self.start_from_press();
         }
@@ -1456,11 +1475,25 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 if down {
                     self.game.user_gesture();
                 }
-                // The press the session waited for is the app's, its repeats and release too.
-                if down && self.waiting {
-                    self.start_from_press();
-                    if !self.taken.contains(&key) {
-                        self.taken.push(key);
+                // The press the session waited for is the app's, its repeats and release too. Not a
+                // modifier, which may be the start of a browser's or the system's shortcut (Cmd-Tab).
+                if down && self.waits() {
+                    let modifier = matches!(
+                        key,
+                        KeyCode::ShiftLeft
+                            | KeyCode::ShiftRight
+                            | KeyCode::ControlLeft
+                            | KeyCode::ControlRight
+                            | KeyCode::AltLeft
+                            | KeyCode::AltRight
+                            | KeyCode::SuperLeft
+                            | KeyCode::SuperRight
+                    );
+                    if !modifier {
+                        self.start_from_press();
+                        if !self.taken.contains(&key) {
+                            self.taken.push(key);
+                        }
                     }
                     return;
                 }
@@ -1498,7 +1531,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 };
                 if state == ElementState::Pressed {
                     self.game.user_gesture();
-                    if self.waiting {
+                    if self.waits() {
                         self.start_from_press();
                         self.taken_buttons.push(b);
                         return;
@@ -1523,7 +1556,11 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
             WindowEvent::Touch(Touch {
                 phase: TouchPhase::Started | TouchPhase::Ended,
                 ..
-            }) => self.game.user_gesture(),
+            }) => {
+                self.game.user_gesture();
+                // And starts a session waiting for a press, on a device with nothing else to press.
+                self.start_from_press();
+            }
             WindowEvent::MouseWheel { delta, .. } => {
                 let dy = match delta {
                     MouseScrollDelta::LineDelta(_, y) => f64::from(y),
