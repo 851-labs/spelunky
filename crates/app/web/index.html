@@ -99,16 +99,22 @@
      ?embed), which shows only the game, on a page with them. -->
 <p id="credits"><a href="/LICENSE.txt" target="_blank" rel="noopener" tabindex="-1">License</a> &middot;
 <a href="THIRD-PARTY-LICENSES.txt" target="_blank" rel="noopener" tabindex="-1">Third-party licenses</a></p>
-<!-- Once the game ends (game_end: F10 on the pause screen, the title's QUIT door after the credits, the settings
-     program's OK or Escape), as GM8's window closes: the app hides the picture and shows this (app::web::show_closed).
-     Starting again loads the page as it is, the same program and options. -->
-<div id="closed" role="status" hidden>
-  <p>The game has closed.</p>
+<!-- Once the game ends (game_end: F10 on the pause screen, the title's QUIT door after the credits; or the settings
+     program's Escape, or its OK without starting the game), as GM8's window closes: the app hides the picture and
+     shows this (app::web::show_closed), which sets the message and where starting again goes. -->
+<div id="closed" hidden>
+  <p id="closed-message" role="status"></p>
   <p><a id="again" href="">Start it again</a> &middot; <a href="/">spelunky.ai</a></p>
 </div>
 <script type="module">
-  // The page as it is, without a fragment: starting again reloads it.
-  document.getElementById("again").href = location.pathname + location.search;
+  // The page as it is, without a fragment: starting again reloads it, unless the app has a better place.
+  const again = document.getElementById("again");
+  again.href = location.pathname + location.search;
+  // The app focuses it as the game closes, maybe on the press of Enter that closed it: that key's repeats, still
+  // held, mustn't follow it. A new press does.
+  again.addEventListener("keydown", (e) => {
+    if (e.repeat) e.preventDefault();
+  });
   const query = new URLSearchParams(location.search);
   if (query.has("embed")) document.getElementById("credits").remove();
   if (!["replay", "embed", "preview"].some((name) => query.has(name))) {

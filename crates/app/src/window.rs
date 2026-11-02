@@ -985,12 +985,16 @@ impl<G: Game> App<G> {
                         return None;
                     }
                     // Natively the window closes, as GM8's `game_end` closes the runner's. A page can't
-                    // close itself, so it takes the picture away and says so, with a way to start again,
-                    // rather than hold a last frame that still offers keys (851-3923). Not a page's clip,
-                    // whose page has its own controls.
+                    // close itself, so once the game has ended it takes the picture away and says so, with a
+                    // way to start again, rather than hold a last frame that still offers keys (851-3923).
+                    // Not a replay that only ran out, whose game hasn't closed (its last frame stays), nor a
+                    // page's clip, whose page has its own controls. The other ways out of the loop are the
+                    // window's close button and the updater's restart, which a page hasn't got.
                     #[cfg(target_arch = "wasm32")]
-                    if self.embed.is_none() {
-                        crate::web::show_closed();
+                    if self.embed.is_none() && self.game.ended() {
+                        use winit::platform::web::WindowExtWebSys;
+                        let canvas = self.window.as_ref().and_then(|w| w.canvas());
+                        crate::web::show_closed(canvas.as_deref(), self.game.in_settings());
                     }
                     self.next_tick = None;
                     // The page stays up on the web, so the pointer comes back over it.
