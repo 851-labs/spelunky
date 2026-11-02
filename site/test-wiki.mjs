@@ -1391,6 +1391,29 @@ for (const [what, files, want] of cases) {
   if (failures === before) console.log(`ok   table headers: none blank in ${tables} tables but citations' columns`);
 }
 
+// Every box wiki.css scrolls sideways can be scrolled from the keyboard (851-3892): it's a tab stop while it
+// overflows (src/wiki/scroll-focus.ts, in the component that draws it), or what's in it is focusable. A new
+// scrolling box fails here until it's one or the other.
+{
+  const css = readFileSync(here("src/wiki/wiki.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const scrolling = [...css.matchAll(/([^{}]+)\{[^{}]*overflow(?:-x)?:\s*(?:auto|scroll)/g)].map((m) => m[1].trim());
+  const reachable = {
+    ".gml pre": ["src/wiki/components.tsx", "<pre ref={ref} {...focus}>"],
+    ".table-wrap": ["src/wiki/components.tsx", '<div className="table-wrap" ref={ref} {...focus}>'],
+    ".room-picture": ["src/wiki/source-view.tsx", '<figure className="room-picture" ref={ref} {...focus}>'],
+    // Its lines' numbers are links.
+    ".source-code": null,
+  };
+  const before = failures;
+  for (const selector of scrolling) {
+    if (!(selector in reachable)) fail(`scrolling boxes: wiki.css scrolls ${selector} sideways, but nothing makes it a tab stop (src/wiki/scroll-focus.ts)`);
+    else if (reachable[selector] && !readFileSync(here(reachable[selector][0]), "utf8").includes(reachable[selector][1])) {
+      fail(`scrolling boxes: ${reachable[selector][0]} doesn't draw ${selector} with useScrollFocus's props`);
+    }
+  }
+  if (failures === before) console.log(`ok   scrolling boxes: ${scrolling.join(", ")} are reachable by keyboard`);
+}
+
 if (failures > 0) {
   console.error(`site/test-wiki.mjs: ${failures} failed`);
   process.exit(1);
