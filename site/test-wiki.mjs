@@ -1004,7 +1004,7 @@ async function renderFixture(pageCode, hubData, quirkLinks) {
   // The page named what was searched comes first, ahead of pages with the word in their title, headings and
   // lede (851-3890), the results page's and the search box's list alike (both are searchWiki's order); then
   // the titles that start with it, shortest first, as it's typed; an alias names its page too.
-  Object.assign(first, { bomb: "bomb", olmec: "olmec", yeti: "yeti", yet: "yeti", ghost: "ghost", spider: "spider", frog: "frog", shopkeeper: "shopkeeper", "Yeti King": "yeti-king", pot: "jar" });
+  Object.assign(first, { bomb: "bomb", bombs: "bomb", "a bomb": "bomb", olmec: "olmec", "the olmec": "olmec", yeti: "yeti", yet: "yeti", ghost: "ghost", spider: "spider", spiders: "spider", frog: "frog", shopkeeper: "shopkeeper", "Yeti King": "yeti-king", "kalis favour": "kalis-favour", "olmecs lair": "olmecs-lair", pot: "jar" });
   for (const [query, slug] of Object.entries(first)) {
     if (found(query).split(",")[0] !== slug) fail(`search: "${query}" finds ${JSON.stringify(found(query))}, not ${slug} first`);
   }
@@ -1031,8 +1031,9 @@ async function renderFixture(pageCode, hubData, quirkLinks) {
     fail(`search: the Snake's hit is ${JSON.stringify(hit?.doc)}`);
   }
   // A title outranks a lede, a lede the text; a word itself outranks a longer one it starts.
-  // The page named the query, then titles that start with it (fewer words first) outrank the rest, whose
-  // scores rank them: the title's word that also heads a section and is in the lede doesn't win.
+  // The page named the query, then names that start with its words, then names that start with them as typed
+  // (each fewer words first) outrank the rest, whose scores rank them: a title's word that also heads a
+  // section and is in the lede doesn't win. An alias is a name, typed in part too.
   const ranked = buildSearchIndex([
     { slug: "in-text", title: "Other", aliases: [], lede: "", categories: [], sections: [], text: "rock rock rock rock rock" },
     { slug: "in-lede", title: "Thing", aliases: [], lede: "A rock.", categories: [], sections: [], text: "" },
@@ -1042,8 +1043,8 @@ async function renderFixture(pageCode, hubData, quirkLinks) {
     { slug: "stone", title: "Stone", aliases: ["rocks"], lede: "", categories: [], sections: [], text: "" },
   ]);
   const order = (query) => searchWiki(ranked, query).map((hit) => hit.doc.slug).join();
-  if (order("rock") !== "rock,rocket,rock-pile,stone,in-lede,in-text") fail(`search: "rock" ranks ${order("rock")}`);
-  if (order("rocks").split(",")[0] !== "stone") fail(`search: "rocks" ranks ${order("rocks")}`);
+  if (order("rock") !== "rock,rock-pile,rocket,stone,in-lede,in-text") fail(`search: "rock" ranks ${order("rock")}`);
+  if (order("rocks") !== "rock,stone,rock-pile,in-lede,in-text") fail(`search: "rocks" ranks ${order("rocks")}`);
   if (failures === before) console.log(`ok   search: ${index.terms.length} words in the index of ${index.docs.length} page(s)`);
 }
 

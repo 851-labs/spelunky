@@ -7,9 +7,12 @@
 // and its categories, and its text least, by how often (up to a cap, so a long page doesn't win on length).
 // Every word of a query must match: as a word of the index, the start of one (results as you type: "snak"),
 // or one with up to two letters more ("snakes" finds "snake"); the closer the match, the higher it scores.
-// But a page named what was searched comes first, whatever the scores: the Bomb's for "bomb", ahead of the
-// pages with "bomb" in their title and in their headings and lede too (851-3890). Then the pages whose title
-// starts with it, shortest first ("yet" lists the Yeti, then the Yeti King and the Yeti lair), then the rest.
+// But a page named what was searched comes first, whatever the scores: the Bomb's for "bomb" or "bombs",
+// ahead of the pages with "bomb" in their title and in their headings and lede too (851-3890). Then the pages
+// whose title starts with its words ("rock" lists Rock pile), then those whose title starts with them as typed
+// so far ("rock" lists Rocket; "yet" the Yeti), each fewest words first, then the rest. A name is the title
+// or an alias, as its words without the stop words ("Olmec's Lair" is "olmec lair"); only the title counts
+// for a start, as many aliases are a quirk's clip's id ("rock-catch-every"), not what readers call it.
 
 // What the build indexes of a page.
 export interface SearchSource {
@@ -28,8 +31,8 @@ export interface SearchSource {
 export interface SearchDoc {
   slug: string;
   title: string;
-  // Its aliases, as their words ("test bombs unclamped"): a search for one is a search for its page's name.
-  aliases: string[];
+  // Its names, its title then its aliases, as queryWords has them: what a search for its name types.
+  names: string[][];
   category: string;
   lede: string;
   sections: [string, string][];
@@ -98,7 +101,7 @@ export function buildSearchIndex(sources: SearchSource[]): SearchIndex {
     return {
       slug: source.slug,
       title: source.title,
-      aliases: source.aliases.map((alias) => words(alias).join(" ")),
+      names: [source.title, ...source.aliases].map(queryWords),
       category: source.categories[0] ?? "",
       lede: source.lede,
       sections: source.sections.map(({ id, title }) => [id, title]),
@@ -142,21 +145,26 @@ export function searchWiki(index: SearchIndex, query: string): SearchHit[] {
     }
     if (found.size === 0) return [];
   }
-  const asked = words(query).join(" ");
   return [...found!]
-    .map(([doc, score]) => ({ doc: index.docs[doc], score, ...named(index.docs[doc], asked) }))
+    .map(([doc, score]) => ({ doc: index.docs[doc], score, ...named(index.docs[doc], wanted) }))
     .sort((a, b) => a.rank - b.rank || a.length - b.length || b.score - a.score || a.doc.title.localeCompare(b.doc.title, "en"))
     .map(({ doc, score }) => ({ doc, score }));
 }
 
-// How a page's name meets the query's words: it's them (rank 0: its title, or one of its aliases), its title
-// starts with them (1, and the fewer words the title has the better), or neither (2, by score alone).
-function named(doc: SearchDoc, asked: string): { rank: number; length: number } {
-  const title = words(doc.title);
-  const key = title.join(" ");
-  if (key === asked || doc.aliases.includes(asked)) return { rank: 0, length: 0 };
-  if (key.startsWith(asked)) return { rank: 1, length: title.length };
-  return { rank: 2, length: 0 };
+// How the page's names meet the query's words: one is them (rank 0), its title starts with them (1), or
+// with them as typed so far, its last word the start of one (2), or none of these (3, by score alone). A word
+// is itself or a letter or two shorter ("bombs" is "bomb"), as matches() has it. `length` ranks the titles of
+// ranks 1 and 2, fewest words first.
+function named(doc: SearchDoc, wanted: string[]): { rank: number; length: number } {
+  const whole = (want: string, word = "") => word === want || (word.length >= 3 && want.startsWith(word) && want.length - word.length <= STEM);
+  const is = (name: string[]) => name.length === wanted.length && wanted.every((want, i) => whole(want, name[i]));
+  if (doc.names.some(is)) return { rank: 0, length: 0 };
+  const title = doc.names[0];
+  if (title.length < wanted.length) return { rank: 3, length: 0 };
+  if (wanted.every((want, i) => whole(want, title[i]))) return { rank: 1, length: title.length };
+  const last = wanted.length - 1;
+  if (wanted.every((want, i) => whole(want, title[i]) || (i === last && title[i].startsWith(want)))) return { rank: 2, length: title.length };
+  return { rank: 3, length: 0 };
 }
 
 // The index's words a query's word matches, each with how closely: 1 for the word itself, less the more
