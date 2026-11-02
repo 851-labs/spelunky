@@ -12,6 +12,12 @@
 /play/v/*
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
+# The game's assets, assets/bundle.bin (about 1.2 MiB, a fifth of that compressed) and assets/config/bundle.bin,
+# which it fetches as it starts. The asset store serves .bin as application/octet-stream, a type Cloudflare doesn't compress, so they'd
+# go over the wire whole: Protobuf's is a binary type it does compress, with gzip or Brotli as the browser asks.
+# The game reads the bytes, whatever the type (crates/app/src/web.rs's fetch), and nothing else asks for them.
+/play/v/*.bin
+  Content-Type: application/x-protobuf
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
