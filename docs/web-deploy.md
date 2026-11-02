@@ -168,6 +168,11 @@ on every view, within the free plan's CPU time. It allows:
 one that doesn't name exactly its inline scripts. A page the router renders on a request (none, on spelunky.ai)
 has the header's policy only. `npm run dev` serves the app without the `<meta>`.
 
+The game's page is the release's `index.html` with its policy added, so `build.sh` writes its SHA-256 as served
+into `/play/manifest.txt` in place of the release's. And a zone feature that injects an inline script of its own
+into the pages as Cloudflare serves them (Bot Fight Mode's JavaScript detections, say, unlike the analytics beacon,
+which is a `src`) would be blocked: no build sees it to hash it. Turning one on means allowing it here first.
+
 ## Putting a version live
 
 1. The release workflow ([docs/ci.md](ci.md)) publishes a GitHub Release `TAG` with

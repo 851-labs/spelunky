@@ -324,6 +324,24 @@ for (const url of ["http://localhost:5173/wiki/snake.md", "http://abc123-spelunk
     console.error(`FAIL ${error.message}`);
   }
 }
+// The Worker gives them itself, not only by passing on the asset store's: here, a store that gives none.
+const bare = {
+  async fetch(request) {
+    const { pathname } = new URL(request.url);
+    if (pathname !== "/wiki/snake.md") return new Response("404 page", { status: 404, headers: { "content-type": "text/html" } });
+    return new Response(BODY, { headers: { "content-type": "text/markdown", etag: ETAG } });
+  },
+};
+for (const [path, method] of [["/wiki/snake.md", "GET"], ["/nowhere", "GET"], ["/", "POST"], ["/wiki/pot", "GET"]]) {
+  try {
+    const response = await worker.fetch(new Request(`https://spelunky.ai${path}`, { method }), { ASSETS: bare });
+    assertEveryResponse(response, `${method} ${path} (a bare asset store)`);
+    console.log(`ok   ${method} ${path}: the Worker's own headers`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
+  }
+}
 // Every other response has them too: a redirect, a 404, the Worker's or the asset store's, a 405, and the files
 // that skip the Worker, once each and not joined with another rule's.
 for (const [path, method] of [

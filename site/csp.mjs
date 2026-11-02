@@ -11,6 +11,7 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 // Cloudflare Web Analytics, injected into the pages for browsers (a <script src> from static.cloudflareinsights.com,
 // with its own integrity hash), which reports to cloudflareinsights.com.
@@ -33,14 +34,17 @@ export function policy(hashes, { game = false } = {}) {
   ].join("; ");
 }
 
-// The page's inline scripts' hashes, in the order they come: the scripts a browser runs, so not JSON-LD, which is
-// data, nor one with a src.
+// Inline scripts that are data, which no policy governs: JSON-LD. Any other type is hashed, as browsers check
+// importmap and speculationrules against script-src too, and a hash too many costs nothing.
+const DATA_SCRIPTS = new Set(["application/ld+json", "application/json"]);
+
+// The page's inline scripts' hashes, in the order they come: not data, nor one with a src.
 export function inlineScriptHashes(html) {
   const hashes = [];
   for (const [, attributes, body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
     if (/\ssrc=/i.test(attributes)) continue;
     const type = /\stype=["']?([^"'\s>]+)/i.exec(attributes)?.[1].toLowerCase();
-    if (type !== undefined && type !== "module" && type !== "text/javascript") continue;
+    if (type !== undefined && DATA_SCRIPTS.has(type)) continue;
     hashes.push(`sha256-${createHash("sha256").update(body, "utf8").digest("base64")}`);
   }
   return [...new Set(hashes)];
@@ -48,10 +52,14 @@ export function inlineScriptHashes(html) {
 
 const META = /<meta http-equiv="Content-Security-Policy" content="([^"]*)">/g;
 
+// Where no page is: the wiki's media (thousands of files, and build.sh allows no .html among them) and the
+// game's files.
+const NO_PAGES = new Set([join("wiki", "media"), join("play", "v")]);
+
 function pages(dir, sub = "") {
   return readdirSync(join(dir, sub), { withFileTypes: true }).flatMap((entry) => {
     const path = join(sub, entry.name);
-    if (entry.isDirectory()) return pages(dir, path);
+    if (entry.isDirectory()) return NO_PAGES.has(path) ? [] : pages(dir, path);
     return entry.name.endsWith(".html") ? [path] : [];
   });
 }
@@ -104,4 +112,4 @@ function main([mode, dir]) {
   console.log(`csp.mjs: ${mode === "write" ? "gave" : "checked"} ${all.length} pages' Content-Security-Policy`);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main(process.argv.slice(2));
+if (import.meta.url === pathToFileURL(process.argv[1]).href) main(process.argv.slice(2));
