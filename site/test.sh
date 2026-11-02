@@ -37,6 +37,20 @@ if [ -n "${SITE_TEST_PORT:-}" ]; then
   if ! { free "$SITE_TEST_PORT" && free $((SITE_TEST_PORT + 1)); }; then taken "$SITE_TEST_PORT"; fi
 fi
 
+# Workers Builds' build watch paths (docs/web-deploy.md, set in the dashboard) are the site's inputs, the same as
+# pr.yml's site test's paths but the scripts and workflows that only test it: a change to one that's only in one
+# list would test the site but never deploy it (851-3919), or deploy it untested. Before the build: it needs none.
+watched=$(grep '^| Build watch paths |' ../docs/web-deploy.md | sed 's/, exclude.*//' | grep -o '`[^`]*`' | tr -d '`' |
+  sed 's|/\*$||' | sort | tr '\n' ' ')
+# The site job's `paths: >-` block: from its `paths:` to the first line less indented, within the job.
+tested=$(awk '/^  [a-z-]+:$/ { job = $1 } job == "site:" && /^      paths: >-$/ { on = 1; next }
+  on && !/^        / { exit } on' ../.github/workflows/pr.yml |
+  tr ' ' '\n' | grep -v -e '^$' -e '^scripts/' -e '^\.github/' | sort | tr '\n' ' ')
+if [ -z "$watched" ] || [ -z "$tested" ] || [ "$watched" != "$tested" ]; then
+  echo "site/test.sh: docs/web-deploy.md's build watch paths ($watched) aren't pr.yml's site job's inputs ($tested)" >&2
+  exit 1
+fi
+
 tmp=$(mktemp -d)
 pids=
 # Set by the last line, so a run that stops anywhere before it fails, whatever the shell's status says: the
@@ -947,15 +961,6 @@ got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 # www redirects to the apex, path and query kept (http here only because wrangler dev is).
 check "http://localhost:$www_port/play/?a=1" 301 "location: http://spelunky.ai/play/?a=1"
 
-# Workers Builds' build watch paths (docs/web-deploy.md, set in the dashboard) are the site's inputs, the same as
-# pr.yml's site test's paths but the scripts and workflows that only test it: a change to one that's only in one
-# list would test the site but never deploy it (851-3919), or deploy it untested.
-watched=$(grep '^| Build watch paths |' ../docs/web-deploy.md | sed 's/, exclude.*//' | grep -o '`[^`]*`' | tr -d '`' |
-  sed 's|/\*$||' | sort | tr '\n' ' ')
-tested=$(awk '/^  site:/ { site = 1 } site && /paths: >-/ { on = 1; next } on && !/^        / { exit } on' \
-  ../.github/workflows/pr.yml | tr ' ' '\n' | grep -v -e '^$' -e '^scripts/' -e '^\.github/' | sort | tr '\n' ' ')
-[ -n "$watched" ] && [ "$watched" = "$tested" ] ||
-  fail "docs/web-deploy.md's build watch paths ($watched) aren't pr.yml's site inputs ($tested)"
 # Every pre-rendered page's title, description, canonical URL and JSON-LD, and the sitemaps against them.
 node test-seo.mjs dist/client "$site" || fail "test-seo.mjs"
 # The wiki's pages compile, link and relate, and one that breaks a rule fails the build.

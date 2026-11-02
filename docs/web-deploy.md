@@ -82,7 +82,8 @@ In the Cloudflare dashboard, account 851: **Workers & Pages → Create → Impor
 The watch paths are the site's inputs: `site/`, and what its build reads from outside it, the wiki's media and
 specs (`wiki/`), the license it serves (`LICENSE`) and the rows the quirk pages cite (`docs/quirks.md`). A `*`
 spans directories, so a change to any of them builds (and a pull request's gets a preview), and nothing else
-does: the game's code changes don't touch the site until a release is bumped in. They're the same as
+does: the game's code changes don't touch the site until a release is bumped in. (The pages also cite the
+committed replays and pin links to them, which neither list has yet: 851-3938.) They're the same as
 `.github/workflows/pr.yml`'s site test's `paths` (less the scripts and workflows that only test it), which
 `site/test.sh` checks against this row; a new input outside `site/` goes in both, and in the dashboard. (Until
 851-3919, only `site/*` was watched, so a pull request that only re-rendered clips, or changed a quirks row or the
