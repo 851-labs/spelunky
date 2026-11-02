@@ -125,6 +125,13 @@ impl WindowGame for Settings {
         self.game.as_ref().unwrap_or(&self.settings).sizes_window()
     }
 
+    fn cursor_visible(&self) -> bool {
+        self.game
+            .as_ref()
+            .unwrap_or(&self.settings)
+            .cursor_visible()
+    }
+
     fn user_gesture(&mut self) {
         self.gestured = true;
         match &mut self.game {
@@ -339,6 +346,21 @@ mod tests {
         // The game's first sync saves them.
         s.tick(&[], &mut out).unwrap();
         assert_eq!(game.0.borrow().files["settings.cfg"], fresh);
+    }
+
+    #[test]
+    fn the_pointer_shows_over_the_settings_program_and_hides_over_the_game() {
+        // The settings program never sets a cursor, so GM's default arrow shows; Spelunky's scrInit sets
+        // cr_none, which hides it (851-3924).
+        let mut s = settings_then_game(None);
+        let mut out = Frame::default();
+        s.begin(&ReplayHeader::default(), &mut out).unwrap();
+        s.tick(&[], &mut out).unwrap();
+        assert!(s.cursor_visible());
+        click(&mut s, (150, 252), &mut out);
+        s.tick(&[], &mut out).unwrap();
+        assert!(s.game.is_some(), "the game started");
+        assert!(!s.cursor_visible());
     }
 
     #[test]

@@ -107,6 +107,12 @@ pub trait Game {
         false
     }
 
+    /// Whether the mouse pointer shows over the window: GM's `window_set_cursor`, which hides it for
+    /// `cr_none`, as Spelunky's `scrInit` asks (`gm::World::window_cursor`).
+    fn cursor_visible(&self) -> bool {
+        true
+    }
+
     /// The player pressed a key or button: a user gesture, which the browser needs before it plays
     /// sound. A key's, button's or tap's is called in the browser event's handler, where Safari wants
     /// it; the embedding page's controls' and the clip's first frame's aren't (`Embed`).
@@ -450,6 +456,8 @@ pub struct App<G> {
     fitted: Option<(u32, u32)>,
     /// The fullscreen state the game last asked for.
     fullscreen: bool,
+    /// Whether the pointer was last set to show over the window ([`App::follow_cursor`]), once set.
+    cursor_shown: Option<bool>,
     /// The app's layer over the game, if it has one.
     overlay: Option<Box<dyn Overlay>>,
     /// Keys whose press the overlay took, so the game doesn't see their release either.
@@ -600,6 +608,7 @@ impl<G: Game> App<G> {
             notice_from: 0,
             fitted: None,
             fullscreen: false,
+            cursor_shown: None,
             overlay: None,
             taken: Vec::new(),
             taken_buttons: Vec::new(),
@@ -1301,6 +1310,24 @@ impl<G: Game> App<G> {
                 window.set_fullscreen(full.then_some(Fullscreen::Borderless(None)));
             }
         }
+        self.follow_cursor();
+    }
+
+    /// Shows or hides the pointer over the window as the game asks ([`Game::cursor_visible`]): GM8 hides it
+    /// for `cr_none` over its window, and shows the arrow for `cr_default` (a probe on the GM8 runner under
+    /// Wine, 851-3924: X's cursor over its window is an empty 1x1 image after `window_set_cursor(cr_none)`, the
+    /// 10x16 arrow after `cr_default`). So Spelunky hides it from its start, and the level editor shows it
+    /// while editing. Not over a page's clip, which a reader points at, nor while the app's own dialog takes
+    /// the mouse ([`Overlay::modal`]).
+    fn follow_cursor(&mut self) {
+        let Some(window) = &self.window else { return };
+        let shown = self.embed.is_some()
+            || self.overlay.as_ref().is_some_and(|o| o.modal())
+            || self.game.cursor_visible();
+        if self.cursor_shown != Some(shown) {
+            self.cursor_shown = Some(shown);
+            window.set_cursor_visible(shown);
+        }
     }
 
     /// The window gains or loses focus. A [frozen](Self::frozen) game starts again from now, as GM8's runs
@@ -1550,6 +1577,8 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     if down && !self.taken.contains(&key) {
                         self.taken.push(key);
                     }
+                    // The overlay may have opened or closed a dialog that takes the mouse.
+                    self.follow_cursor();
                     return;
                 }
                 if let Some(c) = self.collector() {

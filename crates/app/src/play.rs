@@ -340,6 +340,14 @@ impl WindowGame for Play {
         !self.fixed_window
     }
 
+    /// Hidden for `cr_none` (-1). The game only ever sets that or `cr_default` (0); any other cursor GM
+    /// has (an hourglass, a cross) shows as the platform's arrow.
+    fn cursor_visible(&self) -> bool {
+        self.game
+            .as_ref()
+            .is_none_or(|g| g.world().window_cursor() != -1)
+    }
+
     fn user_gesture(&mut self) {
         if self.sound == SoundOutput::OnGesture {
             self.open_player();
