@@ -142,6 +142,10 @@ impl WindowGame for Settings {
     fn interruptible(&self) -> bool {
         self.game.as_ref().is_some_and(Play::interruptible)
     }
+
+    fn in_settings(&self) -> bool {
+        self.game.is_none()
+    }
 }
 
 #[cfg(test)]
