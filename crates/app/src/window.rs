@@ -658,7 +658,7 @@ impl<G: Game> App<G> {
     /// Whether the session waits for a press now: [asked to](Self::waiting_for_press), not had it yet, and a
     /// session of play, not a replay or a page's clip.
     fn waits(&self) -> bool {
-        self.waiting && matches!(self.source, Source::Live { .. }) && self.embed.is_none()
+        self.waiting && self.live()
     }
 
     /// Keeps the display awake while the window has focus, as 1.1's game settings have GM8's runner do
