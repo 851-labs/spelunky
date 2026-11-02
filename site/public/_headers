@@ -1,5 +1,5 @@
-# Headers for the files served without the Worker (it sets its own: see src/server.ts), and for the wiki's clips,
-# which it serves with byte ranges and these headers. Most are named by a hash of their contents, so they never
+# Headers for the files served without the Worker (it sets its own: see src/server.ts), and for the videos (the
+# wiki's clips and the landing page's), which it serves with byte ranges and these headers. Most are named by a hash of their contents, so they never
 # change: play/v/HASH/ by scripts/web --package, assets/ by Vite and wiki/og/NAME.HASH.png by src/wiki/build/og.ts
 # (HASH its bytes'). The wiki's media (wiki/media, docs/wiki-media.md) keep their names when they're rendered
 # again, so they're cached for a day: a clip a pull request re-renders reaches a reader who has the old one

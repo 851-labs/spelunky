@@ -18,7 +18,8 @@
     // /play redirects to /play/, which serves play/index.html.
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
-    // The Worker sees everything but the content-hashed files and the wiki's media: it redirects www and
+    // The Worker sees everything but the content-hashed files and the media (the wiki's, and the landing page's
+    // pictures, below, but the videos): it redirects www and
     // marks what it serves no-cache. /play/v/* (the game), /assets/* (the pages' scripts) and /wiki/media/*
     // (the wiki's sprites, rooms' pictures and clips) are served straight from the asset store (no Worker
     // invocation, so no request quota spent on the ~100 files a game start fetches, or a wiki page's dozens

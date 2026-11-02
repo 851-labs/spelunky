@@ -19,14 +19,14 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/` | the wiki's sprites, clips and rooms' pictures, committed in `wiki/media` (`docs/wiki-media.md`); the clips' videos with byte ranges; its `LICENSE.txt` and `NOTICE.txt` in UTF-8, the type from `_headers`. `/wiki/media/HASH/...`, where a release's package was, redirects (301) to `/wiki/media/...` | a day |
-| `/media/` | the landing page's gameplay video and still, and the logo every page shows (`site/public/media/`): the pictures skip the Worker, and the video comes through it for byte ranges ([Wiki media](#wiki-media), "Byte ranges") | a day |
+| `/media/` | the landing page's gameplay video and still, and the logo every page shows (`site/public/media/`): the pictures skip the Worker, and the video comes through it for byte ranges ([Wiki media](#wiki-media), "Byte ranges"); `build.sh` fails on any other kind of file there. They keep their names, so a new logo reaches a returning reader within the day | a day |
 | `/wiki/og/<slug>.HASH.png` | the wiki's Open Graph images, one a page and hub, `HASH` being of the file (SEO, "Open Graph images") | `immutable`, a year |
 | `/build-assets.json` | the build's content-hashed files (`/assets/`, `/wiki/og/`), its own and those it carried from the builds before it, each with the date it was last a build's own, for the next build to carry ([Version skew](#version-skew)) | `no-cache` |
 
-`www.spelunky.ai` redirects (301) to `https://spelunky.ai` (www's pages: the content-hashed files under `/play/v/`
-and `/assets/` and the media under `/wiki/media/` skip the Worker, all but the clips, but only a page on www would
-ask for them there), as does plain HTTP ([HTTPS](#https)), and a path that's none of these is a 404 with
-`site/public/404.html`. Everything is in `site/`:
+`www.spelunky.ai` redirects (301) to `https://spelunky.ai` (www's pages: the content-hashed files under `/play/v/`,
+`/assets/` and `/wiki/og/` and the media under `/wiki/media/` and `/media/` skip the Worker, all but the videos,
+but only a page on www would ask for them there), as does plain HTTP ([HTTPS](#https)), and a path that's none of
+these is a 404 with `site/public/404.html`. Everything is in `site/`:
 
 - `src/`: the app. `routes/` has its pages (TanStack Router's file routes; `routeTree.gen.ts` is generated
   from them by the build and `vite dev`, and committed), and `seo/` their head tags, JSON-LD and the

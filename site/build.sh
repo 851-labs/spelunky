@@ -175,6 +175,10 @@ done
 # replays off the Worker, leaving it the clips' videos (src/server.ts): another kind of file would cost a Worker request each,
 # and a dot file is what a render that stopped left behind. Not gml/'s files, which the build reads and this
 # doesn't serve (the source viewer's pages are).
+# Likewise the landing page's media (public/media/): its pictures skip the Worker, and its video comes through it
+# for byte ranges (src/server.ts); anything else would come through it as a page does, no-cache, a request each.
+site_other=$(cd public/media && find . -type f ! -name '*.png' ! -name '*.mp4' | head -1)
+[ -z "$site_other" ] || die "public/media has $site_other, which isn't a .png or .mp4: add it to wrangler.jsonc's run_worker_first"
 other=$(cd "$media" && find sprites clips -type f \( -path '*/.*' -o ! \( -path 'sprites/*.png' -o \
   -path 'sprites/*.json' -o -path 'clips/*.png' -o -path 'clips/*.json' -o -path 'clips/*.txt' -o \
   -path 'clips/*.mp4' -o -path 'clips/*.webm' \) \) | head -1)
