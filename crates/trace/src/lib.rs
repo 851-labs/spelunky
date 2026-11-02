@@ -23,7 +23,7 @@ mod error;
 pub use error::Error;
 pub use filter::Filter;
 pub use replay::{Event, InputState, Replay, ReplayHeader};
-pub use trace::{Frame, Instance, TraceHeader, TraceReader, TraceWriter};
+pub use trace::{Frame, Instance, Tile, TraceHeader, TraceReader, TraceWriter};
 pub use value::{Real, Scalar, Value};
 
 /// The game version string both formats carry, so traces from a different build are never compared silently.

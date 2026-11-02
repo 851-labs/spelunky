@@ -72,8 +72,8 @@ docker image rm $(docker images -q spelunky-oracle)
 
 Replays and dumps use the port's formats, specified in [`docs/formats.md`](../../docs/formats.md): the dump is a
 trace that `trace-diff` compares directly with the port's. This section covers what the oracle supports and how
-it fills them in. Keep the two in step when changing `patches/opengmk/0005-text-replays.patch` or
-`0006-state-dump.patch`.
+it fills them in. Keep the two in step when changing `patches/opengmk/0005-text-replays.patch`,
+`0006-state-dump.patch` or `0038-trace-tiles.patch`.
 
 ### Replays
 
@@ -539,6 +539,14 @@ its unscaled size, where OpenGMK took 8.0 to multiply the size by 0 ("8.1 bugfix
 match in the draw order is the first added, as in GM8, since every match is at the one depth and the depth sort is
 stable. `tile_layer_delete_at`, which has the same test, deletes every tile in the same box, as GM 8.0's does (the same probe;
 the game never calls it).
+
+### `opengmk/0038-trace-tiles.patch`
+
+The dump's `tiles` (851-3842, `docs/formats.md`, "Frame keys"): every tile in the order a draw puts them, by depth,
+highest first, and at one depth in the order they were added, with its background, the part drawn, position, depth,
+scale, blend, alpha and visibility. `draw_sort` is stable and tiles added since the last draw are still in the order
+they were added, so a stable sort of the draw order gives that order whatever has run, as the port's
+`World::trace_frame` does. With it, a tile the port and the oracle disagree on fails `fidelity-check`.
 
 ### `opengmk/0039-gm8-joystick.patch`
 

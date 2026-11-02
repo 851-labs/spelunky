@@ -16,7 +16,7 @@ use serde::ser::Serializer;
 
 use crate::Error;
 use crate::filter::{Filter, element_path};
-use crate::trace::{ALARMS, Frame, Instance, TraceReader};
+use crate::trace::{ALARMS, Frame, Instance, Tile, TraceReader};
 use crate::value::{Real, Scalar, Value};
 
 /// How instances in one trace are paired with instances in the other.
@@ -538,7 +538,40 @@ fn frame_fields(f: &Frame, filter: &Filters) -> Fields {
             push_vars(&mut out, prefix, map, filter);
         }
     }
+    if let Some(tiles) = &f.tiles {
+        maps.push("tiles");
+        push_tiles(&mut out, tiles, filter);
+    }
     (out, maps)
+}
+
+/// Each tile's fields as `tiles.ID.FIELD`, and its place in the draw order as `tiles.ID.order`: by id, so a
+/// tile only one side has is one difference, not one for every tile after it.
+fn push_tiles(out: &mut Vec<(Cow<'static, str>, Datum)>, tiles: &[Tile], filter: &Filters) {
+    for (order, t) in tiles.iter().enumerate() {
+        let fields = [
+            ("order", Datum::Int(order as i64)),
+            ("background", Datum::Int(t.background.into())),
+            ("left", Datum::Int(t.left.into())),
+            ("top", Datum::Int(t.top.into())),
+            ("width", Datum::Int(t.width.into())),
+            ("height", Datum::Int(t.height.into())),
+            ("x", Datum::Real(t.x)),
+            ("y", Datum::Real(t.y)),
+            ("depth", Datum::Real(t.depth)),
+            ("xscale", Datum::Real(t.xscale)),
+            ("yscale", Datum::Real(t.yscale)),
+            ("blend", Datum::Int(t.blend.into())),
+            ("alpha", Datum::Real(t.alpha)),
+            ("visible", Datum::Bool(t.visible)),
+        ];
+        for (name, d) in fields {
+            let path = format!("tiles.{}.{name}", t.id);
+            if filter.keeps_path(&path) {
+                out.push((path.into(), d));
+            }
+        }
+    }
 }
 
 fn instance_fields(inst: &Instance, active: bool, filter: &Filters) -> Fields {
@@ -636,7 +669,8 @@ impl<'o> Comparison<'o> {
             && fa.seed == fb.seed
             && fa.instance_count == fb.instance_count
             && fa.globals == fb.globals
-            && fa.builtins == fb.builtins;
+            && fa.builtins == fb.builtins
+            && fa.tiles == fb.tiles;
         if !same {
             let filter = self.filters;
             self.fields(None, frame_fields(fa, filter), frame_fields(fb, filter));
@@ -1525,6 +1559,62 @@ mod tests {
             ..Filter::default()
         };
         assert_eq!(run(players).divergence.unwrap().frame, 4);
+    }
+
+    #[test]
+    fn tiles_compare_by_id() {
+        let tile = |id: i32, x: f64, depth: f64| Tile {
+            id,
+            background: 2,
+            left: 0,
+            top: 0,
+            width: 16,
+            height: 16,
+            x: Real(x),
+            y: Real(0.0),
+            depth: Real(depth),
+            xscale: Real(1.0),
+            yscale: Real(1.0),
+            blend: 0xff_ffff,
+            alpha: Real(1.0),
+            visible: true,
+        };
+        let mut a = walk();
+        for f in &mut a {
+            f.tiles = Some(vec![
+                tile(10, 0.0, 9.0),
+                tile(11, 16.0, 3.0),
+                tile(12, 32.0, 3.0),
+            ]);
+        }
+        // b keeps tile 11 at frame 4 that a deleted: one difference, not one for every tile after it.
+        let mut b = a.clone();
+        a[4].tiles.as_mut().unwrap().remove(1);
+        let r = diff(&a, &b);
+        let d = r.divergence.unwrap();
+        assert_eq!(d.frame, 4);
+        let paths: Vec<String> = fields(&diff(&a, &b)).into_iter().map(|(p, ..)| p).collect();
+        assert!(
+            paths
+                .iter()
+                .all(|p| p.starts_with("tiles.11.") || p == "tiles.12.order"),
+            "{paths:?}"
+        );
+        // A moved tile is its field.
+        b = a.clone();
+        b[2].tiles.as_mut().unwrap()[0].x = Real(1.0);
+        assert_eq!(
+            fields(&diff(&a, &b)),
+            [(
+                "tiles.10.x".into(),
+                Datum::Real(Real(0.0)),
+                Datum::Real(Real(1.0))
+            )]
+        );
+        // Only one trace dumps tiles: they're left out.
+        let r = diff(&walk(), &a);
+        assert_eq!(r.outcome, Outcome::Identical);
+        assert!(r.not_compared_only_in_b.contains("tiles"));
     }
 
     #[test]

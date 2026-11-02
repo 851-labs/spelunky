@@ -1,0 +1,46 @@
+diff --git a/gm8emulator/src/game/statedump.rs b/gm8emulator/src/game/statedump.rs
+--- a/gm8emulator/src/game/statedump.rs
++++ b/gm8emulator/src/game/statedump.rs
+@@ -260,6 +260,42 @@
+         }
+         self.line.push('}');
+ 
++        // Spelunky oracle: the room's tiles, in the order a draw puts them: by depth, highest first, at one depth in
++        // the order they were added. `draw_sort` is stable, and tiles added since the last draw are still in the
++        // order they were added, so a stable sort of the draw order is that order whatever has run (the port's
++        // `World::trace_frame`, 851-3842).
++        let tiles = &game.room.tile_list;
++        let mut order = Vec::new();
++        let mut iter = tiles.iter_by_drawing();
++        while let Some(handle) = iter.next(tiles) {
++            order.push(tiles.get(handle));
++        }
++        order.sort_by(|a, b| b.depth.get().cmp_nan_first(&a.depth.get()));
++        self.line.push_str(",\"tiles\":[");
++        for (i, t) in order.iter().enumerate() {
++            if i > 0 {
++                self.line.push(',');
++            }
++            let _ = write!(
++                self.line,
++                "{{\"id\":{},\"background\":{},\"left\":{},\"top\":{},\"width\":{},\"height\":{}",
++                t.id.get(),
++                t.background_index.get(),
++                t.tile_x.get(),
++                t.tile_y.get(),
++                t.width.get(),
++                t.height.get()
++            );
++            for (k, v) in [("x", t.x.get()), ("y", t.y.get()), ("depth", t.depth.get()), ("xscale", t.xscale.get()), ("yscale", t.yscale.get())] {
++                let _ = write!(self.line, ",\"{}\":", k);
++                num(&mut self.line, v.into_inner());
++            }
++            let _ = write!(self.line, ",\"blend\":{},\"alpha\":", t.blend.get());
++            num(&mut self.line, t.alpha.get().into_inner());
++            let _ = write!(self.line, ",\"visible\":{}}}", t.visible.get());
++        }
++        self.line.push(']');
++
+         if self.with_fields {
+             self.line.push_str(",\"globals\":");
+             self.write_fields(game, game.globals.fields.iter());

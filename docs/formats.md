@@ -102,6 +102,7 @@ next frame starts from, so after a `room_goto` the line already shows the new ro
 | `globals` | `global.*` variables, without the prefix. The oracle writes this only with `OPENGMK_DUMP_FIELDS=1`. |
 | `deactivated` *(ext)* | Deactivated instances (`instance_deactivate_*`, `oLevel` culling), sorted by id, in the same shape as active ones. If absent, they weren't dumped. |
 | `builtins` *(ext)* | Runner built-ins that are neither per-instance nor global, keyed by GML name with the index written out: `view_xview[0]`, `keyboard_key`, and so on. |
+| `tiles` *(ext)* | The room's tiles in draw order: by depth, highest first, and at one depth in the order they were added (a stable sort, so the same whether or not a draw has sorted them yet; 851-3842). Each is `{"id","background","left","top","width","height","x","y","depth","xscale","yscale","blend","alpha","visible"}`: the background's index, the part of it drawn, the position, the depth, the scale, the blend colour (`0xBBGGRR`), the alpha and whether it's drawn. If absent, they weren't dumped. |
 
 ### Instance keys
 
@@ -143,7 +144,9 @@ A frame with variables is about 170 KB. A `Filter` keeps traces manageable. The 
 comparing. It has four lists of globs, where `*` matches any run of characters: `objects`, `ignore_objects`,
 `fields`, and `ignore_fields`. Field patterns match these **paths**:
 
-- Frame paths: `room`, `room_name`, `seed`, `instance_count`, `globals.NAME`, `builtins.NAME`.
+- Frame paths: `room`, `room_name`, `seed`, `instance_count`, `globals.NAME`, `builtins.NAME`, and `tiles`. A
+  writer keeps or drops the tiles whole; `trace-diff` compares each tile by its id, as `tiles.ID.FIELD` (one of
+  its keys, or `order`, its place in the draw order), so a tile only one trace has is one difference.
 - Instance paths: `active`, `object_index`, `x` and the other real built-ins, `sprite_index`, `sprite`,
   `visible`, `solid`, `alarms[0]` to `alarms[11]`, `vars.NAME`.
 - Array elements: `vars.NAME[j]` and `vars.NAME[i,j]`. Element 0 is `vars.NAME` itself.

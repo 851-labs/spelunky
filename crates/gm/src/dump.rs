@@ -85,7 +85,17 @@ impl World {
             deactivated: Some(dump(State::Inactive)),
             globals,
             builtins: Some(self.trace_builtins()),
+            tiles: Some(self.tiles_in_draw_order().map(trace_tile).collect()),
         }
+    }
+
+    /// The room's tiles in the order a draw puts them: by depth, highest first, at one depth in the order they
+    /// were added. The draw's own sort is stable, so this is that order whether or not one has run (and
+    /// headless none does), as the oracle's dump, which sorts its draw order the same way, has it.
+    fn tiles_in_draw_order(&self) -> impl Iterator<Item = &crate::room::Tile> {
+        let mut tiles: Vec<&crate::room::Tile> = self.room.tiles.iter().collect();
+        tiles.sort_by(|a, b| crate::list::cmp_nan_first(b.depth, a.depth));
+        tiles.into_iter()
     }
 
     fn trace_globals(&self) -> BTreeMap<String, trace::Value> {
@@ -154,6 +164,25 @@ impl World {
     }
 }
 
+fn trace_tile(t: &crate::room::Tile) -> trace::Tile {
+    trace::Tile {
+        id: t.id,
+        background: t.background,
+        left: t.left,
+        top: t.top,
+        width: t.width,
+        height: t.height,
+        x: trace::Real(t.x),
+        y: trace::Real(t.y),
+        depth: trace::Real(t.depth),
+        xscale: trace::Real(t.xscale),
+        yscale: trace::Real(t.yscale),
+        blend: t.blend,
+        alpha: trace::Real(t.alpha),
+        visible: t.visible,
+    }
+}
+
 /// Which frame of the world a [`FrameEncoder`] encoded, numbered as [`World::trace_frame`] numbers it: what
 /// fingerprint checkpoints are named by.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -205,6 +234,7 @@ const _: fn(&trace::Frame, &trace::Instance) = |f, i| {
         deactivated: _,
         globals: _,
         builtins: _,
+        tiles: _,
     } = f;
     let trace::Instance {
         id: _,
@@ -293,6 +323,11 @@ impl FrameEncoder {
         e.len(BUILTINS.len());
         for (name, n) in BUILTINS.into_iter().zip(w.builtins()) {
             var(e, name, &Slot::Scalar(Value::from(n)));
+        }
+        e.some(true);
+        e.len(w.room.tiles.len());
+        for t in w.tiles_in_draw_order() {
+            e.tile(&trace_tile(t));
         }
         key
     }
@@ -468,7 +503,7 @@ mod tests {
     fn the_encoder_writes_what_encoding_the_frame_does() {
         // The cases the real game's runs (harness's tests) may never reach: names out of order in the
         // layout and the globals, a variable outside the layout, arrays (an empty one too), strings that
-        // aren't ASCII, NaN and -0, set alarms, a deactivated instance.
+        // aren't ASCII, NaN and -0, set alarms, a deactivated instance, tiles added out of depth order.
         let mut b = ProgramBuilder::new();
         let (zeta, alpha) = (b.global("zeta"), b.global("alpha"));
         b.global("unset");
@@ -485,7 +520,21 @@ mod tests {
             speed: 30,
             ..Default::default()
         };
-        let assets = Assets::new(Vec::new(), vec![Some(room)]);
+        let background = assets::Background {
+            name: "bg".into(),
+            file: None,
+            width: 64,
+            height: 32,
+            use_as_tileset: true,
+            tile_width: 16,
+            tile_height: 16,
+            h_offset: 0,
+            v_offset: 0,
+            h_sep: 0,
+            v_sep: 0,
+        };
+        let assets =
+            Assets::new(Vec::new(), vec![Some(room)]).with_backgrounds(vec![Some(background)]);
         let mut w = World::new(program, Arc::new(assets), 1, 100_000, 0);
         w.start_game().unwrap();
         let (fast, slow) = both(&w);
@@ -512,6 +561,17 @@ mod tests {
         w.instance_mut(h2).state = State::Inactive;
         w.gset(zeta, Value::from(1.0)).unwrap();
         w.gset_a(alpha, 0, 3, Value::from("\u{7f}")).unwrap();
+        for (depth, x) in [(5.0, 1.0), (9.0, 2.0), (5.0, -0.0), (-1.0, 3.5)] {
+            w.tile_add(0, 16, 0, 16, 16, x, 4.0, depth).unwrap();
+        }
+        let order: Vec<i32> = w
+            .trace_frame()
+            .tiles
+            .unwrap()
+            .iter()
+            .map(|t| t.id)
+            .collect();
+        assert_eq!(order, [10_000_002, 10_000_001, 10_000_003, 10_000_004]);
         assert_eq!(
             w.instance(h1).extra.len(),
             3,
@@ -521,7 +581,7 @@ mod tests {
         assert_eq!(fast, slow);
         // Committed in the wiki's clips (`World::frame_hash`), and compared with the web build's: the same
         // natively and on wasm32 (scripts/wasm-test), NaN, -0 and all.
-        assert_eq!(format!("{:016x}", w.frame_hash()), "f12bd6164a48c894");
+        assert_eq!(format!("{:016x}", w.frame_hash()), "98e8b21eb68b8cff");
     }
 
     #[test]
