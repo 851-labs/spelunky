@@ -984,6 +984,14 @@ impl<G: Game> App<G> {
                         self.report();
                         return None;
                     }
+                    // Natively the window closes, as GM8's `game_end` closes the runner's. A page can't
+                    // close itself, so it takes the picture away and says so, with a way to start again,
+                    // rather than hold a last frame that still offers keys (851-3923). Not a page's clip,
+                    // whose page has its own controls.
+                    #[cfg(target_arch = "wasm32")]
+                    if self.embed.is_none() {
+                        crate::web::show_closed();
+                    }
                     self.next_tick = None;
                     // The page stays up on the web, so the pointer comes back over it.
                     self.follow_cursor();

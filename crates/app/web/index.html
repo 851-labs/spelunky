@@ -65,6 +65,12 @@
   /* The license and the notices of the software the game's built with, small in a corner. */
   #credits { position: fixed; right: 12px; bottom: 6px; margin: 0; color: #666; font-size: 11px; }
   #credits a { color: #777; }
+  canvas[hidden] { display: none; }
+  /* What the page shows once the game has closed (app::web::show_closed), where its window would have. */
+  #closed { text-align: center; }
+  #closed[hidden] { display: none; }
+  #closed a { color: #ccc; }
+  #closed a:focus-visible { outline: 2px solid #ccc; outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -93,7 +99,16 @@
      ?embed), which shows only the game, on a page with them. -->
 <p id="credits"><a href="/LICENSE.txt" target="_blank" rel="noopener" tabindex="-1">License</a> &middot;
 <a href="THIRD-PARTY-LICENSES.txt" target="_blank" rel="noopener" tabindex="-1">Third-party licenses</a></p>
+<!-- Once the game ends (game_end: F10 on the pause screen, the title's QUIT door after the credits, the settings
+     program's OK or Escape), as GM8's window closes: the app hides the picture and shows this (app::web::show_closed).
+     Starting again loads the page as it is, the same program and options. -->
+<div id="closed" role="status" hidden>
+  <p>The game has closed.</p>
+  <p><a id="again" href="">Start it again</a> &middot; <a href="/">spelunky.ai</a></p>
+</div>
 <script type="module">
+  // The page as it is, without a fragment: starting again reloads it.
+  document.getElementById("again").href = location.pathname + location.search;
   const query = new URLSearchParams(location.search);
   if (query.has("embed")) document.getElementById("credits").remove();
   if (!["replay", "embed", "preview"].some((name) => query.has(name))) {

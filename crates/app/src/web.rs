@@ -192,6 +192,30 @@ pub fn show_link(link: Option<Link>) {
     }
 }
 
+/// The game has closed, as its window would natively ([`crate::window::App`], 851-3923): the page hides the
+/// picture and its link beside it and shows `#closed` (`crates/app/web/index.html`), its link to start again
+/// focused, so Enter, as at the game's own screens, follows it.
+pub fn show_closed() {
+    let Some(document) = web_sys::window().and_then(|w| w.document()) else {
+        return;
+    };
+    if let Ok(Some(canvas)) = document.query_selector("canvas") {
+        let _ = canvas.set_attribute("hidden", "");
+    }
+    if let Some(link) = document.get_element_by_id("switch") {
+        let _ = link.set_attribute("hidden", "");
+    }
+    if let Some(closed) = document.get_element_by_id("closed") {
+        let _ = closed.remove_attribute("hidden");
+    }
+    if let Some(again) = document
+        .get_element_by_id("again")
+        .and_then(|a| a.dyn_into::<web_sys::HtmlElement>().ok())
+    {
+        let _ = again.focus();
+    }
+}
+
 /// Shows an error on the page (in `#status`, which the page styles) and in the console. The event loop
 /// can't return its error the way native `run_app` does, so this is where web failures end up.
 pub fn show_error(error: &str) {
