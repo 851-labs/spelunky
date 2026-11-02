@@ -1,7 +1,8 @@
 # Comparing what the port draws (851-3790, design)
 
-The oracle comparison covers state: each frame's instances, globals, view 0's rectangle and (since 851-3842) the
-room's tiles, hashed into every committed replay's fingerprint ([formats.md](../formats.md), "Fingerprints").
+The oracle comparison covers state: each frame's instances, globals and view 0's rectangle (and, once 851-3842
+lands, the room's tiles), hashed into every committed replay's fingerprint ([formats.md](../formats.md),
+"Fingerprints").
 Nothing compares what the port draws. A wrong sprite frame, a HUD number in the wrong font, a blend mode left set, an
 `image_alpha` that only drawing reads, or a renderer that rasterizes a scaled sprite a pixel off would all pass
 `fidelity-check`, `fidelity-all` and the soak. The oracle draws every frame (Mesa GL under Xvfb), so what it draws is
@@ -13,11 +14,11 @@ This is the design: three layers, cheapest first, each catching what the one bef
 
 | What | Where the game sets it | Layer that sees it |
 |---|---|---|
-| `image_alpha`, `image_blend` | `oWeb`, `oFishBone`, `oArrow`, `characterDrawEvent`, `oShopkeeper`, `oEnemy` | 1 |
-| `image_angle` (also GM8's rotated masks, so partly seen already) | arrows, thrown items | 1 |
-| `draw_set_color` (296 calls), `draw_set_font` (178), `draw_set_alpha` (34), `draw_set_blend_mode` (16) | HUD, menus, `oScreen`'s dark levels and pause | 1 (the state a frame leaves), 2 (each call's) |
+| `image_alpha` (set by `oWeb`), `image_blend` (never set, so white) | read by `characterDrawEvent`, `oShopkeeper`, `oDamsel`, `oEnemy`, `oTombLord`, `oYetiKing`, `oDice`, the `oPDummy` objects | 1 |
+| `image_angle` (also GM8's rotated masks, so partly seen already) | set by `oArrow`, `oFishBone` | 1 |
+| `draw_set_color` (148 calls), `draw_set_font` (89), `draw_set_alpha` (17), `draw_set_blend_mode` and `_ext` (8) | HUD, menus, `oScreen`'s dark levels and pause | 1 (only what a frame leaves set), 2 (each call) |
 | Background layers, `background_color`, views 1-7, ports | `scrInitLevel`, rooms | 1 |
-| What each draw event draws: sprites, text, shapes, surfaces | 41 draw events, `scrDrawHUD` | 2 |
+| What each draw event draws: sprites, text, shapes, surfaces | the 36 objects' draw events, `scrDrawHUD`, `oScreen`'s begin step | 2 |
 | How the renderer turns calls into pixels | the `draw` crate and `app`'s renderer | 3 |
 
 ## Layer 1: draw state in the trace
@@ -31,15 +32,17 @@ Add to the trace, as extensions like `deactivated` and `tiles`:
 
 Both sides already hold all of it; the oracle's dump (patch 0006) and the port's `World::trace_frame` and
 `FrameEncoder` gain fields, `trace-diff` compares them as it does `builtins`. It catches every value only drawing
-reads, and drawing state leaking from one frame into the next. It doesn't see what draw events draw: a frame that
-draws the wrong text and then sets the colour back looks right. Cost: one re-record of every fingerprint (about an
-hour of the oracle).
+reads, and drawing state leaking from one frame into the next. It doesn't see what draw events draw, nor state set
+and reset within a frame: a frame that draws the wrong text and then sets the colour back looks right, and so do
+`oScreen`'s blend modes, which its begin step sets and resets around the frame it draws by hand. Layer 2 sees both.
+Cost: one re-record of every fingerprint (about an hour of the oracle).
 
 ## Layer 2: each frame's draw calls in the trace
 
 The port already records each frame as a list of GML-level draw commands (`draw::Frame`: `Sprite` with its frame,
 position, scale, angle, blend and alpha; `Text` with its bytes, font, colour and alpha; `Rectangle`, `Line`,
-`Circle`, `Surface`, `Tile`, `Background`, `SetView`, `SetBlend`, `SetTarget`, `Clear`, `Present`). An oracle patch
+`Circle`, `Surface`, `Tile`, `Background`, `SetView`, `SetBlend`, `SetTarget`, `CreateSurface`, `FreeSurface`,
+`ResizeScreen`, `Clear`, `Present`). An oracle patch
 records the same calls where OpenGMK makes them: its `draw_*` built-ins (`gml/kernel.rs`), the default instance draw
 and the tile and background draws (`game/draw.rs` `draw_view`), surfaces, and the view setup. The trace gains
 `draws`: a hash of the frame's canonical command list, so fingerprints pin every frame's picture at the level of
@@ -57,7 +60,8 @@ The canonical list compares what GML asked for, not how either side carries it o
 It catches every semantic draw error: the wrong sprite, frame, position, scale, colour, alpha, text, font, blend
 mode, target, a missing tile or background, a view. It can't see the renderer. Cost: `fidelity-check` would record
 draw commands, which it skips headless today; measure it (the clips' capture records them for every frame already),
-and if it's too slow, hash only every Nth frame plus every frame with a `Present`. One more re-record of every
+and if it's too slow, hash only every Nth frame and every frame with a room change (nearly every frame has a
+`Present`, so that wouldn't save anything). One more re-record of every
 fingerprint, so land it with layer 1 if both are ready.
 
 ## Layer 3: pixels at chosen frames
@@ -80,7 +84,7 @@ is the renderer's, not the game's.
 
 1. **851-3842** (in progress): tiles in the trace.
 2. **851-3870, layer 1**: draw-only instance fields and the drawing state, background layers and views in the
-   trace. High: reached every frame (`oWeb`'s alpha, `oScreen`'s blend modes).
+   trace. High: reached in every level (its background layers and views; `oWeb`'s alpha).
 3. **851-3871, layer 2**: the draw-call digest. High: the only check of what draw events draw.
 4. **851-3872, layer 3**: oracle screenshots and pixel checks of a committed set. Medium: after layer 2, it only checks the
    renderer.
