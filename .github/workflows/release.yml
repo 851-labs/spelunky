@@ -93,12 +93,32 @@ jobs:
       PRERELEASE: ${{ needs.meta.outputs.prerelease }}
     steps:
       # A re-run keeps the draft it made, but never touches a published release.
+      #
+      # The release's page is where players get the files, so it says, above GitHub's generated list of changes,
+      # what the Spelunky User License asks of a mod's documentation: the copyright notice, that it's unofficial,
+      # and the license (scripts/release/NOTICE.txt says the same in every package). The title too.
       - run: |
           if draft=$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null); then
             [ "$draft" = true ] || { echo "::error::Release $TAG is already published"; exit 1; }
             echo "Reusing the draft release $TAG"
           else
-            gh release create "$TAG" --draft --verify-tag --title "$TAG" --generate-notes --prerelease="$PRERELEASE"
+            cat >"$RUNNER_TEMP/notes.md" <<EOF
+          **Spelunky Classic (unofficial mod)**: an unofficial, fan-made port of Spelunky Classic 1.1 by Derek Yu to
+          Rust, tick for tick. It's a modified version of the Spelunky source, not the original game, and it isn't made
+          or endorsed by Derek Yu or Mossmouth.
+
+          Spelunky is Copyright © 2008, 2009 Derek Yu and Mossmouth, LLC (https://spelunkyworld.com). This port is
+          distributed under the [Spelunky User License v1.1b](https://spelunky.ai/LICENSE.txt), and may
+          not be sold. Every download carries the license and \`NOTICE.txt\`, and the notices of the open-source
+          software it's built with.
+
+          Downloads: macOS (\`.dmg\`, or the \`.zip\` the updater installs; Apple silicon and Intel), Windows
+          (x64 and ARM64 \`.zip\`), Linux (x64 and ARM64 \`.AppImage\`, or \`.tar.gz\`). Or play it in your browser at
+          https://spelunky.ai/play/.
+
+          EOF
+            gh release create "$TAG" --draft --verify-tag --title "Spelunky Classic port $TAG (unofficial)" \
+              --notes-file "$RUNNER_TEMP/notes.md" --generate-notes --prerelease="$PRERELEASE"
           fi
 
   check:
