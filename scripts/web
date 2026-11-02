@@ -95,8 +95,9 @@ if [ -n "$package" ]; then
   trap cleanup EXIT
   build=$stage/build
   mkdir "$build"
-  # With the license, which a Covered Work has to come with.
-  cp -R "$out/app.js" "$out/app_bg.wasm" "$out/assets" LICENSE "$build/"
+  # With the license, which a Covered Work has to come with, and the third-party software's notices
+  # (scripts/third-party-licenses), which the page links.
+  cp -R "$out/app.js" "$out/app_bg.wasm" "$out/assets" LICENSE scripts/release/THIRD-PARTY-LICENSES.txt "$build/"
   hash=$(cd "$build" && find . -type f | LC_ALL=C sort | xargs shasum -a 256 | shasum -a 256 | cut -c1-16)
   mkdir -p "$stage/play/v"
   mv "$build" "$stage/play/v/$hash"

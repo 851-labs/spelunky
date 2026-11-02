@@ -11,9 +11,9 @@ own, from `v0.1.0` on (the tag without its `v`), never the original game's 1.1:
 | `spelunky-VERSION-linux-x64.AppImage`, `-linux-arm64.AppImage` | the game as one file, for glibc 2.31 on (Ubuntu 20.04, Debian 11) with ALSA and Vulkan |
 | `spelunky-VERSION-linux-x64.tar.gz`, `-linux-arm64.tar.gz` | the same files as the AppImage, in a folder |
 
-Each has the extracted assets (`assets/`, without the `gml/` sources), `LICENSE` and `NOTICE.txt`, the
+Each has the extracted assets (`assets/`, without the `gml/` sources), `LICENSE`, `NOTICE.txt`, the
 unofficial-mod notice the Spelunky User License asks for, which also says where saves go (`app::save`'s
-per-user directory). The app finds the assets beside its executable (`Contents/Resources` in the macOS app),
+per-user directory), and `THIRD-PARTY-LICENSES.txt` ([Third-party licenses](#third-party-licenses)). The app finds the assets beside its executable (`Contents/Resources` in the macOS app),
 from any working directory. The icon is the original `spelunky.exe`'s, from the `.gmk` (`tools`' `icon`).
 
 What the updater (851-3255, [docs/updates.md](updates.md)) needs from them, and gets: a release is built with
@@ -22,6 +22,26 @@ What the updater (851-3255, [docs/updates.md](updates.md)) needs from them, and 
 release; the assets are inside what an update replaces (the bundle, the Windows folder, the AppImage); the
 macOS zip holds the signed, notarized, stapled app; and Linux updates through the AppImage (a tarball install
 is offered the release page).
+
+## Third-party licenses
+
+The builds link about 250 third-party Rust crates (MIT, Apache-2.0, ISC, BSD, Zlib, MPL-2.0, Unicode-3.0 and
+CDLA-Permissive-2.0), the Rust standard library, the Windows builds' mingw-w64 C runtime and LLVM's libunwind, the
+Linux builds' Zig runtime and Cantarell font, and the AppImages start with AppImage's runtime (libfuse, under the
+LGPL 2.1, squashfuse, zstd, zlib and musl). Their licenses ask for their notices to go with every copy, so every
+package and the web build (`scripts/web --package`, beside its `LICENSE` in `v/HASH/`, linked from `/play/`'s page)
+carry `scripts/release/THIRD-PARTY-LICENSES.txt`, and the macOS app's About panel says where it is.
+
+`scripts/third-party-licenses` writes it: the runtimes' and the font's notices from
+`scripts/release/licenses/runtimes.txt`, kept by hand (a new runtime, a new AppImage runtime or Zig, goes there);
+the crates' from `Cargo.lock` with [cargo-about](https://github.com/EmbarkStudios/cargo-about) 0.9.3, for every
+target the app is built for, without build or dev dependencies or proc macros, which ship nothing
+(`scripts/release/licenses/about.toml`, whose `accepted` licenses are the only ones it takes: a crate under another
+fails it, and is a decision to make, not to wave through); and the standard library's from the toolchain's
+`COPYRIGHT-library`. `scripts/check` runs it with `--check`, which needs only cargo: it fails when a crate the app
+links on any platform isn't in it, when it lists one `Cargo.lock` hasn't, or when its runtimes or Rust's version
+aren't current. So a dependency change comes with running it (`cargo install cargo-about --locked --features cli
+--version 0.9.3` first), and the file's diff shows what changed.
 
 ## Building them
 
