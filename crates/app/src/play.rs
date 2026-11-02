@@ -21,6 +21,9 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use trace::replay::{Event, ReplayHeader};
 
+/// GM's `cr_none`: the cursor `window_set_cursor` hides the pointer with.
+const CR_NONE: i32 = -1;
+
 /// Spelunky's rooms outside a run: the boot, the intro, the title, the highscores hall and the credits.
 /// The challenge rooms (`rSun`, `rMoon`, `rStars`), the tutorial and the level editor are play, key and
 /// joystick setup (`rKeyConfig`, `rJoyConfig`) are the player in the middle of choosing keys (`oKeyConfig`
@@ -338,6 +341,14 @@ impl WindowGame for Play {
 
     fn sizes_window(&self) -> bool {
         !self.fixed_window
+    }
+
+    /// Hidden for `cr_none`. The game only ever sets that or `cr_default`; any other cursor GM has (an
+    /// hourglass, a cross) shows as the platform's arrow (851-3945).
+    fn cursor_visible(&self) -> bool {
+        self.game
+            .as_ref()
+            .is_none_or(|g| g.world().window_cursor() != CR_NONE)
     }
 
     fn user_gesture(&mut self) {
