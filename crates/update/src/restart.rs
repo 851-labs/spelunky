@@ -49,16 +49,15 @@ pub enum Outcome {
 /// What the app does once its window has closed to update: swaps in `ready` and starts it with `args`
 /// ([`swap_and_relaunch`]). If the swap fails, or the new version doesn't start and is rolled back, the
 /// state at `state_path` records why (for the player to hear about), and this version starts again with
-/// `args`: the player chose to restart, and gets a game either way. An error is only this version failing
-/// to start again.
+/// `args`: the player chose to restart, and gets a game either way. An error is an install left half
+/// swapped, or this version failing to start again.
 pub fn install_and_restart(
     ready: &Ready,
     args: &[OsString],
     state_path: Option<&Path>,
     timeout: Duration,
 ) -> Result<Outcome, String> {
-    let outcome = swap_and_relaunch(&ready.install, &ready.staged, args, timeout)
-        .unwrap_or_else(Outcome::NotInstalled);
+    let outcome = swap_and_relaunch(&ready.install, &ready.staged, args, timeout)?;
     let (reason, not_installed) = match &outcome {
         Outcome::Started => return Ok(outcome),
         Outcome::RolledBack(reason) => (reason, false),
@@ -77,15 +76,20 @@ pub fn install_and_restart(
     Ok(outcome)
 }
 
-/// Swaps in `staged` and starts it with `args`, waiting up to `timeout` for it to start. An error means the
-/// swap itself failed, and nothing changed; a failed start is [`Outcome::RolledBack`].
+/// Swaps in `staged` and starts it with `args`, waiting up to `timeout` for it to start. A swap that fails
+/// and is undone is [`Outcome::NotInstalled`], a failed start [`Outcome::RolledBack`]; an error means
+/// undoing either failed, so the install may be half swapped.
 pub fn swap_and_relaunch(
     install: &Install,
     staged: &Staged,
     args: &[OsString],
     timeout: Duration,
 ) -> Result<Outcome, String> {
-    let applied = install.apply(staged)?;
+    let applied = match install.apply(staged) {
+        Ok(applied) => applied,
+        Err(e) if e.undone => return Ok(Outcome::NotInstalled(e.reason)),
+        Err(e) => return Err(e.reason),
+    };
     let token = install.work_dir().join("started");
     let _ = std::fs::remove_file(&token);
     let failure = match launch(install, args, Some(&token)) {

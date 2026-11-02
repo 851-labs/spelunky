@@ -146,42 +146,44 @@ impl Updater {
             install.clean_up();
         }
         let mut waiting = VecDeque::new();
+        let mut retry = false;
         if let Some(failed) = state.failed.take() {
             let current = source
                 .as_ref()
                 .map(|s| s.current.to_string())
                 .unwrap_or_default();
-            if failed.not_installed {
-                // Nothing wrong with the version: it's offered again, downloaded again.
-                waiting.push_back(Dialog::new(
+            let (title, what) = if failed.not_installed {
+                (
                     "UPDATE NOT INSTALLED",
-                    vec![
-                        format!(
-                            "VERSION {} COULDN'T BE PUT IN PLACE, SO {current} IS STILL HERE.",
-                            failed.version
-                        ),
-                        failed.reason.clone(),
-                    ],
-                    vec![("OK", Choice::Close)],
-                ));
+                    format!(
+                        "VERSION {} COULDN'T BE PUT IN PLACE, SO {current} IS STILL HERE.",
+                        failed.version
+                    ),
+                )
             } else {
-                waiting.push_back(Dialog::new(
+                (
                     "UPDATE ROLLED BACK",
-                    vec![
-                        format!(
-                            "VERSION {} DIDN'T START, SO {current} IS BACK.",
-                            failed.version
-                        ),
-                        failed.reason.clone(),
-                    ],
-                    vec![("OK", Choice::Close)],
-                ));
+                    format!(
+                        "VERSION {} DIDN'T START, SO {current} IS BACK.",
+                        failed.version
+                    ),
+                )
+            };
+            waiting.push_back(Dialog::new(
+                title,
+                vec![what, failed.reason.clone()],
+                vec![("OK", Choice::Close)],
+            ));
+            if failed.not_installed {
+                // Nothing wrong with the version: it's checked for, downloaded and offered again now.
+                retry = true;
+            } else {
                 // Not offered again automatically: it would fail again.
                 state.skip = Some(failed.version);
             }
         }
         let told_of_failure = !waiting.is_empty();
-        let auto_due = source.is_ok() && !on_probation && state.check_due(state::now());
+        let auto_due = source.is_ok() && !on_probation && (retry || state.check_due(state::now()));
         let handoff = Handoff::default();
         let updater = Updater {
             source,
@@ -400,7 +402,15 @@ impl Updater {
                 Some(ready) if ready.staged.is_there() => {
                     *self.handoff.borrow_mut() = Some(Next::Update(ready))
                 }
-                _ => self.start_check(true),
+                // Unless a check is already under way, whose result comes anyway.
+                _ if self.running.is_none() => {
+                    self.start_check(true);
+                    if let Some(d) = self.dialog.as_mut().filter(|d| d.checking) {
+                        d.lines =
+                            vec!["THE DOWNLOADED UPDATE IS GONE, SO IT'S DOWNLOADED AGAIN.".into()];
+                    }
+                }
+                _ => {}
             },
             Choice::Settings => self.open_settings(),
             Choice::Later | Choice::Close => {}

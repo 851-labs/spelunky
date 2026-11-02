@@ -76,6 +76,12 @@ fn run() -> Result<(), String> {
             timeout,
             rest @ ..,
         ] => {
+            if let Some(flag) = rest
+                .iter()
+                .find(|f| !["--dir", "--lose-staged"].contains(f))
+            {
+                return Err(format!("unknown flag {flag}"));
+            }
             let key = std::fs::read_to_string(key_file).map_err(|e| format!("{key_file}: {e}"))?;
             let mut install = Install::detect(&exe, appimage.as_deref());
             if rest.contains(&"--dir") {
