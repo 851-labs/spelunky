@@ -326,6 +326,12 @@ impl WindowGame for Play {
         true
     }
 
+    /// Spelunky's game settings and the settings program's both have "Freeze the game when the form loses
+    /// focus" on.
+    fn freezes_unfocused(&self) -> bool {
+        true
+    }
+
     fn fullscreen(&self) -> Option<bool> {
         Some(self.game.as_ref()?.world().fullscreen())
     }
