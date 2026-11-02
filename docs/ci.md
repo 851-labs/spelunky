@@ -133,9 +133,10 @@ and `release.yml`:
 
 0. refuses the tag unless its commit is on `main`, before anything that uses the release secrets
    ([Release tags](#release-tags), below), and a release's (not a prerelease's) unless its version is above the
-   latest published `vMAJOR.MINOR.PATCH` (or is it, for a re-run) and its commit comes after that release's: it
-   becomes GitHub's latest release, which the site's downloads and the apps' updater follow, so a mistyped tag
-   (`v0.1.6` for `v0.1.17`) would otherwise put an older build there;
+   latest release's and its commit is that release's or after it: it becomes GitHub's latest release, which the
+   site's downloads and the apps' updater follow, so a mistyped tag (`v0.1.6` for `v0.1.17`) would otherwise put
+   an older build there. (The latest release's own tag passes, so a failed run can be re-run; once it's published,
+   Draft release refuses it.) Publish checks the version again, as another release may have come out meanwhile;
 1. creates a draft GitHub Release for the tag (or reuses its draft on a re-run; a published release is never
    touched);
 2. runs `scripts/check` on a mini;
