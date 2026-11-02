@@ -4,6 +4,7 @@
 //! Everything here builds for wasm32 too. The pieces that can't run in a browser (blocking GPU readback,
 //! the file system, the command line) are native-only, and asset loading takes bytes from a callback.
 
+pub mod awake;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod fatal;
 pub mod gpu;
