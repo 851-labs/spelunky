@@ -15,8 +15,8 @@ import { registerHooks } from "node:module";
 
 // Node runs the TypeScript itself (it strips the types), but the Worker imports "./seo/seo", as Vite resolves
 // it, not "./seo/seo.ts". Every page is pre-rendered, so the router, which the Worker asks for a page that isn't
-// a file, has none. And the wiki's aliases are the build's, whose redirects test.sh and test-links.mjs check on
-// the built site: here there's one.
+// a file, has none. And the wiki's names are the build's, whose redirects test.sh and test-links.mjs check on
+// the built site: here there are a few pages, an alias and a hub (ALIASES).
 const ROUTER = `export default { fetch: async () => new Response("router: no such page", { status: 404 }) };`;
 // Pages called jar (alias pot), snake, yeti-king and olmecs-lair, and a hub called monsters.
 const ALIASES = `export const names = new Map(${JSON.stringify([["jar", "jar"], ["pot", "jar"], ["snake", "snake"], ["yeti-king", "yeti-king"], ["olmecs-lair", "olmecs-lair"], ["monsters", "monsters"]])});
@@ -209,6 +209,11 @@ const ALIAS_REDIRECTS = {
   "/wiki/Olmec's_Lair": "/wiki/olmecs-lair",
   "/wiki/Pot": "/wiki/jar",
   "/wiki/Monsters": "/wiki/monsters",
+  "/wiki/Yeti_-_King": "/wiki/yeti-king",
+  "/wiki/_Snake_": "/wiki/snake",
+  "/wiki/Snake.MD": "/wiki/snake.md",
+  "/wiki/snake.MD": "/wiki/snake.md",
+  "/wiki/Sn%C3%A1ke": "/wiki/snake",
 };
 for (const [path, to] of Object.entries(ALIAS_REDIRECTS)) {
   for (const method of ["GET", "HEAD"]) {
