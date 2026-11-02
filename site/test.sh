@@ -364,6 +364,7 @@ contains '<html lang="en">' \
   '<img class="logo" src="media/logo.png" width="160" height="36" alt="Spelunky"/>' \
   'Spelunky Classic 1.1, ported to Rust tick for tick, bugs included.' \
   '<a class="play" href="/play/">Play in your browser</a>' \
+  '<a class="settings" href="/play/?settings">Settings</a>' \
   'autoPlay="" loop="" muted="" playsInline=""' \
   '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
   '.play:hover, .play:focus-visible { background: #ffd860; outline: none; }'

@@ -1,0 +1,109 @@
+# The web cannon's balls hitting a web and a wall (851-3782): oWebBall's collisions with oWeb and oSolid. Seed 38:
+# weapon-seed-38-web-cannon.txt to frame 1212 (level 2 at 763; the web cannon taken from the dead shopkeeper's
+# Weapon shop, 1152, and fired right at 1165, the ball hitting the wares and leaving a web at 1169, and left at
+# 1210), then by hand: he keeps the cannon (that replay's swap back to the shotgun, 1240-1259, is left out), turns
+# right (1213) and fires again (1240) into the web the first ball left (x 116, y 110), which makes another on top
+# of it (x 115, 1244). Then he takes that replay's walk right from 1265, drops into the pit by the snake and Kali's
+# altar, and fires right (1361): the ball flies over the snake into the altar's block and webs there (x about 389,
+# 1371). Ends at 1399.
+# story: currLevel=2@763 held=oWebCannon@1152 +oWebBall@1240..1240 +oWeb@1244..1244 +oWebBall@1361..1361
+# story: +oWeb@1371..1371 oWeb.x=115@1244..1244 oWeb.y=216.2@1371..1371 !held!=oWebCannon@1152..
+seed 38
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+660 release left
+660 press down
+666 release down
+666 press left
+666 press Z
+672 release Z
+732 release left
+732 press right
+762 release right
+762 press up
+768 release up
+768 press left
+795 release left
+795 press X
+797 release X
+803 press X
+805 release X
+811 press X
+813 release X
+819 press X
+821 release X
+827 press X
+829 release X
+835 press X
+836 release X
+836 press left
+866 release left
+866 press Z
+872 release Z
+872 press left
+878 press Z
+884 release Z
+884 press X
+890 release X
+896 press X
+902 release X
+908 release left
+908 press right
+914 release right
+914 press down
+920 release down
+920 press left
+920 press Z
+926 release Z
+1016 release left
+1022 press right
+1022 press X
+1028 release X
+1034 release right
+1034 press down
+1034 press X
+1035 release down
+1035 release X
+1037 press X
+1039 release X
+1080 press left
+1081 release left
+1085 press X
+1087 release X
+1130 press right
+1139 release right
+1145 press down
+1146 press X
+1147 release X
+1152 press X
+1153 release X
+1154 release down
+1165 press X
+1167 release X
+1200 press left
+1201 release left
+1210 press X
+1265 press right
+1212 release X
+1213 hold right 1
+1240 hold X 2
+1355 release right
+1361 hold X 2
+frames 1400

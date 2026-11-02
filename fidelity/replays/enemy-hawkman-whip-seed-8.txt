@@ -1,0 +1,59 @@
+# A hawkman whipped (851-3782): oHawkman's collision with oWhip. Seed 8: temple-seed-8.txt (level 13 at 738, with a
+# hawkman), then area-route --steps '@300:248' --wait 2: the player walks to the floor beside the hawkman (1395),
+# which has seen him and leaps at him (status ATTACK, 1393), and its touch takes a heart (1427). By hand, he turns
+# left (1419) and whips it (X, 1421): the whip takes a hit point (4 to 3) and stuns it (status 98, 1430), knocking
+# it away. Ends at 1469.
+# story: currLevel=13@738 oHawkman.status=2@1393..1393 plife=3@1427..1427 oHawkman.hp=3@1430..1430
+# story: oHawkman.status=98@1430..1430 !oPlayer1.dead=1
+seed 8
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+696 release left
+708 press up
+713 release up
+1073 press left
+1223 release left
+1223 press Z
+1229 press left
+1235 release Z
+1241 press Z
+1247 release Z
+1277 release left
+1277 press down
+1277 press Z
+1283 release down
+1283 release Z
+1283 press left
+1283 press X
+1289 release left
+1289 release X
+1289 press right
+1319 release right
+1319 press down
+1319 press Z
+1325 release down
+1325 release Z
+1325 press right
+1395 release right
+1419 hold left 1
+1421 hold X 2
+frames 1470

@@ -44,6 +44,10 @@ h1 { margin: 0; }
 }
 .play:hover, .play:focus-visible { background: #ffd860; outline: none; }
 .play:active { transform: translateY(var(--px)); }
+.settings {
+  display: block; width: fit-content; margin: 0 auto 12px; font-size: 14px; text-transform: uppercase;
+  letter-spacing: 2px;
+}
 .hint { text-align: center; color: var(--dim); font-size: 13px; margin: 0 0 28px; }
 section { margin: 32px 0; }
 h2 {

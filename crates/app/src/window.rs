@@ -43,6 +43,13 @@ pub const TICK: Duration = Duration::from_nanos(1_000_000_000 / 30);
 /// time but never runs extra steps to make up for lost ones.
 const MAX_CATCH_UP: u32 = 4;
 
+/// How often a session [waiting for a press](App::waiting_for_press) looks for a gamepad's.
+const PAD_POLL: Duration = Duration::from_millis(50);
+
+/// What the page says while a session waits for a press ([`App::waiting_for_press`]).
+#[cfg(target_arch = "wasm32")]
+const PRESS_TO_START: &str = "Click, or press any key or gamepad button, to start";
+
 /// How long an embedded replay runs its unshown frames back to back before letting the page have a turn
 /// ([`Embed::from`]): the page stays responsive while the clip's start comes up.
 const SKIP_SLICE: Duration = Duration::from_millis(50);
@@ -113,6 +120,11 @@ pub trait Game {
     /// Whether the player is somewhere the app may interrupt with something of its own (the updater's
     /// prompt): between runs, not in one.
     fn interruptible(&self) -> bool {
+        false
+    }
+
+    /// Whether the settings program is what runs, rather than the game it starts (`crate::settings`).
+    fn in_settings(&self) -> bool {
         false
     }
 
@@ -455,6 +467,12 @@ pub struct App<G> {
     unshown: bool,
     /// Whether the window has focus, for a game that [freezes](Self::frozen) without it.
     focus: Focus,
+    /// What the page's link beside the game was last set to offer ([`App::show_link`]), once set.
+    #[cfg(target_arch = "wasm32")]
+    link: Option<Option<crate::web::Link>>,
+    /// The session waits for a press before its first tick, if it's live and not a page's clip
+    /// ([`App::waiting_for_press`], [`App::waits`]).
+    waiting: bool,
 }
 
 /// Whether the window has lost focus, for a game that [freezes](Game::freezes_unfocused) without it.
@@ -589,6 +607,9 @@ impl<G: Game> App<G> {
             held: false,
             unshown: false,
             focus: Focus::default(),
+            #[cfg(target_arch = "wasm32")]
+            link: None,
+            waiting: false,
         }
     }
 
@@ -617,6 +638,23 @@ impl<G: Game> App<G> {
             });
         }
         self
+    }
+
+    /// Boots a session of play only once the player presses a key, a mouse button or a gamepad button, which
+    /// it takes: the browser's, where the Gamepad API reports a pad only after one of its buttons is pressed
+    /// on the page. 1.1 settles whether there's a joystick once, at its start (`scrInit`), as the session's
+    /// header does at its first tick, so a pad that shows up after that is ignored for the session; a press
+    /// on it here makes it joystick 1. The press is also the gesture browsers want before sound. Only for
+    /// live input; a replay or a page's clip starts at once.
+    pub fn waiting_for_press(mut self) -> App<G> {
+        self.waiting = true;
+        self
+    }
+
+    /// Whether the session waits for a press now: [asked to](Self::waiting_for_press), not had it yet, and a
+    /// session of play, not a replay or a page's clip.
+    fn waits(&self) -> bool {
+        self.waiting && matches!(self.source, Source::Live { .. }) && self.embed.is_none()
     }
 
     /// Draws `notice` over the game's picture for its first seconds.
@@ -685,8 +723,39 @@ impl<G: Game> App<G> {
             presenter,
             unrendered: Unrendered::new(),
         });
-        // The first tick runs straight away.
+        // The first tick runs straight away, or once the player presses something.
         self.next_tick = Some(Instant::now());
+        #[cfg(target_arch = "wasm32")]
+        if self.waits() {
+            crate::web::show_status(PRESS_TO_START);
+        }
+    }
+
+    /// While the session [waits for a press](Self::waiting_for_press): whether a gamepad's button has been
+    /// pressed, which makes the pad show up (`Gamepads::connected` drains the press itself).
+    fn pad_pressed(&mut self) -> bool {
+        match &mut self.source {
+            Source::Live {
+                gamepads: Some(g), ..
+            } => g.connected(),
+            _ => false,
+        }
+    }
+
+    /// The press the session waited for: the first tick is due now.
+    fn start_from_press(&mut self) {
+        if !self.waits() {
+            return;
+        }
+        self.waiting = false;
+        // Not an error the page shows instead.
+        #[cfg(target_arch = "wasm32")]
+        if self.error.is_none() {
+            crate::web::clear_status();
+        }
+        if self.next_tick.is_some() {
+            self.next_tick = Some(Instant::now());
+        }
     }
 
     /// The cursor in GM window pixels: the back buffer's, which the window shows scaled and centred.
@@ -776,6 +845,21 @@ impl<G: Game> App<G> {
         // Paused, nothing runs but the way to a frame the page seeks to.
         if self.paused && !self.seeking() {
             return None;
+        }
+        // Nothing runs before the press the session waits for; a gamepad's is polled, a key's or a click's
+        // wakes the loop.
+        if self.waits() && self.next_tick.is_some() {
+            if !self.pad_pressed() {
+                let polling = matches!(
+                    self.source,
+                    Source::Live {
+                        gamepads: Some(_),
+                        ..
+                    }
+                );
+                return polling.then(|| Instant::now() + PAD_POLL);
+            }
+            self.start_from_press();
         }
         let mut next = self.next_tick?;
         let now = Instant::now();
@@ -931,6 +1015,8 @@ impl<G: Game> App<G> {
         self.next_tick = Some(next);
         if ticks > 0 {
             self.follow_game();
+            #[cfg(target_arch = "wasm32")]
+            self.show_link();
             if let Some(window) = &self.window {
                 window.request_redraw();
             }
@@ -942,6 +1028,29 @@ impl<G: Game> App<G> {
             self.report();
         }
         (!self.paused || self.seeking()).then_some(next)
+    }
+
+    /// Sets the page's link beside the game (`#switch`, `crates/app/web/index.html`) to what the player can
+    /// go to from here, for a session of play: the settings program between runs, as the native apps' menus
+    /// offer it, never in a run, which leaving the page would end; and the game from the settings program,
+    /// which leaving saves.
+    #[cfg(target_arch = "wasm32")]
+    fn show_link(&mut self) {
+        use crate::web::Link;
+        if !matches!(self.source, Source::Live { .. }) || self.embed.is_some() {
+            return;
+        }
+        let link = if self.game.in_settings() {
+            Some(Link::Play)
+        } else if self.game.interruptible() && !self.game.ended() {
+            Some(Link::Settings)
+        } else {
+            None
+        };
+        if self.link != Some(link) {
+            self.link = Some(link);
+            crate::web::show_link(link);
+        }
     }
 
     /// Whether the next tick is one of an embedded replay's unshown frames, before [`Embed::from`] or the
@@ -1366,6 +1475,28 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 if down {
                     self.game.user_gesture();
                 }
+                // The press the session waited for is the app's, its repeats and release too. Not a
+                // modifier, which may be the start of a browser's or the system's shortcut (Cmd-Tab).
+                if down && self.waits() {
+                    let modifier = matches!(
+                        key,
+                        KeyCode::ShiftLeft
+                            | KeyCode::ShiftRight
+                            | KeyCode::ControlLeft
+                            | KeyCode::ControlRight
+                            | KeyCode::AltLeft
+                            | KeyCode::AltRight
+                            | KeyCode::SuperLeft
+                            | KeyCode::SuperRight
+                    );
+                    if !modifier {
+                        self.start_from_press();
+                        if !self.taken.contains(&key) {
+                            self.taken.push(key);
+                        }
+                    }
+                    return;
+                }
                 // A key belongs to whoever took its press, repeats and release included: one the overlay
                 // took stays its own until released, and one held for the game when a dialog opens keeps
                 // repeating for the game and is released to it, so none sticks.
@@ -1400,6 +1531,11 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 };
                 if state == ElementState::Pressed {
                     self.game.user_gesture();
+                    if self.waits() {
+                        self.start_from_press();
+                        self.taken_buttons.push(b);
+                        return;
+                    }
                 }
                 // As with keys: a press the overlay took keeps its release from the game.
                 let pressed = state == ElementState::Pressed;
@@ -1420,7 +1556,11 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
             WindowEvent::Touch(Touch {
                 phase: TouchPhase::Started | TouchPhase::Ended,
                 ..
-            }) => self.game.user_gesture(),
+            }) => {
+                self.game.user_gesture();
+                // And starts a session waiting for a press, on a device with nothing else to press.
+                self.start_from_press();
+            }
             WindowEvent::MouseWheel { delta, .. } => {
                 let dy = match delta {
                     MouseScrollDelta::LineDelta(_, y) => f64::from(y),
