@@ -64,6 +64,16 @@ create and store no Cloudflare API token: Cloudflare's Workers Builds (its Git i
 deploys with a build token of its own, which lives only in Cloudflare (the Worker's Settings → Build → "API
 token", named like "Workers Builds - DATE"; the account's existing one is reused) and never in GitHub.
 
+**Revalidating pages.** Everything `no-cache` is asked for again on every view, and an unchanged file is a 304. A
+file other than a page has the asset store's ETag, which answers `If-None-Match` itself. But a page can't: the
+asset store gives it an ETag, and Cloudflare drops it, strong or weak, as it compresses the page (it keeps one
+only under `no-transform`, which would send the page whole: 54 KB where it's 11 Brotli'd). That's on a preview's
+workers.dev too, where no analytics is injected, so it isn't Web Analytics'. A `Last-Modified` survives, so
+`src/server.ts` gives every page the build's date (`virtual:site/updated`, from `vite.config.ts`) and answers an
+`If-Modified-Since` of exactly that date with a 304 itself. A deploy dates every page anew, so each is a 200 once
+after it; a rollback serves its own date, which a browser holding a later one doesn't match. `site/test-server.mjs`
+checks it against an asset store whose ETags don't count, and `site/test.sh` on a page served by `wrangler dev`.
+
 ## Connecting the repo (once)
 
 In the Cloudflare dashboard, account 851: **Workers & Pages → Create → Import a repository**, pick GitHub

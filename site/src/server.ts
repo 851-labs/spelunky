@@ -3,6 +3,7 @@
 // old URLs: wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a pull request's preview
 // URL alike (docs/web-deploy.md, "Previews").
 import handler from "@tanstack/react-start/server-entry";
+import { updated } from "virtual:site/updated";
 import { names, twins } from "virtual:wiki/aliases";
 import { OPENSEARCH_PATH, OPENSEARCH_TYPE, absoluteUrl } from "./seo/seo";
 
@@ -106,7 +107,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     response.headers.set("content-type", OPENSEARCH_TYPE);
     return response;
   }
-  if (asset.status !== 404 || !maybePage(request, url)) return noCache(asset);
+  if (asset.status !== 404 || !maybePage(request, url)) return revalidated(request, asset);
   // The router renders a page that isn't a file: at build time to pre-render it, under `vite dev`, and on
   // spelunky.ai only one that opts out of pre-rendering.
   const rendered = await handler.fetch(request);
@@ -222,8 +223,29 @@ function markdownTwin(asset: Response, slug: string): Response {
   return response;
 }
 
+// A page, dated when the build was made, which a revalidation that has that date gets a 304 for: no ETag can do it.
+// The asset store gives a page one, but Cloudflare drops a page's ETag, strong or weak, as it compresses it (and
+// keeps it only under no-transform, which would send the page whole: 54 KB where it's 11 Brotli'd), and keeps a
+// Last-Modified. So every page has the deploy's date, and a deploy, which may change any page, makes every page a
+// 200 once. Only the same date is a 304, not an earlier one: a rollback to an earlier build serves its own pages.
+// The other files keep their ETags (Cloudflare leaves them be), which the asset store answers itself.
+function revalidated(request: Request, asset: Response): Response {
+  const response = noCache(asset);
+  const page = asset.status === 200 && asset.headers.get("content-type")?.split(";")[0] === "text/html";
+  if (updated === null || !page) return response;
+  response.headers.set("last-modified", updated);
+  // An If-None-Match is the asset store's to answer, and If-Modified-Since only counts without one (RFC 9110,
+  // section 13.1.3).
+  const since = request.headers.get("if-modified-since");
+  if (request.headers.has("if-none-match") || since !== updated) return response;
+  void response.body?.cancel();
+  response.headers.delete("content-length");
+  return new Response(null, { status: 304, headers: response.headers });
+}
+
 // None of the other assets the Worker serves is content-hashed (the pages, /play/manifest.txt, the landing page's
-// media), so browsers revalidate them every time: a deploy shows up at once, and an unchanged file is a 304.
+// media), so browsers revalidate them every time: a deploy shows up at once, and an unchanged file is a 304 (a page
+// by its date: revalidated(), above).
 //
 // And a text file gets the charset a browser needs for its non-ASCII text (/LICENSE.txt's ®, /llms.txt's ©):
 // Cloudflare's asset store serves .txt, and its 304s, as text/plain without one, which a browser decodes by

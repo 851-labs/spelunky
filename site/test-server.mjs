@@ -21,10 +21,16 @@ const ROUTER = `export default { fetch: async () => new Response("router: no suc
 // Pages called jar (alias pot), snake, yeti-king and olmecs-lair, and a hub called monsters.
 const ALIASES = `export const names = new Map(${JSON.stringify([["jar", "jar"], ["pot", "jar"], ["snake", "snake"], ["yeti-king", "yeti-king"], ["olmecs-lair", "olmecs-lair"], ["monsters", "monsters"]])});
 export const twins = new Set(["jar", "snake", "yeti-king", "olmecs-lair"]);`;
+// The build's date (vite.config.ts), which the Worker gives the pages.
+const UPDATED = "Mon, 02 Nov 2026 12:00:00 GMT";
 registerHooks({
   resolve(specifier, context, nextResolve) {
     if (specifier === "@tanstack/react-start/server-entry") {
       return { url: `data:text/javascript,${encodeURIComponent(ROUTER)}`, shortCircuit: true };
+    }
+    if (specifier === "virtual:site/updated") {
+      const source = `export const updated = ${JSON.stringify(UPDATED)};`;
+      return { url: `data:text/javascript,${encodeURIComponent(source)}`, shortCircuit: true };
     }
     if (specifier === "virtual:wiki/aliases") {
       return { url: `data:text/javascript,${encodeURIComponent(ALIASES)}`, shortCircuit: true };
@@ -333,6 +339,43 @@ for (const [path, method] of [
   try {
     assertEveryResponse(await serve(new Request(`https://spelunky.ai${path}`, { method })), `${method} ${path}`);
     console.log(`ok   ${method} ${path}: the headers every response has`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
+  }
+}
+// A page has the build's date, and a revalidation with it is a 304, with a 200's headers and no body: Cloudflare
+// drops a page's ETag as it compresses it, so the asset store's can't be one. Not another date (an earlier build's,
+// after a rollback, or a later one's), nor with an If-None-Match, which the asset store answers; and only a page.
+const PAGE = "/wiki/snake.html";
+for (const [what, headers, status] of [
+  ["GET", {}, 200],
+  ["the date", { "if-modified-since": UPDATED }, 304],
+  ["another date", { "if-modified-since": "Sun, 01 Nov 2026 12:00:00 GMT" }, 200],
+  ["a later date", { "if-modified-since": "Tue, 03 Nov 2026 12:00:00 GMT" }, 200],
+  ["the date and an ETag", { "if-modified-since": UPDATED, "if-none-match": '"other"' }, 200],
+]) {
+  for (const method of ["GET", "HEAD"]) {
+    const label = `${method} ${PAGE}, ${what}`;
+    try {
+      const response = await serve(new Request(`https://spelunky.ai${PAGE}`, { method, headers }));
+      assert.equal(response.status, status, `${label}: status`);
+      assert.equal(response.headers.get("last-modified"), UPDATED, `${label}: last-modified`);
+      assert.equal(response.headers.get("cache-control"), "no-cache", `${label}: cache-control`);
+      assert.equal(await response.text(), status === 200 && method === "GET" ? BODY : "", `${label}: body`);
+      console.log(`ok   ${label}: ${status}`);
+    } catch (error) {
+      failures++;
+      console.error(`FAIL ${error.message}`);
+    }
+  }
+}
+for (const path of ["/wiki/snake.md", "/nowhere"]) {
+  try {
+    const response = await serve(new Request(`https://spelunky.ai${path}`, { headers: { "if-modified-since": UPDATED } }));
+    assert.notEqual(response.status, 304, `${path}: a 304 by date`);
+    assert.equal(response.headers.get("last-modified"), null, `${path}: last-modified`);
+    console.log(`ok   ${path}: no date, ${response.status}`);
   } catch (error) {
     failures++;
     console.error(`FAIL ${error.message}`);

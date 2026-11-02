@@ -4,6 +4,7 @@ import viteReact from "@vitejs/plugin-react";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
+import type { Plugin } from "vite";
 import { HUBS } from "./src/wiki/build/categories.ts";
 import { pageSlugs } from "./src/wiki/build/compile.ts";
 import { wiki } from "./src/wiki/build/plugin.ts";
@@ -64,6 +65,21 @@ const WIKI = {
       : null,
 };
 const SOURCES = sourcePaths(SOURCE_DIR);
+
+// "virtual:site/updated": when this build was made, as an HTTP date, which the Worker gives every page as its
+// Last-Modified and revalidates against (src/server.ts). Under `vite dev`, which rebuilds as it goes, none.
+const UPDATED = "virtual:site/updated";
+function siteUpdated(): Plugin {
+  let updated: string | null = null;
+  return {
+    name: "site-updated",
+    configResolved(config) {
+      if (config.command === "build") updated = new Date().toUTCString();
+    },
+    resolveId: (id) => (id === UPDATED ? `\0${UPDATED}` : undefined),
+    load: (id) => (id === `\0${UPDATED}` ? `export const updated = ${JSON.stringify(updated)};` : undefined),
+  };
+}
 const ROOMS = roomNames(ROOMS_DIR) ?? [];
 
 export default defineConfig({
@@ -106,6 +122,7 @@ export default defineConfig({
     viteReact(),
     // "virtual:wiki-media": the media's indexes, for the pages' JSON-LD and the sitemaps.
     wikiMediaPlugin(),
+    siteUpdated(),
   ],
   // Sourcemaps for the Worker, for its stack traces (the Cloudflare plugin's default), and none for the
   // browser, as before. Said at the top level, not only as the Worker's environment's: Vite 8.3.5's
