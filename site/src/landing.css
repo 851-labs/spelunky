@@ -67,3 +67,9 @@ footer { margin-top: 40px; color: var(--dim); font-size: 13px; text-align: cente
   .play { font-size: 20px; padding: 16px 20px; width: 100%; }
   .tagline { font-size: 16px; }
 }
+/* A phone or a tablet with only touch: no fine pointer anywhere (a mouse, a trackpad). The play page says it too
+   (851-3925). */
+.touch-note { display: none; text-align: center; margin: 0 0 12px; color: var(--gold); font-size: 14px; }
+@media (pointer: coarse) and (not (any-pointer: fine)) {
+  .touch-note { display: block; }
+}

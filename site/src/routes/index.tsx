@@ -29,6 +29,10 @@ function Landing() {
         An unofficial fan port (a mod). Spelunky is Copyright &copy; 2008, 2009 Derek Yu and Mossmouth, LLC.
       </p>
 
+      {/* Shown only on a device with only touch (landing.css): the game needs keys or a gamepad (851-3925). */}
+      <p className="touch-note">
+        This device seems to have no keyboard or gamepad. Spelunky Classic needs one: it has no touch controls.
+      </p>
       <a className="play" href="/play/">
         Play in your browser
       </a>

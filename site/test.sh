@@ -383,6 +383,9 @@ contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
   '<meta name="twitter:card" content="summary_large_image"/>' \
   '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite"' \
   '"urlTemplate":"https://spelunky.ai/wiki?q={search_term_string}"'
+# What a device with only touch is told above Play (851-3925), shown by landing.css's media query.
+contains '<p class="touch-note">This device seems to have no keyboard or gamepad.' \
+  '@media (pointer: coarse) and (not (any-pointer: fine))'
 check "$site/index.html" 307 "location: /"
 # For crawlers: robots.txt names the sitemaps, which src/seo/sitemap.ts makes at build time.
 check "$site/robots.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"

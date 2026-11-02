@@ -53,6 +53,15 @@
   #switch { position: fixed; top: 8px; right: 12px; color: #888; font-size: 13px; text-decoration: none; }
   #switch:hover, #switch:focus-visible { color: #ccc; text-decoration: underline; }
   #switch[hidden] { display: none; }
+  /* Over the game on a device with only touch (851-3925): 1.1 has no touch controls. */
+  #touch {
+    position: fixed; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 24px; background: #000e; text-align: center; font-size: 18px;
+  }
+  #touch[hidden] { display: none; }
+  #touch p { max-width: 30em; margin: 8px 0; }
+  #touch a, #touch button { color: #ccc; font: inherit; }
+  #touch button { padding: 6px 14px; background: #333; border: 1px solid #888; }
 </style>
 </head>
 <body>
@@ -63,6 +72,16 @@
      Out of the tab order, so Enter, a game key, never follows it. Nothing for a replay, a page's clip or a
      preview, which have neither: the app never shows it without the URLs. -->
 <a id="switch" tabindex="-1" hidden></a>
+<!-- On a device with only touch, what the game needs, before it can't be played (851-3925): Spelunky Classic has no
+     touch controls, and the port adds none (the oracle models only 1.1's input). A key or a gamepad, once seen,
+     takes it away, as does Play anyway: a tablet's keyboard can be there without a fine pointer. Not for a replay,
+     a page's clip or a preview, which take no input. -->
+<div id="touch" hidden>
+  <p>Spelunky Classic needs a keyboard or a gamepad. It has no touch controls, and this device seems to have
+    neither.</p>
+  <p>Connect a gamepad or a keyboard to play here, or play on a computer.</p>
+  <p><a href="/">Back to spelunky.ai</a> &middot; <button type="button" id="touch-anyway">Play anyway</button></p>
+</div>
 <script type="module">
   const query = new URLSearchParams(location.search);
   if (!["replay", "embed", "preview"].some((name) => query.has(name))) {
@@ -78,6 +97,22 @@
     settings.set("settings", "");
     link.dataset.play = url(play);
     link.dataset.settings = url(settings);
+
+    // Only touch: a coarse pointer and no fine one anywhere (no mouse, no trackpad), and no gamepad yet.
+    const touchOnly = matchMedia("(pointer: coarse)").matches && !matchMedia("(any-pointer: fine)").matches;
+    const pads = () => [...(navigator.getGamepads?.() ?? [])].some(Boolean);
+    if (touchOnly && !pads()) {
+      const notice = document.getElementById("touch");
+      const hide = () => {
+        notice.hidden = true;
+        removeEventListener("keydown", hide, true);
+        removeEventListener("gamepadconnected", hide);
+      };
+      notice.hidden = false;
+      document.getElementById("touch-anyway").addEventListener("click", hide);
+      addEventListener("keydown", hide, true);
+      addEventListener("gamepadconnected", hide);
+    }
   }
 </script>
 <script type="module">
