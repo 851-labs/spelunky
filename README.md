@@ -67,8 +67,10 @@ the native options: `?replay=out.txt&mute&no-gamepad&physical-keys`, `?settings`
 `?preview&room=rTutorial&view=0,64&scale=3`.
 `?replay=out.txt&embed&from=F` is a replay a page embeds and drives, shown from frame F (the wiki's live clips,
 docs/wiki-media.md).
-Sound starts at the first key press (browsers need a user gesture); each music track is decoded whole when it
-starts, which stalls that frame. Recording isn't wired up on the web yet.
+A session starts at the first key, click or gamepad button, which the page asks for: the Gamepad API only
+reports a pad once one of its buttons is pressed, and 1.1 settles whether it has a joystick as it starts, so a
+pad pressed there is joystick 1 (and browsers want a gesture before sound). Each music track is decoded whole
+when it starts, which stalls that frame. Recording isn't wired up on the web yet.
 
 It draws with WebGPU where the browser has a working adapter and falls back to WebGL2 elsewhere; both render the
 same pixels as native.
