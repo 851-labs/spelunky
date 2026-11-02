@@ -41,11 +41,16 @@ pub enum Outcome {
     Started,
     /// The new version failed, for this reason, and this version is back in place.
     RolledBack(String),
+    /// The new version couldn't be put in place, for this reason (the swap failed: its download gone, a
+    /// file in use), and this version is as it was.
+    NotInstalled(String),
 }
 
 /// What the app does once its window has closed to update: swaps in `ready` and starts it with `args`
-/// ([`swap_and_relaunch`]). If the new version doesn't start, it's rolled back, the state at `state_path`
-/// records why (for the player to hear about), and this version starts again with `args`.
+/// ([`swap_and_relaunch`]). If the swap fails, or the new version doesn't start and is rolled back, the
+/// state at `state_path` records why (for the player to hear about), and this version starts again with
+/// `args`: the player chose to restart, and gets a game either way. An error is an install left half
+/// swapped, or this version failing to start again.
 pub fn install_and_restart(
     ready: &Ready,
     args: &[OsString],
@@ -53,29 +58,38 @@ pub fn install_and_restart(
     timeout: Duration,
 ) -> Result<Outcome, String> {
     let outcome = swap_and_relaunch(&ready.install, &ready.staged, args, timeout)?;
-    if let Outcome::RolledBack(reason) = &outcome {
-        if let Some(path) = state_path {
-            let mut state = State::load(path);
-            state.failed = Some(Failed {
-                version: ready.version.to_string(),
-                reason: reason.clone(),
-            });
-            let _ = state.save(path);
-        }
-        launch(&ready.install, args, None)?;
+    let (reason, not_installed) = match &outcome {
+        Outcome::Started => return Ok(outcome),
+        Outcome::RolledBack(reason) => (reason, false),
+        Outcome::NotInstalled(reason) => (reason, true),
+    };
+    if let Some(path) = state_path {
+        let mut state = State::load(path);
+        state.failed = Some(Failed {
+            version: ready.version.to_string(),
+            reason: reason.clone(),
+            not_installed,
+        });
+        let _ = state.save(path);
     }
+    launch(&ready.install, args, None)?;
     Ok(outcome)
 }
 
-/// Swaps in `staged` and starts it with `args`, waiting up to `timeout` for it to start. An error means the
-/// swap itself failed, and nothing changed; a failed start is [`Outcome::RolledBack`].
+/// Swaps in `staged` and starts it with `args`, waiting up to `timeout` for it to start. A swap that fails
+/// and is undone is [`Outcome::NotInstalled`], a failed start [`Outcome::RolledBack`]; an error means
+/// undoing either failed, so the install may be half swapped.
 pub fn swap_and_relaunch(
     install: &Install,
     staged: &Staged,
     args: &[OsString],
     timeout: Duration,
 ) -> Result<Outcome, String> {
-    let applied = install.apply(staged)?;
+    let applied = match install.apply(staged) {
+        Ok(applied) => applied,
+        Err(e) if e.undone => return Ok(Outcome::NotInstalled(e.reason)),
+        Err(e) => return Err(e.reason),
+    };
     let token = install.work_dir().join("started");
     let _ = std::fs::remove_file(&token);
     let failure = match launch(install, args, Some(&token)) {

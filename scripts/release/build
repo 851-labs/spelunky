@@ -245,7 +245,9 @@ build_linux() {
     -czf "$out/$name.tar.gz" "$name")
 
   # The AppImage: the same files as an AppDir (AppRun starts the game, which finds assets/ beside it),
-  # squashed and appended to AppImage's runtime. The one Linux download the updater can replace.
+  # squashed and appended to AppImage's runtime. The one Linux download the updater can replace. Its
+  # desktop entry has a Settings action, the settings program (1.1's config.exe), for launchers that
+  # show one (appimaged, AppImageLauncher, Gear Lever install it with the AppImage).
   appdir="$work/$name.AppDir"
   rm -rf "${appdir:?}" "$out/$name.AppImage" "$work/$name.squashfs"
   cp -R "$work/$name" "$appdir"
@@ -260,6 +262,11 @@ Exec=spelunky
 Icon=spelunky
 Categories=Game;ArcadeGame;
 Terminal=false
+Actions=settings;
+
+[Desktop Action settings]
+Name=Settings
+Exec=spelunky --settings
 EOF
   # Owned by root, and with fixed times, so the same files make the same image.
   "$tools/squashfs-tools-$(sed -n 's/^SQUASHFS=//p' scripts/release/tools)/mksquashfs" "$appdir" \

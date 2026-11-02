@@ -17,7 +17,8 @@ pub struct State {
     pub last_check: Option<u64>,
     /// A version not to offer again automatically ("skip this version"). Checking by hand still does.
     pub skip: Option<String>,
-    /// An update that didn't start and was rolled back, to tell the player about once.
+    /// An update that didn't start and was rolled back, or couldn't be put in place, to tell the player
+    /// about once.
     pub failed: Option<Failed>,
 }
 
@@ -25,6 +26,10 @@ pub struct State {
 pub struct Failed {
     pub version: String,
     pub reason: String,
+    /// It was never put in place: the swap failed (the download gone, a file in use), so it isn't the
+    /// version that's at fault. Absent in a file from before, all of whose failures were starts.
+    #[serde(default)]
+    pub not_installed: bool,
 }
 
 impl Default for State {
@@ -105,6 +110,7 @@ mod tests {
             failed: Some(Failed {
                 version: "0.4.0".into(),
                 reason: "it quit".into(),
+                not_installed: false,
             }),
         };
         state.save(&path).unwrap();
@@ -115,6 +121,12 @@ mod tests {
         std::fs::write(&path, r#"{"last_check": 7}"#).unwrap();
         assert_eq!(State::load(&path).last_check, Some(7));
         assert!(State::load(&path).automatic);
+        std::fs::write(
+            &path,
+            r#"{"failed": {"version": "0.4.0", "reason": "it quit"}}"#,
+        )
+        .unwrap();
+        assert!(!State::load(&path).failed.unwrap().not_installed);
         std::fs::remove_dir_all(&dir).unwrap();
     }
 }

@@ -121,8 +121,9 @@ fn settings_window_size(scale: Option<u32>) -> (u32, u32) {
 /// `?replay=URL&embed&from=F` is a replay a page embeds and drives (the wiki's live clips, [`Embed`]),
 /// shown from frame F, which it can seek in. Play keeps its saves in `localStorage`; closing the tab or
 /// leaving the page ends the game as the window's close button does, before the page goes (winit's
-/// `pagehide`, `App`'s `exiting`), so `stats.txt` is saved. Sound starts at the first key or click, as
-/// browsers require. Recording has no file to go to yet: a [`RecordSink`] that
+/// `pagehide`, `App`'s `exiting`), so `stats.txt` is saved. A session of play starts on the first key,
+/// click or gamepad button (`App::waiting_for_press`), which makes a pad pressed then the session's joystick
+/// and lets the sound start, as browsers require. Recording has no file to go to yet: a [`RecordSink`] that
 /// downloads or stores it is where it plugs in. There's no screenshot mode: the browser's own does that.
 ///
 /// [`RecordSink`]: app::window::RecordSink
@@ -217,8 +218,8 @@ mod web {
             KeyMap::Layout
         };
         let live = |header: ReplayHeader| {
-            // The Gamepad API only reports a pad after a button press on the page, so one is usually
-            // joystick 1 only if the page is reloaded with it already in use.
+            // The Gamepad API only reports a pad after a button press on the page: the session starts on
+            // a press (`App::waiting_for_press`), so a pad pressed then is joystick 1.
             Input::live(header, keys, !query.has("no-gamepad"), None)
         };
         let scale = query
@@ -347,7 +348,8 @@ mod web {
                 proxy,
                 input,
             )
-            .with_notice(settings_notice);
+            .with_notice(settings_notice)
+            .waiting_for_press();
             start(event_loop, app);
             return Ok(());
         }
@@ -356,7 +358,8 @@ mod web {
         if let Some(embed) = embed {
             app = app.with_embed(embed);
         }
-        start(event_loop, app);
+        // A session of play starts on a press, so a gamepad pressed then is the session's.
+        start(event_loop, app.waiting_for_press());
         Ok(())
     }
 
@@ -377,6 +380,7 @@ mod native {
     use app::settings::{Launch, Settings};
     use app::textures::Textures;
     use app::unrendered::Unrendered;
+    use app::update::Next;
     use app::window::{App, Game, Input, Overlay, RecordSink, UserEvent};
     use assets::Bundle;
     use draw::Frame;
@@ -686,8 +690,12 @@ mod native {
             } else {
                 (None, None)
             };
-        // The update the player chose to restart into, once the window has closed.
-        let chosen_update = || handoff.as_ref().and_then(|h| h.borrow_mut().take());
+        // What the player chose that closed the window: an update to restart into, or the settings.
+        let chosen = || handoff.as_ref().and_then(|h| h.borrow_mut().take());
+        let then = |next| match next {
+            Next::Update(ready) => app::update::restart(ready, store_dir.as_deref()),
+            Next::Settings => app::update::open_settings(),
+        };
         if args.settings {
             // The settings program in front of the game, on its own bundle and the game's sounds, with its
             // own handle on the same store: its .cfg files are the game's.
@@ -732,10 +740,10 @@ mod native {
                 settings_notice,
                 updater,
             )?;
-            if let Some(ready) = chosen_update() {
-                // The window goes before the new version opens its own.
+            if let Some(next) = chosen() {
+                // The window goes before the next program opens its own.
                 drop(app);
-                return app::update::restart(ready, store_dir.as_deref());
+                return then(next);
             }
             return app.error().map_or(Ok(()), |e| Err(e.to_owned()));
         }
@@ -764,9 +772,9 @@ mod native {
             let room = w.assets().room_name(w.room().id).unwrap_or("?");
             println!("{ticks} frames, ended in {room}");
         }
-        if let Some(ready) = chosen_update() {
+        if let Some(next) = chosen() {
             drop(app);
-            return app::update::restart(ready, store_dir.as_deref());
+            return then(next);
         }
         error.map_or(Ok(()), Err)
     }

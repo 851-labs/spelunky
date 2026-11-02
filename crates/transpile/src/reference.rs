@@ -88,7 +88,7 @@ pub fn load_program(zip_path: &Path, program: Program) -> gmk::Gmk {
     gmk::parse(&bytes).unwrap_or_else(|e| panic!("{member} parses: {e}"))
 }
 
-/// A program's rooms, room order and backgrounds as `gm::Assets`, without images: each sprite is an
+/// A program's rooms, room order, backgrounds and runner hotkeys as `gm::Assets`, without images: each sprite is an
 /// imageless, filled rectangle of its size (so collisions and mouse clicks find their instances) and
 /// each background an imageless one of its size. For tests that run a program without extracted assets.
 pub fn stub_assets(gmk: &gmk::Gmk) -> gm::Assets {
@@ -147,4 +147,6 @@ pub fn stub_assets(gmk: &gmk::Gmk) -> gm::Assets {
     gm::Assets::new(sprites, gmk.rooms.clone())
         .with_room_order(gmk.room_order.clone())
         .with_backgrounds(backgrounds)
+        // As the bundle's settings give them (`gm::Assets::from_bundle`).
+        .with_hotkeys(gmk.settings.f4_fullscreen, gmk.settings.f9_screenshot)
 }

@@ -33,6 +33,9 @@ pub struct Assets {
     color_outside_room: u32,
     /// GM8's `last_tile_id` at game start: `tile_add` takes the next one.
     last_tile_id: i32,
+    /// The runner's hotkeys the game settings turn on that the port has (F4 fullscreen, F9 screenshot), as
+    /// key codes: each clears `keyboard_lastkey` before a frame it's the last key pressed in ([`World::step`]).
+    pub(crate) hotkeys: Vec<u8>,
     /// [`fingerprint`](Self::fingerprint), computed on first use.
     fingerprint: std::sync::OnceLock<u64>,
 }
@@ -41,6 +44,21 @@ impl Default for Assets {
     fn default() -> Assets {
         Assets::new(Vec::new(), Vec::new())
     }
+}
+
+/// The runner's hotkeys `settings` turn on that clear `keyboard_lastkey` ([`Assets::hotkeys`]): F4 (`vk_f4`, 115) if
+/// "<F4> switches between screen modes" is on, F9 (`vk_f9`, 120) if "Let <F9> take a screenshot" is. GM8's
+/// routine (Spelunky.exe 0x53daa4) has F1, Esc, F5 and F6 too, whose actions the port doesn't have: they're off
+/// in Spelunky's settings and the settings program's, and so not here.
+fn hotkeys(settings: &assets::Settings) -> Vec<u8> {
+    hotkeys_on(settings.f4_fullscreen, settings.f9_screenshot)
+}
+
+fn hotkeys_on(f4_fullscreen: bool, f9_screenshot: bool) -> Vec<u8> {
+    [(f4_fullscreen, 115), (f9_screenshot, 120)]
+        .into_iter()
+        .filter_map(|(on, vk)| on.then_some(vk))
+        .collect()
 }
 
 impl Assets {
@@ -60,6 +78,7 @@ impl Assets {
             color_outside_room: 0,
             // GM8 numbers tiles from 10000001, as it numbers instances from 100001.
             last_tile_id: 10_000_000,
+            hotkeys: Vec::new(),
             fingerprint: std::sync::OnceLock::new(),
         }
         .with_rooms(rooms)
@@ -71,8 +90,15 @@ impl Assets {
             room_order: b.room_order,
             color_outside_room: b.settings.color_outside_room,
             last_tile_id: b.last_tile_id,
+            hotkeys: hotkeys(&b.settings),
             ..Assets::new(b.sprites, b.rooms).with_backgrounds(b.backgrounds)
         }
+    }
+
+    /// Turns the runner's F4 and F9 hotkeys on or off ([`Assets::hotkeys`]), as a bundle's settings do.
+    pub fn with_hotkeys(mut self, f4_fullscreen: bool, f9_screenshot: bool) -> Assets {
+        self.hotkeys = hotkeys_on(f4_fullscreen, f9_screenshot);
+        self
     }
 
     /// Replaces the rooms, and the room order with every room in id order.
