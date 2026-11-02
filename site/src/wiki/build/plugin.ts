@@ -15,7 +15,9 @@
 //   imports the first time it's used: its own chunk, kept out of the pages' bundle.
 // - `virtual:wiki/hover-cards`: every page's hover card (cards.ts), which src/wiki/hover-card.tsx imports
 //   the first time a link is hovered or focused: its own chunk too.
-// - `virtual:wiki/aliases`: each page's aliases, to its slug, which the Worker (src/server.ts) redirects.
+// - `virtual:wiki/aliases`: each page's slug and aliases, and each hub's slug, to the slug they name, and the
+//   pages' slugs (which have twins), so the Worker (src/server.ts) redirects an alias, or a name written
+//   another way (/wiki/Snake), to its page.
 // - `virtual:wiki/source-links`: the page each object and room is on (sourceLinks), which the source viewer's
 //   room pages link to (src/wiki/source.ts). In the Worker's build, which pre-renders them; empty in the
 //   browser's, which never runs their loader, as `virtual:wiki-source/files` is (build/source.ts).
@@ -193,9 +195,12 @@ export function wiki(options: WikiOptions): Plugin {
         return `export const cards = JSON.parse(${JSON.stringify(JSON.stringify(cards))});`;
       }
       if (name === ALIASES) {
-        // compile.ts has already failed an alias that's a page's slug, another alias, or reserved.
-        const aliases = [...pages.values()].flatMap(({ meta }) => meta.aliases.map((alias) => [alias, meta.slug]));
-        return `export const aliases = new Map(${JSON.stringify(aliases)});`;
+        // compile.ts has already failed an alias that's a page's slug, another alias, or reserved (a hub's).
+        const names = [
+          ...[...pages.values()].flatMap(({ meta }) => [meta.slug, ...meta.aliases].map((name) => [name, meta.slug])),
+          ...hubs.hubs.map(({ id }) => [id, id]),
+        ];
+        return `export const names = new Map(${JSON.stringify(names)});\nexport const twins = new Set(${JSON.stringify([...pages.keys()])});`;
       }
       if (name === SOURCE_LINKS) {
         if (this.environment.name === "client") return "export const objectPages = {};\nexport const roomPages = {};";
