@@ -60,7 +60,7 @@ sources:
   - scripts/scrRoomGen.gml
   - scripts/scrEntityGen.gml
   - scripts/scrCreateTileObj.gml
-verified: { port: v0.1.15, date: 2026-10-29 }
+verified: { port: v0.1.17, date: 2026-11-02 }
 ---
 
 Each area is built of its own rock: [[mines|the Mines]]' brown earth, [[jungle|the Jungle]]'s mossy earth,
@@ -113,9 +113,10 @@ blocks hold nothing.
 
 ### Breaking them
 
-- **[[bomb|Bombs]]** break every block their blast touches, unless it's one that can't be destroyed, as long as
-  the blast is near the view (or anywhere in the Tutorial) <Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" />
-  ([[explosions-break-blocks-off-screen]]).
+- **[[bomb|Bombs]]** break every block their blast touches, unless it's one that can't be destroyed, wherever the
+  blast is: the test meant to spare blocks off the screen outside the Tutorial passes on every level
+  ([[explosions-break-blocks-off-screen]]) <Cite gml="objects/oExplosion/collision_oSolid.gml:1-15" />
+  <Cite gml="scripts/isLevel.gml:7" />.
 - **The [[mattock|Mattock]]** breaks a block a swing.
 - **A [[boulder|Boulder]]** rolling fast enough breaks the blocks in its way <Cite gml="objects/oBoulder/collision_oSolid.gml:1-25" />.
 

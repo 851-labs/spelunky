@@ -18,7 +18,7 @@ relations:
     - { slug: ice-caves, cite: objects/oDark/destroy.gml:19-30, note: "In the rock's rich gold veins" }
     - { slug: temple, cite: objects/oTemple/destroy.gml:21-32, note: "In the rock's rich gold veins" }
     - { slug: olmecs-lair, cite: scripts/scrRoomGen5.gml:186-189, note: "In the rock's gold veins" }
-    - { slug: city-of-gold, cite: objects/oTemple/destroy.gml:21-32, note: "In every block" }
+    - { slug: city-of-gold, cite: objects/oTemple/destroy.gml:21-32, note: "In the Temple stone and push blocks" }
     - restless-dead
   related: [gold-chunk, gold-bar]
 clips: [gold-nugget/shopkeeper]
@@ -33,7 +33,8 @@ faq:
   - q: Where do you find Gold Nuggets in Spelunky Classic?
     a: >-
       Inside rock: one block in ten is a rich gold vein that breaks into three [[gold-chunk|Gold Chunks]]
-      and a nugget, and the blocks of the [[city-of-gold|City of Gold]] do the same. [[jar|Jars]] hold
+      and a nugget, and the Temple stone and push blocks of the [[city-of-gold|City of Gold]] do the same
+      (its plain stone blocks give nothing). [[jar|Jars]] hold
       them, graves in the Jungle's graveyards hide them, and a killed Shopkeeper leaves one to four.
   - q: What's the difference between a Gold Nugget and a Gold Chunk in Spelunky Classic?
     a: >-
@@ -53,7 +54,7 @@ sources:
   - objects/oShopkeeper/step.gml
   - objects/oMonkey/step.gml
   - scripts/scrEntityGen.gml
-verified: { port: v0.1.10, date: 2026-10-27 }
+verified: { port: v0.1.17, date: 2026-11-02 }
 ---
 
 It's the bigger of the two loose pieces of gold, five times a [[gold-chunk|Gold Chunk]]'s worth and as much as
@@ -83,8 +84,12 @@ past the Mines, the code counting [[olmecs-lair|Olmec's Lair]] as an area of its
   <Cite gml="objects/oDark/create.gml:3-8" /> <Cite gml="objects/oTemple/create.gml:5-9" />. Destroyed, a rich
   vein lets out three [[gold-chunk|Gold Chunks]] and a nugget; a plain vein only the chunks
   <Cite gml="objects/oBrick/destroy.gml:9-29" />.
-- **[[city-of-gold|The City of Gold]]**: its blocks are gold, and each one destroyed lets out three chunks and
-  a nugget <Cite gml="objects/oTemple/destroy.gml:21-32" /> <Cite gml="objects/oBlock/destroy.gml:13-24" />.
+- **[[city-of-gold|The City of Gold]]**: its Temple stone is gold, and each block of it destroyed lets out three
+  chunks and a nugget, as each of its push blocks does <Cite gml="objects/oTemple/destroy.gml:21-32" />
+  <Cite gml="objects/oPushBlock/destroy.gml:12-23" />. Its stone blocks, drawn gold too, give nothing
+  ([[city-of-gold-stone-blocks]]) <Cite gml="scripts/scrEntityGen.gml:497-499" />
+  <Cite gml="objects/oBlock/destroy.gml:1-4" />, and its Jungle earth gives only a vein's gold
+  ([[city-jungle-earth]]).
 - **[[jar|Jars]]**: a broken Jar holds one 1 in 6 times, once its 1 in 3 roll for a Gold Chunk fails
   <Cite gml="objects/oJar/destroy.gml:17-18" />.
 - **Graves.** On a Jungle [[restless-dead|graveyard level]], a grave that isn't the ash

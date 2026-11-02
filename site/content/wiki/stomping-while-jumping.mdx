@@ -31,8 +31,9 @@ faq:
     a: >-
       Nearly all. The touch code most monsters share, the Bat's and a dropping [[spider|Spider]]'s among them,
       takes a jumping player, and so do most of the monsters' own, the Caveman's and the Hawkman's included,
-      some only closer to the monster's top. A Yeti, the Yeti King or a Shopkeeper stomped on the way up takes no
-      hit points from it, but is stunned ([[yeti-stomp-rising]]).
+      some only closer to the monster's top. A Yeti or a Shopkeeper stomped on the way up takes no hit points
+      from it, but is stunned ([[yeti-stomp-rising]]); the [[yeti-king|Yeti King]] takes none and isn't stunned
+      either, as nothing ever stuns it.
   - q: Does jumping into a monster from below hurt the player?
     a: >-
       Not when it counts as a stomp. The touch code tests for a stomp before it tests for hurting him, so a
@@ -40,7 +41,7 @@ faq:
 sources:
   - objects/oEnemy/collision_oCharacter.gml
   - objects/oBat/step.gml
-verified: { port: v0.1.12, date: 2026-10-28 }
+verified: { port: v0.1.17, date: 2026-11-02 }
 ---
 
 A [[stomping|stomp]] is meant to be a landing on a monster's head. But the touch code most monsters share
@@ -74,6 +75,11 @@ A player rising into a monster from just below is jumping, so it's a stomp: the 
 with [[spike-shoes|Spike Shoes]]), and the player is bounced up, `yVel` -6 less a fifth of what it was (after his
 own step's gravity, which comes first). A Bat has
 1 hit point, and its step kills it once they're gone <Cite gml="objects/oBat/step.gml:8" /> <Cite quirk="1" />.
+
+The Yeti's, the Shopkeeper's and the Yeti King's own touch code take a jumping player too, but their stomp takes
+nothing on the way up ([[yeti-stomp-rising]]). It still stuns a Yeti or a Shopkeeper <Cite
+gml="objects/oYeti/collision_oCharacter.gml:6-15" /> <Cite gml="objects/oShopkeeper/collision_oCharacter.gml:5-14" />,
+but not the Yeti King, which no code ever stuns <Cite gml="objects/oYetiKing/collision_oCharacter.gml:6-15" />.
 
 ## Reproducing it
 
