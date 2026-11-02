@@ -5,13 +5,18 @@
 # again, so they're cached for a day: a clip a pull request re-renders reaches a reader who has the old one
 # within a day, and a URL a search engine or another site has stays the same.
 #
-# Every file gets HSTS, as the Worker gives what it serves (src/server.ts: why). A header two rules give is joined
-# with a comma, so no other rule gives it.
+# Every file gets the headers the Worker gives what it serves (src/server.ts's EVERY_RESPONSE, which
+# test-server.mjs checks these against; docs/web-deploy.md, "HTTPS" and "Security headers"). A header two rules
+# give is joined with a comma, so no other rule gives one of them.
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: frame-ancestors 'self'; object-src 'none'; base-uri 'self'
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: autoplay=(self), fullscreen=(self), gamepad=(self), camera=(), microphone=(), geolocation=(), payment=(), usb=(), midi=(), display-capture=()
 /play/v/*
   Cache-Control: public, max-age=31536000, immutable
-  X-Content-Type-Options: nosniff
 # The game's assets, assets/bundle.bin (about 1.2 MiB, a fifth of that compressed) and assets/config/bundle.bin,
 # which it fetches as it starts. The asset store serves .bin as application/octet-stream, a type Cloudflare doesn't compress, so they'd
 # go over the wire whole: Protobuf's is a binary type it does compress, with gzip or Brotli as the browser asks.
@@ -20,10 +25,8 @@
   Content-Type: application/x-protobuf
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
-  X-Content-Type-Options: nosniff
 /wiki/media/*
   Cache-Control: public, max-age=86400
-  X-Content-Type-Options: nosniff
 # The media's LICENSE.txt and NOTICE.txt (scripts/wiki-media), in UTF-8. The asset store serves
 # .txt as text/plain without a charset, which a browser decodes by guessing, often as windows-1252, and they skip
 # the Worker, which adds it to the other .txt files (src/server.ts). A Content-Type here replaces the store's.
@@ -31,4 +34,3 @@
   Content-Type: text/plain; charset=utf-8
 /wiki/og/*
   Cache-Control: public, max-age=31536000, immutable
-  X-Content-Type-Options: nosniff

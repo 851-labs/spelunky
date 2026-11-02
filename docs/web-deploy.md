@@ -40,7 +40,8 @@ ask for them there), as does plain HTTP ([HTTPS](#https)), and a path that's non
   (`content/wiki-planned.yaml`, docs/wiki-style.md, "Red links"), and the snapshots of its stats and
   relations (`content/wiki-data/`, docs/wiki-data.md).
 - `public/`: copied as is: the landing page's media, the site's icons (`scripts/site-icons`), `404.html`, and
-  `_headers` (the immutable caching, the wiki media's day, and their `.txt` files' charset).
+  `_headers` (the [security headers](#security-headers), the immutable caching, the wiki media's day, and their
+  `.txt` files' charset).
 - `wrangler.jsonc`: the Worker and its domains. `vite.config.ts` builds the app with the Cloudflare Vite
   plugin, which writes the deployable Worker to `dist/server` (with its own `wrangler.json`), its static
   assets to `dist/client`, and `.wrangler/deploy/config.json`, which points `wrangler deploy` and
@@ -129,6 +130,43 @@ hand the Worker `https://spelunky.ai/...`, as Cloudflare does, rather than a pla
 the header; `site/test.sh` checks www's redirect and the header on a page, a script, the game's files and the 404.
 Check the zone with `curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' http://spelunky.ai/assets/x.js`
 (a 301 to https) and `curl -sS -o /dev/null --tlsv1.1 --tls-max 1.1 https://spelunky.ai/` (fails to connect).
+
+## Security headers
+
+Every response, the Worker's (`src/server.ts`'s `EVERY_RESPONSE`) and the asset store's (`public/_headers`' `/*`,
+as a Worker's own responses don't get `_headers`), has HSTS ([HTTPS](#https), above) and:
+
+| Header | Value | Why |
+| --- | --- | --- |
+| `Content-Security-Policy` | `frame-ancestors 'self'; object-src 'none'; base-uri 'self'` | only the site frames its pages (the wiki's live clips frame `/play/?embed`, and the game takes the keyboard); no plugins; no `<base>` elsewhere |
+| `X-Frame-Options` | `SAMEORIGIN` | `frame-ancestors` for browsers too old for it |
+| `X-Content-Type-Options` | `nosniff` | a file is only what its type says |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | browsers' default, pinned |
+| `Permissions-Policy` | `autoplay`, `fullscreen` and `gamepad` for the site (the game, in the wiki's frame too), and none of camera, microphone, geolocation, payment, USB, MIDI or screen capture | |
+
+`site/test-server.mjs` checks that the Worker's are `_headers`' `/*`, on its redirects, 404s and 405s too, and that
+the files that skip the Worker get them once each (a header two `_headers` rules give is joined with a comma, so no
+other rule gives one); `site/test.sh` checks them on a page, a script, the game's page and the 404.
+
+**Which scripts a page may run** is each page's own policy, a `<meta http-equiv="Content-Security-Policy">` first in
+its `<head>`, which `site/csp.mjs` writes into every pre-rendered page (the app's, `404.html` and the game's) as
+`build.sh` builds them. Each page has inline scripts of its own (TanStack Start's hydration data, which differs
+from page to page, and the source viewer's highlighting), so the policy names each by its SHA-256, which a header
+couldn't: `_headers` is the same for every page, and the Worker would have to read and hash every page it serves,
+on every view, within the free plan's CPU time. It allows:
+
+- scripts from the site and the page's own inline ones, and Cloudflare Web Analytics' beacon,
+  `https://static.cloudflareinsights.com` (which Cloudflare injects into the pages for browsers as it serves them,
+  so it's in no build), with `'wasm-unsafe-eval'` on `/play/` only, for the game's WebAssembly;
+- styles from the site and inline (the pages' `style` attributes, and the landing page's and the game's
+  `<style>`);
+- images from the site and `data:`;
+- requests to the site and to `https://cloudflareinsights.com`, where the beacon reports;
+- everything else (media, frames, fonts, workers) from the site alone, and forms posting only to it.
+
+`site/test.sh` runs `node csp.mjs check dist/client`, which fails if a page has no policy, one after a script, or
+one that doesn't name exactly its inline scripts. A page the router renders on a request (none, on spelunky.ai)
+has the header's policy only. `npm run dev` serves the app without the `<meta>`.
 
 ## Putting a version live
 

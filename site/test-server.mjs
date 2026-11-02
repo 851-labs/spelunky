@@ -108,10 +108,16 @@ const serve = (request) =>
 // The headers every response from spelunky.ai has: public/_headers' /* rule's, which the asset store gives, and the
 // Worker (src/server.ts) the same, whatever the status.
 const EVERY_RESPONSE = headerRules.find((r) => r.path.source === pattern("/*").source).headers;
-assert.ok(
-  EVERY_RESPONSE.some(([name]) => name.toLowerCase() === "strict-transport-security"),
-  "public/_headers' /* has no Strict-Transport-Security",
-);
+for (const name of [
+  "strict-transport-security",
+  "content-security-policy",
+  "x-content-type-options",
+  "x-frame-options",
+  "referrer-policy",
+  "permissions-policy",
+]) {
+  assert.ok(EVERY_RESPONSE.some(([n]) => n.toLowerCase() === name), `public/_headers' /* has no ${name}`);
+}
 function assertEveryResponse(response, what) {
   for (const [name, value] of EVERY_RESPONSE) assert.equal(response.headers.get(name), value, `${what}: ${name}`);
 }
@@ -318,9 +324,10 @@ for (const url of ["http://localhost:5173/wiki/snake.md", "http://abc123-spelunk
     console.error(`FAIL ${error.message}`);
   }
 }
-// Every other response has them too: a 404, the Worker's or the asset store's, a 405, and a file that skips the
-// Worker.
+// Every other response has them too: a redirect, a 404, the Worker's or the asset store's, a 405, and the files
+// that skip the Worker, once each and not joined with another rule's.
 for (const [path, method] of [
+  ["https://www.spelunky.ai/wiki/snake", "GET"],
   ["/nowhere", "GET"],
   ["/wp-login.php", "GET"],
   ["/play/v/0123456789abcdef/nope.js", "GET"],
@@ -329,9 +336,10 @@ for (const [path, method] of [
   ["/play/v/0123456789abcdef/app.wasm", "GET"],
   ["/wiki/og/snake.0123456789abcdef.png", "GET"],
   [`${MEDIA}/sprites/sSnakeWalkL/frames/0%404x.png`, "GET"],
+  [`${MEDIA}/LICENSE.txt`, "GET"],
 ]) {
   try {
-    assertEveryResponse(await serve(new Request(`https://spelunky.ai${path}`, { method })), `${method} ${path}`);
+    assertEveryResponse(await serve(new Request(new URL(path, "https://spelunky.ai"), { method })), `${method} ${path}`);
     console.log(`ok   ${method} ${path}: the headers every response has`);
   } catch (error) {
     failures++;
