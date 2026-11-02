@@ -68,9 +68,10 @@ old one is <Cite gml="objects/oBatTarget/collision_oCharacter.gml:13" />:
     instance_create(x, -64, oBatTarget);
 ```
 
-Until the last 20 seconds the two are the same. From then on, each step below the top of its path moves the
-target left of its middle by up to 32 pixels, and nothing moves it back
-<Cite gml="objects/oBatTarget/step.gml:18-22" />:
+Until the last 20 seconds the two are the same. From then on, each step below the top of its path sets the
+target left of its middle by up to 32 pixels, a sway that swings out and back to the middle about every 314 such
+steps <Cite gml="objects/oBatTarget/step.gml:18-22" />. So a stomped target is usually off its path, and its
+replacement takes that swayed spot as its own middle:
 
 ```gml objects/oBatTarget/step.gml:18-22
 if (oMoonRoom.timer <= 20 and y > 64)

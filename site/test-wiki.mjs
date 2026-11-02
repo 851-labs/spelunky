@@ -889,7 +889,12 @@ async function renderFixture(pageCode, hubData, quirkLinks) {
       fail(`hub cards: the monsters' hub's card for the Spider isn't one to come: ${card}`);
     }
     if (!hub.includes('<li class="card"><a class="card-body" href="/wiki/bat">')) fail("hub cards: the monsters' hub doesn't link the Bat's card");
-    if (failures === before) console.log("ok   rendered: the Snake's red links to the Whip, the monsters' hub's card to come for the Spider");
+    // The Defeating table's column of citations, headed by nothing in the MDX, is named for screen readers
+    // (851-3893); its other headers are as written.
+    const defeating = page.match(/<table>(?:(?!<\/table>).)*Way(?:(?!<\/table>).)*<\/table>/)?.[0] ?? "";
+    const heads = [...(defeating.match(/<thead>.*?<\/thead>/)?.[0] ?? "").matchAll(/<th(?: [^>]*)?>(.*?)<\/th>/g)].map((m) => m[1]);
+    if (heads.join("|") !== 'Way|Damage|<span class="visually-hidden">Sources</span>') fail(`table headers: the Snake's Defeating table's are ${JSON.stringify(heads)}`);
+    if (failures === before) console.log("ok   rendered: the Snake's red links to the Whip, the monsters' hub's card to come for the Spider, its citations' column named");
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
