@@ -330,8 +330,9 @@ The whole frame is in [runtime.md §1](design/runtime.md#1-the-frame). These are
 
 ## 6. Renderer (GM8 on Direct3D 8)
 
-From the [`draw` crate docs](../crates/draw/src/lib.rs). Pixel output isn't game state, but the oracle comparison
-of screenshots depends on these.
+From the [`draw` crate docs](../crates/draw/src/lib.rs). Pixel output isn't game state, and nothing compares it with
+the oracle's yet: [draw-comparison.md](design/draw-comparison.md) plans a pixel check of chosen frames that will depend
+on these (851-3872).
 
 | Quirk | Where | Status | Test |
 |---|---|---|---|
