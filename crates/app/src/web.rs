@@ -155,6 +155,43 @@ fn post_to_embedder(fields: &[(&str, wasm_bindgen::JsValue)]) {
     let _ = parent.post_message(&message, &origin);
 }
 
+/// What the page's link beside the game goes to (`#switch` in `crates/app/web/index.html`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Link {
+    /// The settings program: the page's URL with `?settings`.
+    Settings,
+    /// The game: the page's URL without it.
+    Play,
+}
+
+/// Shows the page's link to `link`, or hides it. The page works out both URLs from its own (its
+/// `data-settings` and `data-play`), and has none for a replay, a clip or a preview, which keep it hidden.
+pub fn show_link(link: Option<Link>) {
+    let Some(element) = web_sys::window()
+        .and_then(|w| w.document())
+        .and_then(|d| d.get_element_by_id("switch"))
+    else {
+        return;
+    };
+    let shown = link.and_then(|link| {
+        let (text, url) = match link {
+            Link::Settings => ("Settings", "data-settings"),
+            Link::Play => ("Play", "data-play"),
+        };
+        Some((text, element.get_attribute(url)?))
+    });
+    match shown {
+        Some((text, url)) => {
+            let _ = element.set_attribute("href", &url);
+            element.set_text_content(Some(text));
+            let _ = element.remove_attribute("hidden");
+        }
+        None => {
+            let _ = element.set_attribute("hidden", "");
+        }
+    }
+}
+
 /// Shows an error on the page (in `#status`, which the page styles) and in the console. The event loop
 /// can't return its error the way native `run_app` does, so this is where web failures end up.
 pub fn show_error(error: &str) {

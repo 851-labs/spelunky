@@ -377,6 +377,7 @@ mod native {
     use app::settings::{Launch, Settings};
     use app::textures::Textures;
     use app::unrendered::Unrendered;
+    use app::update::Next;
     use app::window::{App, Game, Input, Overlay, RecordSink, UserEvent};
     use assets::Bundle;
     use draw::Frame;
@@ -686,8 +687,12 @@ mod native {
             } else {
                 (None, None)
             };
-        // The update the player chose to restart into, once the window has closed.
-        let chosen_update = || handoff.as_ref().and_then(|h| h.borrow_mut().take());
+        // What the player chose that closed the window: an update to restart into, or the settings.
+        let chosen = || handoff.as_ref().and_then(|h| h.borrow_mut().take());
+        let then = |next| match next {
+            Next::Update(ready) => app::update::restart(ready, store_dir.as_deref()),
+            Next::Settings => app::update::open_settings(),
+        };
         if args.settings {
             // The settings program in front of the game, on its own bundle and the game's sounds, with its
             // own handle on the same store: its .cfg files are the game's.
@@ -732,10 +737,10 @@ mod native {
                 settings_notice,
                 updater,
             )?;
-            if let Some(ready) = chosen_update() {
-                // The window goes before the new version opens its own.
+            if let Some(next) = chosen() {
+                // The window goes before the next program opens its own.
                 drop(app);
-                return app::update::restart(ready, store_dir.as_deref());
+                return then(next);
             }
             return app.error().map_or(Ok(()), |e| Err(e.to_owned()));
         }
@@ -764,9 +769,9 @@ mod native {
             let room = w.assets().room_name(w.room().id).unwrap_or("?");
             println!("{ticks} frames, ended in {room}");
         }
-        if let Some(ready) = chosen_update() {
+        if let Some(next) = chosen() {
             drop(app);
-            return app::update::restart(ready, store_dir.as_deref());
+            return then(next);
         }
         error.map_or(Ok(()), Err)
     }

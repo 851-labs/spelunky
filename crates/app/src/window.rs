@@ -116,6 +116,11 @@ pub trait Game {
         false
     }
 
+    /// Whether the settings program is what runs, rather than the game it starts (`crate::settings`).
+    fn in_settings(&self) -> bool {
+        false
+    }
+
     /// A savestate, to [`restore`](Self::restore) when the page embedding a replay seeks back to it: `None`
     /// if the game can't make one.
     fn savestate(&self) -> Option<Box<dyn Any>> {
@@ -455,6 +460,9 @@ pub struct App<G> {
     unshown: bool,
     /// Whether the window has focus, for a game that [freezes](Self::frozen) without it.
     focus: Focus,
+    /// What the page's link beside the game was last set to offer ([`App::show_link`]), once set.
+    #[cfg(target_arch = "wasm32")]
+    link: Option<Option<crate::web::Link>>,
 }
 
 /// Whether the window has lost focus, for a game that [freezes](Game::freezes_unfocused) without it.
@@ -589,6 +597,8 @@ impl<G: Game> App<G> {
             held: false,
             unshown: false,
             focus: Focus::default(),
+            #[cfg(target_arch = "wasm32")]
+            link: None,
         }
     }
 
@@ -931,6 +941,8 @@ impl<G: Game> App<G> {
         self.next_tick = Some(next);
         if ticks > 0 {
             self.follow_game();
+            #[cfg(target_arch = "wasm32")]
+            self.show_link();
             if let Some(window) = &self.window {
                 window.request_redraw();
             }
@@ -942,6 +954,29 @@ impl<G: Game> App<G> {
             self.report();
         }
         (!self.paused || self.seeking()).then_some(next)
+    }
+
+    /// Sets the page's link beside the game (`#switch`, `crates/app/web/index.html`) to what the player can
+    /// go to from here, for a session of play: the settings program between runs, as the native apps' menus
+    /// offer it, never in a run, which leaving the page would end; and the game from the settings program,
+    /// which leaving saves.
+    #[cfg(target_arch = "wasm32")]
+    fn show_link(&mut self) {
+        use crate::web::Link;
+        if !matches!(self.source, Source::Live { .. }) || self.embed.is_some() {
+            return;
+        }
+        let link = if self.game.in_settings() {
+            Some(Link::Play)
+        } else if self.game.interruptible() && !self.game.ended() {
+            Some(Link::Settings)
+        } else {
+            None
+        };
+        if self.link != Some(link) {
+            self.link = Some(link);
+            crate::web::show_link(link);
+        }
     }
 
     /// Whether the next tick is one of an embedded replay's unshown frames, before [`Embed::from`] or the

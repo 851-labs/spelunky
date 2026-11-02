@@ -32,9 +32,13 @@ function Landing() {
       <a className="play" href="/play/">
         Play in your browser
       </a>
+      {/* 1.1's settings program, config.exe: the keys, the volumes and the window's size. */}
+      <a className="settings" href="/play/?settings">
+        Settings
+      </a>
       <p className="hint">
-        Needs a keyboard or a gamepad: arrows move, <kbd>Z</kbd> jumps, <kbd>X</kbd> whips. Saves stay in your
-        browser.
+        Needs a keyboard or a gamepad: arrows move, <kbd>Z</kbd> jumps, <kbd>X</kbd> whips. Settings changes the
+        keys and the volumes. Saves stay in your browser.
       </p>
 
       <div className="frame">
