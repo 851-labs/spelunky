@@ -14,6 +14,7 @@
 //! GPU setup is a future that native code blocks on and the web build spawns, reporting back through a
 //! user event.
 
+use crate::awake::Awake;
 use crate::gpu::{self, Gpu};
 use crate::input::{Collector, Gamepads, KeyMap, PAD_JOYSTICK};
 use crate::notice::Notice;
@@ -473,6 +474,8 @@ pub struct App<G> {
     /// The session waits for a press before its first tick, if it's live and not a page's clip
     /// ([`App::waiting_for_press`], [`App::waits`]).
     waiting: bool,
+    /// The display kept awake while the window has focus, for a session of play ([`App::keeping_awake`]).
+    awake: Option<Awake>,
 }
 
 /// Whether the window has lost focus, for a game that [freezes](Game::freezes_unfocused) without it.
@@ -610,6 +613,7 @@ impl<G: Game> App<G> {
             #[cfg(target_arch = "wasm32")]
             link: None,
             waiting: false,
+            awake: None,
         }
     }
 
@@ -654,7 +658,25 @@ impl<G: Game> App<G> {
     /// Whether the session waits for a press now: [asked to](Self::waiting_for_press), not had it yet, and a
     /// session of play, not a replay or a page's clip.
     fn waits(&self) -> bool {
-        self.waiting && matches!(self.source, Source::Live { .. }) && self.embed.is_none()
+        self.waiting && self.live()
+    }
+
+    /// Keeps the display awake while the window has focus, as 1.1's game settings have GM8's runner do
+    /// ([`crate::awake`]): for a session of play, not a replay or a page's clip.
+    pub fn keeping_awake(mut self) -> App<G> {
+        self.awake = Some(Awake::new());
+        self
+    }
+
+    /// The display, kept awake or not, if this is a session of play that does ([`App::keeping_awake`]).
+    fn awake(&mut self) -> Option<&mut Awake> {
+        let live = self.live();
+        self.awake.as_mut().filter(|_| live)
+    }
+
+    /// Whether the input is the window's: live, not a replay's or a page's clip's (until the reader takes it).
+    fn live(&self) -> bool {
+        matches!(self.source, Source::Live { .. }) && self.embed.is_none()
     }
 
     /// Draws `notice` over the game's picture for its first seconds.
@@ -1302,6 +1324,15 @@ impl<G: Game> App<G> {
         self.next_tick = after_freeze(was, self.frozen(), self.next_tick, Instant::now());
     }
 
+    /// A press means the window has focus. The browser drops a wake lock when the tab is hidden, and may
+    /// refuse one before the page has been used, so the web asks again then; natively it holds once asked.
+    fn ask_awake_again(&mut self) {
+        #[cfg(target_arch = "wasm32")]
+        if let Some(awake) = self.awake() {
+            awake.hold(true);
+        }
+    }
+
     /// The live session's input collector; `None` while playing a replay, which ignores the devices.
     fn collector(&mut self) -> Option<&mut Collector> {
         match &mut self.source {
@@ -1313,8 +1344,7 @@ impl<G: Game> App<G> {
     /// Whether a session of play is running, for the close button to reach: a game that takes it, begun, not
     /// ended or failed, and not a replay or a page's clip, whose input isn't the window's.
     fn playing(&self) -> bool {
-        matches!(self.source, Source::Live { .. })
-            && self.embed.is_none()
+        self.live()
             && self.ticks > 0
             && self.error.is_none()
             && self.game.close_button()
@@ -1382,6 +1412,11 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
             Err(e) => return self.fail(event_loop, format!("can't open a window: {e}")),
         };
         self.window = Some(window.clone());
+        // In front already, if winit doesn't report it: it reports changes from here on.
+        let focused = window.has_focus();
+        if let Some(awake) = self.awake() {
+            awake.hold(focused);
+        }
 
         #[cfg(not(target_arch = "wasm32"))]
         {
@@ -1474,6 +1509,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 let typed = typed(key_event);
                 if down {
                     self.game.user_gesture();
+                    self.ask_awake_again();
                 }
                 // The press the session waited for is the app's, its repeats and release too. Not a
                 // modifier, which may be the start of a browser's or the system's shortcut (Cmd-Tab).
@@ -1531,6 +1567,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 };
                 if state == ElementState::Pressed {
                     self.game.user_gesture();
+                    self.ask_awake_again();
                     if self.waits() {
                         self.start_from_press();
                         self.taken_buttons.push(b);
@@ -1570,7 +1607,13 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                     c.wheel(dy);
                 }
             }
-            WindowEvent::Focused(focused) => self.set_focused(focused),
+            WindowEvent::Focused(focused) => {
+                self.set_focused(focused);
+                // GM8's refusal of the screen saver reaches only the window in front.
+                if let Some(awake) = self.awake() {
+                    awake.hold(focused);
+                }
+            }
             _ => {}
         }
     }

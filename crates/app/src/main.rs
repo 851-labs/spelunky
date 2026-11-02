@@ -349,7 +349,8 @@ mod web {
                 input,
             )
             .with_notice(settings_notice)
-            .waiting_for_press();
+            .waiting_for_press()
+            .keeping_awake();
             start(event_loop, app);
             return Ok(());
         }
@@ -358,8 +359,9 @@ mod web {
         if let Some(embed) = embed {
             app = app.with_embed(embed);
         }
-        // A session of play starts on a press, so a gamepad pressed then is the session's.
-        start(event_loop, app.waiting_for_press());
+        // A session of play starts on a press, so a gamepad pressed then is the session's, and keeps the
+        // display awake; a replay or a page's clip does neither.
+        start(event_loop, app.waiting_for_press().keeping_awake());
         Ok(())
     }
 
@@ -739,6 +741,8 @@ mod native {
                 input,
                 settings_notice,
                 updater,
+                // 1.1's settings program has "disable screensavers" on too; a replay of it never keeps awake.
+                true,
             )?;
             if let Some(next) = chosen() {
                 // The window goes before the next program opens its own.
@@ -763,6 +767,8 @@ mod native {
             input,
             notice,
             updater,
+            // The window keeps it only for live input, not a replay's.
+            true,
         )?;
         let ticks = app.ticks();
         let error = app.error().map(str::to_owned);
@@ -779,6 +785,8 @@ mod native {
         error.map_or(Ok(()), Err)
     }
 
+    // Each is the window's own, set once by the three callers: a struct of them would only be renamed.
+    #[allow(clippy::too_many_arguments)]
     fn run_window<G: Game>(
         game: G,
         textures: Textures,
@@ -787,6 +795,7 @@ mod native {
         input: Input,
         notice: Option<Notice>,
         overlay: Option<Box<dyn Overlay>>,
+        keep_awake: bool,
     ) -> Result<App<G>, String> {
         #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
         let mut builder = EventLoop::<UserEvent>::with_user_event();
@@ -816,6 +825,9 @@ mod native {
         )
         .with_notice(notice)
         .with_overlay(overlay);
+        if keep_awake {
+            app = app.keeping_awake();
+        }
         event_loop.run_app(&mut app).map_err(|e| e.to_string())?;
         Ok(app)
     }
@@ -872,7 +884,7 @@ mod native {
             }
         };
         let title = format!("Spelunky - {room_name}");
-        let app = run_window(preview, textures, &title, size, input, None, None)?;
+        let app = run_window(preview, textures, &title, size, input, None, None, false)?;
         let view = app.game().room.view;
         println!("{} frames, view at {},{}", app.ticks(), view.x, view.y);
         app.error().map_or(Ok(()), |e| Err(e.to_owned()))
