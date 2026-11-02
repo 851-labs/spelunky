@@ -28,6 +28,10 @@ build doesn't build them.
   Esc); the game never sees them.
 - **Restart:** the window closes, the new version is swapped in and started. If it doesn't start, the old
   version is put back and started again, and it says so; that version isn't offered again automatically.
+  If it can't be swapped in at all (its download gone, a file in use), the old version starts again too, and
+  says so ("update not installed"), and the version is offered again. Before the window closes, the
+  download is checked to be still there: a second copy of the app, starting, cleans up the work directory,
+  and then the update is downloaded again and offered again once it's ready.
 - **Saves untouched:** stats, highscores, `.cfg` files and custom levels live in the per-user data
   directory (`app::save`), which an update never touches. The updater keeps its own few settings in
   `update.json` there.
@@ -147,7 +151,8 @@ tell players to download that build by hand.
   `tests/e2e.rs`: updates from a fake older build to a fake newer one, end to end, through a server on
   127.0.0.1. The fake builds are copies of `update-fixture`, a stand-in app that goes through the same
   calls as the app, with its version read from beside it. It covers a directory install everywhere, a
-  `.app` on macOS and an AppImage on Linux; rollback of a new version that quits or hangs; a download whose
+  `.app` on macOS and an AppImage on Linux; rollback of a new version that quits or hangs; an update whose
+  download a second copy of the app cleaned up before the restart, which starts the old version again; a download whose
   checksum or size is wrong, a manifest signed with another key and an older version, none of which
   install; and the saves in the data directory, byte for byte.
 - CI (`.github/workflows/updater.yml`) runs `cargo test -p update` on macOS, Windows and Linux, on every

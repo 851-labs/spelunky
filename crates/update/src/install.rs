@@ -59,6 +59,32 @@ pub struct Staged {
     root: PathBuf,
 }
 
+impl Staged {
+    /// Whether it's still there: another copy of the app starting cleans up the work directory
+    /// ([`Install::clean_up`]).
+    pub fn is_there(&self) -> bool {
+        self.root.exists()
+    }
+}
+
+/// Why [`Install::apply`] failed.
+#[derive(Debug)]
+pub struct Unapplied {
+    pub reason: String,
+    /// What it had moved went back: the install is as it was. Otherwise it may be half swapped.
+    pub undone: bool,
+}
+
+/// A failure before anything was moved.
+impl From<String> for Unapplied {
+    fn from(reason: String) -> Unapplied {
+        Unapplied {
+            reason,
+            undone: true,
+        }
+    }
+}
+
 /// A swap done, with what it takes to undo it.
 #[derive(Debug)]
 pub struct Applied {
@@ -208,8 +234,13 @@ impl Install {
     }
 
     /// Puts the staged version in place, the replaced files going to `old/`. If any step fails, what was
-    /// done is undone.
-    pub fn apply(&self, staged: &Staged) -> Result<Applied, String> {
+    /// done is undone, and the error says whether that worked.
+    pub fn apply(&self, staged: &Staged) -> Result<Applied, Unapplied> {
+        // Gone (another copy of the app cleaned up the work directory as it started): nothing's touched,
+        // and the error names it, not the install, which is there.
+        if !staged.root.exists() {
+            return Err(format!("{}: the downloaded update is gone", staged.root.display()).into());
+        }
         let old = self.work_dir().join("old");
         remove(&old)?;
         fs::create_dir_all(&old).map_err(error(&old))?;
@@ -219,14 +250,19 @@ impl Install {
                 fs::rename(&self.target, &aside).map_err(error(&self.target))?;
                 if let Err(e) = fs::rename(&staged.root, &self.target) {
                     let undone = fs::rename(&aside, &self.target);
-                    return Err(format!(
-                        "{}: {e}{}",
-                        self.target.display(),
-                        undone
-                            .err()
-                            .map(|e| format!(" (and putting it back: {e})"))
-                            .unwrap_or_default()
-                    ));
+                    return Err(Unapplied {
+                        reason: format!(
+                            "moving {} to {}: {e}{}",
+                            staged.root.display(),
+                            self.target.display(),
+                            undone
+                                .as_ref()
+                                .err()
+                                .map(|e| format!(" (and putting it back: {e})"))
+                                .unwrap_or_default()
+                        ),
+                        undone: undone.is_ok(),
+                    });
                 }
                 Ok(Applied {
                     files: Vec::new(),
@@ -241,7 +277,7 @@ impl Install {
                 for rel in &files {
                     let to = self.target.join(rel);
                     if to.is_dir() && !to.is_symlink() {
-                        return Err(format!("{} is a directory", to.display()));
+                        return Err(format!("{} is a directory", to.display()).into());
                     }
                 }
                 let mut applied = Applied {
@@ -251,13 +287,17 @@ impl Install {
                 for rel in files {
                     if let Err(e) = self.replace(&staged.root, &old, &rel, &mut applied) {
                         let undone = self.roll_back(applied);
-                        return Err(format!(
-                            "{e}{}",
-                            undone
-                                .err()
-                                .map(|e| format!(" (and undoing it: {e})"))
-                                .unwrap_or_default()
-                        ));
+                        return Err(Unapplied {
+                            reason: format!(
+                                "{e}{}",
+                                undone
+                                    .as_ref()
+                                    .err()
+                                    .map(|e| format!(" (and undoing it: {e})"))
+                                    .unwrap_or_default()
+                            ),
+                            undone: undone.is_ok(),
+                        });
                     }
                 }
                 Ok(applied)
@@ -292,11 +332,16 @@ impl Install {
                 }
             }
         }
-        if let Err(e) = fs::rename(new.join(rel), &to) {
+        let from = new.join(rel);
+        if let Err(e) = fs::rename(&from, &to) {
             if existed {
                 let _ = fs::rename(old.join(rel), &to);
             }
-            return Err(format!("{}: {e}", to.display()));
+            return Err(format!(
+                "moving {} to {}: {e}",
+                from.display(),
+                to.display()
+            ));
         }
         applied.files.push((rel.to_owned(), existed));
         Ok(())
