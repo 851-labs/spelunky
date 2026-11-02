@@ -149,6 +149,8 @@ for (const [path, type] of Object.entries(WANT)) {
 // The media's files skip the Worker but the clips' videos; their URLs from before the media were committed, under
 // a release's package's hash, come through it, and it redirects them to what's at the same path now.
 const OLD = "/wiki/media/05d8cd2055735618";
+// A web build's content-hashed files (scripts/web --package).
+const GAME = "/play/v/0123456789abcdef";
 const ROUTES = {
   [`${MEDIA}/sprites/sSnakeWalkL/frames/0%404x.png`]: false,
   [`${MEDIA}/sprites/index.json`]: false,
@@ -156,6 +158,8 @@ const ROUTES = {
   [`${MEDIA}/clips/snake/bite/poster.png`]: false,
   [`${MEDIA}/clips/snake/bite/replay.txt`]: false,
   [`${MEDIA}/LICENSE.txt`]: false,
+  [`${GAME}/assets/bundle.bin`]: false,
+  [`${GAME}/assets/config/bundle.bin`]: false,
   [`${MEDIA}/clips/snake/bite/clip.mp4`]: true,
   [`${MEDIA}/clips/snake/bite/clip.webm`]: true,
   [`${OLD}/sprites/sSnakeWalkL/frames/0%404x.png`]: true,
@@ -163,17 +167,28 @@ const ROUTES = {
   [`${OLD}/clips/snake/bite/clip.mp4`]: true,
   [`${OLD}/NOTICE.txt`]: true,
 };
-// The game's assets skip the Worker, as a type Cloudflare compresses (public/_headers), which the asset store's
-// .bin, application/octet-stream, isn't.
-for (const path of ["/play/v/0123456789abcdef/assets/bundle.bin", "/play/v/0123456789abcdef/assets/config/bundle.bin"]) {
-  try {
-    assert.equal(toWorker(path), false, `${path}: reaches the Worker`);
-    const response = await serve(new Request(`https://spelunky.ai${path}`));
-    assert.equal(response.headers.get("content-type"), "application/x-protobuf", `${path}: content-type`);
-    console.log(`ok   ${path}: application/x-protobuf`);
-  } catch (error) {
-    failures++;
-    console.error(`FAIL ${error.message}`);
+// The game's assets skip the Worker (ROUTES, below), as a type Cloudflare compresses (public/_headers), which the
+// asset store's .bin, application/octet-stream, isn't, and with the rest of /play/v/'s headers, on a HEAD and a 304
+// too.
+for (const path of [`${GAME}/assets/bundle.bin`, `${GAME}/assets/config/bundle.bin`]) {
+  for (const how of ["GET", "HEAD", "If-None-Match"]) {
+    const what = `${how} ${path}`;
+    try {
+      const response = await serve(
+        new Request(`https://spelunky.ai${path}`, {
+          method: how === "HEAD" ? "HEAD" : "GET",
+          headers: how === "If-None-Match" ? { "if-none-match": ETAG } : {},
+        }),
+      );
+      assert.equal(response.status, how === "If-None-Match" ? 304 : 200, `${what}: status`);
+      assert.equal(response.headers.get("content-type"), "application/x-protobuf", `${what}: content-type`);
+      assert.equal(response.headers.get("cache-control"), "public, max-age=31536000, immutable", `${what}: cache-control`);
+      assert.equal(response.headers.get("x-content-type-options"), "nosniff", `${what}: x-content-type-options`);
+      console.log(`ok   ${what}: application/x-protobuf`);
+    } catch (error) {
+      failures++;
+      console.error(`FAIL ${error.message}`);
+    }
   }
 }
 for (const [path, worker] of Object.entries(ROUTES)) {
