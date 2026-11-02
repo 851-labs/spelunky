@@ -34,8 +34,9 @@ faq:
       [[big-sapphire|Big Sapphire]] 1 in 100, and more often deeper down, as much as 1 in 40 in the Ice Caves.
   - q: Which blocks can't be destroyed in Spelunky Classic?
     a: >-
-      The border around every level, the block a level's exit stands on, the blocks under the gold door and
-      the Black Market's hidden door, and the hard blocks of the rooms outside the levels. A bomb's blast and the Mattock leave them be.
+      The border around every level, the block a level's exit stands on (both doors' in Olmec's Lair), the
+      three blocks the Moai stands on, the blocks under the gold door and the Black Market's hidden door, and
+      the hard blocks of the rooms outside the levels. A bomb's blast and the Mattock leave them be.
 sources:
   - objects/oBrick/create.gml
   - objects/oBrick/destroy.gml
@@ -134,7 +135,9 @@ altars (the idol's [[altar|Altar]] and [[kalis-altar|Kali's]]), Lady Xoc's block
 
 A block marked so ignores bombs and the Mattock: the border around every level
 <Cite gml="scripts/scrInitLevel.gml:66-128" />, the block a level's exit stands on
-<Cite gml="scripts/scrRoomGen.gml:345-357" />, the ones under the gold door and under the Black Market's hidden
+<Cite gml="scripts/scrRoomGen.gml:345-357" /> (in [[olmecs-lair|Olmec's Lair]], the entrance's too
+<Cite gml="scripts/scrRoomGen5.gml:160-171" />), the three blocks the [[moai|Moai]] stands on
+<Cite gml="scripts/scrRoomGen3.gml:502-506" />, the ones under the gold door and under the Black Market's hidden
 door <Cite gml="scripts/scrEntityGen.gml:400-406" /> <Cite gml="scripts/scrEntityGen.gml:215-223" />, and the hard
 blocks <Cite gml="objects/oHardBlock/create.gml:3" />.
 
