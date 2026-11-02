@@ -59,6 +59,14 @@ pub struct Staged {
     root: PathBuf,
 }
 
+impl Staged {
+    /// Whether it's still there: another copy of the app starting cleans up the work directory
+    /// ([`Install::clean_up`]).
+    pub fn is_there(&self) -> bool {
+        self.root.exists()
+    }
+}
+
 /// A swap done, with what it takes to undo it.
 #[derive(Debug)]
 pub struct Applied {
@@ -215,12 +223,21 @@ impl Install {
         fs::create_dir_all(&old).map_err(error(&old))?;
         match self.kind {
             Kind::Bundle | Kind::File => {
+                // The staged version first: gone (another copy of the app cleaned up the work directory as
+                // it started), nothing's moved, and the error names it, not the install, which is there.
+                if !staged.root.exists() {
+                    return Err(format!(
+                        "{}: the downloaded update is gone",
+                        staged.root.display()
+                    ));
+                }
                 let aside = old.join(file_name(&self.target)?);
                 fs::rename(&self.target, &aside).map_err(error(&self.target))?;
                 if let Err(e) = fs::rename(&staged.root, &self.target) {
                     let undone = fs::rename(&aside, &self.target);
                     return Err(format!(
-                        "{}: {e}{}",
+                        "moving {} to {}: {e}{}",
+                        staged.root.display(),
                         self.target.display(),
                         undone
                             .err()
@@ -234,6 +251,12 @@ impl Install {
                 })
             }
             Kind::Dir => {
+                if !staged.root.exists() {
+                    return Err(format!(
+                        "{}: the downloaded update is gone",
+                        staged.root.display()
+                    ));
+                }
                 let mut files = Vec::new();
                 walk(&staged.root, Path::new(""), &mut files)?;
                 // Check first that every file goes where a file (or nothing) is, so the swap doesn't stop
@@ -292,11 +315,16 @@ impl Install {
                 }
             }
         }
-        if let Err(e) = fs::rename(new.join(rel), &to) {
+        let from = new.join(rel);
+        if let Err(e) = fs::rename(&from, &to) {
             if existed {
                 let _ = fs::rename(old.join(rel), &to);
             }
-            return Err(format!("{}: {e}", to.display()));
+            return Err(format!(
+                "moving {} to {}: {e}",
+                from.display(),
+                to.display()
+            ));
         }
         applied.files.push((rel.to_owned(), existed));
         Ok(())

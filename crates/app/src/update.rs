@@ -151,19 +151,34 @@ impl Updater {
                 .as_ref()
                 .map(|s| s.current.to_string())
                 .unwrap_or_default();
-            waiting.push_back(Dialog::new(
-                "UPDATE ROLLED BACK",
-                vec![
-                    format!(
-                        "VERSION {} DIDN'T START, SO {current} IS BACK.",
-                        failed.version
-                    ),
-                    failed.reason.clone(),
-                ],
-                vec![("OK", Choice::Close)],
-            ));
-            // Not offered again automatically: it would fail again.
-            state.skip = Some(failed.version);
+            if failed.not_installed {
+                // Nothing wrong with the version: it's offered again, downloaded again.
+                waiting.push_back(Dialog::new(
+                    "UPDATE NOT INSTALLED",
+                    vec![
+                        format!(
+                            "VERSION {} COULDN'T BE PUT IN PLACE, SO {current} IS STILL HERE.",
+                            failed.version
+                        ),
+                        failed.reason.clone(),
+                    ],
+                    vec![("OK", Choice::Close)],
+                ));
+            } else {
+                waiting.push_back(Dialog::new(
+                    "UPDATE ROLLED BACK",
+                    vec![
+                        format!(
+                            "VERSION {} DIDN'T START, SO {current} IS BACK.",
+                            failed.version
+                        ),
+                        failed.reason.clone(),
+                    ],
+                    vec![("OK", Choice::Close)],
+                ));
+                // Not offered again automatically: it would fail again.
+                state.skip = Some(failed.version);
+            }
         }
         let told_of_failure = !waiting.is_empty();
         let auto_due = source.is_ok() && !on_probation && state.check_due(state::now());
@@ -379,7 +394,14 @@ impl Updater {
             return;
         };
         match choice {
-            Choice::Restart => *self.handoff.borrow_mut() = self.ready.take().map(Next::Update),
+            // Unless another copy of the app, starting, cleaned it up (`Install::clean_up`): then it's
+            // downloaded again, and offered again once it's ready.
+            Choice::Restart => match self.ready.take() {
+                Some(ready) if ready.staged.is_there() => {
+                    *self.handoff.borrow_mut() = Some(Next::Update(ready))
+                }
+                _ => self.start_check(true),
+            },
             Choice::Settings => self.open_settings(),
             Choice::Later | Choice::Close => {}
             Choice::Skip(version) => {
@@ -660,8 +682,8 @@ fn settings_args(mut args: Vec<OsString>) -> Vec<OsString> {
 }
 
 /// Once the window has closed for "restart and update": swaps the update in and starts it, or, if it
-/// fails to start, puts this version back and starts it again (`update::restart`). The process should exit
-/// afterwards either way.
+/// fails to start, puts this version back and starts it again, as it does if the swap fails
+/// (`update::restart`), the next session saying why. The process should exit afterwards either way.
 pub fn restart(ready: Ready, data: Option<&Path>) -> Result<(), String> {
     let args: Vec<OsString> = std::env::args_os().skip(1).collect();
     let state_path = data.map(|d| d.join("update.json"));
@@ -671,11 +693,16 @@ pub fn restart(ready: Ready, data: Option<&Path>) -> Result<(), String> {
         state_path.as_deref(),
         update::restart::START_TIMEOUT,
     )?;
-    if let update::restart::Outcome::RolledBack(why) = outcome {
-        eprintln!(
+    match outcome {
+        update::restart::Outcome::Started => {}
+        update::restart::Outcome::RolledBack(why) => eprintln!(
             "app: the update to {} was rolled back: {why}",
             ready.version
-        );
+        ),
+        update::restart::Outcome::NotInstalled(why) => eprintln!(
+            "app: the update to {} couldn't be installed: {why}",
+            ready.version
+        ),
     }
     Ok(())
 }

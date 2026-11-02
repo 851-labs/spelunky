@@ -41,29 +41,39 @@ pub enum Outcome {
     Started,
     /// The new version failed, for this reason, and this version is back in place.
     RolledBack(String),
+    /// The new version couldn't be put in place, for this reason (the swap failed: its download gone, a
+    /// file in use), and this version is as it was.
+    NotInstalled(String),
 }
 
 /// What the app does once its window has closed to update: swaps in `ready` and starts it with `args`
-/// ([`swap_and_relaunch`]). If the new version doesn't start, it's rolled back, the state at `state_path`
-/// records why (for the player to hear about), and this version starts again with `args`.
+/// ([`swap_and_relaunch`]). If the swap fails, or the new version doesn't start and is rolled back, the
+/// state at `state_path` records why (for the player to hear about), and this version starts again with
+/// `args`: the player chose to restart, and gets a game either way. An error is only this version failing
+/// to start again.
 pub fn install_and_restart(
     ready: &Ready,
     args: &[OsString],
     state_path: Option<&Path>,
     timeout: Duration,
 ) -> Result<Outcome, String> {
-    let outcome = swap_and_relaunch(&ready.install, &ready.staged, args, timeout)?;
-    if let Outcome::RolledBack(reason) = &outcome {
-        if let Some(path) = state_path {
-            let mut state = State::load(path);
-            state.failed = Some(Failed {
-                version: ready.version.to_string(),
-                reason: reason.clone(),
-            });
-            let _ = state.save(path);
-        }
-        launch(&ready.install, args, None)?;
+    let outcome = swap_and_relaunch(&ready.install, &ready.staged, args, timeout)
+        .unwrap_or_else(Outcome::NotInstalled);
+    let (reason, not_installed) = match &outcome {
+        Outcome::Started => return Ok(outcome),
+        Outcome::RolledBack(reason) => (reason, false),
+        Outcome::NotInstalled(reason) => (reason, true),
+    };
+    if let Some(path) = state_path {
+        let mut state = State::load(path);
+        state.failed = Some(Failed {
+            version: ready.version.to_string(),
+            reason: reason.clone(),
+            not_installed,
+        });
+        let _ = state.save(path);
     }
+    launch(&ready.install, args, None)?;
     Ok(outcome)
 }
 
