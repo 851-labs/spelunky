@@ -131,6 +131,11 @@ git tag -a v0.1.N -m "Spelunky Classic port v0.1.N" && git push origin v0.1.N
 
 and `release.yml`:
 
+0. refuses the tag unless its commit is on `main` (GitHub's compare of `main` with it is `identical` or
+   `behind`), before any job that uses a release environment: a tag on a branch's commit, never reviewed or passed
+   by `pr-ok`, would otherwise run that commit's own workflows with every release secret and publish what it
+   builds. A tag's own `release.yml` could drop the check, so it's for mistakes; the lock is the tag ruleset
+   ([Release tags](#release-tags), below);
 1. creates a draft GitHub Release for the tag (or reuses its draft on a re-run; a published release is never
    touched);
 2. runs `scripts/check` on a mini;
@@ -156,6 +161,17 @@ into `build-native.yml` with `secrets: inherit` (a called workflow's job gets no
 secrets without it). The environment has no required reviewer, only deployment rules that allow `main` and
 `v*` tags, and only collaborators can push either. A failed job is re-run like any other: the draft is
 reused, and the bump's push replaces its last.
+
+### Release tags
+
+A `v*` tag runs the workflow file at its commit, with the release environments' secrets, so what may push one is
+what may publish a release. `release.yml`'s first job refuses a commit `main` hasn't got, but a tag's own copy of
+it could leave that out, so the repository's settings are what hold (made by an admin; see 851-3901):
+
+- a tag ruleset on `refs/tags/v*`: creation only for its bypass list (the admins, who push release tags or have
+  them pushed for them), and no updates or deletions, so a release's tag can never be moved to other code;
+- optionally, a required reviewer on the `release` environment, so a person approves each release's signing;
+- GitHub's immutable releases, so a published release's files can't be replaced.
 
 ### The site's bump pull request
 
