@@ -7,6 +7,9 @@
 // and its categories, and its text least, by how often (up to a cap, so a long page doesn't win on length).
 // Every word of a query must match: as a word of the index, the start of one (results as you type: "snak"),
 // or one with up to two letters more ("snakes" finds "snake"); the closer the match, the higher it scores.
+// But a page named what was searched comes first, whatever the scores: the Bomb's for "bomb", ahead of the
+// pages with "bomb" in their title and in their headings and lede too (851-3890). Then the pages whose title
+// starts with it, shortest first ("yet" lists the Yeti, then the Yeti King and the Yeti lair), then the rest.
 
 // What the build indexes of a page.
 export interface SearchSource {
@@ -25,6 +28,8 @@ export interface SearchSource {
 export interface SearchDoc {
   slug: string;
   title: string;
+  // Its aliases, as their words ("test bombs unclamped"): a search for one is a search for its page's name.
+  aliases: string[];
   category: string;
   lede: string;
   sections: [string, string][];
@@ -93,6 +98,7 @@ export function buildSearchIndex(sources: SearchSource[]): SearchIndex {
     return {
       slug: source.slug,
       title: source.title,
+      aliases: source.aliases.map((alias) => words(alias).join(" ")),
       category: source.categories[0] ?? "",
       lede: source.lede,
       sections: source.sections.map(({ id, title }) => [id, title]),
@@ -136,9 +142,21 @@ export function searchWiki(index: SearchIndex, query: string): SearchHit[] {
     }
     if (found.size === 0) return [];
   }
+  const asked = words(query).join(" ");
   return [...found!]
-    .map(([doc, score]) => ({ doc: index.docs[doc], score }))
-    .sort((a, b) => b.score - a.score || a.doc.title.localeCompare(b.doc.title, "en"));
+    .map(([doc, score]) => ({ doc: index.docs[doc], score, ...named(index.docs[doc], asked) }))
+    .sort((a, b) => a.rank - b.rank || a.length - b.length || b.score - a.score || a.doc.title.localeCompare(b.doc.title, "en"))
+    .map(({ doc, score }) => ({ doc, score }));
+}
+
+// How a page's name meets the query's words: it's them (rank 0: its title, or one of its aliases), its title
+// starts with them (1, and the fewer words the title has the better), or neither (2, by score alone).
+function named(doc: SearchDoc, asked: string): { rank: number; length: number } {
+  const title = words(doc.title);
+  const key = title.join(" ");
+  if (key === asked || doc.aliases.includes(asked)) return { rank: 0, length: 0 };
+  if (key.startsWith(asked)) return { rank: 1, length: title.length };
+  return { rank: 2, length: 0 };
 }
 
 // The index's words a query's word matches, each with how closely: 1 for the word itself, less the more
