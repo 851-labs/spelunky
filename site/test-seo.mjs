@@ -2,8 +2,8 @@
 //
 //   node test-seo.mjs DIST [SITE]
 //
-// DIST is the built static assets (dist/client). Every pre-rendered page (its HTML files, but the web build
-// at /play/ and the 404 page) must have one title, description and canonical URL, none shared with another
+// DIST is the built static assets (dist/client). Every page (its HTML files, the web build's /play/ with the
+// head build.sh gives it, but not the 404 page) must have one title, description and canonical URL, none shared with another
 // page, its canonical must be where it's served, and its JSON-LD must parse, with @context and a known
 // @type that has the properties search engines require of it. The sitemap must list exactly those pages
 // (and /play/), but for those a robots meta tag keeps out of the index, and robots.txt point at it. The video and image sitemaps must list only pages the sitemap
@@ -155,7 +155,7 @@ function servedPath(file) {
   return `/${file.slice(0, -".html".length)}`;
 }
 
-const pages = htmlFiles(dist).filter((file) => file !== "404.html" && !file.startsWith("play/"));
+const pages = htmlFiles(dist).filter((file) => file !== "404.html" && (file === "play/index.html" || !file.startsWith("play/")));
 if (pages.length === 0) fail(`${dist}: no pre-rendered pages`);
 const seen = { title: new Map(), description: new Map(), canonical: new Map() };
 const canonicals = new Set();
