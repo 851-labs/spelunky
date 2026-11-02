@@ -197,7 +197,8 @@ fn run(exe: &Path, appimage: bool, args: &[&str]) -> String {
     text.trim().to_owned()
 }
 
-/// `update-fixture update ...` from `exe`: the player choosing "restart and update".
+/// `update-fixture update ...` from `exe`: the player choosing "restart and update", with `flags`
+/// (`--dir`, `--lose-staged`).
 fn update(
     exe: &Path,
     appimage: bool,
@@ -205,7 +206,7 @@ fn update(
     platform: &str,
     data: &Path,
     report: &Path,
-    dir: bool,
+    flags: &[&str],
 ) -> String {
     let test_pub = Path::new(
         &std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR: run it with cargo"),
@@ -220,9 +221,7 @@ fn update(
         report.to_str().unwrap(),
         "5",
     ];
-    if dir {
-        args.push("--dir");
-    }
+    args.extend(flags);
     run(exe, appimage, &args)
 }
 
@@ -290,7 +289,7 @@ fn updates_a_directory_install() {
     let report = dir.join("report.txt");
 
     assert_eq!(
-        update(&exe, false, &url, "test", &data, &report, true),
+        update(&exe, false, &url, "test", &data, &report, &["--dir"]),
         "updated to 0.2.0"
     );
     assert_eq!(reported(&report), "0.2.0");
@@ -309,7 +308,7 @@ fn updates_a_directory_install() {
 
     // Updated, it's up to date.
     assert_eq!(
-        update(&exe, false, &url, "test", &data, &report, true),
+        update(&exe, false, &url, "test", &data, &report, &["--dir"]),
         "up to date"
     );
     let _ = fs::remove_dir_all(&dir);
@@ -336,7 +335,7 @@ fn rolls_back_a_new_version_that_fails_to_start() {
         );
         let report = dir.join("report.txt");
 
-        let out = update(&exe, false, &url, "test", &data, &report, true);
+        let out = update(&exe, false, &url, "test", &data, &report, &["--dir"]);
         assert!(
             out.starts_with("rolled back from Some(\"0.2.0\")") && out.contains(why),
             "{out}"
@@ -352,6 +351,48 @@ fn rolls_back_a_new_version_that_fails_to_start() {
         assert_saves_untouched(&saved);
         let _ = fs::remove_dir_all(&dir);
     }
+}
+
+#[test]
+fn starts_the_old_version_again_if_the_update_is_gone_before_the_restart() {
+    let dir = temp("lost");
+    let exe = install_dir(&dir, &dir_build("0.1.0", "old"));
+    let (data, saved) = saves(&dir);
+    let server = Server::start();
+    let url = publish(
+        &server,
+        "0.2.0",
+        "test",
+        Format::DirZip,
+        dir_zip(&dir_build("0.2.0", "new")),
+        &test_key(),
+    );
+    let report = dir.join("report.txt");
+
+    // Another copy of the app started between the download and "restart and update", and cleaned up.
+    let out = update(
+        &exe,
+        false,
+        &url,
+        "test",
+        &data,
+        &report,
+        &["--dir", "--lose-staged"],
+    );
+    assert!(
+        out.starts_with("not installed Some(\"0.2.0\")")
+            && out.contains("the downloaded update is gone"),
+        "{out}"
+    );
+    // The player still gets a game: this version, started again, which says why next time.
+    assert_eq!(reported(&report), "0.1.0");
+    assert_eq!(run(&exe, false, &["version"]), "0.1.0");
+    let failed = update::state::State::load(&data.join("update.json"))
+        .failed
+        .unwrap();
+    assert!(failed.not_installed);
+    assert_saves_untouched(&saved);
+    let _ = fs::remove_dir_all(&dir);
 }
 
 #[test]
@@ -378,12 +419,12 @@ fn installs_nothing_unverified_or_older() {
         newer.clone(),
         &test_key(),
     );
-    let out = update(&exe, false, &url, "test", &data, &report, true);
+    let out = update(&exe, false, &url, "test", &data, &report, &["--dir"]);
     assert!(out.contains("not the manifest's"), "{out}");
     asset.sha256 = sha256(&newer);
     asset.size -= 1;
     let url = publish_asset(&server, "0.2.0", "test", asset, newer.clone(), &test_key());
-    let out = update(&exe, false, &url, "test", &data, &report, true);
+    let out = update(&exe, false, &url, "test", &data, &report, &["--dir"]);
     assert!(out.contains("bigger than the manifest's"), "{out}");
 
     // A manifest signed with another key.
@@ -396,14 +437,14 @@ fn installs_nothing_unverified_or_older() {
         newer.clone(),
         &other,
     );
-    let out = update(&exe, false, &url, "test", &data, &report, true);
+    let out = update(&exe, false, &url, "test", &data, &report, &["--dir"]);
     assert!(out.contains("isn't signed with the release key"), "{out}");
 
     // An older version, properly signed: never a downgrade.
     let older = dir_zip(&dir_build("0.0.9", "older"));
     let url = publish(&server, "0.0.9", "test", Format::DirZip, older, &test_key());
     assert_eq!(
-        update(&exe, false, &url, "test", &data, &report, true),
+        update(&exe, false, &url, "test", &data, &report, &["--dir"]),
         "up to date"
     );
 
@@ -460,7 +501,7 @@ fn updates_a_mac_app() {
     let report = dir.join("report.txt");
 
     assert_eq!(
-        update(&exe, false, &url, "macos", &data, &report, false),
+        update(&exe, false, &url, "macos", &data, &report, &[]),
         "updated to 0.2.0"
     );
     assert_eq!(reported(&report), "0.2.0");
@@ -500,7 +541,7 @@ fn updates_an_appimage() {
         image("0.2.0 broken"),
         &test_key(),
     );
-    let out = update(&exe, true, &url, "linux", &data, &report, false);
+    let out = update(&exe, true, &url, "linux", &data, &report, &[]);
     assert!(out.starts_with("rolled back"), "{out}");
     assert_eq!(reported(&report), "0.1.0");
     fs::remove_file(&report).unwrap();
@@ -514,7 +555,7 @@ fn updates_an_appimage() {
         &test_key(),
     );
     assert_eq!(
-        update(&exe, true, &url, "linux", &data, &report, false),
+        update(&exe, true, &url, "linux", &data, &report, &[]),
         "updated to 0.2.0"
     );
     assert_eq!(reported(&report), "0.2.0");

@@ -10,13 +10,14 @@
 //!
 //! ```sh
 //! update-fixture version
-//! update-fixture update MANIFEST-URL PUBLIC-KEY-FILE PLATFORM DATA-DIR REPORT TIMEOUT-SECS [--dir]
+//! update-fixture update MANIFEST-URL PUBLIC-KEY-FILE PLATFORM DATA-DIR REPORT TIMEOUT-SECS [--dir] [--lose-staged]
 //! update-fixture report REPORT
 //! ```
 //!
 //! `update` is the app's "restart and update" (with the player saying yes); the version it starts runs
 //! `report`, which appends its version to REPORT and confirms it started. `--dir` makes it a directory
-//! install even on macOS.
+//! install even on macOS. `--lose-staged` cleans up the work directory between the download and the
+//! restart, as a second copy of the app starting does.
 
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
@@ -75,9 +76,15 @@ fn run() -> Result<(), String> {
             timeout,
             rest @ ..,
         ] => {
+            if let Some(flag) = rest
+                .iter()
+                .find(|f| !["--dir", "--lose-staged"].contains(f))
+            {
+                return Err(format!("unknown flag {flag}"));
+            }
             let key = std::fs::read_to_string(key_file).map_err(|e| format!("{key_file}: {e}"))?;
             let mut install = Install::detect(&exe, appimage.as_deref());
-            if rest == ["--dir"] {
+            if rest.contains(&"--dir") {
                 install = Ok(Install {
                     kind: Kind::Dir,
                     target: exe.parent().unwrap().to_owned(),
@@ -100,11 +107,17 @@ fn run() -> Result<(), String> {
                 Found::Ready(ready) => {
                     let args: Vec<OsString> = vec!["report".into(), report.into()];
                     let timeout = Duration::from_secs(timeout.parse().map_err(|_| "bad timeout")?);
+                    if rest.contains(&"--lose-staged") {
+                        ready.install.clean_up();
+                    }
+                    let failed = || State::load(&state_path).failed.map(|f| f.version);
                     match restart::install_and_restart(&ready, &args, Some(&state_path), timeout)? {
                         Outcome::Started => println!("updated to {}", ready.version),
                         Outcome::RolledBack(why) => {
-                            let failed = State::load(&state_path).failed.map(|f| f.version);
-                            println!("rolled back from {failed:?}: {why}");
+                            println!("rolled back from {:?}: {why}", failed())
+                        }
+                        Outcome::NotInstalled(why) => {
+                            println!("not installed {:?}: {why}", failed())
                         }
                     }
                 }
