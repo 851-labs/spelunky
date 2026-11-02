@@ -1,0 +1,5 @@
+# The oracle build every fingerprint here was recorded with: tools/oracle/common.sh's build_stamp, a hash of the
+# pinned commits, the oracle's patches, its Dockerfile and vendor/pxfm. `scripts/fidelity --refresh-fingerprints`
+# writes it after recording them all; fidelity-check fails while the checkout's build differs, as an oracle change
+# can make every fingerprint stale (docs/formats.md, "Fingerprints").
+f7b6e49cb611fff89b314abb6cf22df6d66b84ea27ae1be5524216c2af6e5bac

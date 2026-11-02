@@ -13,8 +13,8 @@ use std::time::Instant;
 
 use harness::fingerprint::{
     Fingerprint, Fingerprinter, SUITES, Suite, all_replays, faithful_audio_mismatch,
-    fingerprint_path, port_mismatch, replay_hash, run_fingerprint_watched, shown,
-    sorted_with_extension, sound_handle,
+    fingerprint_path, oracle_build_stamp, oracle_stamp_path, oracle_stamp_problem, port_mismatch,
+    recorded_oracle_stamp, replay_hash, run_fingerprint_watched, shown, sorted_with_extension, sound_handle,
 };
 use harness::story::{Story, Watcher};
 use harness::{load_bundle, load_replay_story, load_sounds};
@@ -30,7 +30,9 @@ oracle's (fidelity/fingerprints/): its trace, checkpoint by checkpoint, and its 
 checks the replay's story facts (its `# story:` lines, docs/formats.md), so that a change that takes
 port and oracle somewhere new together doesn't leave a header describing what no longer happens. A
 replay without a story fact that must hold is an error. It doesn't need the oracle or Docker. Without replays, a
-fingerprint whose replay is gone is an error too.
+fingerprint whose replay is gone is an error too. So is an oracle build (tools/oracle/common.sh's build_stamp)
+other than the one the fingerprints were recorded with (fidelity/fingerprints/ORACLE), as an oracle change can
+make them stale while the port still matches them.
 
 The replays of AUDIO_REPLAYS (music in every area, the pause, Olmec, the ending, the credits, a custom level,
 the bonus rooms) are also played in the audio mode players get, Faithful, with the game's sounds, which must
@@ -222,6 +224,12 @@ fn run() -> Result<bool, String> {
     let started = Instant::now();
     let repo = std::fs::canonicalize(repo_root()).map_err(|e| format!("the repository: {e}"))?;
     let mut problems: Vec<Outcome> = Vec::new();
+    // The oracle's patches, Dockerfile, pinned commits and math crate are the fingerprints' as recorded
+    // (851-3791): a pull request that changes them can't pass on fingerprints the old oracle made.
+    let stamp = oracle_build_stamp(&repo)?;
+    if let Some(p) = oracle_stamp_problem(recorded_oracle_stamp(&repo)?.as_deref(), &stamp) {
+        problems.push((oracle_stamp_path(&repo), Some(p)));
+    }
     let paths: Vec<(PathBuf, &'static Suite)> = if o.replays.is_empty() {
         for suite in &SUITES {
             // A fingerprint left behind by a deleted or renamed replay.

@@ -164,17 +164,7 @@ fn repo_root() -> PathBuf {
 /// What the cached oracle trace depends on: the oracle build, the program, the replay, and `--fields`.
 /// `None` if the oracle's build stamp can't be computed (the trace then isn't cached).
 fn oracle_key(replay_text: &str, exe: &str, fields: bool) -> Option<String> {
-    let out = Command::new("bash")
-        .arg("-c")
-        .arg("source tools/oracle/common.sh && build_stamp")
-        .current_dir(repo_root())
-        .output()
-        .ok()?;
-    let stamp = String::from_utf8(out.stdout).ok()?;
-    let stamp = stamp.trim();
-    if !out.status.success() || stamp.is_empty() {
-        return None;
-    }
+    let stamp = harness::fingerprint::oracle_build_stamp(&repo_root()).ok()?;
     Some(format!(
         "oracle {stamp}\nexe {exe}\nfields {fields}\nreplay {}\n{replay_text}",
         replay_text.len()
@@ -334,7 +324,19 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
     let repo = std::fs::canonicalize(repo_root()).map_err(|e| format!("the repository: {e}"))?;
     // Every path, and the assets, are checked before the first oracle run, so a typo can't stop a batch
     // halfway.
-    let replays = if replays.is_empty() {
+    // The build they're recorded with (851-3791): ORACLE gets it once every fingerprint is this build's.
+    // So some can only be recorded alone while the others are of this build too.
+    let stamp = harness::fingerprint::oracle_build_stamp(&repo)?;
+    let recorded = harness::fingerprint::recorded_oracle_stamp(&repo)?;
+    let all = replays.is_empty();
+    if !all && recorded.as_deref() != Some(&*stamp) {
+        return Err(format!(
+            "the other fingerprints aren't this oracle build's: {}. Recording only some would leave a mix",
+            harness::fingerprint::oracle_stamp_problem(recorded.as_deref(), &stamp)
+                .expect("they differ")
+        ));
+    }
+    let replays = if all {
         all_replays(&repo)?
     } else {
         (replays.iter())
@@ -407,8 +409,21 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
     let mut failed = failed.into_inner().unwrap_or_else(PoisonError::into_inner);
     failed.sort();
     if failed.is_empty() {
+        if all && recorded.as_deref() != Some(&*stamp) {
+            harness::fingerprint::write_oracle_stamp(&repo, &stamp)?;
+            write_stdout(&format!(
+                "recorded the oracle build {} in fidelity/fingerprints/ORACLE\n",
+                &stamp[..16]
+            ))?;
+        }
         Ok(Verdict::Identical)
     } else {
+        if recorded.as_deref() != Some(&*stamp) {
+            write_stdout(
+                "fidelity/fingerprints/ORACLE keeps the old oracle build, which fidelity-check fails, until \
+                 every fingerprint is recorded with this one\n",
+            )?;
+        }
         write_stdout(&format!(
             "{} of {} fingerprints not recorded: {}\n",
             failed.len(),

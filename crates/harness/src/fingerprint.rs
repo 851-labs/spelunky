@@ -150,6 +150,80 @@ pub fn fingerprint_path(repo: &Path, suite: &Suite, replay: &Path) -> PathBuf {
         .join(name)
 }
 
+/// Where the oracle build the fingerprints were recorded with is kept (docs/formats.md, "Fingerprints").
+pub fn oracle_stamp_path(repo: &Path) -> PathBuf {
+    repo.join("fidelity/fingerprints/ORACLE")
+}
+
+/// What `fidelity/fingerprints/ORACLE` says above the stamp.
+const ORACLE_HEADER: &str = "\
+# The oracle build every fingerprint here was recorded with: tools/oracle/common.sh's build_stamp, a hash of the
+# pinned commits, the oracle's patches, its Dockerfile and vendor/pxfm. `scripts/fidelity --refresh-fingerprints`
+# writes it after recording them all; fidelity-check fails while the checkout's build differs, as an oracle change
+# can make every fingerprint stale (docs/formats.md, \"Fingerprints\").
+";
+
+/// The checkout's oracle build stamp (`tools/oracle/common.sh`'s `build_stamp`). It hashes the oracle's
+/// inputs in the working tree, so it needs neither Docker nor a built oracle: `fidelity-check` takes it
+/// on every run. One definition, the shell's, as `tools/oracle/build` names its builds by it.
+pub fn oracle_build_stamp(repo: &Path) -> Result<String, String> {
+    let out = std::process::Command::new("bash")
+        .arg("-c")
+        .arg("source tools/oracle/common.sh && build_stamp")
+        .current_dir(repo)
+        .output()
+        .map_err(|e| format!("the oracle's build stamp (bash tools/oracle/common.sh): {e}"))?;
+    let stamp = String::from_utf8_lossy(&out.stdout).trim().to_owned();
+    if !out.status.success() || stamp.len() != 64 || !stamp.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return Err(format!(
+            "the oracle's build stamp (tools/oracle/common.sh's build_stamp) failed: {}",
+            String::from_utf8_lossy(&out.stderr).trim()
+        ));
+    }
+    Ok(stamp)
+}
+
+/// The stamp `fidelity/fingerprints/ORACLE` records, if there's one: its line that isn't a comment.
+pub fn recorded_oracle_stamp(repo: &Path) -> Result<Option<String>, String> {
+    let path = oracle_stamp_path(repo);
+    let text = match std::fs::read_to_string(&path) {
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        r => r.map_err(|e| format!("{}: {e}", path.display()))?,
+    };
+    Ok(text
+        .lines()
+        .map(str::trim)
+        .find(|l| !l.is_empty() && !l.starts_with('#'))
+        .map(str::to_owned))
+}
+
+/// Records `stamp` as the build the fingerprints come from.
+pub fn write_oracle_stamp(repo: &Path, stamp: &str) -> Result<(), String> {
+    let path = oracle_stamp_path(repo);
+    std::fs::write(&path, format!("{ORACLE_HEADER}{stamp}\n"))
+        .map_err(|e| format!("{}: {e}", path.display()))
+}
+
+/// What's wrong with the fingerprints' oracle build, if anything: none recorded, or not the checkout's.
+pub fn oracle_stamp_problem(recorded: Option<&str>, current: &str) -> Option<String> {
+    match recorded {
+        Some(r) if r == current => None,
+        Some(r) => Some(format!(
+            "the oracle build changed since the fingerprints were recorded ({} then, {} now: \
+             tools/oracle/patches, its Dockerfile, common.sh's pinned commits or vendor/pxfm). Record them \
+             all again with scripts/fidelity --refresh-fingerprints, which needs Docker and about an hour, \
+             and commit fidelity/fingerprints/ with its new ORACLE",
+            &r[..r.len().min(16)],
+            &current[..16]
+        )),
+        None => Some(
+            "no oracle build recorded for the fingerprints: scripts/fidelity --refresh-fingerprints \
+             writes it after recording them all"
+                .to_owned(),
+        ),
+    }
+}
+
 /// A directory of committed replays, all of one program.
 pub struct Suite {
     /// The directory under `fidelity/`, and under `fidelity/fingerprints/`.
@@ -470,6 +544,36 @@ mod tests {
         for name in ["music", "musicVol", "sndx", "snd", "mus", "plife", "sound"] {
             assert!(!sound_handle(name), "{name}");
         }
+    }
+
+    #[test]
+    fn the_oracle_stamp_is_recorded_read_and_compared() {
+        let dir = std::env::temp_dir().join(format!("oracle-stamp-{}", std::process::id()));
+        std::fs::create_dir_all(dir.join("fidelity/fingerprints")).unwrap();
+        assert_eq!(recorded_oracle_stamp(&dir).unwrap(), None);
+        let stamp = "ab".repeat(32);
+        write_oracle_stamp(&dir, &stamp).unwrap();
+        // The comment above it is skipped.
+        assert_eq!(recorded_oracle_stamp(&dir).unwrap(), Some(stamp.clone()));
+        std::fs::remove_dir_all(&dir).unwrap();
+        assert_eq!(oracle_stamp_problem(Some(&stamp), &stamp), None);
+        let other = "cd".repeat(32);
+        let changed = oracle_stamp_problem(Some(&stamp), &other).unwrap();
+        assert!(
+            changed.contains("abababababababab then, cdcdcdcdcdcdcdcd now"),
+            "{changed}"
+        );
+        assert!(changed.contains("scripts/fidelity --refresh-fingerprints"));
+        assert!(oracle_stamp_problem(None, &other).is_some());
+    }
+
+    #[test]
+    fn the_checkout_has_an_oracle_stamp_without_docker() {
+        // The shell's, in this checkout: it only hashes files.
+        let repo = PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap()).join("../..");
+        let stamp = oracle_build_stamp(&repo).unwrap();
+        assert_eq!(stamp.len(), 64);
+        assert_eq!(oracle_build_stamp(&repo).unwrap(), stamp);
     }
 
     fn instance(id: i32, object: &str, x: f64) -> Instance {
