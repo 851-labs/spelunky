@@ -133,9 +133,9 @@ and `release.yml`:
 
 1. creates a draft GitHub Release for the tag (or reuses its draft on a re-run; a published release is never
    touched), titled "Spelunky Classic port vX.Y.Z (unofficial)", its notes the notice the Spelunky User License
-   asks of a mod's documentation (the copyright, that it's an unofficial mod, the license, that it may not be sold:
-   `NOTICE.txt`'s, shortened) and the downloads, above GitHub's generated list of changes, as its page is where
-   players get the files;
+   asks of a mod's documentation (`scripts/release/NOTICE.txt`'s, at the tag, up to its "Playing": the copyright,
+   that it's an unofficial mod, the license, that it may not be sold) and the downloads, above GitHub's generated
+   list of changes, as its page is where players get the files;
 2. runs `scripts/check` on a mini;
 3. runs every committed replay on the oracle and the port with `--fields` (`scripts/fidelity-all`), split
    across 10 `ubuntu-24.04` machines, three at a time (about an hour instead of 20 minutes), as the
