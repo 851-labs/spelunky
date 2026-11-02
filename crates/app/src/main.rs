@@ -121,8 +121,9 @@ fn settings_window_size(scale: Option<u32>) -> (u32, u32) {
 /// `?replay=URL&embed&from=F` is a replay a page embeds and drives (the wiki's live clips, [`Embed`]),
 /// shown from frame F, which it can seek in. Play keeps its saves in `localStorage`; closing the tab or
 /// leaving the page ends the game as the window's close button does, before the page goes (winit's
-/// `pagehide`, `App`'s `exiting`), so `stats.txt` is saved. Sound starts at the first key or click, as
-/// browsers require. Recording has no file to go to yet: a [`RecordSink`] that
+/// `pagehide`, `App`'s `exiting`), so `stats.txt` is saved. A session of play starts on the first key,
+/// click or gamepad button (`App::waiting_for_press`), which makes a pad pressed then the session's joystick
+/// and lets the sound start, as browsers require. Recording has no file to go to yet: a [`RecordSink`] that
 /// downloads or stores it is where it plugs in. There's no screenshot mode: the browser's own does that.
 ///
 /// [`RecordSink`]: app::window::RecordSink
@@ -217,8 +218,8 @@ mod web {
             KeyMap::Layout
         };
         let live = |header: ReplayHeader| {
-            // The Gamepad API only reports a pad after a button press on the page, so one is usually
-            // joystick 1 only if the page is reloaded with it already in use.
+            // The Gamepad API only reports a pad after a button press on the page: the session starts on
+            // a press (`App::waiting_for_press`), so a pad pressed then is joystick 1.
             Input::live(header, keys, !query.has("no-gamepad"), None)
         };
         let scale = query
@@ -347,7 +348,8 @@ mod web {
                 proxy,
                 input,
             )
-            .with_notice(settings_notice);
+            .with_notice(settings_notice)
+            .waiting_for_press();
             start(event_loop, app);
             return Ok(());
         }
@@ -356,7 +358,8 @@ mod web {
         if let Some(embed) = embed {
             app = app.with_embed(embed);
         }
-        start(event_loop, app);
+        // A session of play starts on a press, so a gamepad pressed then is the session's.
+        start(event_loop, app.waiting_for_press());
         Ok(())
     }
 

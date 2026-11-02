@@ -209,6 +209,13 @@ pub fn warn(message: &str) {
     web_sys::console::warn_1(&format!("app: {message}").into());
 }
 
+/// Shows `text` on the page, where the loading message was.
+pub fn show_status(text: &str) {
+    if let Some(status) = status() {
+        status.set_text_content(Some(text));
+    }
+}
+
 /// Clears the page's loading message once the app is running.
 pub fn clear_status() {
     if let Some(status) = status() {
