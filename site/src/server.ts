@@ -1,7 +1,7 @@
-// The Worker (every response with HSTS, and plain HTTP and www redirected to https://spelunky.ai). Everything but the
-// content-hashed files (/play/v/* and /assets/*) and the wiki's media (/wiki/media/*
-// but its clips' videos and old URLs: wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a pull request's preview URL alike
-// (docs/web-deploy.md, "Previews").
+// The Worker (every response with HSTS, and plain HTTP and www redirected to https://spelunky.ai). Everything but
+// the content-hashed files (/play/v/* and /assets/*) and the wiki's media (/wiki/media/* but its clips' videos and
+// old URLs: wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a pull request's preview
+// URL alike (docs/web-deploy.md, "Previews").
 import handler from "@tanstack/react-start/server-entry";
 import { aliases } from "virtual:wiki/aliases";
 import { OPENSEARCH_PATH, OPENSEARCH_TYPE, absoluteUrl } from "./seo/seo";
@@ -44,15 +44,17 @@ export default {
 
 async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
-  // Plain HTTP and www go to https://spelunky.ai, path and query kept, in one hop (http://www.spelunky.ai/ too).
-  // Only on spelunky.ai's own names: browsers reach a preview (workers.dev, as all of .dev) only over HTTPS, Vite's
-  // servers are localhost, and wrangler dev names spelunky.ai over HTTPS (wrangler.jsonc's dev). The files that skip the Worker (run_worker_first) are the zone's "Always Use HTTPS"
-  // setting's to redirect (docs/web-deploy.md, "HTTPS").
+  // Plain HTTP and www go to https://spelunky.ai, path and query kept, in one hop (http://www.spelunky.ai/ too),
+  // a 308 for other methods than GET and HEAD, which a 301 lets a browser turn into a GET. Only on spelunky.ai's
+  // own names: browsers reach a preview (workers.dev, as all of .dev) only over HTTPS, Vite's servers are
+  // localhost, and wrangler dev names spelunky.ai over HTTPS (wrangler.jsonc's dev). Plain HTTP for the files
+  // that skip the Worker (run_worker_first) is the zone's "Always Use HTTPS" to redirect, which, when it's on,
+  // redirects the rest too, before the Worker (docs/web-deploy.md, "HTTPS").
   const www = url.hostname === `www.${APEX}`;
   if (www || (url.hostname === APEX && url.protocol === "http:")) {
     url.protocol = "https:";
     url.hostname = APEX;
-    return Response.redirect(url.toString(), 301);
+    return Response.redirect(url.toString(), request.method === "GET" || request.method === "HEAD" ? 301 : 308);
   }
   // Anything else under /wiki/media/ is the asset store's as it has it, never the router's.
   if (url.pathname.startsWith(MEDIA_BASE)) {

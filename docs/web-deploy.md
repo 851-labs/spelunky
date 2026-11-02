@@ -22,9 +22,10 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/wiki/og/<slug>.HASH.png` | the wiki's Open Graph images, one a page and hub, `HASH` being of the file (SEO, "Open Graph images") | `immutable`, a year |
 | `/build-assets.json` | the build's content-hashed files (`/assets/`, `/wiki/og/`), its own and those it carried from the builds before it, each with the date it was last a build's own, for the next build to carry ([Version skew](#version-skew)) | `no-cache` |
 
-`www.spelunky.ai` and plain HTTP redirect (301) to `https://spelunky.ai`, in one hop ([HTTPS](#https)) (www's pages: the content-hashed files under `/play/v/` and
-`/assets/` and the media under `/wiki/media/` skip the Worker, all but the clips, but only a page on www would
-ask for them there), and a path that's none of these is a 404 with `site/public/404.html`. Everything is in `site/`:
+`www.spelunky.ai` redirects (301) to `https://spelunky.ai` (www's pages: the content-hashed files under `/play/v/`
+and `/assets/` and the media under `/wiki/media/` skip the Worker, all but the clips, but only a page on www would
+ask for them there), as does plain HTTP ([HTTPS](#https)), and a path that's none of these is a 404 with
+`site/public/404.html`. Everything is in `site/`:
 
 - `src/`: the app. `routes/` has its pages (TanStack Router's file routes; `routeTree.gen.ts` is generated
   from them by the build and `vite dev`, and committed), and `seo/` their head tags, JSON-LD and the
@@ -97,8 +98,9 @@ saying so, so the first build after connecting fails, deploying nothing, until t
 
 ## HTTPS
 
-spelunky.ai is HTTPS only. The Worker redirects (301) a plain HTTP request for spelunky.ai or www, and any for
-www, to `https://spelunky.ai`, path and query kept, in one hop (`src/server.ts`); and every response has
+spelunky.ai is HTTPS only. The Worker redirects (301, or 308 for a method other than GET and HEAD, which keeps it)
+a plain HTTP request for spelunky.ai or www, and any for www, to `https://spelunky.ai`, path and query kept, in one
+hop (`src/server.ts`); and every response has
 `Strict-Transport-Security: max-age=31536000; includeSubDomains`, the Worker's from `src/server.ts` and the
 asset store's from `public/_headers`' `/*` (a Worker's own responses don't get `_headers`), so a browser that has
 been once never asks over plain HTTP again for a year, nor for www. `preload` (the browsers' built-in list) can
@@ -113,6 +115,11 @@ dashboard (zone spelunky.ai → **SSL/TLS → Edge Certificates**), as nothing i
 | Always Use HTTPS | on | plain HTTP for the files that skip the Worker redirects too (and before the Worker, for the rest) |
 | Minimum TLS Version | TLS 1.2 | no current browser needs 1.0 or 1.1 |
 | HTTP Strict Transport Security (HSTS) | off | the site sends its own header, above, which the zone's would duplicate |
+
+Always Use HTTPS redirects before the Worker runs, to the same host, so with it on, `http://www.spelunky.ai/` is
+two hops (`https://www.spelunky.ai/`, then the Worker's to the apex), and the Worker's own plain-HTTP redirect only
+answers if the setting is ever off. Plain HTTP to www is rare enough (no link names it, and HSTS's
+`includeSubDomains` upgrades it in a browser that has been to the apex) not to want a Redirect Rule of its own.
 
 Only spelunky.ai's own names are redirected: browsers reach a preview's workers.dev only over HTTPS, and Vite's
 servers are localhost. `wrangler dev` names the routes' host, so `wrangler.jsonc`'s `dev.upstream_protocol` has it

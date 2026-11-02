@@ -102,11 +102,15 @@ const assets = {
 const serve = (request) =>
   toWorker(new URL(request.url).pathname) ? worker.fetch(request, { ASSETS: assets }) : assets.fetch(request);
 
-// The headers every response from spelunky.ai has, the Worker's (src/server.ts) and the asset store's
-// (public/_headers' /*) alike, whatever its status.
-const EVERY_RESPONSE = { "strict-transport-security": "max-age=31536000; includeSubDomains" };
+// The headers every response from spelunky.ai has: public/_headers' /* rule's, which the asset store gives, and the
+// Worker (src/server.ts) the same, whatever the status.
+const EVERY_RESPONSE = headerRules.find((r) => r.path.source === pattern("/*").source).headers;
+assert.ok(
+  EVERY_RESPONSE.some(([name]) => name.toLowerCase() === "strict-transport-security"),
+  "public/_headers' /* has no Strict-Transport-Security",
+);
 function assertEveryResponse(response, what) {
-  for (const [name, value] of Object.entries(EVERY_RESPONSE)) assert.equal(response.headers.get(name), value, `${what}: ${name}`);
+  for (const [name, value] of EVERY_RESPONSE) assert.equal(response.headers.get(name), value, `${what}: ${name}`);
 }
 
 const UTF8_TEXT = "text/plain; charset=utf-8";
@@ -217,9 +221,9 @@ try {
   failures++;
   console.error(`FAIL ${error.message}`);
 }
-// Plain HTTP and www are a 301 to https://spelunky.ai, path and query kept, in one hop, whatever the method, and
-// whether or not the Worker would have served the path; the files that skip it are the zone's "Always Use
-// HTTPS" setting's (docs/web-deploy.md, "HTTPS"), so here only the Worker's paths.
+// Plain HTTP and www are a 301 to https://spelunky.ai, path and query kept, in one hop (a 308 for a POST, which
+// keeps its method), whether or not the Worker would have served the path; the files that skip it are the zone's
+// "Always Use HTTPS" setting's (docs/web-deploy.md, "HTTPS"), so here only the Worker's paths.
 const HTTPS_REDIRECTS = {
   "http://spelunky.ai/": "https://spelunky.ai/",
   "http://spelunky.ai/play/?a=1": "https://spelunky.ai/play/?a=1",
@@ -233,14 +237,25 @@ for (const [from, to] of Object.entries(HTTPS_REDIRECTS)) {
   for (const method of ["GET", "HEAD", "POST"]) {
     try {
       const response = await worker.fetch(new Request(from, { method }), { ASSETS: assets });
-      assert.equal(response.status, 301, `${method} ${from}: status`);
+      assert.equal(response.status, method === "POST" ? 308 : 301, `${method} ${from}: status`);
       assert.equal(response.headers.get("location"), to, `${method} ${from}: location`);
       assertEveryResponse(response, `${method} ${from}`);
-      console.log(`ok   ${method} ${from}: 301 to ${to}`);
+      console.log(`ok   ${method} ${from}: ${response.status} to ${to}`);
     } catch (error) {
       failures++;
       console.error(`FAIL ${error.message}`);
     }
+  }
+}
+// But only spelunky.ai's own names: not Vite's servers, on localhost, nor a preview, on workers.dev.
+for (const url of ["http://localhost:5173/wiki/snake.md", "http://abc123-spelunky.example.workers.dev/wiki/snake.md"]) {
+  try {
+    const response = await worker.fetch(new Request(url), { ASSETS: assets });
+    assert.equal(response.status, 200, `${url}: status`);
+    console.log(`ok   ${url}: no redirect`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
   }
 }
 // Every other response has them too: a 404, the Worker's or the asset store's, a 405, and a file that skips the

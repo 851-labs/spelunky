@@ -429,11 +429,11 @@ check "$site/play/manifest.txt" 200 "$no_cache"
 check "$site/play/v/0123456789abcdef/app.js" 200 "$immutable" "x-content-type-options: nosniff" "$hsts"
 same "$tmp/web/v/0123456789abcdef/app.js"
 # A miss under v/ skips the Worker too (docs/web-deploy.md, "Rolling back").
-check "$site/play/v/fedcba9876543210/app.js" 404 "$immutable"
+check "$site/play/v/fedcba9876543210/app.js" 404 "$immutable" "$hsts"
 
 # The wiki's media: served without the Worker (but the clips' videos, below), and cached for a day.
 check "$site$media_url/sprites/sSnakeWalkL/frames/0%404x.png" 200 "$media_cache" "content-type: image/png" \
-  "x-content-type-options: nosniff"
+  "x-content-type-options: nosniff" "$hsts"
 same "$media/sprites/sSnakeWalkL/frames/0@4x.png"
 # The asset store's canonical form of a path escapes an @, and it redirects to that, so a page asks for
 # 0%404x.png (docs/web-deploy.md, "Wiki media").
