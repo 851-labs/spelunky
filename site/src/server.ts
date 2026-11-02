@@ -1,4 +1,5 @@
-// The Worker. Everything but the content-hashed files (/play/v/* and /assets/*) and the wiki's media (/wiki/media/*
+// The Worker (every response with HSTS, and plain HTTP and www redirected to https://spelunky.ai). Everything but the
+// content-hashed files (/play/v/* and /assets/*) and the wiki's media (/wiki/media/*
 // but its clips' videos and old URLs: wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a pull request's preview URL alike
 // (docs/web-deploy.md, "Previews").
 import handler from "@tanstack/react-start/server-entry";
@@ -6,6 +7,11 @@ import { aliases } from "virtual:wiki/aliases";
 import { OPENSEARCH_PATH, OPENSEARCH_TYPE, absoluteUrl } from "./seo/seo";
 
 const APEX = "spelunky.ai";
+// HSTS: once a browser has seen spelunky.ai over HTTPS it never asks for it over plain HTTP again, for a year,
+// nor for www (includeSubDomains), so a network in between can't serve it the site, or rewrite its scripts or the
+// game, in the clear. Browsers ignore it over plain HTTP, which the Worker redirects (below). public/_headers
+// gives the files that skip the Worker the same.
+const HSTS = "max-age=31536000; includeSubDomains";
 // TanStack Start's default base for server functions' URLs.
 const SERVER_FN_BASE = "/_serverFn/";
 // Files a route makes (src/routes/sitemap[.]xml.ts and the like). Pre-rendered, so on spelunky.ai they're
@@ -32,64 +38,82 @@ interface Env {
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-    if (url.hostname === `www.${APEX}`) {
-      url.hostname = APEX;
-      return Response.redirect(url.toString(), 301);
-    }
-    // Anything else under /wiki/media/ is the asset store's as it has it, never the router's.
-    if (url.pathname.startsWith(MEDIA_BASE)) {
-      const path = url.pathname.slice(MEDIA_BASE.length);
-      const old = OLD_MEDIA.exec(path);
-      if (old) {
-        url.pathname = MEDIA_BASE + old[1];
-        return Response.redirect(url.toString(), 301);
-      }
-      return CLIP_VIDEO.test(path) ? withRanges(request, env) : env.ASSETS.fetch(request);
-    }
-    if (url.pathname.startsWith(SERVER_FN_BASE)) return withDefaultCaching(await handler.fetch(request));
-    // /sitemap.xml/ to /sitemap.xml, as the asset store sends /LICENSE.txt/ to /LICENSE.txt, rather than a second
-    // copy rendered on every request. The pre-render asks for the slashed path first, and follows this.
-    if (url.pathname.endsWith("/") && ROUTED_FILES.has(url.pathname.slice(0, -1))) {
-      url.pathname = url.pathname.slice(0, -1);
-      return noCache(Response.redirect(url.toString(), 307));
-    }
-    // An alias is a permanent redirect to its page, or its page's twin, in one hop: /wiki/pot/ goes straight to
-    // /wiki/jar, not by way of /wiki/pot or /wiki/jar/. The build fails on an alias that's a page's slug, so none
-    // hides a page. No-cache, as the pages are: a browser asks again, so an alias that becomes a page of its own
-    // shows up at once.
-    // Only a GET or HEAD, as any other method of a page is the asset store's 405.
-    const alias = (request.method === "GET" || request.method === "HEAD") && ALIAS.exec(url.pathname);
-    const page = alias && aliases.get(alias[1]);
-    if (page) {
-      url.pathname = `/wiki/${page}${alias[2] === ".md" ? ".md" : ""}`;
-      return noCache(Response.redirect(url.toString(), 301));
-    }
-    // Pages are pre-rendered (vite.config.ts), so on spelunky.ai they're static assets like the rest. A miss
-    // is the 404 page (wrangler.jsonc's not_found_handling), and other methods than GET and HEAD a 405.
-    const asset = await env.ASSETS.fetch(request);
-    // The wiki's Markdown twins, and their revalidations' 304s, which carry the headers a 200 would.
-    const twin = MARKDOWN_TWIN.exec(url.pathname);
-    if (twin && (asset.status === 200 || asset.status === 304)) return markdownTwin(asset, twin[1]);
-    // The asset store serves the OpenSearch description as any .xml, application/xml, where browsers look
-    // for its own type.
-    if (url.pathname === OPENSEARCH_PATH && (asset.status === 200 || asset.status === 304)) {
-      const response = noCache(asset);
-      response.headers.set("content-type", OPENSEARCH_TYPE);
-      return response;
-    }
-    if (asset.status !== 404 || !maybePage(request, url)) return noCache(asset);
-    // The router renders a page that isn't a file: at build time to pre-render it, under `vite dev`, and on
-    // spelunky.ai only one that opts out of pre-rendering.
-    const rendered = await handler.fetch(request);
-    if (rendered.status === 404) {
-      await rendered.body?.cancel();
-      return noCache(asset);
-    }
-    await asset.body?.cancel();
-    return withDefaultCaching(rendered);
+    return secured(await route(request, env));
   },
 };
+
+async function route(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  // Plain HTTP and www go to https://spelunky.ai, path and query kept, in one hop (http://www.spelunky.ai/ too).
+  // Only on spelunky.ai's own names: browsers reach a preview (workers.dev, as all of .dev) only over HTTPS, Vite's
+  // servers are localhost, and wrangler dev names spelunky.ai over HTTPS (wrangler.jsonc's dev). The files that skip the Worker (run_worker_first) are the zone's "Always Use HTTPS"
+  // setting's to redirect (docs/web-deploy.md, "HTTPS").
+  const www = url.hostname === `www.${APEX}`;
+  if (www || (url.hostname === APEX && url.protocol === "http:")) {
+    url.protocol = "https:";
+    url.hostname = APEX;
+    return Response.redirect(url.toString(), 301);
+  }
+  // Anything else under /wiki/media/ is the asset store's as it has it, never the router's.
+  if (url.pathname.startsWith(MEDIA_BASE)) {
+    const path = url.pathname.slice(MEDIA_BASE.length);
+    const old = OLD_MEDIA.exec(path);
+    if (old) {
+      url.pathname = MEDIA_BASE + old[1];
+      return Response.redirect(url.toString(), 301);
+    }
+    return CLIP_VIDEO.test(path) ? withRanges(request, env) : env.ASSETS.fetch(request);
+  }
+  if (url.pathname.startsWith(SERVER_FN_BASE)) return withDefaultCaching(await handler.fetch(request));
+  // /sitemap.xml/ to /sitemap.xml, as the asset store sends /LICENSE.txt/ to /LICENSE.txt, rather than a second
+  // copy rendered on every request. The pre-render asks for the slashed path first, and follows this.
+  if (url.pathname.endsWith("/") && ROUTED_FILES.has(url.pathname.slice(0, -1))) {
+    url.pathname = url.pathname.slice(0, -1);
+    return noCache(Response.redirect(url.toString(), 307));
+  }
+  // An alias is a permanent redirect to its page, or its page's twin, in one hop: /wiki/pot/ goes straight to
+  // /wiki/jar, not by way of /wiki/pot or /wiki/jar/. The build fails on an alias that's a page's slug, so none
+  // hides a page. No-cache, as the pages are: a browser asks again, so an alias that becomes a page of its own
+  // shows up at once.
+  // Only a GET or HEAD, as any other method of a page is the asset store's 405.
+  const alias = (request.method === "GET" || request.method === "HEAD") && ALIAS.exec(url.pathname);
+  const page = alias && aliases.get(alias[1]);
+  if (page) {
+    url.pathname = `/wiki/${page}${alias[2] === ".md" ? ".md" : ""}`;
+    return noCache(Response.redirect(url.toString(), 301));
+  }
+  // Pages are pre-rendered (vite.config.ts), so on spelunky.ai they're static assets like the rest. A miss
+  // is the 404 page (wrangler.jsonc's not_found_handling), and other methods than GET and HEAD a 405.
+  const asset = await env.ASSETS.fetch(request);
+  // The wiki's Markdown twins, and their revalidations' 304s, which carry the headers a 200 would.
+  const twin = MARKDOWN_TWIN.exec(url.pathname);
+  if (twin && (asset.status === 200 || asset.status === 304)) return markdownTwin(asset, twin[1]);
+  // The asset store serves the OpenSearch description as any .xml, application/xml, where browsers look
+  // for its own type.
+  if (url.pathname === OPENSEARCH_PATH && (asset.status === 200 || asset.status === 304)) {
+    const response = noCache(asset);
+    response.headers.set("content-type", OPENSEARCH_TYPE);
+    return response;
+  }
+  if (asset.status !== 404 || !maybePage(request, url)) return noCache(asset);
+  // The router renders a page that isn't a file: at build time to pre-render it, under `vite dev`, and on
+  // spelunky.ai only one that opts out of pre-rendering.
+  const rendered = await handler.fetch(request);
+  if (rendered.status === 404) {
+    await rendered.body?.cancel();
+    return noCache(asset);
+  }
+  await asset.body?.cancel();
+  return withDefaultCaching(rendered);
+}
+
+// Every response the Worker gives, a redirect or a 404 included, with the headers every response from
+// spelunky.ai has (public/_headers' /* gives the rest the same).
+function secured(response: Response): Response {
+  const copy = new Response(response.body, response);
+  copy.headers.set("strict-transport-security", HSTS);
+  return copy;
+}
 
 // Whether the router might have the page: a GET of a path without an extension, or of a file a route makes.
 // So a miss like /wp-login.php or /xmlrpc.php is only the asset store's 404, with no render.

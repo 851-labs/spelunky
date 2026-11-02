@@ -4,6 +4,11 @@
 # (HASH its bytes'). The wiki's media (wiki/media, docs/wiki-media.md) keep their names when they're rendered
 # again, so they're cached for a day: a clip a pull request re-renders reaches a reader who has the old one
 # within a day, and a URL a search engine or another site has stays the same.
+#
+# Every file gets HSTS, as the Worker gives what it serves (src/server.ts: why). A header two rules give is joined
+# with a comma, so no other rule gives it.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
 /play/v/*
   Cache-Control: public, max-age=31536000, immutable
   X-Content-Type-Options: nosniff
