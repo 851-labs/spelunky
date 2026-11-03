@@ -8,7 +8,7 @@ they're made of.
 | `pr.yml` | every pull request | `scripts/check` (`suite.yml`), `site/test.sh` for changes to the site, then on one Mac mini `scripts/check --apple`, `scripts/web --check` and `scripts/wiki-media --check` for changes to what the wiki's media are made from; the updater's tests; then `pr-ok` | `ubuntu-24.04` for the suite and the site, one Mac mini, GitHub's machines for the updater |
 | `suite.yml` | from `pr.yml`, and every push to `main` | `scripts/check`, with the build cache main's run saves for every pull request's ([below](#pull-requests)) | `ubuntu-24.04` |
 | `release.yml` | a `v*` tag, or by hand | the suite, the oracle fidelity run, the web and native builds, the updater's tests, then the GitHub Release and the pull request that puts it live ([below](#releases)) | the Mac minis and `ubuntu-24.04` |
-| `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | GitHub's `macos-15` for the build and the signing, then each OS (a Mac mini for the arm64 smoke test) |
+| `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | GitHub's `macos-15` for the build and the signing, then each OS, all on GitHub's machines |
 | `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
 | `mini.yml` | from `pr.yml` and `release.yml` | one command on a Mac mini, optionally only for a pull request that changes some paths | the Mac minis |
 | `soak.yml` | nightly, or by hand | the chaos soak: new fuzz runs against the oracle, filed as issues ([below](#the-chaos-soak)) | `ubuntu-24.04` |
@@ -193,8 +193,10 @@ and `release.yml`:
    tests (`updater.yml`), as a pull request does;
 6. signs the native apps' update manifest, `latest.json`, for those downloads (`scripts/release/manifest`,
    [docs/updates.md](updates.md)), except for a prerelease, which is never offered to the apps;
-7. once all of that passed, attaches the files, `latest.json` and a `SHA256SUMS` to the draft and publishes
-   it: as a prerelease if the tag has a `-` (`v0.1.0-rc1`), otherwise as the latest release;
+7. once all of that passed, attests each file's build provenance (`actions/attest`: a statement, signed with
+   Sigstore, that this run built it, which `gh attestation verify FILE --repo 851-labs/spelunky` checks), attaches
+   the files, `latest.json` and a `SHA256SUMS` to the draft and publishes it: as a prerelease if the tag has a `-`
+   (`v0.1.0-rc1`), otherwise as the latest release;
 8. opens the pull request that puts it live ([below](#the-sites-bump-pull-request)), except for a prerelease.
 
 Running `release.yml` by hand (Actions → Release → Run workflow) on a tag does the same. With `dry_run`, the
