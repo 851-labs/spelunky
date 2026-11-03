@@ -20,8 +20,8 @@ fn watch(g: &mut World, _: &mut Ctx) -> R<()> {
         i.keyboard_key(),
         i.mouse(),
         u8::from(i.mouse_check_gm(KeyState::Held, -1)),
-        u8::from(i.joystick_check_button(1, 1)),
-        i.joystick_direction(1),
+        u8::from(i.joystick_check_button(1.0, 1.0)),
+        i.joystick_direction(1.0),
     );
     log(g, &s);
     Ok(())

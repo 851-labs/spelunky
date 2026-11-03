@@ -1,0 +1,293 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+index 1c2ca7d1..5ef00465 100644
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -221,6 +221,8 @@ pub struct Game {
+ 
+     pub play_type: PlayType,
+     pub stored_events: VecDeque<replay::Event>,
++    // Spelunky oracle: a text replay's joystick (851-3949), as winmm reports it to GM8; None without one.
++    pub joystick: Option<replay::Joystick>,
+     pub frame_limiter: bool, // whether to limit FPS of gameplay by room_speed
+     pub frame_limit_at: usize, // on which frame to start limiting FPS
+     pub ffmpeg_recorder: Option<Child>,
+@@ -1416,6 +1418,7 @@ impl Game {
+             scaling,
+             play_type,
+             stored_events: VecDeque::new(),
++            joystick: None,
+ 
+             // load_room sets this
+             unscaled_width: 0,
+@@ -2388,6 +2391,10 @@ impl Game {
+                 replay::Input::MouseWheelDown => self.input.mouse_scroll_down(),
+                 // Spelunky oracle: no input state; `replay` runs the close-button event (851-3777).
+                 replay::Input::CloseButton => (),
++                // Spelunky oracle: the replay's joystick, held state only (851-3949).
++                replay::Input::JoyPress(b) => if let Some(j) = &mut self.joystick { j.buttons |= 1 << (b - 1) },
++                replay::Input::JoyRelease(b) => if let Some(j) = &mut self.joystick { j.buttons &= !(1 << (b - 1)) },
++                replay::Input::JoyAxis(axis, v) => if let Some(j) = &mut self.joystick { j.set_axis(*axis, f64::from_bits(*v)) },
+             }
+         }
+     }
+diff --git a/gm8emulator/src/game/replay.rs b/gm8emulator/src/game/replay.rs
+index bad67a9d..850bb190 100644
+--- a/gm8emulator/src/game/replay.rs
++++ b/gm8emulator/src/game/replay.rs
+@@ -84,6 +84,50 @@ pub enum Input {
+     MouseWheelDown,
+     // Spelunky oracle: the window's close button, a text replay's `close`, which `Game::replay` runs (851-3777).
+     CloseButton,
++    // Spelunky oracle: a text replay's joystick button 1-32 and axis (0 x, 1 y, 2 z, 3 POV) with its value's bits
++    // (an f64 isn't Eq), 851-3949.
++    JoyPress(u8),
++    JoyRelease(u8),
++    JoyAxis(u8, u64),
++}
++
++// ---------------------------------------------------------------------------
++// Spelunky oracle: a text replay's joystick (851-3949), as GM8's runner reads it through winmm on every
++// joystick_* call (Spelunky.exe 0x565240-0x565cf6): joyGetPosEx's raw axes (0-65535) and POV (hundredths of a
++// degree, 65535 centred), its 32 buttons, and joyGetDevCaps' POV flag. A text replay gives each axis as GM8
++// reports it (raw / 32767 - 1) and the POV in degrees, so they're taken back to the raw values here, as the
++// port's gm::input does, and every function answers from those.
++// ---------------------------------------------------------------------------
++
++#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize)]
++pub struct Joystick {
++    pub has_pov: bool,
++    pub buttons: u32,
++    /// Raw x, y and z.
++    pub axes: [u32; 3],
++    pub pov: u32,
++}
++
++impl Joystick {
++    pub fn new(has_pov: bool) -> Self {
++        Self { has_pov, buttons: 0, axes: [32767; 3], pov: 65535 }
++    }
++
++    pub fn set_axis(&mut self, axis: u8, v: f64) {
++        match axis {
++            0..=2 => {
++                let v = if v.is_nan() { 0.0 } else { v };
++                self.axes[axis as usize] = crate::math::ieee_round((v + 1.0) * 32767.0).clamp(0.0, 65535.0) as u32;
++            },
++            _ => {
++                self.pov = if v.is_nan() || v < 0.0 {
++                    65535
++                } else {
++                    crate::math::ieee_round(v * 100.0).min(65535.0) as u32
++                };
++            },
++        }
++    }
+ }
+ 
+ #[derive(Debug)]
+@@ -255,8 +299,9 @@ impl Replay {
+ //   70 wheel up                (or `wheel down`)
+ //   80 mouse 100 50            (the mouse moves to (100, 50) in window pixels)
+ //   90 close                   (the window's close button, after the frame's other input)
+-//
+-// Joystick directives and events are rejected: OpenGMK's joystick functions are stubs (no joystick).
++//   joystick                   (joystick 1 is connected; `joystick pov` with a POV hat), 851-3949
++//   95 press joy3              (a joystick button 1-32; also release and hold)
++//   96 axis x -1               (a joystick axis, x, y or z as GM8 reports it, or pov in degrees, -1 centred)
+ // ---------------------------------------------------------------------------
+ 
+ /// Named keys besides letters and digits: GM8's `vk_*` constants without the prefix, plus aliases.
+@@ -295,7 +340,11 @@ fn parse_button(s: &str, down: bool) -> Result<Input, String> {
+         "mb_left" => Some(1),
+         "mb_right" => Some(2),
+         "mb_middle" => Some(3),
+-        b if b.starts_with("joy") => return Err(JOYSTICK_UNSUPPORTED.into()),
++        b if b.starts_with("joy") => {
++            // Spelunky oracle: a joystick button, 1-32 (851-3949).
++            let n = b[3..].parse::<u8>().ok().filter(|n| (1..=32).contains(n)).ok_or_else(|| format!("bad joystick button {:?}", s))?;
++            return Ok(if down { Input::JoyPress(n) } else { Input::JoyRelease(n) })
++        },
+         _ => None,
+     };
+     Ok(match (mouse, down) {
+@@ -306,7 +355,6 @@ fn parse_button(s: &str, down: bool) -> Result<Input, String> {
+     })
+ }
+ 
+-const JOYSTICK_UNSUPPORTED: &str = "joystick input isn't supported: OpenGMK's joystick functions are stubs";
+ 
+ /// Parses one JSON string literal that makes up all of `s` (surrounding whitespace aside).
+ fn parse_json_string(s: &str) -> Result<String, String> {
+@@ -390,6 +438,8 @@ pub struct TextSetup {
+     pub highscores: Option<highscore::Table>,
+     /// Files to put in the game directory before launch: path relative to it, and contents.
+     pub files: Vec<(String, Vec<u8>)>,
++    /// Spelunky oracle: joystick 1, if the replay connects one, and whether it has a POV hat (851-3949).
++    pub joystick: Option<bool>,
+ }
+ 
+ impl Replay {
+@@ -397,7 +447,7 @@ impl Replay {
+     /// files have no room for them (savestates carry the live table).
+     pub fn from_text(path: &PathBuf) -> Result<(Self, TextSetup), String> {
+         let text = std::fs::read_to_string(path).map_err(|e| e.to_string())?;
+-        let mut setup = TextSetup { highscores: None, files: Vec::new() };
++        let mut setup = TextSetup { highscores: None, files: Vec::new(), joystick: None };
+         let mut seed = 0i32;
+         let mut time: u128 = 1_262_304_000_000_000_000;
+         let mut frames: Option<usize> = None;
+@@ -435,7 +485,9 @@ impl Replay {
+                     let cfg = cfg_file(vals, 8..=9).ok_or_else(|| err("gamepad takes 8 or 9 integers"))?;
+                     setup.files.push(("gamepad.cfg".into(), cfg));
+                 },
+-                ["joystick", ..] => return Err(err(JOYSTICK_UNSUPPORTED)),
++                ["joystick"] => setup.joystick = Some(false),
++                ["joystick", "pov"] => setup.joystick = Some(true),
++                ["joystick", ..] => return Err(err("`joystick` or `joystick pov`")),
+                 ["highscore", v, ..] => {
+                     let v = v.parse::<f64>().ok().filter(|v| v.is_finite()).ok_or_else(|| err("bad highscore value"))?;
+                     let name = parse_json_string(after_tokens(line, 2)).map_err(|e| err(&e))?;
+@@ -472,7 +524,11 @@ impl Replay {
+                     let y = y.parse().map_err(|_| err("bad mouse y"))?;
+                     moves.push((frame(f)?, (x, y), ln));
+                 },
+-                [_, "axis", ..] => return Err(err(JOYSTICK_UNSUPPORTED)),
++                [f, "axis", axis, v] => {
++                    let axis = match *axis { "x" => 0, "y" => 1, "z" => 2, "pov" => 3, _ => return Err(err("bad axis")) };
++                    let v = v.parse::<f64>().ok().filter(|v| v.is_finite()).ok_or_else(|| err("bad axis value"))?;
++                    evs.push((frame(f)?, Input::JoyAxis(axis, v.to_bits()), ln));
++                },
+                 _ => return Err(err("unrecognised")),
+             }
+         }
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+index 4ac34fca..e88d6145 100644
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -7311,18 +7311,18 @@ impl Game {
+         Ok(self.input.mouse_wheel_down().into())
+     }
+ 
+-    pub fn joystick_exists(&mut self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 1
+-        //unimplemented!("Called unimplemented kernel function joystick_exists")
+-        // TODO
+-        Ok(gml::FALSE.into())
++    pub fn joystick_exists(&mut self, args: &[Value]) -> gml::Result<Value> {
++        // Spelunky oracle: GM8's (0x565240), whether joyGetPos answers (851-3949).
++        Ok(self.joystick_of(args).is_some().into())
+     }
+ 
+-    pub fn joystick_direction(&mut self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 1
+-        //unimplemented!("Called unimplemented kernel function joystick_direction")
+-        // TODO
+-        Ok(101.into())
++    pub fn joystick_direction(&mut self, args: &[Value]) -> gml::Result<Value> {
++        // Spelunky oracle: GM8's (0x565294): each raw axis leans below 20000 or above 44000, as the numpad key
++        // that points that way, 101 centred or without a joystick (851-3949).
++        let Some(j) = self.joystick_of(args) else { return Ok(101.into()) };
++        let lean = |raw: u32| if raw < 20000 { 0 } else if raw > 44000 { 2 } else { 1 };
++        let row = match lean(j.axes[1]) { 0 => 6, 2 => 0, _ => 3 };
++        Ok((96 + row + lean(j.axes[0]) + 1).into())
+     }
+ 
+     pub fn joystick_name(&mut self, _args: &[Value]) -> gml::Result<Value> {
+@@ -7346,39 +7346,32 @@ impl Game {
+         Ok(0.into())
+     }
+ 
+-    pub fn joystick_has_pov(&mut self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 1
+-        //unimplemented!("Called unimplemented kernel function joystick_has_pov")
+-        // TODO
+-        Ok(gml::FALSE.into())
++    pub fn joystick_has_pov(&mut self, args: &[Value]) -> gml::Result<Value> {
++        // Spelunky oracle: GM8's (0x56548c), joyGetDevCaps' POV flag (851-3949).
++        Ok(self.joystick_of(args).map_or(false, |j| j.has_pov).into())
+     }
+ 
+-    pub fn joystick_check_button(&mut self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 2
+-        //unimplemented!("Called unimplemented kernel function joystick_check_button")
+-        // TODO
+-        Ok(gml::FALSE.into())
++    pub fn joystick_check_button(&mut self, args: &[Value]) -> gml::Result<Value> {
++        // Spelunky oracle: GM8's (0x565504): the button rounded half to even into 64 bits, its low 32 a button 1-32
++        // of winmm's; 0 and anything past 32 never down (851-3949).
++        let b = crate::math::ieee_round(args.get(1).cloned().map_or(0.0, f64::from));
++        let b = if b.abs() < 9.2e18 { b as i64 as u32 } else { 0 };
++        Ok(self.joystick_of(args).map_or(false, |j| (1..=32).contains(&b) && j.buttons & (1 << (b - 1)) != 0).into())
+     }
+ 
+-    pub fn joystick_xpos(&mut self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 1
+-        //unimplemented!("Called unimplemented kernel function joystick_xpos")
+-        // TODO
+-        Ok(0.into())
++    pub fn joystick_xpos(&mut self, args: &[Value]) -> gml::Result<Value> {
++        // Spelunky oracle: GM8's (0x56596c), raw / 32767 - 1 (851-3949).
++        Ok(self.joystick_of(args).map_or(0.0, |j| f64::from(j.axes[0]) / 32767.0 - 1.0).into())
+     }
+ 
+-    pub fn joystick_ypos(&mut self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 1
+-        //unimplemented!("Called unimplemented kernel function joystick_ypos")
+-        // TODO
+-        Ok(0.into())
++    pub fn joystick_ypos(&mut self, args: &[Value]) -> gml::Result<Value> {
++        // Spelunky oracle: as joystick_xpos (851-3949).
++        Ok(self.joystick_of(args).map_or(0.0, |j| f64::from(j.axes[1]) / 32767.0 - 1.0).into())
+     }
+ 
+-    pub fn joystick_zpos(&mut self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 1
+-        //unimplemented!("Called unimplemented kernel function joystick_zpos")
+-        // TODO
+-        Ok(0.into())
++    pub fn joystick_zpos(&mut self, args: &[Value]) -> gml::Result<Value> {
++        // Spelunky oracle: GM8's (0x565a6c), as joystick_xpos (851-3949).
++        Ok(self.joystick_of(args).map_or(0.0, |j| f64::from(j.axes[2]) / 32767.0 - 1.0).into())
+     }
+ 
+     pub fn joystick_rpos(&mut self, _args: &[Value]) -> gml::Result<Value> {
+@@ -7402,11 +7395,21 @@ impl Game {
+         Ok(0.into())
+     }
+ 
+-    pub fn joystick_pov(&mut self, _args: &[Value]) -> gml::Result<Value> {
+-        // Expected arg count: 1
+-        //unimplemented!("Called unimplemented kernel function joystick_pov")
+-        // TODO
+-        Ok((-1).into())
++    pub fn joystick_pov(&mut self, args: &[Value]) -> gml::Result<Value> {
++        // Spelunky oracle: GM8's (0x565c6c), the raw POV / 100, and -1 past 360 (centred is 65535), without a POV
++        // hat too, whose POV winmm reports centred (851-3949).
++        let pov = match self.joystick_of(args) {
++            Some(j) if j.has_pov => f64::from(j.pov) / 100.0,
++            _ => -1.0,
++        };
++        Ok((if pov > 360.0 { -1.0 } else { pov }).into())
++    }
++
++    /// Spelunky oracle: the joystick GM8 asks winmm for, its second for an id of exactly 2 and its first for
++    /// any other (each joystick_* function's `id == 2.0`); a text replay connects only the first (851-3949).
++    fn joystick_of(&self, args: &[Value]) -> Option<crate::game::replay::Joystick> {
++        let id = args.first().cloned().map_or(0.0, f64::from);
++        self.joystick.filter(|_| id != 2.0)
+     }
+ 
+     pub fn keyboard_clear(&mut self, args: &[Value]) -> gml::Result<Value> {
+diff --git a/gm8emulator/src/main.rs b/gm8emulator/src/main.rs
+index c175bcf4..f8cff79b 100644
+--- a/gm8emulator/src/main.rs
++++ b/gm8emulator/src/main.rs
+@@ -275,6 +275,8 @@ fn xmain() -> i32 {
+         },
+     };
+ 
++    // Spelunky oracle: the replay's joystick, from the start (851-3949).
++    components.joystick = replay_setup.as_ref().and_then(|setup| setup.joystick).map(game::replay::Joystick::new);
+     // Set before the first room loads so oGlobals' create sees it. A savestate given with -p replaces it.
+     if let Some(table) = replay_setup.and_then(|setup| setup.highscores) {
+         components.highscores = table;

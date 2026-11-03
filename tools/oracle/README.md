@@ -91,8 +91,8 @@ Supported:
 - `close`, the window's close button: once the frame's other events are in, every instance's close-button event
   runs, as GM8's does (patch 0034).
 
-Not supported, and rejected with an error: any other `room`, `joystick`, `axis` events and `joy1`-`joy32`.
-OpenGMK's `joystick_*` functions are stubs that report no joystick, so the oracle can't play joystick input.
+Not supported, and rejected with an error: any other `room`. Joystick input, `joystick` (`joystick pov`), `joy1`-`joy32`
+and `axis` events, is patch 0038's.
 
 The game's bindings come from `keys.cfg`: by default the arrow keys, `Z` jump, `X` attack, `C` item, `Shift`
 run, `A` bomb, `S` rope, `F` flare and `P` pay. `Escape` is start (pause).
@@ -540,6 +540,19 @@ match in the draw order is the first added, as in GM8, since every match is at t
 stable. `tile_layer_delete_at`, which has the same test, deletes every tile in the same box, as GM 8.0's does (the same probe;
 the game never calls it).
 
+### `opengmk/0038-gm8-joystick.patch`
+
+A text replay's joystick (851-3949, `docs/quirks.md` §7, "Joysticks"): the `joystick` / `joystick pov` directive
+connects joystick 1, `press`/`release`/`hold` take `joy1`-`joy32`, and `axis x|y|z|pov V` moves an axis, held from
+frame to frame (`Input::JoyPress`, `JoyRelease`, `JoyAxis`, applied by `set_input_from_frame` into `Game::joystick`).
+`joystick_exists`, `_check_button`, `_xpos`, `_ypos`, `_zpos`, `_pov`, `_has_pov` and `_direction` then answer as
+GM8's runner does, read from `Spelunky.exe`'s disassembly (0x565240-0x565cf6): it asks winmm on every call, for the
+second joystick when the id is exactly 2 and the first otherwise; an axis is the raw `joyGetPosEx` value / 32767 - 1;
+the POV its hundredths / 100, and -1 past 360 (65535 when centred); a button is rounded half to even into 64 bits and
+its low 32 tested as 1-32; and `joystick_direction` leans each raw `joyGetPos` axis below 20000 or above 44000. A
+replay's axis value stands for the raw value GM8 would report it as (`round((V + 1) * 32767)`, half to even), as the
+port's `gm::input` takes it.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.
@@ -569,8 +582,9 @@ the game never calls it).
   the handle globals differ from a real run. The port's `audio` crate reproduces the stub in its `OracleCompat`
   mode: run the port in that mode when diffing against the oracle, and `--fields` diffs match on those globals too.
   The default `Faithful` mode models the real DLL. See the `audio` crate docs for the full table.
-- **No joystick.** OpenGMK reports no joystick, so `oGamepad` sees nothing even though the shipped
-  `settings.cfg` enables the gamepad.
+- **Joysticks are patch 0038's.** OpenGMK reports no joystick; the patch gives a replay's joystick to the
+  `joystick_*` functions the game calls, as GM8's runner computes them. The others (`joystick_name`, `_axes`,
+  `_buttons`, `_rpos`, `_upos`, `_vpos`) are still stubs: the game never calls them.
 - **The clock doesn't matter.** OpenGMK spoofs it from the replay's `time` and advances it one frame per frame,
   but Spelunky never reads it: no `current_time`, `current_*` or `date_*` (`docs/source-inventory.md`, section 5).
   Nor does it seed the RNG itself, so the replay's `seed` decides every random number.

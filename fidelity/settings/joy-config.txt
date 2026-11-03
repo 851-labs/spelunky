@@ -1,0 +1,23 @@
+# The settings program (config.exe; scripts/fidelity --settings) with a gamepad (851-3949): the joystick config
+# button saves the settings and goes to rJoyConfig, where each press binds the next of the eight actions
+# (checkJoyButton: the lowest button down of 1-20, else a trigger): button 4 jump, 3 attack, 2 item, 1 run, the left
+# trigger (z 0.5: -1) bomb, the right (z -0.5: -2) rope, 11 pay and 20 start, which returns to rInit (22), whose
+# room end writes gamepad.cfg: 4 3 2 1 -1 -2 4 11 20. Escape then saves and quits. The window is 2x, so a room
+# pixel is two window pixels.
+# story: room=rJoyConfig@4 joyJumpVal=4@8 joyBombVal=-1@16 joyRopeVal=-2@18 joyStartVal=20@22 room=rInit@22
+joystick pov
+frames 40
+2 mouse 28 552
+3 press mb_left
+4 release mb_left
+8 hold joy4 1
+10 hold joy3 1
+12 hold joy2 1
+14 hold joy1 1
+16 axis z 0.5
+17 axis z 0
+18 axis z -0.5
+19 axis z 0
+20 hold joy11 1
+22 hold joy20 1
+26 hold escape 1
