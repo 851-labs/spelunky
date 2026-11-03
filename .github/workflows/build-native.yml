@@ -15,9 +15,9 @@
 #   .dmg (notarized and stapled too) and a zip for the updater, on another of GitHub's Macs. Only this job sees
 #   the signing secrets, in the `release` environment (main and v* tags only; release.yml passes them on with
 #   `secrets: inherit`), and it compiles nothing.
-# - smoke-macos, smoke: scripts/release/smoke.py on each downloadable file: the macOS app's arm64 half on a
-#   Mac mini (which only runs what's built, and holds no secret) and its x86_64 half on GitHub's Intel Mac;
-#   Windows and Linux on GitHub's machines (WARP and lavapipe draw).
+# - smoke-macos, smoke: scripts/release/smoke.py on each downloadable file: the macOS app's arm64 half on
+#   GitHub's Apple silicon Mac and its x86_64 half on its Intel Mac; Windows and Linux on GitHub's machines
+#   (WARP and lavapipe draw). So no part of this workflow runs on the Mac minis.
 #
 # Every file is an artifact named as the file, spelunky-<version>-<platform>.<ext>, which release.yml
 # publishes when the whole workflow passed. Nothing else this makes is named spelunky-*.
@@ -278,15 +278,15 @@ jobs:
     if: >-
       always() && needs.build.result == 'success' &&
       (needs.macos-sign.result == 'success' || (!inputs.sign && needs.macos-sign.result == 'skipped'))
-    # The universal app's two halves, each on its own CPU: Apple silicon on a Mac mini, Intel on GitHub's
-    # last Intel Macs. (The minis have no Rosetta to run the Intel half with.)
+    # The universal app's two halves, each on its own CPU, on GitHub's machines (851-3958): Apple silicon on
+    # macos-15, Intel on its last Intel Macs. Never a Mac mini: they're persistent and shared, so a job before
+    # could leave something (a tool on PATH, the python3 smoke.py runs under) that sways this release gate.
     strategy:
       fail-fast: false
       matrix:
         arch: [arm64, x86_64]
     runs-on: >-
-      ${{ fromJSON('{"arm64": ["self-hosted", "macOS", "ARM64", "codevisor-macos-arm64"],
-      "x86_64": "macos-15-intel"}')[matrix.arch] }}
+      ${{ fromJSON('{"arm64": "macos-15", "x86_64": "macos-15-intel"}')[matrix.arch] }}
     timeout-minutes: 30
     env:
       FINGERPRINT: ${{ needs.build.outputs.fingerprint }}
@@ -321,8 +321,6 @@ jobs:
           name: smoke-macos-${{ matrix.arch }}
           path: ${{ runner.temp }}/smoke/*.png
           if-no-files-found: ignore
-      - if: always()
-        run: rm -rf "$RUNNER_TEMP/package" "$RUNNER_TEMP/smoke"
 
   smoke:
     name: Test Win/Linux app

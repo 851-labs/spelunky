@@ -112,8 +112,9 @@ and which runs by hand (Actions › Native builds › Run workflow) to try a bra
    and deletes the keychain and key however the job ends.
 3. **Test Mac app** and **Test Win/Linux app** (`smoke-macos`, `smoke`), on each file as a player
    downloads it, on its own OS and architecture: the macOS `.dmg` and
-   zip as arm64 on a Mac mini (which only runs what's built, and holds no secret) and as x86_64 on
-   `macos-15-intel` (the minis have no Rosetta); Windows on
+   zip as arm64 on `macos-15` and as x86_64 on `macos-15-intel`, GitHub's fresh VMs, never a Mac mini (a
+   job before could leave something there, a tool on `PATH` or the `python3` the test runs under, that sways
+   this release gate); Windows on
    `windows-2025` and `windows-11-arm` (Direct3D 12 on WARP); Linux's AppImage and tarball on
    `ubuntu-24.04` and `ubuntu-24.04-arm` (Vulkan on lavapipe; the AppImage extracts itself, as there's no
    FUSE).

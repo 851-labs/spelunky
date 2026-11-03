@@ -213,7 +213,7 @@ def unpack(package, into):
             subprocess.run(["ditto", apps[0], app], check=True)
         finally:
             subprocess.run(detach, check=False, stdout=subprocess.DEVNULL)
-            # Empty once detached (and left alone if it isn't); a Mac mini's temp directory outlives the job.
+            # Empty once detached (and left alone if it isn't); a Mac's temp directory outlives a run by hand.
             with contextlib.suppress(OSError):
                 mount.rmdir()
         return unpack_app(app)
