@@ -381,6 +381,18 @@ contains '<html lang="en">' \
   'autoPlay="" loop="" muted="" playsInline=""' \
   '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
   '.play:hover, .play:focus-visible { background: #ffd860; outline: none; }'
+# Dated when the site was built, which a revalidation with the date gets a 304 for (src/server.ts: Cloudflare drops a
+# page's ETag), and one with another date the page.
+updated=$(grep -i '^last-modified:' "$tmp/h" | cut -d' ' -f2-)
+case $updated in *GMT) ;; *) fail "$url: last-modified '$updated', not an HTTP date" ;; esac
+with "If-Modified-Since: $updated"
+# (curl leaves the last body there when this one's empty.)
+: >"$tmp/body"
+check "$site/wiki/snake" 304 "$no_cache" "last-modified: $updated"
+[ ! -s "$tmp/body" ] || fail "$url: a 304 with a body"
+with "If-Modified-Since: Thu, 01 Jan 2026 00:00:00 GMT"
+check "$site/wiki/snake" 200 "last-modified: $updated"
+check "$site/" 200 "$no_cache"
 # Its head (src/seo/): the canonical URL and the JSON-LD; test-seo.mjs, below, checks every page's.
 contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
   '<link rel="search" type="application/opensearchdescription+xml" title="spelunky.ai wiki" href="https://spelunky.ai/opensearch.xml"/>' \
