@@ -51,6 +51,16 @@ if [ -z "$watched" ] || [ -z "$tested" ] || [ "$watched" != "$tested" ]; then
   echo "site/test.sh: docs/web-deploy.md's build watch paths ($watched) aren't pr.yml's site job's inputs ($tested)" >&2
   exit 1
 fi
+# A quirk box's `pinned_by` (wiki/'s pages) may name any file of the repo's, and the build fails on one that's gone,
+# but pr.yml's site job only runs when a committed replay is removed (its CITED paths), not any other file: so a
+# quirk may be pinned by a replay only, or a pull request removing its file would pass and the next one touching
+# the site fail (851-3938).
+unwatched=$(grep -rhoE '^ *pinned_by: *"?[^" ]+' ../wiki | sed -E 's/^ *pinned_by: *"?//' | grep / |
+  grep -vE '^fidelity/(replays|settings)/' || true)
+if [ -n "$unwatched" ]; then
+  echo "site/test.sh: quirks pinned by a file outside fidelity/replays and fidelity/settings, which pr.yml's site job doesn't watch: $unwatched" >&2
+  exit 1
+fi
 
 tmp=$(mktemp -d)
 pids=
