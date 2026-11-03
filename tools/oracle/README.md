@@ -611,7 +611,7 @@ window does. Without the variables nothing is read back, and the dump is the sam
 How GM8 draws a tiled background layer through a scaled view (851-3967, `docs/quirks.md` §6). Its columns and rows go
 up to the view's right and bottom edges, as GM8's tiled draw does (`gml::gm8::view_span`, wider only for a rotated
 view; probe `view-tiling`), where OpenGMK tiled half the view's other side past them. And GL's half-pixel correction
-shifts by 1/64 of a pixel less than half, so a pixel centre exactly on a quad's edge, or a sample exactly on a texel
+shifts by 1/512 of a pixel less than half, so a pixel centre exactly on a quad's edge, or a sample exactly on a texel
 boundary, lands where Direct3D 8 puts it whatever the `f32` matrices round. At 2x, every other pixel's sample is on a
 boundary, and OpenGMK's put some on the earlier texel. With it, the settings program's window is GM8's to the pixel
 (config.exe screenshotted under Wine). It changes only pixels: the dump is the same.

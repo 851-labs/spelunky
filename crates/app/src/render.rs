@@ -596,8 +596,9 @@ impl Renderer {
                 // `gm::gm8::draw_background`; probe `view-tiling`, 851-3967): under a scaled view the half-pixel
                 // shift then leaves the last pixels uncovered, as in the settings program's 2x window. Only a
                 // rotated view spans wider, and the renderer has none.
-                let end_x = f64::from(view.x.saturating_add(view.w));
-                let end_y = f64::from(view.y.saturating_add(view.h));
+                // In wrapping 32-bit arithmetic, as GM8's (`gm::gm8::view_span`).
+                let end_x = f64::from(view.x.wrapping_add(view.w));
+                let end_y = f64::from(view.y.wrapping_add(view.h));
                 let xs = tile_positions(b.x, w, b.tile_h, f64::from(view.x), end_x);
                 let ys = tile_positions(b.y, h, b.tile_v, f64::from(view.y), end_y);
                 self.begin_batch(state, tris, Source::Images, None);
@@ -1362,10 +1363,16 @@ mod tests {
             eprintln!("skipped: no GPU");
             return;
         };
+        // White, but for its first column, black: at 2x, a pixel whose sample is exactly on the boundary between
+        // the two takes the later, white, as Direct3D 8 does.
+        let mut pixels = vec![255; 16 * 16 * 4];
+        for row in pixels.chunks_mut(16 * 4) {
+            row[..3].fill(0);
+        }
         let white = Layers {
             width: 16,
             height: 16,
-            layers: vec![vec![255; 16 * 16 * 4]],
+            layers: vec![pixels],
         };
         let textures = Textures {
             background_pages: white,
@@ -1406,9 +1413,16 @@ mod tests {
         renderer.render(&frame);
         let (w, _, rgba) = renderer.read_screen().unwrap();
         let lit = |x: u32, y: u32| rgba[((y * w + x) * 4) as usize] != 0;
-        // Pixels 0 to 94 of each row and column, as GM8 lit them; not 95.
-        assert!(lit(0, 0) && lit(94, 10) && lit(10, 94) && lit(94, 94));
-        assert!(!lit(95, 10) && !lit(10, 95) && !lit(95, 95));
+        // Pixels 0 to 94 of each column, as GM8 lit them; not 95.
+        assert!(lit(1, 0) && lit(1, 94) && !lit(1, 95));
+        // Each tile's black column: the copy at room x 16k covers window pixels 32k - 1 to 32k + 30, whose samples
+        // are at texels 0, 0.5, 1, 1.5...: pixels 32k - 1 and 32k take texel 0, and pixel 32k + 1, exactly on the
+        // boundary, texel 1. The last copy ends at 94.
+        let row: Vec<bool> = (0..96).map(|x| lit(x, 10)).collect();
+        for x in 0..96 {
+            let black = x == 95 || x % 32 == 31 || x % 32 == 0;
+            assert_eq!(row[x as usize], !black, "pixel {x}");
+        }
     }
 
     /// `oScreen`'s dark-level composition (851-3160), as `gm` records it: the draw stage has drawn the room

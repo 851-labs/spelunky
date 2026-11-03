@@ -27,18 +27,20 @@ diff --git a/gm8emulator/src/game/draw.rs b/gm8emulator/src/game/draw.rs
 diff --git a/gm8emulator/src/render/opengl.rs b/gm8emulator/src/render/opengl.rs
 --- a/gm8emulator/src/render/opengl.rs
 +++ b/gm8emulator/src/render/opengl.rs
-@@ -148,8 +148,12 @@ impl RenderState {
+@@ -148,8 +148,14 @@ impl RenderState {
          unsafe {
              gl.GetIntegerv(gl::VIEWPORT, viewport.as_mut_ptr());
          }
 -        let offset_x = 1.0 / f64::from(viewport[2]);
 -        let offset_y = 1.0 / f64::from(viewport[3]);
-+        // Spelunky oracle: a hair less than half a pixel (1/64 of one less), so a pixel centre exactly on a quad's
++        // Spelunky oracle: a hair less than half a pixel (1/512 of one less), so a pixel centre exactly on a quad's
 +        // edge, or a sample exactly on a texel boundary, lands where Direct3D 8's rules put it, inside on the top and
 +        // left edges and in the later texel, whatever the f32 matrices round (851-3967). At a scale of 2, every other
-+        // pixel's sample is on a texel boundary, and exactly half a pixel left some on the earlier texel.
-+        let offset_x = (1.0 - 1.0 / 32.0) / f64::from(viewport[2]);
-+        let offset_y = (1.0 - 1.0 / 32.0) / f64::from(viewport[3]);
++        // pixel's sample is on a texel boundary, and exactly half a pixel left some on the earlier texel. An edge or a
++        // boundary within that 1/512 of a pixel centre moves too: well under any f32 error that mattered, and over
++        // the rasterizer's snapping of an exact tie.
++        let offset_x = (1.0 - 1.0 / 256.0) / f64::from(viewport[2]);
++        let offset_y = (1.0 - 1.0 / 256.0) / f64::from(viewport[3]);
          // build viewproj matrix
          #[rustfmt::skip]
              let viewproj = mat4mult(
