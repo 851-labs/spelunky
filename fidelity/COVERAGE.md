@@ -133,9 +133,9 @@ scripts/cargo run --release -p harness --bin replay-coverage -- --lines --missed
 scripts/cargo run --release -p harness --bin replay-coverage -- --lines --by-line oSnake/   # which replays run each line
 ```
 
-All 256 committed replays, 491,636 frames:
+All 261 committed replays, 498,402 frames:
 
-- **The game**: 16908 of 20278 lines (83.4%), in 1435 units: 176 never ran, 238 partly.
+- **The game**: 16941 of 20278 lines (83.5%), in 1435 units: 176 never ran, 238 partly.
 - **The settings program**: 556 of 1231 lines (45.2%), in 114 units: 69 never ran, 11 partly.
 
 The game's units that never ran, by why:
