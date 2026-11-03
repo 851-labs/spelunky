@@ -192,6 +192,50 @@ pub fn show_link(link: Option<Link>) {
     }
 }
 
+/// The game has closed, as its window would natively ([`crate::window::App`], 851-3923): the page hides the
+/// picture (`canvas`, the app's) and its link beside it, and shows `#closed` (`crates/app/web/index.html`),
+/// saying so, with a link to start again, focused so Enter, as at the game's own screens, follows it. The
+/// link starts the program that closed: the settings program (`settings`) or the game, which on a page that
+/// started in the settings program isn't the page's own URL (the `#switch` link's URLs); the page as it is,
+/// on one without them (a replay's).
+pub fn show_closed(canvas: Option<&web_sys::HtmlElement>, settings: bool) {
+    let Some(document) = web_sys::window().and_then(|w| w.document()) else {
+        return;
+    };
+    if let Some(canvas) = canvas {
+        let _ = canvas.set_attribute("hidden", "");
+    }
+    let url = document.get_element_by_id("switch").and_then(|link| {
+        let _ = link.set_attribute("hidden", "");
+        link.get_attribute(if settings {
+            "data-settings"
+        } else {
+            "data-play"
+        })
+    });
+    // Set as it shows, so a screen reader reads it out: a live region announces a change, not a region
+    // appearing.
+    if let Some(message) = document.get_element_by_id("closed-message") {
+        message.set_text_content(Some(if settings {
+            "The settings program has closed."
+        } else {
+            "The game has closed."
+        }));
+    }
+    if let Some(closed) = document.get_element_by_id("closed") {
+        let _ = closed.remove_attribute("hidden");
+    }
+    if let Some(again) = document
+        .get_element_by_id("again")
+        .and_then(|a| a.dyn_into::<web_sys::HtmlElement>().ok())
+    {
+        if let Some(url) = url {
+            let _ = again.set_attribute("href", &url);
+        }
+        let _ = again.focus();
+    }
+}
+
 /// Shows an error on the page (in `#status`, which the page styles) and in the console. The event loop
 /// can't return its error the way native `run_app` does, so this is where web failures end up.
 pub fn show_error(error: &str) {
