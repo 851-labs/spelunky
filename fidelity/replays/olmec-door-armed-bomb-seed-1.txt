@@ -5,7 +5,7 @@
 # bomb being armed, the step lets go of it (held false) where an unarmed one goes back into the inventory, so
 # global.bombs stays 3; it's left in rOlmec, and rEnd, the volcano, loads on 5674, before its fuse runs out.
 # story: room=rOlmec@1701 -oOlmec@5200 held=oBomb@5640..5640 bombs=3@5640..5640 oBomb.sprite_index=sBombArmed@5644..5644
-# story: held!=oBomb@5650..5650 oPlayer1.sprite_index=sPExit@5650..5650 room=rEnd@5674 !bombs=4@5641.. !+oExplosion@5640..
+# story: held!=oBomb@5650..5650 oPlayer1.sprite_index=sPExit@5650..5650 room=rEnd@5674 !bombs=4@5641.. !+oExplosion@5640.. !-oBomb@5650..5673
 seed 1
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"

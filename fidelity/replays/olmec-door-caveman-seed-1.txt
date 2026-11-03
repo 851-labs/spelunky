@@ -5,7 +5,7 @@
 # back right (5666-5678) to the door, and up (5681) takes it. The held item being heavy, the step lets go of it
 # (held false, holdItem 0), and rEnd, the volcano, loads on 5702.
 # story: room=rOlmec@1701 -oOlmec@5200 held=oCaveman@5657..5657 held!=oCaveman@5681..5681 oPlayer1.sprite_index=sPExit@5681..5681
-# story: room=rEnd@5702
+# story: room=rEnd@5702 !held!=oCaveman@5658..5680 !-oCaveman@5681..5701
 seed 1
 highscore 9000100 "MONEY"
 highscore 8000000 "TIME"
