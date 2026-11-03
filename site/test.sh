@@ -401,14 +401,15 @@ contains '<html lang="en">' \
   '<title>Spelunky Classic in your browser (unofficial port)</title>' \
   '<meta property="og:image" content="https://spelunky.ai/media/card.png"/>' \
   '<meta property="og:image:width" content="1200"/>' '<meta property="og:image:height" content="630"/>' \
-  '<img class="logo" src="media/logo.png" width="160" height="36" alt="Spelunky"/>' \
-  'Spelunky Classic 1.1, ported to Rust tick for tick, bugs included.' \
-  '<a class="play" href="/play/">Play in your browser</a>' \
-  '<p class="more"><a href="/play/?settings">Settings</a><a href="/wiki">Wiki</a></p>' \
+  '<header class="site-header"><a href="/" class="site-home" aria-current="page"><img src="/media/logo.png" width="160" height="36" alt="Spelunky"/></a>' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/">Play</a><a href="/wiki">Wiki</a></nav>' \
+  '<form role="search" class="search-box" action="/wiki" method="get">' '<main id="content">' '<footer class="site-footer">' \
+  '<h1>Spelunky Classic 1.1, ported to Rust tick for tick, bugs included.</h1>' \
+  '<a class="play" href="/play/">Play in your browser</a><a class="settings" href="/play/?settings">Settings</a>' \
   '<a href="/wiki/controls">All the controls</a>' \
   'autoPlay="" loop="" muted="" playsInline=""' \
   '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
-  '.play:focus-visible { outline: 2px solid var(--gold);'
+  '.play:focus-visible{outline:2px solid var(--gold);' '.site-header{'
 # Dated when the site was built, which a revalidation with the date gets a 304 for (src/server.ts: Cloudflare drops a
 # page's ETag), and one with another date the page.
 updated=$(grep -i '^last-modified:' "$tmp/h" | cut -d' ' -f2-)
@@ -431,7 +432,7 @@ contains '<link rel="canonical" href="https://spelunky.ai/"/>' \
   '"urlTemplate":"https://spelunky.ai/wiki?q={search_term_string}"'
 # What a device with only touch is told above Play (851-3925), shown by landing.css's media query.
 contains '<p class="touch-note">This device seems to have no keyboard or gamepad.' \
-  '@media (pointer: coarse) {'
+  '@media (pointer:coarse){'
 check "$site/index.html" 301 "location: /"
 # For crawlers: robots.txt names the sitemaps, which src/seo/sitemap.ts makes at build time.
 check "$site/robots.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
@@ -629,7 +630,7 @@ check "$site/wiki/media" 404 "$no_cache"
 # in the page), the sections' anchors and the navbox, its title linking the hub.
 check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Snake – Spelunky Classic wiki</title>' \
-  '<nav class="wiki-site" aria-label="spelunky.ai"><a href="/play/">Play</a><a href="/">spelunky.ai</a></nav>' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/">Play</a><a href="/wiki" aria-current="true">Wiki</a></nav>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
   '<meta name="description" content="The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact."/>' \
   '<meta property="og:type" content="article"/>' '<meta property="og:image" content="https://spelunky.ai/wiki/og/snake.' \
@@ -642,7 +643,6 @@ contains '<title>Snake – Spelunky Classic wiki</title>' \
   "{\"@context\":\"https://schema.org\",\"@type\":\"ImageObject\"" \
   "\"contentUrl\":\"https://spelunky.ai$media_url/sprites/sSnakeWalkL/anim%404x.png\"" \
   '"caption":"A green snake with a tan belly, coiled and facing left"' \
-  '<span class="wiki-badge">Wiki</span>' \
   'spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth.' \
   '<h1>Snake</h1>' '<h2 id="behaviour">Behaviour</h2>' \
   '<a class="anchor" href="#behaviour" aria-label="Link to this section" aria-describedby="behaviour">#</a>' \
@@ -778,7 +778,7 @@ if [ $(($(echo "$css" | wc -w))) != 1 ]; then
   fail "/wiki: doesn't link one stylesheet of the wiki's CSS: $css"
 else
   check "$site/$css" 200 "$immutable" "content-type: text/css; charset=utf-8"
-  contains '.wiki-header{'
+  contains '.infobox{' '.site-header{'
   for page in wiki wiki/snake wiki/monsters wiki/items/weapons; do
     grep -qF "<link rel=\"stylesheet\" href=\"/$css\"/>" "dist/client/$page.html" || fail "/$page doesn't link $css"
   done

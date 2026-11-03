@@ -92,7 +92,7 @@ export function ContentsRail({ sections }: { sections: Section[] }) {
       .split(" ")
       .map((id) => document.getElementById(id))
       .filter((heading) => heading !== null);
-    const footer = document.querySelector(".wiki-footer");
+    const footer = document.querySelector(".site-footer");
     const wide = window.matchMedia(WIDE);
     if (headings.length === 0) return;
     let atEnd = false;

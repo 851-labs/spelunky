@@ -147,14 +147,15 @@ The user settled the open questions on 2026-10-27:
    show only their title and description. The notice stays in the video files' metadata and the poster's
    `Copyright` chunk. A page whose clips have sound adds the audio credit to its footer.
 5. **No copyright line in the header.** The footer of every page carries the full notice and the license
-   link, so the header shows only the logo, the badge and search. A wiki page isn't a Covered Work itself
+   link, so the header shows only the logo, the site's sections (the wiki's marked, where the badge was:
+   851-3994) and search. A wiki page isn't a Covered Work itself
    (the game at `/play/` is, and shows its own notice at start), so the footer is enough.
 
 The user settled one more on 2026-10-29:
 
-6. **"Wiki", not "Fan wiki".** The masthead's badge says "Wiki", and the titles say "Spelunky Classic wiki"
-   (the `<title>`s, `/wiki`'s heading, `/llms.txt`'s title, the JSON-LD lists' names, the OG images' badge
-   and `/wiki`'s card). What says the site is unofficial stays: the footer's notice on every page ("an
+6. **"Wiki", not "Fan wiki".** The masthead's section (its badge until 851-3994) says "Wiki", and the
+   titles say "Spelunky Classic wiki" (the `<title>`s, `/wiki`'s heading, `/llms.txt`'s title, the JSON-LD
+   lists' names, the OG images' badge and `/wiki`'s card). What says the site is unofficial stays: the footer's notice on every page ("an
    unofficial fan project, not affiliated with or endorsed by Mossmouth"), which is what condition 4 and the
    don'ts need, as a wiki page isn't a Covered Work; the OG images' "Unofficial fan wiki · spelunky.ai", as a
    card is seen without the page's footer; and the descriptions listed under "Trademark".

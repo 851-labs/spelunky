@@ -21,13 +21,16 @@ import { gzipSync } from "node:zlib";
 // 117 KB when it was set (851-3428), from 123 KB with the wiki's CSS, and 168 KB when the landing page loaded
 // the wiki's code too (851-3407). Raised to 122 KB (851-3533) when 146 pages took it to 120.5 KB, as the entry
 // chunk had each wiki page's chunk path, and back to 117 KB (851-3566) when the map of them left it: 115.5 KB.
-const BUDGET = 117 * 1024;
-// Whatever quotes the minifier picks: WikiFrame's header (its className), and Base UI's production errors'
-// URL, which its every component can throw.
-const WIKI = /className:["'`]wiki-header["'`]/;
+// Raised to 119 KB (851-3994) when the landing page got the site's header, its component and the site's styles
+// (src/site/), which its route's head inlines: 117.8 KB.
+const BUDGET = 119 * 1024;
+// Whatever quotes the minifier picks: the wiki's page layout (its className; the header is the site's, the landing
+// page's too, src/site/frame.tsx), and Base UI's production errors' URL, which its every component can throw.
+const WIKI = /className:["'`]wiki-page["'`]/;
 const BASE_UI = /base-ui\.com\/production-error/;
-// A rule of wiki.css's, as a ?raw import would carry it, or a minifier.
-const WIKI_CSS = /\.wiki-header ?\{/;
+// A rule of wiki.css's own (not site.css's, which the landing page inlines), as a ?raw import would carry it, or a
+// minifier.
+const WIKI_CSS = /\.infobox ?\{/;
 // What the live clips' player asks of the game (src/wiki/live-clip-player.tsx).
 const LIVE_PLAYER = /spelunky:take-control/;
 // A wiki page's chunk (src/wiki/build/compile.ts's module): its meta, which starts with its slug.
