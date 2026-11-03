@@ -4,7 +4,8 @@
 // beside them (src/wiki/contents.tsx). The license's notices are on every wiki page (docs/wiki-license.md,
 // "Notice text for the templates"): the footer, with the audio credit on a page whose clips have sound. The
 // header has no copyright line (its Decisions, 5).
-// The header has the search box (src/wiki/search-box.tsx), and links to pages have hover cards
+// The header has links to the game and the site's front page and the search box (src/wiki/search-box.tsx), and
+// links to pages have hover cards
 // (src/wiki/hover-card.tsx).
 //
 // Everything has its size before it loads (the sprite, the clips' boxes) and nothing moves once it has: no
@@ -37,6 +38,11 @@ export function WikiFrame({ children, audio = false }: { children: ReactNode; au
           <img src="/media/logo.png" width="160" height="36" alt="Spelunky" />
           <span className="wiki-badge">Wiki</span>
         </a>
+        {/* The way back to the game: its page, and the site's front page (851-3926). */}
+        <nav className="wiki-site" aria-label="spelunky.ai">
+          <a href="/play/">Play</a>
+          <a href="/">spelunky.ai</a>
+        </nav>
         <SearchBox />
       </header>
       <main id="content">{children}</main>
