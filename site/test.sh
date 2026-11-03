@@ -468,13 +468,22 @@ check "$site/$script" 200 "$immutable" "x-content-type-options: nosniff" "$hsts"
 # The web build.
 check "$site/play" 307 "location: /play/" "$no_cache"
 check "$site/play/" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$frame_csp"
-# The web build's page as it is, but for its policy (csp.mjs), which lets it compile its WebAssembly.
-sed 's|<meta http-equiv="Content-Security-Policy" content="[^"]*">||' "$tmp/body" | cmp -s - "$tmp/web/index.html" ||
-  fail "$url: isn't the web build's page with a Content-Security-Policy"
+# The web build's page, with the site's head after its <title>, which it keeps (src/seo/play.ts, play-head.mjs),
+# and which test-seo.mjs checks as it does every page's, and its policy (csp.mjs), which lets it compile its
+# WebAssembly.
+cp "$tmp/web/index.html" "$tmp/play-page.html"
+node play-head.mjs "$tmp/play-page.html" >/dev/null
+sed 's|<meta http-equiv="Content-Security-Policy" content="[^"]*">||' "$tmp/body" | cmp -s - "$tmp/play-page.html" ||
+  fail "$url: isn't the web build's page with the site's head and a Content-Security-Policy"
 contains '<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src '"'self'"'; script-src '"'self'"' '"'sha256-"
-contains "'wasm-unsafe-eval'"
+contains "'wasm-unsafe-eval'" '<link rel="canonical" href="https://spelunky.ai/play/">' \
+  '<title>stand-in web build</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">' '<meta property="og:image" content="https://'
+# A release whose page has some of the head already fails the build, rather than serve it twice.
+echo '<!doctype html><title>t</title><meta name="viewport" content="width=device-width">' >"$tmp/play-twice.html"
+! node play-head.mjs "$tmp/play-twice.html" 2>/dev/null || fail "play-head.mjs: gave a page a second viewport"
 check "$site/play/manifest.txt" 200 "$no_cache"
-# The page as it's served, with its policy, and the rest as the release has them (build.sh).
+# The page as it's served, with its head and policy, and the rest as the release has them (build.sh).
 [ "$(grep ' index.html$' "$tmp/body")" = "$(cd dist/client/play && shasum -a 256 index.html)" ] ||
   fail "$url: doesn't name index.html as it's served"
 [ "$(grep ' v/0123456789abcdef/app.js$' "$tmp/body")" = "$(grep ' v/0123456789abcdef/app.js$' "$tmp/web/manifest.txt")" ] ||

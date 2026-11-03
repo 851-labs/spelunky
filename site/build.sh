@@ -232,6 +232,10 @@ assets=dist/client
 node -e 'fs.writeFileSync(process.argv[2], new TextDecoder("windows-1252").decode(fs.readFileSync(process.argv[1])))' \
   ../LICENSE $assets/LICENSE.txt
 mv "$tmp/play" $assets/play
+# The game's page gets the head every page has (src/seo/play.ts) after its title, the release's copyright notice:
+# its description, canonical URL, Open Graph's and Twitter's tags, the viewport and the icons (and its policy,
+# below, with the other pages').
+node play-head.mjs $assets/play/index.html
 if [ -n "$manifest" ]; then
   mkdir $assets/releases
   cp "$manifest" $assets/releases/latest.json
@@ -251,12 +255,14 @@ if [ -d "$media/rooms" ]; then
   find "$media/rooms" -maxdepth 1 -name '*.png' -exec cp {} $assets/wiki/media/rooms/ \;
 fi
 # Every page's Content-Security-Policy, naming its own inline scripts by their hashes (csp.mjs), now that the
-# pages are all here: the app's, 404.html and the game's. The game's is the release's page with its policy then,
-# so play/manifest.txt, which lists every file at /play/ to check the site against, names it as it's served.
+# pages are all here: the app's, 404.html and the game's. The game's is the release's page with its head and its
+# policy then, so play/manifest.txt, which lists every file at /play/ to check the site against, names it as it's
+# served (the rest as the release has them).
 node csp.mjs write $assets
 page_sum=$(sha256 $assets/play/index.html)
-awk -v sum="$page_sum" '$0 ~ /^[0-9a-f]+  index\.html$/ { print sum "  index.html"; next } { print }' \
-  $assets/play/manifest.txt >"$tmp/manifest.txt"
+awk -v sum="$page_sum" '$0 ~ /^[0-9a-f]+  index\.html$/ { print sum "  index.html"; n++; next } { print }
+  END { exit n != 1 }' $assets/play/manifest.txt >"$tmp/manifest.txt" ||
+  die "the web build's manifest.txt hasn't one 'SHA-256  index.html' line to update"
 mv "$tmp/manifest.txt" $assets/play/manifest.txt
 # The builds before this one's content-hashed files (its scripts and Open Graph images), which the pages they
 # served still name, from the live site's build-assets.json, and this build's list of its own (carry-assets.mjs;
