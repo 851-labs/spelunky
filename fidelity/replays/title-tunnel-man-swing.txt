@@ -1,0 +1,33 @@
+# Playing as the Tunnel Man (851-3811): no other replay changes into him, so none runs oPlayer1's step's swing for
+# him, the Mattock's hit and wind-up with empty hands. A stats table that meets oTitle's test for the Tunnel Man's
+# door ($200,000 or more, a time of 1 to 600 seconds, 120 kills and 8 saves: MONEY 9200000, TIME 8000600, KILLS
+# 7000120, SAVES 6000008), and every shortcut unlocked (TUNNEL1 2000000, TUNNEL2 1000000), as gen-area.sh's, for
+# the ladder up to the shortcut gallery. Past the intro, the player climbs the ladder (538), runs left along the
+# gallery (640-761) to the door, oXChange2 (32, 128, under the multi-trophy), and goes in (up, 762). Its
+# animation's end, pExit xCHANGE2, makes him the Tunnel Man, with 2 hearts (793). He swings facing right (X, 810):
+# an oMattockPre behind him (811) and an oMattockHit ahead (815). Then he turns left (840) and swings again (850):
+# the wind-up behind him, on his right (851), and the hit ahead (855). Ends at 889.
+# story: room=rTitle@70 +oXChange2@70 isTunnelMan=1@793..793 plife=2@793..793 oPlayer1.sprite_index=sTunnelLeft@793..793
+# story: +oMattockPre@811..811 +oMattockHit@815..815 +oMattockPre@851..851 +oMattockHit@855..855
+seed 777
+frames 890
+highscore 9200000 "MONEY"
+highscore 8000600 "TIME"
+highscore 7000120 "KILLS"
+highscore 6000008 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 114
+640 hold Z 6
+762 hold up 5
+810 hold X 2
+840 hold left 1
+850 hold X 2
