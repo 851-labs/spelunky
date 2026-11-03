@@ -11,8 +11,8 @@ game's `sound/` folder too) and the **Source Code** (the `.gmk` files "and all o
 sprites, and tiles" in them). A modified version is a **Covered Work**: the port is one, and so is anything
 that copies the game's assets or code, such as a sprite strip, a clip or a GML excerpt. Four conditions:
 
-1. Keep the license and the source's copyright notices intact: `/LICENSE.txt` is served unchanged from the
-   repo (`docs/web-deploy.md`).
+1. Keep the license and the source's copyright notices intact: `/LICENSE.txt` is the repo's `LICENSE`, its text
+   unchanged but for its encoding (windows-1252 to UTF-8, `docs/web-deploy.md`).
 2. Don't sell Covered Works.
 3. Show an appropriate copyright notice at the beginning of every Covered Work and of its documentation.
 4. Don't present a modified version as unmodified or official: make it clear it's a mod.
@@ -96,7 +96,7 @@ those files", and its section 3 grants the right to redistribute it, so the whol
 not only short excerpts. The repository, which is public, already redistributes the whole of
 `spelunky.gmk` (`reference/spelunky_1_1_src.zip`) on the same terms. The conditions, as they apply:
 
-1. **The license and the source's notices intact.** Every page links `/LICENSE.txt`, served unchanged, and
+1. **The license and the source's notices intact.** Every page links `/LICENSE.txt`, the license unchanged but for its encoding, and
    shows the file whole, the scripts' own credit and copyright comments with it; the GML the pages are
    built from (`wiki/media/gml`, docs/wiki-media.md) has `LICENSE.txt` and `NOTICE.txt` beside it.
 2. **Not sold.** As the rest of the wiki: no ads, paywalls or sponsorships.

@@ -28,6 +28,12 @@
   `0022-gm8-main-loop-exceptions`; `draw_radians`, the runner's angle for a draw, 851-3304, patch `0028-gm8-draw-traps`). Integer arithmetic only. Its tests check the instructions against
   mpmath (`tools/gm8-probe/x87/vectors.py`).
 
+`src/hypot.rs` and `src/x87/` are Copyright (c) 2026 the Spelunky port's contributors, and distributed under
+the same terms as the rest of the crate (BSD-3-Clause OR Apache-2.0): `LICENSE.md`'s notice is Radzivon
+Bartoshyk's, for upstream's code, and this is ours, for these files, which their headers point to. (The line is
+here rather than in their headers because the oracle's build stamp hashes every `.rs` file of this crate,
+`tools/oracle/common.sh`, so a header change would change the oracle's identity.)
+
 The upstream functions are correctly rounded, so every code path gives the same bits; `tools/math-probe`
 checks that across platforms and against upstream, and checks every `hypot` result against mpmath. Its users are
 `gm::math` and the oracle, whose `tools/oracle/build` copies this directory into OpenGMK (patches

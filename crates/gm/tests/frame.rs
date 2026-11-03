@@ -260,12 +260,39 @@ fn drawing_sorts_by_depth_and_rebuilds_change_object_order() {
     step(&mut g);
     // Frame 0's draw sorted `all` by depth, highest first; the per-object list wasn't rebuilt.
     assert_eq!(take_log(&mut g), "o1.step all:[2, 1] o2.step all:[2, 1]");
-    // Any (de)activation rebuilds the per-object lists from the draw order.
+    // A (de)activation that moves an instance rebuilds the per-object lists: o1, deactivated and reactivated,
+    // goes to the end of the active array, and so of its object's list (§7, "(De)activation").
     let cx = ctx(&g, handle(&g, 1));
     g.instance_deactivate_object(&cx, FIRST_ID);
     g.instance_activate_object(&cx, FIRST_ID);
     step(&mut g);
     assert_eq!(take_log(&mut g), "o2.step all:[2, 1] o1.step all:[2, 1]");
+}
+
+#[test]
+fn a_deactivation_that_moves_nothing_leaves_the_object_order() {
+    // As in GM8, a (de)activation call that moves no instance between the active and inactive arrays doesn't
+    // rebuild the per-object lists (docs/quirks.md §5 and §7, "(De)activation"; 851-3802). OpenGMK rebuilt them
+    // from the depth-sorted draw order on every self, other and all, which here would put o2 first.
+    fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
+        let depth = if tag(g, cx.this) == "o2" { 10.0 } else { 0.0 };
+        g.set(cx.this, Builtin::Depth.var(), Value::Real(depth))
+    }
+    let prog = build(|b| {
+        let o = b.push_object(ObjectInfo::new("o"));
+        b.event(o, Event::Create, create)
+            .event(o, Event::Step, note);
+    });
+    let mut g = world(prog, &[ObjectId(0), ObjectId(0)]);
+    step(&mut g);
+    // Frame 0's draw sorted the active array by depth (o2 first); the per-object list is still o1, o2.
+    assert_eq!(take_log(&mut g), "o1.step o2.step");
+    // Activating what's active, or all with nothing deactivated, moves nothing.
+    let cx = ctx(&g, handle(&g, 1));
+    g.instance_activate_object(&cx, FIRST_ID);
+    g.instance_activate_all();
+    step(&mut g);
+    assert_eq!(take_log(&mut g), "o1.step o2.step");
 }
 
 #[test]

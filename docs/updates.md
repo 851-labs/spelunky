@@ -1,7 +1,8 @@
 # Updating the native apps
 
-The macOS, Windows and Linux apps update themselves (851-3255); the web build at spelunky.ai/play always
-serves the newest release anyway. The code is the `update` crate (checking, verifying, swapping, rolling
+The macOS, Windows and Linux apps update themselves (851-3255); the web build at spelunky.ai/play serves the
+release `site/web-release.txt` pins, which goes live when its bump pull request merges (docs/web-deploy.md,
+"Putting a version live"). The code is the `update` crate (checking, verifying, swapping, rolling
 back) and `app::update` (when to check, and asking the player). Neither is in `gm` or `game`, and the web
 build doesn't build them.
 

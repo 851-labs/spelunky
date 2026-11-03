@@ -118,8 +118,8 @@ and which runs by hand (Actions › Native builds › Run workflow) to try a bra
    `ubuntu-24.04` and `ubuntu-24.04-arm` (Vulkan on lavapipe; the AppImage extracts itself, as there's no
    FUSE).
 
-Every file is an artifact named as the file. `release.yml` publishes them, and the wiki's media, only if
-every job passed.
+Every file is an artifact named as the file. `release.yml` publishes them only if every job passed. (Releases
+carried the wiki's media until 851-3577; they're committed in `wiki/media` now.)
 
 The first signed run is the first release (or a hand run of this workflow on `main` with `sign`); nobody
 has to approve it. Its `macos-sign` job's log shows both notarizations'
