@@ -1,0 +1,49 @@
+# The sun room's right wall's upper arrow repeater destroyed (851-3956): no other replay runs oArrowRepeaterL's
+# destroy event. As bonus-sun-damsel.txt's input to frame 815 (skips the intro, climbs the scores room's shaft to the
+# sun ledge; rSun loads on 846, oSunRoom's create sets plife to 8). Then oSunRoom's alarm 0 drops an armed bomb at the
+# player's x, clamped to 40-280, at y 32 (1103). The player has run right across the room, jumping the spring traps
+# (860-898), to x 244, so it lands on the ledge at (244,44), where it lies; he walks on right to x 265 (1170). It goes
+# off at 1222. oSunRoom's alarm 0 drops the next bomb at (269,33) (1231) into the blast, which pushes it toward the
+# wall and sets it off a few steps later (1239, at 272,51): its blast destroys the oArrowRepeaterL at (288,32) (1241).
+# The player isn't hurt. Ends at 1259.
+# story: room=rSun@846 +oBomb@1103..1103 +oExplosion@1222..1222 +oBomb@1231..1231 -oArrowRepeaterL@1241..1241
+# story: !-oArrowRepeaterR !oPlayer1.dead=1 !plife<8@846..
+seed 777
+frames 1260
+highscore 9200000 "MONEY"
+highscore 8000500 "TIME"
+highscore 7000120 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 54
+515 hold up 5
+570 hold right 5
+570 hold Z 12
+600 hold Z 12
+600 hold right 20
+625 hold Z 8
+625 hold right 8
+655 hold Z 12
+655 hold left 20
+685 hold Z 8
+685 hold left 8
+705 hold Z 12
+705 hold right 20
+735 hold Z 8
+735 hold right 8
+760 hold Z 12
+760 hold left 20
+790 hold Z 8
+790 hold left 8
+815 hold up 5
+860 hold right 76
+878 hold Z 10
+898 hold Z 10
+1170 hold right 8
