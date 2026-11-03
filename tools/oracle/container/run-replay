@@ -42,6 +42,10 @@ fi
 if [[ -n "${DRAWS:-}" ]]; then
   export OPENGMK_DUMP_DRAWS=1
 fi
+if [[ -n "${SCREENSHOTS:-}" ]]; then
+  mkdir -p "${SCREENSHOT_DIR:?}"
+  export OPENGMK_SCREENSHOTS="$SCREENSHOTS" OPENGMK_SCREENSHOT_DIR="$SCREENSHOT_DIR"
+fi
 
 cd "$work"
 # In the background so an interrupt (Ctrl-C on the host) stops the emulator now, not after the whole replay.
@@ -67,7 +71,7 @@ if [[ $status -eq 0 ]]; then
 fi
 
 # Hand the outputs to the host user (matters on Linux hosts; Docker on macOS maps ownership already).
-for f in "$DUMP" "$host_dir" "${SAVESTATE_OUT:-}"; do
+for f in "$DUMP" "$host_dir" "${SAVESTATE_OUT:-}" "${SCREENSHOT_DIR:-}"; do
   if [[ -n "$f" && -e "$f" ]]; then
     chown -R "${HOST_UID:-0}:${HOST_GID:-0}" "$f"
   fi
