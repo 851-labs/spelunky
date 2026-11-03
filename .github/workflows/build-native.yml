@@ -87,7 +87,7 @@ jobs:
             exit 1
           fi
       # From nothing, in the job's temp directory: rustup, the toolchain, the cross toolchains, the target dir.
-      - run: scripts/release/ci-setup fresh
+      - run: scripts/release/ci-setup
       - run: scripts/release/build --version "$VERSION" --out "$RUNNER_TEMP/packages"
       # What every package's smoke test must reproduce: the replay's trace on the port, here, which
       # fidelity-check first holds to the oracle's committed fingerprint (fidelity/fingerprints/). Each

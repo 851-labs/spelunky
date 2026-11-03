@@ -98,11 +98,12 @@ and which runs by hand (Actions › Native builds › Run workflow) to try a bra
 1. **Build apps** (`build`), on GitHub's Apple silicon Mac (`macos-15`, a fresh VM), never a Mac mini: the
    minis are persistent and shared with pull requests' jobs and other repositories', so a job before could
    leave something a build would run (a `.cargo/config.toml` above the checkout, which Cargo reads whatever
-   `CARGO_HOME` is, a login item, a tool on `PATH`; 851-3899). `scripts/release/ci-setup fresh` installs
-   rustup, the pinned toolchain and the cross toolchains in the job's temp directory, failing if a Cargo config
-   sits above the checkout, then `scripts/release/build` makes all six, from nothing every time. It also checks the smoke replay against its committed oracle
-   fingerprint (`fidelity-check`, [docs/formats.md](formats.md#fingerprints)) and runs it on `replay-run`
-   for the trace every shipped build must reproduce. (The wiki's media aren't a release's: they're committed,
+   `CARGO_HOME` is, a login item, a tool on `PATH`; 851-3899). `scripts/release/ci-setup` installs
+   rustup, the pinned toolchain and the cross toolchains in the job's temp directory, failing if a Cargo
+   config sits above the checkout, then `scripts/release/build` makes all six, from nothing every time. It also
+   checks the smoke replay against its committed oracle fingerprint (`fidelity-check`,
+   [docs/formats.md](formats.md#fingerprints)) and runs it on `replay-run` for the trace every shipped build
+   must reproduce. (The wiki's media aren't a release's: they're committed,
    [docs/wiki-media.md](wiki-media.md#committing).)
 2. **Sign Mac app** (`macos-sign`, with `sign`), on another fresh `macos-15`, in the `release` environment:
    the only job with the signing secrets, and it compiles nothing, so the Developer ID key is only ever on a

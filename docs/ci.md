@@ -39,7 +39,7 @@ job.
   test ([Pull requests](#pull-requests)), everything that needs Docker (the oracle), and builds the web version a
   release publishes.
 - **GitHub-hosted `macos-15`** (Apple silicon, a fresh VM a job) builds a release's native apps and signs the
-  macOS one (`build-native.yml`), set up from nothing by `scripts/release/ci-setup fresh`.
+  macOS one (`build-native.yml`), set up from nothing by `scripts/release/ci-setup`.
 - **GitHub-hosted `macos-15-intel`, `windows-2025`, `windows-11-arm`, `ubuntu-24.04` and
   `ubuntu-24.04-arm`** smoke-test the native builds, each on its own OS and architecture.
 
@@ -47,7 +47,7 @@ GitHub's machines are named by OS version (`ubuntu-24.04`, `windows-2025`, `maco
 `*-latest`, which moves to each new OS on GitHub's schedule (`ubuntu-latest` to 26.04 from October 2026):
 the oracle's Docker setup and the Linux smoke test's packages (`libasound2t64`) are 24.04's, and a new OS
 should come in a pull request of its own. (`windows-11-arm` has no versioned name.) The Linux release builds
-don't depend on it: they're built on a mini with zig, for glibc 2.31 ([docs/releasing.md](releasing.md)).
+don't depend on it: they're built on `macos-15` with zig, for glibc 2.31 ([docs/releasing.md](releasing.md)).
 
 ### The Mac minis' loose objects
 
@@ -126,7 +126,8 @@ all of that, line by line: the parse check before `trap cleanup EXIT` (no other 
 `finished`, `finished=1` as the last line (unless it ends by `exec`), and `finished=1` before every `exit 0`
 after the trap.
 
-The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
+Code from outside never runs on the minis: they're persistent and shared, so what one job leaves there
+reaches the next (the reason releases are built and signed elsewhere, on GitHub's fresh `macos-15`). Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside
 contributors wait for a maintainer's approval (the Actions setting "Require approval for all external
 contributors"), and `pr.yml` itself skips its mini job for a pull request from a fork and fails `pr-ok`, so
@@ -169,7 +170,7 @@ and `release.yml`:
 4. builds the web version from scratch on `ubuntu-24.04`, `spelunky-web-TAG.tar.gz` (`scripts/web
    --package`), and checks it the way the site's build will (`site/build.sh --local`);
 5. builds, signs, notarizes and smoke-tests the native apps (`build-native.yml`, [docs/releasing.md](releasing.md)):
-   all six built on a mini, each file then played on its own OS and architecture, and runs the updater's
+   all six built on GitHub's `macos-15`, each file then played on its own OS and architecture, and runs the updater's
    tests (`updater.yml`), as a pull request does;
 6. signs the native apps' update manifest, `latest.json`, for those downloads (`scripts/release/manifest`,
    [docs/updates.md](updates.md)), except for a prerelease, which is never offered to the apps;

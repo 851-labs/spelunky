@@ -2,31 +2,21 @@
 # Sets up a build-native.yml job on an Apple silicon Mac (GitHub's, a fresh VM: build-native.yml says why not the
 # minis): rustup (a pinned rustup-init, checked against its SHA-256, as .github/actions/mini-toolchain installs
 # it) and the toolchain rust-toolchain.toml pins, plus where the release builds keep their target dir and cross
-# toolchains.
-#   scripts/release/ci-setup cached|fresh
-# cached: in the runner's tool cache, kept between jobs, so builds are incremental (on a self-hosted Mac). The
-#   target dir starts over when it outgrows its cap.
-# fresh: in the job's temp directory, made from nothing and gone when the job ends: what build-native.yml uses.
-# Either way it fails if a Cargo config sits above the checkout: Cargo reads every ancestor directory's
-# .cargo/config.toml, whatever CARGO_HOME is, and the repository has none of its own, so one there is another
-# job's (851-3899).
+# toolchains, all in the job's temp directory: made from nothing and gone when the job ends, so nothing of an
+# earlier job's reaches the build.
+#   scripts/release/ci-setup
+# It fails if a Cargo config sits above the checkout: Cargo reads every ancestor directory's .cargo/config.toml,
+# whatever CARGO_HOME is, and the repository has none of its own, so one there isn't ours (851-3899).
 # Exports RUSTUP_HOME, CARGO_HOME, CARGO_TARGET_DIR and SPELUNKY_RELEASE_TOOLS to the job.
 set -euo pipefail
 cd "${GITHUB_WORKSPACE:?}"
 rustup_version=1.29.2
 rustup_triple=aarch64-apple-darwin
 rustup_sha256=f7c7e11eb2e07f006e532a8aaac77b32f4527d305ac386c0c633ca6133d35ca9
-# In GiB. All six builds and the host's tools are about 6.
-target_cap=${SPELUNKY_RELEASE_TARGET_CACHE_GB:-10}
 
-case ${1:-} in
-  cached) root="${RUNNER_TOOL_CACHE:?}/spelunky-release" ;;
-  fresh)
-    root="${RUNNER_TEMP:?}/spelunky-release"
-    rm -rf "$root"
-    ;;
-  *) echo "usage: scripts/release/ci-setup cached|fresh" >&2; exit 2 ;;
-esac
+[ $# -eq 0 ] || { echo "usage: scripts/release/ci-setup" >&2; exit 2; }
+root="${RUNNER_TEMP:?}/spelunky-release"
+rm -rf "$root"
 [ "$(uname -sm)" = "Darwin arm64" ] || { echo "ci-setup: for Apple Silicon Macs, not $(uname -sm)" >&2; exit 1; }
 dir=$PWD
 while :; do
@@ -37,33 +27,19 @@ while :; do
   dir=$(dirname "$dir")
 done
 export RUSTUP_HOME="$root/rustup" CARGO_HOME="$root/cargo"
-if [ ! -x "$CARGO_HOME/bin/rustup" ]; then
-  echo "ci-setup: installing rustup $rustup_version into $root"
-  tmp=$(mktemp -d)
-  curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o "$tmp/rustup-init" \
-    "https://static.rust-lang.org/rustup/archive/$rustup_version/$rustup_triple/rustup-init"
-  echo "$rustup_sha256  $tmp/rustup-init" | shasum -a 256 -c - >/dev/null
-  chmod +x "$tmp/rustup-init"
-  "$tmp/rustup-init" -y --quiet --no-modify-path --profile minimal --default-toolchain none
-  rm -rf "$tmp"
-fi
+echo "ci-setup: installing rustup $rustup_version into $root"
+tmp=$(mktemp -d)
+curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o "$tmp/rustup-init" \
+  "https://static.rust-lang.org/rustup/archive/$rustup_version/$rustup_triple/rustup-init"
+echo "$rustup_sha256  $tmp/rustup-init" | shasum -a 256 -c - >/dev/null
+chmod +x "$tmp/rustup-init"
+"$tmp/rustup-init" -y --quiet --no-modify-path --profile minimal --default-toolchain none
+rm -rf "$tmp"
 rustup="$CARGO_HOME/bin/rustup"
 "$rustup" toolchain install --no-self-update
 # Set after the install: with no toolchain yet, rustup warns that there's none.
 "$rustup" set auto-self-update disable
-pinned=$("$rustup" show active-toolchain | cut -d' ' -f1)
-# Toolchains from earlier pins are a gigabyte each.
-"$rustup" toolchain list | cut -d' ' -f1 | while read -r toolchain; do
-  [ "$toolchain" = "$pinned" ] || "$rustup" toolchain uninstall "$toolchain"
-done
-
 mkdir -p "$root/target" "$root/tools"
-size=$(du -sk "$root/target" | cut -f1)
-if [ "$size" -gt $((target_cap * 1024 * 1024)) ]; then
-  echo "ci-setup: the target dir is $((size / 1024 / 1024)) GiB, over its $target_cap GiB cap; starting over"
-  rm -rf "$root/target"
-  mkdir "$root/target"
-fi
 {
   echo "RUSTUP_HOME=$RUSTUP_HOME"
   echo "CARGO_HOME=$CARGO_HOME"
