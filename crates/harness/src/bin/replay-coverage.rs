@@ -34,7 +34,7 @@ options:
                   Without replays, every committed one: fidelity/replays/ and fidelity/settings/
   --missed        with --lines, also list each partly run unit's lines that didn't run, with their GML
   --by-line <u>   with --lines, list the replays that ran each line of the units whose names start with u
-                  (oSnake/, scrInit)
+                  (oSnake/, scripts/scrInit)
   --jobs <n>      replays played at once (default 4)
   --assets <dir>  the asset bundle (default: assets in the repo)
   -h, --help

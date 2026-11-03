@@ -195,7 +195,8 @@ pub struct RunSummary {
     /// The run's fingerprint, if asked for: its trace and, unless it failed, its host files.
     #[serde(skip)]
     pub fingerprint: Option<fingerprint::Fingerprint>,
-    /// The GML lines the run reached, if asked for (`lines`), however it ended.
+    /// The GML lines the run reached, if asked for (`lines`), however it ended once booted (a boot that
+    /// fails keeps none).
     #[serde(skip)]
     pub lines: Option<gm::LinesRun>,
 }
@@ -299,6 +300,12 @@ pub fn run_replay_watched(
     opts: &RunOptions,
     watch: &mut dyn FnMut(u64, &gm::World),
 ) -> Result<RunSummary, String> {
+    if opts.lines && opts.savestate_in.is_some() {
+        return Err(
+            "line coverage records from the boot on, so a run from a savestate can't keep it"
+                .into(),
+        );
+    }
     if opts.settings && (opts.savestate_in.is_some() || opts.savestate_out.is_some()) {
         return Err("the settings program has no savestates".into());
     }

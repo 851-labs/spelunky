@@ -4,9 +4,11 @@
 //!
 //! The lines a run reaches come from [`gm::World::record_lines`] (every `(unit, line)` the generated code's
 //! `at` calls pass, booting included). Every line there is comes from the generated code itself: each
-//! statement is a `// N: <GML>` comment then `g.at("<unit>", N);` (crates/transpile), so the universe and
-//! the GML text of each line are read from `crates/game/src/generated` and `crates/config/src/generated`,
-//! as committed. Hand-written overrides (the `SS_*` wrappers) call no `at`, so they're in neither.
+//! statement is a `// N: <GML>` comment then `g.at("<unit>", N);`, and each drag-and-drop action a `// #K
+//! <action>` comment then a line with `g.at("<object>/<event>#K", 0)` in it (crates/transpile), so the
+//! universe and the GML of each line are read from `crates/game/src/generated` and
+//! `crates/config/src/generated`, as committed. The scripts the port replaces with its own code (the `SS_*`
+//! wrappers, `game::overrides`) are in the generated code too, and so counted, though they never run.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
@@ -14,7 +16,7 @@ use std::path::Path;
 /// A unit's lines: line number to its GML, as the generated code's comment has it.
 pub type UnitLines = BTreeMap<u32, String>;
 
-/// Every GML line of a program's generated code, by unit (`oSnake/step#1`, `scrInit`).
+/// Every GML line of a program's generated code, by unit (`oSnake/step#1`, `scripts/scrInit`).
 pub fn universe(generated: &Path) -> Result<BTreeMap<String, UnitLines>, String> {
     let mut units: BTreeMap<String, UnitLines> = BTreeMap::new();
     let mut files = Vec::new();
@@ -40,25 +42,45 @@ fn rust_files(dir: &Path, out: &mut Vec<std::path::PathBuf>) -> Result<(), Strin
     Ok(())
 }
 
-/// The `(unit, line)`s of one generated file, with the GML each comment gives (empty if none does).
+/// The `(unit, line)`s of one generated file, with the GML each comment gives (empty if none does): a
+/// statement's `// N: <GML>`, or a drag-and-drop action's `// #K <action>` for its line 0.
 fn add_lines(text: &str, units: &mut BTreeMap<String, UnitLines>) {
-    let mut comment: Option<(u32, &str)> = None;
+    let mut comment: Option<(&str, &str)> = None;
     for raw in text.lines() {
         let line = raw.trim();
-        if let Some(rest) = line.strip_prefix("// ")
-            && let Some((n, gml)) = rest.split_once(": ")
-            && let Ok(n) = n.parse::<u32>()
-        {
-            comment = Some((n, gml));
+        if let Some(rest) = line.strip_prefix("// ") {
+            if let Some((n, gml)) = rest.split_once(": ")
+                && n.parse::<u32>().is_ok()
+            {
+                comment = Some((n, gml));
+            } else if let Some(action) = rest.strip_prefix('#')
+                && let Some((k, gml)) = action.split_once(' ')
+                && k.parse::<u32>().is_ok()
+            {
+                comment = Some((k, gml));
+            }
             continue;
         }
-        // `g.at("unit", N);`, the only call of `at` the generator writes.
-        if let Some(rest) = line.strip_prefix("g.at(\"")
-            && let Some((unit, rest)) = rest.split_once("\", ")
-            && let Some(n) = rest.strip_suffix(");")
-            && let Ok(n) = n.parse::<u32>()
-        {
-            let gml = comment.filter(|&(c, _)| c == n).map_or("", |(_, gml)| gml);
+        // Every `g.at("unit", N)` on the line: a statement's starts it, an action's follows its pending test.
+        let mut rest = line;
+        while let Some(i) = rest.find("g.at(\"") {
+            rest = &rest[i + "g.at(\"".len()..];
+            let Some((unit, after)) = rest.split_once("\", ") else {
+                break;
+            };
+            let Some((n, after)) = after.split_once(')') else {
+                break;
+            };
+            rest = after;
+            let Ok(n) = n.parse::<u32>() else { continue };
+            // A statement's comment gives its line; an action's, the `#K` its unit ends with.
+            let key = match unit.rsplit_once('#') {
+                Some((_, k)) if n == 0 => k.to_owned(),
+                _ => n.to_string(),
+            };
+            let gml = comment
+                .filter(|&(c, _)| c == key)
+                .map_or("", |(_, gml)| gml);
             let lines = units.entry(unit.to_owned()).or_default();
             // A line split over several statements (a `for`'s parts) is one line, its first comment's.
             lines.entry(n).or_insert_with(|| gml.to_owned());
@@ -122,10 +144,15 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oSnake/step#1", 5);
     }
 }
-/// GML: `scrDead`.
+/// GML: `scripts/scrDead`.
 pub fn scrDead(g: &mut World) -> R<()> {
     // 1: return 0;
-    g.at("scrDead", 1);
+    g.at("scripts/scrDead", 1);
+}
+/// GML: `oFlare/create`.
+pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
+    // #1 action_set_variable(image_speed, 0.3)
+    if g.pending().is_some() { return Ok(()); } g.at("oFlare/create#1", 0); g.set(cx.this, v::image_speed, r(0.3))?;
 }
 "#;
 
@@ -141,14 +168,20 @@ pub fn scrDead(g: &mut World) -> R<()> {
                 (5, "for (i = 0; i < 3; i += 1) x += 1;".to_owned())
             ])
         );
-        assert_eq!(units["scrDead"].len(), 1);
+        assert_eq!(units["scripts/scrDead"].len(), 1);
+        // A drag-and-drop action, written after its pending test on the line, is its unit's line 0.
+        assert_eq!(
+            units["oFlare/create#1"],
+            BTreeMap::from([(0, "action_set_variable(image_speed, 0.3)".to_owned())])
+        );
         let run = BTreeSet::from([
             ("oSnake/step#1".to_owned(), 2),
             ("oSnake/step#1".to_owned(), 5),
+            ("oFlare/create#1".to_owned(), 0),
         ]);
         let r = report(&units, &run);
-        assert_eq!((r.units, r.lines, r.lines_run), (2, 4, 2));
-        assert_eq!(r.never, [("scrDead".to_owned(), 1)]);
+        assert_eq!((r.units, r.lines, r.lines_run), (3, 5, 3));
+        assert_eq!(r.never, [("scripts/scrDead".to_owned(), 1)]);
         assert_eq!(
             r.partly,
             [(
