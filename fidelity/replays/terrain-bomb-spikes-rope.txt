@@ -15,7 +15,8 @@
 # picks the rock up (duck + X, 305), walks back left (321-336) and drops a bomb at his feet (duck + A, 345). Its
 # explosion (464) destroys the brick under the spikes, whose destroy event (oSolid's) destroys the spikes on it
 # (464), and reaches the rope (466): oExplosion's collision with oItem, a Rope not falling, sends it 6 down and 4
-# to 6 to the side. The blast catches him too, 10 hearts a step (464-469), and he drops the rock. Ends at 500.
+# to 6 to the side. The blast catches him too, 10 hearts a step (464-469, oPlayer1's step), and the hit makes him
+# drop the rock before the explosion meets it, so its collision with oItem never finds it held. Ends at 500.
 # story: customLevelName=WIKI@240 held=oRopeThrow@243..243 held!=oRopeThrow@252..252 bombs=3@284..284 held=oRock@305..305
 # story: +oExplosion@464..464 -oSpikes@464..464 oRopeThrow.yVel=6@466..466 plife=39@469..469
 seed 1
