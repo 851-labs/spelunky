@@ -372,6 +372,35 @@ fn lines_use_gm8s_own_rules() {
     assert_eq!(line(&g, 100.0, 90.0, 100.0, 110.0, true), 1);
 }
 
+/// A sloped line, against the rock at (100, 100): box 97-103 both ways, its top right corner (102, 97), (103, 97)
+/// and (103, 98) empty. Worked out by hand from GM8's routine (`collision.rs` `line_hits`).
+#[test]
+fn sloped_lines_walk_the_box_from_the_rounded_ends() {
+    let g = room(&[(ROCK, 100.0, 100.0)]);
+    let cx = as_ctl(&g);
+    let r = ROCK.0 as i32;
+    let line = |x1, y1, x2, y2, prec| {
+        number(
+            g.collision_line(&cx, x1, y1, x2, y2, r, prec, false)
+                .unwrap(),
+        )
+    };
+    // As wide as it's tall: the columns 101 to 103, at rows 96, 97 and 98, all empty; a row lower, (101, 97)
+    // is solid. The box is met either way.
+    assert_eq!(line(104.0, 99.0, 101.0, 96.0, true), 0);
+    assert_eq!(line(104.0, 99.0, 101.0, 96.0, false), 1);
+    assert_eq!(line(104.0, 100.0, 101.0, 97.0, true), 1);
+    // Clipped at right + 1 = 104: from (106, 94) the end becomes (104, 96), so the walk is the same diagonal
+    // as above, shifted up: (100, 100) is solid.
+    assert_eq!(line(106.0, 94.0, 100.0, 100.0, true), 1);
+    // Steeper than wide: the rows 97 to 99 from (103, 96) to (104, 99), x = 103 + (y - 96) / 3 floored to 103,
+    // 103 and 104: two empty pixels, then outside the mask.
+    assert_eq!(line(103.0, 96.0, 104.0, 99.0, true), 0);
+    assert_eq!(line(103.0, 96.0, 104.0, 99.0, false), 1);
+    // Two columns left, x = 101 + (y - 96) / 3 is solid from row 97.
+    assert_eq!(line(101.0, 96.0, 102.0, 99.0, true), 1);
+}
+
 #[test]
 fn place_queries_test_self_at_another_position() {
     // A player (box 94-105 x 92-107) and a brick to its right at x = 110.

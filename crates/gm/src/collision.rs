@@ -1,8 +1,8 @@
 //! Collision tests, the collision built-ins and the collision event stage (runtime.md section 7).
 //!
-//! Runner behaviour follows OpenGMK: `game.rs` (`check_collision`, `check_collision_point`,
-//! `check_collision_rectangle`, `find_instance_with`), but for the line test, read from GM8's own routines
-//! ([`line_hits`]), `asset/sprite.rs`
+//! Runner behaviour follows OpenGMK (the line test aside, which is read from GM8's own routines: [`line_hits`]):
+//! `game.rs` (`check_collision`, `check_collision_point`, `check_collision_rectangle`, `find_instance_with`),
+//! `asset/sprite.rs`
 //! (`Collider::check_collision_point_precise`), `gml/kernel.rs` (the built-ins) and `game/events.rs`
 //! (`run_collisions`). Masks are the GM8 ones in the asset bundle (`assets::Mask`), one per frame or one
 //! shared, in sprite pixel coordinates.
@@ -211,7 +211,8 @@ impl<'a> Xform<'a> {
         )
     }
 
-    /// Whether the room point `(x, y)`, one coordinate whole and the other not, is solid in the mask.
+    /// Whether the point `(dx, dy)` from the instance's rounded position, one offset whole and the other not,
+    /// is solid in the mask.
     #[inline]
     fn hit_offset(&self, dx: f64, dy: f64) -> bool {
         let (mx, my) = self.map_offset(dx, dy);
@@ -426,7 +427,8 @@ impl Query {
 /// the box's columns from the left end to the right one if the line is at least as wide as it's tall, else its
 /// rows from the top end to the bottom one, taking the other coordinate from the slope between the rounded ends
 /// (unrounded: `(c - start) * slope + start's`, then the offset from the instance), and maps each point into the
-/// mask as a pixel is mapped ([`Xform::map_offset`]).
+/// mask as a pixel is mapped ([`Xform::map_offset`]). The x87 holds each step's result with a wider exponent
+/// than a double's, which this doesn't model: it only matters for ends past about 1e300.
 // `!(a > b)` isn't `a <= b` with a NaN: these are the x87's branches, NaN included.
 #[allow(clippy::neg_cmp_op_on_partial_ord)]
 fn line_hits(
