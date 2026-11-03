@@ -46,7 +46,7 @@ dir; one left behind by a killed build is taken over). `run` uses the binary ins
 stamp, so a build of other patches in another worktree never changes what it runs. If that binary doesn't exist,
 `run` asks for `tools/oracle/build`.
 
-`tools/oracle/run <replay> <out.jsonl> [--fields] [--draws] [--savestate-out F] [--savestate-in F]`:
+`tools/oracle/run <replay> <out.jsonl> [--fields] [--draws] [--screenshots F1,F2,...] [--savestate-out F] [--savestate-in F]`:
 
 - Extracts the game into the cache dir if needed, then plays the replay on a fresh copy of it, so files the game
   writes (`stats.txt`) never carry over between runs.
@@ -58,6 +58,7 @@ stamp, so a build of other patches in another worktree never changes what it run
   globals, which makes lines several times larger.
 - `--draws` lists each frame's draw calls (`draw_calls`), which every line hashes (`draws`) anyway, so
   `scripts/fidelity --draws` can name the call that differs.
+- `--screenshots F1,F2,...` writes the picture shown after each of those frames to `<out>.shots/F.png` (patch 0042).
 - `--savestate-out F` writes an OpenGMK savestate after the replay's last frame.
 - `--savestate-in F` resumes from such a savestate. The replay must extend the one the savestate was made with.
   Dumping starts at the savestate's frame, and the lines are identical to a full run's.
@@ -595,6 +596,15 @@ window's resizes and each time the back buffer is shown. A text is one call, not
 wrapped into its count. Each frame's calls are hashed as the port's `gm::draw_calls` hashes them, so a frame that
 draws the wrong sprite, frame, text, font, colour, position, blend mode or target, or draws something only one side
 does, fails `fidelity-check`.
+
+### `opengmk/0042-screenshots.patch`
+
+With `OPENGMK_SCREENSHOTS=F1,F2,...` and `OPENGMK_SCREENSHOT_DIR` (`tools/oracle/run --screenshots`), the picture GM8
+shows after each of those frames, as a PNG at the back buffer's own size, opaque, for the pixel checks of the port's
+renderer (851-3872). Each time the back buffer is shown (`screen_refresh`, `screen_redraw`, the end of a frame with no
+room change pending) it's read back (`glReadPixels`, of GM's back buffer whatever the target), and after a listed
+frame's line the last one is written, so a frame that ends in a room change has the picture before it, as the
+window does. Without the variables nothing is read back, and the dump is the same either way.
 
 ## Caveats
 
