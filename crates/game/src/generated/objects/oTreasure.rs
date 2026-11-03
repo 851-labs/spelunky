@@ -64,21 +64,21 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::colBot, r(0.0))?;
         // 9: if (isCollisionLeft(1))
         g.at("oTreasure/step#0", 9);
-        if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 9: colLeft = true;
             g.at("oTreasure/step#0", 9);
             g.set(cx.this, v::colLeft, r(1.0))?;
         }
         // 10: if (isCollisionRight(1))
         g.at("oTreasure/step#0", 10);
-        if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 10: colRight = true;
             g.at("oTreasure/step#0", 10);
             g.set(cx.this, v::colRight, r(1.0))?;
         }
         // 11: if (isCollisionBottom(1))
         g.at("oTreasure/step#0", 11);
-        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 11: colBot = true;
             g.at("oTreasure/step#0", 11);
             g.set(cx.this, v::colBot, r(1.0))?;
@@ -88,7 +88,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
         // 15: if (!colBot)
         g.at("oTreasure/step#0", 15);
-        if g.get(cx.this, v::colBot)?.not()?.is_truthy() {
+        if g.get(cx.this, v::colBot)?.not()?.cond(Cond::If)? {
             // 15: yVel += myGrav;
             g.at("oTreasure/step#0", 15);
             g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
@@ -102,7 +102,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 18: if (isCollisionTop(1))
         g.at("oTreasure/step#0", 18);
-        if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 20: if (yVel < 0)
             g.at("oTreasure/step#0", 20);
             if g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))? {
@@ -117,14 +117,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 24: if (colLeft || colRight)
         g.at("oTreasure/step#0", 24);
-        if or(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.is_truthy()) {
+        if { let p1 = g.get(cx.this, v::colLeft)?; let q2 = g.get(cx.this, v::colRight)?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
             // 26: xVel = -xVel * 0.5;
             g.at("oTreasure/step#0", 26);
             g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?.mul(&r(0.5))?)?;
         }
         // 29: if (colBot)
         g.at("oTreasure/step#0", 29);
-        if g.get(cx.this, v::colBot)?.is_truthy() {
+        if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
             // 38: if (abs(xVel) < 0.1)
             g.at("oTreasure/step#0", 38);
             if ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(0.1))? {
@@ -145,7 +145,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
             // 43: if (!isCollisionBottom(1))
             g.at("oTreasure/step#0", 43);
-            if scr::isCollisionBottom(g, cx, &[r(1.0)])?.not()?.is_truthy() {
+            if scr::isCollisionBottom(g, cx, &[r(1.0)])?.not()?.cond(Cond::If)? {
                 // 45: y += 1;
                 g.at("oTreasure/step#0", 45);
                 g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
@@ -159,10 +159,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 52: if (colLeft)
         g.at("oTreasure/step#0", 52);
-        if g.get(cx.this, v::colLeft)?.is_truthy() {
+        if g.get(cx.this, v::colLeft)?.cond(Cond::If)? {
             // 54: if (!colRight)
             g.at("oTreasure/step#0", 54);
-            if g.get(cx.this, v::colRight)?.not()?.is_truthy() {
+            if g.get(cx.this, v::colRight)?.not()?.cond(Cond::If)? {
                 // 54: x += 1;
                 g.at("oTreasure/step#0", 54);
                 g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
@@ -170,7 +170,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 57: if (colRight)
             g.at("oTreasure/step#0", 57);
-            if g.get(cx.this, v::colRight)?.is_truthy() {
+            if g.get(cx.this, v::colRight)?.cond(Cond::If)? {
                 // 59: x -= 1;
                 g.at("oTreasure/step#0", 59);
                 g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
@@ -178,7 +178,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 63: if (global.hasSpectacles || global.hasUdjatEye)
         g.at("oTreasure/step#0", 63);
-        if or(g.gget(gv::hasSpectacles)?.is_truthy(), g.gget(gv::hasUdjatEye)?.is_truthy()) {
+        if { let p3 = g.gget(gv::hasSpectacles)?; let q4 = g.gget(gv::hasUdjatEye)?; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) } {
             // 65: depth = 0;
             g.at("oTreasure/step#0", 65);
             g.set(cx.this, v::depth, r(0.0))?;
@@ -189,7 +189,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 69: if (collision_rectangle(x - 3, y - 3, x + 3, y + 3, oLava, 0, 0))
         g.at("oTreasure/step#0", 69);
-        if ({ let a = [g.get(cx.this, v::x)?.sub(&r(3.0))?, g.get(cx.this, v::y)?.sub(&r(3.0))?, g.get(cx.this, v::x)?.add(&r(3.0))?, g.get(cx.this, v::y)?.add(&r(3.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.sub(&r(3.0))?, g.get(cx.this, v::y)?.sub(&r(3.0))?, g.get(cx.this, v::x)?.add(&r(3.0))?, g.get(cx.this, v::y)?.add(&r(3.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
             // 71: myGrav = 0;
             g.at("oTreasure/step#0", 71);
             g.set(cx.this, v::myGrav, r(0.0))?;
@@ -205,7 +205,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 76: if (collision_point(x, y - 5, oLava, 0, 0))
         g.at("oTreasure/step#0", 76);
-        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 78: instance_destroy();
             g.at("oTreasure/step#0", 78);
             b::instance_destroy(g, cx, [])?;

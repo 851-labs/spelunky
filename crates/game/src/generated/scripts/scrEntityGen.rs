@@ -63,7 +63,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 (cx.this, cx.other) = (h2, outer3.0);
                 // 37: if (!isInShop(x, y) && y > 16)
                 g.at("scripts/scrEntityGen", 37);
-                if and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy(), g.get(cx.this, v::y)?.gml_gt(&r(16.0))?) {
+                if { let p4 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?; let q5 = g.get(cx.this, v::y)?.gml_gt(&r(16.0))?; and(p4.cond(Cond::And)?, q5) } {
                     // 39: if (type != "Altar")
                     g.at("scripts/scrEntityGen", 39);
                     if g.get(cx.this, v::r#type)?.gml_ne(&s!("Altar"))? {
@@ -76,10 +76,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     if or(({ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? }).gml_ne(&g.gget(gv::startRoomX)?)?, ({ let a = [g.get(cx.this, v::y)?.sub(&r(16.0))?]; scr::scrGetRoomY(g, cx, &a)? }).gml_ne(&g.gget(gv::startRoomY)?)?) {
                         // 47: if (y < room_height - 64 && !collision_point(x, y + 16, oSolid, 0, 0) && !collision_point(x, y + 32,
                         g.at("scripts/scrEntityGen", 47);
-                        if and(and(and(and(and(g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(64.0))?)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                        if { let p14 = { let p12 = { let p10 = { let p8 = { let p6 = g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(64.0))?)?; let q7 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p6, q7.cond(Cond::And)?) }; let q9 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p8, q9.cond(Cond::And)?) }; let q11 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p10, q11.cond(Cond::And)?) }; let q13 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p12, q13.cond(Cond::And)?) }; let q15 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p14, q15.cond(Cond::And)?) } {
                             // 52: if (global.genGiantSpider && !global.giantSpider && !collision_point(x + 16, y + 16, oSolid, 0, 0) &
                             g.at("scripts/scrEntityGen", 52);
-                            if and(and(and(and(g.gget(gv::genGiantSpider)?.is_truthy(), g.gget(gv::giantSpider)?.not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?) {
+                            if and({ let p20 = { let p18 = { let p16 = g.gget(gv::genGiantSpider)?; let q17 = g.gget(gv::giantSpider)?.not()?; and(p16.cond(Cond::And)?, q17.cond(Cond::And)?) }; let q19 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p18, q19.cond(Cond::And)?) }; let q21 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p20, q21.cond(Cond::And)?) }, scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?) {
                                 // 58: instance_create(x, y + 16, oGiantSpiderHang);
                                 g.at("scripts/scrEntityGen", 58);
                                 cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oGiantSpiderHang]; b::instance_create(g, cx, a)? };
@@ -93,14 +93,14 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             } else {
                                 // 61: if (global.darkLevel && rand(1, 60) == 1)
                                 g.at("scripts/scrEntityGen", 61);
-                                if and(g.gget(gv::darkLevel)?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(60.0)])?.gml_eq(&r(1.0))?) {
+                                if { let p22 = g.gget(gv::darkLevel)?; let q23 = scr::rand(g, cx, &[r(1.0), r(60.0)])?.gml_eq(&r(1.0))?; and(p22.cond(Cond::And)?, q23) } {
                                     // 61: instance_create(x, y + 16, oLamp);
                                     g.at("scripts/scrEntityGen", 61);
                                     cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oLamp]; b::instance_create(g, cx, a)? };
                                 } else {
                                     // 62: if (global.darkLevel && rand(1, 40) == 1)
                                     g.at("scripts/scrEntityGen", 62);
-                                    if and(g.gget(gv::darkLevel)?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?) {
+                                    if { let p24 = g.gget(gv::darkLevel)?; let q25 = scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?; and(p24.cond(Cond::And)?, q25) } {
                                         // 62: instance_create(x, y + 16, oScarab);
                                         g.at("scripts/scrEntityGen", 62);
                                         cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oScarab]; b::instance_create(g, cx, a)? };
@@ -126,7 +126,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         }
                         // 67: if (!collision_point(x, y - 16, oSolid, 0, 0))
                         g.at("scripts/scrEntityGen", 67);
-                        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                             // 69: if (rand(1, 60) == 1)
                             g.at("scripts/scrEntityGen", 69);
                             if scr::rand(g, cx, &[r(1.0), r(60.0)])?.gml_eq(&r(1.0))? {
@@ -150,18 +150,18 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 77: if (global.genUdjatEye && !global.LockedChest)
         g.at("scripts/scrEntityGen", 77);
-        if and(g.gget(gv::genUdjatEye)?.is_truthy(), g.gget(gv::LockedChest)?.not()?.is_truthy()) {
+        if { let p26 = g.gget(gv::genUdjatEye)?; let q27 = g.gget(gv::LockedChest)?.not()?; and(p26.cond(Cond::And)?, q27.cond(Cond::And)?) } {
             // 79: with (oExit)
             g.at("scripts/scrEntityGen", 79);
             {
                 let t = obj::oExit;
-                let mut it4 = g.with_iter(cx, &t)?;
-                let outer6 = (cx.this, cx.other);
-                'with2: while let Some(h5) = it4.next(g) {
-                    (cx.this, cx.other) = (h5, outer6.0);
+                let mut it28 = g.with_iter(cx, &t)?;
+                let outer30 = (cx.this, cx.other);
+                'with2: while let Some(h29) = it28.next(g) {
+                    (cx.this, cx.other) = (h29, outer30.0);
                     // 81: if (!collision_point(x - 8, y, oSolid, 0, 0) && !collision_point(x - 8, y + 15, oTreasure, 0, 0) && 
                     g.at("scripts/scrEntityGen", 81);
-                    if and(and(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oTreasure, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oChest, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if { let p35 = { let p33 = { let p31 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q32 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oTreasure, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p31.cond(Cond::And)?, q32.cond(Cond::And)?) }; let q34 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oChest, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p33, q34.cond(Cond::And)?) }; let q36 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p35, q36.cond(Cond::And)?) } {
                         // 86: instance_create(x - 8, y + 8, oLockedChest);
                         g.at("scripts/scrEntityGen", 86);
                         cx.ret = { let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oLockedChest]; b::instance_create(g, cx, a)? };
@@ -178,7 +178,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     } else {
                         // 90: if (!collision_point(x + 8, y, oSolid, 0, 0) && !collision_point(x + 8, y + 15, oTreasure, 0, 0) && 
                         g.at("scripts/scrEntityGen", 90);
-                        if and(and(and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oTreasure, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oChest, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                        if { let p41 = { let p39 = { let p37 = ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q38 = ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oTreasure, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p37.cond(Cond::And)?, q38.cond(Cond::And)?) }; let q40 = ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oChest, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p39, q40.cond(Cond::And)?) }; let q42 = ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p41, q42.cond(Cond::And)?) } {
                             // 95: instance_create(x + 16 + 8, y + 8, oLockedChest);
                             g.at("scripts/scrEntityGen", 95);
                             cx.ret = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oLockedChest]; b::instance_create(g, cx, a)? };
@@ -209,12 +209,12 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         }
                     }
                 }
-                (cx.this, cx.other) = outer6;
+                (cx.this, cx.other) = outer30;
             }
         }
         // 109: if (instance_exists(oLockedChest))
         g.at("scripts/scrEntityGen", 109);
-        if b::instance_exists(g, cx, [obj::oLockedChest])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oLockedChest])?.cond(Cond::If)? {
             // 111: n = 1;
             g.at("scripts/scrEntityGen", 111);
             {
@@ -229,13 +229,13 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrEntityGen", 114);
                 {
                     let t = obj::oTreasure;
-                    let mut it7 = g.with_iter(cx, &t)?;
-                    let outer9 = (cx.this, cx.other);
-                    'with4: while let Some(h8) = it7.next(g) {
-                        (cx.this, cx.other) = (h8, outer9.0);
+                    let mut it43 = g.with_iter(cx, &t)?;
+                    let outer45 = (cx.this, cx.other);
+                    'with4: while let Some(h44) = it43.next(g) {
+                        (cx.this, cx.other) = (h44, outer45.0);
                         // 116: if (rand(1, 8) <= 1 && !collision_point(x, y, oSolid, 0, 0) && global.Key == false)
                         g.at("scripts/scrEntityGen", 116);
-                        if and(and(scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_le(&r(1.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), g.gget(gv::Key)?.gml_eq(&r(0.0))?) {
+                        if and({ let p46 = scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_le(&r(1.0))?; let q47 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p46, q47.cond(Cond::And)?) }, g.gget(gv::Key)?.gml_eq(&r(0.0))?) {
                             // 118: if (type == "Gold Bars")
                             g.at("scripts/scrEntityGen", 118);
                             if g.get(cx.this, v::r#type)?.gml_eq(&s!("Gold Bars"))? {
@@ -262,7 +262,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             break 'with4;
                         }
                     }
-                    (cx.this, cx.other) = outer9;
+                    (cx.this, cx.other) = outer45;
                 }
                 // 125: n += 1;
                 g.at("scripts/scrEntityGen", 125);
@@ -275,18 +275,18 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 127: if (!global.Key)
             g.at("scripts/scrEntityGen", 127);
-            if g.gget(gv::Key)?.not()?.is_truthy() {
+            if g.gget(gv::Key)?.not()?.cond(Cond::If)? {
                 // 129: with (oTreasure)
                 g.at("scripts/scrEntityGen", 129);
                 {
                     let t = obj::oTreasure;
-                    let mut it10 = g.with_iter(cx, &t)?;
-                    let outer12 = (cx.this, cx.other);
-                    'with5: while let Some(h11) = it10.next(g) {
-                        (cx.this, cx.other) = (h11, outer12.0);
+                    let mut it48 = g.with_iter(cx, &t)?;
+                    let outer50 = (cx.this, cx.other);
+                    'with5: while let Some(h49) = it48.next(g) {
+                        (cx.this, cx.other) = (h49, outer50.0);
                         // 131: if (!collision_point(x, y, oSolid, 0, 0))
                         g.at("scripts/scrEntityGen", 131);
-                        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                             // 133: if (type == "Gold Bars")
                             g.at("scripts/scrEntityGen", 133);
                             if g.get(cx.this, v::r#type)?.gml_eq(&s!("Gold Bars"))? {
@@ -313,13 +313,13 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             break 'with5;
                         }
                     }
-                    (cx.this, cx.other) = outer12;
+                    (cx.this, cx.other) = outer50;
                 }
             }
         }
         // 143: if (global.Key)
         g.at("scripts/scrEntityGen", 143);
-        if g.gget(gv::Key)?.is_truthy() {
+        if g.gget(gv::Key)?.cond(Cond::If)? {
             // 143: global.madeUdjatEye = true;
             g.at("scripts/scrEntityGen", 143);
             {
@@ -332,13 +332,13 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrEntityGen", 145);
         {
             let t = obj::oBlock;
-            let mut it13 = g.with_iter(cx, &t)?;
-            let outer15 = (cx.this, cx.other);
-            'with6: while let Some(h14) = it13.next(g) {
-                (cx.this, cx.other) = (h14, outer15.0);
+            let mut it51 = g.with_iter(cx, &t)?;
+            let outer53 = (cx.this, cx.other);
+            'with6: while let Some(h52) = it51.next(g) {
+                (cx.this, cx.other) = (h52, outer53.0);
                 // 147: if (!isInShop(x, y))
                 g.at("scripts/scrEntityGen", 147);
-                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.cond(Cond::If)? {
                     // 149: n = point_distance(x, y, oEntrance.x, oEntrance.y);
                     g.at("scripts/scrEntityGen", 149);
                     {
@@ -348,13 +348,13 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 150: if (!isInShop(x, y) && rand(1, 4) == 1 && !(y == oEntrance.y && n < 144) && n > 48)
                     g.at("scripts/scrEntityGen", 150);
-                    if and(and(and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(4.0)])?.gml_eq(&r(1.0))?), !(and(g.get(cx.this, v::y)?.gml_eq(&g.get_on(cx, &obj::oEntrance, v::y)?)?, g.get(cx.this, v::n)?.gml_lt(&r(144.0))?))), g.get(cx.this, v::n)?.gml_gt(&r(48.0))?) {
+                    if and(and({ let p54 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?; let q55 = scr::rand(g, cx, &[r(1.0), r(4.0)])?.gml_eq(&r(1.0))?; and(p54.cond(Cond::And)?, q55) }, !(and(g.get(cx.this, v::y)?.gml_eq(&g.get_on(cx, &obj::oEntrance, v::y)?)?, g.get(cx.this, v::n)?.gml_lt(&r(144.0))?))), g.get(cx.this, v::n)?.gml_gt(&r(48.0))?) {
                         // 155: if (collision_point(x + 16, y, oSolid, 0, 0) && !collision_rectangle(x - 32, y, x - 1, y + 15, oSoli
                         g.at("scripts/scrEntityGen", 155);
-                        if and(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(32.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()) {
+                        if { let p56 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q57 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(32.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p56.cond(Cond::And)?, q57.cond(Cond::And)?) } {
                             // 158: if (global.darkLevel)
                             g.at("scripts/scrEntityGen", 158);
-                            if g.gget(gv::darkLevel)?.is_truthy() {
+                            if g.gget(gv::darkLevel)?.cond(Cond::If)? {
                                 // 158: instance_create(x, y, oArrowTrapLeftLit);
                                 g.at("scripts/scrEntityGen", 158);
                                 cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oArrowTrapLeftLit]; b::instance_create(g, cx, a)? };
@@ -369,10 +369,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         } else {
                             // 162: if (collision_point(x - 16, y, oSolid, 0, 0) && !collision_rectangle(x + 16, y, x + 48, y + 15, oSol
                             g.at("scripts/scrEntityGen", 162);
-                            if and(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(48.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()) {
+                            if { let p58 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q59 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(48.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p58.cond(Cond::And)?, q59.cond(Cond::And)?) } {
                                 // 165: if (global.darkLevel)
                                 g.at("scripts/scrEntityGen", 165);
-                                if g.gget(gv::darkLevel)?.is_truthy() {
+                                if g.gget(gv::darkLevel)?.cond(Cond::If)? {
                                     // 165: instance_create(x, y, oArrowTrapRightLit);
                                     g.at("scripts/scrEntityGen", 165);
                                     cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oArrowTrapRightLit]; b::instance_create(g, cx, a)? };
@@ -389,7 +389,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                 }
             }
-            (cx.this, cx.other) = outer15;
+            (cx.this, cx.other) = outer53;
         }
     } else {
         // 173: if (global.levelType == 1)
@@ -404,18 +404,18 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 176: if (global.cemetary)
             g.at("scripts/scrEntityGen", 176);
-            if g.gget(gv::cemetary)?.is_truthy() {
+            if g.gget(gv::cemetary)?.cond(Cond::If)? {
                 // 178: with (oLush)
                 g.at("scripts/scrEntityGen", 178);
                 {
                     let t = obj::oLush;
-                    let mut it16 = g.with_iter(cx, &t)?;
-                    let outer18 = (cx.this, cx.other);
-                    'with7: while let Some(h17) = it16.next(g) {
-                        (cx.this, cx.other) = (h17, outer18.0);
+                    let mut it60 = g.with_iter(cx, &t)?;
+                    let outer62 = (cx.this, cx.other);
+                    'with7: while let Some(h61) = it60.next(g) {
+                        (cx.this, cx.other) = (h61, outer62.0);
                         // 181: if (!collision_point(x, y - 16, oSolid, 0, 0) && !collision_point(x, y - 16, oEntrance, 0, 0) && !co
                         g.at("scripts/scrEntityGen", 181);
-                        if and(and(and(and(and(and(and(and(and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oEntrance, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), scr::rand(g, cx, &[r(1.0), r(20.0)])?.gml_eq(&r(1.0))?), g.get(cx.this, v::x)?.gml_ne(&r(160.0))?), g.get(cx.this, v::x)?.gml_ne(&r(176.0))?), g.get(cx.this, v::x)?.gml_ne(&r(320.0))?), g.get(cx.this, v::x)?.gml_ne(&r(336.0))?), g.get(cx.this, v::x)?.gml_ne(&r(480.0))?), g.get(cx.this, v::x)?.gml_ne(&r(496.0))?) {
+                        if and(and(and(and(and(and(and({ let p65 = { let p63 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q64 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oEntrance, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p63.cond(Cond::And)?, q64.cond(Cond::And)?) }; let q66 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p65, q66.cond(Cond::And)?) }, scr::rand(g, cx, &[r(1.0), r(20.0)])?.gml_eq(&r(1.0))?), g.get(cx.this, v::x)?.gml_ne(&r(160.0))?), g.get(cx.this, v::x)?.gml_ne(&r(176.0))?), g.get(cx.this, v::x)?.gml_ne(&r(320.0))?), g.get(cx.this, v::x)?.gml_ne(&r(336.0))?), g.get(cx.this, v::x)?.gml_ne(&r(480.0))?), g.get(cx.this, v::x)?.gml_ne(&r(496.0))?) {
                             // 187: obj = instance_create(x, y - 16, oGrave);
                             g.at("scripts/scrEntityGen", 187);
                             {
@@ -425,7 +425,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                             // 188: if (!global.ashGrave && rand(1, 40) == 1)
                             g.at("scripts/scrEntityGen", 188);
-                            if and(g.gget(gv::ashGrave)?.not()?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?) {
+                            if { let p67 = g.gget(gv::ashGrave)?.not()?; let q68 = scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?; and(p67.cond(Cond::And)?, q68) } {
                                 // 190: obj.sprite_index = sGraveAsh;
                                 g.at("scripts/scrEntityGen", 190);
                                 {
@@ -467,7 +467,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             } else {
                                 // 196: if (!collision_point(x + 8, y + 8, oTreasure, 0, 0))
                                 g.at("scripts/scrEntityGen", 196);
-                                if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oTreasure, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                                if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oTreasure, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                                     // 198: if (rand(1, 2) == 1)
                                     g.at("scripts/scrEntityGen", 198);
                                     if scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))? {
@@ -503,30 +503,30 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                         }
                     }
-                    (cx.this, cx.other) = outer18;
+                    (cx.this, cx.other) = outer62;
                 }
             }
             // 207: with (oSolid)
             g.at("scripts/scrEntityGen", 207);
             {
                 let t = obj::oSolid;
-                let mut it19 = g.with_iter(cx, &t)?;
-                let outer21 = (cx.this, cx.other);
-                'with8: while let Some(h20) = it19.next(g) {
-                    (cx.this, cx.other) = (h20, outer21.0);
+                let mut it69 = g.with_iter(cx, &t)?;
+                let outer71 = (cx.this, cx.other);
+                'with8: while let Some(h70) = it69.next(g) {
+                    (cx.this, cx.other) = (h70, outer71.0);
                     // 210: if (rand(1, 100) == 1 && !collision_point(x, y - 16, oSolid, 0, 0))
                     g.at("scripts/scrEntityGen", 210);
-                    if and(scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_eq(&r(1.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if { let p72 = scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_eq(&r(1.0))?; let q73 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p72, q73.cond(Cond::And)?) } {
                         // 210: tile_add(bgTrees, 0, 0, 16, 48, x, y - 32, 9005);
                         g.at("scripts/scrEntityGen", 210);
                         cx.ret = { let a = [bgr::bgTrees, r(0.0), r(0.0), r(16.0), r(48.0), g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, r(9005.0)]; b::tile_add(g, cx, a)? };
                     }
                     // 212: if (!isInShop(x, y))
                     g.at("scripts/scrEntityGen", 212);
-                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.cond(Cond::If)? {
                         // 215: if (y > 32 && collision_point(x, y - 16, oSolid, 0, 0) && global.genMarketEntrance && !global.madeMa
                         g.at("scripts/scrEntityGen", 215);
-                        if and(and(and(g.get(cx.this, v::y)?.gml_gt(&r(32.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), g.gget(gv::genMarketEntrance)?.is_truthy()), g.gget(gv::madeMarketEntrance)?.not()?.is_truthy()) {
+                        if { let p78 = { let p76 = { let p74 = g.get(cx.this, v::y)?.gml_gt(&r(32.0))?; let q75 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p74, q75.cond(Cond::And)?) }; let q77 = g.gget(gv::genMarketEntrance)?; and(p76, q77.cond(Cond::And)?) }; let q79 = g.gget(gv::madeMarketEntrance)?.not()?; and(p78, q79.cond(Cond::And)?) } {
                             // 217: obj = instance_place(x, y - 16, oSolid);
                             g.at("scripts/scrEntityGen", 217);
                             {
@@ -536,7 +536,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                             // 218: if (obj.type != "Tree" && type != "Altar" && !obj.invincible && rand(1, global.marketChance) <= 1)
                             g.at("scripts/scrEntityGen", 218);
-                            if and(and(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::r#type)?.gml_ne(&s!("Tree"))?, g.get(cx.this, v::r#type)?.gml_ne(&s!("Altar"))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.is_truthy()), ({ let a = [r(1.0), g.gget(gv::marketChance)?]; scr::rand(g, cx, &a)? }).gml_le(&r(1.0))?) {
+                            if and({ let p80 = and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::r#type)?.gml_ne(&s!("Tree"))?, g.get(cx.this, v::r#type)?.gml_ne(&s!("Altar"))?); let q81 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?; and(p80, q81.cond(Cond::And)?) }, ({ let a = [r(1.0), g.gget(gv::marketChance)?]; scr::rand(g, cx, &a)? }).gml_le(&r(1.0))?) {
                                 // 220: instance_create(x, y - 16, oXMarket);
                                 g.at("scripts/scrEntityGen", 220);
                                 cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oXMarket]; b::instance_create(g, cx, a)? };
@@ -567,10 +567,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         } else {
                             // 226: if (type != "Tree" && type != "Altar" && y != 0 && !collision_rectangle(x, y - 32, x + 15, y - 1, oS
                             g.at("scripts/scrEntityGen", 226);
-                            if and(and(and(and(and(and(and(and(and(g.get(cx.this, v::r#type)?.gml_ne(&s!("Tree"))?, g.get(cx.this, v::r#type)?.gml_ne(&s!("Altar"))?), g.get(cx.this, v::y)?.gml_ne(&r(0.0))?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, g.get(cx.this, v::x)?.add(&r(15.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(1.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, g.get(cx.this, v::x)?.add(&r(15.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()), or(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy())), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oXMarket, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &obj::oEntrance, v::x)?, g.get_on(cx, &obj::oEntrance, v::y)?]; b::point_distance(g, cx, a)? }).gml_gt(&r(64.0))?) {
+                            if and({ let p92 = { let p90 = { let p88 = and({ let p84 = { let p82 = and(and(g.get(cx.this, v::r#type)?.gml_ne(&s!("Tree"))?, g.get(cx.this, v::r#type)?.gml_ne(&s!("Altar"))?), g.get(cx.this, v::y)?.gml_ne(&r(0.0))?); let q83 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, g.get(cx.this, v::x)?.add(&r(15.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(1.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p82, q83.cond(Cond::And)?) }; let q85 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, g.get(cx.this, v::x)?.add(&r(15.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p84, q85.cond(Cond::And)?) }, { let p86 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q87 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; or(p86.cond(Cond::Or)?, q87.cond(Cond::Or)?) }); let q89 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p88, q89.cond(Cond::And)?) }; let q91 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oXMarket, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p90, q91.cond(Cond::And)?) }; let q93 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?; and(p92, q93.cond(Cond::And)?) }, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &obj::oEntrance, v::x)?, g.get_on(cx, &obj::oEntrance, v::y)?]; b::point_distance(g, cx, a)? }).gml_gt(&r(64.0))?) {
                                 // 235: if (global.darkLevel && !collision_point(x, y - 32, oWater, 0, 0) && rand(1, 20) == 1)
                                 g.at("scripts/scrEntityGen", 235);
-                                if and(and(g.gget(gv::darkLevel)?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), scr::rand(g, cx, &[r(1.0), r(20.0)])?.gml_eq(&r(1.0))?) {
+                                if and({ let p94 = g.gget(gv::darkLevel)?; let q95 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p94.cond(Cond::And)?, q95.cond(Cond::And)?) }, scr::rand(g, cx, &[r(1.0), r(20.0)])?.gml_eq(&r(1.0))?) {
                                     // 237: instance_create(x, y - 32, oTikiTorch);
                                     g.at("scripts/scrEntityGen", 237);
                                     cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oTikiTorch]; b::instance_create(g, cx, a)? };
@@ -580,7 +580,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     if and(and(and(and(and(and(scr::rand(g, cx, &[r(1.0), r(12.0)])?.gml_eq(&r(1.0))?, g.get(cx.this, v::x)?.gml_ne(&r(160.0))?), g.get(cx.this, v::x)?.gml_ne(&r(176.0))?), g.get(cx.this, v::x)?.gml_ne(&r(320.0))?), g.get(cx.this, v::x)?.gml_ne(&r(336.0))?), g.get(cx.this, v::x)?.gml_ne(&r(480.0))?), g.get(cx.this, v::x)?.gml_ne(&r(496.0))?) {
                                         // 242: if (collision_point(x, y - 16, oSolid, 0, 0))
                                         g.at("scripts/scrEntityGen", 242);
-                                        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                                        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                                             // 244: sol = instance_nearest(x, y - 16, oSolid);
                                             g.at("scripts/scrEntityGen", 244);
                                             {
@@ -592,10 +592,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/scrEntityGen", 245);
                                             {
                                                 let t = g.get(cx.this, v::sol)?;
-                                                let mut it22 = g.with_iter(cx, &t)?;
-                                                let outer24 = (cx.this, cx.other);
-                                                'with9: while let Some(h23) = it22.next(g) {
-                                                    (cx.this, cx.other) = (h23, outer24.0);
+                                                let mut it96 = g.with_iter(cx, &t)?;
+                                                let outer98 = (cx.this, cx.other);
+                                                'with9: while let Some(h97) = it96.next(g) {
+                                                    (cx.this, cx.other) = (h97, outer98.0);
                                                     // 245: cleanDeath = true;
                                                     g.at("scripts/scrEntityGen", 245);
                                                     {
@@ -607,7 +607,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     g.at("scripts/scrEntityGen", 245);
                                                     cx.ret = b::instance_destroy(g, cx, [])?;
                                                 }
-                                                (cx.this, cx.other) = outer24;
+                                                (cx.this, cx.other) = outer98;
                                             }
                                         }
                                         // 247: instance_create(x, y, oSpearTrapBottom);
@@ -615,7 +615,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSpearTrapBottom]; b::instance_create(g, cx, a)? };
                                         // 248: if (global.darkLevel)
                                         g.at("scripts/scrEntityGen", 248);
-                                        if g.gget(gv::darkLevel)?.is_truthy() {
+                                        if g.gget(gv::darkLevel)?.cond(Cond::If)? {
                                             // 248: instance_create(x, y - 16, oSpearTrapLit);
                                             g.at("scripts/scrEntityGen", 248);
                                             cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSpearTrapLit]; b::instance_create(g, cx, a)? };
@@ -643,7 +643,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         if g.get(cx.this, v::r#type)?.gml_ne(&s!("Altar"))? {
                             // 257: if (global.cemetary)
                             g.at("scripts/scrEntityGen", 257);
-                            if g.gget(gv::cemetary)?.is_truthy() {
+                            if g.gget(gv::cemetary)?.cond(Cond::If)? {
                                 // 257: scrTreasureGen(10);
                                 g.at("scripts/scrEntityGen", 257);
                                 cx.ret = scr::scrTreasureGen(g, cx, &[r(10.0)])?;
@@ -658,10 +658,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         if or(({ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? }).gml_ne(&g.gget(gv::startRoomX)?)?, ({ let a = [g.get(cx.this, v::y)?.sub(&r(16.0))?]; scr::scrGetRoomY(g, cx, &a)? }).gml_ne(&g.gget(gv::startRoomY)?)?) {
                             // 264: if (y < room_height - 64 && !collision_point(x, y + 16, oSolid, 0, 0) && !collision_point(x, y + 32,
                             g.at("scripts/scrEntityGen", 264);
-                            if and(and(and(and(g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(64.0))?)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                            if { let p105 = { let p103 = { let p101 = { let p99 = g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(64.0))?)?; let q100 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p99, q100.cond(Cond::And)?) }; let q102 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p101, q102.cond(Cond::And)?) }; let q104 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p103, q104.cond(Cond::And)?) }; let q106 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p105, q106.cond(Cond::And)?) } {
                                 // 268: if (global.cemetary)
                                 g.at("scripts/scrEntityGen", 268);
-                                if g.gget(gv::cemetary)?.is_truthy() {
+                                if g.gget(gv::cemetary)?.cond(Cond::If)? {
                                     // 268: n = 60;
                                     g.at("scripts/scrEntityGen", 268);
                                     {
@@ -680,7 +680,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                                 // 271: if (global.darkLevel && rand(1, 40) == 1)
                                 g.at("scripts/scrEntityGen", 271);
-                                if and(g.gget(gv::darkLevel)?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?) {
+                                if { let p107 = g.gget(gv::darkLevel)?; let q108 = scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?; and(p107.cond(Cond::And)?, q108) } {
                                     // 271: instance_create(x, y + 16, oScarab);
                                     g.at("scripts/scrEntityGen", 271);
                                     cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oScarab]; b::instance_create(g, cx, a)? };
@@ -696,10 +696,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                             // 276: if (y > 16 && !collision_point(x, y - 16, oSolid, 0, 0) && !collision_point(x, y, oEnemy, 0, 0) && !
                             g.at("scripts/scrEntityGen", 276);
-                            if and(and(and(g.get(cx.this, v::y)?.gml_gt(&r(16.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                            if { let p113 = { let p111 = { let p109 = g.get(cx.this, v::y)?.gml_gt(&r(16.0))?; let q110 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p109, q110.cond(Cond::And)?) }; let q112 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p111, q112.cond(Cond::And)?) }; let q114 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p113, q114.cond(Cond::And)?) } {
                                 // 280: if (global.cemetary)
                                 g.at("scripts/scrEntityGen", 280);
-                                if g.gget(gv::cemetary)?.is_truthy() {
+                                if g.gget(gv::cemetary)?.cond(Cond::If)? {
                                     // 282: if (rand(1, 25) == 1)
                                     g.at("scripts/scrEntityGen", 282);
                                     if scr::rand(g, cx, &[r(1.0), r(25.0)])?.gml_eq(&r(1.0))? {
@@ -718,10 +718,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 } else {
                                     // 285: if (!collision_point(x, y - 16, oWater, 0, 0))
                                     g.at("scripts/scrEntityGen", 285);
-                                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                                         // 287: if (global.blackMarket && y mod 128 == 0)
                                         g.at("scripts/scrEntityGen", 287);
-                                        if and(g.gget(gv::blackMarket)?.is_truthy(), g.get(cx.this, v::y)?.modulo(&r(128.0))?.gml_eq(&r(0.0))?) {
+                                        if { let p115 = g.gget(gv::blackMarket)?; let q116 = g.get(cx.this, v::y)?.modulo(&r(128.0))?.gml_eq(&r(0.0))?; and(p115.cond(Cond::And)?, q116) } {
                                             // 287: n = 0;
                                             g.at("scripts/scrEntityGen", 287);
                                             {
@@ -791,22 +791,22 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         }
                     }
                 }
-                (cx.this, cx.other) = outer21;
+                (cx.this, cx.other) = outer71;
             }
             // 304: if (global.genMarketEntrance && !global.madeMarketEntrance)
             g.at("scripts/scrEntityGen", 304);
-            if and(g.gget(gv::genMarketEntrance)?.is_truthy(), g.gget(gv::madeMarketEntrance)?.not()?.is_truthy()) {
+            if { let p117 = g.gget(gv::genMarketEntrance)?; let q118 = g.gget(gv::madeMarketEntrance)?.not()?; and(p117.cond(Cond::And)?, q118.cond(Cond::And)?) } {
                 // 306: with (oSolid)
                 g.at("scripts/scrEntityGen", 306);
                 {
                     let t = obj::oSolid;
-                    let mut it25 = g.with_iter(cx, &t)?;
-                    let outer27 = (cx.this, cx.other);
-                    'with10: while let Some(h26) = it25.next(g) {
-                        (cx.this, cx.other) = (h26, outer27.0);
+                    let mut it119 = g.with_iter(cx, &t)?;
+                    let outer121 = (cx.this, cx.other);
+                    'with10: while let Some(h120) = it119.next(g) {
+                        (cx.this, cx.other) = (h120, outer121.0);
                         // 308: if (y > 32 && collision_point(x, y - 16, oSolid, 0, 0))
                         g.at("scripts/scrEntityGen", 308);
-                        if and(g.get(cx.this, v::y)?.gml_gt(&r(32.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()) {
+                        if { let p122 = g.get(cx.this, v::y)?.gml_gt(&r(32.0))?; let q123 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p122, q123.cond(Cond::And)?) } {
                             // 310: obj = instance_place(x, y - 16, oSolid);
                             g.at("scripts/scrEntityGen", 310);
                             {
@@ -816,7 +816,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                             // 311: if (obj.type != "Tree" && type != "Altar" && !obj.invincible)
                             g.at("scripts/scrEntityGen", 311);
-                            if and(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::r#type)?.gml_ne(&s!("Tree"))?, g.get(cx.this, v::r#type)?.gml_ne(&s!("Altar"))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.is_truthy()) {
+                            if { let p124 = and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::r#type)?.gml_ne(&s!("Tree"))?, g.get(cx.this, v::r#type)?.gml_ne(&s!("Altar"))?); let q125 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?; and(p124, q125.cond(Cond::And)?) } {
                                 // 313: instance_create(x, y - 16, oXMarket);
                                 g.at("scripts/scrEntityGen", 313);
                                 cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oXMarket]; b::instance_create(g, cx, a)? };
@@ -837,17 +837,17 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                         }
                     }
-                    (cx.this, cx.other) = outer27;
+                    (cx.this, cx.other) = outer121;
                 }
             }
             // 321: with (oVine)
             g.at("scripts/scrEntityGen", 321);
             {
                 let t = obj::oVine;
-                let mut it28 = g.with_iter(cx, &t)?;
-                let outer30 = (cx.this, cx.other);
-                'with11: while let Some(h29) = it28.next(g) {
-                    (cx.this, cx.other) = (h29, outer30.0);
+                let mut it126 = g.with_iter(cx, &t)?;
+                let outer128 = (cx.this, cx.other);
+                'with11: while let Some(h127) = it126.next(g) {
+                    (cx.this, cx.other) = (h127, outer128.0);
                     // 323: if (rand(1, 15) == 1)
                     g.at("scripts/scrEntityGen", 323);
                     if scr::rand(g, cx, &[r(1.0), r(15.0)])?.gml_eq(&r(1.0))? {
@@ -856,25 +856,25 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oMonkey]; b::instance_create(g, cx, a)? };
                     }
                 }
-                (cx.this, cx.other) = outer30;
+                (cx.this, cx.other) = outer128;
             }
             // 326: with (oWater)
             g.at("scripts/scrEntityGen", 326);
             {
                 let t = obj::oWater;
-                let mut it31 = g.with_iter(cx, &t)?;
-                let outer33 = (cx.this, cx.other);
-                'with12: while let Some(h32) = it31.next(g) {
-                    (cx.this, cx.other) = (h32, outer33.0);
+                let mut it129 = g.with_iter(cx, &t)?;
+                let outer131 = (cx.this, cx.other);
+                'with12: while let Some(h130) = it129.next(g) {
+                    (cx.this, cx.other) = (h130, outer131.0);
                     // 328: if (!collision_point(x, y, oSolid, 0, 0))
                     g.at("scripts/scrEntityGen", 328);
-                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                         // 330: if (rand(1, 30) == 1)
                         g.at("scripts/scrEntityGen", 330);
                         if scr::rand(g, cx, &[r(1.0), r(30.0)])?.gml_eq(&r(1.0))? {
                             // 332: if (global.cemetary)
                             g.at("scripts/scrEntityGen", 332);
-                            if g.gget(gv::cemetary)?.is_truthy() {
+                            if g.gget(gv::cemetary)?.cond(Cond::If)? {
                                 // 332: instance_create(x + 4, y + 4, oDeadFish);
                                 g.at("scripts/scrEntityGen", 332);
                                 cx.ret = { let a = [g.get(cx.this, v::x)?.add(&r(4.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oDeadFish]; b::instance_create(g, cx, a)? };
@@ -886,7 +886,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         }
                     }
                 }
-                (cx.this, cx.other) = outer33;
+                (cx.this, cx.other) = outer131;
             }
         } else {
             // 338: if (global.levelType == 2)
@@ -896,13 +896,13 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrEntityGen", 340);
                 {
                     let t = obj::oSolid;
-                    let mut it34 = g.with_iter(cx, &t)?;
-                    let outer36 = (cx.this, cx.other);
-                    'with13: while let Some(h35) = it34.next(g) {
-                        (cx.this, cx.other) = (h35, outer36.0);
+                    let mut it132 = g.with_iter(cx, &t)?;
+                    let outer134 = (cx.this, cx.other);
+                    'with13: while let Some(h133) = it132.next(g) {
+                        (cx.this, cx.other) = (h133, outer134.0);
                         // 342: if (!isInShop(x, y))
                         g.at("scripts/scrEntityGen", 342);
-                        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy() {
+                        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.cond(Cond::If)? {
                             // 345: n = 30;
                             g.at("scripts/scrEntityGen", 345);
                             {
@@ -912,7 +912,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                             // 346: if (global.yetiLair)
                             g.at("scripts/scrEntityGen", 346);
-                            if g.gget(gv::yetiLair)?.is_truthy() {
+                            if g.gget(gv::yetiLair)?.cond(Cond::If)? {
                                 // 346: n = 90;
                                 g.at("scripts/scrEntityGen", 346);
                                 {
@@ -926,10 +926,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             if or(({ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? }).gml_ne(&g.gget(gv::startRoomX)?)?, ({ let a = [g.get(cx.this, v::y)?.sub(&r(16.0))?]; scr::scrGetRoomY(g, cx, &a)? }).gml_ne(&g.gget(gv::startRoomY)?)?) {
                                 // 350: if (y < room_height - 64 && !collision_point(x, y + 16, oSolid, 0, 0) && !collision_point(x, y + 32,
                                 g.at("scripts/scrEntityGen", 350);
-                                if and(and(and(and(g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(64.0))?)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                if { let p141 = { let p139 = { let p137 = { let p135 = g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(64.0))?)?; let q136 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p135, q136.cond(Cond::And)?) }; let q138 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p137, q138.cond(Cond::And)?) }; let q140 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p139, q140.cond(Cond::And)?) }; let q142 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p141, q142.cond(Cond::And)?) } {
                                     // 354: if (global.darkLevel && rand(1, 40) == 1)
                                     g.at("scripts/scrEntityGen", 354);
-                                    if and(g.gget(gv::darkLevel)?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?) {
+                                    if { let p143 = g.gget(gv::darkLevel)?; let q144 = scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?; and(p143.cond(Cond::And)?, q144) } {
                                         // 354: instance_create(x, y + 16, oScarab);
                                         g.at("scripts/scrEntityGen", 354);
                                         cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oScarab]; b::instance_create(g, cx, a)? };
@@ -937,7 +937,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 } else {
                                     // 356: if (y > 16 && y < 592 && !collision_point(x, y - 16, oSolid, 0, 0) && !isInShop(x, y))
                                     g.at("scripts/scrEntityGen", 356);
-                                    if and(and(and(g.get(cx.this, v::y)?.gml_gt(&r(16.0))?, g.get(cx.this, v::y)?.gml_lt(&r(592.0))?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy()) {
+                                    if { let p147 = { let p145 = and(g.get(cx.this, v::y)?.gml_gt(&r(16.0))?, g.get(cx.this, v::y)?.gml_lt(&r(592.0))?); let q146 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p145, q146.cond(Cond::And)?) }; let q148 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?; and(p147, q148.cond(Cond::And)?) } {
                                         // 358: if (rand(1, n) == 1)
                                         g.at("scripts/scrEntityGen", 358);
                                         if ({ let a = [r(1.0), g.get(cx.this, v::n)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))? {
@@ -950,10 +950,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                             // 362: if (y > 16 && y < 592 && !collision_point(x, y - 16, oSolid, 0, 0) && !collision_point(x + 8, y - 8,
                             g.at("scripts/scrEntityGen", 362);
-                            if and(and(and(and(and(and(g.get(cx.this, v::y)?.gml_gt(&r(16.0))?, g.get(cx.this, v::y)?.gml_lt(&r(592.0))?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &obj::oEntrance, v::x)?, g.get_on(cx, &obj::oEntrance, v::y)?]; b::point_distance(g, cx, a)? }).gml_gt(&r(64.0))?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy()) {
+                            if { let p155 = and({ let p153 = { let p151 = { let p149 = and(g.get(cx.this, v::y)?.gml_gt(&r(16.0))?, g.get(cx.this, v::y)?.gml_lt(&r(592.0))?); let q150 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p149, q150.cond(Cond::And)?) }; let q152 = ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p151, q152.cond(Cond::And)?) }; let q154 = ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p153, q154.cond(Cond::And)?) }, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &obj::oEntrance, v::x)?, g.get_on(cx, &obj::oEntrance, v::y)?]; b::point_distance(g, cx, a)? }).gml_gt(&r(64.0))?); let q156 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?; and(p155, q156.cond(Cond::And)?) } {
                                 // 369: if (rand(1, 10) == 1 && sprite_index == sDark && !collision_rectangle(x, y - 64, x + 15, y - 1, oSol
                                 g.at("scripts/scrEntityGen", 369);
-                                if and(and(and(scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sDark)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(64.0))?, g.get(cx.this, v::x)?.add(&r(15.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()), b::distance_to_object(g, cx, [obj::oExit])?.gml_gt(&r(64.0))?) {
+                                if and({ let p157 = and(scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sDark)?); let q158 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(64.0))?, g.get(cx.this, v::x)?.add(&r(15.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p157, q158.cond(Cond::And)?) }, b::distance_to_object(g, cx, [obj::oExit])?.gml_gt(&r(64.0))?) {
                                     // 369: instance_create(x, y - 16, oSpringTrap);
                                     g.at("scripts/scrEntityGen", 369);
                                     cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSpringTrap]; b::instance_create(g, cx, a)? };
@@ -976,7 +976,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                         }
                     }
-                    (cx.this, cx.other) = outer36;
+                    (cx.this, cx.other) = outer134;
                 }
             } else {
                 // 380: if (global.levelType == 3)
@@ -1048,23 +1048,23 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrEntityGen", 391);
                     {
                         let t = obj::oSolid;
-                        let mut it37 = g.with_iter(cx, &t)?;
-                        let outer39 = (cx.this, cx.other);
-                        'with14: while let Some(h38) = it37.next(g) {
-                            (cx.this, cx.other) = (h38, outer39.0);
+                        let mut it159 = g.with_iter(cx, &t)?;
+                        let outer161 = (cx.this, cx.other);
+                        'with14: while let Some(h160) = it159.next(g) {
+                            (cx.this, cx.other) = (h160, outer161.0);
                             // 394: if (rand(1, 100) == 1 && !collision_point(x, y - 16, oSolid, 0, 0))
                             g.at("scripts/scrEntityGen", 394);
-                            if and(scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_eq(&r(1.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                            if { let p162 = scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_eq(&r(1.0))?; let q163 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p162, q163.cond(Cond::And)?) } {
                                 // 394: tile_add(bgStatues, 0, 0, 16, 48, x, y - 32, 9005);
                                 g.at("scripts/scrEntityGen", 394);
                                 cx.ret = { let a = [bgr::bgStatues, r(0.0), r(0.0), r(16.0), r(48.0), g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, r(9005.0)]; b::tile_add(g, cx, a)? };
                             }
                             // 396: if (!isInShop(x, y))
                             g.at("scripts/scrEntityGen", 396);
-                            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy() {
+                            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.cond(Cond::If)? {
                                 // 400: if (y > 32 && !collision_point(x, y - 16, oSolid, 0, 0) && global.genGoldEntrance && !global.madeGol
                                 g.at("scripts/scrEntityGen", 400);
-                                if and(and(and(g.get(cx.this, v::y)?.gml_gt(&r(32.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), g.gget(gv::genGoldEntrance)?.is_truthy()), g.gget(gv::madeGoldEntrance)?.not()?.is_truthy()) {
+                                if { let p168 = { let p166 = { let p164 = g.get(cx.this, v::y)?.gml_gt(&r(32.0))?; let q165 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p164, q165.cond(Cond::And)?) }; let q167 = g.gget(gv::genGoldEntrance)?; and(p166, q167.cond(Cond::And)?) }; let q169 = g.gget(gv::madeGoldEntrance)?.not()?; and(p168, q169.cond(Cond::And)?) } {
                                     // 402: if (rand(1, global.goldChance) == 1)
                                     g.at("scripts/scrEntityGen", 402);
                                     if ({ let a = [r(1.0), g.gget(gv::goldChance)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))? {
@@ -1098,17 +1098,17 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 } else {
                                     // 410: if (type != "Tree" && type != "Altar" && y != 0 && !collision_point(x, y - 16, oSolid, 0, 0) && !col
                                     g.at("scripts/scrEntityGen", 410);
-                                    if and(and(and(and(and(and(and(and(and(and(and(and(and(and(and(g.get(cx.this, v::r#type)?.gml_ne(&s!("Tree"))?, g.get(cx.this, v::r#type)?.gml_ne(&s!("Altar"))?), g.get(cx.this, v::y)?.gml_ne(&r(0.0))?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, g.get(cx.this, v::x)?.add(&r(15.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), or(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy())), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy()), g.get(cx.this, v::x)?.gml_ne(&r(160.0))?), g.get(cx.this, v::x)?.gml_ne(&r(176.0))?), g.get(cx.this, v::x)?.gml_ne(&r(320.0))?), g.get(cx.this, v::x)?.gml_ne(&r(336.0))?), g.get(cx.this, v::x)?.gml_ne(&r(480.0))?), g.get(cx.this, v::x)?.gml_ne(&r(496.0))?) {
+                                    if and(and(and(and(and(and({ let p182 = { let p180 = and({ let p176 = { let p174 = { let p172 = { let p170 = and(and(g.get(cx.this, v::r#type)?.gml_ne(&s!("Tree"))?, g.get(cx.this, v::r#type)?.gml_ne(&s!("Altar"))?), g.get(cx.this, v::y)?.gml_ne(&r(0.0))?); let q171 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p170, q171.cond(Cond::And)?) }; let q173 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p172, q173.cond(Cond::And)?) }; let q175 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, g.get(cx.this, v::x)?.add(&r(15.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p174, q175.cond(Cond::And)?) }; let q177 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p176, q177.cond(Cond::And)?) }, { let p178 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q179 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; or(p178.cond(Cond::Or)?, q179.cond(Cond::Or)?) }); let q181 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p180, q181.cond(Cond::And)?) }; let q183 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?; and(p182, q183.cond(Cond::And)?) }, g.get(cx.this, v::x)?.gml_ne(&r(160.0))?), g.get(cx.this, v::x)?.gml_ne(&r(176.0))?), g.get(cx.this, v::x)?.gml_ne(&r(320.0))?), g.get(cx.this, v::x)?.gml_ne(&r(336.0))?), g.get(cx.this, v::x)?.gml_ne(&r(480.0))?), g.get(cx.this, v::x)?.gml_ne(&r(496.0))?) {
                                         // 420: if (rand(1, 12) == 1 && point_distance(x, y, oEntrance.x, oEntrance.y) > 64)
                                         g.at("scripts/scrEntityGen", 420);
                                         if and(scr::rand(g, cx, &[r(1.0), r(12.0)])?.gml_eq(&r(1.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &obj::oEntrance, v::x)?, g.get_on(cx, &obj::oEntrance, v::y)?]; b::point_distance(g, cx, a)? }).gml_gt(&r(64.0))?) {
                                             // 423: if (collision_point(x - 16, y - 32, oSolid, 0, 0) && collision_point(x + 16, y - 32, oSolid, 0, 0) &
                                             g.at("scripts/scrEntityGen", 423);
-                                            if and(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                            if { let p186 = { let p184 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q185 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p184.cond(Cond::And)?, q185.cond(Cond::And)?) }; let q187 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p186, q187.cond(Cond::And)?) } {
                                             } else {
                                                 // 430: if (collision_point(x, y - 16, oSolid, 0, 0))
                                                 g.at("scripts/scrEntityGen", 430);
-                                                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                                                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                                                     // 432: sol = instance_nearest(x, y - 16, oSolid);
                                                     g.at("scripts/scrEntityGen", 432);
                                                     {
@@ -1120,10 +1120,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     g.at("scripts/scrEntityGen", 433);
                                                     {
                                                         let t = g.get(cx.this, v::sol)?;
-                                                        let mut it40 = g.with_iter(cx, &t)?;
-                                                        let outer42 = (cx.this, cx.other);
-                                                        'with15: while let Some(h41) = it40.next(g) {
-                                                            (cx.this, cx.other) = (h41, outer42.0);
+                                                        let mut it188 = g.with_iter(cx, &t)?;
+                                                        let outer190 = (cx.this, cx.other);
+                                                        'with15: while let Some(h189) = it188.next(g) {
+                                                            (cx.this, cx.other) = (h189, outer190.0);
                                                             // 433: cleanDeath = true;
                                                             g.at("scripts/scrEntityGen", 433);
                                                             {
@@ -1135,7 +1135,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                             g.at("scripts/scrEntityGen", 433);
                                                             cx.ret = b::instance_destroy(g, cx, [])?;
                                                         }
-                                                        (cx.this, cx.other) = outer42;
+                                                        (cx.this, cx.other) = outer190;
                                                     }
                                                 }
                                                 // 435: instance_create(x, y, oSpearTrapBottom);
@@ -1143,7 +1143,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSpearTrapBottom]; b::instance_create(g, cx, a)? };
                                                 // 436: if (global.darkLevel)
                                                 g.at("scripts/scrEntityGen", 436);
-                                                if g.gget(gv::darkLevel)?.is_truthy() {
+                                                if g.gget(gv::darkLevel)?.cond(Cond::If)? {
                                                     // 436: instance_create(x, y - 16, oSpearTrapLit);
                                                     g.at("scripts/scrEntityGen", 436);
                                                     cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSpearTrapLit]; b::instance_create(g, cx, a)? };
@@ -1168,10 +1168,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                                 // 445: if (y < room_height - 64 && !collision_point(x, y + 16, oSolid, 0, 0) && !collision_point(x, y + 32,
                                 g.at("scripts/scrEntityGen", 445);
-                                if and(and(and(and(g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(64.0))?)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                if { let p197 = { let p195 = { let p193 = { let p191 = g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(64.0))?)?; let q192 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p191, q192.cond(Cond::And)?) }; let q194 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p193, q194.cond(Cond::And)?) }; let q196 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p195, q196.cond(Cond::And)?) }; let q198 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p197, q198.cond(Cond::And)?) } {
                                     // 449: if (global.darkLevel && rand(1, 40) == 1)
                                     g.at("scripts/scrEntityGen", 449);
-                                    if and(g.gget(gv::darkLevel)?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?) {
+                                    if { let p199 = g.gget(gv::darkLevel)?; let q200 = scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?; and(p199.cond(Cond::And)?, q200) } {
                                         // 449: instance_create(x, y + 16, oScarab);
                                         g.at("scripts/scrEntityGen", 449);
                                         cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oScarab]; b::instance_create(g, cx, a)? };
@@ -1179,13 +1179,13 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                                 // 452: if (scrGetRoomX(x) != global.startRoomX || scrGetRoomY(y - 16) != global.startRoomY && !collision_po
                                 g.at("scripts/scrEntityGen", 452);
-                                if and(or(({ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? }).gml_ne(&g.gget(gv::startRoomX)?)?, ({ let a = [g.get(cx.this, v::y)?.sub(&r(16.0))?]; scr::scrGetRoomY(g, cx, &a)? }).gml_ne(&g.gget(gv::startRoomY)?)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                if { let p201 = or(({ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? }).gml_ne(&g.gget(gv::startRoomX)?)?, ({ let a = [g.get(cx.this, v::y)?.sub(&r(16.0))?]; scr::scrGetRoomY(g, cx, &a)? }).gml_ne(&g.gget(gv::startRoomY)?)?); let q202 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p201, q202.cond(Cond::And)?) } {
                                     // 455: if (y > 16 && !collision_point(x, y - 16, oSolid, 0, 0))
                                     g.at("scripts/scrEntityGen", 455);
-                                    if and(g.get(cx.this, v::y)?.gml_gt(&r(16.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                    if { let p203 = g.get(cx.this, v::y)?.gml_gt(&r(16.0))?; let q204 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p203, q204.cond(Cond::And)?) } {
                                         // 457: if (global.genTombLord && !global.TombLord && !collision_rectangle(x, y - 32, x + 32, y - 1, oSolid,
                                         g.at("scripts/scrEntityGen", 457);
-                                        if and(and(and(g.gget(gv::genTombLord)?.is_truthy(), g.gget(gv::TombLord)?.not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, g.get(cx.this, v::x)?.add(&r(32.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()), scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?) {
+                                        if and({ let p207 = { let p205 = g.gget(gv::genTombLord)?; let q206 = g.gget(gv::TombLord)?.not()?; and(p205.cond(Cond::And)?, q206.cond(Cond::And)?) }; let q208 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, g.get(cx.this, v::x)?.add(&r(32.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p207, q208.cond(Cond::And)?) }, scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))?) {
                                             // 462: instance_create(x, y - 32, oTombLord);
                                             g.at("scripts/scrEntityGen", 462);
                                             cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oTombLord]; b::instance_create(g, cx, a)? };
@@ -1216,7 +1216,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     if scr::rand(g, cx, &[r(1.0), r(60.0)])?.gml_eq(&r(1.0))? {
                                                         // 469: if (global.darkLevel)
                                                         g.at("scripts/scrEntityGen", 469);
-                                                        if g.gget(gv::darkLevel)?.is_truthy() {
+                                                        if g.gget(gv::darkLevel)?.cond(Cond::If)? {
                                                             // 469: instance_create(x, y - 16, oSmashTrapLit);
                                                             g.at("scripts/scrEntityGen", 469);
                                                             cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSmashTrapLit]; b::instance_create(g, cx, a)? };
@@ -1240,22 +1240,22 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                             }
                         }
-                        (cx.this, cx.other) = outer39;
+                        (cx.this, cx.other) = outer161;
                     }
                     // 483: if (global.genGoldEntrance && !global.madeGoldEntrance)
                     g.at("scripts/scrEntityGen", 483);
-                    if and(g.gget(gv::genGoldEntrance)?.is_truthy(), g.gget(gv::madeGoldEntrance)?.not()?.is_truthy()) {
+                    if { let p209 = g.gget(gv::genGoldEntrance)?; let q210 = g.gget(gv::madeGoldEntrance)?.not()?; and(p209.cond(Cond::And)?, q210.cond(Cond::And)?) } {
                         // 485: with (oSolid)
                         g.at("scripts/scrEntityGen", 485);
                         {
                             let t = obj::oSolid;
-                            let mut it43 = g.with_iter(cx, &t)?;
-                            let outer45 = (cx.this, cx.other);
-                            'with16: while let Some(h44) = it43.next(g) {
-                                (cx.this, cx.other) = (h44, outer45.0);
+                            let mut it211 = g.with_iter(cx, &t)?;
+                            let outer213 = (cx.this, cx.other);
+                            'with16: while let Some(h212) = it211.next(g) {
+                                (cx.this, cx.other) = (h212, outer213.0);
                                 // 487: if (y > 32 && !collision_point(x, y - 16, oSolid, 0, 0))
                                 g.at("scripts/scrEntityGen", 487);
-                                if and(g.get(cx.this, v::y)?.gml_gt(&r(32.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                if { let p214 = g.get(cx.this, v::y)?.gml_gt(&r(32.0))?; let q215 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p214, q215.cond(Cond::And)?) } {
                                     // 489: instance_create(x, y - 16, oGoldDoor);
                                     g.at("scripts/scrEntityGen", 489);
                                     cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oGoldDoor]; b::instance_create(g, cx, a)? };
@@ -1278,17 +1278,17 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     break 'with16;
                                 }
                             }
-                            (cx.this, cx.other) = outer45;
+                            (cx.this, cx.other) = outer213;
                         }
                     }
                     // 497: with (oBlock)
                     g.at("scripts/scrEntityGen", 497);
                     {
                         let t = obj::oBlock;
-                        let mut it46 = g.with_iter(cx, &t)?;
-                        let outer48 = (cx.this, cx.other);
-                        'with17: while let Some(h47) = it46.next(g) {
-                            (cx.this, cx.other) = (h47, outer48.0);
+                        let mut it216 = g.with_iter(cx, &t)?;
+                        let outer218 = (cx.this, cx.other);
+                        'with17: while let Some(h217) = it216.next(g) {
+                            (cx.this, cx.other) = (h217, outer218.0);
                             // 499: cleanDeath = true;
                             g.at("scripts/scrEntityGen", 499);
                             {
@@ -1298,7 +1298,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                             // 500: if (!isInShop(x, y))
                             g.at("scripts/scrEntityGen", 500);
-                            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy() {
+                            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.cond(Cond::If)? {
                                 // 502: n = point_distance(x, y, oEntrance.x, oEntrance.y);
                                 g.at("scripts/scrEntityGen", 502);
                                 {
@@ -1308,13 +1308,13 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                                 // 503: if (!isInShop(x, y) && rand(1, 3) == 1 && !(y == oEntrance.y && n < 144) && n > 48)
                                 g.at("scripts/scrEntityGen", 503);
-                                if and(and(and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(3.0)])?.gml_eq(&r(1.0))?), !(and(g.get(cx.this, v::y)?.gml_eq(&g.get_on(cx, &obj::oEntrance, v::y)?)?, g.get(cx.this, v::n)?.gml_lt(&r(144.0))?))), g.get(cx.this, v::n)?.gml_gt(&r(48.0))?) {
+                                if and(and({ let p219 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?; let q220 = scr::rand(g, cx, &[r(1.0), r(3.0)])?.gml_eq(&r(1.0))?; and(p219.cond(Cond::And)?, q220) }, !(and(g.get(cx.this, v::y)?.gml_eq(&g.get_on(cx, &obj::oEntrance, v::y)?)?, g.get(cx.this, v::n)?.gml_lt(&r(144.0))?))), g.get(cx.this, v::n)?.gml_gt(&r(48.0))?) {
                                     // 508: if (collision_point(x + 16, y, oSolid, 0, 0) && !collision_rectangle(x - 32, y, x - 1, y + 15, oSoli
                                     g.at("scripts/scrEntityGen", 508);
-                                    if and(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(32.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()) {
+                                    if { let p221 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q222 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(32.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p221.cond(Cond::And)?, q222.cond(Cond::And)?) } {
                                         // 511: if (global.darkLevel)
                                         g.at("scripts/scrEntityGen", 511);
-                                        if g.gget(gv::darkLevel)?.is_truthy() {
+                                        if g.gget(gv::darkLevel)?.cond(Cond::If)? {
                                             // 511: instance_create(x, y, oArrowTrapLeftLit);
                                             g.at("scripts/scrEntityGen", 511);
                                             cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oArrowTrapLeftLit]; b::instance_create(g, cx, a)? };
@@ -1329,10 +1329,10 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     } else {
                                         // 515: if (collision_point(x - 16, y, oSolid, 0, 0) && !collision_rectangle(x + 16, y, x + 48, y + 15, oSol
                                         g.at("scripts/scrEntityGen", 515);
-                                        if and(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(48.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.is_truthy()) {
+                                        if { let p223 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q224 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(48.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p223.cond(Cond::And)?, q224.cond(Cond::And)?) } {
                                             // 518: if (global.darkLevel)
                                             g.at("scripts/scrEntityGen", 518);
-                                            if g.gget(gv::darkLevel)?.is_truthy() {
+                                            if g.gget(gv::darkLevel)?.cond(Cond::If)? {
                                                 // 518: instance_create(x, y, oArrowTrapRightLit);
                                                 g.at("scripts/scrEntityGen", 518);
                                                 cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oArrowTrapRightLit]; b::instance_create(g, cx, a)? };
@@ -1349,7 +1349,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                             }
                         }
-                        (cx.this, cx.other) = outer48;
+                        (cx.this, cx.other) = outer218;
                     }
                 }
             }
@@ -1357,25 +1357,25 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 528: if (global.darkLevel)
     g.at("scripts/scrEntityGen", 528);
-    if g.gget(gv::darkLevel)?.is_truthy() {
+    if g.gget(gv::darkLevel)?.cond(Cond::If)? {
         // 530: with (oEntrance)
         g.at("scripts/scrEntityGen", 530);
         {
             let t = obj::oEntrance;
-            let mut it49 = g.with_iter(cx, &t)?;
-            let outer51 = (cx.this, cx.other);
-            'with18: while let Some(h50) = it49.next(g) {
-                (cx.this, cx.other) = (h50, outer51.0);
+            let mut it225 = g.with_iter(cx, &t)?;
+            let outer227 = (cx.this, cx.other);
+            'with18: while let Some(h226) = it225.next(g) {
+                (cx.this, cx.other) = (h226, outer227.0);
                 // 532: if (!collision_point(x - 16, y, oSolid, 0, 0))
                 g.at("scripts/scrEntityGen", 532);
-                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                     // 534: instance_create(x - 16 + 8, y + 8, oFlareCrate);
                     g.at("scripts/scrEntityGen", 534);
                     cx.ret = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oFlareCrate]; b::instance_create(g, cx, a)? };
                 } else {
                     // 536: if (!collision_point(x + 16, y, oSolid, 0, 0))
                     g.at("scripts/scrEntityGen", 536);
-                    if ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                         // 538: instance_create(x + 16 + 8, y + 8, oFlareCrate);
                         g.at("scripts/scrEntityGen", 538);
                         cx.ret = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oFlareCrate]; b::instance_create(g, cx, a)? };
@@ -1386,7 +1386,7 @@ pub fn scrEntityGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                 }
             }
-            (cx.this, cx.other) = outer51;
+            (cx.this, cx.other) = outer227;
         }
     }
     // 547: global.cleanSolids = false;

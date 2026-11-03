@@ -76,7 +76,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oSmashTrap/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oSmashTrap/destroy#0", 3);
         {
@@ -134,7 +134,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get(cx.this, v::counter)?.gml_lt(&r(1.0))?) {
                 // 11: if (abs(oCharacter.y - (y + 8)) < 8 && oCharacter.x > x + 8 && !isCollisionRight(2))
                 g.at("oSmashTrap/step#0", 11);
-                if and(and(({ let a = [g.get_on(cx, &obj::oCharacter, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?, g.get_on(cx, &obj::oCharacter, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?), scr::isCollisionRight(g, cx, &[r(2.0)])?.not()?.is_truthy()) {
+                if { let p1 = and(({ let a = [g.get_on(cx, &obj::oCharacter, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?, g.get_on(cx, &obj::oCharacter, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?); let q2 = scr::isCollisionRight(g, cx, &[r(2.0)])?.not()?; and(p1, q2.cond(Cond::And)?) } {
                     // 13: status = ATTACK;
                     g.at("oSmashTrap/step#0", 13);
                     g.set(cx.this, v::status, g.get(cx.this, v::ATTACK)?)?;
@@ -147,7 +147,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 } else {
                     // 17: if (abs(oCharacter.x - (x + 8)) < 8 && oCharacter.y > y + 8 && !isCollisionBottom(2))
                     g.at("oSmashTrap/step#0", 17);
-                    if and(and(({ let a = [g.get_on(cx, &obj::oCharacter, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?, g.get_on(cx, &obj::oCharacter, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), scr::isCollisionBottom(g, cx, &[r(2.0)])?.not()?.is_truthy()) {
+                    if { let p3 = and(({ let a = [g.get_on(cx, &obj::oCharacter, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?, g.get_on(cx, &obj::oCharacter, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?); let q4 = scr::isCollisionBottom(g, cx, &[r(2.0)])?.not()?; and(p3, q4.cond(Cond::And)?) } {
                         // 19: status = ATTACK;
                         g.at("oSmashTrap/step#0", 19);
                         g.set(cx.this, v::status, g.get(cx.this, v::ATTACK)?)?;
@@ -160,7 +160,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     } else {
                         // 23: if (abs(oCharacter.y - (y + 8)) < 8 && oCharacter.x < x + 8 && !isCollisionLeft(2))
                         g.at("oSmashTrap/step#0", 23);
-                        if and(and(({ let a = [g.get_on(cx, &obj::oCharacter, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?, g.get_on(cx, &obj::oCharacter, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?), scr::isCollisionLeft(g, cx, &[r(2.0)])?.not()?.is_truthy()) {
+                        if { let p5 = and(({ let a = [g.get_on(cx, &obj::oCharacter, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?, g.get_on(cx, &obj::oCharacter, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?); let q6 = scr::isCollisionLeft(g, cx, &[r(2.0)])?.not()?; and(p5, q6.cond(Cond::And)?) } {
                             // 25: status = ATTACK;
                             g.at("oSmashTrap/step#0", 25);
                             g.set(cx.this, v::status, g.get(cx.this, v::ATTACK)?)?;
@@ -173,7 +173,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         } else {
                             // 29: if (abs(oCharacter.x - (x + 8)) < 8 && oCharacter.y < y + 8 && !isCollisionTop(2))
                             g.at("oSmashTrap/step#0", 29);
-                            if and(and(({ let a = [g.get_on(cx, &obj::oCharacter, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?, g.get_on(cx, &obj::oCharacter, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), scr::isCollisionTop(g, cx, &[r(2.0)])?.not()?.is_truthy()) {
+                            if { let p7 = and(({ let a = [g.get_on(cx, &obj::oCharacter, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?, g.get_on(cx, &obj::oCharacter, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?); let q8 = scr::isCollisionTop(g, cx, &[r(2.0)])?.not()?; and(p7, q8.cond(Cond::And)?) } {
                                 // 31: status = ATTACK;
                                 g.at("oSmashTrap/step#0", 31);
                                 g.set(cx.this, v::status, g.get(cx.this, v::ATTACK)?)?;
@@ -206,28 +206,28 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::colBot, r(0.0))?;
                 // 43: if (isCollisionLeft(1))
                 g.at("oSmashTrap/step#0", 43);
-                if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 43: colLeft = true;
                     g.at("oSmashTrap/step#0", 43);
                     g.set(cx.this, v::colLeft, r(1.0))?;
                 }
                 // 44: if (isCollisionRight(1))
                 g.at("oSmashTrap/step#0", 44);
-                if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 44: colRight = true;
                     g.at("oSmashTrap/step#0", 44);
                     g.set(cx.this, v::colRight, r(1.0))?;
                 }
                 // 45: if (isCollisionTop(1))
                 g.at("oSmashTrap/step#0", 45);
-                if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 45: colTop = true;
                     g.at("oSmashTrap/step#0", 45);
                     g.set(cx.this, v::colTop, r(1.0))?;
                 }
                 // 46: if (isCollisionBottom(1))
                 g.at("oSmashTrap/step#0", 46);
-                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 46: colBot = true;
                     g.at("oSmashTrap/step#0", 46);
                     g.set(cx.this, v::colBot, r(1.0))?;
@@ -257,7 +257,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::dir)?.gml_eq(&g.get(cx.this, v::RIGHT)?)? {
                     // 54: if (isCollisionRight(2) && colRight)
                     g.at("oSmashTrap/step#0", 54);
-                    if and(scr::isCollisionRight(g, cx, &[r(2.0)])?.is_truthy(), g.get(cx.this, v::colRight)?.is_truthy()) {
+                    if { let p9 = scr::isCollisionRight(g, cx, &[r(2.0)])?; let q10 = g.get(cx.this, v::colRight)?; and(p9.cond(Cond::And)?, q10.cond(Cond::And)?) } {
                         // 56: x -= 2;
                         g.at("oSmashTrap/step#0", 56);
                         g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(2.0))?)?;
@@ -267,7 +267,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 59: if (colRight)
                     g.at("oSmashTrap/step#0", 59);
-                    if g.get(cx.this, v::colRight)?.is_truthy() {
+                    if g.get(cx.this, v::colRight)?.cond(Cond::If)? {
                         // 61: x -= 1;
                         g.at("oSmashTrap/step#0", 61);
                         g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
@@ -281,7 +281,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::dir)?.gml_eq(&g.get(cx.this, v::DOWN)?)? {
                         // 67: if (isCollisionBottom(2) && colBot)
                         g.at("oSmashTrap/step#0", 67);
-                        if and(scr::isCollisionBottom(g, cx, &[r(2.0)])?.is_truthy(), g.get(cx.this, v::colBot)?.is_truthy()) {
+                        if { let p11 = scr::isCollisionBottom(g, cx, &[r(2.0)])?; let q12 = g.get(cx.this, v::colBot)?; and(p11.cond(Cond::And)?, q12.cond(Cond::And)?) } {
                             // 69: y -= 2;
                             g.at("oSmashTrap/step#0", 69);
                             g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
@@ -291,7 +291,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 72: if (colBot)
                         g.at("oSmashTrap/step#0", 72);
-                        if g.get(cx.this, v::colBot)?.is_truthy() {
+                        if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
                             // 74: y -= 1;
                             g.at("oSmashTrap/step#0", 74);
                             g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
@@ -305,7 +305,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get(cx.this, v::dir)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
                             // 80: if (isCollisionLeft(2) && colLeft)
                             g.at("oSmashTrap/step#0", 80);
-                            if and(scr::isCollisionLeft(g, cx, &[r(2.0)])?.is_truthy(), g.get(cx.this, v::colLeft)?.is_truthy()) {
+                            if { let p13 = scr::isCollisionLeft(g, cx, &[r(2.0)])?; let q14 = g.get(cx.this, v::colLeft)?; and(p13.cond(Cond::And)?, q14.cond(Cond::And)?) } {
                                 // 82: x += 2;
                                 g.at("oSmashTrap/step#0", 82);
                                 g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(2.0))?)?;
@@ -315,7 +315,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 85: if (colLeft)
                             g.at("oSmashTrap/step#0", 85);
-                            if g.get(cx.this, v::colLeft)?.is_truthy() {
+                            if g.get(cx.this, v::colLeft)?.cond(Cond::If)? {
                                 // 87: x += 1;
                                 g.at("oSmashTrap/step#0", 87);
                                 g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
@@ -329,7 +329,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::dir)?.gml_eq(&g.get(cx.this, v::UP)?)? {
                                 // 93: if (isCollisionTop(2) && colTop)
                                 g.at("oSmashTrap/step#0", 93);
-                                if and(scr::isCollisionTop(g, cx, &[r(2.0)])?.is_truthy(), g.get(cx.this, v::colTop)?.is_truthy()) {
+                                if { let p15 = scr::isCollisionTop(g, cx, &[r(2.0)])?; let q16 = g.get(cx.this, v::colTop)?; and(p15.cond(Cond::And)?, q16.cond(Cond::And)?) } {
                                     // 95: y += 2;
                                     g.at("oSmashTrap/step#0", 95);
                                     g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(2.0))?)?;
@@ -339,7 +339,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 98: if (colTop)
                                 g.at("oSmashTrap/step#0", 98);
-                                if g.get(cx.this, v::colTop)?.is_truthy() {
+                                if g.get(cx.this, v::colTop)?.cond(Cond::If)? {
                                     // 100: y += 1;
                                     g.at("oSmashTrap/step#0", 100);
                                     g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
@@ -353,14 +353,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 105: if (collision_rectangle(x - 1, y - 1, x + 17, y + 17, oTombLord, 0, 0))
                 g.at("oSmashTrap/step#0", 105);
-                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, g.get(cx.this, v::x)?.add(&r(17.0))?, g.get(cx.this, v::y)?.add(&r(17.0))?, obj::oTombLord, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, g.get(cx.this, v::x)?.add(&r(17.0))?, g.get(cx.this, v::y)?.add(&r(17.0))?, obj::oTombLord, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
                     // 105: hit = true;
                     g.at("oSmashTrap/step#0", 105);
                     g.set(cx.this, v::hit, r(1.0))?;
                 }
                 // 107: if (hit)
                 g.at("oSmashTrap/step#0", 107);
-                if g.get(cx.this, v::hit)?.is_truthy() {
+                if g.get(cx.this, v::hit)?.cond(Cond::If)? {
                     // 109: xv = 0;
                     g.at("oSmashTrap/step#0", 109);
                     g.set(cx.this, v::xv, r(0.0))?;
@@ -376,7 +376,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 114: if (hit && !colRight && !colLeft && !colTop && !colBot)
                 g.at("oSmashTrap/step#0", 114);
-                if and(and(and(and(g.get(cx.this, v::hit)?.is_truthy(), g.get(cx.this, v::colRight)?.not()?.is_truthy()), g.get(cx.this, v::colLeft)?.not()?.is_truthy()), g.get(cx.this, v::colTop)?.not()?.is_truthy()), g.get(cx.this, v::colBot)?.not()?.is_truthy()) {
+                if { let p23 = { let p21 = { let p19 = { let p17 = g.get(cx.this, v::hit)?; let q18 = g.get(cx.this, v::colRight)?.not()?; and(p17.cond(Cond::And)?, q18.cond(Cond::And)?) }; let q20 = g.get(cx.this, v::colLeft)?.not()?; and(p19, q20.cond(Cond::And)?) }; let q22 = g.get(cx.this, v::colTop)?.not()?; and(p21, q22.cond(Cond::And)?) }; let q24 = g.get(cx.this, v::colBot)?.not()?; and(p23, q24.cond(Cond::And)?) } {
                     // 119: status = IDLE;
                     g.at("oSmashTrap/step#0", 119);
                     g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -408,7 +408,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(0.05))?)?;
                     // 131: if (collision_point(x, y - 1, oLava, 0, 0))
                     g.at("oSmashTrap/step#0", 131);
-                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                         // 131: instance_destroy();
                         g.at("oSmashTrap/step#0", 131);
                         b::instance_destroy(g, cx, [])?;
@@ -418,7 +418,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 134: if (collision_rectangle(x + 1, y + 1, x + 15, y + 15, oLava, 0, 0))
         g.at("oSmashTrap/step#0", 134);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(1.0))?, g.get(cx.this, v::x)?.add(&r(15.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(1.0))?, g.get(cx.this, v::x)?.add(&r(15.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
             // 136: status = 99;
             g.at("oSmashTrap/step#0", 136);
             g.set(cx.this, v::status, r(99.0))?;

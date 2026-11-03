@@ -41,7 +41,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (dying)
     g.at("oTarget/step#0", 1);
-    if g.get(cx.this, v::dying)?.is_truthy() {
+    if g.get(cx.this, v::dying)?.cond(Cond::If)? {
         // 3: if (life > 0)
         g.at("oTarget/step#0", 3);
         if g.get(cx.this, v::life)?.gml_gt(&r(0.0))? {
@@ -62,7 +62,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::dir)?.gml_eq(&g.get(cx.this, v::UP)?)? {
             // 14: if (hard)
             g.at("oTarget/step#0", 14);
-            if g.get(cx.this, v::hard)?.is_truthy() {
+            if g.get(cx.this, v::hard)?.cond(Cond::If)? {
                 // 14: y -= 2;
                 g.at("oTarget/step#0", 14);
                 g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
@@ -90,7 +90,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::dir)?.gml_eq(&g.get(cx.this, v::DOWN)?)? {
                 // 25: if (hard)
                 g.at("oTarget/step#0", 25);
-                if g.get(cx.this, v::hard)?.is_truthy() {
+                if g.get(cx.this, v::hard)?.cond(Cond::If)? {
                     // 25: y += 2;
                     g.at("oTarget/step#0", 25);
                     g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(2.0))?)?;
@@ -142,7 +142,7 @@ pub fn collision_oArrow_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.other, v::yVel, r(0.0))?;
     // 3: if (!dying)
     g.at("oTarget/collision_oArrow#0", 3);
-    if g.get(cx.this, v::dying)?.not()?.is_truthy() {
+    if g.get(cx.this, v::dying)?.not()?.cond(Cond::If)? {
         // 5: dying = true;
         g.at("oTarget/collision_oArrow#0", 5);
         g.set(cx.this, v::dying, r(1.0))?;
@@ -199,7 +199,7 @@ pub fn collision_oArrow_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oTarget/collision_oArrow#0", 18);
         {
             let t = obj::oMoonRoom;
-            g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &g.get(cx.this, v::n)?)?)?;
+            g.set_on(cx, &t, v::baskets, lenient(Value::add, g.get_on(cx, &t, v::baskets)?, &g.get(cx.this, v::n)?)?)?;
         }
         // 19: playSound(global.sndHit);
         g.at("oTarget/collision_oArrow#0", 19);

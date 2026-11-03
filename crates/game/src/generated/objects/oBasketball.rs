@@ -35,14 +35,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (colLeft || colRight)
     g.at("oBasketball/step#1", 1);
-    if or(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.is_truthy()) {
+    if { let p1 = g.get(cx.this, v::colLeft)?; let q2 = g.get(cx.this, v::colRight)?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 1: wallBounce = true;
         g.at("oBasketball/step#1", 1);
         g.set(cx.this, v::wallBounce, r(1.0))?;
     } else {
         // 2: if (colBot)
         g.at("oBasketball/step#1", 2);
-        if g.get(cx.this, v::colBot)?.is_truthy() {
+        if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
             // 2: wallBounce = false;
             g.at("oBasketball/step#1", 2);
             g.set(cx.this, v::wallBounce, r(0.0))?;
@@ -50,7 +50,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 4: if (collision_rectangle(x - 1, y + 4, x + 1, y + 5, oRimDeflect, 0, 0) && !goingIn && bounces < 40)
     g.at("oBasketball/step#1", 4);
-    if and(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(5.0))?, obj::oRimDeflect, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy(), g.get(cx.this, v::goingIn)?.not()?.is_truthy()), g.get(cx.this, v::bounces)?.gml_lt(&r(40.0))?) {
+    if and({ let p3 = { let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(5.0))?, obj::oRimDeflect, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; let q4 = g.get(cx.this, v::goingIn)?.not()?; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) }, g.get(cx.this, v::bounces)?.gml_lt(&r(40.0))?) {
         // 6: yVel = -yVel * 0.8;
         g.at("oBasketball/step#1", 6);
         g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?.mul(&r(0.8))?)?;
@@ -113,23 +113,23 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 29: if (collision_point(x, y, oRim, 0, 0))
     g.at("oBasketball/step#1", 29);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oRim, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oRim, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 31: if (!goingIn && (yVel > 0 || (held && oPlayer1.state == 16)))
         g.at("oBasketball/step#1", 31);
-        if and(g.get(cx.this, v::goingIn)?.not()?.is_truthy(), or(g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?, and(g.get(cx.this, v::held)?.is_truthy(), g.get_on(cx, &obj::oPlayer1, v::state)?.gml_eq(&r(16.0))?))) {
+        if { let p7 = g.get(cx.this, v::goingIn)?.not()?; let q8 = or(g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?, { let p5 = g.get(cx.this, v::held)?; let q6 = g.get_on(cx, &obj::oPlayer1, v::state)?.gml_eq(&r(16.0))?; and(p5.cond(Cond::And)?, q6) }); and(p7.cond(Cond::And)?, q8) } {
             // 33: with (oMoonRoom)
             g.at("oBasketball/step#1", 33);
             {
                 let t = obj::oMoonRoom;
-                let mut it1 = g.with_iter(cx, &t)?;
-                let outer3 = (cx.this, cx.other);
-                'with1: while let Some(h2) = it1.next(g) {
-                    (cx.this, cx.other) = (h2, outer3.0);
+                let mut it9 = g.with_iter(cx, &t)?;
+                let outer11 = (cx.this, cx.other);
+                'with1: while let Some(h10) = it9.next(g) {
+                    (cx.this, cx.other) = (h10, outer11.0);
                     // 33: alarm[0] = 20;
                     g.at("oBasketball/step#1", 33);
                     g.set_a(cx.this, v::alarm, 0, 0, r(20.0))?;
                 }
-                (cx.this, cx.other) = outer3;
+                (cx.this, cx.other) = outer11;
             }
             // 34: xVel = 0;
             g.at("oBasketball/step#1", 34);
@@ -154,12 +154,12 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let t = g.get(cx.this, v::obj)?; g.set_on(cx, &t, v::image_index, r(0.0))?; }
             // 40: if (held)
             g.at("oBasketball/step#1", 40);
-            if g.get(cx.this, v::held)?.is_truthy() {
+            if g.get(cx.this, v::held)?.cond(Cond::If)? {
                 // 42: oMoonRoom.baskets += 1;
                 g.at("oBasketball/step#1", 42);
                 {
                     let t = obj::oMoonRoom;
-                    g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(1.0))?)?;
+                    g.set_on(cx, &t, v::baskets, lenient(Value::add, g.get_on(cx, &t, v::baskets)?, &r(1.0))?)?;
                 }
                 // 43: oPlayer1.holdItem = false;
                 g.at("oBasketball/step#1", 43);
@@ -167,19 +167,19 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 45: if (wallBounce)
                 g.at("oBasketball/step#1", 45);
-                if g.get(cx.this, v::wallBounce)?.is_truthy() {
+                if g.get(cx.this, v::wallBounce)?.cond(Cond::If)? {
                     // 47: oMoonRoom.baskets += 3;
                     g.at("oBasketball/step#1", 47);
                     {
                         let t = obj::oMoonRoom;
-                        g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(3.0))?)?;
+                        g.set_on(cx, &t, v::baskets, lenient(Value::add, g.get_on(cx, &t, v::baskets)?, &r(3.0))?)?;
                     }
                 } else {
                     // 50: oMoonRoom.baskets += 2;
                     g.at("oBasketball/step#1", 50);
                     {
                         let t = obj::oMoonRoom;
-                        g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(2.0))?)?;
+                        g.set_on(cx, &t, v::baskets, lenient(Value::add, g.get_on(cx, &t, v::baskets)?, &r(2.0))?)?;
                     }
                 }
             }
@@ -194,7 +194,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 56: if (held && collision_point(x, y + 6, oSolid, 0, 0))
     g.at("oBasketball/step#1", 56);
-    if and(g.get(cx.this, v::held)?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()) {
+    if { let p12 = g.get(cx.this, v::held)?; let q13 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p12.cond(Cond::And)?, q13.cond(Cond::And)?) } {
         // 56: sprite_index = sDribble;
         g.at("oBasketball/step#1", 56);
         g.set(cx.this, v::sprite_index, spr::sDribble)?;

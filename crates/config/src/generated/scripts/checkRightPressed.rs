@@ -6,7 +6,7 @@ pub fn checkRightPressed(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.rightPressed)
     g.at("scripts/checkRightPressed", 1);
-    if g.get_on(cx, &g.get(cx.this, v::gamepad)?, v::rightPressed)?.is_truthy() {
+    if g.get_on(cx, &g.get(cx.this, v::gamepad)?, v::rightPressed)?.cond(Cond::If)? {
         // 2: return gamepad.rightPressed;
         g.at("scripts/checkRightPressed", 2);
         return Ok(g.get_on(cx, &g.get(cx.this, v::gamepad)?, v::rightPressed)?);

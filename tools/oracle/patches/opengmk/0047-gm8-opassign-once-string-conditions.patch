@@ -1,0 +1,234 @@
+diff --git a/gm8emulator/src/action.rs b/gm8emulator/src/action.rs
+--- a/gm8emulator/src/action.rs
++++ b/gm8emulator/src/action.rs
+@@ -452,7 +452,9 @@ impl Game {
+                     }
+ 
+                     if *is_condition {
+-                        let do_if = returned_value.is_truthy() != action.invert_condition;
++                        // Spelunky port (851-3798): a string as an "If an expression is true" is an error, as an
++                        // `if`'s condition is (assumed: probes replace code, not actions).
++                        let do_if = returned_value.cond(false)? != action.invert_condition;
+                         if do_if {
+                             if let Some(target) = slice.get(i + 1..) {
+                                 match self.exec_slice(target, this, other, event_type, event_number, as_object, true)? {
+diff --git a/gm8emulator/src/gml/runtime.rs b/gm8emulator/src/gml/runtime.rs
+--- a/gm8emulator/src/gml/runtime.rs
++++ b/gm8emulator/src/gml/runtime.rs
+@@ -188,6 +188,9 @@ pub enum Error {
+     IntOverflow,
+     // Spelunky port (851-3259): an arithmetic result past the largest double (the x87's overflow).
+     Overflow,
++    // Spelunky port (851-3798): a string as an `if`'s or a `for`'s condition, or a `while`'s or an `until`'s.
++    ExpressionExpected,
++    BooleanExpected,
+ }
+ 
+ impl std::error::Error for Error {}
+@@ -253,6 +256,8 @@ impl Display for Error {
+             Self::DivisionByZero => write!(f, "Division by 0."),
+             Self::ModuloByZero => write!(f, "Modulo by 0."),
+             Self::IntOverflow | Self::Overflow => write!(f, "Unexpected error occured when running the game."),
++            Self::ExpressionExpected => write!(f, "Expression expected"),
++            Self::BooleanExpected => write!(f, "Boolean expression expected"),
+         }
+     }
+ }
+@@ -388,9 +393,26 @@ impl Game {
+     fn exec_instruction(&mut self, instruction: &Instruction, context: &mut Context) -> gml::Result<ReturnType> {
+         match instruction {
+             Instruction::SetField { accessor, value } => {
++                // Spelunky port (851-3798): an op= evaluates its owner and array index once, for the read and the
++                // write, as GM8 does (probe `opassign-order`: `(f()).v += x` calls `f` once); OpenGMK's
++                // `make_modify_instruction` evaluated both twice.
++                let pinned;
++                let accessor = if let Node::Binary { type_unsafe: true, .. } = value {
++                    let (owner, array) = self.pin_accessor(&accessor.owner, &accessor.array, context)?;
++                    pinned = FieldAccessor { index: accessor.index, array, owner };
++                    &pinned
++                } else {
++                    accessor
++                };
+                 let target = self.get_target(context, &accessor.owner, self.globalvars.contains(&accessor.index))?;
+                 let array_index = self.get_array_index(&accessor.array, context)?;
+-                let value = self.eval(value, context)?;
++                let value = match value {
++                    Node::Binary { right, operator, type_unsafe: true, .. } => {
++                        let left = Node::Field { accessor: accessor.clone() };
++                        self.modify(&left, right, operator, context)?
++                    },
++                    value => self.eval(value, context)?,
++                };
+                 context.return_value = value.clone();
+                 match target {
+                     Target::Single(None) => (),
+@@ -426,9 +448,24 @@ impl Game {
+                 }
+             },
+             Instruction::SetVariable { accessor, value } => {
++                // Spelunky port (851-3798): as SetField's op=.
++                let pinned;
++                let accessor = if let Node::Binary { type_unsafe: true, .. } = value {
++                    let (owner, array) = self.pin_accessor(&accessor.owner, &accessor.array, context)?;
++                    pinned = VariableAccessor { var: accessor.var, array, owner };
++                    &pinned
++                } else {
++                    accessor
++                };
+                 let target = self.get_target(context, &accessor.owner, false)?;
+                 let array_index = self.get_array_index(&accessor.array, context)?;
+-                let value = self.eval(value, context)?;
++                let value = match value {
++                    Node::Binary { right, operator, type_unsafe: true, .. } => {
++                        let left = Node::Variable { accessor: accessor.clone() };
++                        self.modify(&left, right, operator, context)?
++                    },
++                    value => self.eval(value, context)?,
++                };
+                 context.return_value = value.clone();
+                 match target {
+                     Target::Single(None) => (),
+@@ -467,7 +504,7 @@ impl Game {
+                 context.return_value = self.eval(node, context)?;
+             },
+             Instruction::IfElse { cond, if_body, else_body } => {
+-                let return_type = if self.eval(cond, context)?.is_truthy() {
++                let return_type = if self.eval(cond, context)?.cond(false)? {
+                     self.execute(if_body, context)
+                 } else {
+                     self.execute(else_body, context)
+@@ -483,12 +520,12 @@ impl Game {
+                     ReturnType::Break => break,
+                     ReturnType::Exit => return Ok(ReturnType::Exit),
+                 }
+-                if self.eval(cond, context)?.is_truthy() {
++                if self.eval(cond, context)?.cond(true)? {
+                     break
+                 }
+             },
+             Instruction::LoopWhile { cond, body } => {
+-                while self.eval(cond, context)?.is_truthy() {
++                while self.eval(cond, context)?.cond(true)? {
+                     match self.execute(body, context)? {
+                         ReturnType::Normal => (),
+                         ReturnType::Continue => continue,
+@@ -498,7 +535,8 @@ impl Game {
+                 }
+             },
+             Instruction::LoopFor { cond, body, step } => {
+-                while self.eval(cond, context)?.is_truthy() {
++                // Spelunky port (851-3798): GM8 reports a `for`'s string condition as an `if`'s (probe `str-for`).
++                while self.eval(cond, context)?.cond(false)? {
+                     match self.execute(body, context)? {
+                         ReturnType::Normal => {
+                             self.execute(step, context)?;
+@@ -857,22 +895,54 @@ impl Game {
+                     },
+                 }
+             },
+-            Node::Binary { left, right, operator, type_unsafe } => {
+-                // the + in += can happen here, and += ignores errors in the + portion
++            Node::Binary { left, right, operator, type_unsafe: false } => {
+                 let left = self.eval(left, context)?;
+-                match operator.call(left.clone(), self.eval(right, context)?) {
+-                    res @ Ok(_) => res,
+-                    // Spelunky port (851-3259): but not the x87's traps, which stop GM8 on Intel in an op= too.
+-                    res @ Err(Error::IntOverflow | Error::Overflow) => res,
+-                    Err(_) if *type_unsafe => Ok(left),
+-                    res => res,
+-                }
++                operator.call(left, self.eval(right, context)?)
+             },
++            Node::Binary { left, right, operator, type_unsafe: true } => self.modify(left, right, operator, context),
+             Node::Unary { child, operator } => operator.call(self.eval(child, context)?),
+             Node::RuntimeError { error } => Err(error.clone()),
+         }
+     }
+ 
++    // An op='s new value: the old one (`left`) `operator` `right`, the old one kept on a type error.
++    fn modify(&mut self, left: &Node, right: &Node, operator: &BinaryOperator, context: &mut Context) -> gml::Result<Value> {
++        // the + in += can happen here, and += ignores errors in the + portion
++        let left = self.eval(left, context)?;
++        match operator.call(left.clone(), self.eval(right, context)?) {
++            res @ Ok(_) => res,
++            // Spelunky port (851-3259): but not the x87's traps, which stop GM8 on Intel in an op= too.
++            res @ Err(Error::IntOverflow | Error::Overflow) => res,
++            Err(_) => Ok(left),
++        }
++    }
++
++    // Spelunky port (851-3798): an op='s owner and array index, each evaluated once, as literals of their values, so
++    // that its read and its write find the same place without evaluating them again.
++    fn pin_accessor(
++        &mut self,
++        owner: &InstanceIdentifier,
++        array: &ArrayAccessor,
++        context: &mut Context,
++    ) -> gml::Result<(InstanceIdentifier, ArrayAccessor)> {
++        let mut literal = |node: &Node, s: &mut Self| -> gml::Result<Box<Node>> {
++            Ok(Box::new(Node::Literal { value: s.eval(node, context)? }))
++        };
++        let owner = match owner {
++            InstanceIdentifier::Expression(node) => InstanceIdentifier::Expression(literal(node, self)?),
++            owner => owner.clone(),
++        };
++        let array = match array {
++            ArrayAccessor::None => ArrayAccessor::None,
++            ArrayAccessor::Single(i) => ArrayAccessor::Single(literal(i, self)?),
++            ArrayAccessor::Double(i, j) => {
++                let i = literal(i, self)?;
++                ArrayAccessor::Double(i, literal(j, self)?)
++            },
++        };
++        Ok((owner, array))
++    }
++
+     // Resolves an ArrayAccessor to an index (u32)
+     fn get_array_index(&mut self, accessor: &ArrayAccessor, context: &mut Context) -> gml::Result<u32> {
+         match accessor {
+diff --git a/gm8emulator/src/gml/value.rs b/gm8emulator/src/gml/value.rs
+--- a/gm8emulator/src/gml/value.rs
++++ b/gm8emulator/src/gml/value.rs
+@@ -200,18 +200,39 @@ impl Value {
+     }
+ 
+     /// GML && operator
++    // Spelunky port (851-3798): GM8 stops on a string operand of &&, || and ^^ ("Wrong type of arguments for &&.",
++    // probes `str-and`, `str-or`, `str-xor`), where OpenGMK read it as false.
+     pub fn bool_and(self, rhs: Self) -> gml::Result<Self> {
+-        Ok((self.is_truthy() && rhs.is_truthy()).into())
++        match (&self, &rhs) {
++            (Self::Real(_), Self::Real(_)) => Ok((self.is_truthy() && rhs.is_truthy()).into()),
++            _ => invalid_op!(And, self, rhs),
++        }
+     }
+ 
+     /// GML || operator
+     pub fn bool_or(self, rhs: Self) -> gml::Result<Self> {
+-        Ok((self.is_truthy() || rhs.is_truthy()).into())
++        match (&self, &rhs) {
++            (Self::Real(_), Self::Real(_)) => Ok((self.is_truthy() || rhs.is_truthy()).into()),
++            _ => invalid_op!(Or, self, rhs),
++        }
+     }
+ 
+     /// GML ^^ operator
+     pub fn bool_xor(self, rhs: Self) -> gml::Result<Self> {
+-        Ok((self.is_truthy() != rhs.is_truthy()).into())
++        match (&self, &rhs) {
++            (Self::Real(_), Self::Real(_)) => Ok((self.is_truthy() != rhs.is_truthy()).into()),
++            _ => invalid_op!(Xor, self, rhs),
++        }
++    }
++
++    // Spelunky port (851-3798): a condition. GM8 stops on a string: "Expression expected" in an `if` or a `for`,
++    // "Boolean expression expected" in a `while` or an `until` (probes `str-if`, `str-for`, `str-while`, `str-until`).
++    pub fn cond(&self, in_loop: bool) -> gml::Result<bool> {
++        match self {
++            Self::Real(_) => Ok(self.is_truthy()),
++            Self::Str(_) if in_loop => Err(gml::Error::BooleanExpected),
++            Self::Str(_) => Err(gml::Error::ExpressionExpected),
++        }
+     }
+ 
+     pub fn add(self, rhs: Self) -> gml::Result<Self> {

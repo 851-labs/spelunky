@@ -32,7 +32,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.gset(gv::downToRun, r(0.0))?;
     // 10: if (joystick_exists(1) || joystick_exists(2))
     g.at("oInit/create#0", 10);
-    if or(b::joystick_exists(g, cx, [r(1.0)])?.is_truthy(), b::joystick_exists(g, cx, [r(2.0)])?.is_truthy()) {
+    if { let p1 = b::joystick_exists(g, cx, [r(1.0)])?; let q2 = b::joystick_exists(g, cx, [r(2.0)])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 10: global.gamepadOn = true;
         g.at("oInit/create#0", 10);
         g.gset(gv::gamepadOn, r(1.0))?;
@@ -118,7 +118,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let x = b::file_text_open_read(g, cx, [s!("settings.cfg")])?; g.set(cx.this, v::file, x)?; }
     // 40: if (file)
     g.at("oInit/create#0", 40);
-    if g.get(cx.this, v::file)?.is_truthy() {
+    if g.get(cx.this, v::file)?.cond(Cond::If)? {
         // 42: str = file_text_read_string(file);
         g.at("oInit/create#0", 42);
         {
@@ -248,7 +248,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let x = b::file_text_open_read(g, cx, [s!("keys.cfg")])?; g.set(cx.this, v::file, x)?; }
     // 69: if (file)
     g.at("oInit/create#0", 69);
-    if g.get(cx.this, v::file)?.is_truthy() {
+    if g.get(cx.this, v::file)?.cond(Cond::If)? {
         // 71: global.keyUpVal = real(file_text_read_string(file));
         g.at("oInit/create#0", 71);
         {
@@ -363,7 +363,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let x = b::file_text_open_read(g, cx, [s!("gamepad.cfg")])?; g.set(cx.this, v::file, x)?; }
     // 98: if (file)
     g.at("oInit/create#0", 98);
-    if g.get(cx.this, v::file)?.is_truthy() {
+    if g.get(cx.this, v::file)?.cond(Cond::If)? {
         // 100: global.joyJumpVal = real(file_text_read_string(file));
         g.at("oInit/create#0", 100);
         {

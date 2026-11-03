@@ -821,7 +821,7 @@ pub fn scrRoomGen5(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 140: if (tile == "1" && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGen5", 140);
-                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if { let p1 = g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?; let q2 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p1, q2.cond(Cond::And)?) } {
                         // 142: if (rand(1, 10) == 1)
                         g.at("scripts/scrRoomGen5", 142);
                         if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {
@@ -836,7 +836,7 @@ pub fn scrRoomGen5(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     } else {
                         // 148: if (tile == "2" && rand(1, 2) == 1 && !collision_point(xpos, ypos, oSolid, 0, 0))
                         g.at("scripts/scrRoomGen5", 148);
-                        if and(and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                        if { let p3 = and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?); let q4 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p3, q4.cond(Cond::And)?) } {
                             // 150: if (rand(1, 10) == 1)
                             g.at("scripts/scrRoomGen5", 150);
                             if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {

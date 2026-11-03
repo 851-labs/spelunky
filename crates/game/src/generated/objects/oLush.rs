@@ -25,7 +25,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 7: if (isLevel() && x > 1 && x < room_width - 16 && y > 1 && y < room_height - 16)
             g.at("oLush/create#1", 7);
-            if and(and(and(and(scr::isLevel(g, cx, &[])?.is_truthy(), g.get(cx.this, v::x)?.gml_gt(&r(1.0))?), g.get(cx.this, v::x)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&r(1.0))?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(16.0))?)?) {
+            if and(and(and({ let p1 = scr::isLevel(g, cx, &[])?; let q2 = g.get(cx.this, v::x)?.gml_gt(&r(1.0))?; and(p1.cond(Cond::And)?, q2) }, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&r(1.0))?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(16.0))?)?) {
                 // 9: if (rand(1, 80) == 1)
                 g.at("oLush/create#1", 9);
                 if scr::rand(g, cx, &[r(1.0), r(80.0)])?.gml_eq(&r(1.0))? {
@@ -67,7 +67,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oLush/destroy#1", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oLush/destroy#1", 3);
         {

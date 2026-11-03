@@ -1,0 +1,1 @@
+# stopped: error dialog "Wrong type of arguments for ^^." at out("xor_str", s ^^ 1)

@@ -97,7 +97,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 2: if (collision_point(x + 8, y + 8, oSolid, 0, 0) || hp < 1)
     g.at("oMagmaMan/step#0", 2);
-    if or(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), g.get(cx.this, v::hp)?.gml_lt(&r(1.0))?) {
+    if { let p1 = { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q2 = g.get(cx.this, v::hp)?.gml_lt(&r(1.0))?; or(p1.cond(Cond::Or)?, q2) } {
         // 4: xVel = 0;
         g.at("oMagmaMan/step#0", 4);
         g.set(cx.this, v::xVel, r(0.0))?;
@@ -123,7 +123,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 13: if (isCollisionBottom(1))
     g.at("oMagmaMan/step#0", 13);
-    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
         // 14: yVel = 0;
         g.at("oMagmaMan/step#0", 14);
         g.set(cx.this, v::yVel, r(0.0))?;
@@ -150,14 +150,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)? {
         // 32: if (yVel < 0 && isCollisionTop(1))
         g.at("oMagmaMan/step#0", 32);
-        if and(g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?, scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy()) {
+        if { let p3 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; let q4 = scr::isCollisionTop(g, cx, &[r(1.0)])?; and(p3, q4.cond(Cond::And)?) } {
             // 34: yVel = 0;
             g.at("oMagmaMan/step#0", 34);
             g.set(cx.this, v::yVel, r(0.0))?;
         }
         // 37: if (isCollisionBottom(1) && counter > 0)
         g.at("oMagmaMan/step#0", 37);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
+        if { let p5 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q6 = g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?; and(p5.cond(Cond::And)?, q6) } {
             // 37: counter -= 1;
             g.at("oMagmaMan/step#0", 37);
             g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
@@ -194,7 +194,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WALK)?)? {
             // 52: if (isCollisionLeft(1) || isCollisionRight(1))
             g.at("oMagmaMan/step#0", 52);
-            if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy(), scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy()) {
+            if { let p7 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q8 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p7.cond(Cond::Or)?, q8.cond(Cond::Or)?) } {
                 // 54: if (facing == LEFT)
                 g.at("oMagmaMan/step#0", 54);
                 if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -215,7 +215,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::xVel, r(-1.5))?;
                 // 61: if (!collision_point(x - 1, y + 16, oSolid, -1, -1))
                 g.at("oMagmaMan/step#0", 61);
-                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                     // 63: status = IDLE;
                     g.at("oMagmaMan/step#0", 63);
                     g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -232,7 +232,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::xVel, r(1.5))?;
                 // 71: if (!collision_point(x + 16, y + 16, oSolid, -1, -1))
                 g.at("oMagmaMan/step#0", 71);
-                if ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                     // 73: status = IDLE;
                     g.at("oMagmaMan/step#0", 73);
                     g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -264,7 +264,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
     // 88: if (isCollisionSolid())
     g.at("oMagmaMan/step#0", 88);
-    if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
+    if scr::isCollisionSolid(g, cx, &[])?.cond(Cond::If)? {
         // 89: y -= 2;
         g.at("oMagmaMan/step#0", 89);
         g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
@@ -291,7 +291,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!whipped)
     g.at("oMagmaMan/collision_oWhip#0", 1);
-    if g.get(cx.this, v::whipped)?.not()?.is_truthy() {
+    if g.get(cx.this, v::whipped)?.not()?.cond(Cond::If)? {
         // 3: playSound(global.sndHit);
         g.at("oMagmaMan/collision_oWhip#0", 3);
         { let a = [g.gget(gv::sndHit)?]; scr::playSound(g, cx, &a)? };
@@ -352,10 +352,10 @@ pub fn collision_oBomb_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 15: if (other.held)
     g.at("oMagmaMan/collision_oBomb#0", 15);
-    if g.get(cx.other, v::held)?.is_truthy() {
+    if g.get(cx.other, v::held)?.cond(Cond::If)? {
         // 17: if (oCharacter)
         g.at("oMagmaMan/collision_oBomb#0", 17);
-        if obj::oCharacter.is_truthy() {
+        if obj::oCharacter.cond(Cond::If)? {
             // 17: oCharacter.holdItem = 0;
             g.at("oMagmaMan/collision_oBomb#0", 17);
             { let t = obj::oCharacter; g.set_on(cx, &t, v::holdItem, r(0.0))?; }
@@ -467,7 +467,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
             // 18: if (global.plife <= 0 && isRealLevel())
             g.at("oMagmaMan/collision_oCharacter#0", 18);
-            if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
+            if { let p1 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q2 = scr::isRealLevel(g, cx, &[])?; and(p1, q2.cond(Cond::And)?) } {
                 // 18: global.enemyDeaths[21] += 1;
                 g.at("oMagmaMan/collision_oCharacter#0", 18);
                 g.gset_a(gv::enemyDeaths, 0, 21, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 21)?, &r(1.0))?)?;

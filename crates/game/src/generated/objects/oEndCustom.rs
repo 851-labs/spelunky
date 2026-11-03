@@ -141,7 +141,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttackPressed() ||
     g.at("oEndCustom/step#0", 1);
-    if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.is_truthy(), b::keyboard_check_pressed(g, cx, [k::vk_escape])?.is_truthy()), scr::checkAttackPressed(g, cx, &[])?.is_truthy()), scr::checkStartPressed(g, cx, &[])?.is_truthy()) {
+    if { let p5 = { let p3 = { let p1 = b::keyboard_check_pressed(g, cx, [k::vk_enter])?; let q2 = b::keyboard_check_pressed(g, cx, [k::vk_escape])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }; let q4 = scr::checkAttackPressed(g, cx, &[])?; or(p3, q4.cond(Cond::Or)?) }; let q6 = scr::checkStartPressed(g, cx, &[])?; or(p5, q6.cond(Cond::Or)?) } {
         // 6: if (drawStatus == 7)
         g.at("oEndCustom/step#0", 6);
         if g.get(cx.this, v::drawStatus)?.gml_eq(&r(7.0))? {
@@ -162,14 +162,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::drawStatus)?.gml_eq(&r(8.0))? {
                 // 19: if (gamepad.attackPressed)
                 g.at("oEndCustom/step#0", 19);
-                if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {
+                if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::If)? {
                     // 19: gamepad.attackPressed = false;
                     g.at("oEndCustom/step#0", 19);
                     { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::attackPressed, r(0.0))?; }
                 }
                 // 20: if (gamepad.startPressed)
                 g.at("oEndCustom/step#0", 20);
-                if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.is_truthy() {
+                if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.cond(Cond::If)? {
                     // 20: gamepad.startPressed = false;
                     g.at("oEndCustom/step#0", 20);
                     { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::startPressed, r(0.0))?; }
@@ -210,7 +210,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 36: if (drawStatus == 3 && moneyDiff == 0 && !poop)
         g.at("oEndCustom/step#0", 36);
-        if and(and(g.get(cx.this, v::drawStatus)?.gml_eq(&r(3.0))?, g.get(cx.this, v::moneyDiff)?.gml_eq(&r(0.0))?), g.get(cx.this, v::poop)?.not()?.is_truthy()) {
+        if { let p7 = and(g.get(cx.this, v::drawStatus)?.gml_eq(&r(3.0))?, g.get(cx.this, v::moneyDiff)?.gml_eq(&r(0.0))?); let q8 = g.get(cx.this, v::poop)?.not()?; and(p7, q8.cond(Cond::And)?) } {
             // 38: alarm[11] = 50;
             g.at("oEndCustom/step#0", 38);
             g.set_a(cx.this, v::alarm, 0, 11, r(50.0))?;
@@ -221,7 +221,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 43: if (fadeOut)
     g.at("oEndCustom/step#0", 43);
-    if g.get(cx.this, v::fadeOut)?.is_truthy() {
+    if g.get(cx.this, v::fadeOut)?.cond(Cond::If)? {
         // 45: if (fadeLevel < 1)
         g.at("oEndCustom/step#0", 45);
         if g.get(cx.this, v::fadeLevel)?.gml_lt(&r(1.0))? {
@@ -367,7 +367,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 54: if (fadeOut)
     g.at("oEndCustom/draw#0", 54);
-    if g.get(cx.this, v::fadeOut)?.is_truthy() {
+    if g.get(cx.this, v::fadeOut)?.cond(Cond::If)? {
         // 56: draw_set_color(c_black);
         g.at("oEndCustom/draw#0", 56);
         b::draw_set_color(g, cx, [k::c_black])?;

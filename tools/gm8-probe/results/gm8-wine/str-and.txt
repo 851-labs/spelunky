@@ -1,0 +1,1 @@
+# stopped: error dialog "Wrong type of arguments for &&." at out("and_str", s && 1)

@@ -28,7 +28,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if b::distance_to_object(g, cx, [obj::oPlayer1])?.gml_ge(&r(24.0))? {
         // 3: if (abs(oPlayer1.x - x) >= 24 || !colBot)
         g.at("oBall/step#1", 3);
-        if or(({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_ge(&r(24.0))?, g.get(cx.this, v::colBot)?.not()?.is_truthy()) {
+        if { let p1 = ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_ge(&r(24.0))?; let q2 = g.get(cx.this, v::colBot)?.not()?; or(p1, q2.cond(Cond::Or)?) } {
             // 5: if (abs(oPlayer1.x - x) < 1)
             g.at("oBall/step#1", 5);
             if ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))? {
@@ -120,7 +120,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 35: if (colBot)
         g.at("oBall/step#1", 35);
-        if g.get(cx.this, v::colBot)?.is_truthy() {
+        if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
             // 37: xVel = 0;
             g.at("oBall/step#1", 37);
             g.set(cx.this, v::xVel, r(0.0))?;

@@ -6,7 +6,7 @@ pub fn checkUp(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.up)
     g.at("scripts/checkUp", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::up)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::up)?.cond(Cond::If)? {
         // 2: return gamepad.up;
         g.at("scripts/checkUp", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::up)?);

@@ -1,0 +1,99 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -3018,6 +3018,7 @@ impl Game {
+ 
+     pub fn check_collision_line(&self, inst: usize, x1: Real, y1: Real, x2: Real, y2: Real, precise: bool) -> gml::Result<bool> {
+         // Get sprite mask, update bbox
++        let handle = inst;
+         let inst = self.room.instance_list.get(inst);
+         let sprite = self
+             .assets
+@@ -3083,54 +3084,47 @@ impl Game {
+             // Spelunky oracle: GM8's runner converts the angle as `x87::gm8::sin_cos_degrees` does (851-3262).
+             let (sin, cos) = pxfm::x87::gm8::sin_cos_degrees(inst.image_angle.get().into());
+ 
+-            let x1 = collision_round(x1)?;
+-            let y1 = collision_round(y1)?;
+-            let x2 = collision_round(x2)?;
+-            let y2 = collision_round(y2)?;
+-
+-            // Set up the iterator
+-            let iter_vert = (x2 - x1).abs() < (y2 - y1).abs();
+-            // If iterating vertically, make sure we're going top to bottom
+-            let (x1, y1, x2, y2) = if iter_vert && y2 < y1 { (x2, y2, x1, y1) } else { (x1, y1, x2, y2) };
+-            let point_count = (if iter_vert { y2 - y1 } else { x2 - x1 }) + 1;
+-            // Helper function for getting points on the line
+-            let get_point = |i: i32| {
+-                // Avoid dividing by zero
+-                if point_count == 1 {
+-                    return (Real::from(x1), Real::from(y1));
+-                }
+-                if iter_vert {
+-                    let slope = Real::from(x2 - x1) / Real::from(y2 - y1);
+-                    (Real::from(x1) + Real::from(i) * slope, Real::from(y1 + i))
+-                } else {
+-                    let slope = Real::from(y2 - y1) / Real::from(x2 - x1);
+-                    (Real::from(x1 + i), Real::from(y1) + Real::from(i) * slope)
+-                }
+-            };
+-
+-            for i in 0..point_count {
+-                // Note this is probably not correct - doesn't use collision_point_precise and x and y are not rounded
+-                // as they would be if that function was used - check disasm before doing anything else with this code
+-                let (mut x, mut y) = get_point(i);
+-
+-                // Transform point to be relative to collider
+-                x -= inst_x.into();
+-                y -= inst_y.into();
++            // Spelunky oracle: GM8's walk (Spelunky.exe 0x4aceec, 0x4a4fd8, 0x48b0d4; 851-3962, probe
++            // `collision-line-sloped`, which the port's `line_hits` answers as GM8 does on 900 lines). The clipped ends
++            // are rounded; a line in one row or one column is the precise rectangle between them, as
++            // `collision_rectangle`'s; otherwise it walks the box's columns (or, steeper than wide, its rows) between
++            // the rounded ends, the other coordinate interpolated from their slope, each point mapped into the mask
++            // as a pixel is. OpenGMK walked every point between the ends, past the box too, and a row or column as
++            // points.
++            let (xb, yb, xa, ya) = (collision_round(x1)?, collision_round(y1)?, collision_round(x2)?, collision_round(y2)?);
++            if xa == xb || ya == yb {
++                return self.check_collision_rectangle(
++                    handle,
++                    Real::from(xb),
++                    Real::from(ya.min(yb)),
++                    Real::from(xa),
++                    Real::from(ya.max(yb)),
++                    true,
++                )
++            }
++            let hit = |x: Real, y: Real| {
++                let (mut x, mut y) = (x - inst_x, y - inst_y);
+                 util::rotate_around_center(x.as_mut_ref(), y.as_mut_ref(), sin, cos);
+                 let x = (Real::from(sprite.origin_x) + (x / inst.image_xscale.get()).floor()).to_i32();
+                 let y = (Real::from(sprite.origin_y) + (y / inst.image_yscale.get()).floor()).to_i32();
+-
+-                // And finally, look up this point in the collider
+-                if x >= collider.bbox_left as i32
++                x >= collider.bbox_left as i32
+                     && y >= collider.bbox_top as i32
+                     && x <= collider.bbox_right as i32
+                     && y <= collider.bbox_bottom as i32
+                     && collider.data.get((y as usize * collider.width as usize) + x as usize).copied().unwrap_or(false)
+-                {
+-                    return Ok(true);
+-                }
++            };
++            let (left, top, right, bottom) =
++                (inst.bbox_left.get(), inst.bbox_top.get(), inst.bbox_right.get(), inst.bbox_bottom.get());
++            if xa.wrapping_sub(xb).wrapping_abs() >= ya.wrapping_sub(yb).wrapping_abs() {
++                let slope = Real::from(ya.wrapping_sub(yb)) / Real::from(xa.wrapping_sub(xb));
++                Ok((left.max(xb)..=right.min(xa))
++                    .any(|x| hit(Real::from(x), Real::from(x.wrapping_sub(xb)) * slope + Real::from(yb))))
++            } else {
++                let (xb, yb, xa, ya) = if ya < yb { (xa, ya, xb, yb) } else { (xb, yb, xa, ya) };
++                let slope = Real::from(xa.wrapping_sub(xb)) / Real::from(ya.wrapping_sub(yb));
++                Ok((top.max(yb)..=bottom.min(ya))
++                    .any(|y| hit(Real::from(y.wrapping_sub(yb)) * slope + Real::from(xb), Real::from(y))))
+             }
+-            Ok(false)
+         } else {
+             Ok(false)
+         }

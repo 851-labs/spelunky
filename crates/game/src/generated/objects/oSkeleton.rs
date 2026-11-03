@@ -65,7 +65,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
     // 26: if (instance_exists(oPlayer1))
     g.at("oSkeleton/create#1", 26);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 28: if (oPlayer1.x < x + 8)
         g.at("oSkeleton/create#1", 28);
         if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)? {
@@ -103,7 +103,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 9: if (collision_point(x + 8, y + 8, oSolid, 0, 0))
         g.at("oSkeleton/step#1", 9);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 11: hp = 0;
             g.at("oSkeleton/step#1", 11);
             g.set(cx.this, v::hp, r(0.0))?;
@@ -149,10 +149,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 23: if (countsAsKill)
             g.at("oSkeleton/step#1", 23);
-            if g.get(cx.this, v::countsAsKill)?.is_truthy() {
+            if g.get(cx.this, v::countsAsKill)?.cond(Cond::If)? {
                 // 25: if (isRealLevel())
                 g.at("oSkeleton/step#1", 25);
-                if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+                if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                     // 25: global.enemyKills[5] += 1;
                     g.at("oSkeleton/step#1", 25);
                     g.gset_a(gv::enemyKills, 0, 5, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 5)?, &r(1.0))?)?;
@@ -170,7 +170,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 32: if (isCollisionBottom(1) && status != STUNNED)
         g.at("oSkeleton/step#1", 32);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if { let p1 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?; and(p1.cond(Cond::And)?, q2) } {
             // 33: yVel = 0;
             g.at("oSkeleton/step#1", 33);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -204,25 +204,25 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::colRight, r(0.0))?;
                 // 48: if (isCollisionLeft(1))
                 g.at("oSkeleton/step#1", 48);
-                if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 48: colLeft = true;
                     g.at("oSkeleton/step#1", 48);
                     g.set(cx.this, v::colLeft, r(1.0))?;
                 }
                 // 49: if (isCollisionRight(1))
                 g.at("oSkeleton/step#1", 49);
-                if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 49: colRight = true;
                     g.at("oSkeleton/step#1", 49);
                     g.set(cx.this, v::colRight, r(1.0))?;
                 }
                 // 51: if (isCollisionLeft(4) && isCollisionRight(4))
                 g.at("oSkeleton/step#1", 51);
-                if and(scr::isCollisionLeft(g, cx, &[r(4.0)])?.is_truthy(), scr::isCollisionRight(g, cx, &[r(4.0)])?.is_truthy()) {
+                if { let p3 = scr::isCollisionLeft(g, cx, &[r(4.0)])?; let q4 = scr::isCollisionRight(g, cx, &[r(4.0)])?; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) } {
                 } else {
                     // 55: if (colLeft || colRight)
                     g.at("oSkeleton/step#1", 55);
-                    if or(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.is_truthy()) {
+                    if { let p5 = g.get(cx.this, v::colLeft)?; let q6 = g.get(cx.this, v::colRight)?; or(p5.cond(Cond::Or)?, q6.cond(Cond::Or)?) } {
                         // 57: if (facing == LEFT)
                         g.at("oSkeleton/step#1", 57);
                         if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -251,7 +251,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 86: if (isCollisionSolid())
         g.at("oSkeleton/step#1", 86);
-        if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
+        if scr::isCollisionSolid(g, cx, &[])?.cond(Cond::If)? {
             // 87: y -= 2;
             g.at("oSkeleton/step#1", 87);
             g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;

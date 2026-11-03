@@ -53,7 +53,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!oPlayer1.dead && rand(1, 100) < kills)
     g.at("oStarsRoom/alarm_11#0", 1);
-    if and(g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_lt(&g.get(cx.this, v::kills)?)?) {
+    if { let p1 = g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?; let q2 = scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_lt(&g.get(cx.this, v::kills)?)?; and(p1.cond(Cond::And)?, q2) } {
         // 3: n = rand(0, 3);
         g.at("oStarsRoom/alarm_11#0", 3);
         { let x = scr::rand(g, cx, &[r(0.0), r(3.0)])?; g.set(cx.this, v::n, x)?; }
@@ -63,7 +63,7 @@ pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 7: if (!oPlayer1.dead)
     g.at("oStarsRoom/alarm_11#0", 7);
-    if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.is_truthy() {
+    if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::If)? {
         // 7: alarm[11] = 20;
         g.at("oStarsRoom/alarm_11#0", 7);
         g.set_a(cx.this, v::alarm, 0, 11, r(20.0))?;
@@ -75,7 +75,7 @@ pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_10_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (global.music)
     g.at("oStarsRoom/alarm_10#0", 1);
-    if g.gget(gv::music)?.is_truthy() {
+    if g.gget(gv::music)?.cond(Cond::If)? {
         // 1: startMusic();
         g.at("oStarsRoom/alarm_10#0", 1);
         scr::startMusic(g, cx, &[])?;
@@ -117,7 +117,7 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!oPlayer1.dead)
     g.at("oStarsRoom/alarm_0#0", 1);
-    if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.is_truthy() {
+    if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::If)? {
         // 3: n = rand(0, 3);
         g.at("oStarsRoom/alarm_0#0", 3);
         { let x = scr::rand(g, cx, &[r(0.0), r(3.0)])?; g.set(cx.this, v::n, x)?; }

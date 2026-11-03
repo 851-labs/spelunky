@@ -68,20 +68,20 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::timer, lenient(Value::add, g.get(cx.this, v::timer)?, &r(1.0))?)?;
     // 2: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttackPressed() ||
     g.at("oEnd/step#0", 2);
-    if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.is_truthy(), b::keyboard_check_pressed(g, cx, [k::vk_escape])?.is_truthy()), scr::checkAttackPressed(g, cx, &[])?.is_truthy()), scr::checkStartPressed(g, cx, &[])?.is_truthy()) {
+    if { let p5 = { let p3 = { let p1 = b::keyboard_check_pressed(g, cx, [k::vk_enter])?; let q2 = b::keyboard_check_pressed(g, cx, [k::vk_escape])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }; let q4 = scr::checkAttackPressed(g, cx, &[])?; or(p3, q4.cond(Cond::Or)?) }; let q6 = scr::checkStartPressed(g, cx, &[])?; or(p5, q6.cond(Cond::Or)?) } {
         // 7: if (timer > 50)
         g.at("oEnd/step#0", 7);
         if g.get(cx.this, v::timer)?.gml_gt(&r(50.0))? {
             // 9: if (gamepad.attackPressed)
             g.at("oEnd/step#0", 9);
-            if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {
+            if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::If)? {
                 // 9: gamepad.attackPressed = false;
                 g.at("oEnd/step#0", 9);
                 { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::attackPressed, r(0.0))?; }
             }
             // 10: if (gamepad.startPressed)
             g.at("oEnd/step#0", 10);
-            if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.is_truthy() {
+            if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.cond(Cond::If)? {
                 // 10: gamepad.startPressed = false;
                 g.at("oEnd/step#0", 10);
                 { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::startPressed, r(0.0))?; }
@@ -99,7 +99,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.gget(gv::shake)?.gml_gt(&r(0.0))? {
         // 23: if (shakeToggle)
         g.at("oEnd/step#0", 23);
-        if g.get(cx.this, v::shakeToggle)?.is_truthy() {
+        if g.get(cx.this, v::shakeToggle)?.cond(Cond::If)? {
             // 23: view_yview[0] = view_yview[0] + rand(1, 8);
             g.at("oEnd/step#0", 23);
             {

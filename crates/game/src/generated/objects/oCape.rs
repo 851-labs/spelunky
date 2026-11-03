@@ -13,14 +13,14 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (instance_exists(oTransition) && !instance_exists(oPDummy))
     g.at("oCape/step#0", 1);
-    if and(b::instance_exists(g, cx, [obj::oTransition])?.is_truthy(), b::instance_exists(g, cx, [obj::oPDummy])?.not()?.is_truthy()) {
+    if { let p1 = b::instance_exists(g, cx, [obj::oTransition])?; let q2 = b::instance_exists(g, cx, [obj::oPDummy])?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: instance_destroy();
         g.at("oCape/step#0", 3);
         b::instance_destroy(g, cx, [])?;
     } else {
         // 5: if (instance_exists(oPDummy))
         g.at("oCape/step#0", 5);
-        if b::instance_exists(g, cx, [obj::oPDummy])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oPDummy])?.cond(Cond::If)? {
             // 7: if (oPDummy.sprite_index == sPExit || oPDummy.sprite_index == sDamselExit || oPDummy.sprite_index ==
             g.at("oCape/step#0", 7);
             if or(or(g.get_on(cx, &obj::oPDummy, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get_on(cx, &obj::oPDummy, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get_on(cx, &obj::oPDummy, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?) {
@@ -61,7 +61,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 23: if (oPlayer1.state == 14 || (oPlayer1.sprite_index == sPExit || oPlayer1.sprite_index == sDamselExit
             g.at("oCape/step#0", 23);
-            if and(or(g.get_on(cx, &obj::oPlayer1, v::state)?.gml_eq(&r(14.0))?, or(or(g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?)), g.get_on(cx, &obj::oPlayer1, v::whipping)?.not()?.is_truthy()) {
+            if { let p3 = or(g.get_on(cx, &obj::oPlayer1, v::state)?.gml_eq(&r(14.0))?, or(or(g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?)); let q4 = g.get_on(cx, &obj::oPlayer1, v::whipping)?.not()?; and(p3, q4.cond(Cond::And)?) } {
                 // 25: x = oPlayer1.x;
                 g.at("oCape/step#0", 25);
                 g.set(cx.this, v::x, g.get_on(cx, &obj::oPlayer1, v::x)?)?;
@@ -86,7 +86,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::y, g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&r(2.0))?)?;
                     // 34: if (oCape.open)
                     g.at("oCape/step#0", 34);
-                    if g.get_on(cx, &obj::oCape, v::open)?.is_truthy() {
+                    if g.get_on(cx, &obj::oCape, v::open)?.cond(Cond::If)? {
                         // 34: sprite_index = sCapeUR;
                         g.at("oCape/step#0", 34);
                         g.set(cx.this, v::sprite_index, spr::sCapeUR)?;
@@ -115,7 +115,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::y, g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&r(2.0))?)?;
                     // 43: if (oCape.open)
                     g.at("oCape/step#0", 43);
-                    if g.get_on(cx, &obj::oCape, v::open)?.is_truthy() {
+                    if g.get_on(cx, &obj::oCape, v::open)?.cond(Cond::If)? {
                         // 43: sprite_index = sCapeUL;
                         g.at("oCape/step#0", 43);
                         g.set(cx.this, v::sprite_index, spr::sCapeUL)?;
@@ -141,10 +141,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 49: if (instance_exists(oPlayer1))
     g.at("oCape/step#0", 49);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 50: if (!oPlayer1.visible)
         g.at("oCape/step#0", 50);
-        if g.get_on(cx, &obj::oPlayer1, v::visible)?.not()?.is_truthy() {
+        if g.get_on(cx, &obj::oPlayer1, v::visible)?.not()?.cond(Cond::If)? {
             // 50: instance_destroy();
             g.at("oCape/step#0", 50);
             b::instance_destroy(g, cx, [])?;

@@ -6,7 +6,7 @@ pub fn checkStartPressed(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.startPressed)
     g.at("scripts/checkStartPressed", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.cond(Cond::If)? {
         // 2: return gamepad.startPressed;
         g.at("scripts/checkStartPressed", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?);

@@ -16,11 +16,11 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (isRoom("rEnd3"))
     g.at("oBGEnd3/step#0", 1);
-    if scr::isRoom(g, cx, &[s!("rEnd3")])?.is_truthy() {
+    if scr::isRoom(g, cx, &[s!("rEnd3")])?.cond(Cond::If)? {
     } else {
         // 5: if (instance_exists(oCamel))
         g.at("oBGEnd3/step#0", 5);
-        if b::instance_exists(g, cx, [obj::oCamel])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oCamel])?.cond(Cond::If)? {
             // 7: x = view_xview[0] + xOff;
             g.at("oBGEnd3/step#0", 7);
             g.set(cx.this, v::x, g.bget(v::view_xview, 0)?.add(&g.get(cx.this, v::xOff)?)?)?;

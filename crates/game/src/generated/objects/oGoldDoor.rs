@@ -6,10 +6,10 @@ pub fn collision_oSceptre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (other.held)
     g.at("oGoldDoor/collision_oSceptre#0", 1);
-    if g.get(cx.other, v::held)?.is_truthy() {
+    if g.get(cx.other, v::held)?.cond(Cond::If)? {
         // 3: if (global.hasCrown)
         g.at("oGoldDoor/collision_oSceptre#0", 3);
-        if g.gget(gv::hasCrown)?.is_truthy() {
+        if g.gget(gv::hasCrown)?.cond(Cond::If)? {
             // 5: other.held = false;
             g.at("oGoldDoor/collision_oSceptre#0", 5);
             g.set(cx.other, v::held, r(0.0))?;

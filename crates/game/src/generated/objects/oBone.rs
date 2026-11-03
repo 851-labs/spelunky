@@ -25,7 +25,7 @@ pub fn create_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (isCollisionBottom(1))
     g.at("oBone/step#1", 1);
-    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
         // 3: sprite_index = sSmokePuff;
         g.at("oBone/step#1", 3);
         g.set(cx.this, v::sprite_index, spr::sSmokePuff)?;
@@ -40,7 +40,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (dying)
     g.at("oBone/other_7#0", 1);
-    if g.get(cx.this, v::dying)?.is_truthy() {
+    if g.get(cx.this, v::dying)?.cond(Cond::If)? {
         // 1: instance_destroy();
         g.at("oBone/other_7#0", 1);
         b::instance_destroy(g, cx, [])?;

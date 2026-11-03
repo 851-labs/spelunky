@@ -5,14 +5,14 @@ use crate::rt::*;
 pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 3: if (global.isDamsel)
     g.at("oPDummy6/create#0", 3);
-    if g.gget(gv::isDamsel)?.is_truthy() {
+    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
         // 3: sprite_index = sDamselLeft;
         g.at("oPDummy6/create#0", 3);
         g.set(cx.this, v::sprite_index, spr::sDamselLeft)?;
     } else {
         // 4: if (global.isTunnelMan)
         g.at("oPDummy6/create#0", 4);
-        if g.gget(gv::isTunnelMan)?.is_truthy() {
+        if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
             // 4: sprite_index = sTunnelLeft;
             g.at("oPDummy6/create#0", 4);
             g.set(cx.this, v::sprite_index, spr::sTunnelLeft)?;

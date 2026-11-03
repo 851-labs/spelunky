@@ -56,7 +56,7 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (global.graphicsHigh)
     g.at("oBlood/alarm_0#0", 1);
-    if g.gget(gv::graphicsHigh)?.is_truthy() {
+    if g.gget(gv::graphicsHigh)?.cond(Cond::If)? {
         // 3: if (instance_number(oBloodTrail) < 12)
         g.at("oBlood/alarm_0#0", 3);
         if b::instance_number(g, cx, [obj::oBloodTrail])?.gml_lt(&r(12.0))? {
@@ -82,7 +82,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 3: if (isCollisionBottom(1))
     g.at("oBlood/step#1", 3);
-    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
         // 5: if (life > 20)
         g.at("oBlood/step#1", 5);
         if g.get(cx.this, v::life)?.gml_gt(&r(20.0))? {

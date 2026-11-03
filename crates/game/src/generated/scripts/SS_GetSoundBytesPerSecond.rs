@@ -6,7 +6,7 @@ pub fn SS_GetSoundBytesPerSecond(g: &mut World, cx: &Ctx, args: &[Value]) -> R<V
     let cx = &mut cx.call(args);
     // 12: if (is_real(argument0))
     g.at("scripts/SS_GetSoundBytesPerSecond", 12);
-    if b::is_real(g, cx, [cx.arg(0)?])?.is_truthy() {
+    if b::is_real(g, cx, [cx.arg(0)?])?.cond(Cond::If)? {
         // 12: return 0;
         g.at("scripts/SS_GetSoundBytesPerSecond", 12);
         return Ok(r(0.0));

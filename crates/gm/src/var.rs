@@ -115,14 +115,18 @@ pub enum Slot {
 impl Slot {
     /// Element `index` (0 for a plain read). An array element that was never set reads as 0 if a higher
     /// element in the same row was set, because GM8 arrays are dense up to their highest index; otherwise
-    /// it's unset. OpenGMK `instance.rs` (`Field::get`).
+    /// it's unset. OpenGMK `instance.rs` (`Field::get`). But element `[0, 0]`, which is the variable itself,
+    /// reads 0 once any element is set, whatever the row (GM8, probes `arr2-row0*`: with only `a[1, 5]` set,
+    /// `a[0, 0]`, `a[0]` and `a` are 0 and `a[0, 1]` is an error, for a global, an instance variable and a
+    /// local alike; OpenGMK errs on all four, 851-3796).
     pub fn get(&self, index: u32) -> Option<Value> {
         match self {
             Slot::Unset => None,
             Slot::Scalar(v) => (index == 0).then(|| v.clone()),
             Slot::Array(m) => m.get(&index).cloned().or_else(|| {
                 let row_end = (index / ARRAY_STRIDE + 1) * ARRAY_STRIDE;
-                m.range(index + 1..row_end).next().map(|_| Value::Real(0.0))
+                ((index == 0 && !m.is_empty()) || m.range(index + 1..row_end).next().is_some())
+                    .then_some(Value::Real(0.0))
             }),
         }
     }
@@ -276,7 +280,10 @@ mod tests {
         assert!(matches!(s, Slot::Array(_)));
         assert_eq!(s.get(2 * ARRAY_STRIDE + 4), Some(Value::Real(0.0)));
         assert_eq!(s.get(ARRAY_STRIDE + 4), None);
-        assert_eq!(s.get(0), None);
+        // Element [0, 0], the variable itself, is there once anything is (GM8, 851-3796); the rest of row 0
+        // isn't.
+        assert_eq!(s.get(0), Some(Value::Real(0.0)));
+        assert_eq!(s.get(1), None);
     }
 
     #[test]

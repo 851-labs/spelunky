@@ -64,6 +64,6 @@ pub use room::{BACKGROUNDS, Background, RoomState, Tile, VIEWS, View};
 pub use savestate::{SAVESTATE_VERSION, SavestateError};
 pub use string::GmString;
 pub use trace::replay::Event as InputEvent;
-pub use value::{Op, Value, ValueError};
+pub use value::{Cond, Op, Value, ValueError};
 pub use var::{Builtin, FIRST_USER_VAR, GVar, Local, Slot, Var, VarLayout};
 pub use world::{Assets, LinesRun, SceneChange, World};

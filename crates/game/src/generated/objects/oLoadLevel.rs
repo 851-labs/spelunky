@@ -41,7 +41,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::blackOut, r(0.0))?;
     // 15: if (global.customLevel)
     g.at("oLoadLevel/create#0", 15);
-    if g.gget(gv::customLevel)?.is_truthy() {
+    if g.gget(gv::customLevel)?.cond(Cond::If)? {
         // 17: status = 1;
         g.at("oLoadLevel/create#0", 17);
         g.set(cx.this, v::status, r(1.0))?;
@@ -112,7 +112,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 43: if (!global.customLevel)
     g.at("oLoadLevel/create#0", 43);
-    if g.gget(gv::customLevel)?.not()?.is_truthy() {
+    if g.gget(gv::customLevel)?.not()?.cond(Cond::If)? {
         // 45: tempFile = file_find_first("levels\*.lvl", 0);
         g.at("oLoadLevel/create#0", 45);
         { let x = b::file_find_first(g, cx, [s!("levels\\*.lvl"), r(0.0)])?; g.set(cx.this, v::tempFile, x)?; }
@@ -209,7 +209,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 84: if (global.customLevel && !levelLoaded)
     g.at("oLoadLevel/create#0", 84);
-    if and(g.gget(gv::customLevel)?.is_truthy(), g.get(cx.this, v::levelLoaded)?.not()?.is_truthy()) {
+    if { let p1 = g.gget(gv::customLevel)?; let q2 = g.get(cx.this, v::levelLoaded)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 86: scrLoadLevel(-1);
         g.at("oLoadLevel/create#0", 86);
         scr::scrLoadLevel(g, cx, &[r(-1.0)])?;
@@ -302,7 +302,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 28: if (blackOut)
     g.at("oLoadLevel/draw#0", 28);
-    if g.get(cx.this, v::blackOut)?.is_truthy() {
+    if g.get(cx.this, v::blackOut)?.cond(Cond::If)? {
         // 30: draw_set_color(c_black);
         g.at("oLoadLevel/draw#0", 30);
         b::draw_set_color(g, cx, [k::c_black])?;

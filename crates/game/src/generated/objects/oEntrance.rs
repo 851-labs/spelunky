@@ -19,7 +19,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let a = [g.get(cx.this, v::sprite_index)?, r(-1.0), g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; b::draw_sprite(g, cx, a)? };
     // 2: if (isRoom("rLevelEditor"))
     g.at("oEntrance/draw#0", 2);
-    if scr::isRoom(g, cx, &[s!("rLevelEditor")])?.is_truthy() {
+    if scr::isRoom(g, cx, &[s!("rLevelEditor")])?.cond(Cond::If)? {
         // 4: draw_set_font(global.myFontSmall);
         g.at("oEntrance/draw#0", 4);
         { let a = [g.gget(gv::myFontSmall)?]; b::draw_set_font(g, cx, a)? };

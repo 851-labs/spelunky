@@ -28,7 +28,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oArrowTrapLeft/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oArrowTrapLeft/destroy#0", 3);
         {
@@ -71,13 +71,13 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!isRoom("rLevelEditor"))
     g.at("oArrowTrapLeft/alarm_1#0", 1);
-    if scr::isRoom(g, cx, &[s!("rLevelEditor")])?.not()?.is_truthy() {
+    if scr::isRoom(g, cx, &[s!("rLevelEditor")])?.not()?.cond(Cond::If)? {
         // 3: xAct = x - 1;
         g.at("oArrowTrapLeft/alarm_1#0", 3);
         g.set(cx.this, v::xAct, g.get(cx.this, v::x)?.sub(&r(1.0))?)?;
         // 4: while (!collision_point(xAct, y + 8, oSolid, 0, 0))
         g.at("oArrowTrapLeft/alarm_1#0", 4);
-        'while1: while ({ let a = [g.get(cx.this, v::xAct)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+        'while1: while ({ let a = [g.get(cx.this, v::xAct)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Loop)? {
             // 6: if (x - xAct > 96)
             g.at("oArrowTrapLeft/alarm_1#0", 6);
             if g.get(cx.this, v::x)?.sub(&g.get(cx.this, v::xAct)?)?.gml_gt(&r(96.0))? {

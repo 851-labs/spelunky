@@ -55,7 +55,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
     // 4: if (bounce)
     g.at("oOlmecDebris/step#1", 4);
-    if g.get(cx.this, v::bounce)?.is_truthy() {
+    if g.get(cx.this, v::bounce)?.cond(Cond::If)? {
         // 6: if (yVel < 6)
         g.at("oOlmecDebris/step#1", 6);
         if g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))? {
@@ -65,7 +65,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 11: if (collision_point(x, y + 4, oTemple, 0, 0))
         g.at("oOlmecDebris/step#1", 11);
-        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 14: if (yVel > 1)
             g.at("oOlmecDebris/step#1", 14);
             if g.get(cx.this, v::yVel)?.gml_gt(&r(1.0))? {

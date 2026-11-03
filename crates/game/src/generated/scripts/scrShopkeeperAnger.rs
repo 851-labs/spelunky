@@ -13,10 +13,10 @@ pub fn scrShopkeeperAnger(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 8: if (shp)
     g.at("scripts/scrShopkeeperAnger", 8);
-    if g.get(cx.this, v::shp)?.is_truthy() {
+    if g.get(cx.this, v::shp)?.cond(Cond::If)? {
         // 10: if (!shp.dead && !shp.angered)
         g.at("scripts/scrShopkeeperAnger", 10);
-        if and(g.get_on(cx, &g.get(cx.this, v::shp)?, v::dead)?.not()?.is_truthy(), g.get_on(cx, &g.get(cx.this, v::shp)?, v::angered)?.not()?.is_truthy()) {
+        if { let p1 = g.get_on(cx, &g.get(cx.this, v::shp)?, v::dead)?.not()?; let q2 = g.get_on(cx, &g.get(cx.this, v::shp)?, v::angered)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
             // 12: shp.status = 2;
             g.at("scripts/scrShopkeeperAnger", 12);
             {
@@ -27,7 +27,7 @@ pub fn scrShopkeeperAnger(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 13: if (global.murderer)
             g.at("scripts/scrShopkeeperAnger", 13);
-            if g.gget(gv::murderer)?.is_truthy() {
+            if g.gget(gv::murderer)?.cond(Cond::If)? {
                 // 13: global.message = "YOU'LL PAY FOR YOUR CRIMES!";
                 g.at("scripts/scrShopkeeperAnger", 13);
                 {

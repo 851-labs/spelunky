@@ -22,7 +22,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oArrowRepeaterR/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oArrowRepeaterR/destroy#0", 3);
         {
@@ -61,7 +61,7 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::xAct, g.get(cx.this, v::x)?.add(&r(16.0))?)?;
     // 2: while (!collision_point(xAct, y + 8, oSolid, 0, 0))
     g.at("oArrowRepeaterR/alarm_1#0", 2);
-    'while1: while ({ let a = [g.get(cx.this, v::xAct)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+    'while1: while ({ let a = [g.get(cx.this, v::xAct)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Loop)? {
         // 4: if (xAct - x > 96)
         g.at("oArrowRepeaterR/alarm_1#0", 4);
         if g.get(cx.this, v::xAct)?.sub(&g.get(cx.this, v::x)?)?.gml_gt(&r(96.0))? {
@@ -107,7 +107,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 3: if (!oPlayer1.dead)
         g.at("oArrowRepeaterR/step#0", 3);
-        if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.is_truthy() {
+        if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::If)? {
             // 5: arrow = instance_create(x + 18, y + 4, oArrow);
             g.at("oArrowRepeaterR/step#0", 5);
             {

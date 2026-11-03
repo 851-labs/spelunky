@@ -32,7 +32,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (true)
     g.at("oBigTreasure/step#0", 1);
-    if r(1.0).is_truthy() {
+    if r(1.0).cond(Cond::If)? {
         // 3: x += xVel;
         g.at("oBigTreasure/step#0", 3);
         g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
@@ -48,21 +48,21 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 11: if (isCollisionTop(1) && yVel < 0)
         g.at("oBigTreasure/step#0", 11);
-        if and(scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?) {
+        if { let p1 = scr::isCollisionTop(g, cx, &[r(1.0)])?; let q2 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
             // 13: yVel = -yVel * 0.8;
             g.at("oBigTreasure/step#0", 13);
             g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?.mul(&r(0.8))?)?;
         }
         // 16: if (isCollisionLeft(1) || isCollisionRight(1))
         g.at("oBigTreasure/step#0", 16);
-        if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy(), scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy()) {
+        if { let p3 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q4 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) } {
             // 18: xVel = -xVel * 0.5;
             g.at("oBigTreasure/step#0", 18);
             g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?.mul(&r(0.5))?)?;
         }
         // 21: if (isCollisionBottom(1))
         g.at("oBigTreasure/step#0", 21);
-        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 23: if (yVel > 5)
             g.at("oBigTreasure/step#0", 23);
             if g.get(cx.this, v::yVel)?.gml_gt(&r(5.0))? {
@@ -76,15 +76,15 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oBigTreasure/step#0", 26);
                 {
                     let t = g.get(cx.this, v::poof)?;
-                    let mut it1 = g.with_iter(cx, &t)?;
-                    let outer3 = (cx.this, cx.other);
-                    'with1: while let Some(h2) = it1.next(g) {
-                        (cx.this, cx.other) = (h2, outer3.0);
+                    let mut it5 = g.with_iter(cx, &t)?;
+                    let outer7 = (cx.this, cx.other);
+                    'with1: while let Some(h6) = it5.next(g) {
+                        (cx.this, cx.other) = (h6, outer7.0);
                         // 26: xVel = -0.4;
                         g.at("oBigTreasure/step#0", 26);
                         g.set(cx.this, v::xVel, r(-0.4))?;
                     }
-                    (cx.this, cx.other) = outer3;
+                    (cx.this, cx.other) = outer7;
                 }
                 // 27: poof = instance_create(x + 16 + 4, y + 30, oPoof);
                 g.at("oBigTreasure/step#0", 27);
@@ -96,15 +96,15 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oBigTreasure/step#0", 28);
                 {
                     let t = g.get(cx.this, v::poof)?;
-                    let mut it4 = g.with_iter(cx, &t)?;
-                    let outer6 = (cx.this, cx.other);
-                    'with2: while let Some(h5) = it4.next(g) {
-                        (cx.this, cx.other) = (h5, outer6.0);
+                    let mut it8 = g.with_iter(cx, &t)?;
+                    let outer10 = (cx.this, cx.other);
+                    'with2: while let Some(h9) = it8.next(g) {
+                        (cx.this, cx.other) = (h9, outer10.0);
                         // 28: xVel = 0.4;
                         g.at("oBigTreasure/step#0", 28);
                         g.set(cx.this, v::xVel, r(0.4))?;
                     }
-                    (cx.this, cx.other) = outer6;
+                    (cx.this, cx.other) = outer10;
                 }
                 // 29: playSound(global.sndThump);
                 g.at("oBigTreasure/step#0", 29);
@@ -139,7 +139,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 44: if (isCollisionBottom(0) && abs(yVel) < 1)
         g.at("oBigTreasure/step#0", 44);
-        if and(scr::isCollisionBottom(g, cx, &[r(0.0)])?.is_truthy(), ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
+        if { let p11 = scr::isCollisionBottom(g, cx, &[r(0.0)])?; let q12 = ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?; and(p11.cond(Cond::And)?, q12) } {
             // 46: y -= 1;
             g.at("oBigTreasure/step#0", 46);
             g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;

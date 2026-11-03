@@ -26,7 +26,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (shopWall)
     g.at("oSolid/destroy#0", 1);
-    if g.get(cx.this, v::shopWall)?.is_truthy() {
+    if g.get(cx.this, v::shopWall)?.cond(Cond::If)? {
         // 3: with (oShopkeeper)
         g.at("oSolid/destroy#0", 3);
         {
@@ -44,7 +44,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 9: if (collision_point(x + 8, y - 1, oSpikes, 0, 0))
     g.at("oSolid/destroy#0", 9);
-    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 11: obj = instance_place(x + 8, y - 1, oSpikes);
         g.at("oSolid/destroy#0", 11);
         {
@@ -68,7 +68,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 14: if (collision_point(x + 8, y - 1, oTikiTorch, 0, 0))
     g.at("oSolid/destroy#0", 14);
-    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oTikiTorch, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oTikiTorch, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 16: obj = instance_place(x + 8, y - 1, oTikiTorch);
         g.at("oSolid/destroy#0", 16);
         {
@@ -92,7 +92,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 19: if (collision_point(x + 8, y - 1, oGrave, 0, 0))
     g.at("oSolid/destroy#0", 19);
-    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oGrave, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oGrave, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 21: obj = instance_place(x + 8, y - 1, oGrave);
         g.at("oSolid/destroy#0", 21);
         {
@@ -116,7 +116,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 24: if (collision_point(x + 8, y + 18, oLampRed, 0, 0))
     g.at("oSolid/destroy#0", 24);
-    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(18.0))?, obj::oLampRed, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(18.0))?, obj::oLampRed, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 26: obj = instance_place(x + 8, y + 16, oLampRed);
         g.at("oSolid/destroy#0", 26);
         {
@@ -143,7 +143,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 29: if (collision_point(x + 8, y + 18, oLamp, 0, 0))
     g.at("oSolid/destroy#0", 29);
-    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(18.0))?, obj::oLamp, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(18.0))?, obj::oLamp, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 31: obj = instance_place(x + 8, y + 16, oLamp);
         g.at("oSolid/destroy#0", 31);
         {

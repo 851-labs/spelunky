@@ -58,7 +58,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 11: if (obj)
     g.at("oTemp/step#0", 11);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 12: if (fired == 0 && abs(obj.y - y - 8) < 8 && obj.x < x && point_distance(x, y, obj.x, obj.y) < 128 &&
         g.at("oTemp/step#0", 12);
         if and(and(and(and(g.get(cx.this, v::fired)?.gml_eq(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?.sub(&g.get(cx.this, v::y)?)?.sub(&r(8.0))?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.gml_lt(&g.get(cx.this, v::x)?)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?]; b::point_distance(g, cx, a)? }).gml_lt(&r(128.0))?), or(({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::yVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(0.0))?)) {
@@ -87,7 +87,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 22: if (obj)
     g.at("oTemp/step#0", 22);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 23: if (fired == 0 && abs(obj.y - y - 8) < 8 && obj.x < x && point_distance(x, y, obj.x, obj.y) < 128)
         g.at("oTemp/step#0", 23);
         if and(and(and(g.get(cx.this, v::fired)?.gml_eq(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?.sub(&g.get(cx.this, v::y)?)?.sub(&r(8.0))?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.gml_lt(&g.get(cx.this, v::x)?)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?]; b::point_distance(g, cx, a)? }).gml_lt(&r(128.0))?) {
@@ -116,7 +116,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 33: if (obj)
     g.at("oTemp/step#0", 33);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 34: if (fired == 0 && abs(obj.y - y - 8) < 8 && obj.x < x + 8 && point_distance(x + 8, y + 8, obj.x, obj
         g.at("oTemp/step#0", 34);
         if and(and(and(and(g.get(cx.this, v::fired)?.gml_eq(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?.sub(&g.get(cx.this, v::y)?)?.sub(&r(8.0))?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?]; b::point_distance(g, cx, a)? }).gml_lt(&r(128.0))?), or(({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::yVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(0.0))?)) {

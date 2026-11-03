@@ -52,7 +52,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oCeilingTrap/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oCeilingTrap/destroy#0", 3);
         {
@@ -112,7 +112,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::yVel, r(0.0))?;
             // 14: if (collision_point(x + 8, y + 17, oSolid, 0, 0))
             g.at("oCeilingTrap/step#0", 14);
-            if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(17.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+            if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(17.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                 // 14: status = WAIT;
                 g.at("oCeilingTrap/step#0", 14);
                 g.set(cx.this, v::status, g.get(cx.this, v::WAIT)?)?;
@@ -133,7 +133,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::yVel, r(0.0))?;
                 // 20: if (isCollisionBottom(1))
                 g.at("oCeilingTrap/step#0", 20);
-                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 20: y -= 1;
                     g.at("oCeilingTrap/step#0", 20);
                     g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;

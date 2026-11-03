@@ -1,0 +1,2 @@
+q_0 = 0000000000000000 0
+# stopped: error dialog "Unknown variable q or array index out of bounds" at out("q_3", global.q[3])

@@ -25,7 +25,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (instance_exists(oPDummy))
     g.at("oBall2/step#1", 1);
-    if b::instance_exists(g, cx, [obj::oPDummy])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPDummy])?.cond(Cond::If)? {
         // 3: if (distance_to_object(oPDummy) >= 24)
         g.at("oBall2/step#1", 3);
         if b::distance_to_object(g, cx, [obj::oPDummy])?.gml_ge(&r(24.0))? {

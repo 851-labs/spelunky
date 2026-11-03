@@ -8,7 +8,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::scroll, r(0.0))?;
     // 2: if (isRoom("rCredits1"))
     g.at("oPalmTreeScroll/create#0", 2);
-    if scr::isRoom(g, cx, &[s!("rCredits1")])?.is_truthy() {
+    if scr::isRoom(g, cx, &[s!("rCredits1")])?.cond(Cond::If)? {
         // 3: sprite_index = sPalmTreeDark;
         g.at("oPalmTreeScroll/create#0", 3);
         g.set(cx.this, v::sprite_index, spr::sPalmTreeDark)?;
@@ -20,7 +20,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (scroll)
     g.at("oPalmTreeScroll/step#0", 1);
-    if g.get(cx.this, v::scroll)?.is_truthy() {
+    if g.get(cx.this, v::scroll)?.cond(Cond::If)? {
         // 1: x += 1;
         g.at("oPalmTreeScroll/step#0", 1);
         g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;

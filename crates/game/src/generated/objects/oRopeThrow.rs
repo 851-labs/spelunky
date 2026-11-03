@@ -34,7 +34,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (armed && yVel >= 0)
     g.at("oRopeThrow/step#1", 1);
-    if and(g.get(cx.this, v::armed)?.is_truthy(), g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?) {
+    if { let p1 = g.get(cx.this, v::armed)?; let q2 = g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 3: move_snap(16, 1);
         g.at("oRopeThrow/step#1", 3);
         b::move_snap(g, cx, [r(16.0), r(1.0)])?;
@@ -43,7 +43,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::px)?.gml_lt(&g.get(cx.this, v::x)?)? {
             // 6: if (!collision_point(x - 8, y, oSolid, 0, 0))
             g.at("oRopeThrow/step#1", 6);
-            if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+            if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                 // 6: x -= 8;
                 g.at("oRopeThrow/step#1", 6);
                 g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(8.0))?)?;
@@ -55,7 +55,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 11: if (!collision_point(x + 8, y, oSolid, 0, 0))
             g.at("oRopeThrow/step#1", 11);
-            if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+            if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                 // 11: x += 8;
                 g.at("oRopeThrow/step#1", 11);
                 g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(8.0))?)?;
@@ -83,7 +83,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 21: if (falling)
     g.at("oRopeThrow/step#1", 21);
-    if g.get(cx.this, v::falling)?.is_truthy() {
+    if g.get(cx.this, v::falling)?.cond(Cond::If)? {
         // 23: xVel = 0;
         g.at("oRopeThrow/step#1", 23);
         g.set(cx.this, v::xVel, r(0.0))?;
@@ -98,7 +98,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::fallCount, lenient(Value::add, g.get(cx.this, v::fallCount)?, &r(1.0))?)?;
         // 27: if (isCollisionBottom(1) || fallCount > 16)
         g.at("oRopeThrow/step#1", 27);
-        if or(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::fallCount)?.gml_gt(&r(16.0))?) {
+        if { let p3 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q4 = g.get(cx.this, v::fallCount)?.gml_gt(&r(16.0))?; or(p3.cond(Cond::Or)?, q4) } {
             // 29: falling = false;
             g.at("oRopeThrow/step#1", 29);
             g.set(cx.this, v::falling, r(0.0))?;

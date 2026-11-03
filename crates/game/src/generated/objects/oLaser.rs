@@ -48,7 +48,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!other.invincible)
     g.at("oLaser/collision_oDamsel#0", 1);
-    if g.get(cx.other, v::invincible)?.not()?.is_truthy() {
+    if g.get(cx.other, v::invincible)?.not()?.cond(Cond::If)? {
         // 3: other.hp -= 3;
         g.at("oLaser/collision_oDamsel#0", 3);
         g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(3.0))?)?;
@@ -120,10 +120,10 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             (cx.this, cx.other) = (h2, outer3.0);
             // 3: if (!invincible)
             g.at("oLaser/collision_oSolid#0", 3);
-            if g.get(cx.this, v::invincible)?.not()?.is_truthy() {
+            if g.get(cx.this, v::invincible)?.not()?.cond(Cond::If)? {
                 // 5: if (collision_point(x, y, oGold, 0, 0))
                 g.at("oLaser/collision_oSolid#0", 5);
-                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oGold, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oGold, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                     // 7: gold = instance_place(x, y, oGold);
                     g.at("oLaser/collision_oSolid#0", 7);
                     {
@@ -147,7 +147,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 10: if (collision_point(x, y, oGoldBig, 0, 0))
                 g.at("oLaser/collision_oSolid#0", 10);
-                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oGoldBig, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oGoldBig, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                     // 12: gold = instance_place(x, y, oGoldBig);
                     g.at("oLaser/collision_oSolid#0", 12);
                     {
@@ -181,7 +181,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 19: if (tile)
             g.at("oLaser/collision_oSolid#0", 19);
-            if g.get(cx.this, v::tile)?.is_truthy() {
+            if g.get(cx.this, v::tile)?.cond(Cond::If)? {
                 // 19: tile_delete(tile);
                 g.at("oLaser/collision_oSolid#0", 19);
                 { let a = [g.get(cx.this, v::tile)?]; b::tile_delete(g, cx, a)? };

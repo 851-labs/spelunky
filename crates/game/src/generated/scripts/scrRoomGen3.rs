@@ -111,7 +111,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             if and(g.get(cx.this, v::roomPath)?.gml_eq(&r(0.0))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?) {
                 // 70: if (!oGame.altar && rand(1, 12) == 1)
                 g.at("scripts/scrRoomGen3", 70);
-                if and(g.get_on(cx, &obj::oGame, v::altar)?.not()?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(12.0)])?.gml_eq(&r(1.0))?) {
+                if { let p1 = g.get_on(cx, &obj::oGame, v::altar)?.not()?; let q2 = scr::rand(g, cx, &[r(1.0), r(12.0)])?.gml_eq(&r(1.0))?; and(p1.cond(Cond::And)?, q2) } {
                     // 72: n = 10;
                     g.at("scripts/scrRoomGen3", 72);
                     {
@@ -130,7 +130,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 } else {
                     // 75: if (oGame.idol)
                     g.at("scripts/scrRoomGen3", 75);
-                    if g.get_on(cx, &obj::oGame, v::idol)?.is_truthy() {
+                    if g.get_on(cx, &obj::oGame, v::idol)?.cond(Cond::If)? {
                         // 77: n = rand(1, 8);
                         g.at("scripts/scrRoomGen3", 77);
                         {
@@ -2165,7 +2165,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 295: if (tile == "1" && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGen3", 295);
-                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if { let p3 = g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?; let q4 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p3, q4.cond(Cond::And)?) } {
                         // 297: if (rand(1, 10) == 1)
                         g.at("scripts/scrRoomGen3", 297);
                         if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {
@@ -2180,7 +2180,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     } else {
                         // 300: if (tile == "2" && rand(1, 2) == 1 && !collision_point(xpos, ypos, oSolid, 0, 0))
                         g.at("scripts/scrRoomGen3", 300);
-                        if and(and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                        if { let p5 = and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?); let q6 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p5, q6.cond(Cond::And)?) } {
                             // 302: if (rand(1, 10) == 1)
                             g.at("scripts/scrRoomGen3", 302);
                             if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {
@@ -2285,7 +2285,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     } else {
                                                         // 330: if (tile == "." && !collision_point(xpos, ypos, oSolid, 0, 0))
                                                         g.at("scripts/scrRoomGen3", 330);
-                                                        if and(g.get(cx.this, v::tile)?.gml_eq(&s!("."))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                                        if { let p7 = g.get(cx.this, v::tile)?.gml_eq(&s!("."))?; let q8 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p7, q8.cond(Cond::And)?) } {
                                                             // 332: obj = instance_create(xpos, ypos, oDark);
                                                             g.at("scripts/scrRoomGen3", 332);
                                                             {
@@ -2367,17 +2367,17 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                         if g.get(cx.this, v::tile)?.gml_eq(&s!("W"))? {
                                                                             // 356: if (global.murderer || global.thiefLevel > 0)
                                                                             g.at("scripts/scrRoomGen3", 356);
-                                                                            if or(g.gget(gv::murderer)?.is_truthy(), g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
+                                                                            if { let p9 = g.gget(gv::murderer)?; let q10 = g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?; or(p9.cond(Cond::Or)?, q10) } {
                                                                                 // 358: if (global.isDamsel)
                                                                                 g.at("scripts/scrRoomGen3", 358);
-                                                                                if g.gget(gv::isDamsel)?.is_truthy() {
+                                                                                if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                                                                                     // 358: tile_add(bgWanted, 32, 0, 32, 32, xpos, ypos, 9004);
                                                                                     g.at("scripts/scrRoomGen3", 358);
                                                                                     cx.ret = { let a = [bgr::bgWanted, r(32.0), r(0.0), r(32.0), r(32.0), g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, r(9004.0)]; b::tile_add(g, cx, a)? };
                                                                                 } else {
                                                                                     // 359: if (global.isTunnelMan)
                                                                                     g.at("scripts/scrRoomGen3", 359);
-                                                                                    if g.gget(gv::isTunnelMan)?.is_truthy() {
+                                                                                    if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
                                                                                         // 359: tile_add(bgWanted, 64, 0, 32, 32, xpos, ypos, 9004);
                                                                                         g.at("scripts/scrRoomGen3", 359);
                                                                                         cx.ret = { let a = [bgr::bgWanted, r(64.0), r(0.0), r(32.0), r(32.0), g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, r(9004.0)]; b::tile_add(g, cx, a)? };
@@ -2421,7 +2421,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                 if g.get(cx.this, v::tile)?.gml_eq(&s!("l"))? {
                                                                                     // 371: if (oGame.damsel)
                                                                                     g.at("scripts/scrRoomGen3", 371);
-                                                                                    if g.get_on(cx, &obj::oGame, v::damsel)?.is_truthy() {
+                                                                                    if g.get_on(cx, &obj::oGame, v::damsel)?.cond(Cond::If)? {
                                                                                         // 371: instance_create(xpos, ypos, oLampRed);
                                                                                         g.at("scripts/scrRoomGen3", 371);
                                                                                         cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oLampRed]; b::instance_create(g, cx, a)? };
@@ -2623,10 +2623,10 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                     g.at("scripts/scrRoomGen3", 416);
                                                                                                                     {
                                                                                                                         let t = g.get(cx.this, v::tile)?;
-                                                                                                                        let mut it1 = g.with_iter(cx, &t)?;
-                                                                                                                        let outer3 = (cx.this, cx.other);
-                                                                                                                        'with22: while let Some(h2) = it1.next(g) {
-                                                                                                                            (cx.this, cx.other) = (h2, outer3.0);
+                                                                                                                        let mut it11 = g.with_iter(cx, &t)?;
+                                                                                                                        let outer13 = (cx.this, cx.other);
+                                                                                                                        'with22: while let Some(h12) = it11.next(g) {
+                                                                                                                            (cx.this, cx.other) = (h12, outer13.0);
                                                                                                                             // 416: sprite_index = sAlienFloor;
                                                                                                                             g.at("scripts/scrRoomGen3", 416);
                                                                                                                             {
@@ -2635,7 +2635,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                 g.set(cx.this, v::sprite_index, x)?;
                                                                                                                             }
                                                                                                                         }
-                                                                                                                        (cx.this, cx.other) = outer3;
+                                                                                                                        (cx.this, cx.other) = outer13;
                                                                                                                     }
                                                                                                                     // 417: tile_add(bgAlienShip3, 0, 0, 16, 16, xpos, ypos, 9005);
                                                                                                                     g.at("scripts/scrRoomGen3", 417);
@@ -2670,10 +2670,10 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                             g.at("scripts/scrRoomGen3", 429);
                                                                                                                             {
                                                                                                                                 let t = g.get(cx.this, v::tile)?;
-                                                                                                                                let mut it4 = g.with_iter(cx, &t)?;
-                                                                                                                                let outer6 = (cx.this, cx.other);
-                                                                                                                                'with23: while let Some(h5) = it4.next(g) {
-                                                                                                                                    (cx.this, cx.other) = (h5, outer6.0);
+                                                                                                                                let mut it14 = g.with_iter(cx, &t)?;
+                                                                                                                                let outer16 = (cx.this, cx.other);
+                                                                                                                                'with23: while let Some(h15) = it14.next(g) {
+                                                                                                                                    (cx.this, cx.other) = (h15, outer16.0);
                                                                                                                                     // 429: sprite_index = sAlienFloor;
                                                                                                                                     g.at("scripts/scrRoomGen3", 429);
                                                                                                                                     {
@@ -2682,7 +2682,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                         g.set(cx.this, v::sprite_index, x)?;
                                                                                                                                     }
                                                                                                                                 }
-                                                                                                                                (cx.this, cx.other) = outer6;
+                                                                                                                                (cx.this, cx.other) = outer16;
                                                                                                                             }
                                                                                                                             // 430: tile_add(bgAlienShip3, 0, 0, 16, 16, xpos, ypos, 9005);
                                                                                                                             g.at("scripts/scrRoomGen3", 430);
@@ -2703,10 +2703,10 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                             g.at("scripts/scrRoomGen3", 436);
                                                                                                                             {
                                                                                                                                 let t = g.get(cx.this, v::tile)?;
-                                                                                                                                let mut it7 = g.with_iter(cx, &t)?;
-                                                                                                                                let outer9 = (cx.this, cx.other);
-                                                                                                                                'with24: while let Some(h8) = it7.next(g) {
-                                                                                                                                    (cx.this, cx.other) = (h8, outer9.0);
+                                                                                                                                let mut it17 = g.with_iter(cx, &t)?;
+                                                                                                                                let outer19 = (cx.this, cx.other);
+                                                                                                                                'with24: while let Some(h18) = it17.next(g) {
+                                                                                                                                    (cx.this, cx.other) = (h18, outer19.0);
                                                                                                                                     // 436: sprite_index = sAlienFront;
                                                                                                                                     g.at("scripts/scrRoomGen3", 436);
                                                                                                                                     {
@@ -2715,7 +2715,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                         g.set(cx.this, v::sprite_index, x)?;
                                                                                                                                     }
                                                                                                                                 }
-                                                                                                                                (cx.this, cx.other) = outer9;
+                                                                                                                                (cx.this, cx.other) = outer19;
                                                                                                                             }
                                                                                                                             // 437: tile = instance_create(xpos, ypos + 16, oAlienShip);
                                                                                                                             g.at("scripts/scrRoomGen3", 437);
@@ -2728,10 +2728,10 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                             g.at("scripts/scrRoomGen3", 438);
                                                                                                                             {
                                                                                                                                 let t = g.get(cx.this, v::tile)?;
-                                                                                                                                let mut it10 = g.with_iter(cx, &t)?;
-                                                                                                                                let outer12 = (cx.this, cx.other);
-                                                                                                                                'with25: while let Some(h11) = it10.next(g) {
-                                                                                                                                    (cx.this, cx.other) = (h11, outer12.0);
+                                                                                                                                let mut it20 = g.with_iter(cx, &t)?;
+                                                                                                                                let outer22 = (cx.this, cx.other);
+                                                                                                                                'with25: while let Some(h21) = it20.next(g) {
+                                                                                                                                    (cx.this, cx.other) = (h21, outer22.0);
                                                                                                                                     // 438: sprite_index = sAlienFront;
                                                                                                                                     g.at("scripts/scrRoomGen3", 438);
                                                                                                                                     {
@@ -2740,7 +2740,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                         g.set(cx.this, v::sprite_index, x)?;
                                                                                                                                     }
                                                                                                                                 }
-                                                                                                                                (cx.this, cx.other) = outer12;
+                                                                                                                                (cx.this, cx.other) = outer22;
                                                                                                                             }
                                                                                                                             // 439: tile = instance_create(xpos, ypos + 32, oAlienShip);
                                                                                                                             g.at("scripts/scrRoomGen3", 439);
@@ -2753,10 +2753,10 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                             g.at("scripts/scrRoomGen3", 440);
                                                                                                                             {
                                                                                                                                 let t = g.get(cx.this, v::tile)?;
-                                                                                                                                let mut it13 = g.with_iter(cx, &t)?;
-                                                                                                                                let outer15 = (cx.this, cx.other);
-                                                                                                                                'with26: while let Some(h14) = it13.next(g) {
-                                                                                                                                    (cx.this, cx.other) = (h14, outer15.0);
+                                                                                                                                let mut it23 = g.with_iter(cx, &t)?;
+                                                                                                                                let outer25 = (cx.this, cx.other);
+                                                                                                                                'with26: while let Some(h24) = it23.next(g) {
+                                                                                                                                    (cx.this, cx.other) = (h24, outer25.0);
                                                                                                                                     // 440: sprite_index = sAlienFront2;
                                                                                                                                     g.at("scripts/scrRoomGen3", 440);
                                                                                                                                     {
@@ -2765,7 +2765,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                         g.set(cx.this, v::sprite_index, x)?;
                                                                                                                                     }
                                                                                                                                 }
-                                                                                                                                (cx.this, cx.other) = outer15;
+                                                                                                                                (cx.this, cx.other) = outer25;
                                                                                                                             }
                                                                                                                             // 441: tile_add(bgAlienShip3, 0, 0, 16, 16, xpos, ypos, 9005);
                                                                                                                             g.at("scripts/scrRoomGen3", 441);
@@ -2791,10 +2791,10 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                 g.at("scripts/scrRoomGen3", 448);
                                                                                                                                 {
                                                                                                                                     let t = g.get(cx.this, v::tile)?;
-                                                                                                                                    let mut it16 = g.with_iter(cx, &t)?;
-                                                                                                                                    let outer18 = (cx.this, cx.other);
-                                                                                                                                    'with27: while let Some(h17) = it16.next(g) {
-                                                                                                                                        (cx.this, cx.other) = (h17, outer18.0);
+                                                                                                                                    let mut it26 = g.with_iter(cx, &t)?;
+                                                                                                                                    let outer28 = (cx.this, cx.other);
+                                                                                                                                    'with27: while let Some(h27) = it26.next(g) {
+                                                                                                                                        (cx.this, cx.other) = (h27, outer28.0);
                                                                                                                                         // 448: sprite_index = sAlienFront3;
                                                                                                                                         g.at("scripts/scrRoomGen3", 448);
                                                                                                                                         {
@@ -2803,7 +2803,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                             g.set(cx.this, v::sprite_index, x)?;
                                                                                                                                         }
                                                                                                                                     }
-                                                                                                                                    (cx.this, cx.other) = outer18;
+                                                                                                                                    (cx.this, cx.other) = outer28;
                                                                                                                                 }
                                                                                                                                 // 449: tile_add(bgAlienShip3, 0, 0, 16, 16, xpos, ypos, 9005);
                                                                                                                                 g.at("scripts/scrRoomGen3", 449);
@@ -2900,7 +2900,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                         } else {
                                                                                                                                                             // 487: if (tile == "M" && !collision_point(xpos, ypos, oSolid, 0, 0))
                                                                                                                                                             g.at("scripts/scrRoomGen3", 487);
-                                                                                                                                                            if and(g.get(cx.this, v::tile)?.gml_eq(&s!("M"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                                                                                                                                            if { let p29 = g.get(cx.this, v::tile)?.gml_eq(&s!("M"))?; let q30 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p29, q30.cond(Cond::And)?) } {
                                                                                                                                                                 // 489: instance_create(xpos, ypos, oMoai);
                                                                                                                                                                 g.at("scripts/scrRoomGen3", 489);
                                                                                                                                                                 cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oMoai]; b::instance_create(g, cx, a)? };
@@ -2963,7 +2963,7 @@ pub fn scrRoomGen3(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                             } else {
                                                                                                                                                                 // 502: if (tile == "m" && !collision_point(xpos, ypos, oSolid, 0, 0))
                                                                                                                                                                 g.at("scripts/scrRoomGen3", 502);
-                                                                                                                                                                if and(g.get(cx.this, v::tile)?.gml_eq(&s!("m"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                                                                                                                                                if { let p31 = g.get(cx.this, v::tile)?.gml_eq(&s!("m"))?; let q32 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p31, q32.cond(Cond::And)?) } {
                                                                                                                                                                     // 504: obj = instance_create(xpos, ypos, oDark);
                                                                                                                                                                     g.at("scripts/scrRoomGen3", 504);
                                                                                                                                                                     {

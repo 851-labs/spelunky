@@ -76,7 +76,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 13: if (isCollisionBottom(1))
             g.at("oThwompTrap/step#0", 13);
-            if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+            if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                 // 15: status = WAIT;
                 g.at("oThwompTrap/step#0", 15);
                 g.set(cx.this, v::status, g.get(cx.this, v::WAIT)?)?;
@@ -93,7 +93,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WAIT)?)? {
                 // 22: if (isCollisionBottom(1))
                 g.at("oThwompTrap/step#0", 22);
-                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 22: y -= 1;
                     g.at("oThwompTrap/step#0", 22);
                     g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
@@ -118,7 +118,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::RETURN)?)? {
                     // 32: if (isCollisionTop(1))
                     g.at("oThwompTrap/step#0", 32);
-                    if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+                    if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                         // 34: yVel = 0;
                         g.at("oThwompTrap/step#0", 34);
                         g.set(cx.this, v::yVel, r(0.0))?;

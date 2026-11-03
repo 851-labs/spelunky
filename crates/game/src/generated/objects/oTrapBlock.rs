@@ -16,7 +16,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oTrapBlock/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oTrapBlock/destroy#0", 3);
         {
@@ -46,7 +46,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let t = g.get(cx.this, v::rubble)?; g.set_on(cx, &t, v::sprite_index, spr::sRubbleTanSmall)?; }
         // 9: if (dying)
         g.at("oTrapBlock/destroy#0", 9);
-        if g.get(cx.this, v::dying)?.is_truthy() {
+        if g.get(cx.this, v::dying)?.cond(Cond::If)? {
             // 11: playSound(global.sndThump);
             g.at("oTrapBlock/destroy#0", 11);
             { let a = [g.gget(gv::sndThump)?]; scr::playSound(g, cx, &a)? };
@@ -62,7 +62,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (dying)
     g.at("oTrapBlock/step#1", 1);
-    if g.get(cx.this, v::dying)?.is_truthy() {
+    if g.get(cx.this, v::dying)?.cond(Cond::If)? {
         // 3: if (deathTimer > 0)
         g.at("oTrapBlock/step#1", 3);
         if g.get(cx.this, v::deathTimer)?.gml_gt(&r(0.0))? {

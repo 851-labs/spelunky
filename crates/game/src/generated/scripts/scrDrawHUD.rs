@@ -6,7 +6,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 24: if (global.drawHUD && instance_exists(oPlayer1))
     g.at("scripts/scrDrawHUD", 24);
-    if and(g.gget(gv::drawHUD)?.is_truthy(), b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy()) {
+    if { let p1 = g.gget(gv::drawHUD)?; let q2 = b::instance_exists(g, cx, [obj::oPlayer1])?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 26: lifeX = 8;
         g.at("scripts/scrDrawHUD", 26);
         {
@@ -67,7 +67,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         cx.ret = { let a = [g.get(cx.this, v::lifeX)?.add(&r(16.0))?, r(8.0), g.get(cx.this, v::life)?]; b::draw_text(g, cx, a)? };
         // 36: if (global.hasStickyBombs)
         g.at("scripts/scrDrawHUD", 36);
-        if g.gget(gv::hasStickyBombs)?.is_truthy() {
+        if g.gget(gv::hasStickyBombs)?.cond(Cond::If)? {
             // 36: draw_sprite(sStickyBombIcon, -1, bombX, 8);
             g.at("scripts/scrDrawHUD", 36);
             cx.ret = { let a = [spr::sStickyBombIcon, r(-1.0), g.get(cx.this, v::bombX)?, r(8.0)]; b::draw_sprite(g, cx, a)? };
@@ -93,7 +93,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         cx.ret = { let a = [g.get(cx.this, v::moneyX)?.add(&r(16.0))?, r(8.0), g.gget(gv::money)?]; b::draw_text(g, cx, a)? };
         // 44: if (isRoom("rOlmec"))
         g.at("scripts/scrDrawHUD", 44);
-        if scr::isRoom(g, cx, &[s!("rOlmec")])?.is_truthy() {
+        if scr::isRoom(g, cx, &[s!("rOlmec")])?.cond(Cond::If)? {
             // 44: global.exitX = 640;
             g.at("scripts/scrDrawHUD", 44);
             {
@@ -111,7 +111,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 46: if (global.hasCompass)
         g.at("scripts/scrDrawHUD", 46);
-        if g.gget(gv::hasCompass)?.is_truthy() {
+        if g.gget(gv::hasCompass)?.cond(Cond::If)? {
             // 48: if (global.exitY > view_yview[0] + 240)
             g.at("scripts/scrDrawHUD", 48);
             if g.gget(gv::exitY)?.gml_gt(&g.bget(v::view_yview, 0)?.add(&r(240.0))?)? {
@@ -335,10 +335,10 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 100: if (global.hasUdjatEye)
         g.at("scripts/scrDrawHUD", 100);
-        if g.gget(gv::hasUdjatEye)?.is_truthy() {
+        if g.gget(gv::hasUdjatEye)?.cond(Cond::If)? {
             // 102: if (global.udjatBlink)
             g.at("scripts/scrDrawHUD", 102);
-            if g.gget(gv::udjatBlink)?.is_truthy() {
+            if g.gget(gv::udjatBlink)?.cond(Cond::If)? {
                 // 102: draw_sprite(sUdjatEyeIcon2, -1, n, 24);
                 g.at("scripts/scrDrawHUD", 102);
                 cx.ret = { let a = [spr::sUdjatEyeIcon2, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -358,7 +358,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 106: if (global.hasAnkh)
         g.at("scripts/scrDrawHUD", 106);
-        if g.gget(gv::hasAnkh)?.is_truthy() {
+        if g.gget(gv::hasAnkh)?.cond(Cond::If)? {
             // 108: draw_sprite(sAnkhIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 108);
             cx.ret = { let a = [spr::sAnkhIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -373,7 +373,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 111: if (global.hasCrown)
         g.at("scripts/scrDrawHUD", 111);
-        if g.gget(gv::hasCrown)?.is_truthy() {
+        if g.gget(gv::hasCrown)?.cond(Cond::If)? {
             // 113: draw_sprite(sCrownIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 113);
             cx.ret = { let a = [spr::sCrownIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -388,7 +388,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 116: if (global.hasKapala)
         g.at("scripts/scrDrawHUD", 116);
-        if g.gget(gv::hasKapala)?.is_truthy() {
+        if g.gget(gv::hasKapala)?.cond(Cond::If)? {
             // 118: if (global.bloodLevel == 0)
             g.at("scripts/scrDrawHUD", 118);
             if g.gget(gv::bloodLevel)?.gml_eq(&r(0.0))? {
@@ -439,7 +439,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 125: if (global.hasSpectacles)
         g.at("scripts/scrDrawHUD", 125);
-        if g.gget(gv::hasSpectacles)?.is_truthy() {
+        if g.gget(gv::hasSpectacles)?.cond(Cond::If)? {
             // 127: draw_sprite(sSpectaclesIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 127);
             cx.ret = { let a = [spr::sSpectaclesIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -454,7 +454,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 130: if (global.hasGloves)
         g.at("scripts/scrDrawHUD", 130);
-        if g.gget(gv::hasGloves)?.is_truthy() {
+        if g.gget(gv::hasGloves)?.cond(Cond::If)? {
             // 132: draw_sprite(sGlovesIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 132);
             cx.ret = { let a = [spr::sGlovesIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -469,7 +469,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 135: if (global.hasMitt)
         g.at("scripts/scrDrawHUD", 135);
-        if g.gget(gv::hasMitt)?.is_truthy() {
+        if g.gget(gv::hasMitt)?.cond(Cond::If)? {
             // 137: draw_sprite(sMittIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 137);
             cx.ret = { let a = [spr::sMittIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -484,7 +484,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 140: if (global.hasSpringShoes)
         g.at("scripts/scrDrawHUD", 140);
-        if g.gget(gv::hasSpringShoes)?.is_truthy() {
+        if g.gget(gv::hasSpringShoes)?.cond(Cond::If)? {
             // 142: draw_sprite(sSpringShoesIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 142);
             cx.ret = { let a = [spr::sSpringShoesIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -499,7 +499,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 145: if (global.hasSpikeShoes)
         g.at("scripts/scrDrawHUD", 145);
-        if g.gget(gv::hasSpikeShoes)?.is_truthy() {
+        if g.gget(gv::hasSpikeShoes)?.cond(Cond::If)? {
             // 147: draw_sprite(sSpikeShoesIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 147);
             cx.ret = { let a = [spr::sSpikeShoesIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -514,7 +514,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 150: if (global.hasCape)
         g.at("scripts/scrDrawHUD", 150);
-        if g.gget(gv::hasCape)?.is_truthy() {
+        if g.gget(gv::hasCape)?.cond(Cond::If)? {
             // 152: draw_sprite(sCapeIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 152);
             cx.ret = { let a = [spr::sCapeIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -529,7 +529,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 155: if (global.hasJetpack)
         g.at("scripts/scrDrawHUD", 155);
-        if g.gget(gv::hasJetpack)?.is_truthy() {
+        if g.gget(gv::hasJetpack)?.cond(Cond::If)? {
             // 157: draw_sprite(sJetpackIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 157);
             cx.ret = { let a = [spr::sJetpackIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -544,7 +544,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 160: if (global.hasCompass)
         g.at("scripts/scrDrawHUD", 160);
-        if g.gget(gv::hasCompass)?.is_truthy() {
+        if g.gget(gv::hasCompass)?.cond(Cond::If)? {
             // 162: draw_sprite(sCompassIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 162);
             cx.ret = { let a = [spr::sCompassIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };
@@ -559,7 +559,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 165: if (global.hasParachute)
         g.at("scripts/scrDrawHUD", 165);
-        if g.gget(gv::hasParachute)?.is_truthy() {
+        if g.gget(gv::hasParachute)?.cond(Cond::If)? {
             // 167: draw_sprite(sParachuteIcon, -1, n, 24);
             g.at("scripts/scrDrawHUD", 167);
             cx.ret = { let a = [spr::sParachuteIcon, r(-1.0), g.get(cx.this, v::n)?, r(24.0)]; b::draw_sprite(g, cx, a)? };

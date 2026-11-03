@@ -45,7 +45,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (isCollisionBottom(1))
     g.at("oMagma/step#1", 1);
-    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
         // 3: sprite_index = sMagmaManCreate;
         g.at("oMagma/step#1", 3);
         g.set(cx.this, v::sprite_index, spr::sMagmaManCreate)?;
@@ -185,7 +185,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (dying)
     g.at("oMagma/other_7#0", 1);
-    if g.get(cx.this, v::dying)?.is_truthy() {
+    if g.get(cx.this, v::dying)?.cond(Cond::If)? {
         // 3: magma = instance_create(x - 8, y - 8, oMagmaMan);
         g.at("oMagma/other_7#0", 3);
         {

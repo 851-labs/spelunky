@@ -37,7 +37,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 4: if (collision_point(x, y - 1, oEndPlat, 0, 0))
     g.at("oLavaSpray/step#0", 4);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oEndPlat, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oEndPlat, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 6: oEndPlat.yVel = yVel;
         g.at("oLavaSpray/step#0", 6);
         { let t = obj::oEndPlat; g.set_on(cx, &t, v::yVel, g.get(cx.this, v::yVel)?)?; }
@@ -69,7 +69,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 20: if (!SS_IsSoundPlaying(global.sndFlame))
     g.at("oLavaSpray/step#0", 20);
-    if ({ let a = [g.gget(gv::sndFlame)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).not()?.is_truthy() {
+    if ({ let a = [g.gget(gv::sndFlame)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).not()?.cond(Cond::If)? {
         // 20: playSound(global.sndFlame);
         g.at("oLavaSpray/step#0", 20);
         { let a = [g.gget(gv::sndFlame)?]; scr::playSound(g, cx, &a)? };

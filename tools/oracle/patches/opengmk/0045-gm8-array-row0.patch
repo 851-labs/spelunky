@@ -1,0 +1,14 @@
+diff --git a/gm8emulator/src/instance.rs b/gm8emulator/src/instance.rs
+--- a/gm8emulator/src/instance.rs
++++ b/gm8emulator/src/instance.rs
+@@ -450,7 +450,9 @@ impl Field {
+             (Self::Array(m), i) => match m.get(&i) {
+                 Some(v) => Some(v.clone()),
+                 None => {
+-                    if m.iter().any(|(k, _)| *k > i && *k < (((i / 32000) + 1) * 32000)) {
++                    // Spelunky port (851-3796): element [0, 0] is the variable itself, which GM8 reads as 0 once any
++                    // element is set, whatever the row (probes `arr2-row0*`); the rest of row 0 follows the rule below.
++                    if i == 0 || m.iter().any(|(k, _)| *k > i && *k < (((i / 32000) + 1) * 32000)) {
+                         Some(Value::Real(Real::from(0.0)))
+                     } else {
+                         None

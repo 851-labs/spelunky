@@ -31,10 +31,10 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (instance_exists(oPlayer1))
     g.at("oJetpack/step#1", 1);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 2: if (!oPlayer1.visible)
         g.at("oJetpack/step#1", 2);
-        if g.get_on(cx, &obj::oPlayer1, v::visible)?.not()?.is_truthy() {
+        if g.get_on(cx, &obj::oPlayer1, v::visible)?.not()?.cond(Cond::If)? {
             // 2: instance_destroy();
             g.at("oJetpack/step#1", 2);
             b::instance_destroy(g, cx, [])?;

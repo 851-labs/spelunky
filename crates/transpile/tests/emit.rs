@@ -33,7 +33,8 @@ fn and_or_evaluate_both_operands() {
     let out = emit("oX/step#0", "if (a and rand(1, 8) == 1) b = 1;");
     assert!(
         out.contains(
-            "if and(g.get(cx.this, v::a)?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_eq(&r(1.0))?) {"
+            "if { let p1 = g.get(cx.this, v::a)?; let q2 = scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_eq(&r(1.0))?; \
+             and(p1.cond(Cond::And)?, q2) } {"
         ),
         "{out}"
     );
@@ -43,7 +44,7 @@ fn and_or_evaluate_both_operands() {
 fn not_rejects_strings_like_gm8() {
     let out = emit("oX/step#0", "if (not a) b = !c; d = !(e == 1);");
     assert!(
-        out.contains("if g.get(cx.this, v::a)?.not()?.is_truthy() {"),
+        out.contains("if g.get(cx.this, v::a)?.not()?.cond(Cond::If)? {"),
         "{out}"
     );
     assert!(
@@ -89,12 +90,12 @@ fn compound_assignment_is_lenient_on_every_name() {
     for (code, read) in [
         (
             "obj.sprite_index += 1",
-            "g.get_on(cx, &t2, v::sprite_index)? }",
+            "g.get_on(cx, &t, v::sprite_index)?",
         ),
         ("other.score += 1", "g.get(cx.other, v::score)?"),
         ("global.x += 1", "g.gget(gv::x)?"),
         ("other.a += 1", "g.get(cx.other, v::a)?"),
-        ("obj.a += 1", "g.get_on(cx, &t2, v::a)? }"),
+        ("obj.a += 1", "g.get_on(cx, &t, v::a)?"),
         ("global.a += 1", "g.gget(gv::a)?"),
     ] {
         let out = emit("oX/step#0", code);
@@ -113,10 +114,68 @@ fn object_field_writes_write_all_and_read_the_first() {
     assert!(out.contains("let t = obj::oMoonRoom;"), "{out}");
     assert!(
         out.contains(
-            "g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &r(1.0))?)?;"
+            "g.set_on(cx, &t, v::baskets, lenient(Value::add, g.get_on(cx, &t, v::baskets)?, &r(1.0))?)?;"
         ),
         "{out}"
     );
+}
+
+#[test]
+fn op_assign_evaluates_its_base_and_index_once() {
+    // GM8 (probe `opassign-order`, 851-3798): `(f()).v += x` and `(f()).a[g()] += x` call `f` and `g` once.
+    let out = emit("oX/step#0", "(scrGetName(a)).pv += 1;");
+    assert_eq!(out.matches("scr::scrGetName(").count(), 1, "{out}");
+    let out = emit(
+        "oX/step#0",
+        "(scrGetName(a)).pa[scrGetFavorMsg(1)] += scrGetFavorMsg(3);",
+    );
+    assert_eq!(out.matches("scr::scrGetName(").count(), 1, "{out}");
+    assert_eq!(out.matches("scr::scrGetFavorMsg(").count(), 2, "{out}");
+}
+
+#[test]
+fn a_string_condition_is_an_error() {
+    // GM8 (probes `str-*`, 851-3798): every condition and logical operand goes through `Value::cond`, which
+    // rejects a string with the error for where it is.
+    let out = emit(
+        "oX/step#0",
+        "if (s) t = 1; while (s) t = 2; u = s && 1; do t = 3; until (s);",
+    );
+    assert!(!out.contains("is_truthy()"), "{out}");
+    for at in ["If", "Loop", "And"] {
+        assert!(out.contains(&format!(".cond(Cond::{at})?")), "{at}: {out}");
+    }
+}
+
+#[test]
+fn a_string_operand_is_checked_after_both_run() {
+    // GM8 evaluates both operands before `&&` rejects a string (and the oracle, patch 0047): the right one runs.
+    let out = emit("oX/step#0", "u = s && scrGetName(1);");
+    let call = out.find("scr::scrGetName(").expect("the call");
+    let check = out.find(".cond(Cond::And)?").expect("the check");
+    assert!(call < check, "{out}");
+    // Two comparisons need no check.
+    let out = emit("oX/step#0", "u = a > 1 && b < 2;");
+    assert!(out.contains("and(g.get(cx.this, v::a)?.gml_gt("), "{out}");
+}
+
+#[test]
+fn a_var_in_a_for_body_does_not_reach_its_step() {
+    // The step comes before the body in the source.
+    let out = emit(
+        "oX/step#0",
+        "for (i = 0; i < 3; vv += 1) { var vv; vv = 2; }",
+    );
+    assert!(out.contains("g.set(cx.this, v::vv,"), "{out}");
+    assert!(out.contains("l_vv.set(r(2.0))"), "{out}");
+}
+
+#[test]
+fn a_name_is_local_only_from_its_var_statement_on() {
+    // GM8 (probe `var-positional`, 851-3798): before its `var`, `vv` is the instance's.
+    let out = emit("oX/step#0", "vv = 1; var vv; vv = 2;");
+    assert!(out.contains("g.set(cx.this, v::vv, r(1.0))?;"), "{out}");
+    assert!(out.contains("l_vv.set(r(2.0))"), "{out}");
 }
 
 #[test]
@@ -386,9 +445,9 @@ fn dnd_questions_nest() {
     // its own action's location. Every action but the first first checks for a pending room change.
     assert!(
         out.contains(
-            "if { g.at(\"oTest/step#0\", 0); g.get(cx.this, v::a)?.is_truthy() } { \
+            "if { g.at(\"oTest/step#0\", 0); g.get(cx.this, v::a)?.cond(Cond::If)? } { \
              if { if g.pending().is_some() { return Ok(()); } \
-             g.at(\"oTest/step#1\", 0); !g.get(cx.this, v::b)?.is_truthy() } { \
+             g.at(\"oTest/step#1\", 0); !g.get(cx.this, v::b)?.cond(Cond::If)? } { \
              if g.pending().is_some() { return Ok(()); } \
              g.at(\"oTest/step#2\", 0); b::instance_destroy(g, cx, [])?; } }"
         ),
@@ -398,7 +457,7 @@ fn dnd_questions_nest() {
     assert!(
         out.contains(
             "if { if g.pending().is_some() { return Ok(()); } \
-             g.at(\"oTest/step#3\", 0); g.get(cx.this, v::c)?.is_truthy() } {  }"
+             g.at(\"oTest/step#3\", 0); g.get(cx.this, v::c)?.cond(Cond::If)? } {  }"
         ),
         "{out}"
     );

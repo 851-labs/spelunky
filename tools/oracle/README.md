@@ -616,6 +616,57 @@ boundary, lands where Direct3D 8 puts it whatever the `f32` matrices round. At 2
 boundary, and OpenGMK's put some on the earlier texel. With it, the settings program's window is GM8's to the pixel
 (config.exe screenshotted under Wine). It changes only pixels: the dump is the same.
 
+### `opengmk/0044-gm8-real-trim.patch`
+
+`real()` trims spaces alone, as GM8 does (851-3801, `docs/quirks.md` §3, measured by `tools/gm8-probe`'s
+`real-lead-*`, `real-trail-*` and `real-spaces`): a tab, LF, VT, FF, CR or no-break space before or after the number
+is "Error in function real().", where OpenGMK's `str::trim` took them all.
+
+### `opengmk/0045-gm8-array-row0.patch`
+
+`Field::get` reads element `[0, 0]` of an array (the variable itself) as 0 when it was never set, whatever row was,
+as GM8 does (851-3796, `docs/quirks.md` §5, probes `arr2-row0*`): with only `a[1, 5]` set, `a` is 0, where OpenGMK
+stopped with "uninitialized variable". The rest of row 0 is still an error.
+
+### `opengmk/0046-gm8-loop-starting-count.patch`
+
+A per-object loop (`with (obj)`, an event stage's loop over an object's instances) never goes past the list's length
+when it started, as GM8's doesn't (851-3795, `docs/quirks.md` §5, probe `with-created`): `ObjectIter` and
+`IdentityIter` scan only the entries below that count, where `nb_il_iter` scanned on to the current list's end and
+so visited an instance created during the loop once every entry before it was destroyed.
+
+### `opengmk/0047-gm8-opassign-once-string-conditions.patch`
+
+Two GML rules of GM8's (851-3798, `docs/quirks.md` §2):
+
+- An `op=` evaluates its owner and its array index once each, for the read and the write (probe `opassign-order`:
+  `(f()).v[g()] += h()` calls each once). `make_modify_instruction`'s value re-reads the place through cloned owner
+  and index nodes, so OpenGMK evaluated them twice; `SetField` and `SetVariable` now evaluate them once
+  (`pin_accessor`, as literals of their values) and read through those, then evaluate the right-hand side.
+- A string as a condition or a logical operand is an error: "Expression expected" in an `if` or a `for`, "Boolean
+  expression expected" in a `while` or an `until`, "Wrong type of arguments for &&." (`||`, `^^`) as an operand
+  (probes `str-*`); a drag-and-drop condition is taken as an `if`. OpenGMK read a string as false there.
+
+### `opengmk/0048-gm8-collision-line-walk.patch`
+
+`collision_line`'s precise test walks as GM8's does (851-3962, `docs/quirks.md` §5, probe `collision-line-sloped`,
+which GM8 and the port answer alike on 900 lines against an irregular mask, unturned, turned and scaled; the port's
+`gm::collision::line_hits` is read from Spelunky.exe 0x4aceec, 0x4a4fd8 and 0x48b0d4): the clipped ends rounded, a
+line in one row or one column taken as the precise rectangle between them (`check_collision_rectangle`), otherwise
+the box's columns (or rows, for a line steeper than wide) between the rounded ends, the other coordinate from their
+slope. OpenGMK walked every point between the ends, past the box too, which meets a mask with pixels outside its
+box (a manual box: Spelunky has no precise sprite with one), and a row or a column as points. Unreached: every one of
+Spelunky's `collision_line` calls is a row or a column.
+
+### `opengmk/0049-gm8-background-layer-rounding.patch`
+
+A room's background layer is placed as GM8's tiled draw places it (851-3970, `docs/quirks.md` §6, probe
+`background-fractional`, which the patched oracle answers line for line as GM8 does): its tile, `w * xscale` and
+`h * yscale`, and its position are rounded half to even into whole pixels, a tile under a pixel draws nothing, and
+the copies step by the rounded tile from the rounded start, each still drawn at the layer's scale
+(`draw_background_layer`, beside `draw_sprite_tiled`, which GML's tiled draws keep). OpenGMK stepped by the
+unrounded tile from the unrounded position. It changes only pixels: the dump, the draw log included, is the same.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.

@@ -6,14 +6,14 @@ pub fn SS_SetSoundPan(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 15: if (is_real(argument0))
     g.at("scripts/SS_SetSoundPan", 15);
-    if b::is_real(g, cx, [cx.arg(0)?])?.is_truthy() {
+    if b::is_real(g, cx, [cx.arg(0)?])?.cond(Cond::If)? {
         // 15: return "0";
         g.at("scripts/SS_SetSoundPan", 15);
         return Ok(s!("0"));
     }
     // 16: if (is_string(argument1))
     g.at("scripts/SS_SetSoundPan", 16);
-    if b::is_string(g, cx, [cx.arg(1)?])?.is_truthy() {
+    if b::is_string(g, cx, [cx.arg(1)?])?.cond(Cond::If)? {
         // 17: return external_call(global.dll_SS_SetSoundPan, argument0, argument1);
         g.at("scripts/SS_SetSoundPan", 17);
         return Ok({ let a = [g.gget(gv::dll_SS_SetSoundPan)?, cx.arg(0)?, cx.arg(1)?]; b::external_call(g, cx, a)? });

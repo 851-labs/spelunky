@@ -42,7 +42,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.gset(gv::ghostExists, r(0.0))?;
     // 16: if (global.darkLevel)
     g.at("oLevel/create#0", 16);
-    if g.gget(gv::darkLevel)?.is_truthy() {
+    if g.gget(gv::darkLevel)?.cond(Cond::If)? {
         // 16: darkness = 1;
         g.at("oLevel/create#0", 16);
         g.set(cx.this, v::darkness, r(1.0))?;
@@ -56,14 +56,14 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.gset(gv::darknessLerp, r(0.0))?;
     // 20: if (global.music)
     g.at("oLevel/create#0", 20);
-    if g.gget(gv::music)?.is_truthy() {
+    if g.gget(gv::music)?.cond(Cond::If)? {
         // 22: startMusic();
         g.at("oLevel/create#0", 22);
         scr::startMusic(g, cx, &[])?;
     }
     // 25: if (instance_exists(oPlayer1))
     g.at("oLevel/create#0", 25);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 27: with (oPlayer1)
         g.at("oLevel/create#0", 27);
         {
@@ -133,7 +133,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (musicFade && musicFadeTimer < 100)
     g.at("oLevel/step#0", 1);
-    if and(g.get(cx.this, v::musicFade)?.is_truthy(), g.get(cx.this, v::musicFadeTimer)?.gml_lt(&r(100.0))?) {
+    if { let p1 = g.get(cx.this, v::musicFade)?; let q2 = g.get(cx.this, v::musicFadeTimer)?.gml_lt(&r(100.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 3: scrMusicFade();
         g.at("oLevel/step#0", 3);
         scr::scrMusicFade(g, cx, &[])?;
@@ -143,7 +143,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 7: if (view_enabled)
     g.at("oLevel/step#0", 7);
-    if g.bget(v::view_enabled, 0)?.is_truthy() {
+    if g.bget(v::view_enabled, 0)?.cond(Cond::If)? {
         // 10: if (global.shake > 0)
         g.at("oLevel/step#0", 10);
         if g.gget(gv::shake)?.gml_gt(&r(0.0))? {
@@ -160,7 +160,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 14: if (global.shakeToggle || view_yview[0] <= 0)
             g.at("oLevel/step#0", 14);
-            if or(g.gget(gv::shakeToggle)?.is_truthy(), g.bget(v::view_yview, 0)?.gml_le(&r(0.0))?) {
+            if { let p3 = g.gget(gv::shakeToggle)?; let q4 = g.bget(v::view_yview, 0)?.gml_le(&r(0.0))?; or(p3.cond(Cond::Or)?, q4) } {
                 // 16: view_yview += 3;
                 g.at("oLevel/step#0", 16);
                 g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(3.0))?)?;
@@ -170,7 +170,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 19: if (!global.shakeToggle || view_yview[0] >= room_height - view_hview[0])
                 g.at("oLevel/step#0", 19);
-                if or(g.gget(gv::shakeToggle)?.not()?.is_truthy(), g.bget(v::view_yview, 0)?.gml_ge(&g.bget(v::room_height, 0)?.sub(&g.bget(v::view_hview, 0)?)?)?) {
+                if { let p5 = g.gget(gv::shakeToggle)?.not()?; let q6 = g.bget(v::view_yview, 0)?.gml_ge(&g.bget(v::room_height, 0)?.sub(&g.bget(v::view_hview, 0)?)?)?; or(p5.cond(Cond::Or)?, q6) } {
                     // 21: view_yview -= 3;
                     g.at("oLevel/step#0", 21);
                     g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(3.0))?)?;
@@ -194,10 +194,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oLevel/step#0", 68);
         {
             let t = obj::oWater;
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it7 = g.with_iter(cx, &t)?;
+            let outer9 = (cx.this, cx.other);
+            'with1: while let Some(h8) = it7.next(g) {
+                (cx.this, cx.other) = (h8, outer9.0);
                 // 70: if (x + 8 < view_xview[0] - 96 || x + 8 > view_xview[0] + view_wview[0] + 96 || y + 8 < view_yview[0
                 g.at("oLevel/step#0", 70);
                 if or(or(or(g.get(cx.this, v::x)?.add(&r(8.0))?.gml_lt(&g.bget(v::view_xview, 0)?.sub(&r(96.0))?)?, g.get(cx.this, v::x)?.add(&r(8.0))?.gml_gt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(96.0))?)?), g.get(cx.this, v::y)?.add(&r(8.0))?.gml_lt(&g.bget(v::view_yview, 0)?.sub(&r(96.0))?)?), g.get(cx.this, v::y)?.add(&r(8.0))?.gml_gt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(96.0))?)?) {
@@ -206,7 +206,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::checked, r(0.0))?;
                 }
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer9;
         }
         // 75: instance_deactivate_region(view_xview[0] - offset, view_yview[0] - offset, view_wview[0] + offset * 
         g.at("oLevel/step#0", 75);
@@ -249,7 +249,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         b::instance_activate_object(g, cx, [obj::oFinalBoss])?;
         // 93: if (instance_exists(oPlayer1))
         g.at("oLevel/step#0", 93);
-        if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
             // 94: instance_activate_region(oPlayer1.x - 16, oPlayer1.y - 16, oPlayer1.x + 16, oPlayer1.y + 16, true);
             g.at("oLevel/step#0", 94);
             { let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&r(16.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&r(16.0))?, g.get_on(cx, &obj::oPlayer1, v::x)?.add(&r(16.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?.add(&r(16.0))?, r(1.0)]; b::instance_activate_region(g, cx, a)? };
@@ -259,7 +259,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         b::instance_activate_object(g, cx, [obj::oBoulder])?;
         // 96: if (instance_exists(oBoulder))
         g.at("oLevel/step#0", 96);
-        if b::instance_exists(g, cx, [obj::oBoulder])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oBoulder])?.cond(Cond::If)? {
             // 97: instance_activate_region(oBoulder.x - 32, oBoulder.y - 32, 64, 64, true);
             g.at("oLevel/step#0", 97);
             { let a = [g.get_on(cx, &obj::oBoulder, v::x)?.sub(&r(32.0))?, g.get_on(cx, &obj::oBoulder, v::y)?.sub(&r(32.0))?, r(64.0), r(64.0), r(1.0)]; b::instance_activate_region(g, cx, a)? };
@@ -269,7 +269,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         b::instance_activate_object(g, cx, [obj::oOlmec])?;
         // 99: if (instance_exists(oOlmec))
         g.at("oLevel/step#0", 99);
-        if b::instance_exists(g, cx, [obj::oOlmec])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oOlmec])?.cond(Cond::If)? {
             // 100: instance_activate_region(oOlmec.x - 16, oOlmec.y - 16, 96, 96, true);
             g.at("oLevel/step#0", 100);
             { let a = [g.get_on(cx, &obj::oOlmec, v::x)?.sub(&r(16.0))?, g.get_on(cx, &obj::oOlmec, v::y)?.sub(&r(16.0))?, r(96.0), r(96.0), r(1.0)]; b::instance_activate_region(g, cx, a)? };
@@ -277,20 +277,20 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 111: if (global.darkLevel)
     g.at("oLevel/step#0", 111);
-    if g.gget(gv::darkLevel)?.is_truthy() {
+    if g.gget(gv::darkLevel)?.cond(Cond::If)? {
         // 115: dist = 160;
         g.at("oLevel/step#0", 115);
         g.set(cx.this, v::dist, r(160.0))?;
         // 116: if (global.hasCrown)
         g.at("oLevel/step#0", 116);
-        if g.gget(gv::hasCrown)?.is_truthy() {
+        if g.gget(gv::hasCrown)?.cond(Cond::If)? {
             // 116: dist = 0;
             g.at("oLevel/step#0", 116);
             g.set(cx.this, v::dist, r(0.0))?;
         } else {
             // 117: if (instance_exists(oFlare))
             g.at("oLevel/step#0", 117);
-            if b::instance_exists(g, cx, [obj::oFlare])?.is_truthy() {
+            if b::instance_exists(g, cx, [obj::oFlare])?.cond(Cond::If)? {
                 // 119: flare = instance_nearest(oPlayer1.x, oPlayer1.y, oFlare);
                 g.at("oLevel/step#0", 119);
                 {
@@ -350,7 +350,7 @@ pub fn other_5_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 11: if (!global.darkLevel && global.messageTimer > 0)
     g.at("oLevel/draw#0", 11);
-    if and(g.gget(gv::darkLevel)?.not()?.is_truthy(), g.gget(gv::messageTimer)?.gml_gt(&r(0.0))?) {
+    if { let p1 = g.gget(gv::darkLevel)?.not()?; let q2 = g.gget(gv::messageTimer)?.gml_gt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 13: draw_set_font(global.myFontSmall);
         g.at("oLevel/draw#0", 13);
         { let a = [g.gget(gv::myFontSmall)?]; b::draw_set_font(g, cx, a)? };
@@ -377,7 +377,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.bget(v::view_xview, 0)?.add(&g.get(cx.this, v::n)?)?, g.bget(v::view_yview, 0)?.add(&r(216.0))?, { let a = [g.gget(gv::message)?]; b::string(g, cx, a)? }]; b::draw_text(g, cx, a)? };
         // 20: if (!isLevel("rTutorial"))
         g.at("oLevel/draw#0", 20);
-        if scr::isLevel(g, cx, &[s!("rTutorial")])?.not()?.is_truthy() {
+        if scr::isLevel(g, cx, &[s!("rTutorial")])?.not()?.cond(Cond::If)? {
             // 20: draw_set_color(c_yellow);
             g.at("oLevel/draw#0", 20);
             b::draw_set_color(g, cx, [k::c_yellow])?;

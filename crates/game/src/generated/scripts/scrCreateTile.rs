@@ -13,7 +13,7 @@ pub fn scrCreateTile(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 26: if (collision_rectangle(argument1, argument2, argument1 + 15, argument2 + 15, oDrawnSprite, 0, 0))
     g.at("scripts/scrCreateTile", 26);
-    if b::collision_rectangle(g, cx, [cx.arg(1)?, cx.arg(2)?, cx.arg(1)?.add(&r(15.0))?, cx.arg(2)?.add(&r(15.0))?, obj::oDrawnSprite, r(0.0), r(0.0)])?.is_truthy() {
+    if b::collision_rectangle(g, cx, [cx.arg(1)?, cx.arg(2)?, cx.arg(1)?.add(&r(15.0))?, cx.arg(2)?.add(&r(15.0))?, obj::oDrawnSprite, r(0.0), r(0.0)])?.cond(Cond::If)? {
         // 28: obj = instance_position(argument1 + 8, argument2 + 12, oDrawnSprite);
         g.at("scripts/scrCreateTile", 28);
         {
@@ -23,7 +23,7 @@ pub fn scrCreateTile(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 29: if (!obj)
         g.at("scripts/scrCreateTile", 29);
-        if g.get(cx.this, v::obj)?.not()?.is_truthy() {
+        if g.get(cx.this, v::obj)?.not()?.cond(Cond::If)? {
             // 29: obj = instance_position(argument1 + 8, argument2 + 4, oDrawnSprite);
             g.at("scripts/scrCreateTile", 29);
             {
@@ -34,7 +34,7 @@ pub fn scrCreateTile(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 30: if (obj)
         g.at("scripts/scrCreateTile", 30);
-        if g.get(cx.this, v::obj)?.is_truthy() {
+        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
             // 32: with (obj)
             g.at("scripts/scrCreateTile", 32);
             {
@@ -1112,7 +1112,7 @@ pub fn scrCreateTile(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 387: if (obj)
     g.at("scripts/scrCreateTile", 387);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 389: obj.depth = 100;
         g.at("scripts/scrCreateTile", 389);
         {
@@ -1128,7 +1128,7 @@ pub fn scrCreateTile(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrCreateTile", 391);
             {
                 let t = g.get(cx.this, v::obj)?;
-                let old = { let t2 = g.get(cx.this, v::obj)?; g.get_on(cx, &t2, v::depth)? };
+                let old = g.get_on(cx, &t, v::depth)?;
                 let x = lenient(Value::sub, old, &({ let a = [g.bget(v::room_width, 0)?.div(&r(16.0))?]; b::floor(g, cx, a)? }).sub(&b::floor(g, cx, [cx.arg(1)?.div(&r(16.0))?])?)?)?;
                 cx.ret = x.clone();
                 g.set_on(cx, &t, v::depth, x)?;

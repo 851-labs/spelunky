@@ -14,7 +14,7 @@ pub fn scrMoveableSolidRecurseDrop(g: &mut World, cx: &Ctx, args: &[Value]) -> R
     }
     // 3: if (obj)
     g.at("scripts/scrMoveableSolidRecurseDrop", 3);
-    if l_obj.get()?.is_truthy() {
+    if l_obj.get()?.cond(Cond::If)? {
         // 5: with (obj)
         g.at("scripts/scrMoveableSolidRecurseDrop", 5);
         {

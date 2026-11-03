@@ -78,7 +78,7 @@ pub fn scrTestLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         }
                         // 38: if (!obj)
                         g.at("scripts/scrTestLevel", 38);
-                        if g.get(cx.this, v::obj)?.not()?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.not()?.cond(Cond::If)? {
                             // 38: obj = instance_position(16 + i * 16, 16 + j * 16, oEntrance);
                             g.at("scripts/scrTestLevel", 38);
                             {
@@ -89,7 +89,7 @@ pub fn scrTestLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         }
                         // 39: if (obj)
                         g.at("scripts/scrTestLevel", 39);
-                        if g.get(cx.this, v::obj)?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                             // 41: exitNames[exitNamesID] = obj.leadsTo;
                             g.at("scripts/scrTestLevel", 41);
                             {
@@ -120,7 +120,7 @@ pub fn scrTestLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                             // 48: if (obj)
                             g.at("scripts/scrTestLevel", 48);
-                            if g.get(cx.this, v::obj)?.is_truthy() {
+                            if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                                 // 50: signNames[signNamesID] = obj.message;
                                 g.at("scripts/scrTestLevel", 50);
                                 {

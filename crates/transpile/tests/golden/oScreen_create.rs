@@ -60,7 +60,7 @@ pub fn create_a5(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 21: if (screen)
     g.at("oScreen/create#5", 21);
-    if g.get(cx.this, v::screen)?.is_truthy() {
+    if g.get(cx.this, v::screen)?.cond(Cond::If)? {
         // 23: surface_set_target(screen);
         g.at("oScreen/create#5", 23);
         { let a = [g.get(cx.this, v::screen)?]; b::surface_set_target(g, cx, a)? };
@@ -171,10 +171,10 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     create_a0(g, cx)?;
     // #1 action_if(global.fullscreen)
     // #2 action_fullscreen(2)
-    if { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#1", 0); g.gget(gv::fullscreen)?.is_truthy() } { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#2", 0); b::action_fullscreen(g, cx, [r(2.0)])?; }
+    if { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#1", 0); g.gget(gv::fullscreen)?.cond(Cond::If)? } { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#2", 0); b::action_fullscreen(g, cx, [r(2.0)])?; }
     // #3 not action_if(global.fullscreen)
     // #4 action_fullscreen(1)
-    if { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#3", 0); !g.gget(gv::fullscreen)?.is_truthy() } { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#4", 0); b::action_fullscreen(g, cx, [r(1.0)])?; }
+    if { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#3", 0); !g.gget(gv::fullscreen)?.cond(Cond::If)? } { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#4", 0); b::action_fullscreen(g, cx, [r(1.0)])?; }
     if g.pending().is_some() { return Ok(()); } create_a5(g, cx)?;
     Ok(())
 }

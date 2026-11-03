@@ -11,14 +11,14 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::status, r(0.0))?;
     // 3: if (global.isDamsel)
     g.at("oCamel/create#0", 3);
-    if g.gget(gv::isDamsel)?.is_truthy() {
+    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
         // 3: sprite_index = sCamelDamsel;
         g.at("oCamel/create#0", 3);
         g.set(cx.this, v::sprite_index, spr::sCamelDamsel)?;
     } else {
         // 4: if (global.isTunnelMan)
         g.at("oCamel/create#0", 4);
-        if g.gget(gv::isTunnelMan)?.is_truthy() {
+        if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
             // 4: sprite_index = sCamelTunnel;
             g.at("oCamel/create#0", 4);
             g.set(cx.this, v::sprite_index, spr::sCamelTunnel)?;
@@ -64,7 +64,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 19: if (isRoom("rCredits1") && x < -64)
     g.at("oCamel/step#0", 19);
-    if and(scr::isRoom(g, cx, &[s!("rCredits1")])?.is_truthy(), g.get(cx.this, v::x)?.gml_lt(&r(-64.0))?) {
+    if { let p1 = scr::isRoom(g, cx, &[s!("rCredits1")])?; let q2 = g.get(cx.this, v::x)?.gml_lt(&r(-64.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 19: oCredits1.fadeOut = true;
         g.at("oCamel/step#0", 19);
         { let t = obj::oCredits1; g.set_on(cx, &t, v::fadeOut, r(1.0))?; }

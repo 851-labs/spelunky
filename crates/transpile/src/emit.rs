@@ -141,11 +141,13 @@ impl<'a> Emitter<'a> {
         }
     }
 
-    fn cond(&mut self, e: &Expr) -> String {
+    /// `e` as a condition `at` (`Cond::If`, ...): a comparison's result as it is, any other value through
+    /// `Value::cond`, which is an error on a string, as in GM8 (851-3798).
+    fn cond(&mut self, e: &Expr, at: &str) -> String {
         let (code, ty) = self.expr(e);
         match ty {
             Ty::Bool => code,
-            Ty::Value => format!("{}.is_truthy()", recv(code)),
+            Ty::Value => format!("{}.cond(Cond::{at})?", recv(code)),
         }
     }
 
@@ -330,13 +332,31 @@ impl<'a> Emitter<'a> {
                 let f = match op {
                     BinOp::And | BinOp::Or | BinOp::Xor => {
                         // Plain functions on evaluated operands: both sides always run, as in GM8.
-                        let (l, r) = (self.cond(lhs), self.cond(rhs));
-                        let f = match op {
-                            BinOp::And => "and",
-                            BinOp::Or => "or",
-                            _ => "xor",
+                        let (f, at) = match op {
+                            BinOp::And => ("and", "And"),
+                            BinOp::Or => ("or", "Or"),
+                            _ => ("xor", "Xor"),
                         };
-                        return (format!("{f}({l}, {r})"), Ty::Bool);
+                        let (l, r) = (self.expr(lhs), self.expr(rhs));
+                        if let ((l, Ty::Bool), (r, Ty::Bool)) = (&l, &r) {
+                            return (format!("{f}({l}, {r})"), Ty::Bool);
+                        }
+                        // Both operands are values first, and only then is either checked for a string, as GM8
+                        // evaluates both before the operator rejects one (and the oracle, patch 0047): a string on
+                        // the left doesn't keep the right from running.
+                        let (a, b) = (self.fresh("p"), self.fresh("q"));
+                        let check = |name: &str, ty: Ty| match ty {
+                            Ty::Bool => name.to_owned(),
+                            Ty::Value => format!("{name}.cond(Cond::{at})?"),
+                        };
+                        let code = format!(
+                            "{{ let {a} = {}; let {b} = {}; {f}({}, {}) }}",
+                            l.0,
+                            r.0,
+                            check(&a, l.1),
+                            check(&b, r.1)
+                        );
+                        return (code, Ty::Bool);
                     }
                     BinOp::Eq | BinOp::Ne | BinOp::Lt | BinOp::Le | BinOp::Gt | BinOp::Ge => {
                         let (l, r) = (self.value(lhs), self.value(rhs));
@@ -415,14 +435,16 @@ impl<'a> Emitter<'a> {
         };
         let mut pre = Vec::new();
         let unit = self.unit;
-        let base_value = match target.map(|b| &b.kind) {
-            None | Some(ExprKind::Const(Const::Global | Const::SelfKw | Const::Other)) => None,
-            Some(_) => {
-                let t = self.value(target.unwrap());
-                pre.push(format!("let t = {t};"));
-                Some(t)
-            }
-        };
+        // A computed base is bound once, as `t`, for the read and the write.
+        if let Some(base) = target
+            && !matches!(
+                base.kind,
+                ExprKind::Const(Const::Global | Const::SelfKw | Const::Other)
+            )
+        {
+            let t = self.value(base);
+            pre.push(format!("let t = {t};"));
+        }
         let idx = indices.map(|ix| {
             let (i, j) = self.index(ix);
             let mut bind = |s: String, n: &str| {
@@ -504,16 +526,17 @@ impl<'a> Emitter<'a> {
             }
             (_, Some(_)) => {
                 // `obj.x = ...` writes every instance of `obj`; `obj.x += ...` reads the first one. GM8
-                // evaluates the base twice for `op=` (once to read, once to write).
-                let t = base_value.expect("bound above");
+                // evaluates the base once for `op=`, as it does the index (probe `opassign-order`, 851-3798:
+                // `(f()).v += x` calls `f` once; OpenGMK's `make_modify_instruction` evaluates both twice),
+                // so the read and the write both go through the base bound above, `t`.
                 let v = self.var(name);
                 match &idx {
                     None => (
-                        format!("{{ let t2 = {t}; g.get_on(cx, &t2, {v})? }}"),
+                        format!("g.get_on(cx, &t, {v})?"),
                         format!("g.set_on(cx, &t, {v}, {X})?"),
                     ),
                     Some((i, j)) => (
-                        format!("{{ let t2 = {t}; g.get_on_a(cx, &t2, {v}, {i}, {j})? }}"),
+                        format!("g.get_on_a(cx, &t, {v}, {i}, {j})?"),
                         format!("g.set_on_a(cx, &t, {v}, {i}, {j}, {X})?"),
                     ),
                 }
@@ -606,7 +629,10 @@ impl<'a> Emitter<'a> {
                 }
                 self.line(depth, "}");
             }
-            StmtKind::Var(_) | StmtKind::Empty => {}
+            StmtKind::Var(names) => {
+                self.locals.extend(names.iter().map(|n| n.name.clone()));
+            }
+            StmtKind::Empty => {}
             StmtKind::GlobalVar(_) => {
                 // Resolved statically: every `globalvar` name is a global everywhere (see
                 // `docs/design/translation.md`, "Risks and open questions").
@@ -625,7 +651,7 @@ impl<'a> Emitter<'a> {
                 then,
                 otherwise,
             } => {
-                let c = self.cond(cond);
+                let c = self.cond(cond, "If");
                 self.line(depth, &format!("if {c} {{"));
                 self.body(then, depth + 1);
                 if let Some(o) = otherwise {
@@ -635,7 +661,7 @@ impl<'a> Emitter<'a> {
                 self.line(depth, "}");
             }
             StmtKind::While { cond, body } => {
-                let c = self.cond(cond);
+                let c = self.cond(cond, "Loop");
                 let l = self.next_label("while");
                 self.line(depth, &format!("{l}: while {c} {{"));
                 self.scopes.push(Scope::Loop(l));
@@ -662,7 +688,7 @@ impl<'a> Emitter<'a> {
                 self.body(body, depth + 2);
                 self.scopes.pop();
                 self.line(depth + 1, "}");
-                let c = self.cond(cond);
+                let c = self.cond(cond, "Loop");
                 self.line(depth + 1, &format!("if {c} {{ break {l}; }}"));
                 self.line(depth, "}");
             }
@@ -676,14 +702,19 @@ impl<'a> Emitter<'a> {
                 let l = self.next_label("for");
                 let label = self.next_label("body");
                 self.line(depth, &format!("{l}: loop {{"));
-                let c = self.cond(cond);
+                // GM8 reports a `for`'s string condition as an `if`'s (probe `str-for`).
+                let c = self.cond(cond, "If");
                 self.line(depth + 1, &format!("if !({c}) {{ break {l}; }}"));
                 self.line(depth + 1, &format!("{label}: {{"));
                 self.scopes.push(Scope::LoopWithTail(l, label));
+                // The step comes before the body in the source, so a `var` in the body doesn't reach it.
+                let before = self.locals.clone();
                 self.body(body, depth + 2);
+                let after = std::mem::replace(&mut self.locals, before);
                 self.scopes.pop();
                 self.line(depth + 1, "}");
                 self.stmt(step, depth + 1);
+                self.locals = after;
                 self.line(depth, "}");
             }
             StmtKind::With { target, body } => {
@@ -871,8 +902,11 @@ pub fn emit_program(
     fn_name: &str,
     syms: &mut Symbols,
 ) -> String {
+    // Every `var` name gets its storage up front, but is a local only from its `var` statement on, in source
+    // order (`Emitter::stmt`): GM8 compiles a name it meets before then as the instance's (probe
+    // `var-positional`, 851-3798; OpenGMK's compiler adds locals as it reaches the `var`).
     let locals = locals_of(program);
-    let mut e = Emitter::new(src, unit, source, locals.clone(), syms);
+    let mut e = Emitter::new(src, unit, source, BTreeSet::new(), syms);
     e.track_ret = e.is_script && can_end_without_return(&program.body);
     e.line(0, &format!("/// GML: `{unit}`."));
     if e.is_script {
@@ -1057,7 +1091,8 @@ pub fn emit_event(
                 )
             }
             (1, 408) => {
-                let c = format!("{}.is_truthy()", recv(arg(0, syms)));
+                // As an `if` (assumed: probes replace only code, not drag-and-drop actions).
+                let c = format!("{}.cond(Cond::If)?", recv(arg(0, syms)));
                 let c = if action.invert { format!("!{c}") } else { c };
                 // The condition runs before the action it guards, so it records its own location.
                 pending_ifs.push(format!("{{ {stop}{at} {c} }}"));

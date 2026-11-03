@@ -1115,7 +1115,7 @@ pub fn scrStealItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                         }
                                                                         // 214: if (global.hasJetpack)
                                                                         g.at("scripts/scrStealItem", 214);
-                                                                        if g.gget(gv::hasJetpack)?.is_truthy() {
+                                                                        if g.gget(gv::hasJetpack)?.cond(Cond::If)? {
                                                                             // 216: obj = instance_create(x, y, oJetpack);
                                                                             g.at("scripts/scrStealItem", 216);
                                                                             {
@@ -1220,7 +1220,7 @@ pub fn scrStealItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                             }
                                                                             // 233: if (global.hasCape)
                                                                             g.at("scripts/scrStealItem", 233);
-                                                                            if g.gget(gv::hasCape)?.is_truthy() {
+                                                                            if g.gget(gv::hasCape)?.cond(Cond::If)? {
                                                                                 // 235: obj = instance_create(x, y, oCapePickup);
                                                                                 g.at("scripts/scrStealItem", 235);
                                                                                 {

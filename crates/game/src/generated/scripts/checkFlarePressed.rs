@@ -6,7 +6,7 @@ pub fn checkFlarePressed(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.flarePressed)
     g.at("scripts/checkFlarePressed", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::flarePressed)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::flarePressed)?.cond(Cond::If)? {
         // 2: return gamepad.flarePressed;
         g.at("scripts/checkFlarePressed", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::flarePressed)?);

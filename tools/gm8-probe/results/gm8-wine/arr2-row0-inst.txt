@@ -1,0 +1,5 @@
+iv_0_0 = 0000000000000000 0
+iv_plain = 0000000000000000 0
+iv_1d_0 = 0000000000000000 0
+ia_0 = 0000000000000000 0
+# stopped: error dialog "Unknown variable iv or array index out of bounds" at out("iv_2_0", iv[2, 0])

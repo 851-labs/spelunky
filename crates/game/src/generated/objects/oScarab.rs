@@ -102,7 +102,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
         // 6: if (collision_point(x + 8, y + 8, oSolid, 0, 0))
         g.at("oScarab/step#0", 6);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 6: hp = -999;
             g.at("oScarab/step#0", 6);
             g.set(cx.this, v::hp, r(-999.0))?;
@@ -227,28 +227,28 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 47: if (isCollisionRight(1) && xVel > 0)
             g.at("oScarab/step#0", 47);
-            if and(scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))?) {
+            if { let p1 = scr::isCollisionRight(g, cx, &[r(1.0)])?; let q2 = g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
                 // 49: xVel = -xVel;
                 g.at("oScarab/step#0", 49);
                 g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?)?;
             }
             // 51: if (isCollisionLeft(1) && xVel < 0)
             g.at("oScarab/step#0", 51);
-            if and(scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))?) {
+            if { let p3 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q4 = g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))?; and(p3.cond(Cond::And)?, q4) } {
                 // 53: xVel = -xVel;
                 g.at("oScarab/step#0", 53);
                 g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?)?;
             }
             // 55: if (isCollisionTop(1) && yVel < 0)
             g.at("oScarab/step#0", 55);
-            if and(scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?) {
+            if { let p5 = scr::isCollisionTop(g, cx, &[r(1.0)])?; let q6 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; and(p5.cond(Cond::And)?, q6) } {
                 // 57: yVel = -yVel;
                 g.at("oScarab/step#0", 57);
                 g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?)?;
             }
             // 59: if (isCollisionBottom(1) && yVel > 0)
             g.at("oScarab/step#0", 59);
-            if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?) {
+            if { let p7 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q8 = g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?; and(p7.cond(Cond::And)?, q8) } {
                 // 61: yVel = -yVel;
                 g.at("oScarab/step#0", 61);
                 g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?)?;

@@ -1,0 +1,9 @@
+field_base = "b2"
+field_value = 4028000000000000 12
+field_base_index = "b13"
+field_base_index_value = 402a000000000000 13
+local_index = "12"
+local_index_value = 4028000000000000 12
+field_index = "12"
+field_index_value = 4034000000000000 20
+end = "ok"

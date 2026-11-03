@@ -6,7 +6,7 @@ pub fn checkDownPressed(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.downPressed)
     g.at("scripts/checkDownPressed", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::downPressed)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::downPressed)?.cond(Cond::If)? {
         // 2: return gamepad.downPressed;
         g.at("scripts/checkDownPressed", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::downPressed)?);

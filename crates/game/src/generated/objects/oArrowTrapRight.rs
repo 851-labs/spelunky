@@ -28,7 +28,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oArrowTrapRight/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oArrowTrapRight/destroy#0", 3);
         {
@@ -71,7 +71,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!isRoom("rLevelEditor"))
     g.at("oArrowTrapRight/alarm_1#0", 1);
-    if scr::isRoom(g, cx, &[s!("rLevelEditor")])?.not()?.is_truthy() {
+    if scr::isRoom(g, cx, &[s!("rLevelEditor")])?.not()?.cond(Cond::If)? {
         // 4: xAct = x + 16;
         g.at("oArrowTrapRight/alarm_1#0", 4);
         g.set(cx.this, v::xAct, g.get(cx.this, v::x)?.add(&r(16.0))?)?;
@@ -80,7 +80,7 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::n, r(100.0))?;
         // 6: while (!collision_point(xAct, y + 8, oSolid, 0, 0) && n > 0)
         g.at("oArrowTrapRight/alarm_1#0", 6);
-        'while1: while and(({ let a = [g.get(cx.this, v::xAct)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), g.get(cx.this, v::n)?.gml_gt(&r(0.0))?) {
+        'while1: while { let p1 = ({ let a = [g.get(cx.this, v::xAct)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q2 = g.get(cx.this, v::n)?.gml_gt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
             // 8: if (xAct - x > 96)
             g.at("oArrowTrapRight/alarm_1#0", 8);
             if g.get(cx.this, v::xAct)?.sub(&g.get(cx.this, v::x)?)?.gml_gt(&r(96.0))? {

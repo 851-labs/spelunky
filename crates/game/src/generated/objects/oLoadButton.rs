@@ -14,15 +14,15 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (checkStartPressed() || gamepad.attackPressed)
     g.at("oLoadButton/step#0", 1);
-    if or(scr::checkStartPressed(g, cx, &[])?.is_truthy(), g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy()) {
+    if { let p1 = scr::checkStartPressed(g, cx, &[])?; let q2 = g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 3: with (oLoadLevel)
         g.at("oLoadButton/step#0", 3);
         {
             let t = obj::oLoadLevel;
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it3 = g.with_iter(cx, &t)?;
+            let outer5 = (cx.this, cx.other);
+            'with1: while let Some(h4) = it3.next(g) {
+                (cx.this, cx.other) = (h4, outer5.0);
                 // 5: global.firstCustomLevel = levelName;
                 g.at("oLoadButton/step#0", 5);
                 g.gset(gv::firstCustomLevel, g.get(cx.this, v::levelName)?)?;
@@ -30,7 +30,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oLoadButton/step#0", 6);
                 scr::scrLoadLevel(g, cx, &[])?;
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer5;
         }
     }
     Ok(())
@@ -49,15 +49,15 @@ pub fn mouse_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (sprite_index == sLoadButtonPressed && active)
     g.at("oLoadButton/mouse_7#0", 1);
-    if and(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLoadButtonPressed)?, g.get(cx.this, v::active)?.is_truthy()) {
+    if { let p1 = g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLoadButtonPressed)?; let q2 = g.get(cx.this, v::active)?; and(p1, q2.cond(Cond::And)?) } {
         // 3: with (oLoadLevel)
         g.at("oLoadButton/mouse_7#0", 3);
         {
             let t = obj::oLoadLevel;
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it3 = g.with_iter(cx, &t)?;
+            let outer5 = (cx.this, cx.other);
+            'with1: while let Some(h4) = it3.next(g) {
+                (cx.this, cx.other) = (h4, outer5.0);
                 // 5: global.firstCustomLevel = levelName;
                 g.at("oLoadButton/mouse_7#0", 5);
                 g.gset(gv::firstCustomLevel, g.get(cx.this, v::levelName)?)?;
@@ -65,7 +65,7 @@ pub fn mouse_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oLoadButton/mouse_7#0", 6);
                 scr::scrLoadLevel(g, cx, &[])?;
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer5;
         }
     }
     // 9: sprite_index = sLoadButton;

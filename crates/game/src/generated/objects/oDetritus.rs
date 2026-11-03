@@ -59,14 +59,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
     // 12: if (collision_point(x, y - 4, oLava, 0, 0))
     g.at("oDetritus/step#0", 12);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(4.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(4.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 14: instance_destroy();
         g.at("oDetritus/step#0", 14);
         b::instance_destroy(g, cx, [])?;
     }
     // 17: if (bounce)
     g.at("oDetritus/step#0", 17);
-    if g.get(cx.this, v::bounce)?.is_truthy() {
+    if g.get(cx.this, v::bounce)?.cond(Cond::If)? {
         // 19: if (yVel < 6)
         g.at("oDetritus/step#0", 19);
         if g.get(cx.this, v::yVel)?.gml_lt(&r(6.0))? {
@@ -76,21 +76,21 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 24: if (isCollisionTop(1) && yVel < 0)
         g.at("oDetritus/step#0", 24);
-        if and(scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?) {
+        if { let p1 = scr::isCollisionTop(g, cx, &[r(1.0)])?; let q2 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
             // 26: yVel = -yVel * 0.8;
             g.at("oDetritus/step#0", 26);
             g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?.mul(&r(0.8))?)?;
         }
         // 29: if (isCollisionLeft(1) || isCollisionRight(1))
         g.at("oDetritus/step#0", 29);
-        if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy(), scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy()) {
+        if { let p3 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q4 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) } {
             // 31: xVel = -xVel * 0.5;
             g.at("oDetritus/step#0", 31);
             g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?.mul(&r(0.5))?)?;
         }
         // 34: if (isCollisionBottom(1))
         g.at("oDetritus/step#0", 34);
-        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 37: if (yVel > 1)
             g.at("oDetritus/step#0", 37);
             if g.get(cx.this, v::yVel)?.gml_gt(&r(1.0))? {

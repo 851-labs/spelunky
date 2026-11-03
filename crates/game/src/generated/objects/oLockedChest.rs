@@ -29,7 +29,7 @@ pub fn collision_oKey_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (other.held && sprite_index == sLockedChest)
     g.at("oLockedChest/collision_oKey#0", 1);
-    if and(g.get(cx.other, v::held)?.is_truthy(), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLockedChest)?) {
+    if { let p1 = g.get(cx.other, v::held)?; let q2 = g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLockedChest)?; and(p1.cond(Cond::And)?, q2) } {
         // 3: other.held = false;
         g.at("oLockedChest/collision_oKey#0", 3);
         g.set(cx.other, v::held, r(0.0))?;
@@ -37,10 +37,10 @@ pub fn collision_oKey_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oLockedChest/collision_oKey#0", 4);
         {
             let t = obj::oPlayer1;
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it3 = g.with_iter(cx, &t)?;
+            let outer5 = (cx.this, cx.other);
+            'with1: while let Some(h4) = it3.next(g) {
+                (cx.this, cx.other) = (h4, outer5.0);
                 // 6: holdItem = 0;
                 g.at("oLockedChest/collision_oKey#0", 6);
                 g.set(cx.this, v::holdItem, r(0.0))?;
@@ -48,21 +48,21 @@ pub fn collision_oKey_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oLockedChest/collision_oKey#0", 7);
                 g.set(cx.this, v::pickupItemType, s!(""))?;
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer5;
         }
         // 9: with (other)
         g.at("oLockedChest/collision_oKey#0", 9);
         {
             let t = r(-2.0);
-            let mut it4 = g.with_iter(cx, &t)?;
-            let outer6 = (cx.this, cx.other);
-            'with2: while let Some(h5) = it4.next(g) {
-                (cx.this, cx.other) = (h5, outer6.0);
+            let mut it6 = g.with_iter(cx, &t)?;
+            let outer8 = (cx.this, cx.other);
+            'with2: while let Some(h7) = it6.next(g) {
+                (cx.this, cx.other) = (h7, outer8.0);
                 // 9: instance_destroy();
                 g.at("oLockedChest/collision_oKey#0", 9);
                 b::instance_destroy(g, cx, [])?;
             }
-            (cx.this, cx.other) = outer6;
+            (cx.this, cx.other) = outer8;
         }
         // 11: sprite_index = sLockedChestOpen;
         g.at("oLockedChest/collision_oKey#0", 11);
@@ -96,15 +96,15 @@ pub fn collision_oKey_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oLockedChest/collision_oKey#0", 17);
         {
             let t = g.get(cx.this, v::obj)?;
-            let mut it7 = g.with_iter(cx, &t)?;
-            let outer9 = (cx.this, cx.other);
-            'with3: while let Some(h8) = it7.next(g) {
-                (cx.this, cx.other) = (h8, outer9.0);
+            let mut it9 = g.with_iter(cx, &t)?;
+            let outer11 = (cx.this, cx.other);
+            'with3: while let Some(h10) = it9.next(g) {
+                (cx.this, cx.other) = (h10, outer11.0);
                 // 17: xVel = -0.4;
                 g.at("oLockedChest/collision_oKey#0", 17);
                 g.set(cx.this, v::xVel, r(-0.4))?;
             }
-            (cx.this, cx.other) = outer9;
+            (cx.this, cx.other) = outer11;
         }
         // 18: obj = instance_create(x, y, oPoof);
         g.at("oLockedChest/collision_oKey#0", 18);
@@ -116,15 +116,15 @@ pub fn collision_oKey_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oLockedChest/collision_oKey#0", 19);
         {
             let t = g.get(cx.this, v::obj)?;
-            let mut it10 = g.with_iter(cx, &t)?;
-            let outer12 = (cx.this, cx.other);
-            'with4: while let Some(h11) = it10.next(g) {
-                (cx.this, cx.other) = (h11, outer12.0);
+            let mut it12 = g.with_iter(cx, &t)?;
+            let outer14 = (cx.this, cx.other);
+            'with4: while let Some(h13) = it12.next(g) {
+                (cx.this, cx.other) = (h13, outer14.0);
                 // 19: xVel = 0.4;
                 g.at("oLockedChest/collision_oKey#0", 19);
                 g.set(cx.this, v::xVel, r(0.4))?;
             }
-            (cx.this, cx.other) = outer12;
+            (cx.this, cx.other) = outer14;
         }
         // 20: instance_destroy();
         g.at("oLockedChest/collision_oKey#0", 20);

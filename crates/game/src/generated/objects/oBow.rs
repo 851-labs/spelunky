@@ -34,7 +34,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (held)
     g.at("oBow/step#1", 1);
-    if g.get(cx.this, v::held)?.is_truthy() {
+    if g.get(cx.this, v::held)?.cond(Cond::If)? {
         // 3: if (oPlayer1.facing == 18)
         g.at("oBow/step#1", 3);
         if g.get_on(cx, &obj::oPlayer1, v::facing)?.gml_eq(&r(18.0))? {

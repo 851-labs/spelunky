@@ -6,7 +6,7 @@ pub fn checkJumpPressed(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.jumpPressed)
     g.at("scripts/checkJumpPressed", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::jumpPressed)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::jumpPressed)?.cond(Cond::If)? {
         // 2: return gamepad.jumpPressed;
         g.at("scripts/checkJumpPressed", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::jumpPressed)?);

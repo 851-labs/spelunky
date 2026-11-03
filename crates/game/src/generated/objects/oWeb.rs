@@ -19,7 +19,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::image_alpha, g.get(cx.this, v::life)?.div(&r(12.0))?)?;
     // 2: if (dying)
     g.at("oWeb/step#0", 2);
-    if g.get(cx.this, v::dying)?.is_truthy() {
+    if g.get(cx.this, v::dying)?.cond(Cond::If)? {
         // 2: life -= 0.02;
         g.at("oWeb/step#0", 2);
         g.set(cx.this, v::life, lenient(Value::sub, g.get(cx.this, v::life)?, &r(0.02))?)?;
@@ -71,7 +71,7 @@ pub fn collision_oLaser_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!other.held && other.type != "Rope")
     g.at("oWeb/collision_oItem#0", 1);
-    if and(g.get(cx.other, v::held)?.not()?.is_truthy(), g.get(cx.other, v::r#type)?.gml_ne(&s!("Rope"))?) {
+    if { let p1 = g.get(cx.other, v::held)?.not()?; let q2 = g.get(cx.other, v::r#type)?.gml_ne(&s!("Rope"))?; and(p1.cond(Cond::And)?, q2) } {
         // 3: other.xVel = 0;
         g.at("oWeb/collision_oItem#0", 3);
         g.set(cx.other, v::xVel, r(0.0))?;

@@ -56,7 +56,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::time, r(1.0))?;
     // 25: if (global.gameStart)
     g.at("oGame/create#1", 25);
-    if g.gget(gv::gameStart)?.is_truthy() {
+    if g.gget(gv::gameStart)?.cond(Cond::If)? {
         // 25: scrInitLevel();
         g.at("oGame/create#1", 25);
         scr::scrInitLevel(g, cx, &[])?;
@@ -71,10 +71,10 @@ pub fn alarm_2_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.gset(gv::udjatBlink, g.gget(gv::udjatBlink)?.not()?)?;
     // 3: if (global.hasUdjatEye)
     g.at("oGame/alarm_2#0", 3);
-    if g.gget(gv::hasUdjatEye)?.is_truthy() {
+    if g.gget(gv::hasUdjatEye)?.cond(Cond::If)? {
         // 5: if (global.udjatBlink)
         g.at("oGame/alarm_2#0", 5);
-        if g.gget(gv::udjatBlink)?.is_truthy() {
+        if g.gget(gv::udjatBlink)?.cond(Cond::If)? {
             // 6: playSound(global.sndBlink1);
             g.at("oGame/alarm_2#0", 6);
             { let a = [g.gget(gv::sndBlink1)?]; scr::playSound(g, cx, &a)? };
@@ -119,7 +119,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!instance_exists(oXMarket))
     g.at("oGame/step#1", 1);
-    if b::instance_exists(g, cx, [obj::oXMarket])?.not()?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oXMarket])?.not()?.cond(Cond::If)? {
         // 1: global.udjatBlink = false;
         g.at("oGame/step#1", 1);
         g.gset(gv::udjatBlink, r(0.0))?;
@@ -155,10 +155,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 12: if (global.gameStart && instance_exists(oCharacter) && isLevel())
     g.at("oGame/step#1", 12);
-    if and(and(g.gget(gv::gameStart)?.is_truthy(), b::instance_exists(g, cx, [obj::oCharacter])?.is_truthy()), scr::isLevel(g, cx, &[])?.is_truthy()) {
+    if { let p6 = { let p4 = g.gget(gv::gameStart)?; let q5 = b::instance_exists(g, cx, [obj::oCharacter])?; and(p4.cond(Cond::And)?, q5.cond(Cond::And)?) }; let q7 = scr::isLevel(g, cx, &[])?; and(p6, q7.cond(Cond::And)?) } {
         // 14: if (!oCharacter.dead)
         g.at("oGame/step#1", 14);
-        if g.get_on(cx, &obj::oCharacter, v::dead)?.not()?.is_truthy() {
+        if g.get_on(cx, &obj::oCharacter, v::dead)?.not()?.cond(Cond::If)? {
             // 16: global.time += room_speed;
             g.at("oGame/step#1", 16);
             g.gset(gv::time, lenient(Value::add, g.gget(gv::time)?, &g.bget(v::room_speed, 0)?)?)?;
@@ -169,13 +169,13 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 22: if (instance_exists(oPlayer1))
     g.at("oGame/step#1", 22);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 24: if (isLevel() && !isRoom("rOlmec") && !isRoom("rLoadLevel") && global.currLevel > 1 && !global.hasCr
         g.at("oGame/step#1", 24);
-        if and(and(and(and(and(and(and(scr::isLevel(g, cx, &[])?.is_truthy(), scr::isRoom(g, cx, &[s!("rOlmec")])?.not()?.is_truthy()), scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.is_truthy()), g.gget(gv::currLevel)?.gml_gt(&r(1.0))?), g.gget(gv::hasCrown)?.not()?.is_truthy()), g.gget(gv::xtime)?.gml_gt(&r(120000.0))?), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_ne(&spr::sDamselExit)?) {
+        if and(and(and({ let p12 = and({ let p10 = { let p8 = scr::isLevel(g, cx, &[])?; let q9 = scr::isRoom(g, cx, &[s!("rOlmec")])?.not()?; and(p8.cond(Cond::And)?, q9.cond(Cond::And)?) }; let q11 = scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?; and(p10, q11.cond(Cond::And)?) }, g.gget(gv::currLevel)?.gml_gt(&r(1.0))?); let q13 = g.gget(gv::hasCrown)?.not()?; and(p12, q13.cond(Cond::And)?) }, g.gget(gv::xtime)?.gml_gt(&r(120000.0))?), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_ne(&spr::sDamselExit)?) {
             // 28: if (!oLevel.musicFade)
             g.at("oGame/step#1", 28);
-            if g.get_on(cx, &obj::oLevel, v::musicFade)?.not()?.is_truthy() {
+            if g.get_on(cx, &obj::oLevel, v::musicFade)?.not()?.cond(Cond::If)? {
                 // 30: oLevel.musicFade = true;
                 g.at("oGame/step#1", 30);
                 { let t = obj::oLevel; g.set_on(cx, &t, v::musicFade, r(1.0))?; }
@@ -192,7 +192,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 37: if (isLevel() && !isRoom("rOlmec") && !isRoom("rLoadLevel") && global.currLevel > 1 && !global.hasCr
         g.at("oGame/step#1", 37);
-        if and(and(and(and(and(and(and(and(scr::isLevel(g, cx, &[])?.is_truthy(), scr::isRoom(g, cx, &[s!("rOlmec")])?.not()?.is_truthy()), scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.is_truthy()), g.gget(gv::currLevel)?.gml_gt(&r(1.0))?), g.gget(gv::hasCrown)?.not()?.is_truthy()), g.gget(gv::xtime)?.gml_gt(&r(150000.0))?), g.gget(gv::ghostExists)?.not()?.is_truthy()), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_ne(&spr::sDamselExit)?) {
+        if and(and({ let p20 = and({ let p18 = and({ let p16 = { let p14 = scr::isLevel(g, cx, &[])?; let q15 = scr::isRoom(g, cx, &[s!("rOlmec")])?.not()?; and(p14.cond(Cond::And)?, q15.cond(Cond::And)?) }; let q17 = scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?; and(p16, q17.cond(Cond::And)?) }, g.gget(gv::currLevel)?.gml_gt(&r(1.0))?); let q19 = g.gget(gv::hasCrown)?.not()?; and(p18, q19.cond(Cond::And)?) }, g.gget(gv::xtime)?.gml_gt(&r(150000.0))?); let q21 = g.gget(gv::ghostExists)?.not()?; and(p20, q21.cond(Cond::And)?) }, g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_ne(&spr::sDamselExit)?) {
             // 41: if (oPlayer1.x > room_width / 2)
             g.at("oGame/step#1", 41);
             if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.bget(v::room_width, 0)?.div(&r(2.0))?)? {
@@ -211,7 +211,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 47: if (global.checkWater)
     g.at("oGame/step#1", 47);
-    if g.gget(gv::checkWater)?.is_truthy() {
+    if g.gget(gv::checkWater)?.cond(Cond::If)? {
         // 49: global.waterCounter = 0;
         g.at("oGame/step#1", 49);
         g.gset(gv::waterCounter, r(0.0))?;
@@ -219,22 +219,22 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oGame/step#1", 50);
         {
             let t = obj::oWater;
-            let mut it4 = g.with_iter(cx, &t)?;
-            let outer6 = (cx.this, cx.other);
-            'with2: while let Some(h5) = it4.next(g) {
-                (cx.this, cx.other) = (h5, outer6.0);
+            let mut it22 = g.with_iter(cx, &t)?;
+            let outer24 = (cx.this, cx.other);
+            'with2: while let Some(h23) = it22.next(g) {
+                (cx.this, cx.other) = (h23, outer24.0);
                 // 53: if (!isRoom("rOlmec"))
                 g.at("oGame/step#1", 53);
-                if scr::isRoom(g, cx, &[s!("rOlmec")])?.not()?.is_truthy() {
+                if scr::isRoom(g, cx, &[s!("rOlmec")])?.not()?.cond(Cond::If)? {
                     // 55: if (!isRoom("rLoadLevel") && y < 512 || isRoom("rLoadLevel"))
                     g.at("oGame/step#1", 55);
-                    if or(and(scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.is_truthy(), g.get(cx.this, v::y)?.gml_lt(&r(512.0))?), scr::isRoom(g, cx, &[s!("rLoadLevel")])?.is_truthy()) {
+                    if { let p27 = { let p25 = scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?; let q26 = g.get(cx.this, v::y)?.gml_lt(&r(512.0))?; and(p25.cond(Cond::And)?, q26) }; let q28 = scr::isRoom(g, cx, &[s!("rLoadLevel")])?; or(p27, q28.cond(Cond::Or)?) } {
                         // 58: instance_activate_region(x - 16, y - 16, 48, 48, true);
                         g.at("oGame/step#1", 58);
                         { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, r(48.0), r(48.0), r(1.0)]; b::instance_activate_region(g, cx, a)? };
                         // 60: if (!collision_point(x, y - 16, oSolid, 0, 0) && !collision_point(x, y - 16, oWater, 0, 0))
                         g.at("oGame/step#1", 60);
-                        if and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                        if { let p29 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q30 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p29.cond(Cond::And)?, q30.cond(Cond::And)?) } {
                             // 62: if (type == "Lava")
                             g.at("oGame/step#1", 62);
                             if g.get(cx.this, v::r#type)?.gml_eq(&s!("Lava"))? {
@@ -255,7 +255,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 67: if (instance_exists(obj))
                         g.at("oGame/step#1", 67);
-                        if ({ let a = [g.get(cx.this, v::obj)?]; b::instance_exists(g, cx, a)? }).is_truthy() {
+                        if ({ let a = [g.get(cx.this, v::obj)?]; b::instance_exists(g, cx, a)? }).cond(Cond::If)? {
                             // 69: if (obj.sprite_index == sWaterTop || obj.sprite_index == sLavaTop)
                             g.at("oGame/step#1", 69);
                             if or(g.get_on(cx, &g.get(cx.this, v::obj)?, v::sprite_index)?.gml_eq(&spr::sWaterTop)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::sprite_index)?.gml_eq(&spr::sLavaTop)?) {
@@ -280,7 +280,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 77: if (instance_exists(obj))
                         g.at("oGame/step#1", 77);
-                        if ({ let a = [g.get(cx.this, v::obj)?]; b::instance_exists(g, cx, a)? }).is_truthy() {
+                        if ({ let a = [g.get(cx.this, v::obj)?]; b::instance_exists(g, cx, a)? }).cond(Cond::If)? {
                             // 79: if (obj.sprite_index == sWaterTop || obj.sprite_index == sLavaTop)
                             g.at("oGame/step#1", 79);
                             if or(g.get_on(cx, &g.get(cx.this, v::obj)?, v::sprite_index)?.gml_eq(&spr::sWaterTop)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::sprite_index)?.gml_eq(&spr::sLavaTop)?) {
@@ -299,7 +299,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 86: if (!collision_point(x - 16, y, oSolid, 0, 0) && !collision_point(x - 16, y, oWater, 0, 0) || (!coll
                         g.at("oGame/step#1", 86);
-                        if or(or(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), and(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy())), and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy())) {
+                        if or(or({ let p31 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q32 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p31.cond(Cond::And)?, q32.cond(Cond::And)?) }, { let p33 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q34 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p33.cond(Cond::And)?, q34.cond(Cond::And)?) }), { let p35 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q36 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p35.cond(Cond::And)?, q36.cond(Cond::And)?) }) {
                             // 90: instance_destroy();
                             g.at("oGame/step#1", 90);
                             b::instance_destroy(g, cx, [])?;
@@ -320,7 +320,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                 }
             }
-            (cx.this, cx.other) = outer6;
+            (cx.this, cx.other) = outer24;
         }
         // 101: if (global.waterCounter == 0)
         g.at("oGame/step#1", 101);
@@ -336,10 +336,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 109: if (instance_exists(oPlayer1))
     g.at("oGame/step#1", 109);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 111: if (oPlayer1.dead)
         g.at("oGame/step#1", 111);
-        if g.get_on(cx, &obj::oPlayer1, v::dead)?.is_truthy() {
+        if g.get_on(cx, &obj::oPlayer1, v::dead)?.cond(Cond::If)? {
             // 113: if (drawStatus == 0)
             g.at("oGame/step#1", 113);
             if g.get(cx.this, v::drawStatus)?.gml_eq(&r(0.0))? {
@@ -385,13 +385,13 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (instance_exists(oPlayer1))
     g.at("oGame/draw#0", 1);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 3: if (oPlayer1.dead || isRoom("rMoon"))
         g.at("oGame/draw#0", 3);
-        if or(g.get_on(cx, &obj::oPlayer1, v::dead)?.is_truthy(), scr::isRoom(g, cx, &[s!("rMoon")])?.is_truthy()) {
+        if { let p1 = g.get_on(cx, &obj::oPlayer1, v::dead)?; let q2 = scr::isRoom(g, cx, &[s!("rMoon")])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
             // 5: if (isLevel())
             g.at("oGame/draw#0", 5);
-            if scr::isLevel(g, cx, &[])?.is_truthy() {
+            if scr::isLevel(g, cx, &[])?.cond(Cond::If)? {
                 // 7: if (drawStatus > 0)
                 g.at("oGame/draw#0", 7);
                 if g.get(cx.this, v::drawStatus)?.gml_gt(&r(0.0))? {
@@ -438,13 +438,13 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     b::draw_set_color(g, cx, [k::c_yellow])?;
                     // 27: if (global.customLevel)
                     g.at("oGame/draw#0", 27);
-                    if g.gget(gv::customLevel)?.is_truthy() {
+                    if g.gget(gv::customLevel)?.cond(Cond::If)? {
                         // 29: if (global.testLevel != "")
                         g.at("oGame/draw#0", 29);
                         if g.gget(gv::testLevel)?.gml_ne(&s!(""))? {
                             // 31: if (global.gamepadOn)
                             g.at("oGame/draw#0", 31);
-                            if g.gget(gv::gamepadOn)?.is_truthy() {
+                            if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                 // 31: str = "PRESS " + scrGetJoy(global.joyAttackVal) + " TO EDIT LEVEL.";
                                 g.at("oGame/draw#0", 31);
                                 {
@@ -462,7 +462,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         } else {
                             // 36: if (global.gamepadOn)
                             g.at("oGame/draw#0", 36);
-                            if g.gget(gv::gamepadOn)?.is_truthy() {
+                            if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                 // 36: str = "PRESS " + scrGetJoy(global.joyAttackVal) + " TO LOAD ANOTHER LEVEL.";
                                 g.at("oGame/draw#0", 36);
                                 {
@@ -499,7 +499,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     } else {
                         // 46: if (global.gamepadOn)
                         g.at("oGame/draw#0", 46);
-                        if g.gget(gv::gamepadOn)?.is_truthy() {
+                        if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                             // 46: str = "PRESS " + scrGetJoy(global.joyAttackVal) + " FOR HIGH SCORES.";
                             g.at("oGame/draw#0", 46);
                             {
@@ -537,7 +537,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 55: if (isRoom("rSun"))
                 g.at("oGame/draw#0", 55);
-                if scr::isRoom(g, cx, &[s!("rSun")])?.is_truthy() {
+                if scr::isRoom(g, cx, &[s!("rSun")])?.cond(Cond::If)? {
                     // 57: if (drawStatus > 0)
                     g.at("oGame/draw#0", 57);
                     if g.get(cx.this, v::drawStatus)?.gml_gt(&r(0.0))? {
@@ -562,7 +562,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         b::draw_set_color(g, cx, [k::c_yellow])?;
                         // 67: if (oSunRoom.highscore)
                         g.at("oGame/draw#0", 67);
-                        if g.get_on(cx, &obj::oSunRoom, v::highscore)?.is_truthy() {
+                        if g.get_on(cx, &obj::oSunRoom, v::highscore)?.cond(Cond::If)? {
                             // 67: str = "YOU SET A NEW RECORD!";
                             g.at("oGame/draw#0", 67);
                             g.set(cx.this, v::str, s!("YOU SET A NEW RECORD!"))?;
@@ -593,7 +593,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 } else {
                     // 75: if (isRoom("rMoon"))
                     g.at("oGame/draw#0", 75);
-                    if scr::isRoom(g, cx, &[s!("rMoon")])?.is_truthy() {
+                    if scr::isRoom(g, cx, &[s!("rMoon")])?.cond(Cond::If)? {
                         // 77: if (oMoonRoom.timer < 0)
                         g.at("oGame/draw#0", 77);
                         if g.get_on(cx, &obj::oMoonRoom, v::timer)?.gml_lt(&r(0.0))? {
@@ -621,7 +621,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 b::draw_set_color(g, cx, [k::c_yellow])?;
                                 // 89: if (oMoonRoom.highscore)
                                 g.at("oGame/draw#0", 89);
-                                if g.get_on(cx, &obj::oMoonRoom, v::highscore)?.is_truthy() {
+                                if g.get_on(cx, &obj::oMoonRoom, v::highscore)?.cond(Cond::If)? {
                                     // 89: str = "YOU SET A NEW RECORD!";
                                     g.at("oGame/draw#0", 89);
                                     g.set(cx.this, v::str, s!("YOU SET A NEW RECORD!"))?;
@@ -653,7 +653,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     } else {
                         // 98: if (isRoom("rStars"))
                         g.at("oGame/draw#0", 98);
-                        if scr::isRoom(g, cx, &[s!("rStars")])?.is_truthy() {
+                        if scr::isRoom(g, cx, &[s!("rStars")])?.cond(Cond::If)? {
                             // 100: if (drawStatus > 0)
                             g.at("oGame/draw#0", 100);
                             if g.get(cx.this, v::drawStatus)?.gml_gt(&r(0.0))? {
@@ -678,7 +678,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 b::draw_set_color(g, cx, [k::c_yellow])?;
                                 // 110: if (oStarsRoom.highscore)
                                 g.at("oGame/draw#0", 110);
-                                if g.get_on(cx, &obj::oStarsRoom, v::highscore)?.is_truthy() {
+                                if g.get_on(cx, &obj::oStarsRoom, v::highscore)?.cond(Cond::If)? {
                                     // 110: str = "YOU SET A NEW RECORD!";
                                     g.at("oGame/draw#0", 110);
                                     g.set(cx.this, v::str, s!("YOU SET A NEW RECORD!"))?;
@@ -719,7 +719,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn draw_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 4: if (false && room == rLevel)
     g.at("oGame/draw#2", 4);
-    if and(r(0.0).is_truthy(), g.bget(v::room, 0)?.gml_eq(&rm::rLevel)?) {
+    if { let p1 = r(0.0); let q2 = g.bget(v::room, 0)?.gml_eq(&rm::rLevel)?; and(p1.cond(Cond::And)?, q2) } {
         // 6: for (...; j < 4; ...)
         g.at("oGame/draw#2", 6);
         // 6: j = 0;
@@ -752,13 +752,13 @@ pub fn draw_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 15: if (false && instance_exists(oPlayer1))
     g.at("oGame/draw#2", 15);
-    if and(r(0.0).is_truthy(), b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy()) {
+    if { let p3 = r(0.0); let q4 = b::instance_exists(g, cx, [obj::oPlayer1])?; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) } {
         // 17: file = file_text_open_read("stats.txt");
         g.at("oGame/draw#2", 17);
         { let x = b::file_text_open_read(g, cx, [s!("stats.txt")])?; g.set(cx.this, v::file, x)?; }
         // 19: if (file)
         g.at("oGame/draw#2", 19);
-        if g.get(cx.this, v::file)?.is_truthy() {
+        if g.get(cx.this, v::file)?.cond(Cond::If)? {
             // 21: file_text_readln(file);
             g.at("oGame/draw#2", 21);
             { let a = [g.get(cx.this, v::file)?]; b::file_text_readln(g, cx, a)? };
@@ -805,7 +805,7 @@ pub fn draw_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 39: if (false && instance_exists(oPlayer1))
     g.at("oGame/draw#2", 39);
-    if and(r(0.0).is_truthy(), b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy()) {
+    if { let p5 = r(0.0); let q6 = b::instance_exists(g, cx, [obj::oPlayer1])?; and(p5.cond(Cond::And)?, q6.cond(Cond::And)?) } {
         // 41: draw_set_font(global.myFontSmall);
         g.at("oGame/draw#2", 41);
         { let a = [g.gget(gv::myFontSmall)?]; b::draw_set_font(g, cx, a)? };
@@ -823,7 +823,7 @@ pub fn draw_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn draw_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 5: if (false && room == rLevel && instance_exists(oXMarket))
     g.at("oGame/draw#4", 5);
-    if and(and(r(0.0).is_truthy(), g.bget(v::room, 0)?.gml_eq(&rm::rLevel)?), b::instance_exists(g, cx, [obj::oXMarket])?.is_truthy()) {
+    if { let p3 = { let p1 = r(0.0); let q2 = g.bget(v::room, 0)?.gml_eq(&rm::rLevel)?; and(p1.cond(Cond::And)?, q2) }; let q4 = b::instance_exists(g, cx, [obj::oXMarket])?; and(p3, q4.cond(Cond::And)?) } {
         // 7: draw_text(oPlayer1.x - 24, oPlayer1.y - 48, string(oPlayer1.x - oXMarket.x));
         g.at("oGame/draw#4", 7);
         { let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&r(24.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&r(48.0))?, { let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get_on(cx, &obj::oXMarket, v::x)?)?]; b::string(g, cx, a)? }]; b::draw_text(g, cx, a)? };
@@ -838,7 +838,7 @@ pub fn draw_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn keypress_77_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (global.music)
     g.at("oGame/keypress_77#0", 1);
-    if g.gget(gv::music)?.is_truthy() {
+    if g.gget(gv::music)?.cond(Cond::If)? {
         // 3: global.music = false;
         g.at("oGame/keypress_77#0", 3);
         g.gset(gv::music, r(0.0))?;
@@ -851,7 +851,7 @@ pub fn keypress_77_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.gset(gv::music, r(1.0))?;
         // 9: if (isLevel())
         g.at("oGame/keypress_77#0", 9);
-        if scr::isLevel(g, cx, &[])?.is_truthy() {
+        if scr::isLevel(g, cx, &[])?.cond(Cond::If)? {
             // 11: if (global.levelType == 1)
             g.at("oGame/keypress_77#0", 11);
             if g.gget(gv::levelType)?.gml_eq(&r(1.0))? {
@@ -875,10 +875,10 @@ pub fn keypress_77_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     } else {
                         // 14: if (isRoom("rOlmec"))
                         g.at("oGame/keypress_77#0", 14);
-                        if scr::isRoom(g, cx, &[s!("rOlmec")])?.is_truthy() {
+                        if scr::isRoom(g, cx, &[s!("rOlmec")])?.cond(Cond::If)? {
                             // 16: if (oPlayer1.active)
                             g.at("oGame/keypress_77#0", 16);
-                            if g.get_on(cx, &obj::oPlayer1, v::active)?.is_truthy() {
+                            if g.get_on(cx, &obj::oPlayer1, v::active)?.cond(Cond::If)? {
                                 // 17: playMusic(global.musBoss, true);
                                 g.at("oGame/keypress_77#0", 17);
                                 { let a = [g.gget(gv::musBoss)?, r(1.0)]; scr::playMusic(g, cx, &a)? };
@@ -894,7 +894,7 @@ pub fn keypress_77_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 21: if (isRoom("rTitle"))
             g.at("oGame/keypress_77#0", 21);
-            if scr::isRoom(g, cx, &[s!("rTitle")])?.is_truthy() {
+            if scr::isRoom(g, cx, &[s!("rTitle")])?.cond(Cond::If)? {
                 // 21: playMusic(global.musTitle, true);
                 g.at("oGame/keypress_77#0", 21);
                 { let a = [g.gget(gv::musTitle)?, r(1.0)]; scr::playMusic(g, cx, &a)? };

@@ -38,14 +38,14 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::facing, g.get(cx.this, v::LEFT)?)?;
     // 17: if (global.isDamsel)
     g.at("oPDummy2/create#1", 17);
-    if g.gget(gv::isDamsel)?.is_truthy() {
+    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
         // 17: sprite_index = sDamselRunL;
         g.at("oPDummy2/create#1", 17);
         g.set(cx.this, v::sprite_index, spr::sDamselRunL)?;
     } else {
         // 18: if (global.isTunnelMan)
         g.at("oPDummy2/create#1", 18);
-        if g.gget(gv::isTunnelMan)?.is_truthy() {
+        if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
             // 18: sprite_index = sTunnelRunL;
             g.at("oPDummy2/create#1", 18);
             g.set(cx.this, v::sprite_index, spr::sTunnelRunL)?;
@@ -84,14 +84,14 @@ pub fn alarm_2_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (global.isDamsel)
     g.at("oPDummy2/alarm_1#0", 1);
-    if g.gget(gv::isDamsel)?.is_truthy() {
+    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
         // 1: sprite_index = sDamselLeft;
         g.at("oPDummy2/alarm_1#0", 1);
         g.set(cx.this, v::sprite_index, spr::sDamselLeft)?;
     } else {
         // 2: if (global.isTunnelMan)
         g.at("oPDummy2/alarm_1#0", 2);
-        if g.gget(gv::isTunnelMan)?.is_truthy() {
+        if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
             // 2: sprite_index = sTunnelLeft;
             g.at("oPDummy2/alarm_1#0", 2);
             g.set(cx.this, v::sprite_index, spr::sTunnelLeft)?;
@@ -129,14 +129,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::DROP)?)? {
         // 6: if (global.isDamsel)
         g.at("oPDummy2/step#0", 6);
-        if g.gget(gv::isDamsel)?.is_truthy() {
+        if g.gget(gv::isDamsel)?.cond(Cond::If)? {
             // 6: sprite_index = sDamselFallL;
             g.at("oPDummy2/step#0", 6);
             g.set(cx.this, v::sprite_index, spr::sDamselFallL)?;
         } else {
             // 7: if (global.isTunnelMan)
             g.at("oPDummy2/step#0", 7);
-            if g.gget(gv::isTunnelMan)?.is_truthy() {
+            if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
                 // 7: sprite_index = sTunnelFallL;
                 g.at("oPDummy2/step#0", 7);
                 g.set(cx.this, v::sprite_index, spr::sTunnelFallL)?;
@@ -151,7 +151,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::yVel, r(6.0))?;
         // 10: if (collision_point(x, y + 9, oDesert2, 0, 0))
         g.at("oPDummy2/step#0", 10);
-        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oDesert2, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oDesert2, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 12: yVel = 0;
             g.at("oPDummy2/step#0", 12);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -160,14 +160,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0))?)?;
             // 14: if (global.isDamsel)
             g.at("oPDummy2/step#0", 14);
-            if g.gget(gv::isDamsel)?.is_truthy() {
+            if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                 // 14: sprite_index = sDamselStunL;
                 g.at("oPDummy2/step#0", 14);
                 g.set(cx.this, v::sprite_index, spr::sDamselStunL)?;
             } else {
                 // 15: if (global.isTunnelMan)
                 g.at("oPDummy2/step#0", 15);
-                if g.gget(gv::isTunnelMan)?.is_truthy() {
+                if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
                     // 15: sprite_index = sTunnelStunL;
                     g.at("oPDummy2/step#0", 15);
                     g.set(cx.this, v::sprite_index, spr::sTunnelStunL)?;
@@ -246,7 +246,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 33: if (treasure)
                 g.at("oPDummy2/step#0", 33);
-                if g.get(cx.this, v::treasure)?.is_truthy() {
+                if g.get(cx.this, v::treasure)?.cond(Cond::If)? {
                     // 35: if (treasure.yVel == 0)
                     g.at("oPDummy2/step#0", 35);
                     if g.get_on(cx, &g.get(cx.this, v::treasure)?, v::yVel)?.gml_eq(&r(0.0))? {
@@ -264,14 +264,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::JUMPING)?)? {
                     // 44: if (global.isDamsel)
                     g.at("oPDummy2/step#0", 44);
-                    if g.gget(gv::isDamsel)?.is_truthy() {
+                    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                         // 44: sprite_index = sDamselDieLR;
                         g.at("oPDummy2/step#0", 44);
                         g.set(cx.this, v::sprite_index, spr::sDamselDieLR)?;
                     } else {
                         // 45: if (global.isTunnelMan)
                         g.at("oPDummy2/step#0", 45);
-                        if g.gget(gv::isTunnelMan)?.is_truthy() {
+                        if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
                             // 45: sprite_index = sTunnelDieLR;
                             g.at("oPDummy2/step#0", 45);
                             g.set(cx.this, v::sprite_index, spr::sTunnelDieLR)?;
@@ -290,7 +290,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 48: if (collision_point(x, y + 6, oDesert2, 0, 0))
                     g.at("oPDummy2/step#0", 48);
-                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oDesert2, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oDesert2, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                         // 50: yVel = 0;
                         g.at("oPDummy2/step#0", 50);
                         g.set(cx.this, v::yVel, r(0.0))?;
@@ -302,14 +302,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.set_a(cx.this, v::alarm, 0, 2, r(50.0))?;
                         // 53: if (global.isDamsel)
                         g.at("oPDummy2/step#0", 53);
-                        if g.gget(gv::isDamsel)?.is_truthy() {
+                        if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                             // 53: sprite_index = sDamselLeft;
                             g.at("oPDummy2/step#0", 53);
                             g.set(cx.this, v::sprite_index, spr::sDamselLeft)?;
                         } else {
                             // 54: if (global.isTunnelMan)
                             g.at("oPDummy2/step#0", 54);
-                            if g.gget(gv::isTunnelMan)?.is_truthy() {
+                            if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
                                 // 54: sprite_index = sTunnelLeft;
                                 g.at("oPDummy2/step#0", 54);
                                 g.set(cx.this, v::sprite_index, spr::sTunnelLeft)?;
@@ -343,14 +343,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 64: if (collision_point(x, y + 6, oDesert2, 0, 0))
     g.at("oPDummy2/step#0", 64);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oDesert2, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oDesert2, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 66: y -= 2;
         g.at("oPDummy2/step#0", 66);
         g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
     }
     // 68: if (collision_point(x, y + 7, oDesert2, 0, 0))
     g.at("oPDummy2/step#0", 68);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(7.0))?, obj::oDesert2, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(7.0))?, obj::oDesert2, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 70: y -= 1;
         g.at("oPDummy2/step#0", 70);
         g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
@@ -373,7 +373,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 4: if (sprite_index == sPExit || sprite_index == sDamselExit || sprite_index == sTunnelExit && global.h
     g.at("oPDummy2/draw#0", 4);
-    if and(or(or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?), g.gget(gv::hasJetpack)?.is_truthy()) {
+    if { let p1 = or(or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?); let q2 = g.gget(gv::hasJetpack)?; and(p1, q2.cond(Cond::And)?) } {
         // 6: draw_sprite_ext(sprite_index, -1, x, y, image_xscale, image_yscale, image_angle, image_blend, image_
         g.at("oPDummy2/draw#0", 6);
         { let a = [g.get(cx.this, v::sprite_index)?, r(-1.0), g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get(cx.this, v::image_xscale)?, g.get(cx.this, v::image_yscale)?, g.get(cx.this, v::image_angle)?, g.get(cx.this, v::image_blend)?, g.get(cx.this, v::image_alpha)?]; b::draw_sprite_ext(g, cx, a)? };
@@ -390,7 +390,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 13: if (global.hasJetpack)
             g.at("oPDummy2/draw#0", 13);
-            if g.gget(gv::hasJetpack)?.is_truthy() {
+            if g.gget(gv::hasJetpack)?.cond(Cond::If)? {
                 // 15: draw_sprite(sJetpackRight, -1, x - 4, y - 1);
                 g.at("oPDummy2/draw#0", 15);
                 { let a = [spr::sJetpackRight, r(-1.0), g.get(cx.this, v::x)?.sub(&r(4.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?]; b::draw_sprite(g, cx, a)? };

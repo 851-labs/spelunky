@@ -16,10 +16,10 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath)
     g.at("oXocBlock/destroy#0", 1);
-    if g.get(cx.this, v::cleanDeath)?.not()?.is_truthy() {
+    if g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::If)? {
         // 3: if (!global.cityOfGold)
         g.at("oXocBlock/destroy#0", 3);
-        if g.gget(gv::cityOfGold)?.not()?.is_truthy() {
+        if g.gget(gv::cityOfGold)?.not()?.cond(Cond::If)? {
             // 5: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
             g.at("oXocBlock/destroy#0", 5);
             {
@@ -155,7 +155,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 32: if (tile)
     g.at("oXocBlock/destroy#0", 32);
-    if g.get(cx.this, v::tile)?.is_truthy() {
+    if g.get(cx.this, v::tile)?.cond(Cond::If)? {
         // 32: tile_delete(tile);
         g.at("oXocBlock/destroy#0", 32);
         { let a = [g.get(cx.this, v::tile)?]; b::tile_delete(g, cx, a)? };

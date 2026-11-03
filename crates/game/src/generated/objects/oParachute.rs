@@ -5,7 +5,7 @@ use crate::rt::*;
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (instance_exists(oPlayer1))
     g.at("oParachute/step#0", 1);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 3: x = oPlayer1.x - 8;
         g.at("oParachute/step#0", 3);
         g.set(cx.this, v::x, g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&r(8.0))?)?;

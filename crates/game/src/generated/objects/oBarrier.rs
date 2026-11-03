@@ -82,10 +82,10 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.other, v::yVel, r(-2.0))?;
     // 14: if (other.held)
     g.at("oBarrier/collision_oItem#0", 14);
-    if g.get(cx.other, v::held)?.is_truthy() {
+    if g.get(cx.other, v::held)?.cond(Cond::If)? {
         // 16: if (oCharacter)
         g.at("oBarrier/collision_oItem#0", 16);
-        if obj::oCharacter.is_truthy() {
+        if obj::oCharacter.cond(Cond::If)? {
             // 16: oCharacter.holdItem = 0;
             g.at("oBarrier/collision_oItem#0", 16);
             { let t = obj::oCharacter; g.set_on(cx, &t, v::holdItem, r(0.0))?; }

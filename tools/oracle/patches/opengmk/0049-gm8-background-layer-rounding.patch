@@ -1,0 +1,106 @@
+diff --git a/gm8emulator/src/game/draw.rs b/gm8emulator/src/game/draw.rs
+--- a/gm8emulator/src/game/draw.rs
++++ b/gm8emulator/src/game/draw.rs
+@@ -450,7 +450,7 @@ impl Game {
+                 gm8_background(background, bg_asset)?;
+                 if let Some(atlas_ref) = bg_asset.atlas_ref {
+                     log_background(background);
+-                    self.renderer.draw_sprite_tiled(
++                    self.renderer.draw_background_layer(
+                         atlas_ref,
+                         background.x_offset.into(),
+                         background.y_offset.into(),
+@@ -525,7 +525,7 @@ impl Game {
+                 gm8_background(background, bg_asset)?;
+                 if let Some(atlas_ref) = bg_asset.atlas_ref {
+                     log_background(background);
+-                    self.renderer.draw_sprite_tiled(
++                    self.renderer.draw_background_layer(
+                         atlas_ref,
+                         background.x_offset.into(),
+                         background.y_offset.into(),
+diff --git a/gm8emulator/src/render.rs b/gm8emulator/src/render.rs
+--- a/gm8emulator/src/render.rs
++++ b/gm8emulator/src/render.rs
+@@ -442,6 +442,59 @@ pub trait RendererTrait {
+         }
+     }
+ 
++    // Spelunky oracle: a room's background layer, placed as GM8's tiled draw places it (Spelunky.exe 0x4a459c, which
++    // `gml::gm8::draw_background` describes; probe `background-fractional`, 851-3970): the tile's size, `w * xscale`
++    // and `h * yscale`, and the layer's position are rounded half to even into whole pixels, nothing is drawn if the
++    // tile is less than a pixel, and the copies step by the rounded tile from the rounded start, each still drawn at
++    // the layer's scale. `draw_sprite_tiled`, which this was, stepped by the unrounded tile from the unrounded
++    // position, so a fractional position or scale moved the copies off GM8's.
++    fn draw_background_layer(
++        &mut self,
++        texture: AtlasRef,
++        x: f64,
++        y: f64,
++        xscale: f64,
++        yscale: f64,
++        colour: i32,
++        alpha: f64,
++        tile_end_x: Option<f64>,
++        tile_end_y: Option<f64>,
++    ) {
++        let (w, h) = match self.get_rect(texture) {
++            Some(rect) => (f64::from(rect.w), f64::from(rect.h)),
++            None => return,
++        };
++        // Finite and in range: `gml::gm8::draw_background` has stopped the draw where GM8's `Round` traps.
++        let round = |v: f64| v.round_ties_even() as i64 as i32;
++        let (tw, th) = (round(w * xscale), round(h * yscale));
++        if tw <= 0 || th <= 0 {
++            return
++        }
++        // GM8's column: the remainder with the dividend's sign, moved left of 0 by one tile if it's right of it.
++        let first = |v: i32, tile: i32, tiled: bool| {
++            let v = if tiled { v % tile } else { v };
++            if tiled && v > 0 { v - tile } else { v }
++        };
++        let col0 = first(round(x), tw, tile_end_x.is_some());
++        let mut row = first(round(y), th, tile_end_y.is_some());
++        loop {
++            let mut col = col0;
++            loop {
++                self.draw_sprite(texture, f64::from(col), f64::from(row), xscale, yscale, 0.0, colour, alpha);
++                col = col.wrapping_add(tw);
++                match tile_end_x {
++                    Some(end_x) if f64::from(col) < end_x => (),
++                    _ => break,
++                }
++            }
++            row = row.wrapping_add(th);
++            match tile_end_y {
++                Some(end_y) if f64::from(row) < end_y => (),
++                _ => break,
++            }
++        }
++    }
++
+     fn draw_rectangle(&mut self, x1: f64, y1: f64, x2: f64, y2: f64, colour: i32, alpha: f64);
+     fn draw_rectangle_outline(&mut self, x1: f64, y1: f64, x2: f64, y2: f64, colour: i32, alpha: f64);
+     fn draw_rectangle_gradient(
+@@ -751,6 +804,21 @@ impl Renderer {
+         self.0.draw_sprite_tiled(texture, x, y, xscale, yscale, colour, alpha, tile_end_x, tile_end_y)
+     }
+ 
++    pub fn draw_background_layer(
++        &mut self,
++        texture: AtlasRef,
++        x: f64,
++        y: f64,
++        xscale: f64,
++        yscale: f64,
++        colour: i32,
++        alpha: f64,
++        tile_end_x: Option<f64>,
++        tile_end_y: Option<f64>,
++    ) {
++        self.0.draw_background_layer(texture, x, y, xscale, yscale, colour, alpha, tile_end_x, tile_end_y)
++    }
++
+     pub fn draw_rectangle(&mut self, x1: f64, y1: f64, x2: f64, y2: f64, colour: i32, alpha: f64) {
+         self.0.draw_rectangle(x1, y1, x2, y2, colour, alpha)
+     }

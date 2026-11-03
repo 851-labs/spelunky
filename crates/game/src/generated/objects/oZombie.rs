@@ -74,7 +74,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::shakeToggle, r(1.0))?;
     // 32: if (collision_point(x, y, oWater, 0, 0))
     g.at("oZombie/create#1", 32);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 32: swimming = true;
         g.at("oZombie/create#1", 32);
         g.set(cx.this, v::swimming, r(1.0))?;
@@ -102,7 +102,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 9: if (collision_point(x + 8, y + 8, oSolid, 0, 0))
         g.at("oZombie/step#1", 9);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 9: hp = -999;
             g.at("oZombie/step#1", 9);
             g.set(cx.this, v::hp, r(-999.0))?;
@@ -142,10 +142,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 21: if (countsAsKill)
             g.at("oZombie/step#1", 21);
-            if g.get(cx.this, v::countsAsKill)?.is_truthy() {
+            if g.get(cx.this, v::countsAsKill)?.cond(Cond::If)? {
                 // 23: if (isRealLevel())
                 g.at("oZombie/step#1", 23);
-                if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+                if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                     // 23: global.enemyKills[6] += 1;
                     g.at("oZombie/step#1", 23);
                     g.gset_a(gv::enemyKills, 0, 6, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 6)?, &r(1.0))?)?;
@@ -163,14 +163,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 30: if (isCollisionRight(1))
         g.at("oZombie/step#1", 30);
-        if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 32: xVel = -1;
             g.at("oZombie/step#1", 32);
             g.set(cx.this, v::xVel, r(-1.0))?;
         }
         // 35: if (isCollisionLeft(1))
         g.at("oZombie/step#1", 35);
-        if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 37: xVel = 1;
             g.at("oZombie/step#1", 37);
             g.set(cx.this, v::xVel, r(1.0))?;
@@ -180,7 +180,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::colBot, r(0.0))?;
         // 41: if (isCollisionBottom(1))
         g.at("oZombie/step#1", 41);
-        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 41: colBot = true;
             g.at("oZombie/step#1", 41);
             g.set(cx.this, v::colBot, r(1.0))?;
@@ -218,7 +218,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 51: if (oPlayer1.swimming)
             g.at("oZombie/step#1", 51);
-            if g.get_on(cx, &obj::oPlayer1, v::swimming)?.is_truthy() {
+            if g.get_on(cx, &obj::oPlayer1, v::swimming)?.cond(Cond::If)? {
                 // 51: status = IDLE;
                 g.at("oZombie/step#1", 51);
                 g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -236,7 +236,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::RECOVER)?)? {
                 // 56: if (colBot)
                 g.at("oZombie/step#1", 56);
-                if g.get(cx.this, v::colBot)?.is_truthy() {
+                if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
                     // 58: status = IDLE;
                     g.at("oZombie/step#1", 58);
                     g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -256,7 +256,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::BOUNCE)?)? {
                     // 66: if (colBot)
                     g.at("oZombie/step#1", 66);
-                    if g.get(cx.this, v::colBot)?.is_truthy() {
+                    if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
                         // 68: if (rand(1, 4) == 1)
                         g.at("oZombie/step#1", 68);
                         if scr::rand(g, cx, &[r(1.0), r(4.0)])?.gml_eq(&r(1.0))? {
@@ -323,14 +323,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 108: if (isCollisionTop(1))
         g.at("oZombie/step#1", 108);
-        if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 109: yVel = 1;
             g.at("oZombie/step#1", 109);
             g.set(cx.this, v::yVel, r(1.0))?;
         }
         // 114: if (!colBot)
         g.at("oZombie/step#1", 114);
-        if g.get(cx.this, v::colBot)?.not()?.is_truthy() {
+        if g.get(cx.this, v::colBot)?.not()?.cond(Cond::If)? {
             // 114: sprite_index = sZombieJumpL;
             g.at("oZombie/step#1", 114);
             g.set(cx.this, v::sprite_index, spr::sZombieJumpL)?;

@@ -35,7 +35,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::isKills, r(0.0))?;
     // 15: if (global.hasCape)
     g.at("oTransition/create#0", 15);
-    if g.gget(gv::hasCape)?.is_truthy() {
+    if g.gget(gv::hasCape)?.cond(Cond::If)? {
         // 17: instance_create(0, 0, oCape);
         g.at("oTransition/create#0", 17);
         b::instance_create(g, cx, [r(0.0), r(0.0), obj::oCape])?;
@@ -108,7 +108,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 47: if (global.tunnel1 > 0 && global.tunnel2 > 0 && isRoom("rTransition1x"))
     g.at("oTransition/create#0", 47);
-    if and(and(g.gget(gv::tunnel1)?.gml_gt(&r(0.0))?, g.gget(gv::tunnel2)?.gml_gt(&r(0.0))?), scr::isRoom(g, cx, &[s!("rTransition1x")])?.is_truthy()) {
+    if { let p1 = and(g.gget(gv::tunnel1)?.gml_gt(&r(0.0))?, g.gget(gv::tunnel2)?.gml_gt(&r(0.0))?); let q2 = scr::isRoom(g, cx, &[s!("rTransition1x")])?; and(p1, q2.cond(Cond::And)?) } {
         // 49: if (global.tunnel1 > global.tunnel1Max)
         g.at("oTransition/create#0", 49);
         if g.gget(gv::tunnel1)?.gml_gt(&g.gget(gv::tunnel1Max)?)? {
@@ -123,7 +123,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 52: if (global.tunnel1 == 0 && global.tunnel2 > 0 && isRoom("rTransition2x"))
         g.at("oTransition/create#0", 52);
-        if and(and(g.gget(gv::tunnel1)?.gml_eq(&r(0.0))?, g.gget(gv::tunnel2)?.gml_gt(&r(0.0))?), scr::isRoom(g, cx, &[s!("rTransition2x")])?.is_truthy()) {
+        if { let p3 = and(g.gget(gv::tunnel1)?.gml_eq(&r(0.0))?, g.gget(gv::tunnel2)?.gml_gt(&r(0.0))?); let q4 = scr::isRoom(g, cx, &[s!("rTransition2x")])?; and(p3, q4.cond(Cond::And)?) } {
             // 54: if (global.tunnel2 > global.tunnel2Max)
             g.at("oTransition/create#0", 54);
             if g.gget(gv::tunnel2)?.gml_gt(&g.gget(gv::tunnel2Max)?)? {
@@ -138,7 +138,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 57: if (global.tunnel1 > 0 && global.tunnel2 == 0 && isRoom("rTransition3x"))
             g.at("oTransition/create#0", 57);
-            if and(and(g.gget(gv::tunnel1)?.gml_gt(&r(0.0))?, g.gget(gv::tunnel2)?.gml_eq(&r(0.0))?), scr::isRoom(g, cx, &[s!("rTransition3x")])?.is_truthy()) {
+            if { let p5 = and(g.gget(gv::tunnel1)?.gml_gt(&r(0.0))?, g.gget(gv::tunnel2)?.gml_eq(&r(0.0))?); let q6 = scr::isRoom(g, cx, &[s!("rTransition3x")])?; and(p5, q6.cond(Cond::And)?) } {
                 // 59: if (global.tunnel1 > global.tunnel3Max)
                 g.at("oTransition/create#0", 59);
                 if g.gget(gv::tunnel1)?.gml_gt(&g.gget(gv::tunnel3Max)?)? {
@@ -175,7 +175,7 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::drawLoot)?.gml_lt(&r(0.0))? {
         // 5: if (hurryup)
         g.at("oTransition/alarm_1#0", 5);
-        if g.get(cx.this, v::hurryup)?.is_truthy() {
+        if g.get(cx.this, v::hurryup)?.cond(Cond::If)? {
             // 5: alarm[1] = 1;
             g.at("oTransition/alarm_1#0", 5);
             g.set_a(cx.this, v::alarm, 0, 1, r(1.0))?;
@@ -388,7 +388,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     if g.gget(gv::xdamsels)?.gml_gt(&r(0.0))? {
                                                         // 91: if (global.isDamsel)
                                                         g.at("oTransition/alarm_0#0", 91);
-                                                        if g.gget(gv::isDamsel)?.is_truthy() {
+                                                        if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                                                             // 91: sprite.sprite_index = sStandLeft;
                                                             g.at("oTransition/alarm_0#0", 91);
                                                             { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sStandLeft)?; }
@@ -753,7 +753,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                                                                                                             if g.gget(gv::damselsKilled)?.gml_gt(&r(0.0))? {
                                                                                                                                                                 // 259: if (global.isDamsel)
                                                                                                                                                                 g.at("oTransition/alarm_0#0", 259);
-                                                                                                                                                                if g.gget(gv::isDamsel)?.is_truthy() {
+                                                                                                                                                                if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                                                                                                                                                                     // 259: sprite.sprite_index = sStandLeftIco;
                                                                                                                                                                     g.at("oTransition/alarm_0#0", 259);
                                                                                                                                                                     { let t = g.get(cx.this, v::sprite)?; g.set_on(cx, &t, v::sprite_index, spr::sStandLeftIco)?; }
@@ -861,7 +861,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 290: if (hurryup)
         g.at("oTransition/alarm_0#0", 290);
-        if g.get(cx.this, v::hurryup)?.is_truthy() {
+        if g.get(cx.this, v::hurryup)?.cond(Cond::If)? {
             // 290: alarm[0] = 1;
             g.at("oTransition/alarm_0#0", 290);
             g.set_a(cx.this, v::alarm, 0, 0, r(1.0))?;
@@ -878,13 +878,13 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (checkAttackPressed() || checkStartPressed())
     g.at("oTransition/step#0", 1);
-    if or(scr::checkAttackPressed(g, cx, &[])?.is_truthy(), scr::checkStartPressed(g, cx, &[])?.is_truthy()) {
+    if { let p1 = scr::checkAttackPressed(g, cx, &[])?; let q2 = scr::checkStartPressed(g, cx, &[])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 3: n = 0;
         g.at("oTransition/step#0", 3);
         g.set(cx.this, v::n, r(0.0))?;
         // 5: if (instance_exists(oTunnelMan))
         g.at("oTransition/step#0", 5);
-        if b::instance_exists(g, cx, [obj::oTunnelMan])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oTunnelMan])?.cond(Cond::If)? {
             // 7: person = instance_nearest(100, 100, oTunnelMan);
             g.at("oTransition/step#0", 7);
             {
@@ -904,14 +904,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if and(and(g.get(cx.this, v::drawLoot)?.gml_eq(&r(2.0))?, g.get(cx.this, v::moneyCount)?.gml_eq(&g.gget(gv::xmoney)?)?), g.get(cx.this, v::n)?.gml_eq(&r(0.0))?) {
             // 13: if (gamepad.attackPressed)
             g.at("oTransition/step#0", 13);
-            if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {
+            if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::If)? {
                 // 13: gamepad.attackPressed = false;
                 g.at("oTransition/step#0", 13);
                 { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::attackPressed, r(0.0))?; }
             }
             // 14: if (gamepad.startPressed)
             g.at("oTransition/step#0", 14);
-            if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.is_truthy() {
+            if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.cond(Cond::If)? {
                 // 14: gamepad.startPressed = false;
                 g.at("oTransition/step#0", 14);
                 { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::startPressed, r(0.0))?; }
@@ -938,14 +938,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.gset(gv::lake, r(0.0))?;
             // 19: if (global.customLevel)
             g.at("oTransition/step#0", 19);
-            if g.gget(gv::customLevel)?.is_truthy() {
+            if g.gget(gv::customLevel)?.cond(Cond::If)? {
                 // 19: room_goto(rLoadLevel);
                 g.at("oTransition/step#0", 19);
                 b::room_goto(g, cx, [rm::rLoadLevel])?;
             } else {
                 // 20: if (global.currLevel >= 5 && global.currLevel <= 8 && !global.genBlackMarket)
                 g.at("oTransition/step#0", 20);
-                if and(and(g.gget(gv::currLevel)?.gml_ge(&r(5.0))?, g.gget(gv::currLevel)?.gml_le(&r(8.0))?), g.gget(gv::genBlackMarket)?.not()?.is_truthy()) {
+                if { let p3 = and(g.gget(gv::currLevel)?.gml_ge(&r(5.0))?, g.gget(gv::currLevel)?.gml_le(&r(8.0))?); let q4 = g.gget(gv::genBlackMarket)?.not()?; and(p3, q4.cond(Cond::And)?) } {
                     // 22: if (rand(1, global.probLake) == 1)
                     g.at("oTransition/step#0", 22);
                     if ({ let a = [r(1.0), g.gget(gv::probLake)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))? {
@@ -990,10 +990,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 35: if (checkUpPressed())
     g.at("oTransition/step#0", 35);
-    if scr::checkUpPressed(g, cx, &[])?.is_truthy() {
+    if scr::checkUpPressed(g, cx, &[])?.cond(Cond::If)? {
         // 37: if (instance_exists(oTunnelMan))
         g.at("oTransition/step#0", 37);
-        if b::instance_exists(g, cx, [obj::oTunnelMan])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oTunnelMan])?.cond(Cond::If)? {
             // 39: person = instance_nearest(100, 100, oTunnelMan);
             g.at("oTransition/step#0", 39);
             {
@@ -1004,11 +1004,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oTransition/step#0", 40);
             {
                 let t = g.get(cx.this, v::person)?;
-                g.set_on(cx, &t, v::donate, lenient(Value::add, { let t2 = g.get(cx.this, v::person)?; g.get_on(cx, &t2, v::donate)? }, &r(100.0))?)?;
+                g.set_on(cx, &t, v::donate, lenient(Value::add, g.get_on(cx, &t, v::donate)?, &r(100.0))?)?;
             }
             // 41: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
             g.at("oTransition/step#0", 41);
-            if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.is_truthy(), scr::isRoom(g, cx, &[s!("rTransition3x")])?.is_truthy()) {
+            if { let p5 = scr::isRoom(g, cx, &[s!("rTransition1x")])?; let q6 = scr::isRoom(g, cx, &[s!("rTransition3x")])?; or(p5.cond(Cond::Or)?, q6.cond(Cond::Or)?) } {
                 // 43: if (global.money > global.tunnel1)
                 g.at("oTransition/step#0", 43);
                 if g.gget(gv::money)?.gml_gt(&g.gget(gv::tunnel1)?)? {
@@ -1053,10 +1053,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 59: if (checkDownPressed())
         g.at("oTransition/step#0", 59);
-        if scr::checkDownPressed(g, cx, &[])?.is_truthy() {
+        if scr::checkDownPressed(g, cx, &[])?.cond(Cond::If)? {
             // 61: if (instance_exists(oTunnelMan))
             g.at("oTransition/step#0", 61);
-            if b::instance_exists(g, cx, [obj::oTunnelMan])?.is_truthy() {
+            if b::instance_exists(g, cx, [obj::oTunnelMan])?.cond(Cond::If)? {
                 // 63: person = instance_nearest(100, 100, oTunnelMan);
                 g.at("oTransition/step#0", 63);
                 {
@@ -1067,7 +1067,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oTransition/step#0", 64);
                 {
                     let t = g.get(cx.this, v::person)?;
-                    g.set_on(cx, &t, v::donate, lenient(Value::sub, { let t2 = g.get(cx.this, v::person)?; g.get_on(cx, &t2, v::donate)? }, &r(100.0))?)?;
+                    g.set_on(cx, &t, v::donate, lenient(Value::sub, g.get_on(cx, &t, v::donate)?, &r(100.0))?)?;
                 }
                 // 65: if (person.donate < 0)
                 g.at("oTransition/step#0", 65);
@@ -1087,7 +1087,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::moneyCount)?.gml_lt(&g.gget(gv::xmoney)?)? {
             // 73: if (hurryup)
             g.at("oTransition/step#0", 73);
-            if g.get(cx.this, v::hurryup)?.is_truthy() {
+            if g.get(cx.this, v::hurryup)?.cond(Cond::If)? {
                 // 73: moneyCount = global.xmoney;
                 g.at("oTransition/step#0", 73);
                 g.set(cx.this, v::moneyCount, g.gget(gv::xmoney)?)?;
@@ -1125,7 +1125,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     b::draw_set_color(g, cx, [k::c_white])?;
     // 3: if (instance_exists(oTunnelMan))
     g.at("oTransition/draw#0", 3);
-    if b::instance_exists(g, cx, [obj::oTunnelMan])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oTunnelMan])?.cond(Cond::If)? {
         // 5: person = instance_nearest(176, 176, oTunnelMan);
         g.at("oTransition/draw#0", 5);
         {
@@ -1195,7 +1195,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 { let a = [g.get(cx.this, v::n)?, r(208.0), s!("CAN YOU LEND ME A LITTLE MONEY?")]; b::draw_text(g, cx, a)? };
                 // 23: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
                 g.at("oTransition/draw#0", 23);
-                if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.is_truthy(), scr::isRoom(g, cx, &[s!("rTransition3x")])?.is_truthy()) {
+                if { let p1 = scr::isRoom(g, cx, &[s!("rTransition1x")])?; let q2 = scr::isRoom(g, cx, &[s!("rTransition3x")])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
                     // 23: strLen = string_length("I NEED $" + string(global.tunnel1) + " FOR A NEW SHORTCUT.") * 8;
                     g.at("oTransition/draw#0", 23);
                     {
@@ -1221,7 +1221,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 27: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
                 g.at("oTransition/draw#0", 27);
-                if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.is_truthy(), scr::isRoom(g, cx, &[s!("rTransition3x")])?.is_truthy()) {
+                if { let p3 = scr::isRoom(g, cx, &[s!("rTransition1x")])?; let q4 = scr::isRoom(g, cx, &[s!("rTransition3x")])?; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) } {
                     // 27: draw_text(n, 216, "I NEED $" + string(global.tunnel1) + " FOR A NEW SHORTCUT.");
                     g.at("oTransition/draw#0", 27);
                     { let a = [g.get(cx.this, v::n)?, r(216.0), s!("I NEED $").add(&{ let a = [g.gget(gv::tunnel1)?]; b::string(g, cx, a)? })?.add(&s!(" FOR A NEW SHORTCUT."))?]; b::draw_text(g, cx, a)? };
@@ -1313,7 +1313,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 55: if (instance_exists(oDamselKiss))
         g.at("oTransition/draw#0", 55);
-        if b::instance_exists(g, cx, [obj::oDamselKiss])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oDamselKiss])?.cond(Cond::If)? {
             // 57: person = instance_nearest(176, 176, oDamselKiss);
             g.at("oTransition/draw#0", 57);
             {
@@ -1322,7 +1322,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 58: if (person.kissed)
             g.at("oTransition/draw#0", 58);
-            if g.get_on(cx, &g.get(cx.this, v::person)?, v::kissed)?.is_truthy() {
+            if g.get_on(cx, &g.get(cx.this, v::person)?, v::kissed)?.cond(Cond::If)? {
                 // 60: strLen = string_length("MY HERO!") * 8;
                 g.at("oTransition/draw#0", 60);
                 { let x = b::string_length(g, cx, [s!("MY HERO!")])?.mul(&r(8.0))?; g.set(cx.this, v::strLen, x)?; }
@@ -1346,7 +1346,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     b::draw_set_color(g, cx, [k::c_yellow])?;
     // 75: if (global.customLevel)
     g.at("oTransition/draw#0", 75);
-    if g.gget(gv::customLevel)?.is_truthy() {
+    if g.gget(gv::customLevel)?.cond(Cond::If)? {
         // 75: draw_text(32, 48, global.customLevelName + " COMPLETED!");
         g.at("oTransition/draw#0", 75);
         { let a = [r(32.0), r(48.0), g.gget(gv::customLevelName)?.add(&s!(" COMPLETED!"))?]; b::draw_text(g, cx, a)? };
@@ -1380,7 +1380,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     b::draw_text(g, cx, [r(32.0), r(112.0), s!("MONEY = ")])?;
     // 84: if (drawLoot >= 1 && !isLoot)
     g.at("oTransition/draw#0", 84);
-    if and(g.get(cx.this, v::drawLoot)?.gml_ge(&r(1.0))?, g.get(cx.this, v::isLoot)?.not()?.is_truthy()) {
+    if { let p5 = g.get(cx.this, v::drawLoot)?.gml_ge(&r(1.0))?; let q6 = g.get(cx.this, v::isLoot)?.not()?; and(p5, q6.cond(Cond::And)?) } {
         // 86: draw_text(96, 80, "NONE");
         g.at("oTransition/draw#0", 86);
         b::draw_text(g, cx, [r(96.0), r(80.0), s!("NONE")])?;
@@ -1476,7 +1476,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::drawLoot)?.gml_eq(&r(2.0))? {
         // 121: if (!isKills)
         g.at("oTransition/draw#0", 121);
-        if g.get(cx.this, v::isKills)?.not()?.is_truthy() {
+        if g.get(cx.this, v::isKills)?.not()?.cond(Cond::If)? {
             // 123: draw_text(96, 96, "NONE");
             g.at("oTransition/draw#0", 123);
             b::draw_text(g, cx, [r(96.0), r(96.0), s!("NONE")])?;

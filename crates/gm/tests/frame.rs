@@ -138,10 +138,10 @@ fn new_instances_step_this_frame_only_if_their_object_comes_later() {
 }
 
 #[test]
-fn an_object_loop_can_reach_an_instance_created_during_it() {
-    // x1 destroys x2 and creates x3. The loop over x's instances started with a count of 2, but its second
-    // step scans past the deleted x2 and finds x3. GM8 behaviour per OpenGMK (`nb_il_iter`); verify
-    // against the oracle.
+fn an_object_loop_never_reaches_an_instance_created_during_it() {
+    // x1 destroys x2 and creates x3. The loop over x's instances started with a count of 2, so it stops
+    // there, though every entry before x3 is gone: GM8 (probe `with-created`'s step stage, 851-3795).
+    // OpenGMK (`nb_il_iter`) scanned on past the deleted x2 and stepped x3 too.
     fn step_x(g: &mut World, cx: &mut Ctx) -> R<()> {
         note(g, cx)?;
         if g.instance(cx.this).id == FIRST_ID && g.frames() == 0 {
@@ -157,7 +157,7 @@ fn an_object_loop_can_reach_an_instance_created_during_it() {
     });
     let mut g = world(p, &[ObjectId(0), ObjectId(0)]);
     step(&mut g);
-    assert_eq!(take_log(&mut g), "x1.step x101.step");
+    assert_eq!(take_log(&mut g), "x1.step");
 }
 
 #[test]

@@ -1,0 +1,14 @@
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -4170,7 +4170,9 @@ impl Game {
+         // TODO: Make this function pure.
+         expect_args!(args, [any]).and_then(|v| match v {
+             r @ Value::Real(_) => Ok(r),
+-            Value::Str(s) => match self.decode_str(s.as_ref()).trim() {
++            // Spelunky port (851-3801): GM8 trims spaces alone; a tab, LF, VT, FF, CR or no-break space around the
++            // number is "Error in function real()." (probes `real-lead-*`, `real-trail-*`). `str::trim` took them all.
++            Value::Str(s) => match self.decode_str(s.as_ref()).trim_matches(' ') {
+                 x if x.len() == 0 => Ok(Default::default()),
+                 x => match x.parse::<f64>() {
+                     // Spelunky port (851-3259): GM8 errors on "inf", "nan" and, on Intel, "1e400".

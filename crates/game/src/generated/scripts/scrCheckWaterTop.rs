@@ -13,7 +13,7 @@ pub fn scrCheckWaterTop(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 26: if (instance_exists(obj))
     g.at("scripts/scrCheckWaterTop", 26);
-    if ({ let a = [g.get(cx.this, v::obj)?]; b::instance_exists(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::obj)?]; b::instance_exists(g, cx, a)? }).cond(Cond::If)? {
         // 28: if (obj.sprite_index != sWaterTop && obj.sprite_index != sLavaTop)
         g.at("scripts/scrCheckWaterTop", 28);
         if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::sprite_index)?.gml_ne(&spr::sWaterTop)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::sprite_index)?.gml_ne(&spr::sLavaTop)?) {
@@ -61,7 +61,7 @@ pub fn scrCheckWaterTop(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 39: if (instance_exists(obj))
     g.at("scripts/scrCheckWaterTop", 39);
-    if ({ let a = [g.get(cx.this, v::obj)?]; b::instance_exists(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::obj)?]; b::instance_exists(g, cx, a)? }).cond(Cond::If)? {
         // 41: if (obj.sprite_index != sWaterTop && obj.sprite_index != sLavaTop)
         g.at("scripts/scrCheckWaterTop", 41);
         if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::sprite_index)?.gml_ne(&spr::sWaterTop)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::sprite_index)?.gml_ne(&spr::sLavaTop)?) {

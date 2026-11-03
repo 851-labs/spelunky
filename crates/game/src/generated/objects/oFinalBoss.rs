@@ -17,7 +17,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 2: if (olmecDead && !doorOpen)
     g.at("oFinalBoss/step#0", 2);
-    if and(g.get(cx.this, v::olmecDead)?.is_truthy(), g.get(cx.this, v::doorOpen)?.not()?.is_truthy()) {
+    if { let p1 = g.get(cx.this, v::olmecDead)?; let q2 = g.get(cx.this, v::doorOpen)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 4: doorOpen = true;
         g.at("oFinalBoss/step#0", 4);
         g.set(cx.this, v::doorOpen, r(1.0))?;
@@ -28,22 +28,22 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oFinalBoss/step#0", 6);
         {
             let t = g.get(cx.this, v::obj)?;
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it3 = g.with_iter(cx, &t)?;
+            let outer5 = (cx.this, cx.other);
+            'with1: while let Some(h4) = it3.next(g) {
+                (cx.this, cx.other) = (h4, outer5.0);
                 // 6: instance_destroy();
                 g.at("oFinalBoss/step#0", 6);
                 b::instance_destroy(g, cx, [])?;
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer5;
         }
         // 7: instance_create(640, 544, oXEnd);
         g.at("oFinalBoss/step#0", 7);
         b::instance_create(g, cx, [r(640.0), r(544.0), obj::oXEnd])?;
         // 8: if (!collision_point(640, 560, oSolid, 0, 0))
         g.at("oFinalBoss/step#0", 8);
-        if b::collision_point(g, cx, [r(640.0), r(560.0), obj::oSolid, r(0.0), r(0.0)])?.not()?.is_truthy() {
+        if b::collision_point(g, cx, [r(640.0), r(560.0), obj::oSolid, r(0.0), r(0.0)])?.not()?.cond(Cond::If)? {
             // 10: brick = instance_create(640, 560, oTemple);
             g.at("oFinalBoss/step#0", 10);
             {
@@ -54,15 +54,15 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oFinalBoss/step#0", 11);
             {
                 let t = g.get(cx.this, v::brick)?;
-                let mut it4 = g.with_iter(cx, &t)?;
-                let outer6 = (cx.this, cx.other);
-                'with2: while let Some(h5) = it4.next(g) {
-                    (cx.this, cx.other) = (h5, outer6.0);
+                let mut it6 = g.with_iter(cx, &t)?;
+                let outer8 = (cx.this, cx.other);
+                'with2: while let Some(h7) = it6.next(g) {
+                    (cx.this, cx.other) = (h7, outer8.0);
                     // 11: invincible = true;
                     g.at("oFinalBoss/step#0", 11);
                     g.set(cx.this, v::invincible, r(1.0))?;
                 }
-                (cx.this, cx.other) = outer6;
+                (cx.this, cx.other) = outer8;
             }
         } else {
             // 15: brick = instance_position(640, 560, oSolid);
@@ -75,15 +75,15 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oFinalBoss/step#0", 16);
             {
                 let t = g.get(cx.this, v::brick)?;
-                let mut it7 = g.with_iter(cx, &t)?;
-                let outer9 = (cx.this, cx.other);
-                'with3: while let Some(h8) = it7.next(g) {
-                    (cx.this, cx.other) = (h8, outer9.0);
+                let mut it9 = g.with_iter(cx, &t)?;
+                let outer11 = (cx.this, cx.other);
+                'with3: while let Some(h10) = it9.next(g) {
+                    (cx.this, cx.other) = (h10, outer11.0);
                     // 16: invincible = true;
                     g.at("oFinalBoss/step#0", 16);
                     g.set(cx.this, v::invincible, r(1.0))?;
                 }
-                (cx.this, cx.other) = outer9;
+                (cx.this, cx.other) = outer11;
             }
         }
         // 18: playSound(global.sndThump);

@@ -224,28 +224,28 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 120: if (global.newMoney)
     g.at("oHighscores/create#0", 120);
-    if g.gget(gv::newMoney)?.is_truthy() {
+    if g.gget(gv::newMoney)?.cond(Cond::If)? {
         // 120: instance_create(272, 48, oNew);
         g.at("oHighscores/create#0", 120);
         b::instance_create(g, cx, [r(272.0), r(48.0), obj::oNew])?;
     }
     // 121: if (global.newKills)
     g.at("oHighscores/create#0", 121);
-    if g.gget(gv::newKills)?.is_truthy() {
+    if g.gget(gv::newKills)?.cond(Cond::If)? {
         // 121: instance_create(272, 64, oNew);
         g.at("oHighscores/create#0", 121);
         b::instance_create(g, cx, [r(272.0), r(64.0), obj::oNew])?;
     }
     // 122: if (global.newSaves)
     g.at("oHighscores/create#0", 122);
-    if g.gget(gv::newSaves)?.is_truthy() {
+    if g.gget(gv::newSaves)?.cond(Cond::If)? {
         // 122: instance_create(272, 80, oNew);
         g.at("oHighscores/create#0", 122);
         b::instance_create(g, cx, [r(272.0), r(80.0), obj::oNew])?;
     }
     // 123: if (global.newTime)
     g.at("oHighscores/create#0", 123);
-    if g.gget(gv::newTime)?.is_truthy() {
+    if g.gget(gv::newTime)?.cond(Cond::If)? {
         // 123: instance_create(272, 96, oNew);
         g.at("oHighscores/create#0", 123);
         b::instance_create(g, cx, [r(272.0), r(96.0), obj::oNew])?;
@@ -260,7 +260,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.gget(gv::shake)?.gml_gt(&r(0.0))? {
         // 8: if (shakeToggle)
         g.at("oHighscores/step#0", 8);
-        if g.get(cx.this, v::shakeToggle)?.is_truthy() {
+        if g.get(cx.this, v::shakeToggle)?.cond(Cond::If)? {
             // 8: view_yview[0] = view_yview[0] + rand(1, 8);
             g.at("oHighscores/step#0", 8);
             {
@@ -351,7 +351,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::tMoney)?.gml_ge(&g.get(cx.this, v::sunGold)?)? {
                 // 21: if (false)
                 g.at("oHighscores/draw#0", 21);
-                if r(0.0).is_truthy() {
+                if r(0.0).cond(Cond::If)? {
                     // 23: draw_text(128, 112, "NO MATTOCKS ALLOWED!");
                     g.at("oHighscores/draw#0", 23);
                     b::draw_text(g, cx, [r(128.0), r(112.0), s!("NO MATTOCKS ALLOWED!")])?;
@@ -401,7 +401,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if and(g.get(cx.this, v::tTime)?.gml_gt(&r(0.0))?, g.get(cx.this, v::tTime)?.gml_le(&g.get(cx.this, v::moonGold)?)?) {
                     // 48: if (false)
                     g.at("oHighscores/draw#0", 48);
-                    if r(0.0).is_truthy() {
+                    if r(0.0).cond(Cond::If)? {
                         // 50: draw_text(128, 112, "NO MATTOCKS ALLOWED!");
                         g.at("oHighscores/draw#0", 50);
                         b::draw_text(g, cx, [r(128.0), r(112.0), s!("NO MATTOCKS ALLOWED!")])?;
@@ -448,7 +448,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::tKills)?.gml_ge(&g.get(cx.this, v::starsGold)?)? {
                         // 74: if (false)
                         g.at("oHighscores/draw#0", 74);
-                        if r(0.0).is_truthy() {
+                        if r(0.0).cond(Cond::If)? {
                             // 76: draw_text(128, 112, "NO MATTOCKS ALLOWED!");
                             g.at("oHighscores/draw#0", 76);
                             b::draw_text(g, cx, [r(128.0), r(112.0), s!("NO MATTOCKS ALLOWED!")])?;
@@ -618,7 +618,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 151: if (!oButtonHighscore.pushed && block.x > 160)
         g.at("oHighscores/draw#0", 151);
-        if and(g.get_on(cx, &obj::oButtonHighscore, v::pushed)?.not()?.is_truthy(), g.get_on(cx, &g.get(cx.this, v::block)?, v::x)?.gml_gt(&r(160.0))?) {
+        if { let p7 = g.get_on(cx, &obj::oButtonHighscore, v::pushed)?.not()?; let q8 = g.get_on(cx, &g.get(cx.this, v::block)?, v::x)?.gml_gt(&r(160.0))?; and(p7.cond(Cond::And)?, q8) } {
             // 153: draw_set_font(global.myFontSmall);
             g.at("oHighscores/draw#0", 153);
             { let a = [g.gget(gv::myFontSmall)?]; b::draw_set_font(g, cx, a)? };

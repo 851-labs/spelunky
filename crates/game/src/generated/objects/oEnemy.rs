@@ -115,14 +115,14 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (bombID)
     g.at("oEnemy/destroy#0", 1);
-    if g.get(cx.this, v::bombID)?.is_truthy() {
+    if g.get(cx.this, v::bombID)?.cond(Cond::If)? {
         // 3: bombID.enemyID = 0;
         g.at("oEnemy/destroy#0", 3);
         { let t = g.get(cx.this, v::bombID)?; g.set_on(cx, &t, v::enemyID, r(0.0))?; }
     }
     // 6: if (held)
     g.at("oEnemy/destroy#0", 6);
-    if g.get(cx.this, v::held)?.is_truthy() {
+    if g.get(cx.this, v::held)?.cond(Cond::If)? {
         // 8: oPlayer1.holdItem = 0;
         g.at("oEnemy/destroy#0", 8);
         { let t = obj::oPlayer1; g.set_on(cx, &t, v::holdItem, r(0.0))?; }
@@ -144,7 +144,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::active, r(1.0))?;
         // 13: if (held)
         g.at("oEnemy/step#0", 13);
-        if g.get(cx.this, v::held)?.is_truthy() {
+        if g.get(cx.this, v::held)?.cond(Cond::If)? {
             // 15: xVel = 0;
             g.at("oEnemy/step#0", 15);
             g.set(cx.this, v::xVel, r(0.0))?;
@@ -202,10 +202,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 34: if (collision_point(x + floor(sprite_width / 2), y + floor(sprite_height / 2), oWaterSwim, -1, -1))
         g.at("oEnemy/step#0", 34);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [g.get(cx.this, v::sprite_width)?.div(&r(2.0))?]; b::floor(g, cx, a)? })?, g.get(cx.this, v::y)?.add(&{ let a = [g.get(cx.this, v::sprite_height)?.div(&r(2.0))?]; b::floor(g, cx, a)? })?, obj::oWaterSwim, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [g.get(cx.this, v::sprite_width)?.div(&r(2.0))?]; b::floor(g, cx, a)? })?, g.get(cx.this, v::y)?.add(&{ let a = [g.get(cx.this, v::sprite_height)?.div(&r(2.0))?]; b::floor(g, cx, a)? })?, obj::oWaterSwim, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 36: if (!swimming)
             g.at("oEnemy/step#0", 36);
-            if g.get(cx.this, v::swimming)?.not()?.is_truthy() {
+            if g.get(cx.this, v::swimming)?.not()?.cond(Cond::If)? {
                 // 38: instance_create(x + floor(sprite_width / 2), y, oSplash);
                 g.at("oEnemy/step#0", 38);
                 { let a = [g.get(cx.this, v::x)?.add(&{ let a = [g.get(cx.this, v::sprite_width)?.div(&r(2.0))?]; b::floor(g, cx, a)? })?, g.get(cx.this, v::y)?, obj::oSplash]; b::instance_create(g, cx, a)? };
@@ -259,14 +259,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 63: if (collision_point(x + floor(sprite_width / 2), y - 1, oLava, 0, 0))
         g.at("oEnemy/step#0", 63);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [g.get(cx.this, v::sprite_width)?.div(&r(2.0))?]; b::floor(g, cx, a)? })?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [g.get(cx.this, v::sprite_width)?.div(&r(2.0))?]; b::floor(g, cx, a)? })?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 63: instance_destroy();
             g.at("oEnemy/step#0", 63);
             b::instance_destroy(g, cx, [])?;
         }
         // 65: if (collision_point(x + floor(sprite_width / 2), y + sprite_height - 2, oLava, 0, 0))
         g.at("oEnemy/step#0", 65);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [g.get(cx.this, v::sprite_width)?.div(&r(2.0))?]; b::floor(g, cx, a)? })?, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::sprite_height)?)?.sub(&r(2.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [g.get(cx.this, v::sprite_width)?.div(&r(2.0))?]; b::floor(g, cx, a)? })?, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::sprite_height)?)?.sub(&r(2.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 67: hp = 0;
             g.at("oEnemy/step#0", 67);
             g.set(cx.this, v::hp, r(0.0))?;
@@ -291,7 +291,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 76: if (collision_rectangle(x + 2, y + 2, x + 14, y + 14, oSpearsLeft, 0, 0))
         g.at("oEnemy/step#0", 76);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(14.0))?, g.get(cx.this, v::y)?.add(&r(14.0))?, obj::oSpearsLeft, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(14.0))?, g.get(cx.this, v::y)?.add(&r(14.0))?, obj::oSpearsLeft, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
             // 78: trap = instance_nearest(x, y, oSpearsLeft);
             g.at("oEnemy/step#0", 78);
             {
@@ -361,7 +361,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 108: if (collision_point(x + 8, y + 16, oSpikes, 0, 0) && yVel > 2)
         g.at("oEnemy/step#0", 108);
-        if and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), g.get(cx.this, v::yVel)?.gml_gt(&r(2.0))?) {
+        if { let p1 = { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q2 = g.get(cx.this, v::yVel)?.gml_gt(&r(2.0))?; and(p1.cond(Cond::And)?, q2) } {
             // 110: spikes = instance_place(x + 8, y + 14, oSpikes);
             g.at("oEnemy/step#0", 110);
             {
@@ -370,20 +370,20 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 112: if (!bloodless)
             g.at("oEnemy/step#0", 112);
-            if g.get(cx.this, v::bloodless)?.not()?.is_truthy() {
+            if g.get(cx.this, v::bloodless)?.not()?.cond(Cond::If)? {
                 // 114: with (spikes)
                 g.at("oEnemy/step#0", 114);
                 {
                     let t = g.get(cx.this, v::spikes)?;
-                    let mut it1 = g.with_iter(cx, &t)?;
-                    let outer3 = (cx.this, cx.other);
-                    'with1: while let Some(h2) = it1.next(g) {
-                        (cx.this, cx.other) = (h2, outer3.0);
+                    let mut it3 = g.with_iter(cx, &t)?;
+                    let outer5 = (cx.this, cx.other);
+                    'with1: while let Some(h4) = it3.next(g) {
+                        (cx.this, cx.other) = (h4, outer5.0);
                         // 114: sprite_index = sSpikesBlood;
                         g.at("oEnemy/step#0", 114);
                         g.set(cx.this, v::sprite_index, spr::sSpikesBlood)?;
                     }
-                    (cx.this, cx.other) = outer3;
+                    (cx.this, cx.other) = outer5;
                 }
             }
             // 117: if (hp > 0)
@@ -397,7 +397,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::countsAsKill, r(0.0))?;
                 // 121: if (!bloodless)
                 g.at("oEnemy/step#0", 121);
-                if g.get(cx.this, v::bloodless)?.not()?.is_truthy() {
+                if g.get(cx.this, v::bloodless)?.not()?.cond(Cond::If)? {
                     // 121: scrCreateBlood(x + sprite_width / 2, y + sprite_height / 2, 3);
                     g.at("oEnemy/step#0", 121);
                     { let a = [g.get(cx.this, v::x)?.add(&g.get(cx.this, v::sprite_width)?.div(&r(2.0))?)?, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::sprite_height)?.div(&r(2.0))?)?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
@@ -425,10 +425,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::status)?.gml_ge(&r(98.0))? {
             // 133: if (!held && xVel == 0 && yVel == 0)
             g.at("oEnemy/step#0", 133);
-            if and(and(g.get(cx.this, v::held)?.not()?.is_truthy(), g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))?), g.get(cx.this, v::yVel)?.gml_eq(&r(0.0))?) {
+            if and({ let p6 = g.get(cx.this, v::held)?.not()?; let q7 = g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))?; and(p6.cond(Cond::And)?, q7) }, g.get(cx.this, v::yVel)?.gml_eq(&r(0.0))?) {
                 // 135: if (collision_point(x + 8, y + 16, oSacAltarLeft, 0, 0))
                 g.at("oEnemy/step#0", 135);
-                if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSacAltarLeft, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSacAltarLeft, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                     // 137: if (sacCount > 0)
                     g.at("oEnemy/step#0", 137);
                     if g.get(cx.this, v::sacCount)?.gml_gt(&r(0.0))? {
@@ -524,10 +524,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 175: if (obj)
                 g.at("oEnemy/step#0", 175);
-                if g.get(cx.this, v::obj)?.is_truthy() {
+                if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                     // 177: if (!obj.invincible && obj.type != "Magma Man")
                     g.at("oEnemy/step#0", 177);
-                    if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.is_truthy(), g.get_on(cx, &g.get(cx.this, v::obj)?, v::r#type)?.gml_ne(&s!("Magma Man"))?) {
+                    if { let p8 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?; let q9 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::r#type)?.gml_ne(&s!("Magma Man"))?; and(p8.cond(Cond::And)?, q9) } {
                         // 179: if (obj.status < 98)
                         g.at("oEnemy/step#0", 179);
                         if g.get_on(cx, &g.get(cx.this, v::obj)?, v::status)?.gml_lt(&r(98.0))? {
@@ -539,10 +539,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oEnemy/step#0", 180);
                         {
                             let t = g.get(cx.this, v::obj)?;
-                            let mut it4 = g.with_iter(cx, &t)?;
-                            let outer6 = (cx.this, cx.other);
-                            'with2: while let Some(h5) = it4.next(g) {
-                                (cx.this, cx.other) = (h5, outer6.0);
+                            let mut it10 = g.with_iter(cx, &t)?;
+                            let outer12 = (cx.this, cx.other);
+                            'with2: while let Some(h11) = it10.next(g) {
+                                (cx.this, cx.other) = (h11, outer12.0);
                                 // 182: if (type == "Caveman" || type == "ManTrap" || type == "Vampire" || type == "Yeti" || type == "Hawkma
                                 g.at("oEnemy/step#0", 182);
                                 if or(or(or(or(g.get(cx.this, v::r#type)?.gml_eq(&s!("Caveman"))?, g.get(cx.this, v::r#type)?.gml_eq(&s!("ManTrap"))?), g.get(cx.this, v::r#type)?.gml_eq(&s!("Vampire"))?), g.get(cx.this, v::r#type)?.gml_eq(&s!("Yeti"))?), g.get(cx.this, v::r#type)?.gml_eq(&s!("Hawkman"))?) {
@@ -715,7 +715,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     }
                                 }
                             }
-                            (cx.this, cx.other) = outer6;
+                            (cx.this, cx.other) = outer12;
                         }
                         // 264: if (type == "Arrow" || type == "Fish Bone")
                         g.at("oEnemy/step#0", 264);
@@ -800,13 +800,13 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 6: if (!other.dead && (other.state == 15 || other.state == 16) && other.y < y + 8 && !other.swimming)
         g.at("oEnemy/collision_oCharacter#0", 6);
-        if and(and(and(g.get(cx.other, v::dead)?.not()?.is_truthy(), or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), g.get(cx.other, v::swimming)?.not()?.is_truthy()) {
+        if { let p3 = and({ let p1 = g.get(cx.other, v::dead)?.not()?; let q2 = or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?); and(p1.cond(Cond::And)?, q2) }, g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?); let q4 = g.get(cx.other, v::swimming)?.not()?; and(p3, q4.cond(Cond::And)?) } {
             // 8: other.yVel = -6 - 0.2 * other.yVel;
             g.at("oEnemy/collision_oCharacter#0", 8);
             g.set(cx.other, v::yVel, r(-6.0).sub(&r(0.2).mul(&g.get(cx.other, v::yVel)?)?)?)?;
             // 9: if (global.hasSpikeShoes)
             g.at("oEnemy/collision_oCharacter#0", 9);
-            if g.gget(gv::hasSpikeShoes)?.is_truthy() {
+            if g.gget(gv::hasSpikeShoes)?.cond(Cond::If)? {
                 // 9: hp -= 3 * (floor(other.fallTimer / 16) + 1);
                 g.at("oEnemy/collision_oCharacter#0", 9);
                 {
@@ -861,7 +861,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                     // 27: if (global.plife <= 0 && isRealLevel())
                     g.at("oEnemy/collision_oCharacter#0", 27);
-                    if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
+                    if { let p5 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q6 = scr::isRealLevel(g, cx, &[])?; and(p5, q6.cond(Cond::And)?) } {
                         // 29: if (type == "Bat")
                         g.at("oEnemy/collision_oCharacter#0", 29);
                         if g.get(cx.this, v::r#type)?.gml_eq(&s!("Bat"))? {

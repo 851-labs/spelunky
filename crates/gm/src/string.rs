@@ -175,14 +175,15 @@ pub fn real_to_string(x: f64) -> GmString {
     crate::gm8::real_to_string(x).into()
 }
 
-/// Bytes `real()` trims: ASCII whitespace and Windows-1252's no-break space (0xA0). OpenGMK decodes the
-/// string with the game's code page and calls `str::trim`; these are the bytes that decode to Unicode
-/// whitespace.
+/// The byte `real()` trims: the space alone. A tab, LF, VT, FF, CR or Windows-1252's no-break space (0xA0)
+/// before or after the number is "Error in function real()." in GM8 (probes `real-lead-*`, `real-trail-*`,
+/// `real-spaces`, 851-3801). OpenGMK decodes the string with the game's code page and calls `str::trim`,
+/// which takes all of them (oracle patch 0044 follows GM8).
 fn is_trimmed(b: u8) -> bool {
-    matches!(b, b'\t' | b'\n' | 0x0B | 0x0C | b'\r' | b' ' | 0xA0)
+    b == b' '
 }
 
-/// GML `real(s)` for a string: trims whitespace, treats an empty string as 0 and otherwise parses with
+/// GML `real(s)` for a string: trims spaces, treats an empty string as 0 and otherwise parses with
 /// Rust's `f64` grammar (so `"1e3"`, `".5"` and `"+2"` parse), correctly rounded. Anything else, such as
 /// `"12abc"`, is a runtime error, and so is a string that reads as an infinity or a NaN: GM8 errors on `"inf"`
 /// and `"nan"`, and on Intel on `"1e400"` too (Rosetta reads that as inf; probes `real-inf`, `real-nan`,
@@ -355,13 +356,26 @@ mod tests {
     #[test]
     fn string_to_real_trims_and_parses() {
         assert_eq!(string_to_real(b"42"), Ok(42.0));
-        assert_eq!(string_to_real(b"  -3.5\r\n"), Ok(-3.5));
+        assert_eq!(string_to_real(b"  -3.5  "), Ok(-3.5));
+        // Only spaces: any other whitespace around the number is an error (GM8, 851-3801).
+        for b in [b'\t', b'\n', 0x0B, 0x0C, b'\r', 0xA0] {
+            assert_eq!(
+                string_to_real(&[b, b'7']),
+                Err(ValueError::BadRealString),
+                "{b} before"
+            );
+            assert_eq!(
+                string_to_real(&[b'7', b]),
+                Err(ValueError::BadRealString),
+                "{b} after"
+            );
+        }
+        assert_eq!(string_to_real(b" \t7"), Err(ValueError::BadRealString));
         assert_eq!(string_to_real(b""), Ok(0.0));
         assert_eq!(string_to_real(b"   "), Ok(0.0));
         assert_eq!(string_to_real(b"1e3"), Ok(1000.0));
         assert_eq!(string_to_real(b".5"), Ok(0.5));
         assert_eq!(string_to_real(b"+2"), Ok(2.0));
-        assert_eq!(string_to_real(b"\xA01\xA0"), Ok(1.0));
         assert_eq!(string_to_real(b"12abc"), Err(ValueError::BadRealString));
         assert_eq!(string_to_real(b"inf"), Err(ValueError::BadRealString));
         assert_eq!(string_to_real(b"nan"), Err(ValueError::BadRealString));

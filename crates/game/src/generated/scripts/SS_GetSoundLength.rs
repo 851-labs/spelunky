@@ -6,7 +6,7 @@ pub fn SS_GetSoundLength(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 13: if (is_real(argument0))
     g.at("scripts/SS_GetSoundLength", 13);
-    if b::is_real(g, cx, [cx.arg(0)?])?.is_truthy() {
+    if b::is_real(g, cx, [cx.arg(0)?])?.cond(Cond::If)? {
         // 13: return 0;
         g.at("scripts/SS_GetSoundLength", 13);
         return Ok(r(0.0));

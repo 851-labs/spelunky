@@ -6,13 +6,13 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 24: if (global.isTunnelMan && !stunned && !whipping)
     g.at("scripts/characterSprite", 24);
-    if and(and(g.gget(gv::isTunnelMan)?.is_truthy(), g.get(cx.this, v::stunned)?.not()?.is_truthy()), g.get(cx.this, v::whipping)?.not()?.is_truthy()) {
+    if { let p3 = { let p1 = g.gget(gv::isTunnelMan)?; let q2 = g.get(cx.this, v::stunned)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) }; let q4 = g.get(cx.this, v::whipping)?.not()?; and(p3, q4.cond(Cond::And)?) } {
         // 26: if (state == STANDING)
         g.at("scripts/characterSprite", 26);
         if g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::STANDING)?)? {
             // 28: if (!collision_point(x - 2, y + 9, oSolid, 0, 0))
             g.at("scripts/characterSprite", 28);
-            if ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+            if ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                 // 30: image_speed = 0.6;
                 g.at("scripts/characterSprite", 30);
                 {
@@ -42,7 +42,7 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         if g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::RUNNING)?)? {
             // 37: if (kUp)
             g.at("scripts/characterSprite", 37);
-            if g.get(cx.this, v::kUp)?.is_truthy() {
+            if g.get(cx.this, v::kUp)?.cond(Cond::If)? {
                 // 37: sprite_index = sTunnelLookRunL;
                 g.at("scripts/characterSprite", 37);
                 {
@@ -178,10 +178,10 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         if g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::CLIMBING)?)? {
             // 63: if (collision_point(x, y, oRope, 0, 0))
             g.at("scripts/characterSprite", 63);
-            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oRope, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oRope, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                 // 65: if (kDown)
                 g.at("scripts/characterSprite", 65);
-                if g.get(cx.this, v::kDown)?.is_truthy() {
+                if g.get(cx.this, v::kDown)?.cond(Cond::If)? {
                     // 65: sprite_index = sTunnelClimb3;
                     g.at("scripts/characterSprite", 65);
                     {
@@ -211,13 +211,13 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 71: if (global.isDamsel && !stunned && !whipping)
         g.at("scripts/characterSprite", 71);
-        if and(and(g.gget(gv::isDamsel)?.is_truthy(), g.get(cx.this, v::stunned)?.not()?.is_truthy()), g.get(cx.this, v::whipping)?.not()?.is_truthy()) {
+        if { let p7 = { let p5 = g.gget(gv::isDamsel)?; let q6 = g.get(cx.this, v::stunned)?.not()?; and(p5.cond(Cond::And)?, q6.cond(Cond::And)?) }; let q8 = g.get(cx.this, v::whipping)?.not()?; and(p7, q8.cond(Cond::And)?) } {
             // 73: if (state == STANDING)
             g.at("scripts/characterSprite", 73);
             if g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::STANDING)?)? {
                 // 75: if (!collision_point(x - 2, y + 9, oSolid, 0, 0))
                 g.at("scripts/characterSprite", 75);
-                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                     // 77: image_speed = 0.6;
                     g.at("scripts/characterSprite", 77);
                     {
@@ -247,7 +247,7 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             if g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::RUNNING)?)? {
                 // 99: if (kUp)
                 g.at("scripts/characterSprite", 99);
-                if g.get(cx.this, v::kUp)?.is_truthy() {
+                if g.get(cx.this, v::kUp)?.cond(Cond::If)? {
                     // 99: sprite_index = sDamselRunL;
                     g.at("scripts/characterSprite", 99);
                     {
@@ -383,10 +383,10 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             if g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::CLIMBING)?)? {
                 // 125: if (collision_point(x, y, oRope, 0, 0))
                 g.at("scripts/characterSprite", 125);
-                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oRope, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oRope, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                     // 127: if (kDown)
                     g.at("scripts/characterSprite", 127);
-                    if g.get(cx.this, v::kDown)?.is_truthy() {
+                    if g.get(cx.this, v::kDown)?.cond(Cond::If)? {
                         // 127: sprite_index = sDamselClimb3;
                         g.at("scripts/characterSprite", 127);
                         {
@@ -416,13 +416,13 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 133: if (!stunned && !whipping)
             g.at("scripts/characterSprite", 133);
-            if and(g.get(cx.this, v::stunned)?.not()?.is_truthy(), g.get(cx.this, v::whipping)?.not()?.is_truthy()) {
+            if { let p9 = g.get(cx.this, v::stunned)?.not()?; let q10 = g.get(cx.this, v::whipping)?.not()?; and(p9.cond(Cond::And)?, q10.cond(Cond::And)?) } {
                 // 135: if (state == STANDING)
                 g.at("scripts/characterSprite", 135);
                 if g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::STANDING)?)? {
                     // 137: if (!collision_point(x - 2, y + 9, oSolid, 0, 0))
                     g.at("scripts/characterSprite", 137);
-                    if ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                         // 139: image_speed = 0.6;
                         g.at("scripts/characterSprite", 139);
                         {
@@ -452,7 +452,7 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::RUNNING)?)? {
                     // 161: if (kUp)
                     g.at("scripts/characterSprite", 161);
-                    if g.get(cx.this, v::kUp)?.is_truthy() {
+                    if g.get(cx.this, v::kUp)?.cond(Cond::If)? {
                         // 161: sprite_index = sLookRunL;
                         g.at("scripts/characterSprite", 161);
                         {
@@ -577,10 +577,10 @@ pub fn characterSprite(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::CLIMBING)?)? {
                     // 185: if (collision_point(x, y, oRope, 0, 0))
                     g.at("scripts/characterSprite", 185);
-                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oRope, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oRope, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                         // 187: if (kDown)
                         g.at("scripts/characterSprite", 187);
-                        if g.get(cx.this, v::kDown)?.is_truthy() {
+                        if g.get(cx.this, v::kDown)?.cond(Cond::If)? {
                             // 187: sprite_index = sClimbUp3;
                             g.at("scripts/characterSprite", 187);
                             {

@@ -92,7 +92,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 10: if (isCollisionBottom(1))
             g.at("oDoor/step#0", 10);
-            if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+            if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                 // 12: status = WAIT;
                 g.at("oDoor/step#0", 12);
                 g.set(cx.this, v::status, g.get(cx.this, v::WAIT)?)?;
@@ -112,7 +112,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WAIT)?)? {
                 // 20: if (isCollisionBottom(1))
                 g.at("oDoor/step#0", 20);
-                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 20: y -= 1;
                     g.at("oDoor/step#0", 20);
                     g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;

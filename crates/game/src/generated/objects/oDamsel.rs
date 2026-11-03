@@ -35,7 +35,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let x = scr::getKissValue(g, cx, &[])?.mul(&r(3.0))?; g.set(cx.this, v::cost, x)?; }
     // 11: if (global.isDamsel)
     g.at("oDamsel/create#1", 11);
-    if g.gget(gv::isDamsel)?.is_truthy() {
+    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
         // 11: buyMessage = "I'LL LET YOU HAVE HIM FOR $" + string(cost) + "!";
         g.at("oDamsel/create#1", 11);
         {
@@ -120,7 +120,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (bombID)
     g.at("oDamsel/destroy#1", 1);
-    if g.get(cx.this, v::bombID)?.is_truthy() {
+    if g.get(cx.this, v::bombID)?.cond(Cond::If)? {
         // 3: bombID.enemyID = 0;
         g.at("oDamsel/destroy#1", 3);
         { let t = g.get(cx.this, v::bombID)?; g.set_on(cx, &t, v::enemyID, r(0.0))?; }
@@ -133,7 +133,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (active && collision_point(x, y, oExit, 0, 0) && hp > 0 && !held && status != THROWN)
     g.at("oDamsel/step#1", 1);
-    if and(and(and(and(g.get(cx.this, v::active)?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), g.get(cx.this, v::hp)?.gml_gt(&r(0.0))?), g.get(cx.this, v::held)?.not()?.is_truthy()), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::THROWN)?)?) {
+    if and({ let p3 = and({ let p1 = g.get(cx.this, v::active)?; let q2 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) }, g.get(cx.this, v::hp)?.gml_gt(&r(0.0))?); let q4 = g.get(cx.this, v::held)?.not()?; and(p3, q4.cond(Cond::And)?) }, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::THROWN)?)?) {
         // 7: global.damselsSavedTotal += 1;
         g.at("oDamsel/step#1", 7);
         g.gset(gv::damselsSavedTotal, lenient(Value::add, g.gget(gv::damselsSavedTotal)?, &r(1.0))?)?;
@@ -157,7 +157,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::y, g.get_on(cx, &g.get(cx.this, v::door)?, v::y)?.add(&r(8.0))?)?;
         // 13: if (global.isDamsel)
         g.at("oDamsel/step#1", 13);
-        if g.gget(gv::isDamsel)?.is_truthy() {
+        if g.gget(gv::isDamsel)?.cond(Cond::If)? {
             // 13: sprite_index = sPExit;
             g.at("oDamsel/step#1", 13);
             g.set(cx.this, v::sprite_index, spr::sPExit)?;
@@ -207,10 +207,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 32: if (collision_point(x, y, oWaterSwim, -1, -1))
     g.at("oDamsel/step#1", 32);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWaterSwim, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWaterSwim, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 34: if (!swimming)
         g.at("oDamsel/step#1", 34);
-        if g.get(cx.this, v::swimming)?.not()?.is_truthy() {
+        if g.get(cx.this, v::swimming)?.not()?.cond(Cond::If)? {
             // 36: instance_create(x, y, oSplash);
             g.at("oDamsel/step#1", 36);
             { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSplash]; b::instance_create(g, cx, a)? };
@@ -241,10 +241,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 54: if (!invincible)
     g.at("oDamsel/step#1", 54);
-    if g.get(cx.this, v::invincible)?.not()?.is_truthy() {
+    if g.get(cx.this, v::invincible)?.not()?.cond(Cond::If)? {
         // 56: if (collision_point(x, y, oSolid, 0, 0) && !held)
         g.at("oDamsel/step#1", 56);
-        if and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), g.get(cx.this, v::held)?.not()?.is_truthy()) {
+        if { let p5 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q6 = g.get(cx.this, v::held)?.not()?; and(p5.cond(Cond::And)?, q6.cond(Cond::And)?) } {
             // 58: scrCreateBlood(x, y, 3);
             g.at("oDamsel/step#1", 58);
             { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
@@ -284,7 +284,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 75: if (collision_point(x, y + 6, oLava, 0, 0))
         g.at("oDamsel/step#1", 75);
-        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 77: status = DEAD;
             g.at("oDamsel/step#1", 77);
             g.set(cx.this, v::status, g.get(cx.this, v::DEAD)?)?;
@@ -319,7 +319,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 91: if (collision_point(x, y + 6, oSpikes, 0, 0) && yVel > 2)
         g.at("oDamsel/step#1", 91);
-        if and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), g.get(cx.this, v::yVel)?.gml_gt(&r(2.0))?) {
+        if { let p7 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q8 = g.get(cx.this, v::yVel)?.gml_gt(&r(2.0))?; and(p7.cond(Cond::And)?, q8) } {
             // 93: obj = instance_place(x, y + 6, oSpikes);
             g.at("oDamsel/step#1", 93);
             {
@@ -330,15 +330,15 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oDamsel/step#1", 94);
             {
                 let t = g.get(cx.this, v::obj)?;
-                let mut it1 = g.with_iter(cx, &t)?;
-                let outer3 = (cx.this, cx.other);
-                'with1: while let Some(h2) = it1.next(g) {
-                    (cx.this, cx.other) = (h2, outer3.0);
+                let mut it9 = g.with_iter(cx, &t)?;
+                let outer11 = (cx.this, cx.other);
+                'with1: while let Some(h10) = it9.next(g) {
+                    (cx.this, cx.other) = (h10, outer11.0);
                     // 94: sprite_index = sSpikesBlood;
                     g.at("oDamsel/step#1", 94);
                     g.set(cx.this, v::sprite_index, spr::sSpikesBlood)?;
                 }
-                (cx.this, cx.other) = outer3;
+                (cx.this, cx.other) = outer11;
             }
             // 95: if (hp > 0)
             g.at("oDamsel/step#1", 95);
@@ -349,7 +349,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 99: if (global.isDamsel)
             g.at("oDamsel/step#1", 99);
-            if g.gget(gv::isDamsel)?.is_truthy() {
+            if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                 // 101: sprite_index = sDieL;
                 g.at("oDamsel/step#1", 101);
                 g.set(cx.this, v::sprite_index, spr::sDieL)?;
@@ -386,7 +386,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 119: if (collision_rectangle(x - 3, y - 3, x + 3, y + 3, oSpearsLeft, 0, 0) && (status != THROWN || isCol
         g.at("oDamsel/step#1", 119);
-        if and(({ let a = [g.get(cx.this, v::x)?.sub(&r(3.0))?, g.get(cx.this, v::y)?.sub(&r(3.0))?, g.get(cx.this, v::x)?.add(&r(3.0))?, g.get(cx.this, v::y)?.add(&r(3.0))?, obj::oSpearsLeft, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy(), or(g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::THROWN)?)?, scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy())) {
+        if { let p14 = { let a = [g.get(cx.this, v::x)?.sub(&r(3.0))?, g.get(cx.this, v::y)?.sub(&r(3.0))?, g.get(cx.this, v::x)?.add(&r(3.0))?, g.get(cx.this, v::y)?.add(&r(3.0))?, obj::oSpearsLeft, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; let q15 = { let p12 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::THROWN)?)?; let q13 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; or(p12, q13.cond(Cond::Or)?) }; and(p14.cond(Cond::And)?, q15) } {
             // 122: obj = instance_nearest(x, y, oSpearsLeft);
             g.at("oDamsel/step#1", 122);
             {
@@ -398,7 +398,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::image_index)?.gml_ge(&r(19.0))?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::image_index)?.gml_lt(&r(28.0))?) {
                 // 125: if (held)
                 g.at("oDamsel/step#1", 125);
-                if g.get(cx.this, v::held)?.is_truthy() {
+                if g.get(cx.this, v::held)?.cond(Cond::If)? {
                     // 127: held = false;
                     g.at("oDamsel/step#1", 127);
                     g.set(cx.this, v::held, r(0.0))?;
@@ -406,10 +406,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oDamsel/step#1", 128);
                     {
                         let t = obj::oPlayer1;
-                        let mut it4 = g.with_iter(cx, &t)?;
-                        let outer6 = (cx.this, cx.other);
-                        'with2: while let Some(h5) = it4.next(g) {
-                            (cx.this, cx.other) = (h5, outer6.0);
+                        let mut it16 = g.with_iter(cx, &t)?;
+                        let outer18 = (cx.this, cx.other);
+                        'with2: while let Some(h17) = it16.next(g) {
+                            (cx.this, cx.other) = (h17, outer18.0);
                             // 128: holdItem = 0;
                             g.at("oDamsel/step#1", 128);
                             g.set(cx.this, v::holdItem, r(0.0))?;
@@ -417,7 +417,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.at("oDamsel/step#1", 128);
                             g.set(cx.this, v::pickupItemType, s!(""))?;
                         }
-                        (cx.this, cx.other) = outer6;
+                        (cx.this, cx.other) = outer18;
                     }
                 }
                 // 130: hp -= 2;
@@ -457,7 +457,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 143: if (!held && yVel > 2 && status != THROWN)
     g.at("oDamsel/step#1", 143);
-    if and(and(g.get(cx.this, v::held)?.not()?.is_truthy(), g.get(cx.this, v::yVel)?.gml_gt(&r(2.0))?), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::THROWN)?)?) {
+    if and({ let p19 = g.get(cx.this, v::held)?.not()?; let q20 = g.get(cx.this, v::yVel)?.gml_gt(&r(2.0))?; and(p19.cond(Cond::And)?, q20) }, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::THROWN)?)?) {
         // 145: status = THROWN;
         g.at("oDamsel/step#1", 145);
         g.set(cx.this, v::status, g.get(cx.this, v::THROWN)?)?;
@@ -470,7 +470,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 150: if (held)
     g.at("oDamsel/step#1", 150);
-    if g.get(cx.this, v::held)?.is_truthy() {
+    if g.get(cx.this, v::held)?.cond(Cond::If)? {
         // 152: facing = oCharacter.facing;
         g.at("oDamsel/step#1", 152);
         g.set(cx.this, v::facing, g.get_on(cx, &obj::oCharacter, v::facing)?)?;
@@ -491,7 +491,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 158: if (global.isDamsel)
             g.at("oDamsel/step#1", 158);
-            if g.gget(gv::isDamsel)?.is_truthy() {
+            if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                 // 160: sprite_index = sStandLeft;
                 g.at("oDamsel/step#1", 160);
                 g.set(cx.this, v::sprite_index, spr::sStandLeft)?;
@@ -528,7 +528,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)? {
                     // 179: if (global.isDamsel)
                     g.at("oDamsel/step#1", 179);
-                    if g.gget(gv::isDamsel)?.is_truthy() {
+                    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                         // 181: sprite_index = sStandLeft;
                         g.at("oDamsel/step#1", 181);
                         g.set(cx.this, v::sprite_index, spr::sStandLeft)?;
@@ -549,7 +549,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.set(cx.this, v::status, g.get(cx.this, v::YELL)?)?;
                         // 191: if (global.isDamsel)
                         g.at("oDamsel/step#1", 191);
-                        if g.gget(gv::isDamsel)?.is_truthy() {
+                        if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                             // 193: sprite_index = sYellLeft;
                             g.at("oDamsel/step#1", 193);
                             g.set(cx.this, v::sprite_index, spr::sYellLeft)?;
@@ -601,7 +601,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.set(cx.this, v::image_speed, r(0.8))?;
                             // 215: if (global.isDamsel)
                             g.at("oDamsel/step#1", 215);
-                            if g.gget(gv::isDamsel)?.is_truthy() {
+                            if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                                 // 217: sprite_index = sRunLeft;
                                 g.at("oDamsel/step#1", 217);
                                 g.set(cx.this, v::sprite_index, spr::sRunLeft)?;
@@ -612,14 +612,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 223: if (facing == LEFT && isCollisionLeft(2))
                             g.at("oDamsel/step#1", 223);
-                            if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, scr::isCollisionLeft(g, cx, &[r(2.0)])?.is_truthy()) {
+                            if { let p21 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?; let q22 = scr::isCollisionLeft(g, cx, &[r(2.0)])?; and(p21, q22.cond(Cond::And)?) } {
                                 // 223: facing = RIGHT;
                                 g.at("oDamsel/step#1", 223);
                                 g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
                             }
                             // 224: if (facing == RIGHT && isCollisionRight(2))
                             g.at("oDamsel/step#1", 224);
-                            if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, scr::isCollisionRight(g, cx, &[r(2.0)])?.is_truthy()) {
+                            if { let p23 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?; let q24 = scr::isCollisionRight(g, cx, &[r(2.0)])?; and(p23, q24.cond(Cond::And)?) } {
                                 // 224: facing = LEFT;
                                 g.at("oDamsel/step#1", 224);
                                 g.set(cx.this, v::facing, g.get(cx.this, v::LEFT)?)?;
@@ -641,7 +641,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::THROWN)?)? {
                                 // 239: if (!startled)
                                 g.at("oDamsel/step#1", 239);
-                                if g.get(cx.this, v::startled)?.not()?.is_truthy() {
+                                if g.get(cx.this, v::startled)?.not()?.cond(Cond::If)? {
                                     // 241: global.damselsGrabbed += 1;
                                     g.at("oDamsel/step#1", 241);
                                     g.gset(gv::damselsGrabbed, lenient(Value::add, g.gget(gv::damselsGrabbed)?, &r(1.0))?)?;
@@ -651,7 +651,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 245: if (global.isDamsel)
                                 g.at("oDamsel/step#1", 245);
-                                if g.gget(gv::isDamsel)?.is_truthy() {
+                                if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                                     // 247: if (xVel == 0)
                                     g.at("oDamsel/step#1", 247);
                                     if g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))? {
@@ -661,7 +661,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     } else {
                                         // 248: if (bounced)
                                         g.at("oDamsel/step#1", 248);
-                                        if g.get(cx.this, v::bounced)?.is_truthy() {
+                                        if g.get(cx.this, v::bounced)?.cond(Cond::If)? {
                                             // 250: if (yVel < 0)
                                             g.at("oDamsel/step#1", 250);
                                             if g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))? {
@@ -697,7 +697,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     } else {
                                         // 262: if (bounced)
                                         g.at("oDamsel/step#1", 262);
-                                        if g.get(cx.this, v::bounced)?.is_truthy() {
+                                        if g.get(cx.this, v::bounced)?.cond(Cond::If)? {
                                             // 264: if (yVel < 0)
                                             g.at("oDamsel/step#1", 264);
                                             if g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))? {
@@ -726,17 +726,17 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 274: if (isCollisionBottom(1) && !bounced)
                                 g.at("oDamsel/step#1", 274);
-                                if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::bounced)?.not()?.is_truthy()) {
+                                if { let p25 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q26 = g.get(cx.this, v::bounced)?.not()?; and(p25.cond(Cond::And)?, q26.cond(Cond::And)?) } {
                                     // 276: bounced = true;
                                     g.at("oDamsel/step#1", 276);
                                     g.set(cx.this, v::bounced, r(1.0))?;
                                 }
                                 // 279: if (isCollisionBottom(2) || collision_rectangle(x - 4, y - 6, x + 4, y + 8, oWeb, 0, 0))
                                 g.at("oDamsel/step#1", 279);
-                                if or(scr::isCollisionBottom(g, cx, &[r(2.0)])?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(4.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, g.get(cx.this, v::x)?.add(&r(4.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oWeb, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy()) {
+                                if { let p27 = scr::isCollisionBottom(g, cx, &[r(2.0)])?; let q28 = { let a = [g.get(cx.this, v::x)?.sub(&r(4.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, g.get(cx.this, v::x)?.add(&r(4.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oWeb, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; or(p27.cond(Cond::Or)?, q28.cond(Cond::Or)?) } {
                                     // 281: if (!dead)
                                     g.at("oDamsel/step#1", 281);
-                                    if g.get(cx.this, v::dead)?.not()?.is_truthy() {
+                                    if g.get(cx.this, v::dead)?.not()?.cond(Cond::If)? {
                                         // 283: if (counter > 0)
                                         g.at("oDamsel/step#1", 283);
                                         if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
@@ -754,7 +754,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     if g.get(cx.this, v::hp)?.gml_le(&r(0.0))? {
                                         // 289: if (global.isDamsel)
                                         g.at("oDamsel/step#1", 289);
-                                        if g.gget(gv::isDamsel)?.is_truthy() {
+                                        if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                                             // 291: sprite_index = sDieL;
                                             g.at("oDamsel/step#1", 291);
                                             g.set(cx.this, v::sprite_index, spr::sDieL)?;
@@ -768,7 +768,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.set(cx.this, v::status, g.get(cx.this, v::DEAD)?)?;
                                         // 298: if (!dead)
                                         g.at("oDamsel/step#1", 298);
-                                        if g.get(cx.this, v::dead)?.not()?.is_truthy() {
+                                        if g.get(cx.this, v::dead)?.not()?.cond(Cond::If)? {
                                             // 300: dead = true;
                                             g.at("oDamsel/step#1", 300);
                                             g.set(cx.this, v::dead, r(1.0))?;
@@ -796,10 +796,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if or(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::THROWN)?)?, g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::DEAD)?)?) {
         // 312: if (!held && xVel == 0 && yVel == 0)
         g.at("oDamsel/step#1", 312);
-        if and(and(g.get(cx.this, v::held)?.not()?.is_truthy(), g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))?), g.get(cx.this, v::yVel)?.gml_eq(&r(0.0))?) {
+        if and({ let p29 = g.get(cx.this, v::held)?.not()?; let q30 = g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))?; and(p29.cond(Cond::And)?, q30) }, g.get(cx.this, v::yVel)?.gml_eq(&r(0.0))?) {
             // 314: if (collision_point(x, y + 8, oSacAltarLeft, 0, 0))
             g.at("oDamsel/step#1", 314);
-            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSacAltarLeft, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSacAltarLeft, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                 // 316: if (sacCount > 0)
                 g.at("oDamsel/step#1", 316);
                 if g.get(cx.this, v::sacCount)?.gml_gt(&r(0.0))? {
@@ -933,7 +933,7 @@ pub fn collision_oWhipPre_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [g.gget(gv::sndDamsel)?]; scr::playSound(g, cx, &a)? };
             // 19: if (forSale)
             g.at("oDamsel/collision_oWhipPre#0", 19);
-            if g.get(cx.this, v::forSale)?.is_truthy() {
+            if g.get(cx.this, v::forSale)?.cond(Cond::If)? {
                 // 21: scrShopkeeperAnger(3);
                 g.at("oDamsel/collision_oWhipPre#0", 21);
                 scr::scrShopkeeperAnger(g, cx, &[r(3.0)])?;
@@ -992,7 +992,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [g.gget(gv::sndDamsel)?]; scr::playSound(g, cx, &a)? };
             // 19: if (forSale)
             g.at("oDamsel/collision_oWhip#0", 19);
-            if g.get(cx.this, v::forSale)?.is_truthy() {
+            if g.get(cx.this, v::forSale)?.cond(Cond::If)? {
                 // 21: scrShopkeeperAnger(3);
                 g.at("oDamsel/collision_oWhip#0", 21);
                 scr::scrShopkeeperAnger(g, cx, &[r(3.0)])?;

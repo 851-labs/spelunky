@@ -8,14 +8,14 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::image_speed, r(0.6000000000000001))?;
     // 4: if (global.isDamsel)
     g.at("oPDummy5/create#1", 4);
-    if g.gget(gv::isDamsel)?.is_truthy() {
+    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
         // 4: sprite_index = sDamselClimb2;
         g.at("oPDummy5/create#1", 4);
         g.set(cx.this, v::sprite_index, spr::sDamselClimb2)?;
     }
     // 5: if (global.isTunnelMan)
     g.at("oPDummy5/create#1", 5);
-    if g.gget(gv::isTunnelMan)?.is_truthy() {
+    if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
         // 5: sprite_index = sTunnelClimb2;
         g.at("oPDummy5/create#1", 5);
         g.set(cx.this, v::sprite_index, spr::sTunnelClimb2)?;

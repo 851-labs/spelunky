@@ -20,7 +20,7 @@ pub fn scrGetChar(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 // 25: if (keyboard_check(vk_shift))
                 g.at("scripts/scrGetChar", 25);
-                if b::keyboard_check(g, cx, [k::vk_shift])?.is_truthy() {
+                if b::keyboard_check(g, cx, [k::vk_shift])?.cond(Cond::If)? {
                     // 25: return "!";
                     g.at("scripts/scrGetChar", 25);
                     return Ok(s!("!"));
@@ -35,7 +35,7 @@ pub fn scrGetChar(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 // 26: if (keyboard_check(vk_shift))
                 g.at("scripts/scrGetChar", 26);
-                if b::keyboard_check(g, cx, [k::vk_shift])?.is_truthy() {
+                if b::keyboard_check(g, cx, [k::vk_shift])?.cond(Cond::If)? {
                     // 26: return "@";
                     g.at("scripts/scrGetChar", 26);
                     return Ok(s!("@"));
@@ -50,7 +50,7 @@ pub fn scrGetChar(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 // 27: if (keyboard_check(vk_shift))
                 g.at("scripts/scrGetChar", 27);
-                if b::keyboard_check(g, cx, [k::vk_shift])?.is_truthy() {
+                if b::keyboard_check(g, cx, [k::vk_shift])?.cond(Cond::If)? {
                     // 27: return "";
                     g.at("scripts/scrGetChar", 27);
                     return Ok(s!(""));
@@ -65,7 +65,7 @@ pub fn scrGetChar(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 // 28: if (keyboard_check(vk_shift))
                 g.at("scripts/scrGetChar", 28);
-                if b::keyboard_check(g, cx, [k::vk_shift])?.is_truthy() {
+                if b::keyboard_check(g, cx, [k::vk_shift])?.cond(Cond::If)? {
                     // 28: return "$";
                     g.at("scripts/scrGetChar", 28);
                     return Ok(s!("$"));
@@ -80,7 +80,7 @@ pub fn scrGetChar(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 // 29: if (keyboard_check(vk_shift))
                 g.at("scripts/scrGetChar", 29);
-                if b::keyboard_check(g, cx, [k::vk_shift])?.is_truthy() {
+                if b::keyboard_check(g, cx, [k::vk_shift])?.cond(Cond::If)? {
                     // 29: return "%";
                     g.at("scripts/scrGetChar", 29);
                     return Ok(s!("%"));
@@ -95,7 +95,7 @@ pub fn scrGetChar(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 // 30: if (keyboard_check(vk_shift))
                 g.at("scripts/scrGetChar", 30);
-                if b::keyboard_check(g, cx, [k::vk_shift])?.is_truthy() {
+                if b::keyboard_check(g, cx, [k::vk_shift])?.cond(Cond::If)? {
                     // 30: return "";
                     g.at("scripts/scrGetChar", 30);
                     return Ok(s!(""));
@@ -110,7 +110,7 @@ pub fn scrGetChar(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 // 31: if (keyboard_check(vk_shift))
                 g.at("scripts/scrGetChar", 31);
-                if b::keyboard_check(g, cx, [k::vk_shift])?.is_truthy() {
+                if b::keyboard_check(g, cx, [k::vk_shift])?.cond(Cond::If)? {
                     // 31: return "&";
                     g.at("scripts/scrGetChar", 31);
                     return Ok(s!("&"));
@@ -125,7 +125,7 @@ pub fn scrGetChar(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 // 32: if (keyboard_check(vk_shift))
                 g.at("scripts/scrGetChar", 32);
-                if b::keyboard_check(g, cx, [k::vk_shift])?.is_truthy() {
+                if b::keyboard_check(g, cx, [k::vk_shift])?.cond(Cond::If)? {
                     // 32: return "";
                     g.at("scripts/scrGetChar", 32);
                     return Ok(s!(""));
@@ -140,7 +140,7 @@ pub fn scrGetChar(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 // 33: if (keyboard_check(vk_shift))
                 g.at("scripts/scrGetChar", 33);
-                if b::keyboard_check(g, cx, [k::vk_shift])?.is_truthy() {
+                if b::keyboard_check(g, cx, [k::vk_shift])?.cond(Cond::If)? {
                     // 33: return "(";
                     g.at("scripts/scrGetChar", 33);
                     return Ok(s!("("));
@@ -155,7 +155,7 @@ pub fn scrGetChar(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             {
                 // 34: if (keyboard_check(vk_shift))
                 g.at("scripts/scrGetChar", 34);
-                if b::keyboard_check(g, cx, [k::vk_shift])?.is_truthy() {
+                if b::keyboard_check(g, cx, [k::vk_shift])?.cond(Cond::If)? {
                     // 34: return ")";
                     g.at("scripts/scrGetChar", 34);
                     return Ok(s!(")"));

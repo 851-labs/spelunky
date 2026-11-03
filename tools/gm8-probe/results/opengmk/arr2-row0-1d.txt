@@ -1,0 +1,2 @@
+q_0 = 0000000000000000 0
+# stopped: Runtime error: uninitialized variable "q[3]"

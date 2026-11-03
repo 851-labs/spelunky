@@ -6,7 +6,7 @@ pub fn checkPayPressed(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.payPressed)
     g.at("scripts/checkPayPressed", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::payPressed)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::payPressed)?.cond(Cond::If)? {
         // 2: return gamepad.payPressed;
         g.at("scripts/checkPayPressed", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::payPressed)?);

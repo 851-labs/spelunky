@@ -6,7 +6,7 @@ pub fn SS_IsSoundPlaying(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 18: if (is_real(argument0))
     g.at("scripts/SS_IsSoundPlaying", 18);
-    if b::is_real(g, cx, [cx.arg(0)?])?.is_truthy() {
+    if b::is_real(g, cx, [cx.arg(0)?])?.cond(Cond::If)? {
         // 18: return -1;
         g.at("scripts/SS_IsSoundPlaying", 18);
         return Ok(r(-1.0));

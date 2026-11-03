@@ -52,17 +52,17 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttackPressed() ||
     g.at("oEnd2/step#0", 1);
-    if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.is_truthy(), b::keyboard_check_pressed(g, cx, [k::vk_escape])?.is_truthy()), scr::checkAttackPressed(g, cx, &[])?.is_truthy()), scr::checkStartPressed(g, cx, &[])?.is_truthy()) {
+    if { let p5 = { let p3 = { let p1 = b::keyboard_check_pressed(g, cx, [k::vk_enter])?; let q2 = b::keyboard_check_pressed(g, cx, [k::vk_escape])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }; let q4 = scr::checkAttackPressed(g, cx, &[])?; or(p3, q4.cond(Cond::Or)?) }; let q6 = scr::checkStartPressed(g, cx, &[])?; or(p5, q6.cond(Cond::Or)?) } {
         // 6: if (gamepad.attackPressed)
         g.at("oEnd2/step#0", 6);
-        if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {
+        if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::If)? {
             // 6: gamepad.attackPressed = false;
             g.at("oEnd2/step#0", 6);
             { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::attackPressed, r(0.0))?; }
         }
         // 7: if (gamepad.startPressed)
         g.at("oEnd2/step#0", 7);
-        if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.is_truthy() {
+        if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.cond(Cond::If)? {
             // 7: gamepad.startPressed = false;
             g.at("oEnd2/step#0", 7);
             { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::startPressed, r(0.0))?; }

@@ -13,7 +13,7 @@ pub fn scrSaveSettings(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 23: if (global.fullscreen)
     g.at("scripts/scrSaveSettings", 23);
-    if g.gget(gv::fullscreen)?.is_truthy() {
+    if g.gget(gv::fullscreen)?.cond(Cond::If)? {
         // 23: file_text_write_string(file, "1");
         g.at("scripts/scrSaveSettings", 23);
         cx.ret = { let a = [g.get(cx.this, v::file)?, s!("1")]; b::file_text_write_string(g, cx, a)? };
@@ -27,7 +27,7 @@ pub fn scrSaveSettings(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     cx.ret = { let a = [g.get(cx.this, v::file)?]; b::file_text_writeln(g, cx, a)? };
     // 26: if (global.graphicsHigh)
     g.at("scripts/scrSaveSettings", 26);
-    if g.gget(gv::graphicsHigh)?.is_truthy() {
+    if g.gget(gv::graphicsHigh)?.cond(Cond::If)? {
         // 26: file_text_write_string(file, "1");
         g.at("scripts/scrSaveSettings", 26);
         cx.ret = { let a = [g.get(cx.this, v::file)?, s!("1")]; b::file_text_write_string(g, cx, a)? };
@@ -41,7 +41,7 @@ pub fn scrSaveSettings(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     cx.ret = { let a = [g.get(cx.this, v::file)?]; b::file_text_writeln(g, cx, a)? };
     // 29: if (global.downToRun)
     g.at("scripts/scrSaveSettings", 29);
-    if g.gget(gv::downToRun)?.is_truthy() {
+    if g.gget(gv::downToRun)?.cond(Cond::If)? {
         // 29: file_text_write_string(file, "1");
         g.at("scripts/scrSaveSettings", 29);
         cx.ret = { let a = [g.get(cx.this, v::file)?, s!("1")]; b::file_text_write_string(g, cx, a)? };
@@ -55,7 +55,7 @@ pub fn scrSaveSettings(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     cx.ret = { let a = [g.get(cx.this, v::file)?]; b::file_text_writeln(g, cx, a)? };
     // 32: if (global.gamepadOn)
     g.at("scripts/scrSaveSettings", 32);
-    if g.gget(gv::gamepadOn)?.is_truthy() {
+    if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
         // 32: file_text_write_string(file, "1");
         g.at("scripts/scrSaveSettings", 32);
         cx.ret = { let a = [g.get(cx.this, v::file)?, s!("1")]; b::file_text_write_string(g, cx, a)? };

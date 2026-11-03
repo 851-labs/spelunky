@@ -295,7 +295,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!fadeIn)
     g.at("oIntro/alarm_11#0", 1);
-    if g.get(cx.this, v::fadeIn)?.not()?.is_truthy() {
+    if g.get(cx.this, v::fadeIn)?.not()?.cond(Cond::If)? {
         // 3: if (drawStatus >= 0)
         g.at("oIntro/alarm_11#0", 3);
         if g.get(cx.this, v::drawStatus)?.gml_ge(&r(0.0))? {
@@ -314,7 +314,7 @@ pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_10_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!fadeIn)
     g.at("oIntro/alarm_10#0", 1);
-    if g.get(cx.this, v::fadeIn)?.not()?.is_truthy() {
+    if g.get(cx.this, v::fadeIn)?.not()?.cond(Cond::If)? {
         // 3: if (drawStatus >= 0)
         g.at("oIntro/alarm_10#0", 3);
         if g.get(cx.this, v::drawStatus)?.gml_ge(&r(0.0))? {
@@ -333,7 +333,7 @@ pub fn alarm_10_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_9_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!fadeIn)
     g.at("oIntro/alarm_9#0", 1);
-    if g.get(cx.this, v::fadeIn)?.not()?.is_truthy() {
+    if g.get(cx.this, v::fadeIn)?.not()?.cond(Cond::If)? {
         // 3: if (drawStatus >= 0)
         g.at("oIntro/alarm_9#0", 3);
         if g.get(cx.this, v::drawStatus)?.gml_ge(&r(0.0))? {
@@ -352,7 +352,7 @@ pub fn alarm_9_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_8_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!fadeIn)
     g.at("oIntro/alarm_8#0", 1);
-    if g.get(cx.this, v::fadeIn)?.not()?.is_truthy() {
+    if g.get(cx.this, v::fadeIn)?.not()?.cond(Cond::If)? {
         // 3: drawStatus = -1;
         g.at("oIntro/alarm_8#0", 3);
         g.set(cx.this, v::drawStatus, r(-1.0))?;
@@ -367,10 +367,10 @@ pub fn alarm_8_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttackPressed() ||
     g.at("oIntro/step#0", 1);
-    if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.is_truthy(), b::keyboard_check_pressed(g, cx, [k::vk_escape])?.is_truthy()), scr::checkAttackPressed(g, cx, &[])?.is_truthy()), scr::checkStartPressed(g, cx, &[])?.is_truthy()) {
+    if { let p5 = { let p3 = { let p1 = b::keyboard_check_pressed(g, cx, [k::vk_enter])?; let q2 = b::keyboard_check_pressed(g, cx, [k::vk_escape])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }; let q4 = scr::checkAttackPressed(g, cx, &[])?; or(p3, q4.cond(Cond::Or)?) }; let q6 = scr::checkStartPressed(g, cx, &[])?; or(p5, q6.cond(Cond::Or)?) } {
         // 6: if (!instance_exists(oPDummy3))
         g.at("oIntro/step#0", 6);
-        if b::instance_exists(g, cx, [obj::oPDummy3])?.not()?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oPDummy3])?.not()?.cond(Cond::If)? {
             // 6: fadeIn = true;
             g.at("oIntro/step#0", 6);
             g.set(cx.this, v::fadeIn, r(1.0))?;
@@ -385,7 +385,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 14: if (fadeIn)
     g.at("oIntro/step#0", 14);
-    if g.get(cx.this, v::fadeIn)?.is_truthy() {
+    if g.get(cx.this, v::fadeIn)?.cond(Cond::If)? {
         // 16: drawStatus = -1;
         g.at("oIntro/step#0", 16);
         g.set(cx.this, v::drawStatus, r(-1.0))?;
@@ -401,7 +401,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::fadeIn, r(0.0))?;
             // 21: if (!instance_exists(oPDummy3))
             g.at("oIntro/step#0", 21);
-            if b::instance_exists(g, cx, [obj::oPDummy3])?.not()?.is_truthy() {
+            if b::instance_exists(g, cx, [obj::oPDummy3])?.not()?.cond(Cond::If)? {
                 // 21: instance_create(-32, 184, oPDummy3);
                 g.at("oIntro/step#0", 21);
                 b::instance_create(g, cx, [r(-32.0), r(184.0), obj::oPDummy3])?;
@@ -410,7 +410,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 24: if (fadeOut)
         g.at("oIntro/step#0", 24);
-        if g.get(cx.this, v::fadeOut)?.is_truthy() {
+        if g.get(cx.this, v::fadeOut)?.cond(Cond::If)? {
             // 26: if (fadeLevel < 1)
             g.at("oIntro/step#0", 26);
             if g.get(cx.this, v::fadeLevel)?.gml_lt(&r(1.0))? {

@@ -419,7 +419,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let x = b::file_text_open_read(g, cx, [s!("levels/test.tmp")])?; g.set(cx.this, v::file, x)?; }
         // 175: if (file)
         g.at("oLevelEditor/create#0", 175);
-        if g.get(cx.this, v::file)?.is_truthy() {
+        if g.get(cx.this, v::file)?.cond(Cond::If)? {
             // 177: for (...; j < 32; ...)
             g.at("oLevelEditor/create#0", 177);
             // 177: j = 0;
@@ -519,7 +519,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::exitNamesNum, r(0.0))?;
             // 199: if (!file_text_eof(file))
             g.at("oLevelEditor/create#0", 199);
-            if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.is_truthy() {
+            if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.cond(Cond::If)? {
                 // 201: file_text_readln(file);
                 g.at("oLevelEditor/create#0", 201);
                 { let a = [g.get(cx.this, v::file)?]; b::file_text_readln(g, cx, a)? };
@@ -569,7 +569,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::signNamesNum, r(0.0))?;
             // 214: if (!file_text_eof(file))
             g.at("oLevelEditor/create#0", 214);
-            if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.is_truthy() {
+            if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.cond(Cond::If)? {
                 // 216: file_text_readln(file);
                 g.at("oLevelEditor/create#0", 216);
                 { let a = [g.get(cx.this, v::file)?]; b::file_text_readln(g, cx, a)? };
@@ -653,7 +653,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 241: if (obj)
                                 g.at("oLevelEditor/create#0", 241);
-                                if g.get(cx.this, v::obj)?.is_truthy() {
+                                if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                                     // 243: if (exitNamesNum > 0)
                                     g.at("oLevelEditor/create#0", 243);
                                     if g.get(cx.this, v::exitNamesNum)?.gml_gt(&r(0.0))? {
@@ -680,7 +680,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     }
                                     // 253: if (obj)
                                     g.at("oLevelEditor/create#0", 253);
-                                    if g.get(cx.this, v::obj)?.is_truthy() {
+                                    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                                         // 255: if (exitNamesNum > 0)
                                         g.at("oLevelEditor/create#0", 255);
                                         if g.get(cx.this, v::exitNamesNum)?.gml_gt(&r(0.0))? {
@@ -707,7 +707,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         }
                                         // 265: if (obj)
                                         g.at("oLevelEditor/create#0", 265);
-                                        if g.get(cx.this, v::obj)?.is_truthy() {
+                                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                                             // 267: if (signNamesNum > 0)
                                             g.at("oLevelEditor/create#0", 267);
                                             if g.get(cx.this, v::signNamesNum)?.gml_gt(&r(0.0))? {
@@ -810,7 +810,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 13: if (checkAttackPressed())
         g.at("oLevelEditor/step#0", 13);
-        if scr::checkAttackPressed(g, cx, &[])?.is_truthy() {
+        if scr::checkAttackPressed(g, cx, &[])?.cond(Cond::If)? {
             // 15: scrTestLevel();
             g.at("oLevelEditor/step#0", 15);
             scr::scrTestLevel(g, cx, &[])?;
@@ -823,7 +823,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(and(and(and(and(and(and(g.bget(v::mouse_x, 0)?.gml_gt(&r(16.0))?, g.bget(v::mouse_x, 0)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(16.0))?)?), g.bget(v::mouse_y, 0)?.gml_gt(&r(16.0))?), g.bget(v::mouse_y, 0)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(16.0))?)?), g.get_on(cx, &obj::oCursObj, v::x)?.gml_ge(&r(16.0))?), g.get_on(cx, &obj::oCursObj, v::x)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(16.0))?)?), g.get_on(cx, &obj::oCursObj, v::y)?.gml_ge(&r(16.0))?), g.get_on(cx, &obj::oCursObj, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(16.0))?)?) {
                 // 27: if (mouse_check_button(mb_left) && !collision_point(mouse_x, mouse_y, oEditButton, 0, 0) && !collisi
                 g.at("oLevelEditor/step#0", 27);
-                if and(and(and(b::mouse_check_button(g, cx, [k::mb_left])?.is_truthy(), ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oEditButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oNewButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oTestButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                if { let p5 = { let p3 = { let p1 = b::mouse_check_button(g, cx, [k::mb_left])?; let q2 = ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oEditButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) }; let q4 = ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oNewButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p3, q4.cond(Cond::And)?) }; let q6 = ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oTestButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p5, q6.cond(Cond::And)?) } {
                     // 32: if (dropSelect == BLOCKS)
                     g.at("oLevelEditor/step#0", 32);
                     if g.get(cx.this, v::dropSelect)?.gml_eq(&g.get(cx.this, v::BLOCKS)?)? {
@@ -886,7 +886,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 } else {
                     // 53: if (mouse_check_button(mb_right))
                     g.at("oLevelEditor/step#0", 53);
-                    if b::mouse_check_button(g, cx, [k::mb_right])?.is_truthy() {
+                    if b::mouse_check_button(g, cx, [k::mb_right])?.cond(Cond::If)? {
                         // 55: obj = collision_rectangle(oCursObj.x, oCursObj.y, oCursObj.x + 15, oCursObj.y + 15, oDrawnSprite, 0,
                         g.at("oLevelEditor/step#0", 55);
                         {
@@ -895,15 +895,15 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 57: if (obj)
                         g.at("oLevelEditor/step#0", 57);
-                        if g.get(cx.this, v::obj)?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                             // 59: with (obj)
                             g.at("oLevelEditor/step#0", 59);
                             {
                                 let t = g.get(cx.this, v::obj)?;
-                                let mut it1 = g.with_iter(cx, &t)?;
-                                let outer3 = (cx.this, cx.other);
-                                'with1: while let Some(h2) = it1.next(g) {
-                                    (cx.this, cx.other) = (h2, outer3.0);
+                                let mut it7 = g.with_iter(cx, &t)?;
+                                let outer9 = (cx.this, cx.other);
+                                'with1: while let Some(h8) = it7.next(g) {
+                                    (cx.this, cx.other) = (h8, outer9.0);
                                     // 61: if (type == "Giant Spider" || type == "Tomb Lord")
                                     g.at("oLevelEditor/step#0", 61);
                                     if or(g.get(cx.this, v::r#type)?.gml_eq(&s!("Giant Spider"))?, g.get(cx.this, v::r#type)?.gml_eq(&s!("Tomb Lord"))?) {
@@ -920,7 +920,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         b::instance_destroy(g, cx, [])?;
                                     }
                                 }
-                                (cx.this, cx.other) = outer3;
+                                (cx.this, cx.other) = outer9;
                             }
                         }
                         // 71: levelArray[floor(oCursObj.x / 16) - 1, floor(oCursObj.y / 16) - 1] = "0";
@@ -1095,7 +1095,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 b::draw_set_color(g, cx, [k::c_yellow])?;
                                                 // 55: if (!instance_exists(oEntrance))
                                                 g.at("oLevelEditor/draw#0", 55);
-                                                if b::instance_exists(g, cx, [obj::oEntrance])?.not()?.is_truthy() {
+                                                if b::instance_exists(g, cx, [obj::oEntrance])?.not()?.cond(Cond::If)? {
                                                     // 57: strLen = string_length("WARNING: NO ENTRANCE!") * 8;
                                                     g.at("oLevelEditor/draw#0", 57);
                                                     {
@@ -1120,7 +1120,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 64: if (!instance_exists(oExit))
                                                 g.at("oLevelEditor/draw#0", 64);
-                                                if b::instance_exists(g, cx, [obj::oExit])?.not()?.is_truthy() {
+                                                if b::instance_exists(g, cx, [obj::oExit])?.not()?.cond(Cond::If)? {
                                                     // 66: strLen = string_length("WARNING: NO EXIT!") * 8;
                                                     g.at("oLevelEditor/draw#0", 66);
                                                     {
@@ -1228,7 +1228,7 @@ pub fn keypress_89_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 17: if (!obj)
                             g.at("oLevelEditor/keypress_89#0", 17);
-                            if g.get(cx.this, v::obj)?.not()?.is_truthy() {
+                            if g.get(cx.this, v::obj)?.not()?.cond(Cond::If)? {
                                 // 17: obj = instance_position(16 + i * 16, 16 + j * 16, oEntrance);
                                 g.at("oLevelEditor/keypress_89#0", 17);
                                 {
@@ -1238,7 +1238,7 @@ pub fn keypress_89_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 18: if (obj)
                             g.at("oLevelEditor/keypress_89#0", 18);
-                            if g.get(cx.this, v::obj)?.is_truthy() {
+                            if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                                 // 20: exitNames[exitNamesID] = obj.leadsTo;
                                 g.at("oLevelEditor/keypress_89#0", 20);
                                 {
@@ -1261,7 +1261,7 @@ pub fn keypress_89_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 27: if (obj)
                                 g.at("oLevelEditor/keypress_89#0", 27);
-                                if g.get(cx.this, v::obj)?.is_truthy() {
+                                if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                                     // 29: signNames[signNamesID] = obj.message;
                                     g.at("oLevelEditor/keypress_89#0", 29);
                                     {
@@ -1401,7 +1401,7 @@ pub fn keypress_89_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.gset(gv::titleStart, r(2.0))?;
         // 68: if (file_exists("levels/test.tmp"))
         g.at("oLevelEditor/keypress_89#0", 68);
-        if b::file_exists(g, cx, [s!("levels/test.tmp")])?.is_truthy() {
+        if b::file_exists(g, cx, [s!("levels/test.tmp")])?.cond(Cond::If)? {
             // 68: file_delete("levels/test.tmp");
             g.at("oLevelEditor/keypress_89#0", 68);
             b::file_delete(g, cx, [s!("levels/test.tmp")])?;
@@ -1456,7 +1456,7 @@ pub fn keypress_78_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.gset(gv::titleStart, r(2.0))?;
         // 4: if (file_exists("levels/test.tmp"))
         g.at("oLevelEditor/keypress_78#0", 4);
-        if b::file_exists(g, cx, [s!("levels/test.tmp")])?.is_truthy() {
+        if b::file_exists(g, cx, [s!("levels/test.tmp")])?.cond(Cond::If)? {
             // 4: file_delete("levels/test.tmp");
             g.at("oLevelEditor/keypress_78#0", 4);
             b::file_delete(g, cx, [s!("levels/test.tmp")])?;
@@ -1716,7 +1716,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 9: if (file)
                 g.at("oLevelEditor/keypress_1#0", 9);
-                if g.get(cx.this, v::file)?.is_truthy() {
+                if g.get(cx.this, v::file)?.cond(Cond::If)? {
                     // 11: for (...; j < 32; ...)
                     g.at("oLevelEditor/keypress_1#0", 11);
                     // 11: j = 0;
@@ -1816,7 +1816,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::exitNamesNum, r(0.0))?;
                     // 33: if (!file_text_eof(file))
                     g.at("oLevelEditor/keypress_1#0", 33);
-                    if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.cond(Cond::If)? {
                         // 35: file_text_readln(file);
                         g.at("oLevelEditor/keypress_1#0", 35);
                         { let a = [g.get(cx.this, v::file)?]; b::file_text_readln(g, cx, a)? };
@@ -1866,7 +1866,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::signNamesNum, r(0.0))?;
                     // 48: if (!file_text_eof(file))
                     g.at("oLevelEditor/keypress_1#0", 48);
-                    if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.cond(Cond::If)? {
                         // 50: file_text_readln(file);
                         g.at("oLevelEditor/keypress_1#0", 50);
                         { let a = [g.get(cx.this, v::file)?]; b::file_text_readln(g, cx, a)? };
@@ -1950,7 +1950,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         }
                                         // 75: if (obj)
                                         g.at("oLevelEditor/keypress_1#0", 75);
-                                        if g.get(cx.this, v::obj)?.is_truthy() {
+                                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                                             // 77: if (exitNamesNum > 0)
                                             g.at("oLevelEditor/keypress_1#0", 77);
                                             if g.get(cx.this, v::exitNamesNum)?.gml_gt(&r(0.0))? {
@@ -1977,7 +1977,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             }
                                             // 87: if (obj)
                                             g.at("oLevelEditor/keypress_1#0", 87);
-                                            if g.get(cx.this, v::obj)?.is_truthy() {
+                                            if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                                                 // 89: if (exitNamesNum > 0)
                                                 g.at("oLevelEditor/keypress_1#0", 89);
                                                 if g.get(cx.this, v::exitNamesNum)?.gml_gt(&r(0.0))? {
@@ -2004,7 +2004,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 99: if (obj)
                                                 g.at("oLevelEditor/keypress_1#0", 99);
-                                                if g.get(cx.this, v::obj)?.is_truthy() {
+                                                if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                                                     // 101: if (signNamesNum > 0)
                                                     g.at("oLevelEditor/keypress_1#0", 101);
                                                     if g.get(cx.this, v::signNamesNum)?.gml_gt(&r(0.0))? {
@@ -2087,7 +2087,7 @@ pub fn keypress_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 140: if (obj)
                     g.at("oLevelEditor/keypress_1#0", 140);
-                    if g.get(cx.this, v::obj)?.is_truthy() {
+                    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                         // 142: if (obj.type == "Exit")
                         g.at("oLevelEditor/keypress_1#0", 142);
                         if g.get_on(cx, &g.get(cx.this, v::obj)?, v::r#type)?.gml_eq(&s!("Exit"))? {

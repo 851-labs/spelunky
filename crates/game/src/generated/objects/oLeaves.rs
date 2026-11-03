@@ -5,17 +5,17 @@ use crate::rt::*;
 pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (global.cemetary)
     g.at("oLeaves/create#0", 1);
-    if g.gget(gv::cemetary)?.is_truthy() {
+    if g.gget(gv::cemetary)?.cond(Cond::If)? {
         // 1: sprite_index = sLeavesDead;
         g.at("oLeaves/create#0", 1);
         g.set(cx.this, v::sprite_index, spr::sLeavesDead)?;
     }
     // 3: if (collision_point(x - 16, y, oTree, 0, 0) || collision_point(x - 16, y, oLeaves, 0, 0))
     g.at("oLeaves/create#0", 3);
-    if or(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()) {
+    if { let p1 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q2 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 5: if (global.cemetary)
         g.at("oLeaves/create#0", 5);
-        if g.gget(gv::cemetary)?.is_truthy() {
+        if g.gget(gv::cemetary)?.cond(Cond::If)? {
             // 5: sprite_index = sLeavesDeadR;
             g.at("oLeaves/create#0", 5);
             g.set(cx.this, v::sprite_index, spr::sLeavesDeadR)?;
@@ -56,10 +56,10 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!spriteSet)
     g.at("oLeaves/step#0", 1);
-    if g.get(cx.this, v::spriteSet)?.not()?.is_truthy() {
+    if g.get(cx.this, v::spriteSet)?.not()?.cond(Cond::If)? {
         // 3: if (collision_point(x - 16, y, oTree, 0, 0) || collision_point(x - 16, y, oLeaves, 0, 0) && (collisi
         g.at("oLeaves/step#0", 3);
-        if and(or(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), or(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy())) {
+        if and({ let p1 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q2 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }, { let p3 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q4 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) }) {
             // 6: sprite_index = sLeavesTop;
             g.at("oLeaves/step#0", 6);
             g.set(cx.this, v::sprite_index, spr::sLeavesTop)?;
@@ -73,7 +73,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLeavesTop)? {
             // 15: if (!collision_point(x - 16, y, oTree, 0, 0) && !collision_point(x - 16, y, oLeaves, 0, 0) || (!coll
             g.at("oLeaves/step#0", 15);
-            if or(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), and(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy())) {
+            if or({ let p5 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q6 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p5.cond(Cond::And)?, q6.cond(Cond::And)?) }, { let p7 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q8 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p7.cond(Cond::And)?, q8.cond(Cond::And)?) }) {
                 // 18: instance_destroy();
                 g.at("oLeaves/step#0", 18);
                 b::instance_destroy(g, cx, [])?;
@@ -84,7 +84,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLeaves)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLeavesDead)?) {
                 // 23: if (!collision_point(x + 16, y, oTree, 0, 0) && !collision_point(x + 16, y, oLeaves, 0, 0))
                 g.at("oLeaves/step#0", 23);
-                if and(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                if { let p9 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q10 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p9.cond(Cond::And)?, q10.cond(Cond::And)?) } {
                     // 25: instance_destroy();
                     g.at("oLeaves/step#0", 25);
                     b::instance_destroy(g, cx, [])?;
@@ -95,7 +95,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLeavesRight)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLeavesDeadR)?) {
                     // 30: if (!collision_point(x - 16, y, oTree, 0, 0) && !collision_point(x - 16, y, oLeaves, 0, 0))
                     g.at("oLeaves/step#0", 30);
-                    if and(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if { let p11 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q12 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLeaves, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p11.cond(Cond::And)?, q12.cond(Cond::And)?) } {
                         // 32: instance_destroy();
                         g.at("oLeaves/step#0", 32);
                         b::instance_destroy(g, cx, [])?;

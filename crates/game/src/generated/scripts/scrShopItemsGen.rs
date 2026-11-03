@@ -9,13 +9,13 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     if g.get(cx.this, v::shopType)?.gml_eq(&s!("Bomb"))? {
         // 26: while (true)
         g.at("scripts/scrShopItemsGen", 26);
-        'while1: while r(1.0).is_truthy() {
+        'while1: while r(1.0).cond(Cond::Loop)? {
             // 28: if (rand(1, 5) == 1)
             g.at("scripts/scrShopItemsGen", 28);
             if scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_eq(&r(1.0))? {
                 // 30: if (!instance_exists(oPaste))
                 g.at("scripts/scrShopItemsGen", 30);
-                if b::instance_exists(g, cx, [obj::oPaste])?.not()?.is_truthy() {
+                if b::instance_exists(g, cx, [obj::oPaste])?.not()?.cond(Cond::If)? {
                     // 30: obj = instance_create(xpos + 8, ypos + 10, oPaste);
                     g.at("scripts/scrShopItemsGen", 30);
                     {
@@ -68,7 +68,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 39: while (true)
             g.at("scripts/scrShopItemsGen", 39);
-            'while2: while r(1.0).is_truthy() {
+            'while2: while r(1.0).cond(Cond::Loop)? {
                 // 41: n = rand(1, 4);
                 g.at("scripts/scrShopItemsGen", 41);
                 {
@@ -95,7 +95,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     if scr::rand(g, cx, &[r(1.0), r(12.0)])?.gml_eq(&r(1.0))? {
                         // 45: if (!instance_exists(oWebCannon))
                         g.at("scripts/scrShopItemsGen", 45);
-                        if b::instance_exists(g, cx, [obj::oWebCannon])?.not()?.is_truthy() {
+                        if b::instance_exists(g, cx, [obj::oWebCannon])?.not()?.cond(Cond::If)? {
                             // 45: obj = instance_create(xpos + 8, ypos + 12, oWebCannon);
                             g.at("scripts/scrShopItemsGen", 45);
                             {
@@ -113,7 +113,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {
                             // 49: if (!instance_exists(oShotgun))
                             g.at("scripts/scrShopItemsGen", 49);
-                            if b::instance_exists(g, cx, [obj::oShotgun])?.not()?.is_truthy() {
+                            if b::instance_exists(g, cx, [obj::oShotgun])?.not()?.cond(Cond::If)? {
                                 // 49: obj = instance_create(xpos + 8, ypos + 12, oShotgun);
                                 g.at("scripts/scrShopItemsGen", 49);
                                 {
@@ -145,7 +145,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 if g.get(cx.this, v::n)?.gml_eq(&r(1.0))? {
                                     // 54: if (!instance_exists(oPistol))
                                     g.at("scripts/scrShopItemsGen", 54);
-                                    if b::instance_exists(g, cx, [obj::oPistol])?.not()?.is_truthy() {
+                                    if b::instance_exists(g, cx, [obj::oPistol])?.not()?.cond(Cond::If)? {
                                         // 54: obj = instance_create(xpos + 8, ypos + 12, oPistol);
                                         g.at("scripts/scrShopItemsGen", 54);
                                         {
@@ -163,7 +163,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     if g.get(cx.this, v::n)?.gml_eq(&r(2.0))? {
                                         // 58: if (!instance_exists(oMachete))
                                         g.at("scripts/scrShopItemsGen", 58);
-                                        if b::instance_exists(g, cx, [obj::oMachete])?.not()?.is_truthy() {
+                                        if b::instance_exists(g, cx, [obj::oMachete])?.not()?.cond(Cond::If)? {
                                             // 58: obj = instance_create(xpos + 8, ypos + 12, oMachete);
                                             g.at("scripts/scrShopItemsGen", 58);
                                             {
@@ -195,7 +195,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             if g.get(cx.this, v::n)?.gml_eq(&r(4.0))? {
                                                 // 63: if (!instance_exists(oBow))
                                                 g.at("scripts/scrShopItemsGen", 63);
-                                                if b::instance_exists(g, cx, [obj::oBow])?.not()?.is_truthy() {
+                                                if b::instance_exists(g, cx, [obj::oBow])?.not()?.cond(Cond::If)? {
                                                     // 63: obj = instance_create(xpos + 8, ypos + 12, oBow);
                                                     g.at("scripts/scrShopItemsGen", 63);
                                                     {
@@ -237,7 +237,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 71: while (true)
                 g.at("scripts/scrShopItemsGen", 71);
-                'while3: while r(1.0).is_truthy() {
+                'while3: while r(1.0).cond(Cond::Loop)? {
                     // 73: n = rand(1, 6);
                     g.at("scripts/scrShopItemsGen", 73);
                     {
@@ -264,7 +264,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         if g.get(cx.this, v::n)?.gml_eq(&r(1.0))? {
                             // 77: if (!instance_exists(oSpringShoes))
                             g.at("scripts/scrShopItemsGen", 77);
-                            if b::instance_exists(g, cx, [obj::oSpringShoes])?.not()?.is_truthy() {
+                            if b::instance_exists(g, cx, [obj::oSpringShoes])?.not()?.cond(Cond::If)? {
                                 // 77: obj = instance_create(xpos + 8, ypos + 10, oSpringShoes);
                                 g.at("scripts/scrShopItemsGen", 77);
                                 {
@@ -282,7 +282,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             if g.get(cx.this, v::n)?.gml_eq(&r(2.0))? {
                                 // 81: if (!instance_exists(oSpectacles))
                                 g.at("scripts/scrShopItemsGen", 81);
-                                if b::instance_exists(g, cx, [obj::oSpectacles])?.not()?.is_truthy() {
+                                if b::instance_exists(g, cx, [obj::oSpectacles])?.not()?.cond(Cond::If)? {
                                     // 81: obj = instance_create(xpos + 8, ypos + 10, oSpectacles);
                                     g.at("scripts/scrShopItemsGen", 81);
                                     {
@@ -300,7 +300,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 if g.get(cx.this, v::n)?.gml_eq(&r(3.0))? {
                                     // 85: if (!instance_exists(oGloves))
                                     g.at("scripts/scrShopItemsGen", 85);
-                                    if b::instance_exists(g, cx, [obj::oGloves])?.not()?.is_truthy() {
+                                    if b::instance_exists(g, cx, [obj::oGloves])?.not()?.cond(Cond::If)? {
                                         // 85: obj = instance_create(xpos + 8, ypos + 8, oGloves);
                                         g.at("scripts/scrShopItemsGen", 85);
                                         {
@@ -318,7 +318,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     if g.get(cx.this, v::n)?.gml_eq(&r(4.0))? {
                                         // 89: if (!instance_exists(oMitt))
                                         g.at("scripts/scrShopItemsGen", 89);
-                                        if b::instance_exists(g, cx, [obj::oMitt])?.not()?.is_truthy() {
+                                        if b::instance_exists(g, cx, [obj::oMitt])?.not()?.cond(Cond::If)? {
                                             // 89: obj = instance_create(xpos + 8, ypos + 8, oMitt);
                                             g.at("scripts/scrShopItemsGen", 89);
                                             {
@@ -336,7 +336,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         if g.get(cx.this, v::n)?.gml_eq(&r(5.0))? {
                                             // 93: if (!instance_exists(oCapePickup))
                                             g.at("scripts/scrShopItemsGen", 93);
-                                            if b::instance_exists(g, cx, [obj::oCapePickup])?.not()?.is_truthy() {
+                                            if b::instance_exists(g, cx, [obj::oCapePickup])?.not()?.cond(Cond::If)? {
                                                 // 93: obj = instance_create(xpos + 8, ypos + 10, oCapePickup);
                                                 g.at("scripts/scrShopItemsGen", 93);
                                                 {
@@ -354,7 +354,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             if g.get(cx.this, v::n)?.gml_eq(&r(6.0))? {
                                                 // 97: if (!instance_exists(oSpikeShoes))
                                                 g.at("scripts/scrShopItemsGen", 97);
-                                                if b::instance_exists(g, cx, [obj::oSpikeShoes])?.not()?.is_truthy() {
+                                                if b::instance_exists(g, cx, [obj::oSpikeShoes])?.not()?.cond(Cond::If)? {
                                                     // 97: obj = instance_create(xpos + 8, ypos + 10, oSpikeShoes);
                                                     g.at("scripts/scrShopItemsGen", 97);
                                                     {
@@ -395,7 +395,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 105: while (true)
                     g.at("scripts/scrShopItemsGen", 105);
-                    'while4: while r(1.0).is_truthy() {
+                    'while4: while r(1.0).cond(Cond::Loop)? {
                         // 107: n = rand(1, 11);
                         g.at("scripts/scrShopItemsGen", 107);
                         {
@@ -422,7 +422,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             if g.get(cx.this, v::n)?.gml_eq(&r(1.0))? {
                                 // 111: if (!instance_exists(oSpringShoes))
                                 g.at("scripts/scrShopItemsGen", 111);
-                                if b::instance_exists(g, cx, [obj::oSpringShoes])?.not()?.is_truthy() {
+                                if b::instance_exists(g, cx, [obj::oSpringShoes])?.not()?.cond(Cond::If)? {
                                     // 111: obj = instance_create(xpos + 8, ypos + 10, oSpringShoes);
                                     g.at("scripts/scrShopItemsGen", 111);
                                     {
@@ -440,7 +440,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 if g.get(cx.this, v::n)?.gml_eq(&r(2.0))? {
                                     // 115: if (!instance_exists(oCompass))
                                     g.at("scripts/scrShopItemsGen", 115);
-                                    if b::instance_exists(g, cx, [obj::oCompass])?.not()?.is_truthy() {
+                                    if b::instance_exists(g, cx, [obj::oCompass])?.not()?.cond(Cond::If)? {
                                         // 115: obj = instance_create(xpos + 8, ypos + 10, oCompass);
                                         g.at("scripts/scrShopItemsGen", 115);
                                         {
@@ -458,7 +458,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     if g.get(cx.this, v::n)?.gml_eq(&r(3.0))? {
                                         // 119: if (!instance_exists(oMattock))
                                         g.at("scripts/scrShopItemsGen", 119);
-                                        if b::instance_exists(g, cx, [obj::oMattock])?.not()?.is_truthy() {
+                                        if b::instance_exists(g, cx, [obj::oMattock])?.not()?.cond(Cond::If)? {
                                             // 119: obj = instance_create(xpos + 8, ypos + 10, oMattock);
                                             g.at("scripts/scrShopItemsGen", 119);
                                             {
@@ -476,7 +476,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         if g.get(cx.this, v::n)?.gml_eq(&r(4.0))? {
                                             // 123: if (!instance_exists(oSpectacles))
                                             g.at("scripts/scrShopItemsGen", 123);
-                                            if b::instance_exists(g, cx, [obj::oSpectacles])?.not()?.is_truthy() {
+                                            if b::instance_exists(g, cx, [obj::oSpectacles])?.not()?.cond(Cond::If)? {
                                                 // 123: obj = instance_create(xpos + 8, ypos + 10, oSpectacles);
                                                 g.at("scripts/scrShopItemsGen", 123);
                                                 {
@@ -494,7 +494,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             if g.get(cx.this, v::n)?.gml_eq(&r(5.0))? {
                                                 // 127: if (!instance_exists(oJetpack))
                                                 g.at("scripts/scrShopItemsGen", 127);
-                                                if b::instance_exists(g, cx, [obj::oJetpack])?.not()?.is_truthy() {
+                                                if b::instance_exists(g, cx, [obj::oJetpack])?.not()?.cond(Cond::If)? {
                                                     // 127: obj = instance_create(xpos + 8, ypos + 8, oJetpack);
                                                     g.at("scripts/scrShopItemsGen", 127);
                                                     {
@@ -512,7 +512,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 if g.get(cx.this, v::n)?.gml_eq(&r(6.0))? {
                                                     // 131: if (!instance_exists(oGloves))
                                                     g.at("scripts/scrShopItemsGen", 131);
-                                                    if b::instance_exists(g, cx, [obj::oGloves])?.not()?.is_truthy() {
+                                                    if b::instance_exists(g, cx, [obj::oGloves])?.not()?.cond(Cond::If)? {
                                                         // 131: obj = instance_create(xpos + 8, ypos + 8, oGloves);
                                                         g.at("scripts/scrShopItemsGen", 131);
                                                         {
@@ -530,7 +530,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     if g.get(cx.this, v::n)?.gml_eq(&r(7.0))? {
                                                         // 135: if (!instance_exists(oMitt))
                                                         g.at("scripts/scrShopItemsGen", 135);
-                                                        if b::instance_exists(g, cx, [obj::oMitt])?.not()?.is_truthy() {
+                                                        if b::instance_exists(g, cx, [obj::oMitt])?.not()?.cond(Cond::If)? {
                                                             // 135: obj = instance_create(xpos + 8, ypos + 8, oMitt);
                                                             g.at("scripts/scrShopItemsGen", 135);
                                                             {
@@ -548,7 +548,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                         if g.get(cx.this, v::n)?.gml_eq(&r(8.0))? {
                                                             // 139: if (!instance_exists(oWebCannon))
                                                             g.at("scripts/scrShopItemsGen", 139);
-                                                            if b::instance_exists(g, cx, [obj::oWebCannon])?.not()?.is_truthy() {
+                                                            if b::instance_exists(g, cx, [obj::oWebCannon])?.not()?.cond(Cond::If)? {
                                                                 // 139: obj = instance_create(xpos + 8, ypos + 12, oWebCannon);
                                                                 g.at("scripts/scrShopItemsGen", 139);
                                                                 {
@@ -566,7 +566,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                             if g.get(cx.this, v::n)?.gml_eq(&r(9.0))? {
                                                                 // 143: if (!instance_exists(oCapePickup))
                                                                 g.at("scripts/scrShopItemsGen", 143);
-                                                                if b::instance_exists(g, cx, [obj::oCapePickup])?.not()?.is_truthy() {
+                                                                if b::instance_exists(g, cx, [obj::oCapePickup])?.not()?.cond(Cond::If)? {
                                                                     // 143: obj = instance_create(xpos + 8, ypos + 10, oCapePickup);
                                                                     g.at("scripts/scrShopItemsGen", 143);
                                                                     {
@@ -584,7 +584,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                 if g.get(cx.this, v::n)?.gml_eq(&r(10.0))? {
                                                                     // 147: if (!instance_exists(oTeleporter))
                                                                     g.at("scripts/scrShopItemsGen", 147);
-                                                                    if b::instance_exists(g, cx, [obj::oTeleporter])?.not()?.is_truthy() {
+                                                                    if b::instance_exists(g, cx, [obj::oTeleporter])?.not()?.cond(Cond::If)? {
                                                                         // 147: obj = instance_create(xpos + 8, ypos + 12, oTeleporter);
                                                                         g.at("scripts/scrShopItemsGen", 147);
                                                                         {
@@ -602,7 +602,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                     if g.get(cx.this, v::n)?.gml_eq(&r(11.0))? {
                                                                         // 151: if (!instance_exists(oSpikeShoes))
                                                                         g.at("scripts/scrShopItemsGen", 151);
-                                                                        if b::instance_exists(g, cx, [obj::oSpikeShoes])?.not()?.is_truthy() {
+                                                                        if b::instance_exists(g, cx, [obj::oSpikeShoes])?.not()?.cond(Cond::If)? {
                                                                             // 151: obj = instance_create(xpos + 8, ypos + 10, oSpikeShoes);
                                                                             g.at("scripts/scrShopItemsGen", 151);
                                                                             {
@@ -638,7 +638,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 } else {
                     // 158: while (true)
                     g.at("scripts/scrShopItemsGen", 158);
-                    'while5: while r(1.0).is_truthy() {
+                    'while5: while r(1.0).cond(Cond::Loop)? {
                         // 160: n = rand(1, 3);
                         g.at("scripts/scrShopItemsGen", 160);
                         {
@@ -651,7 +651,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         if scr::rand(g, cx, &[r(1.0), r(20.0)])?.gml_eq(&r(1.0))? {
                             // 163: if (!instance_exists(oMattock))
                             g.at("scripts/scrShopItemsGen", 163);
-                            if b::instance_exists(g, cx, [obj::oMattock])?.not()?.is_truthy() {
+                            if b::instance_exists(g, cx, [obj::oMattock])?.not()?.cond(Cond::If)? {
                                 // 163: obj = instance_create(xpos + 8, ypos + 10, oMattock);
                                 g.at("scripts/scrShopItemsGen", 163);
                                 {
@@ -669,7 +669,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {
                                 // 167: if (!instance_exists(oGloves))
                                 g.at("scripts/scrShopItemsGen", 167);
-                                if b::instance_exists(g, cx, [obj::oGloves])?.not()?.is_truthy() {
+                                if b::instance_exists(g, cx, [obj::oGloves])?.not()?.cond(Cond::If)? {
                                     // 167: obj = instance_create(xpos + 8, ypos + 8, oGloves);
                                     g.at("scripts/scrShopItemsGen", 167);
                                     {
@@ -687,7 +687,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {
                                     // 171: if (!instance_exists(oCompass))
                                     g.at("scripts/scrShopItemsGen", 171);
-                                    if b::instance_exists(g, cx, [obj::oCompass])?.not()?.is_truthy() {
+                                    if b::instance_exists(g, cx, [obj::oCompass])?.not()?.cond(Cond::If)? {
                                         // 171: obj = instance_create(xpos + 8, ypos + 10, oCompass);
                                         g.at("scripts/scrShopItemsGen", 171);
                                         {
@@ -754,7 +754,7 @@ pub fn scrShopItemsGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 179: if (obj)
     g.at("scripts/scrShopItemsGen", 179);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 181: obj.forSale = true;
         g.at("scripts/scrShopItemsGen", 181);
         {

@@ -6,7 +6,7 @@ pub fn scrDropItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 24: if (!holdItem)
     g.at("scripts/scrDropItem", 24);
-    if g.get(cx.this, v::holdItem)?.not()?.is_truthy() {
+    if g.get(cx.this, v::holdItem)?.not()?.cond(Cond::If)? {
         // 24: return 0;
         g.at("scripts/scrDropItem", 24);
         return Ok(r(0.0));
@@ -37,7 +37,7 @@ pub fn scrDropItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 31: if (bowArmed)
     g.at("scripts/scrDropItem", 31);
-    if g.get(cx.this, v::bowArmed)?.is_truthy() {
+    if g.get(cx.this, v::bowArmed)?.cond(Cond::If)? {
         // 33: scrFireBow();
         g.at("scripts/scrDropItem", 33);
         cx.ret = scr::scrFireBow(g, cx, &[])?;

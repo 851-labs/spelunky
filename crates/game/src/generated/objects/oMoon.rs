@@ -13,7 +13,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (isRoom("rCredits1") && instance_exists(oCamel))
     g.at("oMoon/step#0", 1);
-    if and(scr::isRoom(g, cx, &[s!("rCredits1")])?.is_truthy(), b::instance_exists(g, cx, [obj::oCamel])?.is_truthy()) {
+    if { let p1 = scr::isRoom(g, cx, &[s!("rCredits1")])?; let q2 = b::instance_exists(g, cx, [obj::oCamel])?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: x += 0.01;
         g.at("oMoon/step#0", 3);
         g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(0.01))?)?;
