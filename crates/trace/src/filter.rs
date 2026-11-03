@@ -2,7 +2,8 @@
 //!
 //! Patterns are globs where `*` matches any run of characters. Field patterns match *paths*:
 //!
-//! - frame level: `room`, `room_name`, `seed`, `instance_count`, `globals.NAME`, `builtins.NAME`
+//! - frame level: `room`, `room_name`, `seed`, `instance_count`, `globals.NAME`, `builtins.NAME`, `tiles` (a
+//!   writer keeps or drops them whole; `trace-diff` compares `tiles.ID.FIELD`, `FIELD` a tile's or `order`)
 //! - instance level: `active`, `object_index`, the real built-ins (`x`, `image_index`...), `sprite_index`,
 //!   `sprite`, `visible`, `solid`, `alarms[0]` to `alarms[11]`, and `vars.NAME`
 //! - array elements: `vars.NAME[j]` and `vars.NAME[i,j]` (likewise for globals)
@@ -101,6 +102,13 @@ impl Filter {
                 .builtins
                 .as_ref()
                 .map(|b| self.filtered_vars("builtins", b)),
+            // Kept or dropped whole: `trace-diff` filters their paths (`tiles.ID.FIELD`) one by one, so a
+            // field list naming some of them keeps them all here.
+            tiles: frame.tiles.clone().filter(|_| {
+                keep("tiles")
+                    || (self.fields.iter().any(|p| p.starts_with("tiles."))
+                        && !self.ignore_fields.iter().any(|p| path_matches(p, "tiles")))
+            }),
         }
     }
 

@@ -10,7 +10,7 @@
 use std::collections::BTreeMap;
 
 use crate::trace::ALARMS;
-use crate::{Frame, Instance, Real, Scalar, Value};
+use crate::{Frame, Instance, Real, Scalar, Tile, Value};
 
 /// Appends the canonical encoding's parts to a buffer.
 pub struct Encoder<'a>(pub &'a mut Vec<u8>);
@@ -217,6 +217,44 @@ impl Encoder<'_> {
         });
         self.vars(vars.as_ref());
     }
+
+    /// Tiles, in the order given: their draw order, which decides how they draw.
+    pub fn tiles(&mut self, list: &[Tile]) {
+        self.len(list.len());
+        for t in list {
+            self.tile(t);
+        }
+    }
+
+    pub fn tile(&mut self, t: &Tile) {
+        // Destructured so that a new field can't be left out of the fingerprint.
+        let &Tile {
+            id,
+            background,
+            left,
+            top,
+            width,
+            height,
+            x,
+            y,
+            depth,
+            xscale,
+            yscale,
+            blend,
+            alpha,
+            visible,
+        } = t;
+        for n in [id, background, left, top, width, height] {
+            self.i32(n);
+        }
+        for Real(r) in [x, y, depth, xscale, yscale] {
+            self.real(r);
+        }
+        // As its 32 bits, zero-extended.
+        self.u64(u64::from(blend as u32));
+        self.real(alpha.0);
+        self.bool(visible);
+    }
 }
 
 /// Appends `f`'s canonical encoding to `out`.
@@ -231,6 +269,7 @@ pub fn encode_frame(out: &mut Vec<u8>, f: &Frame) {
         deactivated,
         globals,
         builtins,
+        tiles,
     } = f;
     let e = &mut Encoder(out);
     e.u64(*frame);
@@ -242,6 +281,7 @@ pub fn encode_frame(out: &mut Vec<u8>, f: &Frame) {
     e.opt(deactivated.as_deref(), Encoder::instances);
     e.vars(globals.as_ref());
     e.vars(builtins.as_ref());
+    e.opt(tiles.as_deref(), Encoder::tiles);
 }
 
 /// A fixed 64-bit hash: replay fingerprints' (`harness::fingerprint`), and the wiki clips' state at their

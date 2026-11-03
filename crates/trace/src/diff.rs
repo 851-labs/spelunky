@@ -16,7 +16,7 @@ use serde::ser::Serializer;
 
 use crate::Error;
 use crate::filter::{Filter, element_path};
-use crate::trace::{ALARMS, Frame, Instance, TraceReader};
+use crate::trace::{ALARMS, Frame, Instance, Tile, TraceReader};
 use crate::value::{Real, Scalar, Value};
 
 /// How instances in one trace are paired with instances in the other.
@@ -516,6 +516,12 @@ fn flatten(frame: &Frame, instance: Option<&InstanceRef>, filters: &Filters) -> 
 type Fields = (Vec<(Cow<'static, str>, Datum)>, Vec<&'static str>);
 
 fn frame_fields(f: &Frame, filter: &Filters) -> Fields {
+    frame_fields_with(f, filter, true)
+}
+
+/// [`frame_fields`], leaving out the tiles unless `tiles`: comparing two frames whose tiles are equal needn't
+/// flatten hundreds of them.
+fn frame_fields_with(f: &Frame, filter: &Filters, tiles: bool) -> Fields {
     let mut out: Vec<(Cow<'static, str>, Datum)> = Vec::new();
     let mut push = |path: &'static str, d: Option<Datum>| {
         if let Some(d) = d
@@ -538,7 +544,44 @@ fn frame_fields(f: &Frame, filter: &Filters) -> Fields {
             push_vars(&mut out, prefix, map, filter);
         }
     }
+    if let Some(list) = &f.tiles {
+        maps.push("tiles");
+        if tiles {
+            push_tiles(&mut out, list, filter);
+        }
+    }
     (out, maps)
+}
+
+/// Each tile's fields as `tiles.ID.FIELD`, and its place in the draw order as `tiles.ID.after`, the id of the
+/// tile drawn just before it (-1 for the first): by id, so a tile only one side has is its own difference and
+/// one `after` of the tile behind it, not one for every tile after it.
+fn push_tiles(out: &mut Vec<(Cow<'static, str>, Datum)>, tiles: &[Tile], filter: &Filters) {
+    for (n, t) in tiles.iter().enumerate() {
+        let after = n.checked_sub(1).map_or(-1, |p| tiles[p].id);
+        let fields = [
+            ("after", Datum::Int(after.into())),
+            ("background", Datum::Int(t.background.into())),
+            ("left", Datum::Int(t.left.into())),
+            ("top", Datum::Int(t.top.into())),
+            ("width", Datum::Int(t.width.into())),
+            ("height", Datum::Int(t.height.into())),
+            ("x", Datum::Real(t.x)),
+            ("y", Datum::Real(t.y)),
+            ("depth", Datum::Real(t.depth)),
+            ("xscale", Datum::Real(t.xscale)),
+            ("yscale", Datum::Real(t.yscale)),
+            ("blend", Datum::Int(t.blend.into())),
+            ("alpha", Datum::Real(t.alpha)),
+            ("visible", Datum::Bool(t.visible)),
+        ];
+        for (name, d) in fields {
+            let path = format!("tiles.{}.{name}", t.id);
+            if filter.keeps_path(&path) {
+                out.push((path.into(), d));
+            }
+        }
+    }
 }
 
 fn instance_fields(inst: &Instance, active: bool, filter: &Filters) -> Fields {
@@ -636,10 +679,16 @@ impl<'o> Comparison<'o> {
             && fa.seed == fb.seed
             && fa.instance_count == fb.instance_count
             && fa.globals == fb.globals
-            && fa.builtins == fb.builtins;
+            && fa.builtins == fb.builtins
+            && fa.tiles == fb.tiles;
         if !same {
             let filter = self.filters;
-            self.fields(None, frame_fields(fa, filter), frame_fields(fb, filter));
+            let tiles = fa.tiles != fb.tiles;
+            self.fields(
+                None,
+                frame_fields_with(fa, filter, tiles),
+                frame_fields_with(fb, filter, tiles),
+            );
         }
         self.instances(fa, fb);
     }
@@ -1525,6 +1574,64 @@ mod tests {
             ..Filter::default()
         };
         assert_eq!(run(players).divergence.unwrap().frame, 4);
+    }
+
+    #[test]
+    fn tiles_compare_by_id() {
+        let tile = |id: i32, x: f64, depth: f64| Tile {
+            id,
+            background: 2,
+            left: 0,
+            top: 0,
+            width: 16,
+            height: 16,
+            x: Real(x),
+            y: Real(0.0),
+            depth: Real(depth),
+            xscale: Real(1.0),
+            yscale: Real(1.0),
+            blend: 0xff_ffff,
+            alpha: Real(1.0),
+            visible: true,
+        };
+        let mut a = walk();
+        for f in &mut a {
+            f.tiles = Some(vec![
+                tile(10, 0.0, 9.0),
+                tile(11, 16.0, 3.0),
+                tile(12, 32.0, 3.0),
+            ]);
+        }
+        // b keeps tile 11 at frame 4 that a deleted: its own fields and tile 12's `after` (11 in b, 10 in a),
+        // not a difference for every tile after it.
+        let mut b = a.clone();
+        a[4].tiles.as_mut().unwrap().remove(1);
+        let r = diff(&a, &b);
+        assert_eq!(r.divergence.as_ref().unwrap().frame, 4);
+        let paths: Vec<String> = fields(&r).into_iter().map(|(p, ..)| p).collect();
+        assert!(paths.contains(&"tiles.11.x".to_string()), "{paths:?}");
+        assert!(paths.contains(&"tiles.12.after".to_string()), "{paths:?}");
+        assert!(
+            paths
+                .iter()
+                .all(|p| p.starts_with("tiles.11.") || p == "tiles.12.after"),
+            "{paths:?}"
+        );
+        // A moved tile is its field.
+        b = a.clone();
+        b[2].tiles.as_mut().unwrap()[0].x = Real(1.0);
+        assert_eq!(
+            fields(&diff(&a, &b)),
+            [(
+                "tiles.10.x".into(),
+                Datum::Real(Real(0.0)),
+                Datum::Real(Real(1.0))
+            )]
+        );
+        // Only one trace dumps tiles: they're left out.
+        let r = diff(&walk(), &a);
+        assert_eq!(r.outcome, Outcome::Identical);
+        assert!(r.not_compared_only_in_b.contains("tiles"));
     }
 
     #[test]

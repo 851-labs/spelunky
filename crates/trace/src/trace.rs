@@ -103,6 +103,34 @@ pub struct Frame {
     /// written out: `view_xview[0]`, `keyboard_key`... An extension.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub builtins: Option<BTreeMap<String, Value>>,
+    /// The room's tiles in draw order: by depth, highest first, and at one depth in the order they were added
+    /// (a stable sort of the tile list, so the same whether or not a draw has sorted it yet). An extension;
+    /// absent means not dumped.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tiles: Option<Vec<Tile>>,
+}
+
+/// One tile: part of a background drawn at a depth, among the instances.
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Tile {
+    pub id: i32,
+    /// The background resource.
+    pub background: i32,
+    /// The part of the background drawn, in its pixels.
+    pub left: i32,
+    pub top: i32,
+    pub width: i32,
+    pub height: i32,
+    pub x: Real,
+    pub y: Real,
+    pub depth: Real,
+    pub xscale: Real,
+    pub yscale: Real,
+    /// `0xBBGGRR`; an `i32`, as the runner keeps it.
+    pub blend: i32,
+    pub alpha: Real,
+    pub visible: bool,
 }
 
 /// One instance. Everything except `id` and `object` is optional so filters can drop it.
@@ -501,6 +529,7 @@ pub(crate) mod tests {
             deactivated: None,
             globals: Some(BTreeMap::from([("money".into(), Value::from(500.0))])),
             builtins: None,
+            tiles: None,
         }
     }
 
