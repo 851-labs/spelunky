@@ -165,13 +165,17 @@ The game's units that never ran, by why:
   - scripts nothing calls: `scripts/getIdCollisionCharacter`, `scripts/getIdCollisionCharacterTop`,
     `scripts/isCollisionCharacter`, `scripts/isCollisionMovingSolidBottom`; and `scripts/isCollisionCharacterLeft`,
     called only inside `gameStepEvent`'s `with oMovingSolid`, which nothing creates.
+  - `oPushBlock/other_0#0`, a push block leaving the room: the Ice Caves make none (no room or obstacle of
+    `scrRoomGen3`'s or `scrRoomGenYeti`'s has the `4` tile, and `scrSetupWalls`, which makes loose blocks with a
+    brick, temple block or hard block under them push blocks, runs only for `oBricks` and the Temple's Olmec room),
+    and every other room a push block is in has a bottom row: the one `scrInitLevel` gives the other areas' levels
+    and custom levels (y 528, or 656 in a lake's taller room), or `rOlmec`'s floor at y 864 (851-3956);
+  - `oYellowBall/other_0#0`, one of Olmec's yellow balls leaving the room: `rOlmec` is walled on every side, and
+    a ball's step destroys it in the first solid its 16-pixel box meets once it's clear of Olmec, which it can't
+    cross in one step (at most 5 pixels sideways and 7 up or 6 down, through a 16-pixel wall) (851-3956).
 - **The mothership and UFOs** (851-3955): `oAlienBoss/collision_oCharacter#0`, `oAlienEject/collision_oPlayer1#0`,
   `oAlienEject/collision_oWeb#0`, `oAlienEject/other_0#0`, `oPsychicWave/other_0#0`, `oBarrier/collision_oCharacter#0`,
   `oBarrier/collision_oWebBall#0`, `oBarrierEmitter/collision_oItem#0`, `oLaser/other_0#0`.
-- **Out of the room, animation ends, lava** (851-3956): `oPushBlock/other_0#0` (the Ice Caves' and Temple's borders
-  have no bottom row), `scripts/scrMoveableSolidRecurseDrop` (a push block sinking in lava), `oYellowBall/other_0#0`,
-  `oPsychicWaveP/other_0#0`, `oPsychicCreateP/other_7#0`, `oLavaDrip/other_7#0`, `oArrowRepeaterL/destroy#0`,
-  `oArrowRepeaterR/destroy#0`, `oFly/collision_oDamsel#0`.
 - **Others' tickets**: `oSpider/alarm_1#0` (a spider drowning, 851-3843), `oNewButton/mouse_11#0` (the editor
   button's mouse-leave, 851-3794).
 
