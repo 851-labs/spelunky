@@ -4,6 +4,7 @@
 use crate::instance::{ALARMS, Instance, State};
 use crate::list::Inst;
 use crate::program::{ObjectId, Program};
+use crate::room::{BACKGROUNDS, VIEWS};
 use crate::string::GmString;
 use crate::value::Value;
 use crate::var::{GVar, Slot, Var};
@@ -11,14 +12,90 @@ use crate::world::World;
 use std::collections::BTreeMap;
 use trace::canon::Encoder;
 
-/// The built-ins the oracle dumps, in name order (the frame's `BTreeMap` order, which the canonical
-/// encoding follows): view 0's rectangle (it decides `oLevel`'s deactivation region).
-const BUILTINS: [&str; 4] = [
-    "view_hview[0]",
-    "view_wview[0]",
-    "view_xview[0]",
-    "view_yview[0]",
+/// What the trace's `builtins` holds, by GML name with the index written out, as the oracle dumps it (its
+/// patch 0006, and 0040 for all but view 0's rectangle, 851-3870): every view (`oLevel` deactivates by view
+/// 0's rectangle; the rest only drawing reads), every background layer and the room's colour, and the drawing
+/// state the frame leaves (GML has no variables for those, so they're named for what sets them: `draw_color`,
+/// `draw_alpha`, `draw_font` (-1 for GM's built-in font), the blend mode's `bm_*` factors
+/// `draw_blend_src`/`draw_blend_dest`, and `draw_target`, the surface drawn to or -1 for the screen). Every
+/// value is a real, as GML reads it (`true` is 1). In the order [`World::builtin_values`] gives them, not
+/// name order: [`BuiltinOrder`] sorts them.
+fn builtin_names() -> Vec<String> {
+    let mut names: Vec<String> = BUILTIN_FRAME.iter().map(|n| n.to_string()).collect();
+    for i in 0..VIEWS {
+        names.extend(BUILTIN_VIEW.iter().map(|n| format!("{n}[{i}]")));
+    }
+    for i in 0..BACKGROUNDS {
+        names.extend(BUILTIN_BACKGROUND.iter().map(|n| format!("{n}[{i}]")));
+    }
+    names
+}
+
+/// The built-ins of the frame, in [`World::builtin_values`]' order.
+const BUILTIN_FRAME: [&str; 9] = [
+    "background_color",
+    "background_showcolor",
+    "view_enabled",
+    "draw_color",
+    "draw_alpha",
+    "draw_font",
+    "draw_blend_src",
+    "draw_blend_dest",
+    "draw_target",
 ];
+
+/// Each view's, `view_*[i]`.
+const BUILTIN_VIEW: [&str; 15] = [
+    "view_visible",
+    "view_xview",
+    "view_yview",
+    "view_wview",
+    "view_hview",
+    "view_xport",
+    "view_yport",
+    "view_wport",
+    "view_hport",
+    "view_angle",
+    "view_hborder",
+    "view_vborder",
+    "view_hspeed",
+    "view_vspeed",
+    "view_object",
+];
+
+/// Each background layer's, `background_*[i]`.
+const BUILTIN_BACKGROUND: [&str; 13] = [
+    "background_visible",
+    "background_foreground",
+    "background_index",
+    "background_x",
+    "background_y",
+    "background_htiled",
+    "background_vtiled",
+    "background_hspeed",
+    "background_vspeed",
+    "background_xscale",
+    "background_yscale",
+    "background_blend",
+    "background_alpha",
+];
+
+/// How many built-ins the trace holds.
+const BUILTIN_COUNT: usize =
+    BUILTIN_FRAME.len() + VIEWS * BUILTIN_VIEW.len() + BACKGROUNDS * BUILTIN_BACKGROUND.len();
+
+/// The built-ins' names in name order (the frame's `BTreeMap` order, which the canonical encoding follows),
+/// each with its place in [`World::builtin_values`].
+#[derive(Clone, Debug)]
+struct BuiltinOrder(Box<[(String, usize)]>);
+
+impl Default for BuiltinOrder {
+    fn default() -> BuiltinOrder {
+        let mut names: Vec<(String, usize)> = builtin_names().into_iter().zip(0..).collect();
+        names.sort();
+        BuiltinOrder(names.into())
+    }
+}
 
 /// GM strings are bytes; traces hold text. Each byte maps to the code point of the same value (Latin-1,
 /// which agrees with Windows-1252 on everything but 0x80-0x9F; Spelunky's strings are ASCII).
@@ -57,7 +134,8 @@ impl World {
     /// The state after the last frame, numbered as the oracle numbers it (the first frame is 0). Instances
     /// and deactivated instances are sorted by id; alarms list those that are set; `vars` and `globals`
     /// hold every assigned variable.
-    /// `builtins` holds view 0's rectangle, as the oracle dumps it.
+    /// `builtins` holds the views, the background layers and the drawing state ([`builtin_names`]), as the
+    /// oracle dumps them.
     pub fn trace_frame(&self) -> trace::Frame {
         self.trace_frame_with(true)
     }
@@ -125,15 +203,75 @@ impl World {
     }
 
     fn trace_builtins(&self) -> BTreeMap<String, trace::Value> {
-        (BUILTINS.into_iter().zip(self.builtins()))
-            .map(|(k, n)| (k.to_string(), scalar(&Value::from(n)).into()))
+        (builtin_names().into_iter().zip(self.builtin_values()))
+            .map(|(k, n)| (k, scalar(&Value::from(n)).into()))
             .collect()
     }
 
-    /// [`BUILTINS`]' values.
-    fn builtins(&self) -> [i32; BUILTINS.len()] {
-        let v = &self.room.views[0];
-        [v.hview, v.wview, v.xview, v.yview]
+    /// The values of [`builtin_names`]' built-ins, in its order.
+    fn builtin_values(&self) -> [f64; BUILTIN_COUNT] {
+        let b = |b: bool| f64::from(u8::from(b));
+        let r = &self.room;
+        let s = self.draw_state;
+        let target = match s.target {
+            draw::Target::Screen => -1.0,
+            draw::Target::Surface(id) => f64::from(id.0),
+        };
+        let mut out = [0.0; BUILTIN_COUNT];
+        let frame = [
+            f64::from(r.background_color as i32),
+            b(r.show_color),
+            b(r.views_enabled),
+            f64::from(self.draw_color().0 as i32),
+            self.draw_alpha(),
+            f64::from(self.draw_font()),
+            f64::from(s.blend.src as i32),
+            f64::from(s.blend.dest as i32),
+            target,
+        ];
+        let views = r.views.iter().flat_map(|v| {
+            [
+                b(v.visible),
+                f64::from(v.xview),
+                f64::from(v.yview),
+                f64::from(v.wview),
+                f64::from(v.hview),
+                f64::from(v.xport),
+                f64::from(v.yport),
+                f64::from(v.wport),
+                f64::from(v.hport),
+                v.angle,
+                f64::from(v.hborder),
+                f64::from(v.vborder),
+                f64::from(v.hspeed),
+                f64::from(v.vspeed),
+                f64::from(v.object),
+            ]
+        });
+        let backgrounds = r.backgrounds.iter().flat_map(|l| {
+            [
+                b(l.visible),
+                b(l.foreground),
+                f64::from(l.index),
+                l.x,
+                l.y,
+                b(l.tile_h),
+                b(l.tile_v),
+                l.hspeed,
+                l.vspeed,
+                l.xscale,
+                l.yscale,
+                f64::from(l.blend as i32),
+                l.alpha,
+            ]
+        });
+        for (o, v) in out
+            .iter_mut()
+            .zip(frame.into_iter().chain(views).chain(backgrounds))
+        {
+            *o = v;
+        }
+        out
     }
 
     fn trace_instance(&self, i: &Instance, fields: bool) -> trace::Instance {
@@ -167,11 +305,14 @@ impl World {
             image_speed: r(i.image_speed),
             image_xscale: r(i.image_xscale),
             image_yscale: r(i.image_yscale),
+            image_angle: r(i.image_angle),
+            image_alpha: r(i.image_alpha),
             depth: r(i.depth),
             sprite_index: Some(i.sprite_index),
             sprite: Some(sprite.map_or(String::new(), |s| s.name.clone())),
             visible: Some(i.visible),
             solid: Some(i.solid),
+            image_blend: Some(i.image_blend),
             alarms: Some(alarms),
             vars,
         }
@@ -229,6 +370,8 @@ pub struct FrameEncoder {
     extra: Vec<usize>,
     /// The tiles in draw order, by index, reused.
     tiles: Vec<usize>,
+    /// The built-ins' names in name order.
+    builtins: BuiltinOrder,
     /// Globals left out of the frame, by name ([`skipping_globals`](Self::skipping_globals)).
     skip_global: Option<fn(&str) -> bool>,
 }
@@ -272,11 +415,14 @@ const _: fn(&trace::Frame, &trace::Instance) = |f, i| {
         image_speed: _,
         image_xscale: _,
         image_yscale: _,
+        image_angle: _,
+        image_alpha: _,
         depth: _,
         sprite_index: _,
         sprite: _,
         visible: _,
         solid: _,
+        image_blend: _,
         alarms: _,
         vars: _,
     } = i;
@@ -352,9 +498,10 @@ impl FrameEncoder {
         }
         e.set_len(at, n);
         e.some(true);
-        e.len(BUILTINS.len());
-        for (name, n) in BUILTINS.into_iter().zip(w.builtins()) {
-            var(e, name, &Slot::Scalar(Value::from(n)));
+        e.len(BUILTIN_COUNT);
+        let values = w.builtin_values();
+        for (name, at) in &self.builtins.0 {
+            var(e, name, &Slot::Scalar(Value::from(values[*at])));
         }
         e.some(true);
         e.len(w.room.tiles.len());
@@ -388,6 +535,8 @@ impl FrameEncoder {
             i.image_speed,
             i.image_xscale,
             i.image_yscale,
+            i.image_angle,
+            i.image_alpha,
             i.depth,
         ] {
             e.some(true);
@@ -401,6 +550,8 @@ impl FrameEncoder {
         e.bool(i.visible);
         e.some(true);
         e.bool(i.solid);
+        e.some(true);
+        e.i32(i.image_blend);
         e.some(true);
         e.len(i.alarms.iter().filter(|&&a| a != -1).count());
         for (k, &a) in (0u64..).zip(&i.alarms) {
@@ -538,7 +689,8 @@ mod tests {
     fn the_encoder_writes_what_encoding_the_frame_does() {
         // The cases the real game's runs (harness's tests) may never reach: names out of order in the
         // layout and the globals, a variable outside the layout, arrays (an empty one too), strings that
-        // aren't ASCII, NaN and -0, set alarms, a deactivated instance, tiles added out of depth order.
+        // aren't ASCII, NaN and -0, set alarms, a deactivated instance, tiles added out of depth order, the
+        // draw-only state.
         let mut b = ProgramBuilder::new();
         let (zeta, alpha) = (b.global("zeta"), b.global("alpha"));
         b.global("unset");
@@ -596,6 +748,15 @@ mod tests {
         w.instance_mut(h2).state = State::Inactive;
         w.gset(zeta, Value::from(1.0)).unwrap();
         w.gset_a(alpha, 0, 3, Value::from("\u{7f}")).unwrap();
+        // What only drawing reads: an instance's, the layers' and views', the drawing state.
+        let i = w.instance_mut(h0);
+        (i.image_alpha, i.image_blend, i.image_angle) = (0.25, 0x12_34_56, -0.0);
+        w.room.views[3].visible = true;
+        w.room.views[7].angle = f64::NAN;
+        w.room.backgrounds[2].x = -1.5;
+        w.draw_set_color(0x00_ff_00);
+        w.draw_set_alpha(0.5);
+        w.draw_set_blend_mode(1);
         for (depth, x) in [(5.0, 1.0), (9.0, 2.0), (5.0, -0.0), (-1.0, 3.5)] {
             w.tile_add(0, 16, 0, 16, 16, x, 4.0, depth).unwrap();
         }
@@ -632,8 +793,16 @@ mod tests {
     }
 
     #[test]
-    fn builtins_are_in_name_order() {
-        assert!(BUILTINS.is_sorted());
+    fn builtins_are_named_once_each() {
+        let names = builtin_names();
+        assert_eq!(names.len(), BUILTIN_COUNT);
+        let order = BuiltinOrder::default();
+        assert!(order.0.is_sorted());
+        assert!(order.0.windows(2).all(|p| p[0].0 != p[1].0), "{names:?}");
+        assert!(
+            names.contains(&"view_xview[0]".into())
+                && names.contains(&"background_alpha[7]".into())
+        );
     }
 
     #[test]

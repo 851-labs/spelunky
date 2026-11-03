@@ -610,6 +610,10 @@ fn instance_fields(inst: &Instance, active: bool, filter: &Filters) -> Fields {
     push("sprite".into(), inst.sprite.clone().map(Datum::Text));
     push("visible".into(), inst.visible.map(Datum::Bool));
     push("solid".into(), inst.solid.map(Datum::Bool));
+    push(
+        "image_blend".into(),
+        inst.image_blend.map(|v| Datum::Int(v.into())),
+    );
     if inst.alarms.is_some() {
         for i in 0..ALARMS {
             push(

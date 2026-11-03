@@ -170,6 +170,12 @@ pub struct Instance {
     pub image_xscale: Option<Real>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub image_yscale: Option<Real>,
+    /// Degrees. An extension, like `image_alpha` and `image_blend`: what only drawing reads (and GM8's
+    /// rotated masks).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub image_angle: Option<Real>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub image_alpha: Option<Real>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub depth: Option<Real>,
     /// -1 for no sprite.
@@ -182,6 +188,9 @@ pub struct Instance {
     pub visible: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub solid: Option<bool>,
+    /// `0xBBGGRR`; an `i32`, as the runner keeps it. An extension.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub image_blend: Option<i32>,
     /// Alarm index (0-11) to value. Like the oracle, only alarms that were ever set need appear; a missing
     /// alarm is -1 (off).
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -193,7 +202,7 @@ pub struct Instance {
 
 impl Instance {
     /// The real-valued built-ins, in serialization order.
-    pub const REAL_FIELDS: [&'static str; 15] = [
+    pub const REAL_FIELDS: [&'static str; 17] = [
         "x",
         "y",
         "xprevious",
@@ -208,6 +217,8 @@ impl Instance {
         "image_speed",
         "image_xscale",
         "image_yscale",
+        "image_angle",
+        "image_alpha",
         "depth",
     ];
 
@@ -231,11 +242,14 @@ impl Instance {
             image_speed: None,
             image_xscale: None,
             image_yscale: None,
+            image_angle: None,
+            image_alpha: None,
             depth: None,
             sprite_index: None,
             sprite: None,
             visible: None,
             solid: None,
+            image_blend: None,
             alarms: None,
             vars: None,
         }
@@ -258,6 +272,8 @@ impl Instance {
             "image_speed" => self.image_speed,
             "image_xscale" => self.image_xscale,
             "image_yscale" => self.image_yscale,
+            "image_angle" => self.image_angle,
+            "image_alpha" => self.image_alpha,
             "depth" => self.depth,
             _ => None,
         }
@@ -280,6 +296,8 @@ impl Instance {
             "image_speed" => &mut self.image_speed,
             "image_xscale" => &mut self.image_xscale,
             "image_yscale" => &mut self.image_yscale,
+            "image_angle" => &mut self.image_angle,
+            "image_alpha" => &mut self.image_alpha,
             "depth" => &mut self.depth,
             _ => return None,
         })

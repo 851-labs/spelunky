@@ -3,9 +3,9 @@
 //! Patterns are globs where `*` matches any run of characters. Field patterns match *paths*:
 //!
 //! - frame level: `room`, `room_name`, `seed`, `instance_count`, `globals.NAME`, `builtins.NAME`, `tiles` (a
-//!   writer keeps or drops them whole; `trace-diff` compares `tiles.ID.FIELD`, `FIELD` a tile's or `order`)
+//!   writer keeps or drops them whole; `trace-diff` compares `tiles.ID.FIELD`, `FIELD` a tile's or `after`)
 //! - instance level: `active`, `object_index`, the real built-ins (`x`, `image_index`...), `sprite_index`,
-//!   `sprite`, `visible`, `solid`, `alarms[0]` to `alarms[11]`, and `vars.NAME`
+//!   `sprite`, `visible`, `solid`, `image_blend`, `alarms[0]` to `alarms[11]`, and `vars.NAME`
 //! - array elements: `vars.NAME[j]` and `vars.NAME[i,j]` (likewise for globals)
 //!
 //! A pattern also matches every path below it, so `vars` matches `vars.xVel` and `alarms` matches
@@ -125,6 +125,7 @@ impl Filter {
         out.sprite = inst.sprite.clone().filter(|_| keep("sprite"));
         out.visible = inst.visible.filter(|_| keep("visible"));
         out.solid = inst.solid.filter(|_| keep("solid"));
+        out.image_blend = inst.image_blend.filter(|_| keep("image_blend"));
         if (0..ALARMS).any(|i| keep(&format!("alarms[{i}]"))) {
             out.alarms = inst.alarms.as_ref().map(|alarms| {
                 alarms

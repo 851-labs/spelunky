@@ -172,11 +172,14 @@ impl Encoder<'_> {
             image_speed,
             image_xscale,
             image_yscale,
+            image_angle,
+            image_alpha,
             depth,
             sprite_index,
             sprite,
             visible,
             solid,
+            image_blend,
             alarms,
             vars,
         } = i;
@@ -198,6 +201,8 @@ impl Encoder<'_> {
             image_speed,
             image_xscale,
             image_yscale,
+            image_angle,
+            image_alpha,
             depth,
         ] {
             self.opt(*r, |e, Real(r)| e.real(r));
@@ -206,6 +211,7 @@ impl Encoder<'_> {
         self.opt(sprite.as_deref(), Self::str);
         self.opt(*visible, Self::bool);
         self.opt(*solid, Self::bool);
+        self.opt(*image_blend, Self::i32);
         // A missing alarm is -1, so only the others count; `trace-diff` compares alarms 0 to 11.
         self.opt(alarms.as_ref(), |e, alarms| {
             let set = || alarms.iter().filter(|&(&k, &v)| k < ALARMS && v != -1);
