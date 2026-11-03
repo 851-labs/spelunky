@@ -1,0 +1,1 @@
+# stopped: error dialog "Expression expected" at if (s) t = 1

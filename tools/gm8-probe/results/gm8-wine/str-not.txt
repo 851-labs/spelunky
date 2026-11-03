@@ -1,0 +1,1 @@
+# stopped: error dialog "Wrong type of arguments to unary operator." at out("not_str", !s)

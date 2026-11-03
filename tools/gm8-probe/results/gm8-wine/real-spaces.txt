@@ -1,0 +1,2 @@
+real_spaces = 401c000000000000 7
+# stopped: error dialog "Error in function real()."
