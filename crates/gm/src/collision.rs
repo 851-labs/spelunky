@@ -2,8 +2,7 @@
 //!
 //! Runner behaviour follows OpenGMK (the line test aside, which is read from GM8's own routines: [`line_hits`]):
 //! `game.rs` (`check_collision`, `check_collision_point`, `check_collision_rectangle`, `find_instance_with`),
-//! `asset/sprite.rs`
-//! (`Collider::check_collision_point_precise`), `gml/kernel.rs` (the built-ins) and `game/events.rs`
+//! `asset/sprite.rs` (`Collider::check_collision_point_precise`), `gml/kernel.rs` (the built-ins) and `game/events.rs`
 //! (`run_collisions`). Masks are the GM8 ones in the asset bundle (`assets::Mask`), one per frame or one
 //! shared, in sprite pixel coordinates.
 //!
