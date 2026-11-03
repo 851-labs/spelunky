@@ -4,6 +4,7 @@ import { Children, cloneElement, isValidElement, type ComponentProps, type CSSPr
 import { clipAnchor } from "./anchors.ts";
 import { CardLink } from "./hover-card";
 import { LiveClip } from "./live-clip";
+import { tableLabel, useScrollFocus } from "./scroll-focus";
 
 // A number from stats.json: "1 heart". `value` is the bare number, `cite` the lines it came from.
 function Stat({ text, value, cite }: { text: string; value: string; cite: string }) {
@@ -194,9 +195,10 @@ export function WikiLink({ slug, href, children }: { slug: string; href?: string
 // A ```gml fence: the lines, with the caption the license requires (docs/wiki-license.md, "GML excerpt
 // caption"), its citation linking to them in the source viewer when the media have them (compile.ts).
 function GmlExcerpt({ cite, code, href }: { cite: string; code: string; href?: string }) {
+  const [ref, focus] = useScrollFocus<HTMLPreElement>(`GML excerpt, ${cite}`);
   return (
     <figure className="gml">
-      <pre>
+      <pre ref={ref} {...focus}>
         <code>{code}</code>
       </pre>
       <figcaption>
@@ -207,12 +209,14 @@ function GmlExcerpt({ cite, code, href }: { cite: string; code: string; href?: s
   );
 }
 
-// A body's table, in a box that scrolls it sideways on a narrow screen rather than widening the page. A column
-// of citations has an empty header in the MDX (`| Way | Damage | |`), which a screen reader would read as
-// "blank": it gets a name only they read (851-3893). The Markdown twins keep it empty.
+// A body's table, in a box that scrolls it sideways on a narrow screen rather than widening the page, and a
+// tab stop while it does (scroll-focus.ts). A column of citations has an empty header in the MDX
+// (`| Way | Damage | |`), which a screen reader would read as "blank": it gets a name only they read (851-3893).
+// The Markdown twins keep it empty.
 function Table({ children, ...props }: ComponentProps<"table">) {
+  const [ref, focus] = useScrollFocus<HTMLDivElement>(tableLabel);
   return (
-    <div className="table-wrap">
+    <div className="table-wrap" ref={ref} {...focus}>
       <table {...props}>{nameCitationColumns(children)}</table>
     </div>
   );

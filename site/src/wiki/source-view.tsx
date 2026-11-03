@@ -4,6 +4,7 @@
 // and the index of every file and room. The highlighting is the build's (build/gml-highlight.ts): the browser
 // gets markup and a few lines of script.
 import { useState } from "react";
+import { useScrollFocus } from "./scroll-focus";
 import type { Crumb } from "../seo/jsonld";
 import { CardLink } from "./hover-card";
 import { Breadcrumbs } from "./layout";
@@ -142,17 +143,22 @@ const PICTURE_WIDTH = 960;
 function RoomPicture({ room, picture, highlight }: { room: SourceRoom; picture: NonNullable<SourceRoom["picture"]>; highlight: string | null }) {
   const scale = Math.max(1, Math.floor(PICTURE_WIDTH / picture.width));
   const px = (n: number) => `${n * scale}px`;
+  // The picture scrolls in a box of its own, a tab stop while it's wider than the column (a phone's), so a
+  // keyboard can scroll it (scroll-focus.ts); the figure stays a figure, named by its caption.
+  const [ref, focus] = useScrollFocus<HTMLDivElement>(`The room ${room.name}'s picture`);
   return (
     <figure className="room-picture">
-      <div className="room-picture-frame" style={{ width: px(picture.width), height: px(picture.height) }}>
-        <img src={picture.src} width={picture.width * scale} height={picture.height * scale} alt={`The room ${room.name} as the room editor placed it`} />
-        {highlight &&
-          room.instances.map((instance, i) => {
-            const box = picture.boxes[i];
-            if (instance.object !== highlight || !box) return null;
-            const [x, y, w, h] = box;
-            return <span key={instance.id} className="room-box" aria-hidden="true" style={{ left: px(x), top: px(y), width: px(w), height: px(h) }} />;
-          })}
+      <div className="room-picture-scroll" ref={ref} {...focus}>
+        <div className="room-picture-frame" style={{ width: px(picture.width), height: px(picture.height) }}>
+          <img src={picture.src} width={picture.width * scale} height={picture.height * scale} alt={`The room ${room.name} as the room editor placed it`} />
+          {highlight &&
+            room.instances.map((instance, i) => {
+              const box = picture.boxes[i];
+              if (instance.object !== highlight || !box) return null;
+              const [x, y, w, h] = box;
+              return <span key={instance.id} className="room-box" aria-hidden="true" style={{ left: px(x), top: px(y), width: px(w), height: px(h) }} />;
+            })}
+        </div>
       </div>
       <figcaption>
         {`What the room editor placed, as the game draws it: its backgrounds, tiles and each instance's sprite at its first frame` +

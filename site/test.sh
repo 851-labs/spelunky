@@ -985,7 +985,9 @@ contains '<title>rTutorial – Room source – Spelunky Classic wiki</title>' '<
   '<h3>Instance 134004 of oGoldBar at (96, 112)</h3>' 'value = 2;'
 # Its picture at the top, at the most whole screen pixels a game pixel that fit the 960-pixel column (180 at 5),
 # its instances boxed only as their object's row is pointed at, so none in the HTML.
-contains '<figure class="room-picture"><div class="room-picture-frame" style="width:900px;height:900px"><img src="/wiki/media/rooms/rTutorial.png" width="900" height="900" alt="The room rTutorial as the room editor placed it"/></div><figcaption>' \
+# It scrolls in a box of its own inside the figure, a tab stop only once the page's script finds it overflowing
+# (scroll-focus.ts), so not in the HTML.
+contains '<figure class="room-picture"><div class="room-picture-scroll"><div class="room-picture-frame" style="width:900px;height:900px"><img src="/wiki/media/rooms/rTutorial.png" width="900" height="900" alt="The room rTutorial as the room editor placed it"/></div></div><figcaption>' \
   'at 5 times its size. Point at an object below to see where its instances are.</figcaption></figure><h2 id="settings">Settings</h2>'
 lacks 'class="room-box"'
 lacks 'shown whole under the' 'GML source'
