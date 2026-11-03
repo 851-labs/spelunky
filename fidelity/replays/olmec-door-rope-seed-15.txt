@@ -1,15 +1,15 @@
 # Olmec's door taken with a rope in hand (851-3972): no other replay runs the rope branch of oPlayer1's step for
 # the door out of rOlmec (oXEnd), as every committed ending uses all its ropes climbing out of Olmec's shaft. Seed
-# 15: fidelity/gen-area.sh temple 15 760, then temple-seed-15-to-olmec.txt's route to level 14 (1169), then
-# area-route --steps '+oRopePile$,exit,exit' --wait 3: he takes a rope pile from level 14's General shop and leaves
-# with it, which steals it and uses it up (scrStealItem: global.rope 4 -> 7, "COME BACK HERE, THIEF!", 1424), and
-# takes level 14's and 15's exits (rOlmec loads on 2183). Then area-route --levels 0 --wait 0 --olmec (Olmec gone
-# on 6651), less the last of its rope throws (S at 7022), which the climb out doesn't need, so one rope is left. By
-# hand at the door: the item key twice (7318: a bomb in hand; 7324: the bomb back and a rope, global.rope 1 -> 0),
-# and up (7334): the step puts the rope back (global.rope 0 -> 1) and destroys it. rEnd, the volcano, loads on
-# 7364. Ends at 7399.
-# story: currLevel=14@1097 rope=7@1424..1424 thiefLevel=2@1424..1424 room=rOlmec@2183 -oOlmec@6651 held=oBomb@7318..7318
-# story: held=oRopeThrow@7324..7324 rope=0@7324..7324 rope=1@7334..7334 oPlayer1.sprite_index=sPExit@7334..7334 room=rEnd@7364 !plife<1
+# 15: fidelity/gen-area.sh temple 15 760, then area-route --levels 3 --wait 3 --budget 6000's route to level 14 (it
+# loads on 1168), then area-route --steps '+oRopePile$,exit,exit' --wait 3: he takes a rope pile from level 14's
+# General shop and leaves with it, which steals it and uses it up (scrStealItem: global.rope 4 -> 7, "COME BACK
+# HERE, THIEF!", 1424), and takes level 14's and 15's exits (rOlmec loads on 2182). Then area-route --levels 0
+# --wait 0 --olmec (Olmec gone on 6651), less the last of its rope throws (an S press at 7022, removed), which the
+# climb out doesn't need, so one rope is left. By hand at the door: the item key twice (7318: a bomb in hand; 7324:
+# the bomb back and a rope, global.rope 1 -> 0), and up (7334): the step puts the rope back (global.rope 0 -> 1)
+# and destroys it. rEnd, the volcano, loads on 7364. Ends at 7399.
+# story: currLevel=14@1097 rope=7@1424..1424 thiefLevel=2@1424..1424 room=rOlmec@2182 -oOlmec@6651 held=oBomb@7318..7318
+# story: held=oRopeThrow@7324..7324 rope=0@7324..7324 rope=1@7334..7334 oPlayer1.sprite_index=sPExit@7334..7334 room=rEnd@7364 !plife<1 -oRopeThrow@7334..7334
 seed 15
 frames 7400
 highscore 9000100 "MONEY"
