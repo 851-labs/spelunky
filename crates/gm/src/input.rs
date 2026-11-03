@@ -291,11 +291,11 @@ impl InputState {
         self.joystick(id).is_some()
     }
 
-    /// `joystick_check_button(id, b)`: GM8 rounds `b` half to even into 64 bits and takes its low 32
-    /// (0x565504's `fistp`), then button 1-32 is a bit of winmm's; 0 and anything past 32 are never down.
-    pub fn joystick_check_button(&self, id: f64, b: f64) -> bool {
-        let n = crate::math::round_half_even(b);
-        let n = if n.abs() < 9.2e18 { n as i64 as u32 } else { 0 };
+    /// `joystick_check_button(id, b)`, `b` the integer argument GM8 makes of it (0x565504's `fistp`, as
+    /// [`crate::math::int_arg`]: half to even, its low 32 bits): button 1-32 is a bit of winmm's; 0 and anything
+    /// past 32 are never down.
+    pub fn joystick_check_button(&self, id: f64, b: i32) -> bool {
+        let n = b as u32;
         self.joystick(id)
             .is_some_and(|j| u8::try_from(n).is_ok_and(|n| j.state.is_down(Button::Joy(n))))
     }
@@ -397,14 +397,16 @@ mod tests {
     }
 
     #[test]
-    fn without_a_joystick_every_answer_is_opengmks_stub() {
+    fn without_a_joystick_every_answer_is_gm8s_none() {
+        // Joystick events without a connected joystick change nothing: GM8 and OpenGMK's stubs answer as for
+        // none.
         let mut i = InputState::default();
         i.apply(&Event::Press(Button::Joy(1)));
         i.apply(&Event::Axis(Axis::X, -1.0));
         for id in [0.0, 1.0, 2.0] {
             assert!(!i.joystick_exists(id));
             assert!(!i.joystick_has_pov(id));
-            assert!(!i.joystick_check_button(id, 1.0));
+            assert!(!i.joystick_check_button(id, 1));
             assert_eq!(i.joystick_direction(id), 101);
             assert_eq!(i.joystick_axis(id, Axis::X), 0.0);
             assert_eq!(i.joystick_axis(id, Axis::Z), 0.0);
@@ -426,13 +428,11 @@ mod tests {
         i.apply(&Event::Press(Button::Joy(32)));
         i.apply(&Event::Axis(Axis::Z, 0.5));
         i.apply(&Event::Axis(Axis::Pov, 270.0));
-        // b rounds half to even, and only its low 32 bits count.
-        assert!(i.joystick_check_button(1.0, 3.0) && i.joystick_check_button(1.0, 32.0));
-        assert!(i.joystick_check_button(1.0, 3.4) && i.joystick_check_button(1.0, 2.6));
-        assert!(!i.joystick_check_button(1.0, 2.5));
-        assert!(i.joystick_check_button(1.0, 4_294_967_299.0));
-        assert!(!i.joystick_check_button(1.0, 33.0) && !i.joystick_check_button(1.0, 0.0));
-        assert!(!i.joystick_check_button(2.0, 3.0));
+        // b is an integer argument (math::int_arg's, its low 32 bits: 2^32 + 3 is 3).
+        assert!(i.joystick_check_button(1.0, 3) && i.joystick_check_button(1.0, 32));
+        assert!(i.joystick_check_button(1.0, crate::math::int_arg(4_294_967_299.0).unwrap()));
+        assert!(!i.joystick_check_button(1.0, 33) && !i.joystick_check_button(1.0, 0));
+        assert!(!i.joystick_check_button(1.0, -1) && !i.joystick_check_button(2.0, 3));
         // An axis is the raw winmm value GM8 reports: 0.5 stands for raw 49150 (49150.5 rounded to even),
         // which GM8 reports as 49150 / 32767 - 1.
         assert_eq!(i.joystick_axis(1.0, Axis::Z), 49150.0 / 32767.0 - 1.0);
@@ -445,9 +445,9 @@ mod tests {
         assert_eq!(i.joystick_axis(1.0, Axis::Pov), -1.0);
         // Held state only: the end of a frame doesn't release joystick buttons.
         i.end_frame();
-        assert!(i.joystick_check_button(1.0, 3.0));
+        assert!(i.joystick_check_button(1.0, 3));
         i.apply(&Event::Release(Button::Joy(3)));
-        assert!(!i.joystick_check_button(1.0, 3.0));
+        assert!(!i.joystick_check_button(1.0, 3));
 
         // Without a POV hat, `joystick_pov` stays centred whatever the events say.
         i.connect_joystick(Some(&JoystickInfo { has_pov: false }));

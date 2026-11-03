@@ -247,7 +247,8 @@ pub fn keyboard_check_released(g: &mut World, _: &Ctx, [vk]: [Value; 1]) -> R<Va
 //
 // Without the replay's `joystick` directive no joystick exists, and these answer what GM8 answers without
 // one (and OpenGMK's stubs). With one, what GM8's runner computes from winmm's raw values (`gm::input`,
-// 851-3949). GM8 reads each argument's real, so a string is 0 and nothing is an error.
+// 851-3949). GM8 reads each argument's real, so a string is 0; the button is an integer argument, an error past
+// 64 bits as on Intel (`math::int_arg`).
 
 pub fn joystick_exists(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
     Ok(g.input().joystick_exists(id.to_real()).into())
@@ -255,7 +256,7 @@ pub fn joystick_exists(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
 
 pub fn joystick_check_button(g: &mut World, _: &Ctx, [id, b]: [Value; 2]) -> R<Value> {
     Ok(g.input()
-        .joystick_check_button(id.to_real(), b.to_real())
+        .joystick_check_button(id.to_real(), gm::math::int_arg(b.to_real())?)
         .into())
 }
 

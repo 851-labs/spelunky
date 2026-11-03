@@ -31,7 +31,7 @@ index 1c2ca7d1..5ef00465 100644
          }
      }
 diff --git a/gm8emulator/src/game/replay.rs b/gm8emulator/src/game/replay.rs
-index bad67a9d..850bb190 100644
+index bad67a9d..86fd04f5 100644
 --- a/gm8emulator/src/game/replay.rs
 +++ b/gm8emulator/src/game/replay.rs
 @@ -84,6 +84,50 @@ pub enum Input {
@@ -147,7 +147,7 @@ index bad67a9d..850bb190 100644
                  ["highscore", v, ..] => {
                      let v = v.parse::<f64>().ok().filter(|v| v.is_finite()).ok_or_else(|| err("bad highscore value"))?;
                      let name = parse_json_string(after_tokens(line, 2)).map_err(|e| err(&e))?;
-@@ -472,7 +524,11 @@ impl Replay {
+@@ -472,10 +524,21 @@ impl Replay {
                      let y = y.parse().map_err(|_| err("bad mouse y"))?;
                      moves.push((frame(f)?, (x, y), ln));
                  },
@@ -160,8 +160,48 @@ index bad67a9d..850bb190 100644
                  _ => return Err(err("unrecognised")),
              }
          }
++        // Spelunky oracle: joystick input needs the joystick it's for, as the port's parser has it (851-3949)
++        let joy = |ev: &Input| matches!(ev, Input::JoyPress(_) | Input::JoyRelease(_) | Input::JoyAxis(..));
++        if setup.joystick.is_none() {
++            if let Some((_, _, ln)) = evs.iter().find(|(_, ev, _)| joy(ev)) {
++                return Err(format!("line {}: joystick input, but no `joystick` directive", ln))
++            }
++        }
+         // a highscore table shorter than 10 is filled up with the fresh table's entries
+         if let Some(table) = setup.highscores.as_mut() {
+             let missing = highscore::SIZE - table.len();
+diff --git a/gm8emulator/src/game/savestate.rs b/gm8emulator/src/game/savestate.rs
+index 407b2362..bbc6675b 100644
+--- a/gm8emulator/src/game/savestate.rs
++++ b/gm8emulator/src/game/savestate.rs
+@@ -79,6 +79,9 @@ pub struct SaveState {
+ 
+     pub uninit_fields_are_zero: bool,
+     pub highscores: crate::game::highscore::Table,
++    // Spelunky oracle: a text replay's joystick, held state included (851-3949).
++    #[serde(default)]
++    pub joystick: Option<crate::game::replay::Joystick>,
+     pub uninit_args_are_zero: bool,
+ 
+     pub potential_step_settings: PotentialStepSettings,
+@@ -172,6 +175,7 @@ impl SaveState {
+             renderer_state,
+             uninit_fields_are_zero: game.uninit_fields_are_zero.clone(),
+             highscores: game.highscores.clone(),
++            joystick: game.joystick,
+             uninit_args_are_zero: game.uninit_args_are_zero.clone(),
+             potential_step_settings: game.potential_step_settings.clone(),
+             fps: game.fps,
+@@ -263,6 +267,7 @@ impl SaveState {
+         game.auto_draw = self.auto_draw;
+         game.uninit_fields_are_zero = self.uninit_fields_are_zero;
+         game.highscores = self.highscores;
++        game.joystick = self.joystick;
+         game.uninit_args_are_zero = self.uninit_args_are_zero;
+         game.potential_step_settings = self.potential_step_settings;
+         game.fps = self.fps;
 diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
-index 4ac34fca..e88d6145 100644
+index 4ac34fca..00a215cb 100644
 --- a/gm8emulator/src/gml/kernel.rs
 +++ b/gm8emulator/src/gml/kernel.rs
 @@ -7311,18 +7311,18 @@ impl Game {
@@ -213,10 +253,10 @@ index 4ac34fca..e88d6145 100644
 -        // TODO
 -        Ok(gml::FALSE.into())
 +    pub fn joystick_check_button(&mut self, args: &[Value]) -> gml::Result<Value> {
-+        // Spelunky oracle: GM8's (0x565504): the button rounded half to even into 64 bits, its low 32 a button 1-32
-+        // of winmm's; 0 and anything past 32 never down (851-3949).
-+        let b = crate::math::ieee_round(args.get(1).cloned().map_or(0.0, f64::from));
-+        let b = if b.abs() < 9.2e18 { b as i64 as u32 } else { 0 };
++        // Spelunky oracle: GM8's (0x565504): the button rounded half to even into 64 bits (an error past them, as
++        // an integer argument's on Intel), its low 32 a button 1-32 of winmm's; 0 and anything past 32 never down
++        // (851-3949).
++        let b = gml::gm8::int_arg(args.get(1).cloned().map_or(0.0, f64::from)).ok_or(gml::Error::IntOverflow)? as u32;
 +        Ok(self.joystick_of(args).map_or(false, |j| (1..=32).contains(&b) && j.buttons & (1 << (b - 1)) != 0).into())
      }
  
