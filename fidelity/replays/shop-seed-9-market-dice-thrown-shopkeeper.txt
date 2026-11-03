@@ -1,10 +1,11 @@
-# A thrown die hitting a Shopkeeper (851-3811): no other replay runs oDice's step's hit on a monster (a die thrown
-# faster than 2 pixels a step into an oEnemy). As shop-seed-9-market-dice-carried-out.txt to frame 1440 (the Black
-# Market's Dice House die carried out past the Clothing Shop, whose Shopkeeper it angers, "COME BACK HERE, THIEF!"
-# on 1383, and who runs out after the player from 1422), then area-route --steps '/oShopkeeper' --wait 10: the
-# player walks right (1441-1470), ducks (1471) and throws the die up (up + X, 1477), and it comes down on the
-# Shopkeeper, who has caught up with him (1488): oDice's step, its nearest oEnemy a Shopkeeper not stunned, takes 1
-# of his 20 hit points, with blood, and sets his status to 2 (ATTACK) and his yVel to -6. Ends at 1520.
+# A thrown die hitting a Shopkeeper (851-3811): no other replay runs oDice's step's hit on a monster (a die moving
+# faster than 3 pixels a step, either way, into an oEnemy). As shop-seed-9-market-dice-carried-out.txt to frame
+# 1440 (the Black Market's Dice House die carried out past the Clothing Shop, whose Shopkeeper it angers, "COME
+# BACK HERE, THIEF!" on 1383, and who runs out after the player from 1422), then area-route --steps '/oShopkeeper'
+# --wait 10: the player walks right (1441-1470), ducks (1471) and throws the die up (up + X, 1477), and it comes
+# down on the Shopkeeper, who has caught up with him (1488): oDice's step, its nearest oEnemy a Shopkeeper not
+# stunned, takes 1 of his 20 hit points, with blood, and sets his status to 2 (ATTACK) and his yVel to -6. Ends at
+# 1520.
 # story: currLevel=6@1050 held=oDice@1284 thiefLevel=2@1383..1383 held!=oDice@1477..1477 oShopkeeper.hp=19@1488..1488
 # story: oShopkeeper.yVel=-6@1488..1488 !plife<4
 seed 9

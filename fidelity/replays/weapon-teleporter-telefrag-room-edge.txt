@@ -2,7 +2,7 @@
 # runs scrUseItem's Teleporter facing right, its kill of a monster where it lands, or its clamp to the room's
 # width. A staged scene: it boots, loads this custom level, with 99 hearts, from the title's load-level menu (240),
 # and plays the scene's inputs from 241, its frame 0 (as the wiki's staged scenes, docs/wiki-media.md). The player
-# (@) stands by a Teleporter (?), six snakes (n) 4 to 9 blocks to his right:
+# (@) stands by a Teleporter (?), six snakes (n) 5 to 10 blocks to his right:
 #   1111111111111111111111111111111111111111
 #   1000000000000000000000000000000000000001
 #   1000000000000000000000000000000000000001
