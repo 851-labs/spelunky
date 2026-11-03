@@ -119,7 +119,7 @@ jobs:
         uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           shared-key: check-${{ matrix.part }}
-          save-if: ${{ github.event_name == 'push' }}
+          save-if: true # EXPERIMENT (851-3998): the PR's own cache, to time warm runs; reverted before review
       # -x: the log shows every step it runs, each line with the runner's timestamp.
       - if: steps.changes.outputs.skip != 'true'
         run: sh -x scripts/check --part "${{ matrix.part }}"
