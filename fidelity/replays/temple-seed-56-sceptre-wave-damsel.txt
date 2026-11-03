@@ -1,0 +1,69 @@
+# The Sceptre's psychic wave hitting a damsel (851-3968): no other replay runs oPsychicWaveP's collision with
+# oDamsel. Seed 56, from a scan of temple seeds 1-120 for a level 13 with the damsel near the Tomb Lord (the
+# Sceptre drops only from level 13's): fidelity/gen-area.sh temple 56 760 (level 13 loads on 738), then area-route
+# --steps '*oTombLord,+oSceptre' --wait 3 (a bomb kills the Tomb Lord, which drops the Sceptre, 910, and the player
+# picks it up, 992), then area-route --steps '>@312:184' --wait 3, holding on to it (at x 315 on 1017, facing
+# right). The damsel stands a tile higher on the other side of a wall (344, 168), where no route reached her. By
+# hand: he jumps (1022) and fires the Sceptre near the top of the jump (X, 1028). Its wave (oPsychicWaveP, at x
+# 333) goes through the wall, as waves do, at 6 pixels a step and meets her on its next step (1029):
+# oPsychicWaveP's collision with oDamsel takes 3 of her 4 hit points, flings her (yVel -6) and destroys the wave;
+# its `status = 2` is the wave's own (docs/quirks.md §1), and she becomes THROWN only on her way down (1030). Ends
+# at 1079.
+# story: currLevel=13@738 -oTombLord@910..910 +oSceptre@910..910 held=oSceptre@992..992 +oPsychicWaveP@1028..1028
+# story: -oPsychicWaveP@1029..1029 oDamsel.hp=1@1029..1029 oDamsel.yVel=-6@1029..1029 oDamsel.status=2@1030..1030 !plife<4
+seed 56
+frames 1080
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+696 release left
+708 press up
+713 release up
+760 press right
+790 release right
+790 press up
+790 press A
+792 release up
+792 release A
+932 press right
+932 press X
+938 release X
+944 press X
+950 release X
+956 release right
+956 press left
+962 release left
+962 press right
+962 press X
+968 release right
+968 release X
+968 press up
+992 release up
+992 press down
+992 press X
+993 release down
+993 release X
+996 press right
+1002 press Z
+1008 release Z
+1017 release right
+1022 hold Z 12
+1028 hold X 2
