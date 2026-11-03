@@ -16,8 +16,9 @@
 # in the rectangle of an enemy) explodes it (425, oExplosion) and, 1 time in 3 (rand(1,3)), makes an oAlienEject, as
 # it does with seed 5. The ejected alien rises, opens its parachute and floats down at 2 pixels a step, drifting. The
 # player has walked right under it (from 407) and jumps (459): it touches him on his way up (463, the collision's
-# other branch: a heart, and 30 steps of invincibility), and he comes down on it from above (467): it bounces him,
-# counts as a kill (global.aliens) and is destroyed. Ends at 499.
+# other branch: a heart, and 30 steps of invincibility), and, still rising, once his y is above its y-3 (467), the
+# stomp branch, which takes a jumping or falling player: it bounces him, counts as a kill (global.aliens) and is
+# destroyed. Ends at 499.
 # story: customLevelName=WIKI@240 held=oRock@257 held!=oRock@402 -oUFO@425..425 +oAlienEject@425..425 plife=98@463
 # story: aliens=1@467..467 -oAlienEject@467..467 !+oAlien
 seed 5

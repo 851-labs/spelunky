@@ -6,7 +6,7 @@
 # dies (1757, oPlayer1's step, y > room_height + 16). The UFO's laser comes out after he's gone (1759, at x 426),
 # falls through the empty air where he stood, and leaves the room (1861, its outside event: action_kill_object). Ends
 # at 1879.
-# story: currLevel=10@940 plife=0@1757 +oLaser@1759..1759 -oLaser@1861..1861 oPlayer1.dead=1@1757
+# story: currLevel=10@940 plife=0@1757 +oLaser@1759..1759 oLaser.y>608@1856..1856 -oLaser@1861..1861 oPlayer1.dead=1@1757
 seed 53
 frames 1880
 highscore 9000100 "MONEY"

@@ -11,11 +11,11 @@
 #   1000000E00000000000001
 #   1000000000000000000001
 #   1111111111111111111111
-# Landing on it (260), oAlienBoss's collision with oCharacter bounces him (a falling player above its y+8: yVel -6 -
-# 0.2 yVel) and takes a hit point (1 for each 16 steps of fall, plus 1): hp 10 to 9. He goes on bouncing on it, each
-# landing taking one more, down to 2 (337). Within 96 pixels of him, its step sends a psychic wave at 340
-# (oPsychicWave, psychicRecover back to 100), which takes a heart (349) and ends with its animation (407). Ends at
-# 419.
+# Landing on it (260), oAlienBoss's collision with oCharacter bounces him (a jumping or falling player, state 15 or
+# 16, above its y+8: yVel -6 - 0.2 yVel) and takes a hit point (1 for each 16 steps of fall, plus 1): hp 10 to 9. He
+# goes on bouncing on it, each landing taking one more, down to 2 (337). Within 96 pixels of him, its step sends a
+# psychic wave at 340 (oPsychicWave, psychicRecover back to 100), which takes a heart (349) and ends with its
+# animation (407). Ends at 419.
 # story: customLevelName=WIKI@240 oAlienBoss.hp=9@260..260 oAlienBoss.hp=2@337..337 +oPsychicWave@340..340
 # story: plife=98@349 -oPsychicWave@407..407 !-oAlienBoss
 seed 0

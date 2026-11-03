@@ -10,7 +10,7 @@
 # back to the rock, picks it up (1663) and throws it up and right (up + X, 1667) into the emitter: oBarrierEmitter's
 # collision with an item faster than 2 pixels a step destroys it, and its destroy event the barrier (1675). The next
 # wave takes a heart (1704). Ends at 1719.
-# story: currLevel=10@1178 alienCraft=1@1243 held=oRock@1376 -oAlienShip*2@1516..1516 plife=2@1571..1571
+# story: currLevel=10@1178 alienCraft=1@1243 held=oRock@1376 -oAlienShip*2@1516..1516 -oAlienShip*2@1518..1518 plife=2@1571..1571
 # story: held!=oRock@1571..1571 held=oRock@1663..1663 held!=oRock@1667..1667 -oBarrierEmitter@1675..1675
 # story: -oBarrier@1675..1675 plife=1@1704 !oPlayer1.dead=1
 seed 63
