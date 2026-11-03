@@ -31,9 +31,9 @@ export interface SearchSource {
 export interface SearchDoc {
   slug: string;
   title: string;
+  category: string;
   // Its names, its title then its aliases, as queryWords has them: what a search for its name types.
   names: string[][];
-  category: string;
   lede: string;
   sections: [string, string][];
 }
@@ -101,8 +101,8 @@ export function buildSearchIndex(sources: SearchSource[]): SearchIndex {
     return {
       slug: source.slug,
       title: source.title,
-      names: [source.title, ...source.aliases].map(queryWords),
       category: source.categories[0] ?? "",
+      names: [source.title, ...source.aliases].map(queryWords),
       lede: source.lede,
       sections: source.sections.map(({ id, title }) => [id, title]),
     };
