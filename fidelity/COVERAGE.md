@@ -133,10 +133,10 @@ scripts/cargo run --release -p harness --bin replay-coverage -- --lines --missed
 scripts/cargo run --release -p harness --bin replay-coverage -- --lines --by-line oSnake/   # which replays run each line
 ```
 
-All 264 committed replays, 508,152 frames:
+All 282 committed replays, 526,449 frames:
 
-- **The game**: 16958 of 20278 lines (83.6%), in 1435 units: 175 never ran, 238 partly.
-- **The settings program**: 556 of 1231 lines (45.2%), in 114 units: 69 never ran, 11 partly.
+- **The game**: 17221 of 20278 lines (84.9%), in 1435 units: 162 never ran, 218 partly.
+- **The settings program**: 581 of 1231 lines (47.2%), in 114 units: 69 never ran, 10 partly.
 
 The game's units that never ran, by why:
 
@@ -172,9 +172,6 @@ The game's units that never ran, by why:
   have no bottom row), `scripts/scrMoveableSolidRecurseDrop` (a push block sinking in lava), `oYellowBall/other_0#0`,
   `oPsychicWaveP/other_0#0`, `oPsychicCreateP/other_7#0`, `oLavaDrip/other_7#0`, `oArrowRepeaterL/destroy#0`,
   `oArrowRepeaterR/destroy#0`, `oFly/collision_oDamsel#0`.
-- **The intro played through, and fullscreen** (851-3957): `oPDummy3/alarm_0#0`, `oPDummy3/alarm_2#0` (the intro's
-  walking player's rope and climb, which a second skip press fades out before), `oScreen/create#2`
-  (`action_fullscreen(2)`, for settings.cfg's fullscreen).
 - **Others' tickets**: `oSpider/alarm_1#0` (a spider drowning, 851-3843), `oNewButton/mouse_11#0` (the editor
   button's mouse-leave, 851-3794).
 
