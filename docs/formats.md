@@ -163,7 +163,10 @@ a name and its fields:
 
 A sprite's frame is wrapped into its frame count (`rem_euclid`), as both renderers do; one that draws nothing (no
 such sprite, no frames, no such surface) is no call. Colours are cut to their 24 bits. A font is its id, the
-draw-time `draw_set_font` (-1 for GM's built-in font). The calls are compared as the trace's reals are, bit for bit.
+draw-time `draw_set_font` (-1 for GM's built-in font, which only the oracle draws: the port can't, and the game only
+does so in the unused `core` object, so a `text -1` call is the oracle's alone; the port finds a text's font id
+from the font it was drawn in, the first made so, as the game never makes two the same). The calls are compared as
+the trace's reals are, bit for bit, whatever `--tolerance` says: a draw within it is still a different hash.
 The tags, in the table's order, are 1 (`clear`) to 16 (`surface`).
 
 `draws` is [the fingerprints' hash](#fingerprints) of every call in order, each as its tag (8 bytes) and its fields:

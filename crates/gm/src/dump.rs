@@ -86,11 +86,12 @@ const BUILTIN_COUNT: usize =
 
 /// The built-ins' names in name order (the frame's `BTreeMap` order, which the canonical encoding follows),
 /// each with its place in [`World::builtin_values`].
-#[derive(Clone, Debug)]
+/// Built when an encoder takes up a program, not when it's made.
+#[derive(Clone, Debug, Default)]
 struct BuiltinOrder(Box<[(String, usize)]>);
 
-impl Default for BuiltinOrder {
-    fn default() -> BuiltinOrder {
+impl BuiltinOrder {
+    fn new() -> BuiltinOrder {
         let mut names: Vec<(String, usize)> = builtin_names().into_iter().zip(0..).collect();
         names.sort();
         BuiltinOrder(names.into())
@@ -493,6 +494,7 @@ impl FrameEncoder {
             *self = FrameEncoder {
                 program: Some(p),
                 globals: globals.into(),
+                builtins: BuiltinOrder::new(),
                 skip_global: skip,
                 ..FrameEncoder::default()
             };
@@ -835,7 +837,7 @@ mod tests {
     fn builtins_are_named_once_each() {
         let names = builtin_names();
         assert_eq!(names.len(), BUILTIN_COUNT);
-        let order = BuiltinOrder::default();
+        let order = BuiltinOrder::new();
         assert!(order.0.is_sorted());
         assert!(order.0.windows(2).all(|p| p[0].0 != p[1].0), "{names:?}");
         assert!(

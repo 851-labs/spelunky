@@ -1673,6 +1673,15 @@ mod tests {
                 Datum::Absent
             )
         );
+        // Ignoring the hash ignores the calls it hashes.
+        let opts = DiffOptions {
+            filter: Filter {
+                ignore_fields: vec!["draws".into()],
+                ..Filter::default()
+            },
+            ..DiffOptions::default()
+        };
+        assert_eq!(diff_with(&a, &b, &opts).outcome, Outcome::Identical);
         // Only one trace lists the calls, or hashes them: they're left out.
         for f in &mut b {
             f.draws = None;

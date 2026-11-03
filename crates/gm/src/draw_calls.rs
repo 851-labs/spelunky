@@ -103,11 +103,13 @@ impl World {
                 f("resize", 8, &[Int(*width as i32), Int(*height as i32)]);
             }
             Command::Sprite(s) => {
-                // As both renderers wrap it: a sprite without frames is never recorded.
-                let frames = self
-                    .assets
-                    .sprite(s.sprite as i32)
-                    .map_or(1, |sp| sp.frames.len().max(1));
+                // A sprite without frames draws nothing, so it's no call (the default draw records one, the
+                // draw built-ins don't; OpenGMK draws neither).
+                let frames = (self.assets.sprite(s.sprite as i32)).map_or(0, |sp| sp.frames.len());
+                if frames == 0 {
+                    return;
+                }
+                // Wrapped, as both renderers do.
                 let frame = s.frame.rem_euclid(frames as i32);
                 f(
                     "sprite",

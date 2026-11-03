@@ -11,7 +11,7 @@
 //! - array elements: `vars.NAME[j]` and `vars.NAME[i,j]` (likewise for globals)
 //!
 //! A pattern also matches every path below it, so `vars` matches `vars.xVel` and `alarms` matches
-//! `alarms[3]`. Instance `id` and `object` are identity, not fields, and are never filtered out.
+//! `alarms[3]`, and `draws` matches `draw_calls` (the calls it hashes). Instance `id` and `object` are identity, not fields, and are never filtered out.
 
 use std::collections::BTreeMap;
 
@@ -197,6 +197,8 @@ fn path_matches(pattern: &str, path: &str) -> bool {
         || path
             .char_indices()
             .any(|(i, c)| (c == '.' || c == '[') && glob(pattern, &path[..i]))
+        // The calls are what `draws` hashes, so a pattern for it takes them too.
+        || (path.starts_with("draw_calls") && glob(pattern, "draws"))
 }
 
 /// `*` matches any run of characters (including none); everything else matches itself.

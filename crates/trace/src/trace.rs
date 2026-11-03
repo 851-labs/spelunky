@@ -108,8 +108,8 @@ pub struct Frame {
     /// absent means not dumped.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tiles: Option<Vec<Tile>>,
-    /// The hash of the frame's draw calls, everything drawn from the line before this one's to this one, in
-    /// their canonical form (docs/formats.md, "Draw calls"), as 16 hex digits. An extension; absent means not
+    /// The hash of the frame's draw calls, everything drawn from the frame's start (its input) to this line,
+    /// in their canonical form (docs/formats.md, "Draw calls"), as 16 hex digits. An extension; absent means not
     /// dumped.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub draws: Option<String>,
