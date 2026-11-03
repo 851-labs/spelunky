@@ -592,10 +592,12 @@ impl Renderer {
                 let (w, h) = (f64::from(rect.w) * b.xscale, f64::from(rect.h) * b.yscale);
                 let part = (0.0, 0.0, f64::from(rect.w), f64::from(rect.h));
                 let view = state.view;
-                // GM tiles from the room's left edge to past the view, with half the view's other
-                // dimension to spare for rotated views.
-                let end_x = f64::from(view.x + view.w + view.h / 2);
-                let end_y = f64::from(view.y + view.h + view.w / 2);
+                // GM8 tiles up to the view's right and bottom edges, not past them (its tiled draw, 0x4a459c;
+                // `gm::gm8::draw_background`; probe `view-tiling`, 851-3967): under a scaled view the half-pixel
+                // shift then leaves the last pixels uncovered, as in the settings program's 2x window. Only a
+                // rotated view spans wider, and the renderer has none.
+                let end_x = f64::from(view.x.saturating_add(view.w));
+                let end_y = f64::from(view.y.saturating_add(view.h));
                 let xs = tile_positions(b.x, w, b.tile_h, f64::from(view.x), end_x);
                 let ys = tile_positions(b.y, h, b.tile_v, f64::from(view.y), end_y);
                 self.begin_batch(state, tris, Source::Images, None);
@@ -1347,6 +1349,66 @@ mod tests {
             sprites: Vec::new(),
             backgrounds: Vec::new(),
         }
+    }
+
+    /// GM8's tiling through a scaled view (851-3967, probe `view-tiling`, as GM8 drew it under Wine): a 16x16 white
+    /// background tiled through a 48x48 view at 2x, onto black. The layer goes up to the view's edges and no
+    /// further, so the half-pixel shift, a whole pixel at 2x, leaves the last column and row black: the settings
+    /// program's window has that black column on its right.
+    #[test]
+    fn tiled_layers_stop_at_the_views_edges() {
+        let Some(gpu) = pollster::block_on(crate::gpu::request(crate::gpu::instance(), None)).ok()
+        else {
+            eprintln!("skipped: no GPU");
+            return;
+        };
+        let white = Layers {
+            width: 16,
+            height: 16,
+            layers: vec![vec![255; 16 * 16 * 4]],
+        };
+        let textures = Textures {
+            background_pages: white,
+            backgrounds: vec![Some(TexRect {
+                bank: crate::textures::Bank::Backgrounds,
+                layer: 0,
+                x: 0,
+                y: 0,
+                w: 16,
+                h: 16,
+            })],
+            ..no_images()
+        };
+        let mut renderer = Renderer::new(gpu.device, gpu.queue, textures);
+        let mut frame = Frame::new(96, 96);
+        frame.commands = vec![
+            Command::SetView {
+                view: Rect::new(0, 0, 48, 48),
+                port: Rect::new(0, 0, 96, 96),
+            },
+            Command::Clear {
+                color: Color::BLACK,
+                alpha: 1.0,
+            },
+            Command::Background(draw::Background {
+                background: 0,
+                x: 0.0,
+                y: 0.0,
+                tile_h: true,
+                tile_v: true,
+                xscale: 1.0,
+                yscale: 1.0,
+                blend: Color::WHITE,
+                alpha: 1.0,
+            }),
+            Command::Present,
+        ];
+        renderer.render(&frame);
+        let (w, _, rgba) = renderer.read_screen().unwrap();
+        let lit = |x: u32, y: u32| rgba[((y * w + x) * 4) as usize] != 0;
+        // Pixels 0 to 94 of each row and column, as GM8 lit them; not 95.
+        assert!(lit(0, 0) && lit(94, 10) && lit(10, 94) && lit(94, 94));
+        assert!(!lit(95, 10) && !lit(10, 95) && !lit(95, 95));
     }
 
     /// `oScreen`'s dark-level composition (851-3160), as `gm` records it: the draw stage has drawn the room
