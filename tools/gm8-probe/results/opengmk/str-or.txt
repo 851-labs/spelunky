@@ -1,0 +1,1 @@
+# stopped: Runtime error: invalid operands real and string to || operator (0 || "abc")

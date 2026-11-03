@@ -1,0 +1,5 @@
+iv_0_0 = 0000000000000000 0
+iv_plain = 0000000000000000 0
+iv_1d_0 = 0000000000000000 0
+ia_0 = 0000000000000000 0
+# stopped: Runtime error: uninitialized variable "iv[64000]"

@@ -1,0 +1,2 @@
+real_spaces = 401c000000000000 7
+# stopped: Runtime error: real: can't convert  \x097 - invalid float literal

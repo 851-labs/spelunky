@@ -1,0 +1,6 @@
+with_a = "1 "
+with_b = "5 6 "
+with_c = "9 "
+step_a = "1 "
+step_b = "5 6 "
+end = "ok"

@@ -605,6 +605,17 @@ renderer (851-3872). Each time the back buffer is shown (`screen_refresh`, `scre
 room change pending) it's read back (`glReadPixels`, of GM's back buffer whatever the target), and after a listed
 frame's line the last one is written, so a frame that ends in a room change has the picture before it, as the
 window does. Without the variables nothing is read back, and the dump is the same either way.
+
+### `opengmk/0043-gm8-view-tiling.patch`
+
+How GM8 draws a tiled background layer through a scaled view (851-3967, `docs/quirks.md` §6). Its columns and rows go
+up to the view's right and bottom edges, as GM8's tiled draw does (`gml::gm8::view_span`, wider only for a rotated
+view; probe `view-tiling`), where OpenGMK tiled half the view's other side past them. And GL's half-pixel correction
+shifts by 1/512 of a pixel less than half, so a pixel centre exactly on a quad's edge, or a sample exactly on a texel
+boundary, lands where Direct3D 8 puts it whatever the `f32` matrices round. At 2x, every other pixel's sample is on a
+boundary, and OpenGMK's put some on the earlier texel. With it, the settings program's window is GM8's to the pixel
+(config.exe screenshotted under Wine). It changes only pixels: the dump is the same.
+
 ### `opengmk/0043-gm8-real-trim.patch`
 
 `real()` trims spaces alone, as GM8 does (851-3801, `docs/quirks.md` §3, measured by `tools/gm8-probe`'s
@@ -636,15 +647,16 @@ Two GML rules of GM8's (851-3798, `docs/quirks.md` §2):
   expression expected" in a `while` or an `until`, "Wrong type of arguments for &&." (`||`, `^^`) as an operand
   (probes `str-*`); a drag-and-drop condition is taken as an `if`. OpenGMK read a string as false there.
 
-### `opengmk/0043-gm8-view-tiling.patch`
+### `opengmk/0047-gm8-collision-line-walk.patch`
 
-How GM8 draws a tiled background layer through a scaled view (851-3967, `docs/quirks.md` §6). Its columns and rows go
-up to the view's right and bottom edges, as GM8's tiled draw does (`gml::gm8::view_span`, wider only for a rotated
-view; probe `view-tiling`), where OpenGMK tiled half the view's other side past them. And GL's half-pixel correction
-shifts by 1/512 of a pixel less than half, so a pixel centre exactly on a quad's edge, or a sample exactly on a texel
-boundary, lands where Direct3D 8 puts it whatever the `f32` matrices round. At 2x, every other pixel's sample is on a
-boundary, and OpenGMK's put some on the earlier texel. With it, the settings program's window is GM8's to the pixel
-(config.exe screenshotted under Wine). It changes only pixels: the dump is the same.
+`collision_line`'s precise test walks as GM8's does (851-3962, `docs/quirks.md` §5, probe `collision-line-sloped`,
+which GM8 and the port answer alike on 900 lines against an irregular mask, unturned, turned and scaled; the port's
+`gm::collision::line_hits` is read from Spelunky.exe 0x4aceec, 0x4a4fd8 and 0x48b0d4): the clipped ends rounded, a
+line in one row or one column taken as the precise rectangle between them (`check_collision_rectangle`), otherwise
+the box's columns (or rows, for a line steeper than wide) between the rounded ends, the other coordinate from their
+slope. OpenGMK walked every point between the ends, past the box too, which meets a mask with pixels outside its
+box (a manual box: Spelunky has no precise sprite with one), and a row or a column as points. Unreached: every one of
+Spelunky's `collision_line` calls is a row or a column.
 
 ## Caveats
 
