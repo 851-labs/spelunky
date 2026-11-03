@@ -42,8 +42,9 @@ jobs:
 
   # The site's smoke test (site/test.sh), on one of GitHub's Linux machines, for a pull request that changes the
   # site, what it reads from outside site/ (wiki/'s specs and media, LICENSE, docs/quirks.md, whose rows the quirk
-  # pages name), the script that writes its pin or this workflow. Any other passes as soon as it has checked out.
-  # Those inputs are Workers Builds' build watch paths too (docs/web-deploy.md), which site/test.sh checks.
+  # pages name, and the committed replays the pages cite, whose removal fails the build), the script that writes
+  # its pin or this workflow. Any other passes as soon as it has checked out. Those inputs but the replays are
+  # Workers Builds' build watch paths too (docs/web-deploy.md), which site/test.sh checks.
   site:
     name: Site test
     runs-on: ubuntu-24.04
@@ -60,7 +61,8 @@ jobs:
       - id: changes
         env:
           PATHS: >-
-            site wiki LICENSE docs/quirks.md scripts/bump-web-release .github/workflows/pr.yml
+            site wiki LICENSE docs/quirks.md fidelity/replays fidelity/settings scripts/bump-web-release
+            .github/workflows/pr.yml
         run: |
           read -ra paths <<<"$PATHS"
           if git rev-parse -q --verify HEAD^2 >/dev/null && git diff --quiet HEAD^1 HEAD -- "${paths[@]}"; then

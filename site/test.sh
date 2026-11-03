@@ -39,14 +39,17 @@ fi
 
 # Workers Builds' build watch paths (docs/web-deploy.md, set in the dashboard) are the site's inputs, the same as
 # pr.yml's site test's paths but the scripts and workflows that only test it: a change to one that's only in one
-# list would test the site but never deploy it (851-3919), or deploy it untested. Before the build: it needs none.
+# list would test the site but never deploy it (851-3919), or deploy it untested. And but the committed replays
+# (fidelity/), which the test has so that removing one a page cites fails its pull request, but which needn't
+# deploy: a replay's change only moves its links' pins, and the live ones still name a commit that has it
+# (851-3938). Before the build: it needs none.
 watched=$(grep '^| Build watch paths |' ../docs/web-deploy.md | sed 's/, exclude.*//' | grep -o '`[^`]*`' | tr -d '`' |
   sed 's|/\*$||' | sort | tr '\n' ' ')
 # The site job's paths (its `changes` step's PATHS: >- block): from that line to the first line less indented, within
 # the job.
 tested=$(awk '/^  [a-z-]+:$/ { job = $1 } job == "site:" && /^ +PATHS: >-$/ { on = 1; indent = index($0, "P") + 1; next }
   on && substr($0, 1, indent) !~ /^ +$/ { exit } on' ../.github/workflows/pr.yml |
-  tr ' ' '\n' | grep -v -e '^$' -e '^scripts/' -e '^\.github/' | sort | tr '\n' ' ')
+  tr ' ' '\n' | grep -v -e '^$' -e '^scripts/' -e '^\.github/' -e '^fidelity/' | sort | tr '\n' ' ')
 if [ -z "$watched" ] || [ -z "$tested" ] || [ "$watched" != "$tested" ]; then
   echo "site/test.sh: docs/web-deploy.md's build watch paths ($watched) aren't pr.yml's site job's inputs ($tested)" >&2
   exit 1
