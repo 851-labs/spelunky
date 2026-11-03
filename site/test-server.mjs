@@ -214,7 +214,7 @@ const ROUTES = {
   [`${MEDIA}/LICENSE.txt`]: false,
   [`${GAME}/assets/bundle.bin`]: false,
   [`${GAME}/assets/config/bundle.bin`]: false,
-  [`${GAME}/assets/sounds/sndJump.wav`]: false,
+  [`${GAME}/assets/sounds/jump.wav`]: false,
   ["/media/logo.png"]: false,
   ["/media/card.png"]: false,
   ["/media/gameplay.png"]: false,
@@ -229,7 +229,7 @@ const ROUTES = {
 // The game's assets and sounds skip the Worker (ROUTES, below), as a type Cloudflare compresses (public/_headers),
 // which the asset store's .bin, application/octet-stream, and .wav, audio/wav, aren't, and with the rest of
 // /play/v/'s headers, on a HEAD and a 304 too.
-for (const path of [`${GAME}/assets/bundle.bin`, `${GAME}/assets/config/bundle.bin`, `${GAME}/assets/sounds/sndJump.wav`]) {
+for (const path of [`${GAME}/assets/bundle.bin`, `${GAME}/assets/config/bundle.bin`, `${GAME}/assets/sounds/jump.wav`]) {
   for (const how of ["GET", "HEAD", "If-None-Match"]) {
     const what = `${how} ${path}`;
     try {
