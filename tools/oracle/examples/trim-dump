@@ -3,7 +3,7 @@
 
 Usage: tools/oracle/examples/trim-dump <dump.jsonl> <frame> [<frame> ...]
 
-Prints the given frames with only the first 3 entries of `instances` and of `deactivated`. Every other field and
+Prints the given frames with only the first 3 entries of `instances`, `deactivated` and `tiles`. Every other field and
 every kept instance is copied verbatim, so the output can be compared byte for byte with a committed fixture:
 
     tools/oracle/examples/trim-dump /tmp/start.jsonl 0 1315 1316 | cmp - tools/oracle/examples/start.expected.jsonl
@@ -13,11 +13,11 @@ import json
 import sys
 
 KEEP = 3
-LISTS = ('"instances":[', '"deactivated":[')
+LISTS = ('"instances":[', '"deactivated":[', '"tiles":[')
 
 
 def trim_list(line, marker):
-    """Cuts the instance list that starts at `marker` down to its first KEEP entries."""
+    """Cuts the list that starts at `marker` down to its first KEEP entries."""
     decoder = json.JSONDecoder()
     start = line.find(marker)
     if start < 0:

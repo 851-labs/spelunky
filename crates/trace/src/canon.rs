@@ -250,7 +250,8 @@ impl Encoder<'_> {
         for Real(r) in [x, y, depth, xscale, yscale] {
             self.real(r);
         }
-        self.u64(u64::from(blend));
+        // As its 32 bits, zero-extended.
+        self.u64(u64::from(blend as u32));
         self.real(alpha.0);
         self.bool(visible);
     }

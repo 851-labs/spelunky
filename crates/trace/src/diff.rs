@@ -516,6 +516,12 @@ fn flatten(frame: &Frame, instance: Option<&InstanceRef>, filters: &Filters) -> 
 type Fields = (Vec<(Cow<'static, str>, Datum)>, Vec<&'static str>);
 
 fn frame_fields(f: &Frame, filter: &Filters) -> Fields {
+    frame_fields_with(f, filter, true)
+}
+
+/// [`frame_fields`], leaving out the tiles unless `tiles`: comparing two frames whose tiles are equal needn't
+/// flatten hundreds of them.
+fn frame_fields_with(f: &Frame, filter: &Filters, tiles: bool) -> Fields {
     let mut out: Vec<(Cow<'static, str>, Datum)> = Vec::new();
     let mut push = |path: &'static str, d: Option<Datum>| {
         if let Some(d) = d
@@ -538,19 +544,23 @@ fn frame_fields(f: &Frame, filter: &Filters) -> Fields {
             push_vars(&mut out, prefix, map, filter);
         }
     }
-    if let Some(tiles) = &f.tiles {
+    if let Some(list) = &f.tiles {
         maps.push("tiles");
-        push_tiles(&mut out, tiles, filter);
+        if tiles {
+            push_tiles(&mut out, list, filter);
+        }
     }
     (out, maps)
 }
 
-/// Each tile's fields as `tiles.ID.FIELD`, and its place in the draw order as `tiles.ID.order`: by id, so a
-/// tile only one side has is one difference, not one for every tile after it.
+/// Each tile's fields as `tiles.ID.FIELD`, and its place in the draw order as `tiles.ID.after`, the id of the
+/// tile drawn just before it (-1 for the first): by id, so a tile only one side has is its own difference and
+/// one `after` of the tile behind it, not one for every tile after it.
 fn push_tiles(out: &mut Vec<(Cow<'static, str>, Datum)>, tiles: &[Tile], filter: &Filters) {
-    for (order, t) in tiles.iter().enumerate() {
+    for (n, t) in tiles.iter().enumerate() {
+        let after = n.checked_sub(1).map_or(-1, |p| tiles[p].id);
         let fields = [
-            ("order", Datum::Int(order as i64)),
+            ("after", Datum::Int(after.into())),
             ("background", Datum::Int(t.background.into())),
             ("left", Datum::Int(t.left.into())),
             ("top", Datum::Int(t.top.into())),
@@ -673,7 +683,12 @@ impl<'o> Comparison<'o> {
             && fa.tiles == fb.tiles;
         if !same {
             let filter = self.filters;
-            self.fields(None, frame_fields(fa, filter), frame_fields(fb, filter));
+            let tiles = fa.tiles != fb.tiles;
+            self.fields(
+                None,
+                frame_fields_with(fa, filter, tiles),
+                frame_fields_with(fb, filter, tiles),
+            );
         }
         self.instances(fa, fb);
     }
@@ -1587,17 +1602,19 @@ mod tests {
                 tile(12, 32.0, 3.0),
             ]);
         }
-        // b keeps tile 11 at frame 4 that a deleted: one difference, not one for every tile after it.
+        // b keeps tile 11 at frame 4 that a deleted: its own fields and tile 12's `after` (11 in b, 10 in a),
+        // not a difference for every tile after it.
         let mut b = a.clone();
         a[4].tiles.as_mut().unwrap().remove(1);
         let r = diff(&a, &b);
-        let d = r.divergence.unwrap();
-        assert_eq!(d.frame, 4);
-        let paths: Vec<String> = fields(&diff(&a, &b)).into_iter().map(|(p, ..)| p).collect();
+        assert_eq!(r.divergence.as_ref().unwrap().frame, 4);
+        let paths: Vec<String> = fields(&r).into_iter().map(|(p, ..)| p).collect();
+        assert!(paths.contains(&"tiles.11.x".to_string()), "{paths:?}");
+        assert!(paths.contains(&"tiles.12.after".to_string()), "{paths:?}");
         assert!(
             paths
                 .iter()
-                .all(|p| p.starts_with("tiles.11.") || p == "tiles.12.order"),
+                .all(|p| p.starts_with("tiles.11.") || p == "tiles.12.after"),
             "{paths:?}"
         );
         // A moved tile is its field.

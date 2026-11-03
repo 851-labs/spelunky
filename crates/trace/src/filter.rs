@@ -102,8 +102,13 @@ impl Filter {
                 .builtins
                 .as_ref()
                 .map(|b| self.filtered_vars("builtins", b)),
-            // Kept or dropped whole: `trace-diff` filters their paths (`tiles.ID.FIELD`) one by one.
-            tiles: frame.tiles.clone().filter(|_| keep("tiles")),
+            // Kept or dropped whole: `trace-diff` filters their paths (`tiles.ID.FIELD`) one by one, so a
+            // field list naming some of them keeps them all here.
+            tiles: frame.tiles.clone().filter(|_| {
+                keep("tiles")
+                    || (self.fields.iter().any(|p| p.starts_with("tiles."))
+                        && !self.ignore_fields.iter().any(|p| path_matches(p, "tiles")))
+            }),
         }
     }
 

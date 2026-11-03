@@ -85,17 +85,31 @@ impl World {
             deactivated: Some(dump(State::Inactive)),
             globals,
             builtins: Some(self.trace_builtins()),
-            tiles: Some(self.tiles_in_draw_order().map(trace_tile).collect()),
+            tiles: Some({
+                let mut order = Vec::new();
+                self.tiles_in_draw_order(&mut order);
+                order
+                    .iter()
+                    .map(|&i| trace_tile(&self.room.tiles[i]))
+                    .collect()
+            }),
         }
     }
 
     /// The room's tiles in the order a draw puts them: by depth, highest first, at one depth in the order they
     /// were added. The draw's own sort is stable, so this is that order whether or not one has run (and
-    /// headless none does), as the oracle's dump, which sorts its draw order the same way, has it.
-    fn tiles_in_draw_order(&self) -> impl Iterator<Item = &crate::room::Tile> {
-        let mut tiles: Vec<&crate::room::Tile> = self.room.tiles.iter().collect();
-        tiles.sort_by(|a, b| crate::list::cmp_nan_first(b.depth, a.depth));
-        tiles.into_iter()
+    /// headless none does), as the oracle's dump, which sorts its draw order the same way, has it. Into `order`,
+    /// as indices into the room's tiles; after a recorded draw they're in that order already.
+    fn tiles_in_draw_order(&self, order: &mut Vec<usize>) {
+        let tiles = &self.room.tiles;
+        let cmp = |a: &crate::room::Tile, b: &crate::room::Tile| {
+            crate::list::cmp_nan_first(b.depth, a.depth)
+        };
+        order.clear();
+        order.extend(0..tiles.len());
+        if !tiles.is_sorted_by(|a, b| cmp(a, b).is_le()) {
+            order.sort_by(|&a, &b| cmp(&tiles[a], &tiles[b]));
+        }
     }
 
     fn trace_globals(&self) -> BTreeMap<String, trace::Value> {
@@ -177,7 +191,7 @@ fn trace_tile(t: &crate::room::Tile) -> trace::Tile {
         depth: trace::Real(t.depth),
         xscale: trace::Real(t.xscale),
         yscale: trace::Real(t.yscale),
-        blend: t.blend,
+        blend: t.blend as i32,
         alpha: trace::Real(t.alpha),
         visible: t.visible,
     }
@@ -213,6 +227,8 @@ pub struct FrameEncoder {
     insts: Vec<(i32, u32, Inst)>,
     /// An instance's variables outside its layout, by index, reused.
     extra: Vec<usize>,
+    /// The tiles in draw order, by index, reused.
+    tiles: Vec<usize>,
 }
 
 /// An object's layout as `(variable, slot)`, in name order.
@@ -326,9 +342,12 @@ impl FrameEncoder {
         }
         e.some(true);
         e.len(w.room.tiles.len());
-        for t in w.tiles_in_draw_order() {
-            e.tile(&trace_tile(t));
+        let mut order = std::mem::take(&mut self.tiles);
+        w.tiles_in_draw_order(&mut order);
+        for &i in &order {
+            e.tile(&trace_tile(&w.room.tiles[i]));
         }
+        self.tiles = order;
         key
     }
 

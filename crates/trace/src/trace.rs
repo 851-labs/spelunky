@@ -127,8 +127,8 @@ pub struct Tile {
     pub depth: Real,
     pub xscale: Real,
     pub yscale: Real,
-    /// `0xBBGGRR`.
-    pub blend: u32,
+    /// `0xBBGGRR`; an `i32`, as the runner keeps it.
+    pub blend: i32,
     pub alpha: Real,
     pub visible: bool,
 }

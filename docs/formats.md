@@ -140,13 +140,14 @@ does.
 
 ### Filters
 
-A frame with variables is about 170 KB. A `Filter` keeps traces manageable. The writer applies it before writing (`TraceWriter`), and `trace-diff` applies it before
+A frame with variables is about 170 KB, and a level's tiles (`tiles`) add some 60 KB more. A `Filter` keeps traces manageable. The writer applies it before writing (`TraceWriter`), and `trace-diff` applies it before
 comparing. It has four lists of globs, where `*` matches any run of characters: `objects`, `ignore_objects`,
 `fields`, and `ignore_fields`. Field patterns match these **paths**:
 
 - Frame paths: `room`, `room_name`, `seed`, `instance_count`, `globals.NAME`, `builtins.NAME`, and `tiles`. A
   writer keeps or drops the tiles whole; `trace-diff` compares each tile by its id, as `tiles.ID.FIELD` (one of
-  its keys, or `order`, its place in the draw order), so a tile only one trace has is one difference.
+  its keys, or `after`, the id of the tile drawn just before it, -1 for the first), so a tile only one trace has
+  is its own fields and the `after` of the tile behind it, not a difference for every tile after it.
 - Instance paths: `active`, `object_index`, `x` and the other real built-ins, `sprite_index`, `sprite`,
   `visible`, `solid`, `alarms[0]` to `alarms[11]`, `vars.NAME`.
 - Array elements: `vars.NAME[j]` and `vars.NAME[i,j]`. Element 0 is `vars.NAME` itself.

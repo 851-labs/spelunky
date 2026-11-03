@@ -132,6 +132,8 @@ fills them in like this:
   usually in `deactivated`. `instance_count` counts the active ones.
 - `builtins` holds `view_xview[0]`, `view_yview[0]`, `view_wview[0]` and `view_hview[0]`, which decide what
   `oLevel` deactivates.
+- `tiles` (patch 0038) holds every tile in draw order: by depth, highest first, and at one depth in the order they
+  were added. It's always written, with or without `--fields`.
 - `vars` and `globals` are only written with `--fields`.
 - Reals are Rust's shortest round-trip form. Non-finite reals are `"NaN"`, `"inf"` and `"-inf"` in fixed fields
   and `{"real":"nan"}`, `{"real":"inf"}` and `{"real":"-inf"}` in `vars` and `globals`.
@@ -153,15 +155,17 @@ and a run resumed from a savestate matches the full run from the savestate's fra
 tools/oracle/run tools/oracle/examples/start.txt /tmp/start.jsonl
 tools/oracle/examples/trim-dump /tmp/start.jsonl 0 1315 1316 | cmp - tools/oracle/examples/start.expected.jsonl
 shasum -a 256 /tmp/start.jsonl
-# abb3c8643dba863275e21fbb21d555d9e75cc57471a271687afe225592eceab2
+# 57e337fad0bec8dc5e3395c5484b147591467b74e8bb6aa778aaea4a6157ce96
 ```
 
 `examples/start.expected.jsonl` holds frames 0, 1315 and 1316 of that dump, each cut down to its first three
-active and first three deactivated instances by `trim-dump`, which copies what it keeps byte for byte.
+active and first three deactivated instances and first three tiles by `trim-dump`, which copies what it keeps byte
+for byte.
 `examples/returning.txt` is the same input from a returning player's highscore table. It ends in `rLevel`
 instead of `rTutorial`, and its dump's SHA-256 is
-`df1d33db88ca11a0b9faca7cefd0c9fc729f8c9fa3590131a205738cbf755b9d`. Both were re-run after patches 0007, 0008 and 0011
-and still match: neither replay reaches the trigonometry, the fractional `distance_to_point` or the
+`365de7fbbdd1724396317ee4be33f74ff152d7c3d6ac0f0308b78bc2fe099eda`. Both hashes are of dumps with the tiles (patch 0038,
+851-3842), which added them to every line; the rest of each line is as it was. Both were re-run after patches 0007,
+0008 and 0011 and still matched: neither replay reaches the trigonometry, the fractional `distance_to_point` or the
 `file_find_first` they change.
 
 To check that the oracle's math matches the port's, build `tools/math-probe` in the oracle image (its Rust,
