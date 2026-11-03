@@ -10,7 +10,7 @@ from these. Nothing is copied by hand.
 | `SHA256SUMS` | Checksums of both zips (`shasum -a 256 -c SHA256SUMS`) |
 
 **The source matches the release.** `Spelunky.exe` and `config.exe` from `spelunky_1_1.zip` were decompiled
-with OpenGMK's decompiler (`gm8decompiler`, <https://github.com/OpenGMK/OpenGMK>) and the results compared with
+with OpenGMK's decompiler (<https://github.com/OpenGMK/GM8Decompiler>) and the results compared with
 `spelunky.gmk` and `config.gmk` from `spelunky_1_1_src.zip`, resource by resource. Every script, object, event,
 action, room, tile, view and game setting is identical; only the GameMaker editor's own metadata differs.
 So the port, transpiled from the `.gmk` files, and the oracle, running `Spelunky.exe`, run the same GML. Checked

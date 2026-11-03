@@ -213,7 +213,7 @@ jobs:
     outputs:
       key: ${{ steps.oracle.outputs.key }}
     steps:
-      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
+      # Without the wiki's media (docs/wiki-media.md): about 250 MB that this job doesn't need.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -234,7 +234,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
-      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
+      # Without the wiki's media (docs/wiki-media.md): about 250 MB that this job doesn't need.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -282,7 +282,7 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
-      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
+      # Without the wiki's media (docs/wiki-media.md): about 250 MB that this job doesn't need.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -353,7 +353,7 @@ jobs:
       TAG: ${{ needs.meta.outputs.tag }}
       VERSION: ${{ needs.meta.outputs.version }}
     steps:
-      # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
+      # Without the wiki's media (docs/wiki-media.md): about 250 MB that this job doesn't need.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false

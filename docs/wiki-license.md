@@ -96,9 +96,9 @@ those files", and its section 3 grants the right to redistribute it, so the whol
 not only short excerpts. The repository, which is public, already redistributes the whole of
 `spelunky.gmk` (`reference/spelunky_1_1_src.zip`) on the same terms. The conditions, as they apply:
 
-1. **The license and the source's notices intact.** Every page links `/LICENSE.txt`, the license unchanged but for its encoding, and
-   shows the file whole, the scripts' own credit and copyright comments with it; the GML the pages are
-   built from (`wiki/media/gml`, docs/wiki-media.md) has `LICENSE.txt` and `NOTICE.txt` beside it.
+1. **The license and the source's notices intact.** Every page links `/LICENSE.txt`, the license unchanged
+   but for its encoding, and shows the file whole, the scripts' own credit and copyright comments with it;
+   the GML the pages are built from (`wiki/media/gml`, docs/wiki-media.md) has `LICENSE.txt` and `NOTICE.txt` beside it.
 2. **Not sold.** As the rest of the wiki: no ads, paywalls or sponsorships.
 3. **A notice at the beginning.** The source notice above, at the top of each page before the code, besides
    the footer's: unlike a wiki page, a source page is the Source Code itself, so the footer alone isn't
