@@ -9,7 +9,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/` | the landing page (`site/src/routes/index.tsx`, pre-rendered) | `no-cache` |
 | `/assets/` | the pages' scripts, named by a hash of their contents | `immutable`, a year |
 | `/play/` | the game: a release's web build (`scripts/web --package`) | `no-cache` (the page and `manifest.txt`) |
-| `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents; its `.bin` assets as `application/x-protobuf` (`_headers`), a type Cloudflare compresses, where the asset store's `application/octet-stream` isn't | `immutable`, a year |
+| `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents; its `.bin` assets and `.wav` sounds as `application/x-protobuf` (`_headers`), a type Cloudflare compresses, where the asset store's `application/octet-stream` and `audio/wav` aren't (the game reads their bytes, whatever the type) | `immutable`, a year |
 | `/third-party-licenses.txt` | the licenses of the packages in the pages' scripts ([Third-party licenses](#third-party-licenses)), written by the build | `no-cache` |
 | `/LICENSE.txt` | the Spelunky User License, the repo's `LICENSE` in UTF-8 (it's windows-1252) | `no-cache` |
 | `/wiki`, `/wiki/<slug>` | the wiki: its hubs (`/wiki`, `/wiki/monsters`, `/wiki/items/weapons`...) and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |

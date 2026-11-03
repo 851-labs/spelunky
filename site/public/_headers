@@ -26,6 +26,12 @@
 # The game reads the bytes, whatever the type (crates/app/src/web.rs's fetch), and nothing else asks for them.
 /play/v/*.bin
   Content-Type: application/x-protobuf
+# The same for its 59 sounds (assets/sounds/*.wav, about 2.5 MB of PCM, under half that compressed), which it fetches
+# as it starts too, and which the asset store serves as audio/wav, another type Cloudflare doesn't compress. The game
+# reads their bytes (crates/app/src/main.rs's fetch_all): a reader opening one's URL by hand downloads it rather than
+# plays it.
+/play/v/*.wav
+  Content-Type: application/x-protobuf
 # The web build's text files (its third-party notices: scripts/third-party-licenses), in UTF-8, as the media's below.
 /play/v/*.txt
   Content-Type: text/plain; charset=utf-8
