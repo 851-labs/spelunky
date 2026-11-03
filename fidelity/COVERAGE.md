@@ -166,9 +166,9 @@ The game's units that never ran, by why:
     `scripts/isCollisionCharacter`, `scripts/isCollisionMovingSolidBottom`; and `scripts/isCollisionCharacterLeft`,
     called only inside `gameStepEvent`'s `with oMovingSolid`, which nothing creates.
   - `oPushBlock/other_0#0`, a push block leaving the room: the Ice Caves make none (no room or obstacle of
-    `scrRoomGen3`'s or `scrRoomGenYeti`'s has the `4` tile, and `scrSetupWalls`, which makes loose blocks with a
-    brick, temple block or hard block under them push blocks, runs only for `oBricks` and the Temple's Olmec room),
-    and every other room a push block is in has a bottom row: the one `scrInitLevel` gives the other areas' levels
+    `scrRoomGen3`'s or `scrRoomGenYeti`'s has the `4` tile, and they make no `oBlock`, the loose blocks
+    `scrSetupWalls`, run on every level, turns into push blocks when a brick, temple block or hard block is under
+    one), and every other room a push block is in has a bottom row: the one `scrInitLevel` gives the other areas' levels
     and custom levels (y 528, or 656 in a lake's taller room), or `rOlmec`'s floor at y 864 (851-3956);
   - `oYellowBall/other_0#0`, one of Olmec's yellow balls leaving the room: `rOlmec` is walled on every side, and
     a ball's step destroys it in the first solid its 16-pixel box meets once it's clear of Olmec, which it can't
