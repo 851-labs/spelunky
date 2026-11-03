@@ -238,6 +238,9 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     fields, each data value citing its lines as a numbered note like a `text`'s `cite`, the `objects`, and
     the Relations: those the type shows (`found_in`, `drops`, `sold_in` or `part_of`) and the inverses of
     what the thing has (Dropped by, Sells, Contains). The infobox's notes are numbered before the body's.
+    On a wide screen it's in a column of its own on the article's right, and stays on screen as the page
+    scrolls, as the contents rail does, when it fits on the screen; a taller one scrolls with the page, so
+    its bottom is never out of reach (851-3996).
   - **The table of contents**, after the summary and before the first heading, when there are three
     sections or more: the body's `##` and `###` headings and the generated sections, each linking its
     stable anchor. On a phone it's a closed "Contents" disclosure (Base UI's Collapsible). On a wide screen

@@ -158,6 +158,16 @@ h3 { font-size: 16px; }
   .toc-rail a[aria-current] { color: var(--gold); background: var(--panel); box-shadow: inset var(--px) 0 0 var(--gold); }
   .wiki-page article > :is(p, ul, ol, dl, blockquote), .wiki-page section > :is(p, ul:not(.sources), ol:not(.references), dl),
   .wiki-page :is(.lede, .hatnote, .table-wrap) { max-width: 75ch; }
+  /* The infobox stays on screen as the page scrolls, as the rail does, its frame's top on the rail's, when it fits
+     on the screen (layout.tsx's Infobox sets data-fits, and again as the box or the window changes size): one
+     taller would hide its bottom, so it scrolls with the page (851-3996). So that it never covers the text, it's
+     in a column of its own, the article's right padding, which it floats into (its margin box is no wider than
+     its gap, so nothing beside it narrows). Its column is there whether it sticks or not, so nothing moves when
+     it starts to. Its box (.intro) lets go of it, so that it sticks within the article, not the lede. */
+  .wiki-page article:has(.infobox) { --infobox-column: calc(32px + 300px + var(--frame)); padding-right: var(--infobox-column); }
+  .intro { display: contents; }
+  .infobox { margin-right: calc(var(--frame) - var(--infobox-column)); }
+  .infobox[data-fits] { position: sticky; top: calc(16px + var(--frame)); }
 }
 
 .sprite-missing { display: inline-block; background: var(--dirt); vertical-align: middle; }
