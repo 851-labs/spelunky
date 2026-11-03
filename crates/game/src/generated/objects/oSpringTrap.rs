@@ -46,7 +46,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (status == IDLE && abs(other.x - (x + 8)) < 6 && !other.held && counter == 0 && other.active)
     g.at("oSpringTrap/collision_oItem#0", 1);
-    if and(and(and(and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)?, ({ let a = [g.get(cx.other, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(6.0))?), g.get(cx.other, v::held)?.not()?.cond(Cond::And)?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?), g.get(cx.other, v::active)?.cond(Cond::And)?) {
+    if { let p3 = and({ let p1 = and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)?, ({ let a = [g.get(cx.other, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(6.0))?); let q2 = g.get(cx.other, v::held)?.not()?; and(p1, q2.cond(Cond::And)?) }, g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?); let q4 = g.get(cx.other, v::active)?; and(p3, q4.cond(Cond::And)?) } {
         // 4: sprite_index = sSpringTrapSprung;
         g.at("oSpringTrap/collision_oItem#0", 4);
         g.set(cx.this, v::sprite_index, spr::sSpringTrapSprung)?;
@@ -60,10 +60,10 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oSpringTrap/collision_oItem#0", 7);
         {
             let t = r(-2.0);
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it5 = g.with_iter(cx, &t)?;
+            let outer7 = (cx.this, cx.other);
+            'with1: while let Some(h6) = it5.next(g) {
+                (cx.this, cx.other) = (h6, outer7.0);
                 // 9: y -= 24;
                 g.at("oSpringTrap/collision_oItem#0", 9);
                 g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(24.0))?)?;
@@ -86,7 +86,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                 }
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer7;
         }
         // 18: counter = 10;
         g.at("oSpringTrap/collision_oItem#0", 18);
@@ -100,7 +100,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (status == IDLE && abs(other.x - x) < 6 && counter == 0 && !other.flying)
     g.at("oSpringTrap/collision_oEnemy#0", 1);
-    if and(and(and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)?, ({ let a = [g.get(cx.other, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_lt(&r(6.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?), g.get(cx.other, v::flying)?.not()?.cond(Cond::And)?) {
+    if { let p1 = and(and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)?, ({ let a = [g.get(cx.other, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_lt(&r(6.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?); let q2 = g.get(cx.other, v::flying)?.not()?; and(p1, q2.cond(Cond::And)?) } {
         // 3: sprite_index = sSpringTrapSprung;
         g.at("oSpringTrap/collision_oEnemy#0", 3);
         g.set(cx.this, v::sprite_index, spr::sSpringTrapSprung)?;
@@ -114,10 +114,10 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oSpringTrap/collision_oEnemy#0", 6);
         {
             let t = r(-2.0);
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it3 = g.with_iter(cx, &t)?;
+            let outer5 = (cx.this, cx.other);
+            'with1: while let Some(h4) = it3.next(g) {
+                (cx.this, cx.other) = (h4, outer5.0);
                 // 8: y -= 16;
                 g.at("oSpringTrap/collision_oEnemy#0", 8);
                 g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(16.0))?)?;
@@ -136,7 +136,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(1.0))?)?;
                 }
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer5;
         }
         // 13: counter = 10;
         g.at("oSpringTrap/collision_oEnemy#0", 13);

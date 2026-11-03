@@ -14,7 +14,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::joyid, r(1.0))?;
     // 4: if (!joystick_exists(1) && joystick_exists(2))
     g.at("oJoyConfig/create#0", 4);
-    if and(b::joystick_exists(g, cx, [r(1.0)])?.not()?.cond(Cond::And)?, b::joystick_exists(g, cx, [r(2.0)])?.cond(Cond::And)?) {
+    if { let p1 = b::joystick_exists(g, cx, [r(1.0)])?.not()?; let q2 = b::joystick_exists(g, cx, [r(2.0)])?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 6: joyid = 2;
         g.at("oJoyConfig/create#0", 6);
         g.set(cx.this, v::joyid, r(2.0))?;
@@ -135,7 +135,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 58: if (joyPressed || keyboard_check_pressed(vk_escape))
     g.at("oJoyConfig/step#0", 58);
-    if or(g.get(cx.this, v::joyPressed)?.cond(Cond::Or)?, b::keyboard_check_pressed(g, cx, [k::vk_escape])?.cond(Cond::Or)?) {
+    if { let p1 = g.get(cx.this, v::joyPressed)?; let q2 = b::keyboard_check_pressed(g, cx, [k::vk_escape])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 60: status += 1;
         g.at("oJoyConfig/step#0", 60);
         g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0))?)?;
@@ -246,7 +246,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     b::draw_text(g, cx, [r(8.0), r(104.0), s!("CURRENT: ")])?;
     // 11: if (!joystick_exists(1) && !joystick_exists(2))
     g.at("oJoyConfig/draw#0", 11);
-    if and(b::joystick_exists(g, cx, [r(1.0)])?.not()?.cond(Cond::And)?, b::joystick_exists(g, cx, [r(2.0)])?.not()?.cond(Cond::And)?) {
+    if { let p1 = b::joystick_exists(g, cx, [r(1.0)])?.not()?; let q2 = b::joystick_exists(g, cx, [r(2.0)])?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 13: draw_set_color(c_red);
         g.at("oJoyConfig/draw#0", 13);
         b::draw_set_color(g, cx, [k::c_red])?;
@@ -256,7 +256,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 16: if (joystick_exists(1) && joystick_exists(2))
         g.at("oJoyConfig/draw#0", 16);
-        if and(b::joystick_exists(g, cx, [r(1.0)])?.cond(Cond::And)?, b::joystick_exists(g, cx, [r(2.0)])?.cond(Cond::And)?) {
+        if { let p3 = b::joystick_exists(g, cx, [r(1.0)])?; let q4 = b::joystick_exists(g, cx, [r(2.0)])?; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) } {
             // 18: draw_set_color(c_yellow);
             g.at("oJoyConfig/draw#0", 18);
             b::draw_set_color(g, cx, [k::c_yellow])?;

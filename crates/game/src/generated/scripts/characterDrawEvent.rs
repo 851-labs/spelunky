@@ -35,7 +35,7 @@ pub fn characterDrawEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     if g.get(cx.this, v::blinkToggle)?.gml_ne(&r(1.0))? {
         // 11: if (state == CLIMBING || (sprite_index == sPExit || sprite_index == sDamselExit || sprite_index == s
         g.at("scripts/characterDrawEvent", 11);
-        if and(and(or(g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::CLIMBING)?)?, or(or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?)), g.gget(gv::hasJetpack)?.cond(Cond::And)?), g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?) {
+        if { let p3 = { let p1 = or(g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::CLIMBING)?)?, or(or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?)); let q2 = g.gget(gv::hasJetpack)?; and(p1, q2.cond(Cond::And)?) }; let q4 = g.get(cx.this, v::whipping)?.not()?; and(p3, q4.cond(Cond::And)?) } {
             // 13: draw_sprite_ext(sprite_index, -1, x, y, image_xscale, image_yscale, image_angle, image_blend, image_
             g.at("scripts/characterDrawEvent", 13);
             cx.ret = { let a = [g.get(cx.this, v::sprite_index)?, r(-1.0), g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get(cx.this, v::image_xscale)?, g.get(cx.this, v::image_yscale)?, g.get(cx.this, v::image_angle)?, g.get(cx.this, v::image_blend)?, g.get(cx.this, v::image_alpha)?]; b::draw_sprite_ext(g, cx, a)? };
@@ -52,7 +52,7 @@ pub fn characterDrawEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 18: if (global.hasJetpack && facing == RIGHT)
             g.at("scripts/characterDrawEvent", 18);
-            if and(g.gget(gv::hasJetpack)?.cond(Cond::And)?, g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?) {
+            if { let p5 = g.gget(gv::hasJetpack)?; let q6 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?; and(p5.cond(Cond::And)?, q6) } {
                 // 18: draw_sprite(sJetpackRight, -1, x - 4, y - 1);
                 g.at("scripts/characterDrawEvent", 18);
                 cx.ret = { let a = [spr::sJetpackRight, r(-1.0), g.get(cx.this, v::x)?.sub(&r(4.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?]; b::draw_sprite(g, cx, a)? };

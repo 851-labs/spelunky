@@ -618,7 +618,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 151: if (!oButtonHighscore.pushed && block.x > 160)
         g.at("oHighscores/draw#0", 151);
-        if and(g.get_on(cx, &obj::oButtonHighscore, v::pushed)?.not()?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::block)?, v::x)?.gml_gt(&r(160.0))?) {
+        if { let p7 = g.get_on(cx, &obj::oButtonHighscore, v::pushed)?.not()?; let q8 = g.get_on(cx, &g.get(cx.this, v::block)?, v::x)?.gml_gt(&r(160.0))?; and(p7.cond(Cond::And)?, q8) } {
             // 153: draw_set_font(global.myFontSmall);
             g.at("oHighscores/draw#0", 153);
             { let a = [g.gget(gv::myFontSmall)?]; b::draw_set_font(g, cx, a)? };

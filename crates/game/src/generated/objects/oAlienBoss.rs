@@ -220,7 +220,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 50: if (isCollisionBottom(1) && status != STUNNED)
         g.at("oAlienBoss/step#0", 50);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if { let p1 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?; and(p1.cond(Cond::And)?, q2) } {
             // 51: yVel = 0;
             g.at("oAlienBoss/step#0", 51);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -254,7 +254,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 66: if (dist < 96 && status != DEAD && !oPlayer1.dead && !oPlayer1.stunned && oPlayer1.invincible == 0)
             g.at("oAlienBoss/step#0", 66);
-            if and(and(and(and(g.get(cx.this, v::dist)?.gml_lt(&r(96.0))?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::DEAD)?)?), g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?), g.get_on(cx, &obj::oPlayer1, v::stunned)?.not()?.cond(Cond::And)?), g.get_on(cx, &obj::oPlayer1, v::invincible)?.gml_eq(&r(0.0))?) {
+            if and({ let p5 = { let p3 = and(g.get(cx.this, v::dist)?.gml_lt(&r(96.0))?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::DEAD)?)?); let q4 = g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?; and(p3, q4.cond(Cond::And)?) }; let q6 = g.get_on(cx, &obj::oPlayer1, v::stunned)?.not()?; and(p5, q6.cond(Cond::And)?) }, g.get_on(cx, &obj::oPlayer1, v::invincible)?.gml_eq(&r(0.0))?) {
                 // 68: for (...; i < 6; ...)
                 g.at("oAlienBoss/step#0", 68);
                 // 68: i = 0;
@@ -311,7 +311,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!other.dead && (other.state == 15 || other.state == 16) && other.y < y + 8 && !other.swimming)
     g.at("oAlienBoss/collision_oCharacter#0", 1);
-    if and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
+    if { let p3 = and({ let p1 = g.get(cx.other, v::dead)?.not()?; let q2 = or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?); and(p1.cond(Cond::And)?, q2) }, g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?); let q4 = g.get(cx.other, v::swimming)?.not()?; and(p3, q4.cond(Cond::And)?) } {
         // 3: other.yVel = -6 - 0.2 * other.yVel;
         g.at("oAlienBoss/collision_oCharacter#0", 3);
         g.set(cx.other, v::yVel, r(-6.0).sub(&r(0.2).mul(&g.get(cx.other, v::yVel)?)?)?)?;
@@ -389,7 +389,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                 // 25: if (global.plife <= 0 && isRealLevel())
                 g.at("oAlienBoss/collision_oCharacter#0", 25);
-                if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                if { let p5 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q6 = scr::isRealLevel(g, cx, &[])?; and(p5, q6.cond(Cond::And)?) } {
                     // 25: global.enemyDeaths[17] += 1;
                     g.at("oAlienBoss/collision_oCharacter#0", 25);
                     g.gset_a(gv::enemyDeaths, 0, 17, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 17)?, &r(1.0))?)?;

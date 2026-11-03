@@ -185,7 +185,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 41: if (colBot && status != STUNNED)
         g.at("oCaveman/step#1", 41);
-        if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if { let p1 = g.get(cx.this, v::colBot)?; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?; and(p1.cond(Cond::And)?, q2) } {
             // 42: yVel = 0;
             g.at("oCaveman/step#1", 42);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -198,7 +198,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::bounced, r(0.0))?;
             // 47: if (colBot && (collision_point(x - 1, y, oSolid, -1, -1) || collision_point(x + 16, y, oSolid, -1, -
             g.at("oCaveman/step#1", 47);
-            if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, or(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
+            if { let p5 = g.get(cx.this, v::colBot)?; let q6 = { let p3 = { let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }; let q4 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) }; and(p5.cond(Cond::And)?, q6) } {
                 // 50: yVel = -6;
                 g.at("oCaveman/step#1", 50);
                 g.set(cx.this, v::yVel, r(-6.0))?;
@@ -219,14 +219,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 56: if (yVel < 0 && colTop)
             g.at("oCaveman/step#1", 56);
-            if and(g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?, g.get(cx.this, v::colTop)?.cond(Cond::And)?) {
+            if { let p7 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; let q8 = g.get(cx.this, v::colTop)?; and(p7, q8.cond(Cond::And)?) } {
                 // 58: yVel = 0;
                 g.at("oCaveman/step#1", 58);
                 g.set(cx.this, v::yVel, r(0.0))?;
             }
             // 61: if (colBot && counter > 0)
             g.at("oCaveman/step#1", 61);
-            if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
+            if { let p9 = g.get(cx.this, v::colBot)?; let q10 = g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?; and(p9.cond(Cond::And)?, q10) } {
                 // 61: counter -= 1;
                 g.at("oCaveman/step#1", 61);
                 g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
@@ -285,7 +285,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WALK)?)? {
                 // 80: if (colLeft || colRight)
                 g.at("oCaveman/step#1", 80);
-                if or(g.get(cx.this, v::colLeft)?.cond(Cond::Or)?, g.get(cx.this, v::colRight)?.cond(Cond::Or)?) {
+                if { let p11 = g.get(cx.this, v::colLeft)?; let q12 = g.get(cx.this, v::colRight)?; or(p11.cond(Cond::Or)?, q12.cond(Cond::Or)?) } {
                     // 82: if (facing == LEFT)
                     g.at("oCaveman/step#1", 82);
                     if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -395,7 +395,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::image_speed, r(1.0))?;
                     // 128: if (colLeft || colRight)
                     g.at("oCaveman/step#1", 128);
-                    if or(g.get(cx.this, v::colLeft)?.cond(Cond::Or)?, g.get(cx.this, v::colRight)?.cond(Cond::Or)?) {
+                    if { let p13 = g.get(cx.this, v::colLeft)?; let q14 = g.get(cx.this, v::colRight)?; or(p13.cond(Cond::Or)?, q14.cond(Cond::Or)?) } {
                         // 130: if (facing == LEFT)
                         g.at("oCaveman/step#1", 130);
                         if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -460,7 +460,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 150: if (colBot && !bounced)
                         g.at("oCaveman/step#1", 150);
-                        if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, g.get(cx.this, v::bounced)?.not()?.cond(Cond::And)?) {
+                        if { let p15 = g.get(cx.this, v::colBot)?; let q16 = g.get(cx.this, v::bounced)?.not()?; and(p15.cond(Cond::And)?, q16.cond(Cond::And)?) } {
                             // 152: bounced = true;
                             g.at("oCaveman/step#1", 152);
                             g.set(cx.this, v::bounced, r(1.0))?;
@@ -470,7 +470,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 156: if (held || colBot)
                         g.at("oCaveman/step#1", 156);
-                        if or(g.get(cx.this, v::held)?.cond(Cond::Or)?, g.get(cx.this, v::colBot)?.cond(Cond::Or)?) {
+                        if { let p17 = g.get(cx.this, v::held)?; let q18 = g.get(cx.this, v::colBot)?; or(p17.cond(Cond::Or)?, q18.cond(Cond::Or)?) } {
                             // 158: if (counter > 0)
                             g.at("oCaveman/step#1", 158);
                             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
@@ -494,10 +494,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.at("oCaveman/step#1", 165);
                                         {
                                             let t = obj::oPlayer1;
-                                            let mut it1 = g.with_iter(cx, &t)?;
-                                            let outer3 = (cx.this, cx.other);
-                                            'with1: while let Some(h2) = it1.next(g) {
-                                                (cx.this, cx.other) = (h2, outer3.0);
+                                            let mut it19 = g.with_iter(cx, &t)?;
+                                            let outer21 = (cx.this, cx.other);
+                                            'with1: while let Some(h20) = it19.next(g) {
+                                                (cx.this, cx.other) = (h20, outer21.0);
                                                 // 165: holdItem = 0;
                                                 g.at("oCaveman/step#1", 165);
                                                 g.set(cx.this, v::holdItem, r(0.0))?;
@@ -505,7 +505,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 g.at("oCaveman/step#1", 165);
                                                 g.set(cx.this, v::pickupItemType, s!(""))?;
                                             }
-                                            (cx.this, cx.other) = outer3;
+                                            (cx.this, cx.other) = outer21;
                                         }
                                     }
                                 }
@@ -744,7 +744,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 6: if (!other.dead && (other.state == 15 || other.state == 16) && other.y < y + 5 && !other.swimming)
         g.at("oCaveman/collision_oCharacter#0", 6);
-        if and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(5.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
+        if { let p3 = and({ let p1 = g.get(cx.other, v::dead)?.not()?; let q2 = or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?); and(p1.cond(Cond::And)?, q2) }, g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(5.0))?)?); let q4 = g.get(cx.other, v::swimming)?.not()?; and(p3, q4.cond(Cond::And)?) } {
             // 8: if (status < STUNNED)
             g.at("oCaveman/collision_oCharacter#0", 8);
             if g.get(cx.this, v::status)?.gml_lt(&g.get(cx.this, v::STUNNED)?)? {
@@ -852,7 +852,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                         // 41: if (global.plife <= 0 && isRealLevel())
                         g.at("oCaveman/collision_oCharacter#0", 41);
-                        if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                        if { let p5 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q6 = scr::isRealLevel(g, cx, &[])?; and(p5, q6.cond(Cond::And)?) } {
                             // 41: global.enemyDeaths[4] += 1;
                             g.at("oCaveman/collision_oCharacter#0", 41);
                             g.gset_a(gv::enemyDeaths, 0, 4, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 4)?, &r(1.0))?)?;

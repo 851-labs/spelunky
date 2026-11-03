@@ -123,7 +123,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 26: if (isCollisionBottom(1) && status != STUNNED)
         g.at("oSnake/step#1", 26);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if { let p1 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?; and(p1.cond(Cond::And)?, q2) } {
             // 26: yVel = 0;
             g.at("oSnake/step#1", 26);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -151,7 +151,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WALK)?)? {
                 // 39: if (isCollisionLeft(1) || isCollisionRight(1))
                 g.at("oSnake/step#1", 39);
-                if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+                if { let p3 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q4 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) } {
                     // 41: if (facing == LEFT)
                     g.at("oSnake/step#1", 41);
                     if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -166,14 +166,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 45: if (facing == LEFT && !collision_point(x - 1, y + 16, oSolid, -1, -1))
                 g.at("oSnake/step#1", 45);
-                if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                if { let p5 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?; let q6 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?; and(p5, q6.cond(Cond::And)?) } {
                     // 47: facing = RIGHT;
                     g.at("oSnake/step#1", 47);
                     g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
                 } else {
                     // 49: if (facing == RIGHT && !collision_point(x + 16, y + 16, oSolid, -1, -1))
                     g.at("oSnake/step#1", 49);
-                    if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                    if { let p7 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?; let q8 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?; and(p7, q8.cond(Cond::And)?) } {
                         // 51: facing = LEFT;
                         g.at("oSnake/step#1", 51);
                         g.set(cx.this, v::facing, g.get(cx.this, v::LEFT)?)?;
@@ -181,7 +181,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 54: if (!collision_point(x - 1, y + 16, oSolid, -1, -1) || collision_point(x - 1, y, oSolid, -1, -1) && 
                 g.at("oSnake/step#1", 54);
-                if and(or(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?), or(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
+                if and({ let p9 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?; let q10 = { let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }; or(p9.cond(Cond::Or)?, q10.cond(Cond::Or)?) }, { let p11 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?; let q12 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }; or(p11.cond(Cond::Or)?, q12.cond(Cond::Or)?) }) {
                     // 57: if (collision_point(x - 1, y, oSolid, -1, -1))
                     g.at("oSnake/step#1", 57);
                     if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {

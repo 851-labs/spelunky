@@ -53,7 +53,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!oPlayer1.dead && rand(1, 100) < kills)
     g.at("oStarsRoom/alarm_11#0", 1);
-    if and(g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?, scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_lt(&g.get(cx.this, v::kills)?)?) {
+    if { let p1 = g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?; let q2 = scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_lt(&g.get(cx.this, v::kills)?)?; and(p1.cond(Cond::And)?, q2) } {
         // 3: n = rand(0, 3);
         g.at("oStarsRoom/alarm_11#0", 3);
         { let x = scr::rand(g, cx, &[r(0.0), r(3.0)])?; g.set(cx.this, v::n, x)?; }

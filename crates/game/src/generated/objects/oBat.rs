@@ -110,7 +110,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::HANG)?)? {
             // 25: if (!oPlayer1.swimming && !oPlayer1.dead && (dist < 90 && oPlayer1.y > y + 16 || !collision_point(x 
             g.at("oBat/step#0", 25);
-            if and(and(g.get_on(cx, &obj::oPlayer1, v::swimming)?.not()?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?), or(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(16.0))?)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Or)?)) {
+            if and({ let p1 = g.get_on(cx, &obj::oPlayer1, v::swimming)?.not()?; let q2 = g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) }, { let p3 = and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(16.0))?)?); let q4 = ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; or(p3, q4.cond(Cond::Or)?) }) {
                 // 28: status = ATTACK;
                 g.at("oBat/step#0", 28);
                 g.set(cx.this, v::status, g.get(cx.this, v::ATTACK)?)?;
@@ -124,7 +124,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 34: if (instance_exists(oPlayer1) && !oPlayer1.swimming && !oPlayer1.dead)
             g.at("oBat/step#0", 34);
-            if and(and(b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::swimming)?.not()?.cond(Cond::And)?), g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?) {
+            if { let p7 = { let p5 = b::instance_exists(g, cx, [obj::oPlayer1])?; let q6 = g.get_on(cx, &obj::oPlayer1, v::swimming)?.not()?; and(p5.cond(Cond::And)?, q6.cond(Cond::And)?) }; let q8 = g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?; and(p7, q8.cond(Cond::And)?) } {
                 // 36: if (dist < 160)
                 g.at("oBat/step#0", 36);
                 if g.get(cx.this, v::dist)?.gml_lt(&r(160.0))? {
@@ -136,7 +136,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 39: if (isCollisionRight(1) && oPlayer1.x > x + 8)
                     g.at("oBat/step#0", 39);
-                    if and(scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?) {
+                    if { let p9 = scr::isCollisionRight(g, cx, &[r(1.0)])?; let q10 = g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?; and(p9.cond(Cond::And)?, q10) } {
                         // 41: if (oPlayer1.y < y + 8)
                         g.at("oBat/step#0", 41);
                         if g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)? {
@@ -151,7 +151,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 44: if (isCollisionLeft(1) && oPlayer1.x < x + 8)
                     g.at("oBat/step#0", 44);
-                    if and(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?) {
+                    if { let p11 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q12 = g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?; and(p11.cond(Cond::And)?, q12) } {
                         // 46: if (oPlayer1.y < y + 8)
                         g.at("oBat/step#0", 46);
                         if g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)? {
@@ -166,7 +166,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 49: if (isCollisionTop(1) && oPlayer1.y < y + 8 && abs(oPlayer1.x - x) > 8)
                     g.at("oBat/step#0", 49);
-                    if and(and(scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_gt(&r(8.0))?) {
+                    if and({ let p13 = scr::isCollisionTop(g, cx, &[r(1.0)])?; let q14 = g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?; and(p13.cond(Cond::And)?, q14) }, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_gt(&r(8.0))?) {
                         // 51: if (oPlayer1.x < x + 8)
                         g.at("oBat/step#0", 51);
                         if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)? {
@@ -181,7 +181,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 54: if (isCollisionBottom(1) && oPlayer1.y > y + 8 && abs(oPlayer1.x - x) > 8)
                     g.at("oBat/step#0", 54);
-                    if and(and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_gt(&r(8.0))?) {
+                    if and({ let p15 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q16 = g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?; and(p15.cond(Cond::And)?, q16) }, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_gt(&r(8.0))?) {
                         // 56: if (oPlayer1.x < x + 8)
                         g.at("oBat/step#0", 56);
                         if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)? {
@@ -196,14 +196,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 60: if (collision_point(x + 8, y + 16, oWater, 0, 0) && dir > 180 && dir < 360)
                     g.at("oBat/step#0", 60);
-                    if and(and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::dir)?.gml_gt(&r(180.0))?), g.get(cx.this, v::dir)?.gml_lt(&r(360.0))?) {
+                    if and({ let p17 = { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q18 = g.get(cx.this, v::dir)?.gml_gt(&r(180.0))?; and(p17.cond(Cond::And)?, q18) }, g.get(cx.this, v::dir)?.gml_lt(&r(360.0))?) {
                         // 62: dir = 90;
                         g.at("oBat/step#0", 62);
                         g.set(cx.this, v::dir, r(90.0))?;
                     }
                     // 65: if (!collision_point(x, y + 12, oWater, 0, 0) || oPlayer1.y < y)
                     g.at("oBat/step#0", 65);
-                    if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(12.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Or)?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?)?) {
+                    if { let p19 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(12.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q20 = g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?)?; or(p19.cond(Cond::Or)?, q20) } {
                         // 67: xVel = 1 * cos(degtorad(dir));
                         g.at("oBat/step#0", 67);
                         {

@@ -34,7 +34,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (armed && yVel >= 0)
     g.at("oRopeThrow/step#1", 1);
-    if and(g.get(cx.this, v::armed)?.cond(Cond::And)?, g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?) {
+    if { let p1 = g.get(cx.this, v::armed)?; let q2 = g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 3: move_snap(16, 1);
         g.at("oRopeThrow/step#1", 3);
         b::move_snap(g, cx, [r(16.0), r(1.0)])?;
@@ -98,7 +98,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::fallCount, lenient(Value::add, g.get(cx.this, v::fallCount)?, &r(1.0))?)?;
         // 27: if (isCollisionBottom(1) || fallCount > 16)
         g.at("oRopeThrow/step#1", 27);
-        if or(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::Or)?, g.get(cx.this, v::fallCount)?.gml_gt(&r(16.0))?) {
+        if { let p3 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q4 = g.get(cx.this, v::fallCount)?.gml_gt(&r(16.0))?; or(p3.cond(Cond::Or)?, q4) } {
             // 29: falling = false;
             g.at("oRopeThrow/step#1", 29);
             g.set(cx.this, v::falling, r(0.0))?;

@@ -117,7 +117,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 24: if (colLeft || colRight)
         g.at("oTreasure/step#0", 24);
-        if or(g.get(cx.this, v::colLeft)?.cond(Cond::Or)?, g.get(cx.this, v::colRight)?.cond(Cond::Or)?) {
+        if { let p1 = g.get(cx.this, v::colLeft)?; let q2 = g.get(cx.this, v::colRight)?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
             // 26: xVel = -xVel * 0.5;
             g.at("oTreasure/step#0", 26);
             g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?.mul(&r(0.5))?)?;
@@ -178,7 +178,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 63: if (global.hasSpectacles || global.hasUdjatEye)
         g.at("oTreasure/step#0", 63);
-        if or(g.gget(gv::hasSpectacles)?.cond(Cond::Or)?, g.gget(gv::hasUdjatEye)?.cond(Cond::Or)?) {
+        if { let p3 = g.gget(gv::hasSpectacles)?; let q4 = g.gget(gv::hasUdjatEye)?; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) } {
             // 65: depth = 0;
             g.at("oTreasure/step#0", 65);
             g.set(cx.this, v::depth, r(0.0))?;

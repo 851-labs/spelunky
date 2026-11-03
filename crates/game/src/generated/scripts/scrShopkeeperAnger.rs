@@ -16,7 +16,7 @@ pub fn scrShopkeeperAnger(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     if g.get(cx.this, v::shp)?.cond(Cond::If)? {
         // 10: if (!shp.dead && !shp.angered)
         g.at("scripts/scrShopkeeperAnger", 10);
-        if and(g.get_on(cx, &g.get(cx.this, v::shp)?, v::dead)?.not()?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::shp)?, v::angered)?.not()?.cond(Cond::And)?) {
+        if { let p1 = g.get_on(cx, &g.get(cx.this, v::shp)?, v::dead)?.not()?; let q2 = g.get_on(cx, &g.get(cx.this, v::shp)?, v::angered)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
             // 12: shp.status = 2;
             g.at("scripts/scrShopkeeperAnger", 12);
             {

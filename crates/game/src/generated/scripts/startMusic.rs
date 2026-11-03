@@ -159,7 +159,7 @@ pub fn startMusic(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             } else {
                 // 75: if (isRoom("rSun") || isRoom("rMoon") || isRoom("rStars"))
                 g.at("scripts/startMusic", 75);
-                if or(or(scr::isRoom(g, cx, &[s!("rSun")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rMoon")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rStars")])?.cond(Cond::Or)?) {
+                if { let p3 = { let p1 = scr::isRoom(g, cx, &[s!("rSun")])?; let q2 = scr::isRoom(g, cx, &[s!("rMoon")])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }; let q4 = scr::isRoom(g, cx, &[s!("rStars")])?; or(p3, q4.cond(Cond::Or)?) } {
                     // 77: playMusic(global.musBoss, true);
                     g.at("scripts/startMusic", 77);
                     cx.ret = { let a = [g.gget(gv::musBoss)?, r(1.0)]; scr::playMusic(g, cx, &a)? };

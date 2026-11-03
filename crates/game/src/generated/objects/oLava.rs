@@ -69,7 +69,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 6: if (spurt && dist < 240)
     g.at("oLava/step#0", 6);
-    if and(g.get(cx.this, v::spurt)?.cond(Cond::And)?, g.get(cx.this, v::dist)?.gml_lt(&r(240.0))?) {
+    if { let p1 = g.get(cx.this, v::spurt)?; let q2 = g.get(cx.this, v::dist)?.gml_lt(&r(240.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 8: if (spurtCounter > 0)
         g.at("oLava/step#0", 8);
         if g.get(cx.this, v::spurtCounter)?.gml_gt(&r(0.0))? {

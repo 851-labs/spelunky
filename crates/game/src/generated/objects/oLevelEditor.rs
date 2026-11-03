@@ -823,7 +823,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(and(and(and(and(and(and(g.bget(v::mouse_x, 0)?.gml_gt(&r(16.0))?, g.bget(v::mouse_x, 0)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(16.0))?)?), g.bget(v::mouse_y, 0)?.gml_gt(&r(16.0))?), g.bget(v::mouse_y, 0)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(16.0))?)?), g.get_on(cx, &obj::oCursObj, v::x)?.gml_ge(&r(16.0))?), g.get_on(cx, &obj::oCursObj, v::x)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(16.0))?)?), g.get_on(cx, &obj::oCursObj, v::y)?.gml_ge(&r(16.0))?), g.get_on(cx, &obj::oCursObj, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(16.0))?)?) {
                 // 27: if (mouse_check_button(mb_left) && !collision_point(mouse_x, mouse_y, oEditButton, 0, 0) && !collisi
                 g.at("oLevelEditor/step#0", 27);
-                if and(and(and(b::mouse_check_button(g, cx, [k::mb_left])?.cond(Cond::And)?, ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oEditButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oNewButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oTestButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                if { let p5 = { let p3 = { let p1 = b::mouse_check_button(g, cx, [k::mb_left])?; let q2 = ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oEditButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) }; let q4 = ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oNewButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p3, q4.cond(Cond::And)?) }; let q6 = ({ let a = [g.bget(v::mouse_x, 0)?, g.bget(v::mouse_y, 0)?, obj::oTestButton, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p5, q6.cond(Cond::And)?) } {
                     // 32: if (dropSelect == BLOCKS)
                     g.at("oLevelEditor/step#0", 32);
                     if g.get(cx.this, v::dropSelect)?.gml_eq(&g.get(cx.this, v::BLOCKS)?)? {
@@ -900,10 +900,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.at("oLevelEditor/step#0", 59);
                             {
                                 let t = g.get(cx.this, v::obj)?;
-                                let mut it1 = g.with_iter(cx, &t)?;
-                                let outer3 = (cx.this, cx.other);
-                                'with1: while let Some(h2) = it1.next(g) {
-                                    (cx.this, cx.other) = (h2, outer3.0);
+                                let mut it7 = g.with_iter(cx, &t)?;
+                                let outer9 = (cx.this, cx.other);
+                                'with1: while let Some(h8) = it7.next(g) {
+                                    (cx.this, cx.other) = (h8, outer9.0);
                                     // 61: if (type == "Giant Spider" || type == "Tomb Lord")
                                     g.at("oLevelEditor/step#0", 61);
                                     if or(g.get(cx.this, v::r#type)?.gml_eq(&s!("Giant Spider"))?, g.get(cx.this, v::r#type)?.gml_eq(&s!("Tomb Lord"))?) {
@@ -920,7 +920,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         b::instance_destroy(g, cx, [])?;
                                     }
                                 }
-                                (cx.this, cx.other) = outer3;
+                                (cx.this, cx.other) = outer9;
                             }
                         }
                         // 71: levelArray[floor(oCursObj.x / 16) - 1, floor(oCursObj.y / 16) - 1] = "0";

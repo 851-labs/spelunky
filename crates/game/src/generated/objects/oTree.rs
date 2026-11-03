@@ -16,7 +16,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oTree/destroy#1", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::And)?, g.gget(gv::cleanSolids)?.not()?.cond(Cond::And)?) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oTree/destroy#1", 3);
         { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.add(&scr::rand(g, cx, &[r(0.0), r(8.0)])?)?.sub(&scr::rand(g, cx, &[r(0.0), r(8.0)])?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.add(&scr::rand(g, cx, &[r(0.0), r(8.0)])?)?.sub(&scr::rand(g, cx, &[r(0.0), r(8.0)])?)?, obj::oRubble]; b::instance_create(g, cx, a)? };

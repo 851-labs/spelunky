@@ -32,7 +32,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.gset(gv::downToRun, r(0.0))?;
     // 10: if (joystick_exists(1) || joystick_exists(2))
     g.at("oInit/create#0", 10);
-    if or(b::joystick_exists(g, cx, [r(1.0)])?.cond(Cond::Or)?, b::joystick_exists(g, cx, [r(2.0)])?.cond(Cond::Or)?) {
+    if { let p1 = b::joystick_exists(g, cx, [r(1.0)])?; let q2 = b::joystick_exists(g, cx, [r(2.0)])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 10: global.gamepadOn = true;
         g.at("oInit/create#0", 10);
         g.gset(gv::gamepadOn, r(1.0))?;

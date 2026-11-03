@@ -13,7 +13,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (instance_exists(oTransition) && !instance_exists(oPDummy))
     g.at("oCape/step#0", 1);
-    if and(b::instance_exists(g, cx, [obj::oTransition])?.cond(Cond::And)?, b::instance_exists(g, cx, [obj::oPDummy])?.not()?.cond(Cond::And)?) {
+    if { let p1 = b::instance_exists(g, cx, [obj::oTransition])?; let q2 = b::instance_exists(g, cx, [obj::oPDummy])?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: instance_destroy();
         g.at("oCape/step#0", 3);
         b::instance_destroy(g, cx, [])?;
@@ -61,7 +61,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 23: if (oPlayer1.state == 14 || (oPlayer1.sprite_index == sPExit || oPlayer1.sprite_index == sDamselExit
             g.at("oCape/step#0", 23);
-            if and(or(g.get_on(cx, &obj::oPlayer1, v::state)?.gml_eq(&r(14.0))?, or(or(g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?)), g.get_on(cx, &obj::oPlayer1, v::whipping)?.not()?.cond(Cond::And)?) {
+            if { let p3 = or(g.get_on(cx, &obj::oPlayer1, v::state)?.gml_eq(&r(14.0))?, or(or(g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get_on(cx, &obj::oPlayer1, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?)); let q4 = g.get_on(cx, &obj::oPlayer1, v::whipping)?.not()?; and(p3, q4.cond(Cond::And)?) } {
                 // 25: x = oPlayer1.x;
                 g.at("oCape/step#0", 25);
                 g.set(cx.this, v::x, g.get_on(cx, &obj::oPlayer1, v::x)?)?;

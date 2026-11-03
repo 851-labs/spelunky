@@ -136,7 +136,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::dir)?.gml_eq(&r(0.0))? {
                 // 21: if (collision_point(x + 8 + 2, y, oWater, 0, 0) && !collision_point(x + 10, y, oSolid, 0, 0))
                 g.at("oPiranha/step#0", 21);
-                if and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.add(&r(2.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(10.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                if { let p1 = { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.add(&r(2.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q2 = ({ let a = [g.get(cx.this, v::x)?.add(&r(10.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
                     // 22: moveTo(1, 0);
                     g.at("oPiranha/step#0", 22);
                     scr::moveTo(g, cx, &[r(1.0), r(0.0)])?;
@@ -148,7 +148,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 27: if (collision_point(x - 2, y, oWater, 0, 0) && !collision_point(x - 2, y, oSolid, 0, 0))
                 g.at("oPiranha/step#0", 27);
-                if and(({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                if { let p3 = { let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q4 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) } {
                     // 28: moveTo(-1, 0);
                     g.at("oPiranha/step#0", 28);
                     scr::moveTo(g, cx, &[r(-1.0), r(0.0)])?;
@@ -160,7 +160,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 32: if (dist < 90 && oCharacter.swimming && !oCharacter.dead)
             g.at("oPiranha/step#0", 32);
-            if and(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oCharacter, v::swimming)?.cond(Cond::And)?), g.get_on(cx, &obj::oCharacter, v::dead)?.not()?.cond(Cond::And)?) {
+            if { let p7 = { let p5 = g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?; let q6 = g.get_on(cx, &obj::oCharacter, v::swimming)?; and(p5, q6.cond(Cond::And)?) }; let q8 = g.get_on(cx, &obj::oCharacter, v::dead)?.not()?; and(p7, q8.cond(Cond::And)?) } {
                 // 34: status = ATTACK;
                 g.at("oPiranha/step#0", 34);
                 g.set(cx.this, v::status, g.get(cx.this, v::ATTACK)?)?;
@@ -250,7 +250,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                 // 47: if (obj.swimming && obj.hp > 0)
                 g.at("oPiranha/step#0", 47);
-                if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::swimming)?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_gt(&r(0.0))?) {
+                if { let p9 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::swimming)?; let q10 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_gt(&r(0.0))?; and(p9.cond(Cond::And)?, q10) } {
                     // 49: status = ATTACK_ENEMY;
                     g.at("oPiranha/step#0", 49);
                     g.set(cx.this, v::status, g.get(cx.this, v::ATTACK_ENEMY)?)?;
@@ -280,10 +280,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 63: if (status == ATTACK && instance_exists(oCharacter))
                 g.at("oPiranha/step#0", 63);
-                if and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::ATTACK)?)?, b::instance_exists(g, cx, [obj::oCharacter])?.cond(Cond::And)?) {
+                if { let p11 = g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::ATTACK)?)?; let q12 = b::instance_exists(g, cx, [obj::oCharacter])?; and(p11, q12.cond(Cond::And)?) } {
                     // 65: if (dist < 90 && oCharacter.swimming && !oCharacter.dead)
                     g.at("oPiranha/step#0", 65);
-                    if and(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oCharacter, v::swimming)?.cond(Cond::And)?), g.get_on(cx, &obj::oCharacter, v::dead)?.not()?.cond(Cond::And)?) {
+                    if { let p15 = { let p13 = g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?; let q14 = g.get_on(cx, &obj::oCharacter, v::swimming)?; and(p13, q14.cond(Cond::And)?) }; let q16 = g.get_on(cx, &obj::oCharacter, v::dead)?.not()?; and(p15, q16.cond(Cond::And)?) } {
                         // 67: dir = point_direction(x + 4, y + 4, oCharacter.x, oCharacter.y) + rand(0, 1) - rand(0, 1);
                         g.at("oPiranha/step#0", 67);
                         {
@@ -394,7 +394,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                             // 89: if (!obj.swimming || obj.hp <= 0)
                             g.at("oPiranha/step#0", 89);
-                            if or(g.get_on(cx, &g.get(cx.this, v::obj)?, v::swimming)?.not()?.cond(Cond::Or)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))?) {
+                            if { let p17 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::swimming)?.not()?; let q18 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))?; or(p17.cond(Cond::Or)?, q18) } {
                                 // 91: status = PAUSE;
                                 g.at("oPiranha/step#0", 91);
                                 g.set(cx.this, v::status, g.get(cx.this, v::PAUSE)?)?;

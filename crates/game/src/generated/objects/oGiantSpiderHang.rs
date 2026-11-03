@@ -178,7 +178,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 35: if (hp < 10 || !collision_point(x, y - 16, oSolid, 0, 0) || (dist < 90 && oCharacter.y > y && abs(oC
             g.at("oGiantSpiderHang/step#0", 35);
-            if or(or(g.get(cx.this, v::hp)?.gml_lt(&r(10.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Or)?), and(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oCharacter, v::y)?.gml_gt(&g.get(cx.this, v::y)?)?), ({ let a = [g.get_on(cx, &obj::oCharacter, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(16.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?)) {
+            if or({ let p1 = g.get(cx.this, v::hp)?.gml_lt(&r(10.0))?; let q2 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; or(p1, q2.cond(Cond::Or)?) }, and(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oCharacter, v::y)?.gml_gt(&g.get(cx.this, v::y)?)?), ({ let a = [g.get_on(cx, &obj::oCharacter, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(16.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?)) {
                 // 37: spider = instance_create(x, y, oGiantSpider);
                 g.at("oGiantSpiderHang/step#0", 37);
                 {

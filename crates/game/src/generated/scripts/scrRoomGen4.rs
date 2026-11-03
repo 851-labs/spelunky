@@ -133,7 +133,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 } else {
                     // 75: if (!oGame.altar && rand(1, 12) == 1)
                     g.at("scripts/scrRoomGen4", 75);
-                    if and(g.get_on(cx, &obj::oGame, v::altar)?.not()?.cond(Cond::And)?, scr::rand(g, cx, &[r(1.0), r(12.0)])?.gml_eq(&r(1.0))?) {
+                    if { let p1 = g.get_on(cx, &obj::oGame, v::altar)?.not()?; let q2 = scr::rand(g, cx, &[r(1.0), r(12.0)])?.gml_eq(&r(1.0))?; and(p1.cond(Cond::And)?, q2) } {
                         // 77: n = 16;
                         g.at("scripts/scrRoomGen4", 77);
                         {
@@ -2258,7 +2258,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 317: if (tile == "1" && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGen4", 317);
-                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                    if { let p3 = g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?; let q4 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p3, q4.cond(Cond::And)?) } {
                         // 319: if (rand(1, 100) == 1)
                         g.at("scripts/scrRoomGen4", 319);
                         if scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_eq(&r(1.0))? {
@@ -2281,7 +2281,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     } else {
                         // 323: if (tile == "2" && rand(1, 2) == 1 && !collision_point(xpos, ypos, oSolid, 0, 0))
                         g.at("scripts/scrRoomGen4", 323);
-                        if and(and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                        if { let p5 = and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?); let q6 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p5, q6.cond(Cond::And)?) } {
                             // 325: if (rand(1, 10) == 1)
                             g.at("scripts/scrRoomGen4", 325);
                             if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {
@@ -2296,7 +2296,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         } else {
                             // 328: if (tile == "3" && !collision_point(xpos, ypos, oSolid, 0, 0))
                             g.at("scripts/scrRoomGen4", 328);
-                            if and(g.get(cx.this, v::tile)?.gml_eq(&s!("3"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                            if { let p7 = g.get(cx.this, v::tile)?.gml_eq(&s!("3"))?; let q8 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p7, q8.cond(Cond::And)?) } {
                                 // 330: if (rand(1, 2) == 1)
                                 g.at("scripts/scrRoomGen4", 330);
                                 if scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))? {
@@ -2311,7 +2311,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             } else {
                                 // 333: if (tile == "R" && !collision_point(xpos, ypos, oSolid, 0, 0))
                                 g.at("scripts/scrRoomGen4", 333);
-                                if and(g.get(cx.this, v::tile)?.gml_eq(&s!("R"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                                if { let p9 = g.get(cx.this, v::tile)?.gml_eq(&s!("R"))?; let q10 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p9, q10.cond(Cond::And)?) } {
                                     // 335: block = instance_create(xpos, ypos, oTemple);
                                     g.at("scripts/scrRoomGen4", 335);
                                     {
@@ -2323,10 +2323,10 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     g.at("scripts/scrRoomGen4", 336);
                                     {
                                         let t = g.get(cx.this, v::block)?;
-                                        let mut it1 = g.with_iter(cx, &t)?;
-                                        let outer3 = (cx.this, cx.other);
-                                        'with19: while let Some(h2) = it1.next(g) {
-                                            (cx.this, cx.other) = (h2, outer3.0);
+                                        let mut it11 = g.with_iter(cx, &t)?;
+                                        let outer13 = (cx.this, cx.other);
+                                        'with19: while let Some(h12) = it11.next(g) {
+                                            (cx.this, cx.other) = (h12, outer13.0);
                                             // 336: treasure = "Big Ruby";
                                             g.at("scripts/scrRoomGen4", 336);
                                             {
@@ -2335,7 +2335,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 g.set(cx.this, v::treasure, x)?;
                                             }
                                         }
-                                        (cx.this, cx.other) = outer3;
+                                        (cx.this, cx.other) = outer13;
                                     }
                                 } else {
                                     // 338: if (tile == "L")
@@ -2713,7 +2713,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                     } else {
                                                                                                         // 430: if (tile == "." && !collision_point(xpos, ypos, oSolid, 0, 0))
                                                                                                         g.at("scripts/scrRoomGen4", 430);
-                                                                                                        if and(g.get(cx.this, v::tile)?.gml_eq(&s!("."))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                                                                                                        if { let p14 = g.get(cx.this, v::tile)?.gml_eq(&s!("."))?; let q15 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p14, q15.cond(Cond::And)?) } {
                                                                                                             // 432: obj = instance_create(xpos, ypos, oTemple);
                                                                                                             g.at("scripts/scrRoomGen4", 432);
                                                                                                             {
@@ -2795,7 +2795,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                         if g.get(cx.this, v::tile)?.gml_eq(&s!("W"))? {
                                                                                                                             // 456: if (global.murderer || global.thiefLevel > 0)
                                                                                                                             g.at("scripts/scrRoomGen4", 456);
-                                                                                                                            if or(g.gget(gv::murderer)?.cond(Cond::Or)?, g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
+                                                                                                                            if { let p16 = g.gget(gv::murderer)?; let q17 = g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?; or(p16.cond(Cond::Or)?, q17) } {
                                                                                                                                 // 458: if (global.isDamsel)
                                                                                                                                 g.at("scripts/scrRoomGen4", 458);
                                                                                                                                 if g.gget(gv::isDamsel)?.cond(Cond::If)? {
@@ -3071,7 +3071,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                                                 } else {
                                                                                                                                                                                     // 529: if (!collision_point(tx, ty - 16, oSolid, 0, 0) && !collision_point(tx - 16, ty - 16, oSolid, 0, 0) 
                                                                                                                                                                                     g.at("scripts/scrRoomGen4", 529);
-                                                                                                                                                                                    if and(and(({ let a = [g.get(cx.this, v::tx)?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::tx)?.sub(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::tx)?.add(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                                                                                                                                                                                    if { let p20 = { let p18 = ({ let a = [g.get(cx.this, v::tx)?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q19 = ({ let a = [g.get(cx.this, v::tx)?.sub(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p18.cond(Cond::And)?, q19.cond(Cond::And)?) }; let q21 = ({ let a = [g.get(cx.this, v::tx)?.add(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p20, q21.cond(Cond::And)?) } {
                                                                                                                                                                                         // 533: instance_create(tx, ty, oTree);
                                                                                                                                                                                         g.at("scripts/scrRoomGen4", 533);
                                                                                                                                                                                         cx.ret = { let a = [g.get(cx.this, v::tx)?, g.get(cx.this, v::ty)?, obj::oTree]; b::instance_create(g, cx, a)? };
@@ -3080,7 +3080,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                                                         if g.get(cx.this, v::m)?.gml_lt(&r(4.0))? {
                                                                                                                                                                                             // 536: if (rand(1, 5) < 4 && !b1)
                                                                                                                                                                                             g.at("scripts/scrRoomGen4", 536);
-                                                                                                                                                                                            if and(scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?, g.get(cx.this, v::b1)?.not()?.cond(Cond::And)?) {
+                                                                                                                                                                                            if { let p22 = scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?; let q23 = g.get(cx.this, v::b1)?.not()?; and(p22, q23.cond(Cond::And)?) } {
                                                                                                                                                                                                 // 538: instance_create(tx + 16, ty, oTreeBranch);
                                                                                                                                                                                                 g.at("scripts/scrRoomGen4", 538);
                                                                                                                                                                                                 cx.ret = { let a = [g.get(cx.this, v::tx)?.add(&r(16.0))?, g.get(cx.this, v::ty)?, obj::oTreeBranch]; b::instance_create(g, cx, a)? };
@@ -3106,7 +3106,7 @@ pub fn scrRoomGen4(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                                                             }
                                                                                                                                                                                             // 542: if (rand(1, 5) < 4 && !b2)
                                                                                                                                                                                             g.at("scripts/scrRoomGen4", 542);
-                                                                                                                                                                                            if and(scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?, g.get(cx.this, v::b2)?.not()?.cond(Cond::And)?) {
+                                                                                                                                                                                            if { let p24 = scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?; let q25 = g.get(cx.this, v::b2)?.not()?; and(p24, q25.cond(Cond::And)?) } {
                                                                                                                                                                                                 // 544: instance_create(tx - 16, ty, oTreeBranch);
                                                                                                                                                                                                 g.at("scripts/scrRoomGen4", 544);
                                                                                                                                                                                                 cx.ret = { let a = [g.get(cx.this, v::tx)?.sub(&r(16.0))?, g.get(cx.this, v::ty)?, obj::oTreeBranch]; b::instance_create(g, cx, a)? };

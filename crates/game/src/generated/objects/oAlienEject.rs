@@ -73,7 +73,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.5))?)?;
             // 11: if (yVel >= 0 || isCollisionTop(1))
             g.at("oAlienEject/step#0", 11);
-            if or(g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?, scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+            if { let p1 = g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?; let q2 = scr::isCollisionTop(g, cx, &[r(1.0)])?; or(p1, q2.cond(Cond::Or)?) } {
                 // 13: yVel = 0;
                 g.at("oAlienEject/step#0", 13);
                 g.set(cx.this, v::yVel, r(0.0))?;
@@ -162,7 +162,7 @@ pub fn collision_oWeb_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oPlayer1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 2: if (!other.dead && (other.state == 15 || other.state == 16) && other.y < y - 3 && !other.swimming)
     g.at("oAlienEject/collision_oPlayer1#0", 2);
-    if and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.sub(&r(3.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
+    if { let p3 = and({ let p1 = g.get(cx.other, v::dead)?.not()?; let q2 = or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?); and(p1.cond(Cond::And)?, q2) }, g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.sub(&r(3.0))?)?); let q4 = g.get(cx.other, v::swimming)?.not()?; and(p3, q4.cond(Cond::And)?) } {
         // 4: other.yVel = -6 - 0.2 * other.yVel;
         g.at("oAlienEject/collision_oPlayer1#0", 4);
         g.set(cx.other, v::yVel, r(-6.0).sub(&r(0.2).mul(&g.get(cx.other, v::yVel)?)?)?)?;

@@ -8,7 +8,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::r#type, s!("Message Sign"))?;
     // 4: if (isRoom("rLevelEditor") || isRoom("rLoadLevel"))
     g.at("oMsgSign/create#0", 4);
-    if or(scr::isRoom(g, cx, &[s!("rLevelEditor")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rLoadLevel")])?.cond(Cond::Or)?) {
+    if { let p1 = scr::isRoom(g, cx, &[s!("rLevelEditor")])?; let q2 = scr::isRoom(g, cx, &[s!("rLoadLevel")])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 6: message = "";
         g.at("oMsgSign/create#0", 6);
         g.set(cx.this, v::message, s!(""))?;

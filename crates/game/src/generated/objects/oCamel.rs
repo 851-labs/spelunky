@@ -64,7 +64,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 19: if (isRoom("rCredits1") && x < -64)
     g.at("oCamel/step#0", 19);
-    if and(scr::isRoom(g, cx, &[s!("rCredits1")])?.cond(Cond::And)?, g.get(cx.this, v::x)?.gml_lt(&r(-64.0))?) {
+    if { let p1 = scr::isRoom(g, cx, &[s!("rCredits1")])?; let q2 = g.get(cx.this, v::x)?.gml_lt(&r(-64.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 19: oCredits1.fadeOut = true;
         g.at("oCamel/step#0", 19);
         { let t = obj::oCredits1; g.set_on(cx, &t, v::fadeOut, r(1.0))?; }

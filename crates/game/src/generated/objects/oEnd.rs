@@ -68,7 +68,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::timer, lenient(Value::add, g.get(cx.this, v::timer)?, &r(1.0))?)?;
     // 2: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttackPressed() ||
     g.at("oEnd/step#0", 2);
-    if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.cond(Cond::Or)?, b::keyboard_check_pressed(g, cx, [k::vk_escape])?.cond(Cond::Or)?), scr::checkAttackPressed(g, cx, &[])?.cond(Cond::Or)?), scr::checkStartPressed(g, cx, &[])?.cond(Cond::Or)?) {
+    if { let p5 = { let p3 = { let p1 = b::keyboard_check_pressed(g, cx, [k::vk_enter])?; let q2 = b::keyboard_check_pressed(g, cx, [k::vk_escape])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }; let q4 = scr::checkAttackPressed(g, cx, &[])?; or(p3, q4.cond(Cond::Or)?) }; let q6 = scr::checkStartPressed(g, cx, &[])?; or(p5, q6.cond(Cond::Or)?) } {
         // 7: if (timer > 50)
         g.at("oEnd/step#0", 7);
         if g.get(cx.this, v::timer)?.gml_gt(&r(50.0))? {

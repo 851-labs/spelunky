@@ -399,15 +399,15 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (isLevel("rTutorial") || (x > view_xview[0] - 16 && x < view_xview[0] + view_wview[0] + 16 && y >
     g.at("oExplosion/collision_oSolid#0", 1);
-    if or(scr::isLevel(g, cx, &[s!("rTutorial")])?.cond(Cond::Or)?, and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(16.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(16.0))?)?)) {
+    if { let p1 = scr::isLevel(g, cx, &[s!("rTutorial")])?; let q2 = and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(16.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(16.0))?)?); or(p1.cond(Cond::Or)?, q2) } {
         // 4: with (other)
         g.at("oExplosion/collision_oSolid#0", 4);
         {
             let t = r(-2.0);
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it3 = g.with_iter(cx, &t)?;
+            let outer5 = (cx.this, cx.other);
+            'with1: while let Some(h4) = it3.next(g) {
+                (cx.this, cx.other) = (h4, outer5.0);
                 // 6: repeat (2)
                 g.at("oExplosion/collision_oSolid#0", 6);
                 'repeat2: for _ in 0..repeat_count(&r(2.0))? {
@@ -446,30 +446,30 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     b::instance_destroy(g, cx, [])?;
                 }
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer5;
         }
         // 17: with (oTreasure)
         g.at("oExplosion/collision_oSolid#0", 17);
         {
             let t = obj::oTreasure;
-            let mut it4 = g.with_iter(cx, &t)?;
-            let outer6 = (cx.this, cx.other);
-            'with3: while let Some(h5) = it4.next(g) {
-                (cx.this, cx.other) = (h5, outer6.0);
+            let mut it6 = g.with_iter(cx, &t)?;
+            let outer8 = (cx.this, cx.other);
+            'with3: while let Some(h7) = it6.next(g) {
+                (cx.this, cx.other) = (h7, outer8.0);
                 // 19: state = 1;
                 g.at("oExplosion/collision_oSolid#0", 19);
                 g.set(cx.this, v::state, r(1.0))?;
             }
-            (cx.this, cx.other) = outer6;
+            (cx.this, cx.other) = outer8;
         }
         // 22: with (oSpikes)
         g.at("oExplosion/collision_oSolid#0", 22);
         {
             let t = obj::oSpikes;
-            let mut it7 = g.with_iter(cx, &t)?;
-            let outer9 = (cx.this, cx.other);
-            'with4: while let Some(h8) = it7.next(g) {
-                (cx.this, cx.other) = (h8, outer9.0);
+            let mut it9 = g.with_iter(cx, &t)?;
+            let outer11 = (cx.this, cx.other);
+            'with4: while let Some(h10) = it9.next(g) {
+                (cx.this, cx.other) = (h10, outer11.0);
                 // 24: if (!collision_point(x, y + 16, oSolid, 0, 0))
                 g.at("oExplosion/collision_oSolid#0", 24);
                 if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
@@ -478,7 +478,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     b::instance_destroy(g, cx, [])?;
                 }
             }
-            (cx.this, cx.other) = outer9;
+            (cx.this, cx.other) = outer11;
         }
     }
     Ok(())

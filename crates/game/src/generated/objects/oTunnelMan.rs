@@ -49,7 +49,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::talk)?.gml_eq(&r(2.0))? {
                 // 6: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
                 g.at("oTunnelMan/step#0", 6);
-                if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rTransition3x")])?.cond(Cond::Or)?) {
+                if { let p1 = scr::isRoom(g, cx, &[s!("rTransition1x")])?; let q2 = scr::isRoom(g, cx, &[s!("rTransition3x")])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
                     // 8: if (donate > 0)
                     g.at("oTunnelMan/step#0", 8);
                     if g.get(cx.this, v::donate)?.gml_gt(&r(0.0))? {
@@ -109,10 +109,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oTunnelMan/step#0", 35);
                 {
                     let t = obj::oPDummy;
-                    let mut it1 = g.with_iter(cx, &t)?;
-                    let outer3 = (cx.this, cx.other);
-                    'with1: while let Some(h2) = it1.next(g) {
-                        (cx.this, cx.other) = (h2, outer3.0);
+                    let mut it3 = g.with_iter(cx, &t)?;
+                    let outer5 = (cx.this, cx.other);
+                    'with1: while let Some(h4) = it3.next(g) {
+                        (cx.this, cx.other) = (h4, outer5.0);
                         // 37: status = TRANSITION;
                         g.at("oTunnelMan/step#0", 37);
                         g.set(cx.this, v::status, g.get(cx.this, v::TRANSITION)?)?;
@@ -128,7 +128,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.set(cx.this, v::sprite_index, spr::sRunLeft)?;
                         }
                     }
-                    (cx.this, cx.other) = outer3;
+                    (cx.this, cx.other) = outer5;
                 }
             }
         }
@@ -173,7 +173,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 57: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
             g.at("oTunnelMan/step#0", 57);
-            if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rTransition3x")])?.cond(Cond::Or)?) {
+            if { let p6 = scr::isRoom(g, cx, &[s!("rTransition1x")])?; let q7 = scr::isRoom(g, cx, &[s!("rTransition3x")])?; or(p6.cond(Cond::Or)?, q7.cond(Cond::Or)?) } {
                 // 57: if (donate > global.tunnel1)
                 g.at("oTunnelMan/step#0", 57);
                 if g.get(cx.this, v::donate)?.gml_gt(&g.gget(gv::tunnel1)?)? {

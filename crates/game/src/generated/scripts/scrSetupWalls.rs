@@ -42,7 +42,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 31: if (y == 0 || collision_point(x, y - 16, oBrick, 0, 0) || collision_point(x, y - 16, oHardBlock, 0, 
             g.at("scripts/scrSetupWalls", 31);
-            if or(or(g.get(cx.this, v::y)?.gml_eq(&r(0.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oHardBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p6 = { let p4 = g.get(cx.this, v::y)?.gml_eq(&r(0.0))?; let q5 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p4, q5.cond(Cond::Or)?) }; let q7 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oHardBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p6, q7.cond(Cond::Or)?) } {
                 // 31: up = true;
                 g.at("scripts/scrSetupWalls", 31);
                 {
@@ -53,7 +53,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 32: if (y >= argument0 || collision_point(x, y + 16, oBrick, 0, 0) || collision_point(x, y + 16, oHardBl
             g.at("scripts/scrSetupWalls", 32);
-            if or(or(g.get(cx.this, v::y)?.gml_ge(&cx.arg(0)?)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oHardBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p10 = { let p8 = g.get(cx.this, v::y)?.gml_ge(&cx.arg(0)?)?; let q9 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p8, q9.cond(Cond::Or)?) }; let q11 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oHardBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p10, q11.cond(Cond::Or)?) } {
                 // 32: down = true;
                 g.at("scripts/scrSetupWalls", 32);
                 {
@@ -64,7 +64,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 33: if (collision_point(x - 16, y, oBrick, 0, 0) || collision_point(x - 16, y, oHardBlock, 0, 0))
             g.at("scripts/scrSetupWalls", 33);
-            if or(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oHardBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p12 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q13 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oHardBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p12.cond(Cond::Or)?, q13.cond(Cond::Or)?) } {
                 // 33: left = true;
                 g.at("scripts/scrSetupWalls", 33);
                 {
@@ -75,7 +75,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 34: if (collision_point(x + 16, y, oBrick, 0, 0) || collision_point(x + 16, y, oHardBlock, 0, 0))
             g.at("scripts/scrSetupWalls", 34);
-            if or(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oHardBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p14 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q15 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oHardBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p14.cond(Cond::Or)?, q15.cond(Cond::Or)?) } {
                 // 34: right = true;
                 g.at("scripts/scrSetupWalls", 34);
                 {
@@ -140,10 +140,10 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     g.at("scripts/scrSetupWalls", 69);
     {
         let t = obj::oLush;
-        let mut it4 = g.with_iter(cx, &t)?;
-        let outer6 = (cx.this, cx.other);
-        'with2: while let Some(h5) = it4.next(g) {
-            (cx.this, cx.other) = (h5, outer6.0);
+        let mut it16 = g.with_iter(cx, &t)?;
+        let outer18 = (cx.this, cx.other);
+        'with2: while let Some(h17) = it16.next(g) {
+            (cx.this, cx.other) = (h17, outer18.0);
             // 71: up = false;
             g.at("scripts/scrSetupWalls", 71);
             {
@@ -174,7 +174,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 76: if (y == 0 || collision_point(x, y - 16, oLush, 0, 0))
             g.at("scripts/scrSetupWalls", 76);
-            if or(g.get(cx.this, v::y)?.gml_eq(&r(0.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oLush, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p19 = g.get(cx.this, v::y)?.gml_eq(&r(0.0))?; let q20 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oLush, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p19, q20.cond(Cond::Or)?) } {
                 // 76: up = true;
                 g.at("scripts/scrSetupWalls", 76);
                 {
@@ -185,7 +185,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 77: if (y >= argument0 || collision_point(x, y + 16, oLush, 0, 0))
             g.at("scripts/scrSetupWalls", 77);
-            if or(g.get(cx.this, v::y)?.gml_ge(&cx.arg(0)?)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oLush, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p21 = g.get(cx.this, v::y)?.gml_ge(&cx.arg(0)?)?; let q22 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oLush, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p21, q22.cond(Cond::Or)?) } {
                 // 77: down = true;
                 g.at("scripts/scrSetupWalls", 77);
                 {
@@ -274,7 +274,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 98: if (!collision_point(x, y + 16, oSolid, 0, 0) && global.graphicsHigh)
                 g.at("scripts/scrSetupWalls", 98);
-                if and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?, g.gget(gv::graphicsHigh)?.cond(Cond::And)?) {
+                if { let p23 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q24 = g.gget(gv::graphicsHigh)?; and(p23.cond(Cond::And)?, q24.cond(Cond::And)?) } {
                     // 100: if (rand(1, 12) == 1)
                     g.at("scripts/scrSetupWalls", 100);
                     if scr::rand(g, cx, &[r(1.0), r(12.0)])?.gml_eq(&r(1.0))? {
@@ -293,16 +293,16 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer6;
+        (cx.this, cx.other) = outer18;
     }
     // 108: with (oDark)
     g.at("scripts/scrSetupWalls", 108);
     {
         let t = obj::oDark;
-        let mut it7 = g.with_iter(cx, &t)?;
-        let outer9 = (cx.this, cx.other);
-        'with3: while let Some(h8) = it7.next(g) {
-            (cx.this, cx.other) = (h8, outer9.0);
+        let mut it25 = g.with_iter(cx, &t)?;
+        let outer27 = (cx.this, cx.other);
+        'with3: while let Some(h26) = it25.next(g) {
+            (cx.this, cx.other) = (h26, outer27.0);
             // 110: up = false;
             g.at("scripts/scrSetupWalls", 110);
             {
@@ -333,7 +333,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 115: if (y == 0 || collision_point(x, y - 16, oDark, 0, 0))
             g.at("scripts/scrSetupWalls", 115);
-            if or(g.get(cx.this, v::y)?.gml_eq(&r(0.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oDark, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p28 = g.get(cx.this, v::y)?.gml_eq(&r(0.0))?; let q29 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oDark, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p28, q29.cond(Cond::Or)?) } {
                 // 115: up = true;
                 g.at("scripts/scrSetupWalls", 115);
                 {
@@ -344,7 +344,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 116: if (y >= argument0 || collision_point(x, y + 16, oDark, 0, 0))
             g.at("scripts/scrSetupWalls", 116);
-            if or(g.get(cx.this, v::y)?.gml_ge(&cx.arg(0)?)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oDark, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p30 = g.get(cx.this, v::y)?.gml_ge(&cx.arg(0)?)?; let q31 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oDark, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p30, q31.cond(Cond::Or)?) } {
                 // 116: down = true;
                 g.at("scripts/scrSetupWalls", 116);
                 {
@@ -425,16 +425,16 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer9;
+        (cx.this, cx.other) = outer27;
     }
     // 150: with (oIce)
     g.at("scripts/scrSetupWalls", 150);
     {
         let t = obj::oIce;
-        let mut it10 = g.with_iter(cx, &t)?;
-        let outer12 = (cx.this, cx.other);
-        'with4: while let Some(h11) = it10.next(g) {
-            (cx.this, cx.other) = (h11, outer12.0);
+        let mut it32 = g.with_iter(cx, &t)?;
+        let outer34 = (cx.this, cx.other);
+        'with4: while let Some(h33) = it32.next(g) {
+            (cx.this, cx.other) = (h33, outer34.0);
             // 152: up = false;
             g.at("scripts/scrSetupWalls", 152);
             {
@@ -542,7 +542,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 170: if (rand(1, 20) == 1 && !collision_point(x, y + 16, oSolid, 0, 0))
                 g.at("scripts/scrSetupWalls", 170);
-                if and(scr::rand(g, cx, &[r(1.0), r(20.0)])?.gml_eq(&r(1.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                if { let p35 = scr::rand(g, cx, &[r(1.0), r(20.0)])?.gml_eq(&r(1.0))?; let q36 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p35, q36.cond(Cond::And)?) } {
                     // 170: instance_create(x, y + 16, oIceBottom);
                     g.at("scripts/scrSetupWalls", 170);
                     cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oIceBottom]; b::instance_create(g, cx, a)? };
@@ -553,7 +553,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             if g.get(cx.this, v::left)?.not()?.cond(Cond::If)? {
                 // 174: if (!up && !down)
                 g.at("scripts/scrSetupWalls", 174);
-                if and(g.get(cx.this, v::up)?.not()?.cond(Cond::And)?, g.get(cx.this, v::down)?.not()?.cond(Cond::And)?) {
+                if { let p37 = g.get(cx.this, v::up)?.not()?; let q38 = g.get(cx.this, v::down)?.not()?; and(p37.cond(Cond::And)?, q38.cond(Cond::And)?) } {
                     // 174: sprite_index = sIceUDL;
                     g.at("scripts/scrSetupWalls", 174);
                     {
@@ -600,7 +600,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             if g.get(cx.this, v::right)?.not()?.cond(Cond::If)? {
                 // 181: if (!up && !down)
                 g.at("scripts/scrSetupWalls", 181);
-                if and(g.get(cx.this, v::up)?.not()?.cond(Cond::And)?, g.get(cx.this, v::down)?.not()?.cond(Cond::And)?) {
+                if { let p39 = g.get(cx.this, v::up)?.not()?; let q40 = g.get(cx.this, v::down)?.not()?; and(p39.cond(Cond::And)?, q40.cond(Cond::And)?) } {
                     // 181: sprite_index = sIceUDR;
                     g.at("scripts/scrSetupWalls", 181);
                     {
@@ -644,7 +644,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 186: if (!up && !left && !right && down)
             g.at("scripts/scrSetupWalls", 186);
-            if and(and(and(g.get(cx.this, v::up)?.not()?.cond(Cond::And)?, g.get(cx.this, v::left)?.not()?.cond(Cond::And)?), g.get(cx.this, v::right)?.not()?.cond(Cond::And)?), g.get(cx.this, v::down)?.cond(Cond::And)?) {
+            if { let p45 = { let p43 = { let p41 = g.get(cx.this, v::up)?.not()?; let q42 = g.get(cx.this, v::left)?.not()?; and(p41.cond(Cond::And)?, q42.cond(Cond::And)?) }; let q44 = g.get(cx.this, v::right)?.not()?; and(p43, q44.cond(Cond::And)?) }; let q46 = g.get(cx.this, v::down)?; and(p45, q46.cond(Cond::And)?) } {
                 // 186: sprite_index = sIceULR;
                 g.at("scripts/scrSetupWalls", 186);
                 {
@@ -655,7 +655,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 187: if (!down && !left && !right && up)
             g.at("scripts/scrSetupWalls", 187);
-            if and(and(and(g.get(cx.this, v::down)?.not()?.cond(Cond::And)?, g.get(cx.this, v::left)?.not()?.cond(Cond::And)?), g.get(cx.this, v::right)?.not()?.cond(Cond::And)?), g.get(cx.this, v::up)?.cond(Cond::And)?) {
+            if { let p51 = { let p49 = { let p47 = g.get(cx.this, v::down)?.not()?; let q48 = g.get(cx.this, v::left)?.not()?; and(p47.cond(Cond::And)?, q48.cond(Cond::And)?) }; let q50 = g.get(cx.this, v::right)?.not()?; and(p49, q50.cond(Cond::And)?) }; let q52 = g.get(cx.this, v::up)?; and(p51, q52.cond(Cond::And)?) } {
                 // 187: sprite_index = sIceDLR;
                 g.at("scripts/scrSetupWalls", 187);
                 {
@@ -666,7 +666,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 188: if (up && down && !left && !right)
             g.at("scripts/scrSetupWalls", 188);
-            if and(and(and(g.get(cx.this, v::up)?.cond(Cond::And)?, g.get(cx.this, v::down)?.cond(Cond::And)?), g.get(cx.this, v::left)?.not()?.cond(Cond::And)?), g.get(cx.this, v::right)?.not()?.cond(Cond::And)?) {
+            if { let p57 = { let p55 = { let p53 = g.get(cx.this, v::up)?; let q54 = g.get(cx.this, v::down)?; and(p53.cond(Cond::And)?, q54.cond(Cond::And)?) }; let q56 = g.get(cx.this, v::left)?.not()?; and(p55, q56.cond(Cond::And)?) }; let q58 = g.get(cx.this, v::right)?.not()?; and(p57, q58.cond(Cond::And)?) } {
                 // 188: sprite_index = sIceLR;
                 g.at("scripts/scrSetupWalls", 188);
                 {
@@ -677,7 +677,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 189: if (!up && !down && !left && !right)
             g.at("scripts/scrSetupWalls", 189);
-            if and(and(and(g.get(cx.this, v::up)?.not()?.cond(Cond::And)?, g.get(cx.this, v::down)?.not()?.cond(Cond::And)?), g.get(cx.this, v::left)?.not()?.cond(Cond::And)?), g.get(cx.this, v::right)?.not()?.cond(Cond::And)?) {
+            if { let p63 = { let p61 = { let p59 = g.get(cx.this, v::up)?.not()?; let q60 = g.get(cx.this, v::down)?.not()?; and(p59.cond(Cond::And)?, q60.cond(Cond::And)?) }; let q62 = g.get(cx.this, v::left)?.not()?; and(p61, q62.cond(Cond::And)?) }; let q64 = g.get(cx.this, v::right)?.not()?; and(p63, q64.cond(Cond::And)?) } {
                 // 191: sprite_index = sIceBlock;
                 g.at("scripts/scrSetupWalls", 191);
                 {
@@ -687,16 +687,16 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer12;
+        (cx.this, cx.other) = outer34;
     }
     // 195: with (oTemple)
     g.at("scripts/scrSetupWalls", 195);
     {
         let t = obj::oTemple;
-        let mut it13 = g.with_iter(cx, &t)?;
-        let outer15 = (cx.this, cx.other);
-        'with5: while let Some(h14) = it13.next(g) {
-            (cx.this, cx.other) = (h14, outer15.0);
+        let mut it65 = g.with_iter(cx, &t)?;
+        let outer67 = (cx.this, cx.other);
+        'with5: while let Some(h66) = it65.next(g) {
+            (cx.this, cx.other) = (h66, outer67.0);
             // 197: up = false;
             g.at("scripts/scrSetupWalls", 197);
             {
@@ -727,7 +727,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 202: if (y == 0 || collision_point(x, y - 16, oTemple, 0, 0) || collision_point(x, y + 16, oTempleFake, 0
             g.at("scripts/scrSetupWalls", 202);
-            if or(or(g.get(cx.this, v::y)?.gml_eq(&r(0.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p70 = { let p68 = g.get(cx.this, v::y)?.gml_eq(&r(0.0))?; let q69 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p68, q69.cond(Cond::Or)?) }; let q71 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p70, q71.cond(Cond::Or)?) } {
                 // 202: up = true;
                 g.at("scripts/scrSetupWalls", 202);
                 {
@@ -738,7 +738,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 203: if (y >= argument0 || collision_point(x, y + 16, oTemple, 0, 0) || collision_point(x, y + 16, oTempl
             g.at("scripts/scrSetupWalls", 203);
-            if or(or(g.get(cx.this, v::y)?.gml_ge(&cx.arg(0)?)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p74 = { let p72 = g.get(cx.this, v::y)?.gml_ge(&cx.arg(0)?)?; let q73 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p72, q73.cond(Cond::Or)?) }; let q75 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p74, q75.cond(Cond::Or)?) } {
                 // 203: down = true;
                 g.at("scripts/scrSetupWalls", 203);
                 {
@@ -749,7 +749,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 204: if (collision_point(x - 16, y, oTemple, 0, 0) || collision_point(x - 16, y, oTempleFake, 0, 0))
             g.at("scripts/scrSetupWalls", 204);
-            if or(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p76 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q77 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p76.cond(Cond::Or)?, q77.cond(Cond::Or)?) } {
                 // 204: left = true;
                 g.at("scripts/scrSetupWalls", 204);
                 {
@@ -760,7 +760,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 205: if (collision_point(x + 16, y, oTemple, 0, 0) || collision_point(x + 16, y, oTempleFake, 0, 0))
             g.at("scripts/scrSetupWalls", 205);
-            if or(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p78 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q79 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p78.cond(Cond::Or)?, q79.cond(Cond::Or)?) } {
                 // 205: right = true;
                 g.at("scripts/scrSetupWalls", 205);
                 {
@@ -803,7 +803,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 218: if (!left && !right)
                     g.at("scripts/scrSetupWalls", 218);
-                    if and(g.get(cx.this, v::left)?.not()?.cond(Cond::And)?, g.get(cx.this, v::right)?.not()?.cond(Cond::And)?) {
+                    if { let p80 = g.get(cx.this, v::left)?.not()?; let q81 = g.get(cx.this, v::right)?.not()?; and(p80.cond(Cond::And)?, q81.cond(Cond::And)?) } {
                         // 220: if (!down)
                         g.at("scripts/scrSetupWalls", 220);
                         if g.get(cx.this, v::down)?.not()?.cond(Cond::If)? {
@@ -872,7 +872,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             } else {
                                 // 233: if (left && right && !down)
                                 g.at("scripts/scrSetupWalls", 233);
-                                if and(and(g.get(cx.this, v::left)?.cond(Cond::And)?, g.get(cx.this, v::right)?.cond(Cond::And)?), g.get(cx.this, v::down)?.not()?.cond(Cond::And)?) {
+                                if { let p84 = { let p82 = g.get(cx.this, v::left)?; let q83 = g.get(cx.this, v::right)?; and(p82.cond(Cond::And)?, q83.cond(Cond::And)?) }; let q85 = g.get(cx.this, v::down)?.not()?; and(p84, q85.cond(Cond::And)?) } {
                                     // 235: sprite_index = sGTempleUp2;
                                     g.at("scripts/scrSetupWalls", 235);
                                     {
@@ -929,7 +929,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 253: if (!left && !right)
                     g.at("scripts/scrSetupWalls", 253);
-                    if and(g.get(cx.this, v::left)?.not()?.cond(Cond::And)?, g.get(cx.this, v::right)?.not()?.cond(Cond::And)?) {
+                    if { let p86 = g.get(cx.this, v::left)?.not()?; let q87 = g.get(cx.this, v::right)?.not()?; and(p86.cond(Cond::And)?, q87.cond(Cond::And)?) } {
                         // 255: if (!down)
                         g.at("scripts/scrSetupWalls", 255);
                         if g.get(cx.this, v::down)?.not()?.cond(Cond::If)? {
@@ -998,7 +998,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             } else {
                                 // 268: if (left && right && !down)
                                 g.at("scripts/scrSetupWalls", 268);
-                                if and(and(g.get(cx.this, v::left)?.cond(Cond::And)?, g.get(cx.this, v::right)?.cond(Cond::And)?), g.get(cx.this, v::down)?.not()?.cond(Cond::And)?) {
+                                if { let p90 = { let p88 = g.get(cx.this, v::left)?; let q89 = g.get(cx.this, v::right)?; and(p88.cond(Cond::And)?, q89.cond(Cond::And)?) }; let q91 = g.get(cx.this, v::down)?.not()?; and(p90, q91.cond(Cond::And)?) } {
                                     // 270: sprite_index = sTempleUp2;
                                     g.at("scripts/scrSetupWalls", 270);
                                     {
@@ -1025,16 +1025,16 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer15;
+        (cx.this, cx.other) = outer67;
     }
     // 279: with (oTempleFake)
     g.at("scripts/scrSetupWalls", 279);
     {
         let t = obj::oTempleFake;
-        let mut it16 = g.with_iter(cx, &t)?;
-        let outer18 = (cx.this, cx.other);
-        'with6: while let Some(h17) = it16.next(g) {
-            (cx.this, cx.other) = (h17, outer18.0);
+        let mut it92 = g.with_iter(cx, &t)?;
+        let outer94 = (cx.this, cx.other);
+        'with6: while let Some(h93) = it92.next(g) {
+            (cx.this, cx.other) = (h93, outer94.0);
             // 281: up = false;
             g.at("scripts/scrSetupWalls", 281);
             {
@@ -1065,7 +1065,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 286: if (y == 0 || collision_point(x, y - 16, oTemple, 0, 0) || collision_point(x, y - 16, oTempleFake, 0
             g.at("scripts/scrSetupWalls", 286);
-            if or(or(g.get(cx.this, v::y)?.gml_eq(&r(0.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p97 = { let p95 = g.get(cx.this, v::y)?.gml_eq(&r(0.0))?; let q96 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p95, q96.cond(Cond::Or)?) }; let q98 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p97, q98.cond(Cond::Or)?) } {
                 // 286: up = true;
                 g.at("scripts/scrSetupWalls", 286);
                 {
@@ -1076,7 +1076,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 287: if (collision_point(x, y + 16, oTemple, 0, 0) || collision_point(x, y + 16, oTempleFake, 0, 0))
             g.at("scripts/scrSetupWalls", 287);
-            if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p99 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q100 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p99.cond(Cond::Or)?, q100.cond(Cond::Or)?) } {
                 // 287: down = true;
                 g.at("scripts/scrSetupWalls", 287);
                 {
@@ -1087,7 +1087,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 288: if (collision_point(x - 16, y, oTemple, 0, 0) || collision_point(x - 16, y, oTempleFake, 0, 0))
             g.at("scripts/scrSetupWalls", 288);
-            if or(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p101 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q102 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p101.cond(Cond::Or)?, q102.cond(Cond::Or)?) } {
                 // 288: left = true;
                 g.at("scripts/scrSetupWalls", 288);
                 {
@@ -1098,7 +1098,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 289: if (collision_point(x + 16, y, oTemple, 0, 0) || collision_point(x + 16, y, oTempleFake, 0, 0))
             g.at("scripts/scrSetupWalls", 289);
-            if or(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p103 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q104 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTempleFake, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p103.cond(Cond::Or)?, q104.cond(Cond::Or)?) } {
                 // 289: right = true;
                 g.at("scripts/scrSetupWalls", 289);
                 {
@@ -1141,7 +1141,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 302: if (!left && !right)
                     g.at("scripts/scrSetupWalls", 302);
-                    if and(g.get(cx.this, v::left)?.not()?.cond(Cond::And)?, g.get(cx.this, v::right)?.not()?.cond(Cond::And)?) {
+                    if { let p105 = g.get(cx.this, v::left)?.not()?; let q106 = g.get(cx.this, v::right)?.not()?; and(p105.cond(Cond::And)?, q106.cond(Cond::And)?) } {
                         // 304: if (!down)
                         g.at("scripts/scrSetupWalls", 304);
                         if g.get(cx.this, v::down)?.not()?.cond(Cond::If)? {
@@ -1210,7 +1210,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             } else {
                                 // 317: if (left && right && !down)
                                 g.at("scripts/scrSetupWalls", 317);
-                                if and(and(g.get(cx.this, v::left)?.cond(Cond::And)?, g.get(cx.this, v::right)?.cond(Cond::And)?), g.get(cx.this, v::down)?.not()?.cond(Cond::And)?) {
+                                if { let p109 = { let p107 = g.get(cx.this, v::left)?; let q108 = g.get(cx.this, v::right)?; and(p107.cond(Cond::And)?, q108.cond(Cond::And)?) }; let q110 = g.get(cx.this, v::down)?.not()?; and(p109, q110.cond(Cond::And)?) } {
                                     // 319: sprite_index = sGTempleUp2;
                                     g.at("scripts/scrSetupWalls", 319);
                                     {
@@ -1248,7 +1248,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 333: if (!left && !right)
                     g.at("scripts/scrSetupWalls", 333);
-                    if and(g.get(cx.this, v::left)?.not()?.cond(Cond::And)?, g.get(cx.this, v::right)?.not()?.cond(Cond::And)?) {
+                    if { let p111 = g.get(cx.this, v::left)?.not()?; let q112 = g.get(cx.this, v::right)?.not()?; and(p111.cond(Cond::And)?, q112.cond(Cond::And)?) } {
                         // 335: if (!down)
                         g.at("scripts/scrSetupWalls", 335);
                         if g.get(cx.this, v::down)?.not()?.cond(Cond::If)? {
@@ -1317,7 +1317,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             } else {
                                 // 348: if (left && right && !down)
                                 g.at("scripts/scrSetupWalls", 348);
-                                if and(and(g.get(cx.this, v::left)?.cond(Cond::And)?, g.get(cx.this, v::right)?.cond(Cond::And)?), g.get(cx.this, v::down)?.not()?.cond(Cond::And)?) {
+                                if { let p115 = { let p113 = g.get(cx.this, v::left)?; let q114 = g.get(cx.this, v::right)?; and(p113.cond(Cond::And)?, q114.cond(Cond::And)?) }; let q116 = g.get(cx.this, v::down)?.not()?; and(p115, q116.cond(Cond::And)?) } {
                                     // 350: sprite_index = sTempleUp2;
                                     g.at("scripts/scrSetupWalls", 350);
                                     {
@@ -1344,16 +1344,16 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer18;
+        (cx.this, cx.other) = outer94;
     }
     // 359: with (oWater)
     g.at("scripts/scrSetupWalls", 359);
     {
         let t = obj::oWater;
-        let mut it19 = g.with_iter(cx, &t)?;
-        let outer21 = (cx.this, cx.other);
-        'with7: while let Some(h20) = it19.next(g) {
-            (cx.this, cx.other) = (h20, outer21.0);
+        let mut it117 = g.with_iter(cx, &t)?;
+        let outer119 = (cx.this, cx.other);
+        'with7: while let Some(h118) = it117.next(g) {
+            (cx.this, cx.other) = (h118, outer119.0);
             // 361: if (type == "Water")
             g.at("scripts/scrSetupWalls", 361);
             if g.get(cx.this, v::r#type)?.gml_eq(&s!("Water"))? {
@@ -1416,7 +1416,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 371: if (collision_point(x, y + 16, oSolid, 0, 0) && !collision_point(x, y + 16, oWater, 0, 0))
                 g.at("scripts/scrSetupWalls", 371);
-                if and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                if { let p120 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q121 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p120.cond(Cond::And)?, q121.cond(Cond::And)?) } {
                     // 371: down = true;
                     g.at("scripts/scrSetupWalls", 371);
                     {
@@ -1427,7 +1427,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 373: if (!up && !upWater)
                 g.at("scripts/scrSetupWalls", 373);
-                if and(g.get(cx.this, v::up)?.not()?.cond(Cond::And)?, g.get(cx.this, v::upWater)?.not()?.cond(Cond::And)?) {
+                if { let p122 = g.get(cx.this, v::up)?.not()?; let q123 = g.get(cx.this, v::upWater)?.not()?; and(p122.cond(Cond::And)?, q123.cond(Cond::And)?) } {
                     // 375: sprite_index = sWaterTop;
                     g.at("scripts/scrSetupWalls", 375);
                     {
@@ -1438,7 +1438,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 378: if (upWater && collision_point(x, y - 32, oWater, 0, 0) && down && rand(1, 4) == 1)
                 g.at("scripts/scrSetupWalls", 378);
-                if and(and(and(g.get(cx.this, v::upWater)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), g.get(cx.this, v::down)?.cond(Cond::And)?), scr::rand(g, cx, &[r(1.0), r(4.0)])?.gml_eq(&r(1.0))?) {
+                if and({ let p126 = { let p124 = g.get(cx.this, v::upWater)?; let q125 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p124.cond(Cond::And)?, q125.cond(Cond::And)?) }; let q127 = g.get(cx.this, v::down)?; and(p126, q127.cond(Cond::And)?) }, scr::rand(g, cx, &[r(1.0), r(4.0)])?.gml_eq(&r(1.0))?) {
                     // 380: sprite_index = sWaterBottomTall2;
                     g.at("scripts/scrSetupWalls", 380);
                     {
@@ -1468,7 +1468,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 } else {
                     // 384: if (up || upWater && down)
                     g.at("scripts/scrSetupWalls", 384);
-                    if and(or(g.get(cx.this, v::up)?.cond(Cond::Or)?, g.get(cx.this, v::upWater)?.cond(Cond::Or)?), g.get(cx.this, v::down)?.cond(Cond::And)?) {
+                    if { let p130 = { let p128 = g.get(cx.this, v::up)?; let q129 = g.get(cx.this, v::upWater)?; or(p128.cond(Cond::Or)?, q129.cond(Cond::Or)?) }; let q131 = g.get(cx.this, v::down)?; and(p130, q131.cond(Cond::And)?) } {
                         // 386: n = rand(1, 4);
                         g.at("scripts/scrSetupWalls", 386);
                         {
@@ -1542,16 +1542,16 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer21;
+        (cx.this, cx.other) = outer119;
     }
     // 398: with (oLava)
     g.at("scripts/scrSetupWalls", 398);
     {
         let t = obj::oLava;
-        let mut it22 = g.with_iter(cx, &t)?;
-        let outer24 = (cx.this, cx.other);
-        'with9: while let Some(h23) = it22.next(g) {
-            (cx.this, cx.other) = (h23, outer24.0);
+        let mut it132 = g.with_iter(cx, &t)?;
+        let outer134 = (cx.this, cx.other);
+        'with9: while let Some(h133) = it132.next(g) {
+            (cx.this, cx.other) = (h133, outer134.0);
             // 400: up = false;
             g.at("scripts/scrSetupWalls", 400);
             {
@@ -1622,7 +1622,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 410: if (!up && !upWater)
             g.at("scripts/scrSetupWalls", 410);
-            if and(g.get(cx.this, v::up)?.not()?.cond(Cond::And)?, g.get(cx.this, v::upWater)?.not()?.cond(Cond::And)?) {
+            if { let p135 = g.get(cx.this, v::up)?.not()?; let q136 = g.get(cx.this, v::upWater)?.not()?; and(p135.cond(Cond::And)?, q136.cond(Cond::And)?) } {
                 // 412: sprite_index = sLavaTop;
                 g.at("scripts/scrSetupWalls", 412);
                 {
@@ -1643,16 +1643,16 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer24;
+        (cx.this, cx.other) = outer134;
     }
     // 437: with (oVine)
     g.at("scripts/scrSetupWalls", 437);
     {
         let t = obj::oVine;
-        let mut it25 = g.with_iter(cx, &t)?;
-        let outer27 = (cx.this, cx.other);
-        'with10: while let Some(h26) = it25.next(g) {
-            (cx.this, cx.other) = (h26, outer27.0);
+        let mut it137 = g.with_iter(cx, &t)?;
+        let outer139 = (cx.this, cx.other);
+        'with10: while let Some(h138) = it137.next(g) {
+            (cx.this, cx.other) = (h138, outer139.0);
             // 439: up = false;
             g.at("scripts/scrSetupWalls", 439);
             {
@@ -1727,16 +1727,16 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer27;
+        (cx.this, cx.other) = outer139;
     }
     // 457: with (oBlock)
     g.at("scripts/scrSetupWalls", 457);
     {
         let t = obj::oBlock;
-        let mut it28 = g.with_iter(cx, &t)?;
-        let outer30 = (cx.this, cx.other);
-        'with11: while let Some(h29) = it28.next(g) {
-            (cx.this, cx.other) = (h29, outer30.0);
+        let mut it140 = g.with_iter(cx, &t)?;
+        let outer142 = (cx.this, cx.other);
+        'with11: while let Some(h141) = it140.next(g) {
+            (cx.this, cx.other) = (h141, outer142.0);
             // 459: down = false;
             g.at("scripts/scrSetupWalls", 459);
             {
@@ -1746,7 +1746,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 461: if (collision_point(x, y + 16, oBrick, 0, 0) || collision_point(x, y + 16, oTemple, 0, 0) || collisi
             g.at("scripts/scrSetupWalls", 461);
-            if or(or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oHardBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p145 = { let p143 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q144 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oTemple, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p143.cond(Cond::Or)?, q144.cond(Cond::Or)?) }; let q146 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oHardBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p145, q146.cond(Cond::Or)?) } {
                 // 461: down = true;
                 g.at("scripts/scrSetupWalls", 461);
                 {
@@ -1757,7 +1757,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 464: if (collision_point(x - 16, y, oLava, 0, 0) || collision_point(x + 16, y, oLava, 0, 0))
             g.at("scripts/scrSetupWalls", 464);
-            if or(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p147 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q148 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p147.cond(Cond::Or)?, q148.cond(Cond::Or)?) } {
                 // 464: down = false;
                 g.at("scripts/scrSetupWalls", 464);
                 {
@@ -1768,7 +1768,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 466: if (down && rand(1, 4) == 1)
             g.at("scripts/scrSetupWalls", 466);
-            if and(g.get(cx.this, v::down)?.cond(Cond::And)?, scr::rand(g, cx, &[r(1.0), r(4.0)])?.gml_eq(&r(1.0))?) {
+            if { let p149 = g.get(cx.this, v::down)?; let q150 = scr::rand(g, cx, &[r(1.0), r(4.0)])?.gml_eq(&r(1.0))?; and(p149.cond(Cond::And)?, q150) } {
                 // 468: instance_create(x, y, oPushBlock);
                 g.at("scripts/scrSetupWalls", 468);
                 cx.ret = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oPushBlock]; b::instance_create(g, cx, a)? };
@@ -1777,16 +1777,16 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 cx.ret = b::instance_destroy(g, cx, [])?;
             }
         }
-        (cx.this, cx.other) = outer30;
+        (cx.this, cx.other) = outer142;
     }
     // 473: with (oTree)
     g.at("scripts/scrSetupWalls", 473);
     {
         let t = obj::oTree;
-        let mut it31 = g.with_iter(cx, &t)?;
-        let outer33 = (cx.this, cx.other);
-        'with12: while let Some(h32) = it31.next(g) {
-            (cx.this, cx.other) = (h32, outer33.0);
+        let mut it151 = g.with_iter(cx, &t)?;
+        let outer153 = (cx.this, cx.other);
+        'with12: while let Some(h152) = it151.next(g) {
+            (cx.this, cx.other) = (h152, outer153.0);
             // 475: up = false;
             g.at("scripts/scrSetupWalls", 475);
             {
@@ -1890,16 +1890,16 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer33;
+        (cx.this, cx.other) = outer153;
     }
     // 493: with (oTreeBranch)
     g.at("scripts/scrSetupWalls", 493);
     {
         let t = obj::oTreeBranch;
-        let mut it34 = g.with_iter(cx, &t)?;
-        let outer36 = (cx.this, cx.other);
-        'with13: while let Some(h35) = it34.next(g) {
-            (cx.this, cx.other) = (h35, outer36.0);
+        let mut it154 = g.with_iter(cx, &t)?;
+        let outer156 = (cx.this, cx.other);
+        'with13: while let Some(h155) = it154.next(g) {
+            (cx.this, cx.other) = (h155, outer156.0);
             // 495: up = false;
             g.at("scripts/scrSetupWalls", 495);
             {
@@ -2003,7 +2003,7 @@ pub fn scrSetupWalls(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer36;
+        (cx.this, cx.other) = outer156;
     }
     Ok(cx.ret.clone())
 }

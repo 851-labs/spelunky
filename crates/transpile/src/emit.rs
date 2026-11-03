@@ -337,8 +337,26 @@ impl<'a> Emitter<'a> {
                             BinOp::Or => ("or", "Or"),
                             _ => ("xor", "Xor"),
                         };
-                        let (l, r) = (self.cond(lhs, at), self.cond(rhs, at));
-                        return (format!("{f}({l}, {r})"), Ty::Bool);
+                        let (l, r) = (self.expr(lhs), self.expr(rhs));
+                        if let ((l, Ty::Bool), (r, Ty::Bool)) = (&l, &r) {
+                            return (format!("{f}({l}, {r})"), Ty::Bool);
+                        }
+                        // Both operands are values first, and only then is either checked for a string, as GM8
+                        // evaluates both before the operator rejects one (and the oracle, patch 0046): a string on
+                        // the left doesn't keep the right from running.
+                        let (a, b) = (self.fresh("p"), self.fresh("q"));
+                        let check = |name: &str, ty: Ty| match ty {
+                            Ty::Bool => name.to_owned(),
+                            Ty::Value => format!("{name}.cond(Cond::{at})?"),
+                        };
+                        let code = format!(
+                            "{{ let {a} = {}; let {b} = {}; {f}({}, {}) }}",
+                            l.0,
+                            r.0,
+                            check(&a, l.1),
+                            check(&b, r.1)
+                        );
+                        return (code, Ty::Bool);
                     }
                     BinOp::Eq | BinOp::Ne | BinOp::Lt | BinOp::Le | BinOp::Gt | BinOp::Ge => {
                         let (l, r) = (self.value(lhs), self.value(rhs));
@@ -418,14 +436,15 @@ impl<'a> Emitter<'a> {
         let mut pre = Vec::new();
         let unit = self.unit;
         // A computed base is bound once, as `t`, for the read and the write.
-        let base_bound = match target.map(|b| &b.kind) {
-            None | Some(ExprKind::Const(Const::Global | Const::SelfKw | Const::Other)) => false,
-            Some(_) => {
-                let t = self.value(target.unwrap());
-                pre.push(format!("let t = {t};"));
-                true
-            }
-        };
+        if let Some(base) = target
+            && !matches!(
+                base.kind,
+                ExprKind::Const(Const::Global | Const::SelfKw | Const::Other)
+            )
+        {
+            let t = self.value(base);
+            pre.push(format!("let t = {t};"));
+        }
         let idx = indices.map(|ix| {
             let (i, j) = self.index(ix);
             let mut bind = |s: String, n: &str| {
@@ -510,7 +529,6 @@ impl<'a> Emitter<'a> {
                 // evaluates the base once for `op=`, as it does the index (probe `opassign-order`, 851-3798:
                 // `(f()).v += x` calls `f` once; OpenGMK's `make_modify_instruction` evaluates both twice),
                 // so the read and the write both go through the base bound above, `t`.
-                assert!(base_bound, "bound above");
                 let v = self.var(name);
                 match &idx {
                     None => (
@@ -689,10 +707,14 @@ impl<'a> Emitter<'a> {
                 self.line(depth + 1, &format!("if !({c}) {{ break {l}; }}"));
                 self.line(depth + 1, &format!("{label}: {{"));
                 self.scopes.push(Scope::LoopWithTail(l, label));
+                // The step comes before the body in the source, so a `var` in the body doesn't reach it.
+                let before = self.locals.clone();
                 self.body(body, depth + 2);
+                let after = std::mem::replace(&mut self.locals, before);
                 self.scopes.pop();
                 self.line(depth + 1, "}");
                 self.stmt(step, depth + 1);
+                self.locals = after;
                 self.line(depth, "}");
             }
             StmtKind::With { target, body } => {

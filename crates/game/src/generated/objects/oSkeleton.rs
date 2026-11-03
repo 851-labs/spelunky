@@ -170,7 +170,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 32: if (isCollisionBottom(1) && status != STUNNED)
         g.at("oSkeleton/step#1", 32);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if { let p1 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?; and(p1.cond(Cond::And)?, q2) } {
             // 33: yVel = 0;
             g.at("oSkeleton/step#1", 33);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -218,11 +218,11 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 51: if (isCollisionLeft(4) && isCollisionRight(4))
                 g.at("oSkeleton/step#1", 51);
-                if and(scr::isCollisionLeft(g, cx, &[r(4.0)])?.cond(Cond::And)?, scr::isCollisionRight(g, cx, &[r(4.0)])?.cond(Cond::And)?) {
+                if { let p3 = scr::isCollisionLeft(g, cx, &[r(4.0)])?; let q4 = scr::isCollisionRight(g, cx, &[r(4.0)])?; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) } {
                 } else {
                     // 55: if (colLeft || colRight)
                     g.at("oSkeleton/step#1", 55);
-                    if or(g.get(cx.this, v::colLeft)?.cond(Cond::Or)?, g.get(cx.this, v::colRight)?.cond(Cond::Or)?) {
+                    if { let p5 = g.get(cx.this, v::colLeft)?; let q6 = g.get(cx.this, v::colRight)?; or(p5.cond(Cond::Or)?, q6.cond(Cond::Or)?) } {
                         // 57: if (facing == LEFT)
                         g.at("oSkeleton/step#1", 57);
                         if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {

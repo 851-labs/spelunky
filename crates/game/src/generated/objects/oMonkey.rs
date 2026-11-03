@@ -274,7 +274,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WALK)?)? {
                 // 69: if (isCollisionLeft(1) || isCollisionRight(1))
                 g.at("oMonkey/step#1", 69);
-                if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+                if { let p1 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q2 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
                     // 71: if (facing == LEFT)
                     g.at("oMonkey/step#1", 71);
                     if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -532,10 +532,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             g.at("oMonkey/step#1", 201);
                                             {
                                                 let t = obj::oPlayer1;
-                                                let mut it1 = g.with_iter(cx, &t)?;
-                                                let outer3 = (cx.this, cx.other);
-                                                'with1: while let Some(h2) = it1.next(g) {
-                                                    (cx.this, cx.other) = (h2, outer3.0);
+                                                let mut it3 = g.with_iter(cx, &t)?;
+                                                let outer5 = (cx.this, cx.other);
+                                                'with1: while let Some(h4) = it3.next(g) {
+                                                    (cx.this, cx.other) = (h4, outer5.0);
                                                     // 203: if (facing == 18)
                                                     g.at("oMonkey/step#1", 203);
                                                     if g.get(cx.this, v::facing)?.gml_eq(&r(18.0))? {
@@ -567,7 +567,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         scr::scrDropItem(g, cx, &[])?;
                                                     }
                                                 }
-                                                (cx.this, cx.other) = outer3;
+                                                (cx.this, cx.other) = outer5;
                                             }
                                             // 226: playSound(global.sndHit);
                                             g.at("oMonkey/step#1", 226);
@@ -589,10 +589,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 g.at("oMonkey/step#1", 233);
                                                 {
                                                     let t = g.get(cx.this, v::obj)?;
-                                                    let mut it4 = g.with_iter(cx, &t)?;
-                                                    let outer6 = (cx.this, cx.other);
-                                                    'with2: while let Some(h5) = it4.next(g) {
-                                                        (cx.this, cx.other) = (h5, outer6.0);
+                                                    let mut it6 = g.with_iter(cx, &t)?;
+                                                    let outer8 = (cx.this, cx.other);
+                                                    'with2: while let Some(h7) = it6.next(g) {
+                                                        (cx.this, cx.other) = (h7, outer8.0);
                                                         // 235: canCollect = false;
                                                         g.at("oMonkey/step#1", 235);
                                                         g.set(cx.this, v::canCollect, r(0.0))?;
@@ -609,7 +609,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         g.at("oMonkey/step#1", 238);
                                                         { let x = scr::rand(g, cx, &[r(3.0), r(4.0)])?.neg()?; g.set(cx.this, v::yVel, x)?; }
                                                     }
-                                                    (cx.this, cx.other) = outer6;
+                                                    (cx.this, cx.other) = outer8;
                                                 }
                                                 // 240: playSound(global.sndThrow);
                                                 g.at("oMonkey/step#1", 240);
@@ -631,10 +631,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     g.at("oMonkey/step#1", 247);
                                                     {
                                                         let t = g.get(cx.this, v::obj)?;
-                                                        let mut it7 = g.with_iter(cx, &t)?;
-                                                        let outer9 = (cx.this, cx.other);
-                                                        'with3: while let Some(h8) = it7.next(g) {
-                                                            (cx.this, cx.other) = (h8, outer9.0);
+                                                        let mut it9 = g.with_iter(cx, &t)?;
+                                                        let outer11 = (cx.this, cx.other);
+                                                        'with3: while let Some(h10) = it9.next(g) {
+                                                            (cx.this, cx.other) = (h10, outer11.0);
                                                             // 249: xVel = rand(1, 3) - rand(1, 3);
                                                             g.at("oMonkey/step#1", 249);
                                                             {
@@ -645,7 +645,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                             g.at("oMonkey/step#1", 250);
                                                             { let x = scr::rand(g, cx, &[r(3.0), r(4.0)])?.neg()?; g.set(cx.this, v::yVel, x)?; }
                                                         }
-                                                        (cx.this, cx.other) = outer9;
+                                                        (cx.this, cx.other) = outer11;
                                                     }
                                                     // 252: playSound(global.sndThrow);
                                                     g.at("oMonkey/step#1", 252);
@@ -683,10 +683,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         g.at("oMonkey/step#1", 266);
                                                         {
                                                             let t = g.get(cx.this, v::obj)?;
-                                                            let mut it10 = g.with_iter(cx, &t)?;
-                                                            let outer12 = (cx.this, cx.other);
-                                                            'with4: while let Some(h11) = it10.next(g) {
-                                                                (cx.this, cx.other) = (h11, outer12.0);
+                                                            let mut it12 = g.with_iter(cx, &t)?;
+                                                            let outer14 = (cx.this, cx.other);
+                                                            'with4: while let Some(h13) = it12.next(g) {
+                                                                (cx.this, cx.other) = (h13, outer14.0);
                                                                 // 268: xVel = rand(1, 3) - rand(1, 3);
                                                                 g.at("oMonkey/step#1", 268);
                                                                 {
@@ -697,7 +697,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                 g.at("oMonkey/step#1", 269);
                                                                 { let x = scr::rand(g, cx, &[r(3.0), r(4.0)])?.neg()?; g.set(cx.this, v::yVel, x)?; }
                                                             }
-                                                            (cx.this, cx.other) = outer12;
+                                                            (cx.this, cx.other) = outer14;
                                                         }
                                                         // 271: playSound(global.sndThrow);
                                                         g.at("oMonkey/step#1", 271);
@@ -756,7 +756,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 296: if (status != GRAB && isCollisionTop(1))
         g.at("oMonkey/step#1", 296);
-        if and(g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::GRAB)?)?, scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?) {
+        if { let p15 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::GRAB)?)?; let q16 = scr::isCollisionTop(g, cx, &[r(1.0)])?; and(p15, q16.cond(Cond::And)?) } {
             // 297: yVel = 1;
             g.at("oMonkey/step#1", 297);
             g.set(cx.this, v::yVel, r(1.0))?;
@@ -804,7 +804,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (throwCounter == 0 && status != GRAB && other.active && !other.held)
     g.at("oMonkey/collision_oItem#0", 1);
-    if and(and(and(g.get(cx.this, v::throwCounter)?.gml_eq(&r(0.0))?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::GRAB)?)?), g.get(cx.other, v::active)?.cond(Cond::And)?), g.get(cx.other, v::held)?.not()?.cond(Cond::And)?) {
+    if { let p3 = { let p1 = and(g.get(cx.this, v::throwCounter)?.gml_eq(&r(0.0))?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::GRAB)?)?); let q2 = g.get(cx.other, v::active)?; and(p1, q2.cond(Cond::And)?) }; let q4 = g.get(cx.other, v::held)?.not()?; and(p3, q4.cond(Cond::And)?) } {
         // 3: if (other.type == "Rope")
         g.at("oMonkey/collision_oItem#0", 3);
         if g.get(cx.other, v::r#type)?.gml_eq(&s!("Rope"))? {
@@ -886,7 +886,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 6: if (!other.dead && (other.state == 15 || other.state == 16) && other.y < y + 2 && !other.swimming)
         g.at("oMonkey/collision_oCharacter#0", 6);
-        if and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(2.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
+        if { let p3 = and({ let p1 = g.get(cx.other, v::dead)?.not()?; let q2 = or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?); and(p1.cond(Cond::And)?, q2) }, g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(2.0))?)?); let q4 = g.get(cx.other, v::swimming)?.not()?; and(p3, q4.cond(Cond::And)?) } {
             // 8: other.yVel = -6 - 0.2 * other.yVel;
             g.at("oMonkey/collision_oCharacter#0", 8);
             g.set(cx.other, v::yVel, r(-6.0).sub(&r(0.2).mul(&g.get(cx.other, v::yVel)?)?)?)?;
@@ -902,7 +902,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 13: if (!other.invincible && grabCounter == 0)
             g.at("oMonkey/collision_oCharacter#0", 13);
-            if and(g.get(cx.other, v::invincible)?.not()?.cond(Cond::And)?, g.get(cx.this, v::grabCounter)?.gml_eq(&r(0.0))?) {
+            if { let p5 = g.get(cx.other, v::invincible)?.not()?; let q6 = g.get(cx.this, v::grabCounter)?.gml_eq(&r(0.0))?; and(p5.cond(Cond::And)?, q6) } {
                 // 15: if (y + 8 > oPlayer1.y + 2)
                 g.at("oMonkey/collision_oCharacter#0", 15);
                 if g.get(cx.this, v::y)?.add(&r(8.0))?.gml_gt(&g.get_on(cx, &obj::oPlayer1, v::y)?.add(&r(2.0))?)? {

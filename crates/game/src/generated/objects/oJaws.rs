@@ -162,7 +162,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::dir)?.gml_eq(&r(0.0))? {
                 // 38: if (collision_point(x + 18, y + 16, oWater, 0, 0) && !collision_point(x + 18, y + 16, oSolid, 0, 0))
                 g.at("oJaws/step#0", 38);
-                if and(({ let a = [g.get(cx.this, v::x)?.add(&r(18.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(18.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                if { let p1 = { let a = [g.get(cx.this, v::x)?.add(&r(18.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q2 = ({ let a = [g.get(cx.this, v::x)?.add(&r(18.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
                     // 40: moveTo(2, 0);
                     g.at("oJaws/step#0", 40);
                     scr::moveTo(g, cx, &[r(2.0), r(0.0)])?;
@@ -190,7 +190,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 53: if (collision_point(x - 2, y + 16, oWater, 0, 0) && !collision_point(x - 2, y + 16, oSolid, 0, 0))
                 g.at("oJaws/step#0", 53);
-                if and(({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                if { let p3 = { let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q4 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) } {
                     // 55: moveTo(-2, 0);
                     g.at("oJaws/step#0", 55);
                     scr::moveTo(g, cx, &[r(-2.0), r(0.0)])?;
@@ -222,7 +222,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 71: if (oPlayer1.swimming && !oPlayer1.dead)
             g.at("oJaws/step#0", 71);
-            if and(g.get_on(cx, &obj::oPlayer1, v::swimming)?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?) {
+            if { let p5 = g.get_on(cx, &obj::oPlayer1, v::swimming)?; let q6 = g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?; and(p5.cond(Cond::And)?, q6.cond(Cond::And)?) } {
                 // 73: status = ATTACK;
                 g.at("oJaws/step#0", 73);
                 g.set(cx.this, v::status, g.get(cx.this, v::ATTACK)?)?;
@@ -256,10 +256,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 86: if (status == ATTACK && instance_exists(oPlayer1))
                 g.at("oJaws/step#0", 86);
-                if and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::ATTACK)?)?, b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::And)?) {
+                if { let p7 = g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::ATTACK)?)?; let q8 = b::instance_exists(g, cx, [obj::oPlayer1])?; and(p7, q8.cond(Cond::And)?) } {
                     // 88: if (oPlayer1.swimming && !oPlayer1.dead)
                     g.at("oJaws/step#0", 88);
-                    if and(g.get_on(cx, &obj::oPlayer1, v::swimming)?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?) {
+                    if { let p9 = g.get_on(cx, &obj::oPlayer1, v::swimming)?; let q10 = g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?; and(p9.cond(Cond::And)?, q10.cond(Cond::And)?) } {
                         // 90: if (sprite_index == sJawsLeft || sprite_index == sJawsRight)
                         g.at("oJaws/step#0", 90);
                         if or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sJawsLeft)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sJawsRight)?) {
@@ -278,7 +278,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)? {
                             // 96: if (sprite_index == sJawsRight && !collision_rectangle(x - 32, y, x, y + 32, oSolid, 0, 0))
                             g.at("oJaws/step#0", 96);
-                            if and(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sJawsRight)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(32.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                            if { let p11 = g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sJawsRight)?; let q12 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(32.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p11, q12.cond(Cond::And)?) } {
                                 // 98: status = TURN;
                                 g.at("oJaws/step#0", 98);
                                 g.set(cx.this, v::status, g.get(cx.this, v::TURN)?)?;
@@ -301,7 +301,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         } else {
                             // 108: if (sprite_index == sJawsLeft && !collision_point(x - 2, y + 16, oSolid, 0, 0))
                             g.at("oJaws/step#0", 108);
-                            if and(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sJawsLeft)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                            if { let p13 = g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sJawsLeft)?; let q14 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p13, q14.cond(Cond::And)?) } {
                                 // 110: status = TURN;
                                 g.at("oJaws/step#0", 110);
                                 g.set(cx.this, v::status, g.get(cx.this, v::TURN)?)?;
@@ -324,7 +324,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get(cx.this, v::turn)?.not()?.cond(Cond::If)? {
                             // 120: if (collision_point(x + cos(degtorad(dir)), y - sin(degtorad(dir)), oWater, 0, 0) && !collision_poin
                             g.at("oJaws/step#0", 120);
-                            if and(({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, g.get(cx.this, v::y)?.sub(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, g.get(cx.this, v::y)?.sub(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                            if { let p15 = { let a = [g.get(cx.this, v::x)?.add(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, g.get(cx.this, v::y)?.sub(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q16 = ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, g.get(cx.this, v::y)?.sub(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p15.cond(Cond::And)?, q16.cond(Cond::And)?) } {
                                 // 123: moveTo(3 * cos(degtorad(dir)), -3 * sin(degtorad(dir)));
                                 g.at("oJaws/step#0", 123);
                                 { let a = [r(3.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, r(-3.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?]; scr::moveTo(g, cx, &a)? };

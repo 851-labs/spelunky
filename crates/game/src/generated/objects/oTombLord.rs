@@ -155,7 +155,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 31: if (isCollisionBottom(1) && status != STUNNED)
         g.at("oTombLord/step#1", 31);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if { let p1 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?; and(p1.cond(Cond::And)?, q2) } {
             // 32: yVel = 0;
             g.at("oTombLord/step#1", 32);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -207,7 +207,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
                     // 51: if (isCollisionLeft(1) || (oPlayer1.x > x + 16 && abs(oPlayer1.y - (y + 32)) < 16 && counter == 0))
                     g.at("oTombLord/step#1", 51);
-                    if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, and(and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(16.0))?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(32.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(16.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?)) {
+                    if { let p3 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q4 = and(and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(16.0))?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(32.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(16.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?); or(p3.cond(Cond::Or)?, q4) } {
                         // 54: sprite_index = sTombLordTurnR;
                         g.at("oTombLord/step#1", 54);
                         g.set(cx.this, v::sprite_index, spr::sTombLordTurnR)?;
@@ -245,7 +245,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)? {
                         // 69: if (isCollisionRight(1) || (oPlayer1.x < x + 16 && abs(oPlayer1.y - (y + 32)) < 16 && counter == 0))
                         g.at("oTombLord/step#1", 69);
-                        if or(scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?, and(and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(16.0))?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(32.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(16.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?)) {
+                        if { let p5 = scr::isCollisionRight(g, cx, &[r(1.0)])?; let q6 = and(and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(16.0))?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(32.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(16.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?); or(p5.cond(Cond::Or)?, q6) } {
                             // 72: sprite_index = sTombLordTurnL;
                             g.at("oTombLord/step#1", 72);
                             g.set(cx.this, v::sprite_index, spr::sTombLordTurnL)?;
@@ -427,7 +427,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 6: if (!other.dead && (other.state == 15 || other.state == 16) && other.y < y + 8 && !other.swimming)
         g.at("oTombLord/collision_oCharacter#0", 6);
-        if and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
+        if { let p3 = and({ let p1 = g.get(cx.other, v::dead)?.not()?; let q2 = or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?); and(p1.cond(Cond::And)?, q2) }, g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?); let q4 = g.get(cx.other, v::swimming)?.not()?; and(p3, q4.cond(Cond::And)?) } {
             // 8: other.yVel = -6 - 0.2 * other.yVel;
             g.at("oTombLord/collision_oCharacter#0", 8);
             g.set(cx.other, v::yVel, r(-6.0).sub(&r(0.2).mul(&g.get(cx.other, v::yVel)?)?)?)?;
@@ -498,7 +498,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
                     // 33: if (global.plife <= 0 && isRealLevel())
                     g.at("oTombLord/collision_oCharacter#0", 33);
-                    if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                    if { let p5 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q6 = scr::isRealLevel(g, cx, &[])?; and(p5, q6.cond(Cond::And)?) } {
                         // 33: global.enemyDeaths[20] += 1;
                         g.at("oTombLord/collision_oCharacter#0", 33);
                         g.gset_a(gv::enemyDeaths, 0, 20, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 20)?, &r(1.0))?)?;

@@ -193,7 +193,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 18: if (colBot && status != STUNNED)
         g.at("oShopkeeper/step#1", 18);
-        if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if { let p1 = g.get(cx.this, v::colBot)?; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?; and(p1.cond(Cond::And)?, q2) } {
             // 18: yVel = 0;
             g.at("oShopkeeper/step#1", 18);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -244,7 +244,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 39: if (!held && collision_point(x + 8, y + 8, oSolid, 0, 0))
             g.at("oShopkeeper/step#1", 39);
-            if and(g.get(cx.this, v::held)?.not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?) {
+            if { let p3 = g.get(cx.this, v::held)?.not()?; let q4 = { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) } {
                 // 41: scrCreateBlood(x + 8, y + 8, 3);
                 g.at("oShopkeeper/step#1", 41);
                 { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
@@ -374,7 +374,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if or(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::PATROL)?)?, g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WALK)?)?) {
             // 87: if (!oPlayer1.dead && distance_to_object(oPlayer1) < 64 && oPlayer1.y - (y + 8) < 16)
             g.at("oShopkeeper/step#1", 87);
-            if and(and(g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?, b::distance_to_object(g, cx, [obj::oPlayer1])?.gml_lt(&r(64.0))?), g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(8.0))?)?.gml_lt(&r(16.0))?) {
+            if and({ let p5 = g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?; let q6 = b::distance_to_object(g, cx, [obj::oPlayer1])?.gml_lt(&r(64.0))?; and(p5.cond(Cond::And)?, q6) }, g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(8.0))?)?.gml_lt(&r(16.0))?) {
                 // 89: status = ATTACK;
                 g.at("oShopkeeper/step#1", 89);
                 g.set(cx.this, v::status, g.get(cx.this, v::ATTACK)?)?;
@@ -410,7 +410,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 109: if (colLeft && colRight)
             g.at("oShopkeeper/step#1", 109);
-            if and(g.get(cx.this, v::colLeft)?.cond(Cond::And)?, g.get(cx.this, v::colRight)?.cond(Cond::And)?) {
+            if { let p7 = g.get(cx.this, v::colLeft)?; let q8 = g.get(cx.this, v::colRight)?; and(p7.cond(Cond::And)?, q8.cond(Cond::And)?) } {
                 // 109: status = ATTACK;
                 g.at("oShopkeeper/step#1", 109);
                 g.set(cx.this, v::status, g.get(cx.this, v::ATTACK)?)?;
@@ -428,21 +428,21 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 114: if (yVel < 0 && colTop)
             g.at("oShopkeeper/step#1", 114);
-            if and(g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?, g.get(cx.this, v::colTop)?.cond(Cond::And)?) {
+            if { let p9 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; let q10 = g.get(cx.this, v::colTop)?; and(p9, q10.cond(Cond::And)?) } {
                 // 116: yVel = 0;
                 g.at("oShopkeeper/step#1", 116);
                 g.set(cx.this, v::yVel, r(0.0))?;
             }
             // 119: if (global.murderer || global.thiefLevel > 0)
             g.at("oShopkeeper/step#1", 119);
-            if or(g.gget(gv::murderer)?.cond(Cond::Or)?, g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
+            if { let p11 = g.gget(gv::murderer)?; let q12 = g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?; or(p11.cond(Cond::Or)?, q12) } {
                 // 121: status = PATROL;
                 g.at("oShopkeeper/step#1", 121);
                 g.set(cx.this, v::status, g.get(cx.this, v::PATROL)?)?;
             } else {
                 // 123: if (!welcomed && (scrGetRoomX(oPlayer1.x) == scrGetRoomX(x) && scrGetRoomY(oPlayer1.y) == scrGetRoom
                 g.at("oShopkeeper/step#1", 123);
-                if and(g.get(cx.this, v::welcomed)?.not()?.cond(Cond::And)?, and(({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?]; scr::scrGetRoomX(g, cx, &a)? }).gml_eq(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?]; scr::scrGetRoomY(g, cx, &a)? }).gml_eq(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?)) {
+                if { let p13 = g.get(cx.this, v::welcomed)?.not()?; let q14 = and(({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?]; scr::scrGetRoomX(g, cx, &a)? }).gml_eq(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?]; scr::scrGetRoomY(g, cx, &a)? }).gml_eq(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?); and(p13.cond(Cond::And)?, q14) } {
                     // 125: if (style == "Bomb")
                     g.at("oShopkeeper/step#1", 125);
                     if g.get(cx.this, v::style)?.gml_eq(&s!("Bomb"))? {
@@ -594,10 +594,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oShopkeeper/step#1", 158);
                     {
                         let t = obj::oDice;
-                        let mut it1 = g.with_iter(cx, &t)?;
-                        let outer3 = (cx.this, cx.other);
-                        'with1: while let Some(h2) = it1.next(g) {
-                            (cx.this, cx.other) = (h2, outer3.0);
+                        let mut it15 = g.with_iter(cx, &t)?;
+                        let outer17 = (cx.this, cx.other);
+                        'with1: while let Some(h16) = it15.next(g) {
+                            (cx.this, cx.other) = (h16, outer17.0);
                             // 160: if (!rolled)
                             g.at("oShopkeeper/step#1", 160);
                             if g.get(cx.this, v::rolled)?.not()?.cond(Cond::If)? {
@@ -609,7 +609,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.at("oShopkeeper/step#1", 161);
                             g.gset(gv::diceValue, lenient(Value::add, g.gget(gv::diceValue)?, &g.get(cx.this, v::value)?)?)?;
                         }
-                        (cx.this, cx.other) = outer3;
+                        (cx.this, cx.other) = outer17;
                     }
                 } else {
                     // 166: global.diceRolled = false;
@@ -645,10 +645,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oShopkeeper/step#1", 178);
                         {
                             let t = obj::oItem;
-                            let mut it4 = g.with_iter(cx, &t)?;
-                            let outer6 = (cx.this, cx.other);
-                            'with2: while let Some(h5) = it4.next(g) {
-                                (cx.this, cx.other) = (h5, outer6.0);
+                            let mut it18 = g.with_iter(cx, &t)?;
+                            let outer20 = (cx.this, cx.other);
+                            'with2: while let Some(h19) = it18.next(g) {
+                                (cx.this, cx.other) = (h19, outer20.0);
                                 // 180: if (inDiceHouse)
                                 g.at("oShopkeeper/step#1", 180);
                                 if g.get(cx.this, v::inDiceHouse)?.cond(Cond::If)? {
@@ -716,7 +716,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     g.set(cx.this, v::inDiceHouse, r(0.0))?;
                                 }
                             }
-                            (cx.this, cx.other) = outer6;
+                            (cx.this, cx.other) = outer20;
                         }
                     } else {
                         // 200: if (global.diceValue > 7)
@@ -793,15 +793,15 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oShopkeeper/step#1", 220);
                     {
                         let t = obj::oDice;
-                        let mut it7 = g.with_iter(cx, &t)?;
-                        let outer9 = (cx.this, cx.other);
-                        'with3: while let Some(h8) = it7.next(g) {
-                            (cx.this, cx.other) = (h8, outer9.0);
+                        let mut it21 = g.with_iter(cx, &t)?;
+                        let outer23 = (cx.this, cx.other);
+                        'with3: while let Some(h22) = it21.next(g) {
+                            (cx.this, cx.other) = (h22, outer23.0);
                             // 220: rolled = false;
                             g.at("oShopkeeper/step#1", 220);
                             g.set(cx.this, v::rolled, r(0.0))?;
                         }
-                        (cx.this, cx.other) = outer9;
+                        (cx.this, cx.other) = outer23;
                     }
                 }
             } else {
@@ -833,7 +833,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::image_speed, r(0.5))?;
                 // 239: if (isCollisionLeft(1) || isCollisionRight(1))
                 g.at("oShopkeeper/step#1", 239);
-                if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+                if { let p24 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q25 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p24.cond(Cond::Or)?, q25.cond(Cond::Or)?) } {
                     // 241: if (facing == LEFT)
                     g.at("oShopkeeper/step#1", 241);
                     if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -855,7 +855,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 } else {
                     // 246: if (abs(oPlayer1.y - (y + 8)) < 8 && isCollisionBottom(1) && dist > 16)
                     g.at("oShopkeeper/step#1", 246);
-                    if and(and(({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?, scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?), g.get(cx.this, v::dist)?.gml_gt(&r(16.0))?) {
+                    if and({ let p26 = ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?; let q27 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; and(p26, q27.cond(Cond::And)?) }, g.get(cx.this, v::dist)?.gml_gt(&r(16.0))?) {
                         // 248: if (oPlayer1.x < x)
                         g.at("oShopkeeper/step#1", 248);
                         if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?)? {
@@ -934,14 +934,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::bounced, r(0.0))?;
                     // 285: if (yVel < 0 && isCollisionTop(1))
                     g.at("oShopkeeper/step#1", 285);
-                    if and(g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?, scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?) {
+                    if { let p28 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; let q29 = scr::isCollisionTop(g, cx, &[r(1.0)])?; and(p28, q29.cond(Cond::And)?) } {
                         // 287: yVel = 0;
                         g.at("oShopkeeper/step#1", 287);
                         g.set(cx.this, v::yVel, r(0.0))?;
                     }
                     // 290: if (colBot && counter > 0)
                     g.at("oShopkeeper/step#1", 290);
-                    if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
+                    if { let p30 = g.get(cx.this, v::colBot)?; let q31 = g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?; and(p30.cond(Cond::And)?, q31) } {
                         // 290: counter -= 1;
                         g.at("oShopkeeper/step#1", 290);
                         g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
@@ -965,7 +965,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.set(cx.this, v::image_speed, r(0.5))?;
                         // 301: if (isCollisionLeft(1) || isCollisionRight(1))
                         g.at("oShopkeeper/step#1", 301);
-                        if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+                        if { let p32 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q33 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p32.cond(Cond::Or)?, q33.cond(Cond::Or)?) } {
                             // 303: if (facing == LEFT)
                             g.at("oShopkeeper/step#1", 303);
                             if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -1042,10 +1042,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oShopkeeper/step#1", 341);
                                 {
                                     let t = obj::oItem;
-                                    let mut it10 = g.with_iter(cx, &t)?;
-                                    let outer12 = (cx.this, cx.other);
-                                    'with4: while let Some(h11) = it10.next(g) {
-                                        (cx.this, cx.other) = (h11, outer12.0);
+                                    let mut it34 = g.with_iter(cx, &t)?;
+                                    let outer36 = (cx.this, cx.other);
+                                    'with4: while let Some(h35) = it34.next(g) {
+                                        (cx.this, cx.other) = (h35, outer36.0);
                                         // 343: cost = 0;
                                         g.at("oShopkeeper/step#1", 343);
                                         g.set(cx.this, v::cost, r(0.0))?;
@@ -1053,7 +1053,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.at("oShopkeeper/step#1", 344);
                                         g.set(cx.this, v::forSale, r(0.0))?;
                                     }
-                                    (cx.this, cx.other) = outer12;
+                                    (cx.this, cx.other) = outer36;
                                 }
                                 // 346: angered = true;
                                 g.at("oShopkeeper/step#1", 346);
@@ -1068,7 +1068,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             } else {
                                 // 350: if (abs(oPlayer1.y - (y + 8)) < 8 && isCollisionBottom(1) && dist > 16)
                                 g.at("oShopkeeper/step#1", 350);
-                                if and(and(({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?, scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?), g.get(cx.this, v::dist)?.gml_gt(&r(16.0))?) {
+                                if and({ let p37 = ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?; let q38 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; and(p37, q38.cond(Cond::And)?) }, g.get(cx.this, v::dist)?.gml_gt(&r(16.0))?) {
                                     // 352: if (oPlayer1.x < x)
                                     g.at("oShopkeeper/step#1", 352);
                                     if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?)? {
@@ -1087,7 +1087,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 357: if (isCollisionLeft(1) || isCollisionRight(1))
                             g.at("oShopkeeper/step#1", 357);
-                            if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+                            if { let p39 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q40 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p39.cond(Cond::Or)?, q40.cond(Cond::Or)?) } {
                                 // 359: if (facing == LEFT)
                                 g.at("oShopkeeper/step#1", 359);
                                 if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -1172,10 +1172,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     g.at("oShopkeeper/step#1", 381);
                                                     {
                                                         let t = g.get(cx.this, v::obj)?;
-                                                        let mut it13 = g.with_iter(cx, &t)?;
-                                                        let outer15 = (cx.this, cx.other);
-                                                        'with7: while let Some(h14) = it13.next(g) {
-                                                            (cx.this, cx.other) = (h14, outer15.0);
+                                                        let mut it41 = g.with_iter(cx, &t)?;
+                                                        let outer43 = (cx.this, cx.other);
+                                                        'with7: while let Some(h42) = it41.next(g) {
+                                                            (cx.this, cx.other) = (h42, outer43.0);
                                                             // 381: if (collision_point(x, y, oSolid, 0, 0))
                                                             g.at("oShopkeeper/step#1", 381);
                                                             if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
@@ -1184,7 +1184,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                 b::instance_destroy(g, cx, [])?;
                                                             }
                                                         }
-                                                        (cx.this, cx.other) = outer15;
+                                                        (cx.this, cx.other) = outer43;
                                                     }
                                                 }
                                                 // 374: i += 1;
@@ -1252,10 +1252,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     g.at("oShopkeeper/step#1", 398);
                                                     {
                                                         let t = g.get(cx.this, v::obj)?;
-                                                        let mut it16 = g.with_iter(cx, &t)?;
-                                                        let outer18 = (cx.this, cx.other);
-                                                        'with10: while let Some(h17) = it16.next(g) {
-                                                            (cx.this, cx.other) = (h17, outer18.0);
+                                                        let mut it44 = g.with_iter(cx, &t)?;
+                                                        let outer46 = (cx.this, cx.other);
+                                                        'with10: while let Some(h45) = it44.next(g) {
+                                                            (cx.this, cx.other) = (h45, outer46.0);
                                                             // 398: if (collision_point(x, y, oSolid, 0, 0))
                                                             g.at("oShopkeeper/step#1", 398);
                                                             if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
@@ -1264,7 +1264,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                 b::instance_destroy(g, cx, [])?;
                                                             }
                                                         }
-                                                        (cx.this, cx.other) = outer18;
+                                                        (cx.this, cx.other) = outer46;
                                                     }
                                                 }
                                                 // 391: i += 1;
@@ -1293,10 +1293,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             } else {
                                 // 413: if (facing == LEFT && collision_point(x - 16, y, oSolid, -1, -1) || (facing == RIGHT && collision_po
                                 g.at("oShopkeeper/step#1", 413);
-                                if or(and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(32.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?)) {
+                                if or({ let p47 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?; let q48 = { let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }; and(p47, q48.cond(Cond::And)?) }, { let p49 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?; let q50 = { let a = [g.get(cx.this, v::x)?.add(&r(32.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }; and(p49, q50.cond(Cond::And)?) }) {
                                     // 416: if (colBot && !isCollisionTop(4))
                                     g.at("oShopkeeper/step#1", 416);
-                                    if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, scr::isCollisionTop(g, cx, &[r(4.0)])?.not()?.cond(Cond::And)?) {
+                                    if { let p51 = g.get(cx.this, v::colBot)?; let q52 = scr::isCollisionTop(g, cx, &[r(4.0)])?.not()?; and(p51.cond(Cond::And)?, q52.cond(Cond::And)?) } {
                                         // 416: yVel = -1 * rand(7, 8);
                                         g.at("oShopkeeper/step#1", 416);
                                         { let x = r(-1.0).mul(&scr::rand(g, cx, &[r(7.0), r(8.0)])?)?; g.set(cx.this, v::yVel, x)?; }
@@ -1304,10 +1304,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 } else {
                                     // 425: if (oPlayer1.y <= y + 16 && (facing == LEFT && !collision_point(x - 16, y + 16, oSolid, -1, -1) || (
                                     g.at("oShopkeeper/step#1", 425);
-                                    if and(g.get_on(cx, &obj::oPlayer1, v::y)?.gml_le(&g.get(cx.this, v::y)?.add(&r(16.0))?)?, or(and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(32.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?))) {
+                                    if and(g.get_on(cx, &obj::oPlayer1, v::y)?.gml_le(&g.get(cx.this, v::y)?.add(&r(16.0))?)?, or({ let p53 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?; let q54 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?; and(p53, q54.cond(Cond::And)?) }, { let p55 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?; let q56 = ({ let a = [g.get(cx.this, v::x)?.add(&r(32.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?; and(p55, q56.cond(Cond::And)?) })) {
                                         // 429: if (colBot && !isCollisionTop(4))
                                         g.at("oShopkeeper/step#1", 429);
-                                        if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, scr::isCollisionTop(g, cx, &[r(4.0)])?.not()?.cond(Cond::And)?) {
+                                        if { let p57 = g.get(cx.this, v::colBot)?; let q58 = scr::isCollisionTop(g, cx, &[r(4.0)])?.not()?; and(p57.cond(Cond::And)?, q58.cond(Cond::And)?) } {
                                             // 429: yVel = -1 * rand(7, 8);
                                             g.at("oShopkeeper/step#1", 429);
                                             { let x = r(-1.0).mul(&scr::rand(g, cx, &[r(7.0), r(8.0)])?)?; g.set(cx.this, v::yVel, x)?; }
@@ -1317,7 +1317,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 432: if (!colBot && oPlayer1.y > y + 8)
                             g.at("oShopkeeper/step#1", 432);
-                            if and(g.get(cx.this, v::colBot)?.not()?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?) {
+                            if { let p59 = g.get(cx.this, v::colBot)?.not()?; let q60 = g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?; and(p59.cond(Cond::And)?, q60) } {
                                 // 434: if (facing == LEFT)
                                 g.at("oShopkeeper/step#1", 434);
                                 if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -1378,7 +1378,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 457: if (colBot && !bounced)
                                 g.at("oShopkeeper/step#1", 457);
-                                if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, g.get(cx.this, v::bounced)?.not()?.cond(Cond::And)?) {
+                                if { let p61 = g.get(cx.this, v::colBot)?; let q62 = g.get(cx.this, v::bounced)?.not()?; and(p61.cond(Cond::And)?, q62.cond(Cond::And)?) } {
                                     // 459: bounced = true;
                                     g.at("oShopkeeper/step#1", 459);
                                     g.set(cx.this, v::bounced, r(1.0))?;
@@ -1388,7 +1388,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 463: if (held || colBot)
                                 g.at("oShopkeeper/step#1", 463);
-                                if or(g.get(cx.this, v::held)?.cond(Cond::Or)?, g.get(cx.this, v::colBot)?.cond(Cond::Or)?) {
+                                if { let p63 = g.get(cx.this, v::held)?; let q64 = g.get(cx.this, v::colBot)?; or(p63.cond(Cond::Or)?, q64.cond(Cond::Or)?) } {
                                     // 465: if (counter > 0)
                                     g.at("oShopkeeper/step#1", 465);
                                     if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
@@ -1412,10 +1412,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 g.at("oShopkeeper/step#1", 472);
                                                 {
                                                     let t = obj::oPlayer1;
-                                                    let mut it19 = g.with_iter(cx, &t)?;
-                                                    let outer21 = (cx.this, cx.other);
-                                                    'with11: while let Some(h20) = it19.next(g) {
-                                                        (cx.this, cx.other) = (h20, outer21.0);
+                                                    let mut it65 = g.with_iter(cx, &t)?;
+                                                    let outer67 = (cx.this, cx.other);
+                                                    'with11: while let Some(h66) = it65.next(g) {
+                                                        (cx.this, cx.other) = (h66, outer67.0);
                                                         // 472: holdItem = 0;
                                                         g.at("oShopkeeper/step#1", 472);
                                                         g.set(cx.this, v::holdItem, r(0.0))?;
@@ -1423,7 +1423,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         g.at("oShopkeeper/step#1", 472);
                                                         g.set(cx.this, v::pickupItemType, s!(""))?;
                                                     }
-                                                    (cx.this, cx.other) = outer21;
+                                                    (cx.this, cx.other) = outer67;
                                                 }
                                             }
                                         }
@@ -1630,15 +1630,15 @@ pub fn collision_oShotgun_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (hp > 0 && status == ATTACK && !hasGun)
     g.at("oShopkeeper/collision_oShotgun#0", 1);
-    if and(and(g.get(cx.this, v::hp)?.gml_gt(&r(0.0))?, g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::ATTACK)?)?), g.get(cx.this, v::hasGun)?.not()?.cond(Cond::And)?) {
+    if { let p1 = and(g.get(cx.this, v::hp)?.gml_gt(&r(0.0))?, g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::ATTACK)?)?); let q2 = g.get(cx.this, v::hasGun)?.not()?; and(p1, q2.cond(Cond::And)?) } {
         // 3: with (other)
         g.at("oShopkeeper/collision_oShotgun#0", 3);
         {
             let t = r(-2.0);
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it3 = g.with_iter(cx, &t)?;
+            let outer5 = (cx.this, cx.other);
+            'with1: while let Some(h4) = it3.next(g) {
+                (cx.this, cx.other) = (h4, outer5.0);
                 // 5: if (held)
                 g.at("oShopkeeper/collision_oShotgun#0", 5);
                 if g.get(cx.this, v::held)?.cond(Cond::If)? {
@@ -1656,7 +1656,7 @@ pub fn collision_oShotgun_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oShopkeeper/collision_oShotgun#0", 11);
                 b::instance_destroy(g, cx, [])?;
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer5;
         }
         // 13: hasGun = true;
         g.at("oShopkeeper/collision_oShotgun#0", 13);
@@ -1782,11 +1782,11 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (status == IDLE || status == FOLLOW || status == STUNNED || status == DEAD || hp < 1 || other.dea
     g.at("oShopkeeper/collision_oCharacter#0", 1);
-    if or(or(or(or(or(or(or(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)?, g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::FOLLOW)?)?), g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::STUNNED)?)?), g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::DEAD)?)?), g.get(cx.this, v::hp)?.gml_lt(&r(1.0))?), g.get(cx.other, v::dead)?.cond(Cond::Or)?), g.get(cx.other, v::stunned)?.cond(Cond::Or)?), ({ let a = [g.get(cx.other, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_gt(&r(8.0))?) {
+    if or({ let p3 = { let p1 = or(or(or(or(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)?, g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::FOLLOW)?)?), g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::STUNNED)?)?), g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::DEAD)?)?), g.get(cx.this, v::hp)?.gml_lt(&r(1.0))?); let q2 = g.get(cx.other, v::dead)?; or(p1, q2.cond(Cond::Or)?) }; let q4 = g.get(cx.other, v::stunned)?; or(p3, q4.cond(Cond::Or)?) }, ({ let a = [g.get(cx.other, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_gt(&r(8.0))?) {
     } else {
         // 5: if (!other.dead && !other.stunned && (other.state == 15 || other.state == 16) && other.y < y + 5 && 
         g.at("oShopkeeper/collision_oCharacter#0", 5);
-        if and(and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, g.get(cx.other, v::stunned)?.not()?.cond(Cond::And)?), or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(5.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
+        if { let p7 = and(and({ let p5 = g.get(cx.other, v::dead)?.not()?; let q6 = g.get(cx.other, v::stunned)?.not()?; and(p5.cond(Cond::And)?, q6.cond(Cond::And)?) }, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(5.0))?)?); let q8 = g.get(cx.other, v::swimming)?.not()?; and(p7, q8.cond(Cond::And)?) } {
             // 7: if (status < STUNNED)
             g.at("oShopkeeper/collision_oCharacter#0", 7);
             if g.get(cx.this, v::status)?.gml_lt(&g.get(cx.this, v::STUNNED)?)? {
@@ -1880,7 +1880,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                         // 37: if (global.plife <= 0 && isRealLevel())
                         g.at("oShopkeeper/collision_oCharacter#0", 37);
-                        if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                        if { let p9 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q10 = scr::isRealLevel(g, cx, &[])?; and(p9, q10.cond(Cond::And)?) } {
                             // 37: global.enemyDeaths[19] += 1;
                             g.at("oShopkeeper/collision_oCharacter#0", 37);
                             g.gset_a(gv::enemyDeaths, 0, 19, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 19)?, &r(1.0))?)?;
@@ -1953,10 +1953,10 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oShopkeeper/collision_oCharacter#0", 68);
                         {
                             let t = r(-2.0);
-                            let mut it1 = g.with_iter(cx, &t)?;
-                            let outer3 = (cx.this, cx.other);
-                            'with1: while let Some(h2) = it1.next(g) {
-                                (cx.this, cx.other) = (h2, outer3.0);
+                            let mut it11 = g.with_iter(cx, &t)?;
+                            let outer13 = (cx.this, cx.other);
+                            'with1: while let Some(h12) = it11.next(g) {
+                                (cx.this, cx.other) = (h12, outer13.0);
                                 // 70: if (holdItem)
                                 g.at("oShopkeeper/collision_oCharacter#0", 70);
                                 if g.get(cx.this, v::holdItem)?.cond(Cond::If)? {
@@ -1975,7 +1975,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::scrDropItem(g, cx, &a)? };
                                 }
                             }
-                            (cx.this, cx.other) = outer3;
+                            (cx.this, cx.other) = outer13;
                         }
                     }
                 }
@@ -2015,7 +2015,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 4: if (hasGun && status != IDLE && status != FOLLOW)
     g.at("oShopkeeper/draw#0", 4);
-    if and(and(g.get(cx.this, v::hasGun)?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::IDLE)?)?), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::FOLLOW)?)?) {
+    if and({ let p1 = g.get(cx.this, v::hasGun)?; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::IDLE)?)?; and(p1.cond(Cond::And)?, q2) }, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::FOLLOW)?)?) {
         // 6: if (facing == LEFT)
         g.at("oShopkeeper/draw#0", 6);
         if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {

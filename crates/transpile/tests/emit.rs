@@ -33,7 +33,8 @@ fn and_or_evaluate_both_operands() {
     let out = emit("oX/step#0", "if (a and rand(1, 8) == 1) b = 1;");
     assert!(
         out.contains(
-            "if and(g.get(cx.this, v::a)?.cond(Cond::And)?, scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_eq(&r(1.0))?) {"
+            "if { let p1 = g.get(cx.this, v::a)?; let q2 = scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_eq(&r(1.0))?; \
+             and(p1.cond(Cond::And)?, q2) } {"
         ),
         "{out}"
     );
@@ -144,6 +145,29 @@ fn a_string_condition_is_an_error() {
     for at in ["If", "Loop", "And"] {
         assert!(out.contains(&format!(".cond(Cond::{at})?")), "{at}: {out}");
     }
+}
+
+#[test]
+fn a_string_operand_is_checked_after_both_run() {
+    // GM8 evaluates both operands before `&&` rejects a string (and the oracle, patch 0046): the right one runs.
+    let out = emit("oX/step#0", "u = s && scrGetName(1);");
+    let call = out.find("scr::scrGetName(").expect("the call");
+    let check = out.find(".cond(Cond::And)?").expect("the check");
+    assert!(call < check, "{out}");
+    // Two comparisons need no check.
+    let out = emit("oX/step#0", "u = a > 1 && b < 2;");
+    assert!(out.contains("and(g.get(cx.this, v::a)?.gml_gt("), "{out}");
+}
+
+#[test]
+fn a_var_in_a_for_body_does_not_reach_its_step() {
+    // The step comes before the body in the source.
+    let out = emit(
+        "oX/step#0",
+        "for (i = 0; i < 3; vv += 1) { var vv; vv = 2; }",
+    );
+    assert!(out.contains("g.set(cx.this, v::vv,"), "{out}");
+    assert!(out.contains("l_vv.set(r(2.0))"), "{out}");
 }
 
 #[test]

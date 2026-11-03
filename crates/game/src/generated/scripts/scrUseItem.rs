@@ -54,7 +54,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::sprite_index)?.gml_eq(&spr::sRopeEnd)? {
             // 38: if (!kDown && colTop)
             g.at("scripts/scrUseItem", 38);
-            if and(g.get(cx.this, v::kDown)?.not()?.cond(Cond::And)?, g.get(cx.this, v::colTop)?.cond(Cond::And)?) {
+            if { let p4 = g.get(cx.this, v::kDown)?.not()?; let q5 = g.get(cx.this, v::colTop)?; and(p4.cond(Cond::And)?, q5.cond(Cond::And)?) } {
             } else {
                 // 44: holdItem.held = false;
                 g.at("scripts/scrUseItem", 44);
@@ -114,10 +114,10 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     g.at("scripts/scrUseItem", 60);
                     {
                         let t = g.get(cx.this, v::obj)?;
-                        let mut it4 = g.with_iter(cx, &t)?;
-                        let outer6 = (cx.this, cx.other);
-                        'with2: while let Some(h5) = it4.next(g) {
-                            (cx.this, cx.other) = (h5, outer6.0);
+                        let mut it6 = g.with_iter(cx, &t)?;
+                        let outer8 = (cx.this, cx.other);
+                        'with2: while let Some(h7) = it6.next(g) {
+                            (cx.this, cx.other) = (h7, outer8.0);
                             // 62: t = true;
                             g.at("scripts/scrUseItem", 62);
                             {
@@ -130,7 +130,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             cx.ret = b::move_snap(g, cx, [r(16.0), r(1.0)])?;
                             // 64: if (oPlayer1.x < x && !collision_point(oPlayer1.x + 2, oPlayer1.y, oSolid, 0, 0))
                             g.at("scripts/scrUseItem", 64);
-                            if and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.add(&r(2.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                            if { let p9 = g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?)?; let q10 = ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.add(&r(2.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p9, q10.cond(Cond::And)?) } {
                                 // 66: if (!collision_rectangle(x - 8, y, x - 7, y + 16, oSolid, 0, 0))
                                 g.at("scripts/scrUseItem", 66);
                                 if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.sub(&r(7.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.cond(Cond::If)? {
@@ -286,21 +286,21 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                             }
                         }
-                        (cx.this, cx.other) = outer6;
+                        (cx.this, cx.other) = outer8;
                     }
                     // 107: with (holdItem)
                     g.at("scripts/scrUseItem", 107);
                     {
                         let t = g.get(cx.this, v::holdItem)?;
-                        let mut it7 = g.with_iter(cx, &t)?;
-                        let outer9 = (cx.this, cx.other);
-                        'with3: while let Some(h8) = it7.next(g) {
-                            (cx.this, cx.other) = (h8, outer9.0);
+                        let mut it11 = g.with_iter(cx, &t)?;
+                        let outer13 = (cx.this, cx.other);
+                        'with3: while let Some(h12) = it11.next(g) {
+                            (cx.this, cx.other) = (h12, outer13.0);
                             // 107: instance_destroy();
                             g.at("scripts/scrUseItem", 107);
                             cx.ret = b::instance_destroy(g, cx, [])?;
                         }
-                        (cx.this, cx.other) = outer9;
+                        (cx.this, cx.other) = outer13;
                     }
                     // 108: holdItem = 0;
                     g.at("scripts/scrUseItem", 108);
@@ -348,7 +348,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Machete"))? {
                 // 123: if (kDown && !whipping)
                 g.at("scripts/scrUseItem", 123);
-                if and(g.get(cx.this, v::kDown)?.cond(Cond::And)?, g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?) {
+                if { let p14 = g.get(cx.this, v::kDown)?; let q15 = g.get(cx.this, v::whipping)?.not()?; and(p14.cond(Cond::And)?, q15.cond(Cond::And)?) } {
                     // 125: if (scrPlayerIsDucking())
                     g.at("scripts/scrUseItem", 125);
                     if scr::scrPlayerIsDucking(g, cx, &[])?.cond(Cond::If)? {
@@ -455,7 +455,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 148: if (!scrPlayerIsDucking() && !whipping)
                 g.at("scripts/scrUseItem", 148);
-                if and(scr::scrPlayerIsDucking(g, cx, &[])?.not()?.cond(Cond::And)?, g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?) {
+                if { let p16 = scr::scrPlayerIsDucking(g, cx, &[])?.not()?; let q17 = g.get(cx.this, v::whipping)?.not()?; and(p16.cond(Cond::And)?, q17.cond(Cond::And)?) } {
                     // 150: image_speed = 1;
                     g.at("scripts/scrUseItem", 150);
                     {
@@ -523,7 +523,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Mattock"))? {
                     // 170: if (kDown && !whipping)
                     g.at("scripts/scrUseItem", 170);
-                    if and(g.get(cx.this, v::kDown)?.cond(Cond::And)?, g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?) {
+                    if { let p18 = g.get(cx.this, v::kDown)?; let q19 = g.get(cx.this, v::whipping)?.not()?; and(p18.cond(Cond::And)?, q19.cond(Cond::And)?) } {
                         // 172: if (scrPlayerIsDucking())
                         g.at("scripts/scrUseItem", 172);
                         if scr::scrPlayerIsDucking(g, cx, &[])?.cond(Cond::If)? {
@@ -630,7 +630,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 195: if (!scrPlayerIsDucking() && !whipping && platformCharacterIs(ON_GROUND))
                     g.at("scripts/scrUseItem", 195);
-                    if and(and(scr::scrPlayerIsDucking(g, cx, &[])?.not()?.cond(Cond::And)?, g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?) {
+                    if { let p22 = { let p20 = scr::scrPlayerIsDucking(g, cx, &[])?.not()?; let q21 = g.get(cx.this, v::whipping)?.not()?; and(p20.cond(Cond::And)?, q21.cond(Cond::And)?) }; let q23 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p22, q23.cond(Cond::And)?) } {
                         // 197: image_speed = 0.2;
                         g.at("scripts/scrUseItem", 197);
                         {
@@ -1705,7 +1705,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         }
                                         // 449: while (collision_rectangle(tx - 4, ty - 4, tx + 4, ty + 4, oSolid, 0, 0) && n < 3 && ty > 16)
                                         g.at("scripts/scrUseItem", 449);
-                                        'while11: while and(and(({ let a = [g.get(cx.this, v::tx)?.sub(&r(4.0))?, g.get(cx.this, v::ty)?.sub(&r(4.0))?, g.get(cx.this, v::tx)?.add(&r(4.0))?, g.get(cx.this, v::ty)?.add(&r(4.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::n)?.gml_lt(&r(3.0))?), g.get(cx.this, v::ty)?.gml_gt(&r(16.0))?) {
+                                        'while11: while and({ let p24 = { let a = [g.get(cx.this, v::tx)?.sub(&r(4.0))?, g.get(cx.this, v::ty)?.sub(&r(4.0))?, g.get(cx.this, v::tx)?.add(&r(4.0))?, g.get(cx.this, v::ty)?.add(&r(4.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; let q25 = g.get(cx.this, v::n)?.gml_lt(&r(3.0))?; and(p24.cond(Cond::And)?, q25) }, g.get(cx.this, v::ty)?.gml_gt(&r(16.0))?) {
                                             // 451: ty -= 16;
                                             g.at("scripts/scrUseItem", 451);
                                             {
@@ -1759,10 +1759,10 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         g.at("scripts/scrUseItem", 461);
                                         {
                                             let t = obj::oBall;
-                                            let mut it10 = g.with_iter(cx, &t)?;
-                                            let outer12 = (cx.this, cx.other);
-                                            'with13: while let Some(h11) = it10.next(g) {
-                                                (cx.this, cx.other) = (h11, outer12.0);
+                                            let mut it26 = g.with_iter(cx, &t)?;
+                                            let outer28 = (cx.this, cx.other);
+                                            'with13: while let Some(h27) = it26.next(g) {
+                                                (cx.this, cx.other) = (h27, outer28.0);
                                                 // 463: x = oPlayer1.x;
                                                 g.at("scripts/scrUseItem", 463);
                                                 {
@@ -1778,16 +1778,16 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     g.set(cx.this, v::y, x)?;
                                                 }
                                             }
-                                            (cx.this, cx.other) = outer12;
+                                            (cx.this, cx.other) = outer28;
                                         }
                                         // 466: with (oChain)
                                         g.at("scripts/scrUseItem", 466);
                                         {
                                             let t = obj::oChain;
-                                            let mut it13 = g.with_iter(cx, &t)?;
-                                            let outer15 = (cx.this, cx.other);
-                                            'with14: while let Some(h14) = it13.next(g) {
-                                                (cx.this, cx.other) = (h14, outer15.0);
+                                            let mut it29 = g.with_iter(cx, &t)?;
+                                            let outer31 = (cx.this, cx.other);
+                                            'with14: while let Some(h30) = it29.next(g) {
+                                                (cx.this, cx.other) = (h30, outer31.0);
                                                 // 468: x = oPlayer1.x;
                                                 g.at("scripts/scrUseItem", 468);
                                                 {
@@ -1803,7 +1803,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     g.set(cx.this, v::y, x)?;
                                                 }
                                             }
-                                            (cx.this, cx.other) = outer15;
+                                            (cx.this, cx.other) = outer31;
                                         }
                                         // 472: obj = instance_place(x, y, oEnemy);
                                         g.at("scripts/scrUseItem", 472);
@@ -1819,10 +1819,10 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/scrUseItem", 475);
                                             {
                                                 let t = g.get(cx.this, v::obj)?;
-                                                let mut it16 = g.with_iter(cx, &t)?;
-                                                let outer18 = (cx.this, cx.other);
-                                                'with15: while let Some(h17) = it16.next(g) {
-                                                    (cx.this, cx.other) = (h17, outer18.0);
+                                                let mut it32 = g.with_iter(cx, &t)?;
+                                                let outer34 = (cx.this, cx.other);
+                                                'with15: while let Some(h33) = it32.next(g) {
+                                                    (cx.this, cx.other) = (h33, outer34.0);
                                                     // 477: scrCreateBlood(oPlayer1.x, oPlayer1.y, 3);
                                                     g.at("scripts/scrUseItem", 477);
                                                     cx.ret = { let a = [g.get_on(cx, &obj::oPlayer1, v::x)?, g.get_on(cx, &obj::oPlayer1, v::y)?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
@@ -1838,7 +1838,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     g.at("scripts/scrUseItem", 479);
                                                     cx.ret = b::instance_destroy(g, cx, [])?;
                                                 }
-                                                (cx.this, cx.other) = outer18;
+                                                (cx.this, cx.other) = outer34;
                                             }
                                         }
                                         // 482: playSound(global.sndTeleport);
@@ -1848,10 +1848,10 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         g.at("scripts/scrUseItem", 483);
                                         {
                                             let t = obj::oPlayer1;
-                                            let mut it19 = g.with_iter(cx, &t)?;
-                                            let outer21 = (cx.this, cx.other);
-                                            'with16: while let Some(h20) = it19.next(g) {
-                                                (cx.this, cx.other) = (h20, outer21.0);
+                                            let mut it35 = g.with_iter(cx, &t)?;
+                                            let outer37 = (cx.this, cx.other);
+                                            'with16: while let Some(h36) = it35.next(g) {
+                                                (cx.this, cx.other) = (h36, outer37.0);
                                                 // 485: state = 16;
                                                 g.at("scripts/scrUseItem", 485);
                                                 {
@@ -1860,7 +1860,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     g.set(cx.this, v::state, x)?;
                                                 }
                                             }
-                                            (cx.this, cx.other) = outer21;
+                                            (cx.this, cx.other) = outer37;
                                         }
                                     }
                                 } else {
@@ -1976,7 +1976,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         } else {
                                             // 516: if (!scrPlayerIsDucking() && firing == 0 && !bowArmed && global.arrows > 0)
                                             g.at("scripts/scrUseItem", 516);
-                                            if and(and(and(scr::scrPlayerIsDucking(g, cx, &[])?.not()?.cond(Cond::And)?, g.get(cx.this, v::firing)?.gml_eq(&r(0.0))?), g.get(cx.this, v::bowArmed)?.not()?.cond(Cond::And)?), g.gget(gv::arrows)?.gml_gt(&r(0.0))?) {
+                                            if and({ let p40 = { let p38 = scr::scrPlayerIsDucking(g, cx, &[])?.not()?; let q39 = g.get(cx.this, v::firing)?.gml_eq(&r(0.0))?; and(p38.cond(Cond::And)?, q39) }; let q41 = g.get(cx.this, v::bowArmed)?.not()?; and(p40, q41.cond(Cond::And)?) }, g.gget(gv::arrows)?.gml_gt(&r(0.0))?) {
                                                 // 519: bowArmed = true;
                                                 g.at("scripts/scrUseItem", 519);
                                                 {
@@ -2564,7 +2564,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             }
                                             // 667: if (global.hasMitt && !scrPlayerIsDucking())
                                             g.at("scripts/scrUseItem", 667);
-                                            if and(g.gget(gv::hasMitt)?.cond(Cond::And)?, scr::scrPlayerIsDucking(g, cx, &[])?.not()?.cond(Cond::And)?) {
+                                            if { let p42 = g.gget(gv::hasMitt)?; let q43 = scr::scrPlayerIsDucking(g, cx, &[])?.not()?; and(p42.cond(Cond::And)?, q43.cond(Cond::And)?) } {
                                                 // 669: if (holdItem.xVel < 0)
                                                 g.at("scripts/scrUseItem", 669);
                                                 if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::xVel)?.gml_lt(&r(0.0))? {
@@ -2590,7 +2590,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 }
                                                 // 672: if (!kUp && !kDown)
                                                 g.at("scripts/scrUseItem", 672);
-                                                if and(g.get(cx.this, v::kUp)?.not()?.cond(Cond::And)?, g.get(cx.this, v::kDown)?.not()?.cond(Cond::And)?) {
+                                                if { let p44 = g.get(cx.this, v::kUp)?.not()?; let q45 = g.get(cx.this, v::kDown)?.not()?; and(p44.cond(Cond::And)?, q45.cond(Cond::And)?) } {
                                                     // 672: holdItem.yVel = -0.4;
                                                     g.at("scripts/scrUseItem", 672);
                                                     {
@@ -2652,7 +2652,7 @@ pub fn scrUseItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 683: if (kDown && holdItem)
     g.at("scripts/scrUseItem", 683);
-    if and(g.get(cx.this, v::kDown)?.cond(Cond::And)?, g.get(cx.this, v::holdItem)?.cond(Cond::And)?) {
+    if { let p46 = g.get(cx.this, v::kDown)?; let q47 = g.get(cx.this, v::holdItem)?; and(p46.cond(Cond::And)?, q47.cond(Cond::And)?) } {
         // 683: holdItem.x = x;
         g.at("scripts/scrUseItem", 683);
         {

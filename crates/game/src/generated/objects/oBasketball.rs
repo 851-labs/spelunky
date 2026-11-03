@@ -35,7 +35,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (colLeft || colRight)
     g.at("oBasketball/step#1", 1);
-    if or(g.get(cx.this, v::colLeft)?.cond(Cond::Or)?, g.get(cx.this, v::colRight)?.cond(Cond::Or)?) {
+    if { let p1 = g.get(cx.this, v::colLeft)?; let q2 = g.get(cx.this, v::colRight)?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 1: wallBounce = true;
         g.at("oBasketball/step#1", 1);
         g.set(cx.this, v::wallBounce, r(1.0))?;
@@ -50,7 +50,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 4: if (collision_rectangle(x - 1, y + 4, x + 1, y + 5, oRimDeflect, 0, 0) && !goingIn && bounces < 40)
     g.at("oBasketball/step#1", 4);
-    if and(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(5.0))?, obj::oRimDeflect, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::goingIn)?.not()?.cond(Cond::And)?), g.get(cx.this, v::bounces)?.gml_lt(&r(40.0))?) {
+    if and({ let p3 = { let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(5.0))?, obj::oRimDeflect, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; let q4 = g.get(cx.this, v::goingIn)?.not()?; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) }, g.get(cx.this, v::bounces)?.gml_lt(&r(40.0))?) {
         // 6: yVel = -yVel * 0.8;
         g.at("oBasketball/step#1", 6);
         g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?.mul(&r(0.8))?)?;
@@ -116,20 +116,20 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oRim, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 31: if (!goingIn && (yVel > 0 || (held && oPlayer1.state == 16)))
         g.at("oBasketball/step#1", 31);
-        if and(g.get(cx.this, v::goingIn)?.not()?.cond(Cond::And)?, or(g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?, and(g.get(cx.this, v::held)?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::state)?.gml_eq(&r(16.0))?))) {
+        if { let p7 = g.get(cx.this, v::goingIn)?.not()?; let q8 = or(g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?, { let p5 = g.get(cx.this, v::held)?; let q6 = g.get_on(cx, &obj::oPlayer1, v::state)?.gml_eq(&r(16.0))?; and(p5.cond(Cond::And)?, q6) }); and(p7.cond(Cond::And)?, q8) } {
             // 33: with (oMoonRoom)
             g.at("oBasketball/step#1", 33);
             {
                 let t = obj::oMoonRoom;
-                let mut it1 = g.with_iter(cx, &t)?;
-                let outer3 = (cx.this, cx.other);
-                'with1: while let Some(h2) = it1.next(g) {
-                    (cx.this, cx.other) = (h2, outer3.0);
+                let mut it9 = g.with_iter(cx, &t)?;
+                let outer11 = (cx.this, cx.other);
+                'with1: while let Some(h10) = it9.next(g) {
+                    (cx.this, cx.other) = (h10, outer11.0);
                     // 33: alarm[0] = 20;
                     g.at("oBasketball/step#1", 33);
                     g.set_a(cx.this, v::alarm, 0, 0, r(20.0))?;
                 }
-                (cx.this, cx.other) = outer3;
+                (cx.this, cx.other) = outer11;
             }
             // 34: xVel = 0;
             g.at("oBasketball/step#1", 34);
@@ -194,7 +194,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 56: if (held && collision_point(x, y + 6, oSolid, 0, 0))
     g.at("oBasketball/step#1", 56);
-    if and(g.get(cx.this, v::held)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?) {
+    if { let p12 = g.get(cx.this, v::held)?; let q13 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p12.cond(Cond::And)?, q13.cond(Cond::And)?) } {
         // 56: sprite_index = sDribble;
         g.at("oBasketball/step#1", 56);
         g.set(cx.this, v::sprite_index, spr::sDribble)?;

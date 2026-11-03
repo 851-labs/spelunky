@@ -821,7 +821,7 @@ pub fn scrInit(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     cx.ret = { let a = [g.gget(gv::sndTFall)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::soundVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
     // 206: if (!joystick_exists(1) && !joystick_exists(2))
     g.at("scripts/scrInit", 206);
-    if and(b::joystick_exists(g, cx, [r(1.0)])?.not()?.cond(Cond::And)?, b::joystick_exists(g, cx, [r(2.0)])?.not()?.cond(Cond::And)?) {
+    if { let p1 = b::joystick_exists(g, cx, [r(1.0)])?.not()?; let q2 = b::joystick_exists(g, cx, [r(2.0)])?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 206: global.gamepadOn = false;
         g.at("scripts/scrInit", 206);
         {

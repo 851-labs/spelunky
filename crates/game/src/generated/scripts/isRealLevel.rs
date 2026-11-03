@@ -6,7 +6,7 @@ pub fn isRealLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 7: if (isRoom("rLevel") || isRoom("rLevel2") || isRoom("rLevel3") || isRoom("rOlmec"))
     g.at("scripts/isRealLevel", 7);
-    if or(or(or(scr::isRoom(g, cx, &[s!("rLevel")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rLevel2")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rLevel3")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rOlmec")])?.cond(Cond::Or)?) {
+    if { let p5 = { let p3 = { let p1 = scr::isRoom(g, cx, &[s!("rLevel")])?; let q2 = scr::isRoom(g, cx, &[s!("rLevel2")])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }; let q4 = scr::isRoom(g, cx, &[s!("rLevel3")])?; or(p3, q4.cond(Cond::Or)?) }; let q6 = scr::isRoom(g, cx, &[s!("rOlmec")])?; or(p5, q6.cond(Cond::Or)?) } {
         // 7: return true;
         g.at("scripts/isRealLevel", 7);
         return Ok(r(1.0));

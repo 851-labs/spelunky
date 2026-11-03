@@ -64,7 +64,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (armed && instance_exists(oShopkeeper))
     g.at("oFireFrogBomb/step#1", 1);
-    if and(g.get(cx.this, v::armed)?.cond(Cond::And)?, b::instance_exists(g, cx, [obj::oShopkeeper])?.cond(Cond::And)?) {
+    if { let p1 = g.get(cx.this, v::armed)?; let q2 = b::instance_exists(g, cx, [obj::oShopkeeper])?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: if (global.roomPath[scrGetRoomX(x), scrGetRoomY(y)] == 4 || global.roomPath[scrGetRoomX(x), scrGetRo
         g.at("oFireFrogBomb/step#1", 3);
         if and(or(({ let i = ix(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?; let j = ix(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?; g.gget_a(gv::roomPath, i, j)? }).gml_eq(&r(4.0))?, ({ let i = ix(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?; let j = ix(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?; g.gget_a(gv::roomPath, i, j)? }).gml_eq(&r(5.0))?), b::distance_to_object(g, cx, [obj::oShopkeeper])?.gml_lt(&r(96.0))?) {
@@ -72,15 +72,15 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oFireFrogBomb/step#1", 7);
             {
                 let t = obj::oShopkeeper;
-                let mut it1 = g.with_iter(cx, &t)?;
-                let outer3 = (cx.this, cx.other);
-                'with1: while let Some(h2) = it1.next(g) {
-                    (cx.this, cx.other) = (h2, outer3.0);
+                let mut it3 = g.with_iter(cx, &t)?;
+                let outer5 = (cx.this, cx.other);
+                'with1: while let Some(h4) = it3.next(g) {
+                    (cx.this, cx.other) = (h4, outer5.0);
                     // 9: scrShopkeeperAnger(2);
                     g.at("oFireFrogBomb/step#1", 9);
                     scr::scrShopkeeperAnger(g, cx, &[r(2.0)])?;
                 }
-                (cx.this, cx.other) = outer3;
+                (cx.this, cx.other) = outer5;
             }
         }
     }

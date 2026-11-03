@@ -215,7 +215,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if scr::checkBombPressed(g, cx, &[])?.cond(Cond::If)? {
         // 7: if (paused && global.plife > 0 && isLevel())
         g.at("oScreen/step_begin#0", 7);
-        if and(and(g.get(cx.this, v::paused)?.cond(Cond::And)?, g.gget(gv::plife)?.gml_gt(&r(0.0))?), scr::isLevel(g, cx, &[])?.cond(Cond::And)?) {
+        if { let p3 = { let p1 = g.get(cx.this, v::paused)?; let q2 = g.gget(gv::plife)?.gml_gt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) }; let q4 = scr::isLevel(g, cx, &[])?; and(p3, q4.cond(Cond::And)?) } {
             // 9: instance_activate_all();
             g.at("oScreen/step_begin#0", 9);
             b::instance_activate_all(g, cx, [])?;
@@ -226,10 +226,10 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oScreen/step_begin#0", 11);
             {
                 let t = obj::oPlayer1;
-                let mut it1 = g.with_iter(cx, &t)?;
-                let outer3 = (cx.this, cx.other);
-                'with1: while let Some(h2) = it1.next(g) {
-                    (cx.this, cx.other) = (h2, outer3.0);
+                let mut it5 = g.with_iter(cx, &t)?;
+                let outer7 = (cx.this, cx.other);
+                'with1: while let Some(h6) = it5.next(g) {
+                    (cx.this, cx.other) = (h6, outer7.0);
                     // 13: if (facing == 18)
                     g.at("oScreen/step_begin#0", 13);
                     if g.get(cx.this, v::facing)?.gml_eq(&r(18.0))? {
@@ -248,7 +248,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oScreen/step_begin#0", 16);
                     g.gset(gv::plife, r(-99.0))?;
                 }
-                (cx.this, cx.other) = outer3;
+                (cx.this, cx.other) = outer7;
             }
             // 19: if (SS_IsSoundPlaying(global.musTitle))
             g.at("oScreen/step_begin#0", 19);
@@ -317,7 +317,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if scr::checkStartPressed(g, cx, &[])?.cond(Cond::If)? {
                 // 36: if (!paused && canPause)
                 g.at("oScreen/step_begin#0", 36);
-                if and(g.get(cx.this, v::paused)?.not()?.cond(Cond::And)?, g.get(cx.this, v::canPause)?.cond(Cond::And)?) {
+                if { let p8 = g.get(cx.this, v::paused)?.not()?; let q9 = g.get(cx.this, v::canPause)?; and(p8.cond(Cond::And)?, q9.cond(Cond::And)?) } {
                     // 38: if (instance_exists(oPlayer1))
                     g.at("oScreen/step_begin#0", 38);
                     if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
@@ -679,10 +679,10 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 148: if (isLevel() && instance_exists(oPlayer1))
             g.at("oScreen/step_begin#0", 148);
-            if and(scr::isLevel(g, cx, &[])?.cond(Cond::And)?, b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::And)?) {
+            if { let p10 = scr::isLevel(g, cx, &[])?; let q11 = b::instance_exists(g, cx, [obj::oPlayer1])?; and(p10.cond(Cond::And)?, q11.cond(Cond::And)?) } {
                 // 150: if (global.darkLevel && !oPlayer1.dead)
                 g.at("oScreen/step_begin#0", 150);
-                if and(g.gget(gv::darkLevel)?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?) {
+                if { let p12 = g.gget(gv::darkLevel)?; let q13 = g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?; and(p12.cond(Cond::And)?, q13.cond(Cond::And)?) } {
                     // 152: surface_set_target(darkSurf);
                     g.at("oScreen/step_begin#0", 152);
                     { let a = [g.get(cx.this, v::darkSurf)?]; b::surface_set_target(g, cx, a)? };
@@ -702,10 +702,10 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oScreen/step_begin#0", 158);
                         {
                             let t = obj::oPlayer1;
-                            let mut it4 = g.with_iter(cx, &t)?;
-                            let outer6 = (cx.this, cx.other);
-                            'with4: while let Some(h5) = it4.next(g) {
-                                (cx.this, cx.other) = (h5, outer6.0);
+                            let mut it14 = g.with_iter(cx, &t)?;
+                            let outer16 = (cx.this, cx.other);
+                            'with4: while let Some(h15) = it14.next(g) {
+                                (cx.this, cx.other) = (h15, outer16.0);
                                 // 160: distToLamp = distance_to_object(oLampRed);
                                 g.at("oScreen/step_begin#0", 160);
                                 { let x = b::distance_to_object(g, cx, [obj::oLampRed])?; g.set(cx.this, v::distToLamp, x)?; }
@@ -717,7 +717,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     { let a = [{ let a = [r(255.0).sub(&g.get(cx.this, v::distToLamp)?)?, r(120.0).sub(&r(96.0).sub(&g.get(cx.this, v::distToLamp)?)?)?, r(120.0).sub(&r(96.0).sub(&g.get(cx.this, v::distToLamp)?)?)?]; b::make_color_rgb(g, cx, a)? }]; b::draw_set_color(g, cx, a)? };
                                 }
                             }
-                            (cx.this, cx.other) = outer6;
+                            (cx.this, cx.other) = outer16;
                         }
                     }
                     // 167: if (instance_exists(oLampRedItem))
@@ -727,10 +727,10 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oScreen/step_begin#0", 169);
                         {
                             let t = obj::oPlayer1;
-                            let mut it7 = g.with_iter(cx, &t)?;
-                            let outer9 = (cx.this, cx.other);
-                            'with5: while let Some(h8) = it7.next(g) {
-                                (cx.this, cx.other) = (h8, outer9.0);
+                            let mut it17 = g.with_iter(cx, &t)?;
+                            let outer19 = (cx.this, cx.other);
+                            'with5: while let Some(h18) = it17.next(g) {
+                                (cx.this, cx.other) = (h18, outer19.0);
                                 // 171: distToLamp = distance_to_object(oLampRedItem);
                                 g.at("oScreen/step_begin#0", 171);
                                 { let x = b::distance_to_object(g, cx, [obj::oLampRedItem])?; g.set(cx.this, v::distToLamp, x)?; }
@@ -742,7 +742,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     { let a = [{ let a = [r(255.0).sub(&g.get(cx.this, v::distToLamp)?)?, r(120.0).sub(&r(96.0).sub(&g.get(cx.this, v::distToLamp)?)?)?, r(120.0).sub(&r(96.0).sub(&g.get(cx.this, v::distToLamp)?)?)?]; b::make_color_rgb(g, cx, a)? }]; b::draw_set_color(g, cx, a)? };
                                 }
                             }
-                            (cx.this, cx.other) = outer9;
+                            (cx.this, cx.other) = outer19;
                         }
                     }
                     // 178: draw_circle(oPlayer1.x - view_xview[0], oPlayer1.y - view_yview[0], 96 - 64 * oLevel.darkness, false
@@ -752,197 +752,197 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oScreen/step_begin#0", 179);
                     {
                         let t = obj::oFlare;
-                        let mut it10 = g.with_iter(cx, &t)?;
-                        let outer12 = (cx.this, cx.other);
-                        'with6: while let Some(h11) = it10.next(g) {
-                            (cx.this, cx.other) = (h11, outer12.0);
+                        let mut it20 = g.with_iter(cx, &t)?;
+                        let outer22 = (cx.this, cx.other);
+                        'with6: while let Some(h21) = it20.next(g) {
+                            (cx.this, cx.other) = (h21, outer22.0);
                             // 181: draw_circle(x - view_xview[0], y - view_yview[0], 96, false);
                             g.at("oScreen/step_begin#0", 181);
                             { let a = [g.get(cx.this, v::x)?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.sub(&g.bget(v::view_yview, 0)?)?, r(96.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer12;
+                        (cx.this, cx.other) = outer22;
                     }
                     // 183: with (oFlareCrate)
                     g.at("oScreen/step_begin#0", 183);
                     {
                         let t = obj::oFlareCrate;
-                        let mut it13 = g.with_iter(cx, &t)?;
-                        let outer15 = (cx.this, cx.other);
-                        'with7: while let Some(h14) = it13.next(g) {
-                            (cx.this, cx.other) = (h14, outer15.0);
+                        let mut it23 = g.with_iter(cx, &t)?;
+                        let outer25 = (cx.this, cx.other);
+                        'with7: while let Some(h24) = it23.next(g) {
+                            (cx.this, cx.other) = (h24, outer25.0);
                             // 185: draw_circle(x - view_xview[0], y - view_yview[0], 96, false);
                             g.at("oScreen/step_begin#0", 185);
                             { let a = [g.get(cx.this, v::x)?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.sub(&g.bget(v::view_yview, 0)?)?, r(96.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer15;
+                        (cx.this, cx.other) = outer25;
                     }
                     // 187: with (oLamp)
                     g.at("oScreen/step_begin#0", 187);
                     {
                         let t = obj::oLamp;
-                        let mut it16 = g.with_iter(cx, &t)?;
-                        let outer18 = (cx.this, cx.other);
-                        'with8: while let Some(h17) = it16.next(g) {
-                            (cx.this, cx.other) = (h17, outer18.0);
+                        let mut it26 = g.with_iter(cx, &t)?;
+                        let outer28 = (cx.this, cx.other);
+                        'with8: while let Some(h27) = it26.next(g) {
+                            (cx.this, cx.other) = (h27, outer28.0);
                             // 189: draw_circle(x + 8 - view_xview[0], y + 8 - view_yview[0], 96, false);
                             g.at("oScreen/step_begin#0", 189);
                             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(96.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer18;
+                        (cx.this, cx.other) = outer28;
                     }
                     // 191: with (oLampItem)
                     g.at("oScreen/step_begin#0", 191);
                     {
                         let t = obj::oLampItem;
-                        let mut it19 = g.with_iter(cx, &t)?;
-                        let outer21 = (cx.this, cx.other);
-                        'with9: while let Some(h20) = it19.next(g) {
-                            (cx.this, cx.other) = (h20, outer21.0);
+                        let mut it29 = g.with_iter(cx, &t)?;
+                        let outer31 = (cx.this, cx.other);
+                        'with9: while let Some(h30) = it29.next(g) {
+                            (cx.this, cx.other) = (h30, outer31.0);
                             // 193: draw_circle(x - view_xview[0], y - 4 - view_yview[0], 96, false);
                             g.at("oScreen/step_begin#0", 193);
                             { let a = [g.get(cx.this, v::x)?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.sub(&r(4.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(96.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer21;
+                        (cx.this, cx.other) = outer31;
                     }
                     // 195: with (oArrowTrapLeftLit)
                     g.at("oScreen/step_begin#0", 195);
                     {
                         let t = obj::oArrowTrapLeftLit;
-                        let mut it22 = g.with_iter(cx, &t)?;
-                        let outer24 = (cx.this, cx.other);
-                        'with10: while let Some(h23) = it22.next(g) {
-                            (cx.this, cx.other) = (h23, outer24.0);
+                        let mut it32 = g.with_iter(cx, &t)?;
+                        let outer34 = (cx.this, cx.other);
+                        'with10: while let Some(h33) = it32.next(g) {
+                            (cx.this, cx.other) = (h33, outer34.0);
                             // 197: draw_circle(x + 8 - view_xview[0], y + 8 - view_yview[0], 32, false);
                             g.at("oScreen/step_begin#0", 197);
                             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(32.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer24;
+                        (cx.this, cx.other) = outer34;
                     }
                     // 199: with (oArrowTrapRightLit)
                     g.at("oScreen/step_begin#0", 199);
                     {
                         let t = obj::oArrowTrapRightLit;
-                        let mut it25 = g.with_iter(cx, &t)?;
-                        let outer27 = (cx.this, cx.other);
-                        'with11: while let Some(h26) = it25.next(g) {
-                            (cx.this, cx.other) = (h26, outer27.0);
+                        let mut it35 = g.with_iter(cx, &t)?;
+                        let outer37 = (cx.this, cx.other);
+                        'with11: while let Some(h36) = it35.next(g) {
+                            (cx.this, cx.other) = (h36, outer37.0);
                             // 201: draw_circle(x + 8 - view_xview[0], y + 8 - view_yview[0], 32, false);
                             g.at("oScreen/step_begin#0", 201);
                             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(32.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer27;
+                        (cx.this, cx.other) = outer37;
                     }
                     // 203: with (oTikiTorch)
                     g.at("oScreen/step_begin#0", 203);
                     {
                         let t = obj::oTikiTorch;
-                        let mut it28 = g.with_iter(cx, &t)?;
-                        let outer30 = (cx.this, cx.other);
-                        'with12: while let Some(h29) = it28.next(g) {
-                            (cx.this, cx.other) = (h29, outer30.0);
+                        let mut it38 = g.with_iter(cx, &t)?;
+                        let outer40 = (cx.this, cx.other);
+                        'with12: while let Some(h39) = it38.next(g) {
+                            (cx.this, cx.other) = (h39, outer40.0);
                             // 205: draw_circle(x + 8 - view_xview[0], y + 8 - view_yview[0], 32, false);
                             g.at("oScreen/step_begin#0", 205);
                             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(32.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer30;
+                        (cx.this, cx.other) = outer40;
                     }
                     // 207: with (oFireFrog)
                     g.at("oScreen/step_begin#0", 207);
                     {
                         let t = obj::oFireFrog;
-                        let mut it31 = g.with_iter(cx, &t)?;
-                        let outer33 = (cx.this, cx.other);
-                        'with13: while let Some(h32) = it31.next(g) {
-                            (cx.this, cx.other) = (h32, outer33.0);
+                        let mut it41 = g.with_iter(cx, &t)?;
+                        let outer43 = (cx.this, cx.other);
+                        'with13: while let Some(h42) = it41.next(g) {
+                            (cx.this, cx.other) = (h42, outer43.0);
                             // 209: draw_circle(x + 8 - view_xview[0], y + 8 - view_yview[0], 32, false);
                             g.at("oScreen/step_begin#0", 209);
                             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(32.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer33;
+                        (cx.this, cx.other) = outer43;
                     }
                     // 211: with (oSpearTrapLit)
                     g.at("oScreen/step_begin#0", 211);
                     {
                         let t = obj::oSpearTrapLit;
-                        let mut it34 = g.with_iter(cx, &t)?;
-                        let outer36 = (cx.this, cx.other);
-                        'with14: while let Some(h35) = it34.next(g) {
-                            (cx.this, cx.other) = (h35, outer36.0);
+                        let mut it44 = g.with_iter(cx, &t)?;
+                        let outer46 = (cx.this, cx.other);
+                        'with14: while let Some(h45) = it44.next(g) {
+                            (cx.this, cx.other) = (h45, outer46.0);
                             // 213: draw_circle(x + 8 - view_xview[0], y + 8 - view_yview[0], 32, false);
                             g.at("oScreen/step_begin#0", 213);
                             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(32.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer36;
+                        (cx.this, cx.other) = outer46;
                     }
                     // 215: with (oSmashTrapLit)
                     g.at("oScreen/step_begin#0", 215);
                     {
                         let t = obj::oSmashTrapLit;
-                        let mut it37 = g.with_iter(cx, &t)?;
-                        let outer39 = (cx.this, cx.other);
-                        'with15: while let Some(h38) = it37.next(g) {
-                            (cx.this, cx.other) = (h38, outer39.0);
+                        let mut it47 = g.with_iter(cx, &t)?;
+                        let outer49 = (cx.this, cx.other);
+                        'with15: while let Some(h48) = it47.next(g) {
+                            (cx.this, cx.other) = (h48, outer49.0);
                             // 217: draw_circle(x + 8 - view_xview[0], y + 8 - view_yview[0], 32, false);
                             g.at("oScreen/step_begin#0", 217);
                             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(32.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer39;
+                        (cx.this, cx.other) = outer49;
                     }
                     // 219: with (oExplosion)
                     g.at("oScreen/step_begin#0", 219);
                     {
                         let t = obj::oExplosion;
-                        let mut it40 = g.with_iter(cx, &t)?;
-                        let outer42 = (cx.this, cx.other);
-                        'with16: while let Some(h41) = it40.next(g) {
-                            (cx.this, cx.other) = (h41, outer42.0);
+                        let mut it50 = g.with_iter(cx, &t)?;
+                        let outer52 = (cx.this, cx.other);
+                        'with16: while let Some(h51) = it50.next(g) {
+                            (cx.this, cx.other) = (h51, outer52.0);
                             // 221: draw_circle(x - view_xview[0], y - view_yview[0], 96, false);
                             g.at("oScreen/step_begin#0", 221);
                             { let a = [g.get(cx.this, v::x)?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.sub(&g.bget(v::view_yview, 0)?)?, r(96.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer42;
+                        (cx.this, cx.other) = outer52;
                     }
                     // 223: with (oLava)
                     g.at("oScreen/step_begin#0", 223);
                     {
                         let t = obj::oLava;
-                        let mut it43 = g.with_iter(cx, &t)?;
-                        let outer45 = (cx.this, cx.other);
-                        'with17: while let Some(h44) = it43.next(g) {
-                            (cx.this, cx.other) = (h44, outer45.0);
+                        let mut it53 = g.with_iter(cx, &t)?;
+                        let outer55 = (cx.this, cx.other);
+                        'with17: while let Some(h54) = it53.next(g) {
+                            (cx.this, cx.other) = (h54, outer55.0);
                             // 225: draw_circle(x + 8 - view_xview[0], y + 8 - view_yview[0], 32, false);
                             g.at("oScreen/step_begin#0", 225);
                             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(32.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer45;
+                        (cx.this, cx.other) = outer55;
                     }
                     // 227: with (oScarab)
                     g.at("oScreen/step_begin#0", 227);
                     {
                         let t = obj::oScarab;
-                        let mut it46 = g.with_iter(cx, &t)?;
-                        let outer48 = (cx.this, cx.other);
-                        'with18: while let Some(h47) = it46.next(g) {
-                            (cx.this, cx.other) = (h47, outer48.0);
+                        let mut it56 = g.with_iter(cx, &t)?;
+                        let outer58 = (cx.this, cx.other);
+                        'with18: while let Some(h57) = it56.next(g) {
+                            (cx.this, cx.other) = (h57, outer58.0);
                             // 229: draw_circle(x + 8 - view_xview[0], y + 8 - view_yview[0], 16, false);
                             g.at("oScreen/step_begin#0", 229);
                             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(16.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer48;
+                        (cx.this, cx.other) = outer58;
                     }
                     // 231: with (oGhost)
                     g.at("oScreen/step_begin#0", 231);
                     {
                         let t = obj::oGhost;
-                        let mut it49 = g.with_iter(cx, &t)?;
-                        let outer51 = (cx.this, cx.other);
-                        'with19: while let Some(h50) = it49.next(g) {
-                            (cx.this, cx.other) = (h50, outer51.0);
+                        let mut it59 = g.with_iter(cx, &t)?;
+                        let outer61 = (cx.this, cx.other);
+                        'with19: while let Some(h60) = it59.next(g) {
+                            (cx.this, cx.other) = (h60, outer61.0);
                             // 233: draw_circle(x + 16 - view_xview[0], y + 16 - view_yview[0], 64, false);
                             g.at("oScreen/step_begin#0", 233);
                             { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?.sub(&g.bget(v::view_xview, 0)?)?, g.get(cx.this, v::y)?.add(&r(16.0))?.sub(&g.bget(v::view_yview, 0)?)?, r(64.0), r(0.0)]; b::draw_circle(g, cx, a)? };
                         }
-                        (cx.this, cx.other) = outer51;
+                        (cx.this, cx.other) = outer61;
                     }
                     // 235: surface_set_target(screen);
                     g.at("oScreen/step_begin#0", 235);
@@ -1144,7 +1144,7 @@ pub fn keypress_112_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (paused && global.plife > 0 && isLevel())
     g.at("oScreen/keypress_112#0", 1);
-    if and(and(g.get(cx.this, v::paused)?.cond(Cond::And)?, g.gget(gv::plife)?.gml_gt(&r(0.0))?), scr::isLevel(g, cx, &[])?.cond(Cond::And)?) {
+    if { let p3 = { let p1 = g.get(cx.this, v::paused)?; let q2 = g.gget(gv::plife)?.gml_gt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) }; let q4 = scr::isLevel(g, cx, &[])?; and(p3, q4.cond(Cond::And)?) } {
         // 3: instance_activate_all();
         g.at("oScreen/keypress_112#0", 3);
         b::instance_activate_all(g, cx, [])?;
@@ -1155,10 +1155,10 @@ pub fn keypress_112_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oScreen/keypress_112#0", 5);
         {
             let t = obj::oPlayer1;
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it5 = g.with_iter(cx, &t)?;
+            let outer7 = (cx.this, cx.other);
+            'with1: while let Some(h6) = it5.next(g) {
+                (cx.this, cx.other) = (h6, outer7.0);
                 // 7: if (facing == 18)
                 g.at("oScreen/keypress_112#0", 7);
                 if g.get(cx.this, v::facing)?.gml_eq(&r(18.0))? {
@@ -1177,7 +1177,7 @@ pub fn keypress_112_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oScreen/keypress_112#0", 10);
                 g.gset(gv::plife, r(-99.0))?;
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer7;
         }
         // 13: if (SS_IsSoundPlaying(global.musTitle))
         g.at("oScreen/keypress_112#0", 13);

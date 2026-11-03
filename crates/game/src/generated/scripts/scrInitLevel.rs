@@ -571,7 +571,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 169: if (!global.hadDarkLevel && !global.noDarkLevel && global.currLevel != 0 && global.currLevel != 1 &&
     g.at("scripts/scrInitLevel", 169);
-    if and(and(and(and(and(and(g.gget(gv::hadDarkLevel)?.not()?.cond(Cond::And)?, g.gget(gv::noDarkLevel)?.not()?.cond(Cond::And)?), g.gget(gv::currLevel)?.gml_ne(&r(0.0))?), g.gget(gv::currLevel)?.gml_ne(&r(1.0))?), g.gget(gv::levelType)?.gml_ne(&r(2.0))?), g.gget(gv::currLevel)?.gml_ne(&r(16.0))?), ({ let a = [r(1.0), g.gget(gv::probDarkLevel)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))?) {
+    if and(and(and(and(and({ let p4 = g.gget(gv::hadDarkLevel)?.not()?; let q5 = g.gget(gv::noDarkLevel)?.not()?; and(p4.cond(Cond::And)?, q5.cond(Cond::And)?) }, g.gget(gv::currLevel)?.gml_ne(&r(0.0))?), g.gget(gv::currLevel)?.gml_ne(&r(1.0))?), g.gget(gv::levelType)?.gml_ne(&r(2.0))?), g.gget(gv::currLevel)?.gml_ne(&r(16.0))?), ({ let a = [r(1.0), g.gget(gv::probDarkLevel)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))?) {
         // 171: global.darkLevel = true;
         g.at("scripts/scrInitLevel", 171);
         {
@@ -699,14 +699,14 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 198: if (!isRoom("rTutorial") && !isRoom("rLoadLevel"))
     g.at("scripts/scrInitLevel", 198);
-    if and(scr::isRoom(g, cx, &[s!("rTutorial")])?.not()?.cond(Cond::And)?, scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.cond(Cond::And)?) {
+    if { let p6 = scr::isRoom(g, cx, &[s!("rTutorial")])?.not()?; let q7 = scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?; and(p6.cond(Cond::And)?, q7.cond(Cond::And)?) } {
         // 198: scrEntityGen();
         g.at("scripts/scrInitLevel", 198);
         cx.ret = scr::scrEntityGen(g, cx, &[])?;
     }
     // 200: if (instance_exists(oEntrance) && !global.customLevel)
     g.at("scripts/scrInitLevel", 200);
-    if and(b::instance_exists(g, cx, [obj::oEntrance])?.cond(Cond::And)?, g.gget(gv::customLevel)?.not()?.cond(Cond::And)?) {
+    if { let p8 = b::instance_exists(g, cx, [obj::oEntrance])?; let q9 = g.gget(gv::customLevel)?.not()?; and(p8.cond(Cond::And)?, q9.cond(Cond::And)?) } {
         // 202: oPlayer1.x = oEntrance.x + 8;
         g.at("scripts/scrInitLevel", 202);
         {
@@ -726,7 +726,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 206: if (global.darkLevel || global.blackMarket || global.snakePit || global.cemetary || global.lake || g
     g.at("scripts/scrInitLevel", 206);
-    if or(or(or(or(or(or(or(or(g.gget(gv::darkLevel)?.cond(Cond::Or)?, g.gget(gv::blackMarket)?.cond(Cond::Or)?), g.gget(gv::snakePit)?.cond(Cond::Or)?), g.gget(gv::cemetary)?.cond(Cond::Or)?), g.gget(gv::lake)?.cond(Cond::Or)?), g.gget(gv::yetiLair)?.cond(Cond::Or)?), g.gget(gv::alienCraft)?.cond(Cond::Or)?), g.gget(gv::sacrificePit)?.cond(Cond::Or)?), g.gget(gv::cityOfGold)?.cond(Cond::Or)?) {
+    if { let p24 = { let p22 = { let p20 = { let p18 = { let p16 = { let p14 = { let p12 = { let p10 = g.gget(gv::darkLevel)?; let q11 = g.gget(gv::blackMarket)?; or(p10.cond(Cond::Or)?, q11.cond(Cond::Or)?) }; let q13 = g.gget(gv::snakePit)?; or(p12, q13.cond(Cond::Or)?) }; let q15 = g.gget(gv::cemetary)?; or(p14, q15.cond(Cond::Or)?) }; let q17 = g.gget(gv::lake)?; or(p16, q17.cond(Cond::Or)?) }; let q19 = g.gget(gv::yetiLair)?; or(p18, q19.cond(Cond::Or)?) }; let q21 = g.gget(gv::alienCraft)?; or(p20, q21.cond(Cond::Or)?) }; let q23 = g.gget(gv::sacrificePit)?; or(p22, q23.cond(Cond::Or)?) }; let q25 = g.gget(gv::cityOfGold)?; or(p24, q25.cond(Cond::Or)?) } {
         // 216: if (!isRoom("rLoadLevel"))
         g.at("scripts/scrInitLevel", 216);
         if scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.cond(Cond::If)? {
@@ -734,10 +734,10 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/scrInitLevel", 218);
             {
                 let t = obj::oPlayer1;
-                let mut it4 = g.with_iter(cx, &t)?;
-                let outer6 = (cx.this, cx.other);
-                'with12: while let Some(h5) = it4.next(g) {
-                    (cx.this, cx.other) = (h5, outer6.0);
+                let mut it26 = g.with_iter(cx, &t)?;
+                let outer28 = (cx.this, cx.other);
+                'with12: while let Some(h27) = it26.next(g) {
+                    (cx.this, cx.other) = (h27, outer28.0);
                     // 218: alarm[0] = 10;
                     g.at("scripts/scrInitLevel", 218);
                     {
@@ -746,7 +746,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         g.set_a(cx.this, v::alarm, 0, 0, x)?;
                     }
                 }
-                (cx.this, cx.other) = outer6;
+                (cx.this, cx.other) = outer28;
             }
         }
     }
@@ -814,15 +814,15 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 246: if (global.murderer || global.thiefLevel > 0)
     g.at("scripts/scrInitLevel", 246);
-    if or(g.gget(gv::murderer)?.cond(Cond::Or)?, g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
+    if { let p29 = g.gget(gv::murderer)?; let q30 = g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?; or(p29.cond(Cond::Or)?, q30) } {
         // 248: with (oExit)
         g.at("scripts/scrInitLevel", 248);
         {
             let t = obj::oExit;
-            let mut it7 = g.with_iter(cx, &t)?;
-            let outer9 = (cx.this, cx.other);
-            'with14: while let Some(h8) = it7.next(g) {
-                (cx.this, cx.other) = (h8, outer9.0);
+            let mut it31 = g.with_iter(cx, &t)?;
+            let outer33 = (cx.this, cx.other);
+            'with14: while let Some(h32) = it31.next(g) {
+                (cx.this, cx.other) = (h32, outer33.0);
                 // 250: if (type == "Exit")
                 g.at("scripts/scrInitLevel", 250);
                 if g.get(cx.this, v::r#type)?.gml_eq(&s!("Exit"))? {
@@ -843,17 +843,17 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                 }
             }
-            (cx.this, cx.other) = outer9;
+            (cx.this, cx.other) = outer33;
         }
     }
     // 259: with (oTreasure)
     g.at("scripts/scrInitLevel", 259);
     {
         let t = obj::oTreasure;
-        let mut it10 = g.with_iter(cx, &t)?;
-        let outer12 = (cx.this, cx.other);
-        'with15: while let Some(h11) = it10.next(g) {
-            (cx.this, cx.other) = (h11, outer12.0);
+        let mut it34 = g.with_iter(cx, &t)?;
+        let outer36 = (cx.this, cx.other);
+        'with15: while let Some(h35) = it34.next(g) {
+            (cx.this, cx.other) = (h35, outer36.0);
             // 261: if (collision_point(x, y, oSolid, 0, 0))
             g.at("scripts/scrInitLevel", 261);
             if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
@@ -873,16 +873,16 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
             }
         }
-        (cx.this, cx.other) = outer12;
+        (cx.this, cx.other) = outer36;
     }
     // 268: with (oWater)
     g.at("scripts/scrInitLevel", 268);
     {
         let t = obj::oWater;
-        let mut it13 = g.with_iter(cx, &t)?;
-        let outer15 = (cx.this, cx.other);
-        'with16: while let Some(h14) = it13.next(g) {
-            (cx.this, cx.other) = (h14, outer15.0);
+        let mut it37 = g.with_iter(cx, &t)?;
+        let outer39 = (cx.this, cx.other);
+        'with16: while let Some(h38) = it37.next(g) {
+            (cx.this, cx.other) = (h38, outer39.0);
             // 270: if (sprite_index == sWaterTop || sprite_index == sLavaTop)
             g.at("scripts/scrInitLevel", 270);
             if or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sWaterTop)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLavaTop)?) {
@@ -891,7 +891,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 cx.ret = scr::scrCheckWaterTop(g, cx, &[])?;
             }
         }
-        (cx.this, cx.other) = outer15;
+        (cx.this, cx.other) = outer39;
     }
     // 296: global.temp3 = global.gameStart;
     g.at("scripts/scrInitLevel", 296);

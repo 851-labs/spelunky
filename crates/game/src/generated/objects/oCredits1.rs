@@ -330,7 +330,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttack())
     g.at("oCredits1/step#0", 1);
-    if or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.cond(Cond::Or)?, b::keyboard_check_pressed(g, cx, [k::vk_escape])?.cond(Cond::Or)?), scr::checkAttack(g, cx, &[])?.cond(Cond::Or)?) {
+    if { let p3 = { let p1 = b::keyboard_check_pressed(g, cx, [k::vk_enter])?; let q2 = b::keyboard_check_pressed(g, cx, [k::vk_escape])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }; let q4 = scr::checkAttack(g, cx, &[])?; or(p3, q4.cond(Cond::Or)?) } {
         // 5: if (instance_exists(oCamel))
         g.at("oCredits1/step#0", 5);
         if b::instance_exists(g, cx, [obj::oCamel])?.cond(Cond::If)? {
@@ -352,20 +352,20 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if b::instance_exists(g, cx, [obj::oCamel])?.cond(Cond::If)? {
         // 21: if (oCamel.x <= 160 && !scrollStart)
         g.at("oCredits1/step#0", 21);
-        if and(g.get_on(cx, &obj::oCamel, v::x)?.gml_le(&r(160.0))?, g.get(cx.this, v::scrollStart)?.not()?.cond(Cond::And)?) {
+        if { let p5 = g.get_on(cx, &obj::oCamel, v::x)?.gml_le(&r(160.0))?; let q6 = g.get(cx.this, v::scrollStart)?.not()?; and(p5, q6.cond(Cond::And)?) } {
             // 23: with (oDesertScroll)
             g.at("oCredits1/step#0", 23);
             {
                 let t = obj::oDesertScroll;
-                let mut it1 = g.with_iter(cx, &t)?;
-                let outer3 = (cx.this, cx.other);
-                'with1: while let Some(h2) = it1.next(g) {
-                    (cx.this, cx.other) = (h2, outer3.0);
+                let mut it7 = g.with_iter(cx, &t)?;
+                let outer9 = (cx.this, cx.other);
+                'with1: while let Some(h8) = it7.next(g) {
+                    (cx.this, cx.other) = (h8, outer9.0);
                     // 25: scroll = true;
                     g.at("oCredits1/step#0", 25);
                     g.set(cx.this, v::scroll, r(1.0))?;
                 }
-                (cx.this, cx.other) = outer3;
+                (cx.this, cx.other) = outer9;
             }
             // 27: alarm[1] = 1;
             g.at("oCredits1/step#0", 27);
@@ -622,7 +622,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 80: if (fadeIn || fadeOut)
     g.at("oCredits1/draw#0", 80);
-    if or(g.get(cx.this, v::fadeIn)?.cond(Cond::Or)?, g.get(cx.this, v::fadeOut)?.cond(Cond::Or)?) {
+    if { let p1 = g.get(cx.this, v::fadeIn)?; let q2 = g.get(cx.this, v::fadeOut)?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 82: draw_set_color(c_black);
         g.at("oCredits1/draw#0", 82);
         b::draw_set_color(g, cx, [k::c_black])?;

@@ -32,7 +32,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 8: if (isLevel() && x > 1 && x < room_width - 16 && y > 1 && y < room_height - 16)
                 g.at("oTemple/create#1", 8);
-                if and(and(and(and(scr::isLevel(g, cx, &[])?.cond(Cond::And)?, g.get(cx.this, v::x)?.gml_gt(&r(1.0))?), g.get(cx.this, v::x)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&r(1.0))?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(16.0))?)?) {
+                if and(and(and({ let p1 = scr::isLevel(g, cx, &[])?; let q2 = g.get(cx.this, v::x)?.gml_gt(&r(1.0))?; and(p1.cond(Cond::And)?, q2) }, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&r(1.0))?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(16.0))?)?) {
                     // 10: if (rand(1, 60) == 1)
                     g.at("oTemple/create#1", 10);
                     if scr::rand(g, cx, &[r(1.0), r(60.0)])?.gml_eq(&r(1.0))? {
@@ -75,7 +75,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oTemple/destroy#1", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::And)?, g.gget(gv::cleanSolids)?.not()?.cond(Cond::And)?) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oTemple/destroy#1", 3);
         {
@@ -142,7 +142,7 @@ pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 19: if (sprite_index == sTempleGoldBig || global.cityOfGold)
             g.at("oTemple/destroy#1", 19);
-            if or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sTempleGoldBig)?, g.gget(gv::cityOfGold)?.cond(Cond::Or)?) {
+            if { let p3 = g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sTempleGoldBig)?; let q4 = g.gget(gv::cityOfGold)?; or(p3, q4.cond(Cond::Or)?) } {
                 // 21: for (...; i < 3; ...)
                 g.at("oTemple/destroy#1", 21);
                 // 21: i = 0;

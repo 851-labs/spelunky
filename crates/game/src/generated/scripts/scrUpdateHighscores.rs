@@ -121,7 +121,7 @@ pub fn scrUpdateHighscores(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> 
         }
         // 57: if (argument0 == 1 && (global.time < tTime || tTime == 0) && !global.usedShortcut)
         g.at("scripts/scrUpdateHighscores", 57);
-        if and(and(cx.arg(0)?.gml_eq(&r(1.0))?, or(g.gget(gv::time)?.gml_lt(&g.get(cx.this, v::tTime)?)?, g.get(cx.this, v::tTime)?.gml_eq(&r(0.0))?)), g.gget(gv::usedShortcut)?.not()?.cond(Cond::And)?) {
+        if { let p1 = and(cx.arg(0)?.gml_eq(&r(1.0))?, or(g.gget(gv::time)?.gml_lt(&g.get(cx.this, v::tTime)?)?, g.get(cx.this, v::tTime)?.gml_eq(&r(0.0))?)); let q2 = g.gget(gv::usedShortcut)?.not()?; and(p1, q2.cond(Cond::And)?) } {
             // 59: highscore_add("TIME", global.time + 8000000);
             g.at("scripts/scrUpdateHighscores", 59);
             cx.ret = { let a = [s!("TIME"), g.gget(gv::time)?.add(&r(8000000.0))?]; b::highscore_add(g, cx, a)? };
@@ -232,10 +232,10 @@ pub fn scrUpdateHighscores(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> 
             g.at("scripts/scrUpdateHighscores", 104);
             {
                 let t = obj::oSunRoom;
-                let mut it1 = g.with_iter(cx, &t)?;
-                let outer3 = (cx.this, cx.other);
-                'with1: while let Some(h2) = it1.next(g) {
-                    (cx.this, cx.other) = (h2, outer3.0);
+                let mut it3 = g.with_iter(cx, &t)?;
+                let outer5 = (cx.this, cx.other);
+                'with1: while let Some(h4) = it3.next(g) {
+                    (cx.this, cx.other) = (h4, outer5.0);
                     // 104: highscore = true;
                     g.at("scripts/scrUpdateHighscores", 104);
                     {
@@ -244,7 +244,7 @@ pub fn scrUpdateHighscores(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> 
                         g.set(cx.this, v::highscore, x)?;
                     }
                 }
-                (cx.this, cx.other) = outer3;
+                (cx.this, cx.other) = outer5;
             }
         }
         // 106: if (global.mini2 > tMini2)
@@ -261,10 +261,10 @@ pub fn scrUpdateHighscores(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> 
             g.at("scripts/scrUpdateHighscores", 109);
             {
                 let t = obj::oMoonRoom;
-                let mut it4 = g.with_iter(cx, &t)?;
-                let outer6 = (cx.this, cx.other);
-                'with2: while let Some(h5) = it4.next(g) {
-                    (cx.this, cx.other) = (h5, outer6.0);
+                let mut it6 = g.with_iter(cx, &t)?;
+                let outer8 = (cx.this, cx.other);
+                'with2: while let Some(h7) = it6.next(g) {
+                    (cx.this, cx.other) = (h7, outer8.0);
                     // 109: highscore = true;
                     g.at("scripts/scrUpdateHighscores", 109);
                     {
@@ -273,7 +273,7 @@ pub fn scrUpdateHighscores(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> 
                         g.set(cx.this, v::highscore, x)?;
                     }
                 }
-                (cx.this, cx.other) = outer6;
+                (cx.this, cx.other) = outer8;
             }
         }
         // 111: if (global.mini3 > tMini3)
@@ -290,10 +290,10 @@ pub fn scrUpdateHighscores(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> 
             g.at("scripts/scrUpdateHighscores", 114);
             {
                 let t = obj::oStarsRoom;
-                let mut it7 = g.with_iter(cx, &t)?;
-                let outer9 = (cx.this, cx.other);
-                'with3: while let Some(h8) = it7.next(g) {
-                    (cx.this, cx.other) = (h8, outer9.0);
+                let mut it9 = g.with_iter(cx, &t)?;
+                let outer11 = (cx.this, cx.other);
+                'with3: while let Some(h10) = it9.next(g) {
+                    (cx.this, cx.other) = (h10, outer11.0);
                     // 114: highscore = true;
                     g.at("scripts/scrUpdateHighscores", 114);
                     {
@@ -302,7 +302,7 @@ pub fn scrUpdateHighscores(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> 
                         g.set(cx.this, v::highscore, x)?;
                     }
                 }
-                (cx.this, cx.other) = outer9;
+                (cx.this, cx.other) = outer11;
             }
         }
         // 117: highscore_add("MINIGAMES", tMini1 * 10000 + tMini2 * 100 + tMini3);

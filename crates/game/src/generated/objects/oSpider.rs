@@ -250,7 +250,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (collision_point(x + 8, y + 8, oWater, 0, 0) && status != DROWNED)
     g.at("oSpider/step#2", 1);
-    if and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::DROWNED)?)?) {
+    if { let p1 = { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::DROWNED)?)?; and(p1.cond(Cond::And)?, q2) } {
         // 3: status = DROWNED;
         g.at("oSpider/step#2", 3);
         g.set(cx.this, v::status, g.get(cx.this, v::DROWNED)?)?;

@@ -209,7 +209,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 84: if (global.customLevel && !levelLoaded)
     g.at("oLoadLevel/create#0", 84);
-    if and(g.gget(gv::customLevel)?.cond(Cond::And)?, g.get(cx.this, v::levelLoaded)?.not()?.cond(Cond::And)?) {
+    if { let p1 = g.gget(gv::customLevel)?; let q2 = g.get(cx.this, v::levelLoaded)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 86: scrLoadLevel(-1);
         g.at("oLoadLevel/create#0", 86);
         scr::scrLoadLevel(g, cx, &[r(-1.0)])?;

@@ -76,14 +76,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 24: if (isCollisionTop(1) && yVel < 0)
         g.at("oDetritus/step#0", 24);
-        if and(scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?) {
+        if { let p1 = scr::isCollisionTop(g, cx, &[r(1.0)])?; let q2 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
             // 26: yVel = -yVel * 0.8;
             g.at("oDetritus/step#0", 26);
             g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?.mul(&r(0.8))?)?;
         }
         // 29: if (isCollisionLeft(1) || isCollisionRight(1))
         g.at("oDetritus/step#0", 29);
-        if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+        if { let p3 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q4 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) } {
             // 31: xVel = -xVel * 0.5;
             g.at("oDetritus/step#0", 31);
             g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?.mul(&r(0.5))?)?;

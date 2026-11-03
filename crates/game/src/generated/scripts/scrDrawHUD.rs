@@ -6,7 +6,7 @@ pub fn scrDrawHUD(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 24: if (global.drawHUD && instance_exists(oPlayer1))
     g.at("scripts/scrDrawHUD", 24);
-    if and(g.gget(gv::drawHUD)?.cond(Cond::And)?, b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::And)?) {
+    if { let p1 = g.gget(gv::drawHUD)?; let q2 = b::instance_exists(g, cx, [obj::oPlayer1])?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 26: lifeX = 8;
         g.at("scripts/scrDrawHUD", 26);
         {

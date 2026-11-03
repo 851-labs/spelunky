@@ -1443,14 +1443,14 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 245: if (tile == "1" && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGenMarket", 245);
-                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                    if { let p1 = g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?; let q2 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p1, q2.cond(Cond::And)?) } {
                         // 247: instance_create(xpos, ypos, oLush);
                         g.at("scripts/scrRoomGenMarket", 247);
                         cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oLush]; b::instance_create(g, cx, a)? };
                     } else {
                         // 249: if (tile == "2" && rand(1, 2) == 1 && !collision_point(xpos, ypos, oSolid, 0, 0))
                         g.at("scripts/scrRoomGenMarket", 249);
-                        if and(and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                        if { let p3 = and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?); let q4 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p3, q4.cond(Cond::And)?) } {
                             // 251: instance_create(xpos, ypos, oLush);
                             g.at("scripts/scrRoomGenMarket", 251);
                             cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oLush]; b::instance_create(g, cx, a)? };
@@ -1458,14 +1458,14 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 253: if (tile == "t" && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGenMarket", 253);
-                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("t"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                    if { let p5 = g.get(cx.this, v::tile)?.gml_eq(&s!("t"))?; let q6 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p5, q6.cond(Cond::And)?) } {
                         // 255: instance_create(xpos, ypos, oTemple);
                         g.at("scripts/scrRoomGenMarket", 255);
                         cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oTemple]; b::instance_create(g, cx, a)? };
                     } else {
                         // 257: if (tile == "3" && !collision_point(xpos, ypos, oSolid, 0, 0))
                         g.at("scripts/scrRoomGenMarket", 257);
-                        if and(g.get(cx.this, v::tile)?.gml_eq(&s!("3"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                        if { let p7 = g.get(cx.this, v::tile)?.gml_eq(&s!("3"))?; let q8 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p7, q8.cond(Cond::And)?) } {
                             // 259: if (rand(1, 2) == 1)
                             g.at("scripts/scrRoomGenMarket", 259);
                             if scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))? {
@@ -1604,7 +1604,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                         } else {
                                                                             // 299: if (tile == "." && !collision_point(xpos, ypos, oSolid, 0, 0))
                                                                             g.at("scripts/scrRoomGenMarket", 299);
-                                                                            if and(g.get(cx.this, v::tile)?.gml_eq(&s!("."))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                                                                            if { let p9 = g.get(cx.this, v::tile)?.gml_eq(&s!("."))?; let q10 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p9, q10.cond(Cond::And)?) } {
                                                                                 // 301: obj = instance_create(xpos, ypos, oLush);
                                                                                 g.at("scripts/scrRoomGenMarket", 301);
                                                                                 {
@@ -1686,7 +1686,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                             if g.get(cx.this, v::tile)?.gml_eq(&s!("W"))? {
                                                                                                 // 325: if (global.murderer || global.thiefLevel > 0)
                                                                                                 g.at("scripts/scrRoomGenMarket", 325);
-                                                                                                if or(g.gget(gv::murderer)?.cond(Cond::Or)?, g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
+                                                                                                if { let p11 = g.gget(gv::murderer)?; let q12 = g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?; or(p11.cond(Cond::Or)?, q12) } {
                                                                                                     // 327: if (global.isDamsel)
                                                                                                     g.at("scripts/scrRoomGenMarket", 327);
                                                                                                     if g.gget(gv::isDamsel)?.cond(Cond::If)? {
@@ -1962,7 +1962,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                 } else {
                                                                                                                                                     // 394: if (!collision_point(tx, ty - 16, oSolid, 0, 0) && !collision_point(tx - 16, ty - 16, oSolid, 0, 0) 
                                                                                                                                                     g.at("scripts/scrRoomGenMarket", 394);
-                                                                                                                                                    if and(and(({ let a = [g.get(cx.this, v::tx)?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::tx)?.sub(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::tx)?.add(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                                                                                                                                                    if { let p15 = { let p13 = ({ let a = [g.get(cx.this, v::tx)?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q14 = ({ let a = [g.get(cx.this, v::tx)?.sub(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p13.cond(Cond::And)?, q14.cond(Cond::And)?) }; let q16 = ({ let a = [g.get(cx.this, v::tx)?.add(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p15, q16.cond(Cond::And)?) } {
                                                                                                                                                         // 398: instance_create(tx, ty, oTree);
                                                                                                                                                         g.at("scripts/scrRoomGenMarket", 398);
                                                                                                                                                         cx.ret = { let a = [g.get(cx.this, v::tx)?, g.get(cx.this, v::ty)?, obj::oTree]; b::instance_create(g, cx, a)? };
@@ -1971,7 +1971,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                         if g.get(cx.this, v::m)?.gml_lt(&r(4.0))? {
                                                                                                                                                             // 401: if (rand(1, 5) < 4 && !b1)
                                                                                                                                                             g.at("scripts/scrRoomGenMarket", 401);
-                                                                                                                                                            if and(scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?, g.get(cx.this, v::b1)?.not()?.cond(Cond::And)?) {
+                                                                                                                                                            if { let p17 = scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?; let q18 = g.get(cx.this, v::b1)?.not()?; and(p17, q18.cond(Cond::And)?) } {
                                                                                                                                                                 // 403: instance_create(tx + 16, ty, oTreeBranch);
                                                                                                                                                                 g.at("scripts/scrRoomGenMarket", 403);
                                                                                                                                                                 cx.ret = { let a = [g.get(cx.this, v::tx)?.add(&r(16.0))?, g.get(cx.this, v::ty)?, obj::oTreeBranch]; b::instance_create(g, cx, a)? };
@@ -1997,7 +1997,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                             }
                                                                                                                                                             // 407: if (rand(1, 5) < 4 && !b2)
                                                                                                                                                             g.at("scripts/scrRoomGenMarket", 407);
-                                                                                                                                                            if and(scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?, g.get(cx.this, v::b2)?.not()?.cond(Cond::And)?) {
+                                                                                                                                                            if { let p19 = scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?; let q20 = g.get(cx.this, v::b2)?.not()?; and(p19, q20.cond(Cond::And)?) } {
                                                                                                                                                                 // 409: instance_create(tx - 16, ty, oTreeBranch);
                                                                                                                                                                 g.at("scripts/scrRoomGenMarket", 409);
                                                                                                                                                                 cx.ret = { let a = [g.get(cx.this, v::tx)?.sub(&r(16.0))?, g.get(cx.this, v::ty)?, obj::oTreeBranch]; b::instance_create(g, cx, a)? };

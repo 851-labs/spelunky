@@ -18,7 +18,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oIce/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::And)?, g.gget(gv::cleanSolids)?.not()?.cond(Cond::And)?) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: repeat (3)
         g.at("oIce/destroy#0", 3);
         'repeat1: for _ in 0..repeat_count(&r(3.0))? {
@@ -33,15 +33,15 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oIce/destroy#0", 10);
             {
                 let t = { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oFrozenCaveman]; b::instance_place(g, cx, a)? };
-                let mut it1 = g.with_iter(cx, &t)?;
-                let outer3 = (cx.this, cx.other);
-                'with2: while let Some(h2) = it1.next(g) {
-                    (cx.this, cx.other) = (h2, outer3.0);
+                let mut it3 = g.with_iter(cx, &t)?;
+                let outer5 = (cx.this, cx.other);
+                'with2: while let Some(h4) = it3.next(g) {
+                    (cx.this, cx.other) = (h4, outer5.0);
                     // 12: instance_destroy();
                     g.at("oIce/destroy#0", 12);
                     b::instance_destroy(g, cx, [])?;
                 }
-                (cx.this, cx.other) = outer3;
+                (cx.this, cx.other) = outer5;
             }
         }
     }

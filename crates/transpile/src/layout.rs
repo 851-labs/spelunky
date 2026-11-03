@@ -104,6 +104,9 @@ impl Visitor for Walker<'_> {
 fn effects(src: &Source, program: &Program, fx: Effects) -> Effects {
     let mut w = Walker {
         src,
+        // Every `var` name of the unit, though one is a local only from its `var` on (`emit.rs`, 851-3798): a name
+        // used before then is the instance's, and gets no slot here, so it lives in the overflow list, which only
+        // costs speed. No unit of either program uses a name before its `var`.
         locals: locals_of(program),
         owner: Vec::new(),
         fx,

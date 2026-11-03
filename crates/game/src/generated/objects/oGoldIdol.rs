@@ -34,7 +34,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isLevel(g, cx, &[])?.cond(Cond::If)? {
             // 7: if (!held && collision_point(x, y + 4, oBrickSmooth, 0, 0) && instance_exists(oShopkeeper) && global
             g.at("oGoldIdol/step#1", 7);
-            if and(and(and(and(g.get(cx.this, v::held)?.not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oBrickSmooth, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), b::instance_exists(g, cx, [obj::oShopkeeper])?.cond(Cond::And)?), g.gget(gv::thiefLevel)?.gml_eq(&r(0.0))?), g.gget(gv::murderer)?.not()?.cond(Cond::And)?) {
+            if { let p5 = and({ let p3 = { let p1 = g.get(cx.this, v::held)?.not()?; let q2 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oBrickSmooth, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) }; let q4 = b::instance_exists(g, cx, [obj::oShopkeeper])?; and(p3, q4.cond(Cond::And)?) }, g.gget(gv::thiefLevel)?.gml_eq(&r(0.0))?); let q6 = g.gget(gv::murderer)?.not()?; and(p5, q6.cond(Cond::And)?) } {
                 // 12: if (oShopkeeper.status == 0 && abs(x - oShopkeeper.x) < 80)
                 g.at("oGoldIdol/step#1", 12);
                 if and(g.get_on(cx, &obj::oShopkeeper, v::status)?.gml_eq(&r(0.0))?, ({ let a = [g.get(cx.this, v::x)?.sub(&g.get_on(cx, &obj::oShopkeeper, v::x)?)?]; b::abs(g, cx, a)? }).gml_lt(&r(80.0))?) {
@@ -77,7 +77,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 27: if (!colBot && trigger)
         g.at("oGoldIdol/step#1", 27);
-        if and(g.get(cx.this, v::colBot)?.not()?.cond(Cond::And)?, g.get(cx.this, v::trigger)?.cond(Cond::And)?) {
+        if { let p7 = g.get(cx.this, v::colBot)?.not()?; let q8 = g.get(cx.this, v::trigger)?; and(p7.cond(Cond::And)?, q8.cond(Cond::And)?) } {
             // 29: trigger = false;
             g.at("oGoldIdol/step#1", 29);
             g.set(cx.this, v::trigger, r(0.0))?;

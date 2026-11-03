@@ -154,7 +154,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 17: if (colBot && status != STUNNED)
         g.at("oYeti/step#1", 17);
-        if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if { let p1 = g.get(cx.this, v::colBot)?; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?; and(p1.cond(Cond::And)?, q2) } {
             // 17: yVel = 0;
             g.at("oYeti/step#1", 17);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -185,7 +185,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 33: if (!held && collision_point(x + 8, y + 8, oSolid, 0, 0))
             g.at("oYeti/step#1", 33);
-            if and(g.get(cx.this, v::held)?.not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?) {
+            if { let p3 = g.get(cx.this, v::held)?.not()?; let q4 = { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) } {
                 // 35: scrCreateBlood(x + 8, y + 8, 3);
                 g.at("oYeti/step#1", 35);
                 { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
@@ -205,7 +205,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::bounced, r(0.0))?;
             // 43: if (isCollisionBottom(1) && (collision_point(x - 1, y, oSolid, -1, -1) || collision_point(x + 16, y,
             g.at("oYeti/step#1", 43);
-            if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, or(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
+            if { let p7 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q8 = { let p5 = { let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }; let q6 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }; or(p5.cond(Cond::Or)?, q6.cond(Cond::Or)?) }; and(p7.cond(Cond::And)?, q8) } {
                 // 46: yVel = -6;
                 g.at("oYeti/step#1", 46);
                 g.set(cx.this, v::yVel, r(-6.0))?;
@@ -226,14 +226,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 52: if (yVel < 0 && isCollisionTop(1))
             g.at("oYeti/step#1", 52);
-            if and(g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?, scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?) {
+            if { let p9 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; let q10 = scr::isCollisionTop(g, cx, &[r(1.0)])?; and(p9, q10.cond(Cond::And)?) } {
                 // 54: yVel = 0;
                 g.at("oYeti/step#1", 54);
                 g.set(cx.this, v::yVel, r(0.0))?;
             }
             // 57: if (isCollisionBottom(1) && counter > 0)
             g.at("oYeti/step#1", 57);
-            if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
+            if { let p11 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q12 = g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?; and(p11.cond(Cond::And)?, q12) } {
                 // 57: counter -= 1;
                 g.at("oYeti/step#1", 57);
                 g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
@@ -292,7 +292,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WALK)?)? {
                 // 76: if (isCollisionLeft(1) || isCollisionRight(1))
                 g.at("oYeti/step#1", 76);
-                if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+                if { let p13 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q14 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p13.cond(Cond::Or)?, q14.cond(Cond::Or)?) } {
                     // 78: if (facing == LEFT)
                     g.at("oYeti/step#1", 78);
                     if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -412,7 +412,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::image_speed, r(1.0))?;
                     // 127: if (isCollisionLeft(1) || isCollisionRight(1))
                     g.at("oYeti/step#1", 127);
-                    if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+                    if { let p15 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q16 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p15.cond(Cond::Or)?, q16.cond(Cond::Or)?) } {
                         // 129: if (facing == LEFT)
                         g.at("oYeti/step#1", 129);
                         if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -477,7 +477,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 149: if (collision_point(x, y, oSpikes, 0, 0) && dead && yVel != 0)
                         g.at("oYeti/step#1", 149);
-                        if and(and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::dead)?.cond(Cond::And)?), g.get(cx.this, v::yVel)?.gml_ne(&r(0.0))?) {
+                        if and({ let p17 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q18 = g.get(cx.this, v::dead)?; and(p17.cond(Cond::And)?, q18.cond(Cond::And)?) }, g.get(cx.this, v::yVel)?.gml_ne(&r(0.0))?) {
                             // 151: if (rand(1, 8) == 1)
                             g.at("oYeti/step#1", 151);
                             if scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_eq(&r(1.0))? {
@@ -488,7 +488,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 154: if (colBot && !bounced)
                         g.at("oYeti/step#1", 154);
-                        if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, g.get(cx.this, v::bounced)?.not()?.cond(Cond::And)?) {
+                        if { let p19 = g.get(cx.this, v::colBot)?; let q20 = g.get(cx.this, v::bounced)?.not()?; and(p19.cond(Cond::And)?, q20.cond(Cond::And)?) } {
                             // 156: bounced = true;
                             g.at("oYeti/step#1", 156);
                             g.set(cx.this, v::bounced, r(1.0))?;
@@ -498,7 +498,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 160: if (held || colBot)
                         g.at("oYeti/step#1", 160);
-                        if or(g.get(cx.this, v::held)?.cond(Cond::Or)?, g.get(cx.this, v::colBot)?.cond(Cond::Or)?) {
+                        if { let p21 = g.get(cx.this, v::held)?; let q22 = g.get(cx.this, v::colBot)?; or(p21.cond(Cond::Or)?, q22.cond(Cond::Or)?) } {
                             // 162: if (counter > 0)
                             g.at("oYeti/step#1", 162);
                             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
@@ -522,10 +522,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.at("oYeti/step#1", 169);
                                         {
                                             let t = obj::oPlayer1;
-                                            let mut it1 = g.with_iter(cx, &t)?;
-                                            let outer3 = (cx.this, cx.other);
-                                            'with1: while let Some(h2) = it1.next(g) {
-                                                (cx.this, cx.other) = (h2, outer3.0);
+                                            let mut it23 = g.with_iter(cx, &t)?;
+                                            let outer25 = (cx.this, cx.other);
+                                            'with1: while let Some(h24) = it23.next(g) {
+                                                (cx.this, cx.other) = (h24, outer25.0);
                                                 // 169: holdItem = 0;
                                                 g.at("oYeti/step#1", 169);
                                                 g.set(cx.this, v::holdItem, r(0.0))?;
@@ -533,7 +533,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 g.at("oYeti/step#1", 169);
                                                 g.set(cx.this, v::pickupItemType, s!(""))?;
                                             }
-                                            (cx.this, cx.other) = outer3;
+                                            (cx.this, cx.other) = outer25;
                                         }
                                     }
                                 }
@@ -841,7 +841,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 6: if (!other.dead && !other.stunned && (other.state == 15 || other.state == 16) && other.y < y + 5 && 
         g.at("oYeti/collision_oCharacter#0", 6);
-        if and(and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, g.get(cx.other, v::stunned)?.not()?.cond(Cond::And)?), or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(5.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
+        if { let p3 = and(and({ let p1 = g.get(cx.other, v::dead)?.not()?; let q2 = g.get(cx.other, v::stunned)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) }, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(5.0))?)?); let q4 = g.get(cx.other, v::swimming)?.not()?; and(p3, q4.cond(Cond::And)?) } {
             // 8: if (status < STUNNED)
             g.at("oYeti/collision_oCharacter#0", 8);
             if g.get(cx.this, v::status)?.gml_lt(&g.get(cx.this, v::STUNNED)?)? {
@@ -935,7 +935,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                         // 38: if (global.plife <= 0 && isRealLevel())
                         g.at("oYeti/collision_oCharacter#0", 38);
-                        if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                        if { let p5 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q6 = scr::isRealLevel(g, cx, &[])?; and(p5, q6.cond(Cond::And)?) } {
                             // 38: global.enemyDeaths[13] += 1;
                             g.at("oYeti/collision_oCharacter#0", 38);
                             g.gset_a(gv::enemyDeaths, 0, 13, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 13)?, &r(1.0))?)?;
@@ -1008,10 +1008,10 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oYeti/collision_oCharacter#0", 69);
                         {
                             let t = r(-2.0);
-                            let mut it1 = g.with_iter(cx, &t)?;
-                            let outer3 = (cx.this, cx.other);
-                            'with1: while let Some(h2) = it1.next(g) {
-                                (cx.this, cx.other) = (h2, outer3.0);
+                            let mut it7 = g.with_iter(cx, &t)?;
+                            let outer9 = (cx.this, cx.other);
+                            'with1: while let Some(h8) = it7.next(g) {
+                                (cx.this, cx.other) = (h8, outer9.0);
                                 // 71: if (holdItem)
                                 g.at("oYeti/collision_oCharacter#0", 71);
                                 if g.get(cx.this, v::holdItem)?.cond(Cond::If)? {
@@ -1030,7 +1030,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::scrDropItem(g, cx, &a)? };
                                 }
                             }
-                            (cx.this, cx.other) = outer3;
+                            (cx.this, cx.other) = outer9;
                         }
                     }
                 }

@@ -133,7 +133,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (musicFade && musicFadeTimer < 100)
     g.at("oLevel/step#0", 1);
-    if and(g.get(cx.this, v::musicFade)?.cond(Cond::And)?, g.get(cx.this, v::musicFadeTimer)?.gml_lt(&r(100.0))?) {
+    if { let p1 = g.get(cx.this, v::musicFade)?; let q2 = g.get(cx.this, v::musicFadeTimer)?.gml_lt(&r(100.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 3: scrMusicFade();
         g.at("oLevel/step#0", 3);
         scr::scrMusicFade(g, cx, &[])?;
@@ -160,7 +160,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 14: if (global.shakeToggle || view_yview[0] <= 0)
             g.at("oLevel/step#0", 14);
-            if or(g.gget(gv::shakeToggle)?.cond(Cond::Or)?, g.bget(v::view_yview, 0)?.gml_le(&r(0.0))?) {
+            if { let p3 = g.gget(gv::shakeToggle)?; let q4 = g.bget(v::view_yview, 0)?.gml_le(&r(0.0))?; or(p3.cond(Cond::Or)?, q4) } {
                 // 16: view_yview += 3;
                 g.at("oLevel/step#0", 16);
                 g.bset(v::view_yview, 0, lenient(Value::add, g.bget(v::view_yview, 0)?, &r(3.0))?)?;
@@ -170,7 +170,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 19: if (!global.shakeToggle || view_yview[0] >= room_height - view_hview[0])
                 g.at("oLevel/step#0", 19);
-                if or(g.gget(gv::shakeToggle)?.not()?.cond(Cond::Or)?, g.bget(v::view_yview, 0)?.gml_ge(&g.bget(v::room_height, 0)?.sub(&g.bget(v::view_hview, 0)?)?)?) {
+                if { let p5 = g.gget(gv::shakeToggle)?.not()?; let q6 = g.bget(v::view_yview, 0)?.gml_ge(&g.bget(v::room_height, 0)?.sub(&g.bget(v::view_hview, 0)?)?)?; or(p5.cond(Cond::Or)?, q6) } {
                     // 21: view_yview -= 3;
                     g.at("oLevel/step#0", 21);
                     g.bset(v::view_yview, 0, lenient(Value::sub, g.bget(v::view_yview, 0)?, &r(3.0))?)?;
@@ -194,10 +194,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oLevel/step#0", 68);
         {
             let t = obj::oWater;
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it7 = g.with_iter(cx, &t)?;
+            let outer9 = (cx.this, cx.other);
+            'with1: while let Some(h8) = it7.next(g) {
+                (cx.this, cx.other) = (h8, outer9.0);
                 // 70: if (x + 8 < view_xview[0] - 96 || x + 8 > view_xview[0] + view_wview[0] + 96 || y + 8 < view_yview[0
                 g.at("oLevel/step#0", 70);
                 if or(or(or(g.get(cx.this, v::x)?.add(&r(8.0))?.gml_lt(&g.bget(v::view_xview, 0)?.sub(&r(96.0))?)?, g.get(cx.this, v::x)?.add(&r(8.0))?.gml_gt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(96.0))?)?), g.get(cx.this, v::y)?.add(&r(8.0))?.gml_lt(&g.bget(v::view_yview, 0)?.sub(&r(96.0))?)?), g.get(cx.this, v::y)?.add(&r(8.0))?.gml_gt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(96.0))?)?) {
@@ -206,7 +206,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::checked, r(0.0))?;
                 }
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer9;
         }
         // 75: instance_deactivate_region(view_xview[0] - offset, view_yview[0] - offset, view_wview[0] + offset * 
         g.at("oLevel/step#0", 75);
@@ -350,7 +350,7 @@ pub fn other_5_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 11: if (!global.darkLevel && global.messageTimer > 0)
     g.at("oLevel/draw#0", 11);
-    if and(g.gget(gv::darkLevel)?.not()?.cond(Cond::And)?, g.gget(gv::messageTimer)?.gml_gt(&r(0.0))?) {
+    if { let p1 = g.gget(gv::darkLevel)?.not()?; let q2 = g.gget(gv::messageTimer)?.gml_gt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 13: draw_set_font(global.myFontSmall);
         g.at("oLevel/draw#0", 13);
         { let a = [g.gget(gv::myFontSmall)?]; b::draw_set_font(g, cx, a)? };

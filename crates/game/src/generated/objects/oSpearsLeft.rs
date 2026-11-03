@@ -5,14 +5,14 @@ use crate::rt::*;
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (sprite_index == sSpearsLeft && !collision_point(x + 16, y, oSpearTrapTop, 0, 0) && !collision_po
     g.at("oSpearsLeft/step#0", 1);
-    if and(and(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sSpearsLeft)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSpearTrapTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSpearTrapBottom, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+    if { let p3 = { let p1 = g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sSpearsLeft)?; let q2 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSpearTrapTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p1, q2.cond(Cond::And)?) }; let q4 = ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSpearTrapBottom, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p3, q4.cond(Cond::And)?) } {
         // 3: instance_destroy();
         g.at("oSpearsLeft/step#0", 3);
         b::instance_destroy(g, cx, [])?;
     }
     // 5: if (sprite_index == sSpearsRight && !collision_point(x - 16, y, oSpearTrapTop, 0, 0) && !collision_p
     g.at("oSpearsLeft/step#0", 5);
-    if and(and(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sSpearsRight)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSpearTrapTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSpearTrapBottom, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+    if { let p7 = { let p5 = g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sSpearsRight)?; let q6 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSpearTrapTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p5, q6.cond(Cond::And)?) }; let q8 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSpearTrapBottom, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p7, q8.cond(Cond::And)?) } {
         // 7: instance_destroy();
         g.at("oSpearsLeft/step#0", 7);
         b::instance_destroy(g, cx, [])?;

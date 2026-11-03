@@ -141,7 +141,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttackPressed() ||
     g.at("oEndCustom/step#0", 1);
-    if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.cond(Cond::Or)?, b::keyboard_check_pressed(g, cx, [k::vk_escape])?.cond(Cond::Or)?), scr::checkAttackPressed(g, cx, &[])?.cond(Cond::Or)?), scr::checkStartPressed(g, cx, &[])?.cond(Cond::Or)?) {
+    if { let p5 = { let p3 = { let p1 = b::keyboard_check_pressed(g, cx, [k::vk_enter])?; let q2 = b::keyboard_check_pressed(g, cx, [k::vk_escape])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }; let q4 = scr::checkAttackPressed(g, cx, &[])?; or(p3, q4.cond(Cond::Or)?) }; let q6 = scr::checkStartPressed(g, cx, &[])?; or(p5, q6.cond(Cond::Or)?) } {
         // 6: if (drawStatus == 7)
         g.at("oEndCustom/step#0", 6);
         if g.get(cx.this, v::drawStatus)?.gml_eq(&r(7.0))? {
@@ -210,7 +210,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 36: if (drawStatus == 3 && moneyDiff == 0 && !poop)
         g.at("oEndCustom/step#0", 36);
-        if and(and(g.get(cx.this, v::drawStatus)?.gml_eq(&r(3.0))?, g.get(cx.this, v::moneyDiff)?.gml_eq(&r(0.0))?), g.get(cx.this, v::poop)?.not()?.cond(Cond::And)?) {
+        if { let p7 = and(g.get(cx.this, v::drawStatus)?.gml_eq(&r(3.0))?, g.get(cx.this, v::moneyDiff)?.gml_eq(&r(0.0))?); let q8 = g.get(cx.this, v::poop)?.not()?; and(p7, q8.cond(Cond::And)?) } {
             // 38: alarm[11] = 50;
             g.at("oEndCustom/step#0", 38);
             g.set_a(cx.this, v::alarm, 0, 11, r(50.0))?;

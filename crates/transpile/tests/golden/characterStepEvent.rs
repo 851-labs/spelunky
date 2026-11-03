@@ -179,7 +179,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 51: if (global.isTunnelMan && sprite_index == sTunnelAttackL && !holdItem)
         g.at("scripts/characterStepEvent", 51);
-        if and(and(g.gget(gv::isTunnelMan)?.cond(Cond::And)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sTunnelAttackL)?), g.get(cx.this, v::holdItem)?.not()?.cond(Cond::And)?) {
+        if { let p3 = { let p1 = g.gget(gv::isTunnelMan)?; let q2 = g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sTunnelAttackL)?; and(p1.cond(Cond::And)?, q2) }; let q4 = g.get(cx.this, v::holdItem)?.not()?; and(p3, q4.cond(Cond::And)?) } {
             // 55: kJump = 0;
             g.at("scripts/characterStepEvent", 55);
             {
@@ -255,7 +255,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 71: if (stunned || dead)
     g.at("scripts/characterStepEvent", 71);
-    if or(g.get(cx.this, v::stunned)?.cond(Cond::Or)?, g.get(cx.this, v::dead)?.cond(Cond::Or)?) {
+    if { let p5 = g.get(cx.this, v::stunned)?; let q6 = g.get(cx.this, v::dead)?; or(p5.cond(Cond::Or)?, q6.cond(Cond::Or)?) } {
         // 73: kLeft = false;
         g.at("scripts/characterStepEvent", 73);
         {
@@ -587,7 +587,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 123: if (checkAttack() && !whipping)
     g.at("scripts/characterStepEvent", 123);
-    if and(scr::checkAttack(g, cx, &[])?.cond(Cond::And)?, g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?) {
+    if { let p7 = scr::checkAttack(g, cx, &[])?; let q8 = g.get(cx.this, v::whipping)?.not()?; and(p7.cond(Cond::And)?, q8.cond(Cond::And)?) } {
         // 125: runHeld += 1;
         g.at("scripts/characterStepEvent", 125);
         {
@@ -606,7 +606,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 129: if (!runKey || (!kLeft && !kRight))
     g.at("scripts/characterStepEvent", 129);
-    if or(g.get(cx.this, v::runKey)?.not()?.cond(Cond::Or)?, and(g.get(cx.this, v::kLeft)?.not()?.cond(Cond::And)?, g.get(cx.this, v::kRight)?.not()?.cond(Cond::And)?)) {
+    if { let p11 = g.get(cx.this, v::runKey)?.not()?; let q12 = { let p9 = g.get(cx.this, v::kLeft)?.not()?; let q10 = g.get(cx.this, v::kRight)?.not()?; and(p9.cond(Cond::And)?, q10.cond(Cond::And)?) }; or(p11.cond(Cond::Or)?, q12) } {
         // 129: runHeld = 0;
         g.at("scripts/characterStepEvent", 129);
         {
@@ -620,7 +620,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     if and(g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::CLIMBING)?)?, g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::HANGING)?)?) {
         // 135: if (kLeftReleased && approximatelyZero(xVel))
         g.at("scripts/characterStepEvent", 135);
-        if and(g.get(cx.this, v::kLeftReleased)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::xVel)?]; scr::approximatelyZero(g, cx, &a)? }).cond(Cond::And)?) {
+        if { let p13 = g.get(cx.this, v::kLeftReleased)?; let q14 = { let a = [g.get(cx.this, v::xVel)?]; scr::approximatelyZero(g, cx, &a)? }; and(p13.cond(Cond::And)?, q14.cond(Cond::And)?) } {
             // 135: xAcc -= 0.5;
             g.at("scripts/characterStepEvent", 135);
             {
@@ -632,7 +632,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 136: if (kRightReleased && approximatelyZero(xVel))
         g.at("scripts/characterStepEvent", 136);
-        if and(g.get(cx.this, v::kRightReleased)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::xVel)?]; scr::approximatelyZero(g, cx, &a)? }).cond(Cond::And)?) {
+        if { let p15 = g.get(cx.this, v::kRightReleased)?; let q16 = { let a = [g.get(cx.this, v::xVel)?]; scr::approximatelyZero(g, cx, &a)? }; and(p15.cond(Cond::And)?, q16.cond(Cond::And)?) } {
             // 136: xAcc += 0.5;
             g.at("scripts/characterStepEvent", 136);
             {
@@ -644,13 +644,13 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 138: if (kLeft && !kRight)
         g.at("scripts/characterStepEvent", 138);
-        if and(g.get(cx.this, v::kLeft)?.cond(Cond::And)?, g.get(cx.this, v::kRight)?.not()?.cond(Cond::And)?) {
+        if { let p17 = g.get(cx.this, v::kLeft)?; let q18 = g.get(cx.this, v::kRight)?.not()?; and(p17.cond(Cond::And)?, q18.cond(Cond::And)?) } {
             // 140: if (colSolidLeft)
             g.at("scripts/characterStepEvent", 140);
             if g.get(cx.this, v::colSolidLeft)?.cond(Cond::If)? {
                 // 143: if (platformCharacterIs(ON_GROUND) && state != DUCKING)
                 g.at("scripts/characterStepEvent", 143);
-                if and(({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?, g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKING)?)?) {
+                if { let p19 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; let q20 = g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKING)?)?; and(p19.cond(Cond::And)?, q20) } {
                     // 145: xAcc -= 1;
                     g.at("scripts/characterStepEvent", 145);
                     {
@@ -671,7 +671,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             } else {
                 // 150: if (kLeftPushedSteps > 2 && (facing == LEFT || approximatelyZero(xVel)))
                 g.at("scripts/characterStepEvent", 150);
-                if and(g.get(cx.this, v::kLeftPushedSteps)?.gml_gt(&r(2.0))?, or(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, ({ let a = [g.get(cx.this, v::xVel)?]; scr::approximatelyZero(g, cx, &a)? }).cond(Cond::Or)?)) {
+                if and(g.get(cx.this, v::kLeftPushedSteps)?.gml_gt(&r(2.0))?, { let p21 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?; let q22 = { let a = [g.get(cx.this, v::xVel)?]; scr::approximatelyZero(g, cx, &a)? }; or(p21, q22.cond(Cond::Or)?) }) {
                     // 152: xAcc -= runAcc;
                     g.at("scripts/characterStepEvent", 152);
                     {
@@ -692,13 +692,13 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 158: if (kRight && !kLeft)
         g.at("scripts/characterStepEvent", 158);
-        if and(g.get(cx.this, v::kRight)?.cond(Cond::And)?, g.get(cx.this, v::kLeft)?.not()?.cond(Cond::And)?) {
+        if { let p23 = g.get(cx.this, v::kRight)?; let q24 = g.get(cx.this, v::kLeft)?.not()?; and(p23.cond(Cond::And)?, q24.cond(Cond::And)?) } {
             // 160: if (colSolidRight)
             g.at("scripts/characterStepEvent", 160);
             if g.get(cx.this, v::colSolidRight)?.cond(Cond::If)? {
                 // 163: if (platformCharacterIs(ON_GROUND) && state != DUCKING)
                 g.at("scripts/characterStepEvent", 163);
-                if and(({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?, g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKING)?)?) {
+                if { let p25 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; let q26 = g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKING)?)?; and(p25.cond(Cond::And)?, q26) } {
                     // 165: xAcc += 1;
                     g.at("scripts/characterStepEvent", 165);
                     {
@@ -719,7 +719,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             } else {
                 // 170: if (kRightPushedSteps > 2 || colSolidLeft && (facing == RIGHT || approximatelyZero(xVel)))
                 g.at("scripts/characterStepEvent", 170);
-                if and(or(g.get(cx.this, v::kRightPushedSteps)?.gml_gt(&r(2.0))?, g.get(cx.this, v::colSolidLeft)?.cond(Cond::Or)?), or(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, ({ let a = [g.get(cx.this, v::xVel)?]; scr::approximatelyZero(g, cx, &a)? }).cond(Cond::Or)?)) {
+                if and({ let p27 = g.get(cx.this, v::kRightPushedSteps)?.gml_gt(&r(2.0))?; let q28 = g.get(cx.this, v::colSolidLeft)?; or(p27, q28.cond(Cond::Or)?) }, { let p29 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?; let q30 = { let a = [g.get(cx.this, v::xVel)?]; scr::approximatelyZero(g, cx, &a)? }; or(p29, q30.cond(Cond::Or)?) }) {
                     // 172: xAcc += runAcc;
                     g.at("scripts/characterStepEvent", 172);
                     {
@@ -814,7 +814,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         if g.get(cx.this, v::kUp)?.cond(Cond::If)? {
             // 200: if (collision_point(x, y - 8, oLadder, 0, 0) || collision_point(x, y - 8, oLadderTop, 0, 0))
             g.at("scripts/characterStepEvent", 200);
-            if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oLadder, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oLadderTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+            if { let p31 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oLadder, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q32 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oLadderTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p31.cond(Cond::Or)?, q32.cond(Cond::Or)?) } {
                 // 202: yAcc -= climbAcc;
                 g.at("scripts/characterStepEvent", 202);
                 {
@@ -841,7 +841,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             if g.get(cx.this, v::kDown)?.cond(Cond::If)? {
                 // 208: if (collision_point(x, y + 8, oLadder, 0, 0) || collision_point(x, y + 8, oLadderTop, 0, 0))
                 g.at("scripts/characterStepEvent", 208);
-                if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oLadder, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oLadderTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
+                if { let p33 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oLadder, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q34 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oLadderTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p33.cond(Cond::Or)?, q34.cond(Cond::Or)?) } {
                     // 210: yAcc += climbAcc;
                     g.at("scripts/characterStepEvent", 210);
                     {
@@ -885,7 +885,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 218: if (kJumpPressed && !whipping)
         g.at("scripts/characterStepEvent", 218);
-        if and(g.get(cx.this, v::kJumpPressed)?.cond(Cond::And)?, g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?) {
+        if { let p35 = g.get(cx.this, v::kJumpPressed)?; let q36 = g.get(cx.this, v::whipping)?.not()?; and(p35.cond(Cond::And)?, q36.cond(Cond::And)?) } {
             // 220: if (kLeft)
             g.at("scripts/characterStepEvent", 220);
             if g.get(cx.this, v::kLeft)?.cond(Cond::If)? {
@@ -970,7 +970,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 238: if (platformCharacterIs(IN_AIR) && state != HANGING)
     g.at("scripts/characterStepEvent", 238);
-    if and(({ let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?, g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::HANGING)?)?) {
+    if { let p37 = { let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }; let q38 = g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::HANGING)?)?; and(p37.cond(Cond::And)?, q38) } {
         // 240: yAcc += gravityIntensity;
         g.at("scripts/characterStepEvent", 240);
         {
@@ -982,10 +982,10 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 244: if (colBot || colPlatBot && platformCharacterIs(IN_AIR) && yVel >= 0)
     g.at("scripts/characterStepEvent", 244);
-    if and(and(or(g.get(cx.this, v::colBot)?.cond(Cond::Or)?, g.get(cx.this, v::colPlatBot)?.cond(Cond::Or)?), ({ let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?) {
+    if and({ let p41 = { let p39 = g.get(cx.this, v::colBot)?; let q40 = g.get(cx.this, v::colPlatBot)?; or(p39.cond(Cond::Or)?, q40.cond(Cond::Or)?) }; let q42 = { let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p41, q42.cond(Cond::And)?) }, g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?) {
         // 246: if (!colPlat || colBot)
         g.at("scripts/characterStepEvent", 246);
-        if or(g.get(cx.this, v::colPlat)?.not()?.cond(Cond::Or)?, g.get(cx.this, v::colBot)?.cond(Cond::Or)?) {
+        if { let p43 = g.get(cx.this, v::colPlat)?.not()?; let q44 = g.get(cx.this, v::colBot)?; or(p43.cond(Cond::Or)?, q44.cond(Cond::Or)?) } {
             // 248: yVel = 0;
             g.at("scripts/characterStepEvent", 248);
             {
@@ -1018,7 +1018,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 255: if (colBot || colPlatBot && !colPlat)
     g.at("scripts/characterStepEvent", 255);
-    if and(or(g.get(cx.this, v::colBot)?.cond(Cond::Or)?, g.get(cx.this, v::colPlatBot)?.cond(Cond::Or)?), g.get(cx.this, v::colPlat)?.not()?.cond(Cond::And)?) {
+    if { let p47 = { let p45 = g.get(cx.this, v::colBot)?; let q46 = g.get(cx.this, v::colPlatBot)?; or(p45.cond(Cond::Or)?, q46.cond(Cond::Or)?) }; let q48 = g.get(cx.this, v::colPlat)?.not()?; and(p47, q48.cond(Cond::And)?) } {
         // 255: yVel = 0;
         g.at("scripts/characterStepEvent", 255);
         {
@@ -1029,7 +1029,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 258: if (colBot == 0 && (!colPlatBot || colPlat) && platformCharacterIs(ON_GROUND))
     g.at("scripts/characterStepEvent", 258);
-    if and(and(g.get(cx.this, v::colBot)?.gml_eq(&r(0.0))?, or(g.get(cx.this, v::colPlatBot)?.not()?.cond(Cond::Or)?, g.get(cx.this, v::colPlat)?.cond(Cond::Or)?)), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?) {
+    if { let p51 = and(g.get(cx.this, v::colBot)?.gml_eq(&r(0.0))?, { let p49 = g.get(cx.this, v::colPlatBot)?.not()?; let q50 = g.get(cx.this, v::colPlat)?; or(p49.cond(Cond::Or)?, q50.cond(Cond::Or)?) }); let q52 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p51, q52.cond(Cond::And)?) } {
         // 260: state = FALLING;
         g.at("scripts/characterStepEvent", 260);
         {
@@ -1069,7 +1069,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     if g.get(cx.this, v::colTop)?.cond(Cond::If)? {
         // 268: if (dead || stunned)
         g.at("scripts/characterStepEvent", 268);
-        if or(g.get(cx.this, v::dead)?.cond(Cond::Or)?, g.get(cx.this, v::stunned)?.cond(Cond::Or)?) {
+        if { let p53 = g.get(cx.this, v::dead)?; let q54 = g.get(cx.this, v::stunned)?; or(p53.cond(Cond::Or)?, q54.cond(Cond::Or)?) } {
             // 268: yVel = -yVel * 0.8;
             g.at("scripts/characterStepEvent", 268);
             {
@@ -1093,10 +1093,10 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 272: if (colLeft && facing == LEFT || (colRight && facing == RIGHT))
     g.at("scripts/characterStepEvent", 272);
-    if or(and(g.get(cx.this, v::colLeft)?.cond(Cond::And)?, g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?), and(g.get(cx.this, v::colRight)?.cond(Cond::And)?, g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?)) {
+    if or({ let p55 = g.get(cx.this, v::colLeft)?; let q56 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?; and(p55.cond(Cond::And)?, q56) }, { let p57 = g.get(cx.this, v::colRight)?; let q58 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?; and(p57.cond(Cond::And)?, q58) }) {
         // 274: if (dead || stunned)
         g.at("scripts/characterStepEvent", 274);
-        if or(g.get(cx.this, v::dead)?.cond(Cond::Or)?, g.get(cx.this, v::stunned)?.cond(Cond::Or)?) {
+        if { let p59 = g.get(cx.this, v::dead)?; let q60 = g.get(cx.this, v::stunned)?; or(p59.cond(Cond::Or)?, q60.cond(Cond::Or)?) } {
             // 274: xVel = -xVel * 0.5;
             g.at("scripts/characterStepEvent", 274);
             {
@@ -1116,7 +1116,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 284: if (kJumpReleased && platformCharacterIs(IN_AIR))
     g.at("scripts/characterStepEvent", 284);
-    if and(g.get(cx.this, v::kJumpReleased)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?) {
+    if { let p61 = g.get(cx.this, v::kJumpReleased)?; let q62 = { let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p61.cond(Cond::And)?, q62.cond(Cond::And)?) } {
         // 286: kJumped = true;
         g.at("scripts/characterStepEvent", 286);
         {
@@ -1147,7 +1147,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 294: if (kJumpPressed && collision_point(x, y, oWeb, 0, 0))
     g.at("scripts/characterStepEvent", 294);
-    if and(g.get(cx.this, v::kJumpPressed)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWeb, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?) {
+    if { let p63 = g.get(cx.this, v::kJumpPressed)?; let q64 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWeb, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p63.cond(Cond::And)?, q64.cond(Cond::And)?) } {
         // 296: obj = instance_place(x, y, oWeb);
         g.at("scripts/characterStepEvent", 296);
         {
@@ -1219,7 +1219,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 308: if (kJumpPressed && colWaterTop)
         g.at("scripts/characterStepEvent", 308);
-        if and(g.get(cx.this, v::kJumpPressed)?.cond(Cond::And)?, g.get(cx.this, v::colWaterTop)?.cond(Cond::And)?) {
+        if { let p65 = g.get(cx.this, v::kJumpPressed)?; let q66 = g.get(cx.this, v::colWaterTop)?; and(p65.cond(Cond::And)?, q66.cond(Cond::And)?) } {
             // 310: yAcc += initialJumpAcc * 2;
             g.at("scripts/characterStepEvent", 310);
             {
@@ -1275,7 +1275,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 320: if (global.hasCape && kJumpPressed && kJumped && platformCharacterIs(IN_AIR))
             g.at("scripts/characterStepEvent", 320);
-            if and(and(and(g.gget(gv::hasCape)?.cond(Cond::And)?, g.get(cx.this, v::kJumpPressed)?.cond(Cond::And)?), g.get(cx.this, v::kJumped)?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?) {
+            if { let p71 = { let p69 = { let p67 = g.gget(gv::hasCape)?; let q68 = g.get(cx.this, v::kJumpPressed)?; and(p67.cond(Cond::And)?, q68.cond(Cond::And)?) }; let q70 = g.get(cx.this, v::kJumped)?; and(p69, q70.cond(Cond::And)?) }; let q72 = { let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p71, q72.cond(Cond::And)?) } {
                 // 322: if (!oCape.open)
                 g.at("scripts/characterStepEvent", 322);
                 if g.get_on(cx, &obj::oCape, v::open)?.not()?.cond(Cond::If)? {
@@ -1300,7 +1300,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             } else {
                 // 325: if (global.hasJetpack && kJump && kJumped && platformCharacterIs(IN_AIR) && jetpackFuel > 0)
                 g.at("scripts/characterStepEvent", 325);
-                if and(and(and(and(g.gget(gv::hasJetpack)?.cond(Cond::And)?, g.get(cx.this, v::kJump)?.cond(Cond::And)?), g.get(cx.this, v::kJumped)?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), g.get(cx.this, v::jetpackFuel)?.gml_gt(&r(0.0))?) {
+                if and({ let p77 = { let p75 = { let p73 = g.gget(gv::hasJetpack)?; let q74 = g.get(cx.this, v::kJump)?; and(p73.cond(Cond::And)?, q74.cond(Cond::And)?) }; let q76 = g.get(cx.this, v::kJumped)?; and(p75, q76.cond(Cond::And)?) }; let q78 = { let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p77, q78.cond(Cond::And)?) }, g.get(cx.this, v::jetpackFuel)?.gml_gt(&r(0.0))?) {
                     // 327: yAcc += initialJumpAcc;
                     g.at("scripts/characterStepEvent", 327);
                     {
@@ -1366,7 +1366,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 } else {
                     // 338: if (platformCharacterIs(ON_GROUND) && kJumpPressed && fallTimer == 0)
                     g.at("scripts/characterStepEvent", 338);
-                    if and(and(({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?, g.get(cx.this, v::kJumpPressed)?.cond(Cond::And)?), g.get(cx.this, v::fallTimer)?.gml_eq(&r(0.0))?) {
+                    if and({ let p79 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; let q80 = g.get(cx.this, v::kJumpPressed)?; and(p79.cond(Cond::And)?, q80.cond(Cond::And)?) }, g.get(cx.this, v::fallTimer)?.gml_eq(&r(0.0))?) {
                         // 340: if (xVel > 3 || xVel < -3)
                         g.at("scripts/characterStepEvent", 340);
                         if or(g.get(cx.this, v::xVel)?.gml_gt(&r(3.0))?, g.get(cx.this, v::xVel)?.gml_lt(&r(-3.0))?) {
@@ -1537,7 +1537,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 382: if (kUp && platformCharacterIs(ON_GROUND) && !colLadder)
     g.at("scripts/characterStepEvent", 382);
-    if and(and(g.get(cx.this, v::kUp)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), g.get(cx.this, v::colLadder)?.not()?.cond(Cond::And)?) {
+    if { let p83 = { let p81 = g.get(cx.this, v::kUp)?; let q82 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p81.cond(Cond::And)?, q82.cond(Cond::And)?) }; let q84 = g.get(cx.this, v::colLadder)?.not()?; and(p83, q84.cond(Cond::And)?) } {
         // 384: looking = UP;
         g.at("scripts/characterStepEvent", 384);
         {
@@ -1567,7 +1567,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 389: if (!kUp && state == LOOKING_UP)
     g.at("scripts/characterStepEvent", 389);
-    if and(g.get(cx.this, v::kUp)?.not()?.cond(Cond::And)?, g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::LOOKING_UP)?)?) {
+    if { let p85 = g.get(cx.this, v::kUp)?.not()?; let q86 = g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::LOOKING_UP)?)?; and(p85.cond(Cond::And)?, q86) } {
         // 391: state = STANDING;
         g.at("scripts/characterStepEvent", 391);
         {
@@ -1581,10 +1581,10 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     if g.get(cx.this, v::colTop)?.not()?.cond(Cond::If)? {
         // 402: if (global.hasGloves && yVel > 0)
         g.at("scripts/characterStepEvent", 402);
-        if and(g.gget(gv::hasGloves)?.cond(Cond::And)?, g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?) {
+        if { let p87 = g.gget(gv::hasGloves)?; let q88 = g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?; and(p87.cond(Cond::And)?, q88) } {
             // 404: if (hangCount == 0 && y > 16 && !platformCharacterIs(ON_GROUND) && kRight && colRight && (collision_
             g.at("scripts/characterStepEvent", 404);
-            if and(and(and(and(and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?.cond(Cond::And)?), g.get(cx.this, v::kRight)?.cond(Cond::And)?), g.get(cx.this, v::colRight)?.cond(Cond::And)?), or(({ let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
+            if and({ let p93 = { let p91 = { let p89 = and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?); let q90 = ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?; and(p89, q90.cond(Cond::And)?) }; let q92 = g.get(cx.this, v::kRight)?; and(p91, q92.cond(Cond::And)?) }; let q94 = g.get(cx.this, v::colRight)?; and(p93, q94.cond(Cond::And)?) }, { let p95 = { let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q96 = { let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p95.cond(Cond::Or)?, q96.cond(Cond::Or)?) }) {
                 // 407: state = HANGING;
                 g.at("scripts/characterStepEvent", 407);
                 {
@@ -1619,7 +1619,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             } else {
                 // 413: if (hangCount == 0 && y > 16 && !platformCharacterIs(ON_GROUND) && kLeft && colLeft && (collision_po
                 g.at("scripts/characterStepEvent", 413);
-                if and(and(and(and(and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?.cond(Cond::And)?), g.get(cx.this, v::kLeft)?.cond(Cond::And)?), g.get(cx.this, v::colLeft)?.cond(Cond::And)?), or(({ let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
+                if and({ let p101 = { let p99 = { let p97 = and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?); let q98 = ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?; and(p97, q98.cond(Cond::And)?) }; let q100 = g.get(cx.this, v::kLeft)?; and(p99, q100.cond(Cond::And)?) }; let q102 = g.get(cx.this, v::colLeft)?; and(p101, q102.cond(Cond::And)?) }, { let p103 = { let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q104 = { let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p103.cond(Cond::Or)?, q104.cond(Cond::Or)?) }) {
                     // 416: state = HANGING;
                     g.at("scripts/characterStepEvent", 416);
                     {
@@ -1656,7 +1656,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 423: if (hangCount == 0 && y > 16 && !platformCharacterIs(ON_GROUND) && kRight && colRight && (collision_
             g.at("scripts/characterStepEvent", 423);
-            if and(and(and(and(and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?.cond(Cond::And)?), g.get(cx.this, v::kRight)?.cond(Cond::And)?), g.get(cx.this, v::colRight)?.cond(Cond::And)?), or(({ let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
+            if and({ let p109 = { let p107 = { let p105 = and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?); let q106 = ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?; and(p105, q106.cond(Cond::And)?) }; let q108 = g.get(cx.this, v::kRight)?; and(p107, q108.cond(Cond::And)?) }; let q110 = g.get(cx.this, v::colRight)?; and(p109, q110.cond(Cond::And)?) }, { let p111 = { let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q112 = { let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p111.cond(Cond::Or)?, q112.cond(Cond::Or)?) }) {
                 // 426: state = HANGING;
                 g.at("scripts/characterStepEvent", 426);
                 {
@@ -1691,7 +1691,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             } else {
                 // 432: if (hangCount == 0 && y > 16 && !platformCharacterIs(ON_GROUND) && kLeft && colLeft && (collision_po
                 g.at("scripts/characterStepEvent", 432);
-                if and(and(and(and(and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?.cond(Cond::And)?), g.get(cx.this, v::kLeft)?.cond(Cond::And)?), g.get(cx.this, v::colLeft)?.cond(Cond::And)?), or(({ let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
+                if and({ let p117 = { let p115 = { let p113 = and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?); let q114 = ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?; and(p113, q114.cond(Cond::And)?) }; let q116 = g.get(cx.this, v::kLeft)?; and(p115, q116.cond(Cond::And)?) }; let q118 = g.get(cx.this, v::colLeft)?; and(p117, q118.cond(Cond::And)?) }, { let p119 = { let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q120 = { let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p119.cond(Cond::Or)?, q120.cond(Cond::Or)?) }) {
                     // 435: state = HANGING;
                     g.at("scripts/characterStepEvent", 435);
                     {
@@ -1726,7 +1726,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 } else {
                     // 441: if (hangCount == 0 && y > 16 && !platformCharacterIs(ON_GROUND) && kRight && colRight && (collision_
                     g.at("scripts/characterStepEvent", 441);
-                    if and(and(and(and(and(and(and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?.cond(Cond::And)?), g.get(cx.this, v::kRight)?.cond(Cond::And)?), g.get(cx.this, v::colRight)?.cond(Cond::And)?), or(({ let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)), ({ let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                    if { let p131 = { let p129 = and({ let p125 = { let p123 = { let p121 = and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?); let q122 = ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?; and(p121, q122.cond(Cond::And)?) }; let q124 = g.get(cx.this, v::kRight)?; and(p123, q124.cond(Cond::And)?) }; let q126 = g.get(cx.this, v::colRight)?; and(p125, q126.cond(Cond::And)?) }, { let p127 = { let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q128 = { let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p127.cond(Cond::Or)?, q128.cond(Cond::Or)?) }); let q130 = ({ let a = [g.get(cx.this, v::x)?.add(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p129, q130.cond(Cond::And)?) }; let q132 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p131, q132.cond(Cond::And)?) } {
                         // 445: state = HANGING;
                         g.at("scripts/characterStepEvent", 445);
                         {
@@ -1761,7 +1761,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     } else {
                         // 451: if (hangCount == 0 && y > 16 && !platformCharacterIs(ON_GROUND) && kLeft && colLeft && (collision_po
                         g.at("scripts/characterStepEvent", 451);
-                        if and(and(and(and(and(and(and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?.cond(Cond::And)?), g.get(cx.this, v::kLeft)?.cond(Cond::And)?), g.get(cx.this, v::colLeft)?.cond(Cond::And)?), or(({ let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)), ({ let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                        if { let p143 = { let p141 = and({ let p137 = { let p135 = { let p133 = and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?); let q134 = ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?; and(p133, q134.cond(Cond::And)?) }; let q136 = g.get(cx.this, v::kLeft)?; and(p135, q136.cond(Cond::And)?) }; let q138 = g.get(cx.this, v::colLeft)?; and(p137, q138.cond(Cond::And)?) }, { let p139 = { let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q140 = { let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p139.cond(Cond::Or)?, q140.cond(Cond::Or)?) }); let q142 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(9.0))?, g.get(cx.this, v::y)?.sub(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p141, q142.cond(Cond::And)?) }; let q144 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p143, q144.cond(Cond::And)?) } {
                             // 455: state = HANGING;
                             g.at("scripts/characterStepEvent", 455);
                             {
@@ -1800,7 +1800,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 462: if (hangCount == 0 && y > 16 && !platformCharacterIs(ON_GROUND) && state == FALLING && (collision_po
         g.at("scripts/characterStepEvent", 462);
-        if and(and(and(and(and(and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?.cond(Cond::And)?), g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::FALLING)?)?), or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oArrow, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oArrow, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(9.0))?, obj::oArrow, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oArrow, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+        if { let p151 = { let p149 = and(and({ let p145 = and(g.get(cx.this, v::hangCount)?.gml_eq(&r(0.0))?, g.get(cx.this, v::y)?.gml_gt(&r(16.0))?); let q146 = ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).not()?; and(p145, q146.cond(Cond::And)?) }, g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::FALLING)?)?), { let p147 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oArrow, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q148 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(6.0))?, obj::oArrow, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p147.cond(Cond::Or)?, q148.cond(Cond::Or)?) }); let q150 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(9.0))?, obj::oArrow, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p149, q150.cond(Cond::And)?) }; let q152 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oArrow, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p151, q152.cond(Cond::And)?) } {
             // 466: obj = instance_nearest(x, y - 5, oArrow);
             g.at("scripts/characterStepEvent", 466);
             {
@@ -1878,7 +1878,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 499: if (kDown && kJumpPressed)
         g.at("scripts/characterStepEvent", 499);
-        if and(g.get(cx.this, v::kDown)?.cond(Cond::And)?, g.get(cx.this, v::kJumpPressed)?.cond(Cond::And)?) {
+        if { let p153 = g.get(cx.this, v::kDown)?; let q154 = g.get(cx.this, v::kJumpPressed)?; and(p153.cond(Cond::And)?, q154.cond(Cond::And)?) } {
             // 501: grav = gravNorm;
             g.at("scripts/characterStepEvent", 501);
             {
@@ -1932,7 +1932,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 510: if (facing == RIGHT && kLeft || (facing == LEFT && kRight))
                 g.at("scripts/characterStepEvent", 510);
-                if or(and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, g.get(cx.this, v::kLeft)?.cond(Cond::And)?), and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, g.get(cx.this, v::kRight)?.cond(Cond::And)?)) {
+                if or({ let p155 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?; let q156 = g.get(cx.this, v::kLeft)?; and(p155, q156.cond(Cond::And)?) }, { let p157 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?; let q158 = g.get(cx.this, v::kRight)?; and(p157, q158.cond(Cond::And)?) }) {
                     // 512: state = FALLING;
                     g.at("scripts/characterStepEvent", 512);
                     {
@@ -1997,7 +1997,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 525: if (facing == LEFT && !isCollisionLeft(2) || (facing == RIGHT && !isCollisionRight(2)))
         g.at("scripts/characterStepEvent", 525);
-        if or(and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, scr::isCollisionLeft(g, cx, &[r(2.0)])?.not()?.cond(Cond::And)?), and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, scr::isCollisionRight(g, cx, &[r(2.0)])?.not()?.cond(Cond::And)?)) {
+        if or({ let p159 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?; let q160 = scr::isCollisionLeft(g, cx, &[r(2.0)])?.not()?; and(p159, q160.cond(Cond::And)?) }, { let p161 = g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?; let q162 = scr::isCollisionRight(g, cx, &[r(2.0)])?.not()?; and(p161, q162.cond(Cond::And)?) }) {
             // 528: grav = gravNorm;
             g.at("scripts/characterStepEvent", 528);
             {
@@ -2039,7 +2039,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 540: if (kDown && platformCharacterIs(ON_GROUND) && !whipping)
     g.at("scripts/characterStepEvent", 540);
-    if and(and(g.get(cx.this, v::kDown)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?) {
+    if { let p165 = { let p163 = g.get(cx.this, v::kDown)?; let q164 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p163.cond(Cond::And)?, q164.cond(Cond::And)?) }; let q166 = g.get(cx.this, v::whipping)?.not()?; and(p165, q166.cond(Cond::And)?) } {
         // 542: if (colBot)
         g.at("scripts/characterStepEvent", 542);
         if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
@@ -2166,7 +2166,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 581: if (!kDown && state == DUCKING)
     g.at("scripts/characterStepEvent", 581);
-    if and(g.get(cx.this, v::kDown)?.not()?.cond(Cond::And)?, g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::DUCKING)?)?) {
+    if { let p167 = g.get(cx.this, v::kDown)?.not()?; let q168 = g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::DUCKING)?)?; and(p167.cond(Cond::And)?, q168) } {
         // 583: state = STANDING;
         g.at("scripts/characterStepEvent", 583);
         {
@@ -2213,7 +2213,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 595: if (yVel < 0 && platformCharacterIs(IN_AIR) && state != HANGING)
     g.at("scripts/characterStepEvent", 595);
-    if and(and(g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?, ({ let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::HANGING)?)?) {
+    if and({ let p169 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; let q170 = { let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p169, q170.cond(Cond::And)?) }, g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::HANGING)?)?) {
         // 597: state = JUMPING;
         g.at("scripts/characterStepEvent", 597);
         {
@@ -2224,7 +2224,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 599: if (yVel > 0 && platformCharacterIs(IN_AIR) && state != HANGING)
     g.at("scripts/characterStepEvent", 599);
-    if and(and(g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?, ({ let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::HANGING)?)?) {
+    if and({ let p171 = g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?; let q172 = { let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p171, q172.cond(Cond::And)?) }, g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::HANGING)?)?) {
         // 601: state = FALLING;
         g.at("scripts/characterStepEvent", 601);
         {
@@ -2243,13 +2243,13 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     // 607: colPointLadder = collision_point(x, y, oLadder, 0, 0) || collision_point(x, y, oLadderTop, 0, 0);
     g.at("scripts/characterStepEvent", 607);
     {
-        let x = b2v(or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLadder, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLadderTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?));
+        let x = b2v({ let p173 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLadder, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q174 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLadderTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; or(p173.cond(Cond::Or)?, q174.cond(Cond::Or)?) });
         cx.ret = x.clone();
         g.set(cx.this, v::colPointLadder, x)?;
     }
     // 609: if (kUp && platformCharacterIs(IN_AIR) && collision_point(x, y - 8, oLadder, 0, 0) && ladderTimer ==
     g.at("scripts/characterStepEvent", 609);
-    if or(or(and(and(and(g.get(cx.this, v::kUp)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oLadder, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), g.get(cx.this, v::ladderTimer)?.gml_eq(&r(0.0))?), and(and(g.get(cx.this, v::kUp)?.cond(Cond::And)?, g.get(cx.this, v::colPointLadder)?.cond(Cond::And)?), g.get(cx.this, v::ladderTimer)?.gml_eq(&r(0.0))?)), and(and(and(and(and(g.get(cx.this, v::kDown)?.cond(Cond::And)?, g.get(cx.this, v::colPointLadder)?.cond(Cond::And)?), g.get(cx.this, v::ladderTimer)?.gml_eq(&r(0.0))?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oLadderTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))?)) {
+    if or(or(and({ let p177 = { let p175 = g.get(cx.this, v::kUp)?; let q176 = { let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p175.cond(Cond::And)?, q176.cond(Cond::And)?) }; let q178 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oLadder, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p177, q178.cond(Cond::And)?) }, g.get(cx.this, v::ladderTimer)?.gml_eq(&r(0.0))?), and({ let p179 = g.get(cx.this, v::kUp)?; let q180 = g.get(cx.this, v::colPointLadder)?; and(p179.cond(Cond::And)?, q180.cond(Cond::And)?) }, g.get(cx.this, v::ladderTimer)?.gml_eq(&r(0.0))?)), and({ let p185 = { let p183 = and({ let p181 = g.get(cx.this, v::kDown)?; let q182 = g.get(cx.this, v::colPointLadder)?; and(p181.cond(Cond::And)?, q182.cond(Cond::And)?) }, g.get(cx.this, v::ladderTimer)?.gml_eq(&r(0.0))?); let q184 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p183, q184.cond(Cond::And)?) }; let q186 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oLadderTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p185, q186.cond(Cond::And)?) }, g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))?)) {
         // 613: ladder = 0;
         g.at("scripts/characterStepEvent", 613);
         {
@@ -2279,7 +2279,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 620: if (!collision_point(x, y, oLadder, 0, 0) && !collision_point(x, y, oLadderTop, 0, 0))
                 g.at("scripts/characterStepEvent", 620);
-                if and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLadder, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLadderTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                if { let p187 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLadder, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; let q188 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLadderTop, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p187.cond(Cond::And)?, q188.cond(Cond::And)?) } {
                     // 623: y = ladder.y + 14;
                     g.at("scripts/characterStepEvent", 623);
                     {
@@ -2346,7 +2346,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 685: if (runKey && platformCharacterIs(ON_GROUND) && runHeld >= 10)
         g.at("scripts/characterStepEvent", 685);
-        if and(and(g.get(cx.this, v::runKey)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), g.get(cx.this, v::runHeld)?.gml_ge(&r(10.0))?) {
+        if and({ let p189 = g.get(cx.this, v::runKey)?; let q190 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p189.cond(Cond::And)?, q190.cond(Cond::And)?) }, g.get(cx.this, v::runHeld)?.gml_ge(&r(10.0))?) {
             // 687: if (kLeft)
             g.at("scripts/characterStepEvent", 687);
             if g.get(cx.this, v::kLeft)?.cond(Cond::If)? {
@@ -2431,7 +2431,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 } else {
                     // 708: if (kLeft && global.downToRun)
                     g.at("scripts/characterStepEvent", 708);
-                    if and(g.get(cx.this, v::kLeft)?.cond(Cond::And)?, g.gget(gv::downToRun)?.cond(Cond::And)?) {
+                    if { let p191 = g.get(cx.this, v::kLeft)?; let q192 = g.gget(gv::downToRun)?; and(p191.cond(Cond::And)?, q192.cond(Cond::And)?) } {
                         // 710: xVel -= 0.1;
                         g.at("scripts/characterStepEvent", 710);
                         {
@@ -2457,7 +2457,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     } else {
                         // 714: if (kRight && global.downToRun)
                         g.at("scripts/characterStepEvent", 714);
-                        if and(g.get(cx.this, v::kRight)?.cond(Cond::And)?, g.gget(gv::downToRun)?.cond(Cond::And)?) {
+                        if { let p193 = g.get(cx.this, v::kRight)?; let q194 = g.gget(gv::downToRun)?; and(p193.cond(Cond::And)?, q194.cond(Cond::And)?) } {
                             // 716: xVel += 0.1;
                             g.at("scripts/characterStepEvent", 716);
                             {
@@ -2530,7 +2530,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if ({ let a = [g.get(cx.this, v::IN_AIR)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::If)? {
                     // 734: if (dead || stunned)
                     g.at("scripts/characterStepEvent", 734);
-                    if or(g.get(cx.this, v::dead)?.cond(Cond::Or)?, g.get(cx.this, v::stunned)?.cond(Cond::Or)?) {
+                    if { let p195 = g.get(cx.this, v::dead)?; let q196 = g.get(cx.this, v::stunned)?; or(p195.cond(Cond::Or)?, q196.cond(Cond::Or)?) } {
                         // 734: xFric = 1;
                         g.at("scripts/characterStepEvent", 734);
                         {
@@ -2649,7 +2649,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 774: if (colIceBot && state != DUCKING && !global.hasSpikeShoes)
     g.at("scripts/characterStepEvent", 774);
-    if and(and(g.get(cx.this, v::colIceBot)?.cond(Cond::And)?, g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKING)?)?), g.gget(gv::hasSpikeShoes)?.not()?.cond(Cond::And)?) {
+    if { let p199 = { let p197 = g.get(cx.this, v::colIceBot)?; let q198 = g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKING)?)?; and(p197.cond(Cond::And)?, q198) }; let q200 = g.gget(gv::hasSpikeShoes)?.not()?; and(p199, q200.cond(Cond::And)?) } {
         // 776: xFric = 0.98;
         g.at("scripts/characterStepEvent", 776);
         {
@@ -2670,7 +2670,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     if ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::If)? {
         // 784: if (state == RUNNING && kLeft && colLeft)
         g.at("scripts/characterStepEvent", 784);
-        if and(and(g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::RUNNING)?)?, g.get(cx.this, v::kLeft)?.cond(Cond::And)?), g.get(cx.this, v::colLeft)?.cond(Cond::And)?) {
+        if { let p203 = { let p201 = g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::RUNNING)?)?; let q202 = g.get(cx.this, v::kLeft)?; and(p201, q202.cond(Cond::And)?) }; let q204 = g.get(cx.this, v::colLeft)?; and(p203, q204.cond(Cond::And)?) } {
             // 786: pushTimer += 1;
             g.at("scripts/characterStepEvent", 786);
             {
@@ -2682,7 +2682,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 788: if (state == RUNNING && kRight && colRight)
             g.at("scripts/characterStepEvent", 788);
-            if and(and(g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::RUNNING)?)?, g.get(cx.this, v::kRight)?.cond(Cond::And)?), g.get(cx.this, v::colRight)?.cond(Cond::And)?) {
+            if { let p207 = { let p205 = g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::RUNNING)?)?; let q206 = g.get(cx.this, v::kRight)?; and(p205, q206.cond(Cond::And)?) }; let q208 = g.get(cx.this, v::colRight)?; and(p207, q208.cond(Cond::And)?) } {
                 // 790: pushTimer += 1;
                 g.at("scripts/characterStepEvent", 790);
                 {
@@ -2703,7 +2703,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 797: if (platformCharacterIs(ON_GROUND) && !kJump && !kDown && !runKey)
         g.at("scripts/characterStepEvent", 797);
-        if and(and(and(({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?, g.get(cx.this, v::kJump)?.not()?.cond(Cond::And)?), g.get(cx.this, v::kDown)?.not()?.cond(Cond::And)?), g.get(cx.this, v::runKey)?.not()?.cond(Cond::And)?) {
+        if { let p213 = { let p211 = { let p209 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; let q210 = g.get(cx.this, v::kJump)?.not()?; and(p209.cond(Cond::And)?, q210.cond(Cond::And)?) }; let q212 = g.get(cx.this, v::kDown)?.not()?; and(p211, q212.cond(Cond::And)?) }; let q214 = g.get(cx.this, v::runKey)?.not()?; and(p213, q214.cond(Cond::And)?) } {
             // 799: xVelLimit = 3;
             g.at("scripts/characterStepEvent", 799);
             {
@@ -2714,7 +2714,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 804: if (state == DUCKING && abs(xVel) < 3 && facing == LEFT && collision_point(x, y + 9, oSolid, 0, 0) &
         g.at("scripts/characterStepEvent", 804);
-        if and(and(and(and(and(g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::DUCKING)?)?, ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(3.0))?), g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), g.get(cx.this, v::kLeft)?.cond(Cond::And)?) {
+        if { let p219 = { let p217 = { let p215 = and(and(g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::DUCKING)?)?, ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(3.0))?), g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?); let q216 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p215, q216.cond(Cond::And)?) }; let q218 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p217, q218.cond(Cond::And)?) }; let q220 = g.get(cx.this, v::kLeft)?; and(p219, q220.cond(Cond::And)?) } {
             // 807: state = DUCKTOHANG;
             g.at("scripts/characterStepEvent", 807);
             {
@@ -2754,10 +2754,10 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             g.at("scripts/characterStepEvent", 816);
             {
                 let t = obj::oMonkey;
-                let mut it1 = g.with_iter(cx, &t)?;
-                let outer3 = (cx.this, cx.other);
-                'with1: while let Some(h2) = it1.next(g) {
-                    (cx.this, cx.other) = (h2, outer3.0);
+                let mut it221 = g.with_iter(cx, &t)?;
+                let outer223 = (cx.this, cx.other);
+                'with1: while let Some(h222) = it221.next(g) {
+                    (cx.this, cx.other) = (h222, outer223.0);
                     // 819: if (status == 7)
                     g.at("scripts/characterStepEvent", 819);
                     if g.get(cx.this, v::status)?.gml_eq(&r(7.0))? {
@@ -2798,12 +2798,12 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         }
                     }
                 }
-                (cx.this, cx.other) = outer3;
+                (cx.this, cx.other) = outer223;
             }
         } else {
             // 829: if (state == DUCKING && abs(xVel) < 3 && facing == RIGHT && collision_point(x, y + 9, oSolid, 0, 0) 
             g.at("scripts/characterStepEvent", 829);
-            if and(and(and(and(and(g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::DUCKING)?)?, ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(3.0))?), g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), g.get(cx.this, v::kRight)?.cond(Cond::And)?) {
+            if { let p228 = { let p226 = { let p224 = and(and(g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::DUCKING)?)?, ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(3.0))?), g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?); let q225 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p224, q225.cond(Cond::And)?) }; let q227 = ({ let a = [g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p226, q227.cond(Cond::And)?) }; let q229 = g.get(cx.this, v::kRight)?; and(p228, q229.cond(Cond::And)?) } {
                 // 832: state = DUCKTOHANG;
                 g.at("scripts/characterStepEvent", 832);
                 {
@@ -2835,10 +2835,10 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/characterStepEvent", 841);
                 {
                     let t = obj::oMonkey;
-                    let mut it4 = g.with_iter(cx, &t)?;
-                    let outer6 = (cx.this, cx.other);
-                    'with2: while let Some(h5) = it4.next(g) {
-                        (cx.this, cx.other) = (h5, outer6.0);
+                    let mut it230 = g.with_iter(cx, &t)?;
+                    let outer232 = (cx.this, cx.other);
+                    'with2: while let Some(h231) = it230.next(g) {
+                        (cx.this, cx.other) = (h231, outer232.0);
                         // 844: if (status == 7)
                         g.at("scripts/characterStepEvent", 844);
                         if g.get(cx.this, v::status)?.gml_eq(&r(7.0))? {
@@ -2879,7 +2879,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                         }
                     }
-                    (cx.this, cx.other) = outer6;
+                    (cx.this, cx.other) = outer232;
                 }
             }
         }
@@ -3030,7 +3030,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 887: if (dead || stunned)
     g.at("scripts/characterStepEvent", 887);
-    if or(g.get(cx.this, v::dead)?.cond(Cond::Or)?, g.get(cx.this, v::stunned)?.cond(Cond::Or)?) {
+    if { let p233 = g.get(cx.this, v::dead)?; let q234 = g.get(cx.this, v::stunned)?; or(p233.cond(Cond::Or)?, q234.cond(Cond::Or)?) } {
         // 887: yVel += 0.6;
         g.at("scripts/characterStepEvent", 887);
         {
@@ -3123,7 +3123,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 } else {
                     // 911: if (oBall.x < x && !kRight)
                     g.at("scripts/characterStepEvent", 911);
-                    if and(g.get_on(cx, &obj::oBall, v::x)?.gml_lt(&g.get(cx.this, v::x)?)?, g.get(cx.this, v::kRight)?.not()?.cond(Cond::And)?) {
+                    if { let p235 = g.get_on(cx, &obj::oBall, v::x)?.gml_lt(&g.get(cx.this, v::x)?)?; let q236 = g.get(cx.this, v::kRight)?.not()?; and(p235, q236.cond(Cond::And)?) } {
                         // 913: if (xVel > 0)
                         g.at("scripts/characterStepEvent", 913);
                         if g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))? {
@@ -3152,7 +3152,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     } else {
                         // 916: if (oBall.x > x && !kLeft)
                         g.at("scripts/characterStepEvent", 916);
-                        if and(g.get_on(cx, &obj::oBall, v::x)?.gml_gt(&g.get(cx.this, v::x)?)?, g.get(cx.this, v::kLeft)?.not()?.cond(Cond::And)?) {
+                        if { let p237 = g.get_on(cx, &obj::oBall, v::x)?.gml_gt(&g.get(cx.this, v::x)?)?; let q238 = g.get(cx.this, v::kLeft)?.not()?; and(p237, q238.cond(Cond::And)?) } {
                             // 918: if (xVel < 0)
                             g.at("scripts/characterStepEvent", 918);
                             if g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))? {
@@ -3211,7 +3211,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 929: if (!dead && !stunned)
     g.at("scripts/characterStepEvent", 929);
-    if and(g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?, g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?) {
+    if { let p239 = g.get(cx.this, v::dead)?.not()?; let q240 = g.get(cx.this, v::stunned)?.not()?; and(p239.cond(Cond::And)?, q240.cond(Cond::And)?) } {
         // 931: if (xVel > xVelLimit)
         g.at("scripts/characterStepEvent", 931);
         if g.get(cx.this, v::xVel)?.gml_gt(&g.get(cx.this, v::xVelLimit)?)? {
@@ -3305,7 +3305,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 946: if (maxSlope > 0 && platformCharacterIs(ON_GROUND) && xVel != 0)
     g.at("scripts/characterStepEvent", 946);
-    if and(and(g.get(cx.this, v::maxSlope)?.gml_gt(&r(0.0))?, ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), g.get(cx.this, v::xVel)?.gml_ne(&r(0.0))?) {
+    if and({ let p241 = g.get(cx.this, v::maxSlope)?.gml_gt(&r(0.0))?; let q242 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p241, q242.cond(Cond::And)?) }, g.get(cx.this, v::xVel)?.gml_ne(&r(0.0))?) {
         // 948: slopeYPrev = y;
         g.at("scripts/characterStepEvent", 948);
         {
@@ -3360,7 +3360,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 959: if (maxSlope * abs(xVel) > 0 && platformCharacterIs(ON_GROUND))
     g.at("scripts/characterStepEvent", 959);
-    if and(g.get(cx.this, v::maxSlope)?.mul(&{ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? })?.gml_gt(&r(0.0))?, ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?) {
+    if { let p243 = g.get(cx.this, v::maxSlope)?.mul(&{ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? })?.gml_gt(&r(0.0))?; let q244 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p243, q244.cond(Cond::And)?) } {
         // 962: xPrev = x;
         g.at("scripts/characterStepEvent", 962);
         {
@@ -3446,7 +3446,7 @@ pub fn characterStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 990: if (!colBot && maxDownSlope > 0 && xVelInteger != 0 && platformCharacterIs(ON_GROUND))
     g.at("scripts/characterStepEvent", 990);
-    if and(and(and(g.get(cx.this, v::colBot)?.not()?.cond(Cond::And)?, g.get(cx.this, v::maxDownSlope)?.gml_gt(&r(0.0))?), g.get(cx.this, v::xVelInteger)?.gml_ne(&r(0.0))?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?) {
+    if { let p247 = and({ let p245 = g.get(cx.this, v::colBot)?.not()?; let q246 = g.get(cx.this, v::maxDownSlope)?.gml_gt(&r(0.0))?; and(p245.cond(Cond::And)?, q246) }, g.get(cx.this, v::xVelInteger)?.gml_ne(&r(0.0))?); let q248 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p247, q248.cond(Cond::And)?) } {
         // 993: upYPrev = y;
         g.at("scripts/characterStepEvent", 993);
         {

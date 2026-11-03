@@ -653,7 +653,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 154: if (global.customLevel && !instance_exists(oLoadButton))
         g.at("scripts/scrLoadLevel", 154);
-        if and(g.gget(gv::customLevel)?.cond(Cond::And)?, b::instance_exists(g, cx, [obj::oLoadButton])?.not()?.cond(Cond::And)?) {
+        if { let p10 = g.gget(gv::customLevel)?; let q11 = b::instance_exists(g, cx, [obj::oLoadButton])?.not()?; and(p10.cond(Cond::And)?, q11.cond(Cond::And)?) } {
             // 156: room_goto(rEndCustom);
             g.at("scripts/scrLoadLevel", 156);
             cx.ret = b::room_goto(g, cx, [rm::rEndCustom])?;
@@ -698,10 +698,10 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrLoadLevel", 175);
         {
             let t = obj::oEntrance;
-            let mut it10 = g.with_iter(cx, &t)?;
-            let outer12 = (cx.this, cx.other);
-            'with16: while let Some(h11) = it10.next(g) {
-                (cx.this, cx.other) = (h11, outer12.0);
+            let mut it12 = g.with_iter(cx, &t)?;
+            let outer14 = (cx.this, cx.other);
+            'with16: while let Some(h13) = it12.next(g) {
+                (cx.this, cx.other) = (h13, outer14.0);
                 // 177: if (leadsTo == global.prevCustomLevel)
                 g.at("scripts/scrLoadLevel", 177);
                 if g.get(cx.this, v::leadsTo)?.gml_eq(&g.gget(gv::prevCustomLevel)?)? {
@@ -726,7 +726,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     break 'with16;
                 }
             }
-            (cx.this, cx.other) = outer12;
+            (cx.this, cx.other) = outer14;
         }
         // 185: global.prevCustomLevel = levelName;
         g.at("scripts/scrLoadLevel", 185);
@@ -777,15 +777,15 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/scrLoadLevel", 193);
         {
             let t = obj::oLoadButton;
-            let mut it13 = g.with_iter(cx, &t)?;
-            let outer15 = (cx.this, cx.other);
-            'with17: while let Some(h14) = it13.next(g) {
-                (cx.this, cx.other) = (h14, outer15.0);
+            let mut it15 = g.with_iter(cx, &t)?;
+            let outer17 = (cx.this, cx.other);
+            'with17: while let Some(h16) = it15.next(g) {
+                (cx.this, cx.other) = (h16, outer17.0);
                 // 193: instance_destroy();
                 g.at("scripts/scrLoadLevel", 193);
                 cx.ret = b::instance_destroy(g, cx, [])?;
             }
-            (cx.this, cx.other) = outer15;
+            (cx.this, cx.other) = outer17;
         }
     }
     Ok(cx.ret.clone())

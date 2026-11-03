@@ -106,7 +106,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 44: if (global.levelType == 1 && !global.madeBlackMarket && global.genBlackMarket)
     g.at("scripts/scrLevelGen", 44);
-    if and(and(g.gget(gv::levelType)?.gml_eq(&r(1.0))?, g.gget(gv::madeBlackMarket)?.not()?.cond(Cond::And)?), g.gget(gv::genBlackMarket)?.cond(Cond::And)?) {
+    if { let p3 = { let p1 = g.gget(gv::levelType)?.gml_eq(&r(1.0))?; let q2 = g.gget(gv::madeBlackMarket)?.not()?; and(p1, q2.cond(Cond::And)?) }; let q4 = g.gget(gv::genBlackMarket)?; and(p3, q4.cond(Cond::And)?) } {
         // 46: global.blackMarket = true;
         g.at("scripts/scrLevelGen", 46);
         {
@@ -885,7 +885,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 213: if (!global.madeMoai && global.levelType == 2)
     g.at("scripts/scrLevelGen", 213);
-    if and(g.gget(gv::madeMoai)?.not()?.cond(Cond::And)?, g.gget(gv::levelType)?.gml_eq(&r(2.0))?) {
+    if { let p5 = g.gget(gv::madeMoai)?.not()?; let q6 = g.gget(gv::levelType)?.gml_eq(&r(2.0))?; and(p5.cond(Cond::And)?, q6) } {
         // 215: if (global.currLevel == 9 && rand(1, 4) == 1)
         g.at("scripts/scrLevelGen", 215);
         if and(g.gget(gv::currLevel)?.gml_eq(&r(9.0))?, scr::rand(g, cx, &[r(1.0), r(4.0)])?.gml_eq(&r(1.0))?) {
@@ -1033,7 +1033,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 234: if (global.levelType == 2 && !global.alienCraft && rand(1, global.probYetiLair) == 1)
             g.at("scripts/scrLevelGen", 234);
-            if and(and(g.gget(gv::levelType)?.gml_eq(&r(2.0))?, g.gget(gv::alienCraft)?.not()?.cond(Cond::And)?), ({ let a = [r(1.0), g.gget(gv::probYetiLair)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))?) {
+            if and({ let p7 = g.gget(gv::levelType)?.gml_eq(&r(2.0))?; let q8 = g.gget(gv::alienCraft)?.not()?; and(p7, q8.cond(Cond::And)?) }, ({ let a = [r(1.0), g.gget(gv::probYetiLair)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))?) {
                 // 236: global.yetiLair = true;
                 g.at("scripts/scrLevelGen", 236);
                 {
@@ -1046,7 +1046,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 240: if (rand(1, global.currLevel) <= 2 && global.currLevel > 1 && !global.madeBlackMarket)
     g.at("scripts/scrLevelGen", 240);
-    if and(and(({ let a = [r(1.0), g.gget(gv::currLevel)?]; scr::rand(g, cx, &a)? }).gml_le(&r(2.0))?, g.gget(gv::currLevel)?.gml_gt(&r(1.0))?), g.gget(gv::madeBlackMarket)?.not()?.cond(Cond::And)?) {
+    if { let p9 = and(({ let a = [r(1.0), g.gget(gv::currLevel)?]; scr::rand(g, cx, &a)? }).gml_le(&r(2.0))?, g.gget(gv::currLevel)?.gml_gt(&r(1.0))?); let q10 = g.gget(gv::madeBlackMarket)?.not()?; and(p9, q10.cond(Cond::And)?) } {
         // 242: i = 0;
         g.at("scripts/scrLevelGen", 242);
         {

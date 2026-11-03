@@ -373,7 +373,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 4: if (sprite_index == sPExit || sprite_index == sDamselExit || sprite_index == sTunnelExit && global.h
     g.at("oPDummy2/draw#0", 4);
-    if and(or(or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?), g.gget(gv::hasJetpack)?.cond(Cond::And)?) {
+    if { let p1 = or(or(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sPExit)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sTunnelExit)?); let q2 = g.gget(gv::hasJetpack)?; and(p1, q2.cond(Cond::And)?) } {
         // 6: draw_sprite_ext(sprite_index, -1, x, y, image_xscale, image_yscale, image_angle, image_blend, image_
         g.at("oPDummy2/draw#0", 6);
         { let a = [g.get(cx.this, v::sprite_index)?, r(-1.0), g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get(cx.this, v::image_xscale)?, g.get(cx.this, v::image_yscale)?, g.get(cx.this, v::image_angle)?, g.get(cx.this, v::image_blend)?, g.get(cx.this, v::image_alpha)?]; b::draw_sprite_ext(g, cx, a)? };

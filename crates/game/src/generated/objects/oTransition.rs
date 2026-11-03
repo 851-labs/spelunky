@@ -108,7 +108,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 47: if (global.tunnel1 > 0 && global.tunnel2 > 0 && isRoom("rTransition1x"))
     g.at("oTransition/create#0", 47);
-    if and(and(g.gget(gv::tunnel1)?.gml_gt(&r(0.0))?, g.gget(gv::tunnel2)?.gml_gt(&r(0.0))?), scr::isRoom(g, cx, &[s!("rTransition1x")])?.cond(Cond::And)?) {
+    if { let p1 = and(g.gget(gv::tunnel1)?.gml_gt(&r(0.0))?, g.gget(gv::tunnel2)?.gml_gt(&r(0.0))?); let q2 = scr::isRoom(g, cx, &[s!("rTransition1x")])?; and(p1, q2.cond(Cond::And)?) } {
         // 49: if (global.tunnel1 > global.tunnel1Max)
         g.at("oTransition/create#0", 49);
         if g.gget(gv::tunnel1)?.gml_gt(&g.gget(gv::tunnel1Max)?)? {
@@ -123,7 +123,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 52: if (global.tunnel1 == 0 && global.tunnel2 > 0 && isRoom("rTransition2x"))
         g.at("oTransition/create#0", 52);
-        if and(and(g.gget(gv::tunnel1)?.gml_eq(&r(0.0))?, g.gget(gv::tunnel2)?.gml_gt(&r(0.0))?), scr::isRoom(g, cx, &[s!("rTransition2x")])?.cond(Cond::And)?) {
+        if { let p3 = and(g.gget(gv::tunnel1)?.gml_eq(&r(0.0))?, g.gget(gv::tunnel2)?.gml_gt(&r(0.0))?); let q4 = scr::isRoom(g, cx, &[s!("rTransition2x")])?; and(p3, q4.cond(Cond::And)?) } {
             // 54: if (global.tunnel2 > global.tunnel2Max)
             g.at("oTransition/create#0", 54);
             if g.gget(gv::tunnel2)?.gml_gt(&g.gget(gv::tunnel2Max)?)? {
@@ -138,7 +138,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 57: if (global.tunnel1 > 0 && global.tunnel2 == 0 && isRoom("rTransition3x"))
             g.at("oTransition/create#0", 57);
-            if and(and(g.gget(gv::tunnel1)?.gml_gt(&r(0.0))?, g.gget(gv::tunnel2)?.gml_eq(&r(0.0))?), scr::isRoom(g, cx, &[s!("rTransition3x")])?.cond(Cond::And)?) {
+            if { let p5 = and(g.gget(gv::tunnel1)?.gml_gt(&r(0.0))?, g.gget(gv::tunnel2)?.gml_eq(&r(0.0))?); let q6 = scr::isRoom(g, cx, &[s!("rTransition3x")])?; and(p5, q6.cond(Cond::And)?) } {
                 // 59: if (global.tunnel1 > global.tunnel3Max)
                 g.at("oTransition/create#0", 59);
                 if g.gget(gv::tunnel1)?.gml_gt(&g.gget(gv::tunnel3Max)?)? {
@@ -878,7 +878,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (checkAttackPressed() || checkStartPressed())
     g.at("oTransition/step#0", 1);
-    if or(scr::checkAttackPressed(g, cx, &[])?.cond(Cond::Or)?, scr::checkStartPressed(g, cx, &[])?.cond(Cond::Or)?) {
+    if { let p1 = scr::checkAttackPressed(g, cx, &[])?; let q2 = scr::checkStartPressed(g, cx, &[])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 3: n = 0;
         g.at("oTransition/step#0", 3);
         g.set(cx.this, v::n, r(0.0))?;
@@ -945,7 +945,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 20: if (global.currLevel >= 5 && global.currLevel <= 8 && !global.genBlackMarket)
                 g.at("oTransition/step#0", 20);
-                if and(and(g.gget(gv::currLevel)?.gml_ge(&r(5.0))?, g.gget(gv::currLevel)?.gml_le(&r(8.0))?), g.gget(gv::genBlackMarket)?.not()?.cond(Cond::And)?) {
+                if { let p3 = and(g.gget(gv::currLevel)?.gml_ge(&r(5.0))?, g.gget(gv::currLevel)?.gml_le(&r(8.0))?); let q4 = g.gget(gv::genBlackMarket)?.not()?; and(p3, q4.cond(Cond::And)?) } {
                     // 22: if (rand(1, global.probLake) == 1)
                     g.at("oTransition/step#0", 22);
                     if ({ let a = [r(1.0), g.gget(gv::probLake)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))? {
@@ -1008,7 +1008,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 41: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
             g.at("oTransition/step#0", 41);
-            if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rTransition3x")])?.cond(Cond::Or)?) {
+            if { let p5 = scr::isRoom(g, cx, &[s!("rTransition1x")])?; let q6 = scr::isRoom(g, cx, &[s!("rTransition3x")])?; or(p5.cond(Cond::Or)?, q6.cond(Cond::Or)?) } {
                 // 43: if (global.money > global.tunnel1)
                 g.at("oTransition/step#0", 43);
                 if g.gget(gv::money)?.gml_gt(&g.gget(gv::tunnel1)?)? {
@@ -1195,7 +1195,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 { let a = [g.get(cx.this, v::n)?, r(208.0), s!("CAN YOU LEND ME A LITTLE MONEY?")]; b::draw_text(g, cx, a)? };
                 // 23: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
                 g.at("oTransition/draw#0", 23);
-                if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rTransition3x")])?.cond(Cond::Or)?) {
+                if { let p1 = scr::isRoom(g, cx, &[s!("rTransition1x")])?; let q2 = scr::isRoom(g, cx, &[s!("rTransition3x")])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
                     // 23: strLen = string_length("I NEED $" + string(global.tunnel1) + " FOR A NEW SHORTCUT.") * 8;
                     g.at("oTransition/draw#0", 23);
                     {
@@ -1221,7 +1221,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 27: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
                 g.at("oTransition/draw#0", 27);
-                if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rTransition3x")])?.cond(Cond::Or)?) {
+                if { let p3 = scr::isRoom(g, cx, &[s!("rTransition1x")])?; let q4 = scr::isRoom(g, cx, &[s!("rTransition3x")])?; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) } {
                     // 27: draw_text(n, 216, "I NEED $" + string(global.tunnel1) + " FOR A NEW SHORTCUT.");
                     g.at("oTransition/draw#0", 27);
                     { let a = [g.get(cx.this, v::n)?, r(216.0), s!("I NEED $").add(&{ let a = [g.gget(gv::tunnel1)?]; b::string(g, cx, a)? })?.add(&s!(" FOR A NEW SHORTCUT."))?]; b::draw_text(g, cx, a)? };
@@ -1380,7 +1380,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     b::draw_text(g, cx, [r(32.0), r(112.0), s!("MONEY = ")])?;
     // 84: if (drawLoot >= 1 && !isLoot)
     g.at("oTransition/draw#0", 84);
-    if and(g.get(cx.this, v::drawLoot)?.gml_ge(&r(1.0))?, g.get(cx.this, v::isLoot)?.not()?.cond(Cond::And)?) {
+    if { let p5 = g.get(cx.this, v::drawLoot)?.gml_ge(&r(1.0))?; let q6 = g.get(cx.this, v::isLoot)?.not()?; and(p5, q6.cond(Cond::And)?) } {
         // 86: draw_text(96, 80, "NONE");
         g.at("oTransition/draw#0", 86);
         b::draw_text(g, cx, [r(96.0), r(80.0), s!("NONE")])?;

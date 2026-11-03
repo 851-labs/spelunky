@@ -17,7 +17,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oSacAltarLeft/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::And)?, g.gget(gv::cleanSolids)?.not()?.cond(Cond::And)?) {
+    if { let p1 = g.get(cx.this, v::cleanDeath)?.not()?; let q2 = g.gget(gv::cleanSolids)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oSacAltarLeft/destroy#0", 3);
         {
@@ -71,15 +71,15 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oSacAltarLeft/destroy#0", 22);
             {
                 let t = obj::oKaliHead;
-                let mut it1 = g.with_iter(cx, &t)?;
-                let outer3 = (cx.this, cx.other);
-                'with1: while let Some(h2) = it1.next(g) {
-                    (cx.this, cx.other) = (h2, outer3.0);
+                let mut it3 = g.with_iter(cx, &t)?;
+                let outer5 = (cx.this, cx.other);
+                'with1: while let Some(h4) = it3.next(g) {
+                    (cx.this, cx.other) = (h4, outer5.0);
                     // 24: alarm[0] = 1;
                     g.at("oSacAltarLeft/destroy#0", 24);
                     g.set_a(cx.this, v::alarm, 0, 0, r(1.0))?;
                 }
-                (cx.this, cx.other) = outer3;
+                (cx.this, cx.other) = outer5;
             }
         } else {
             // 27: if (global.kaliPunish == 1)
@@ -127,20 +127,20 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 41: if (global.darkLevel && global.ghostExists)
                 g.at("oSacAltarLeft/destroy#0", 41);
-                if and(g.gget(gv::darkLevel)?.cond(Cond::And)?, g.gget(gv::ghostExists)?.cond(Cond::And)?) {
+                if { let p6 = g.gget(gv::darkLevel)?; let q7 = g.gget(gv::ghostExists)?; and(p6.cond(Cond::And)?, q7.cond(Cond::And)?) } {
                     // 43: with (oKaliHead)
                     g.at("oSacAltarLeft/destroy#0", 43);
                     {
                         let t = obj::oKaliHead;
-                        let mut it4 = g.with_iter(cx, &t)?;
-                        let outer6 = (cx.this, cx.other);
-                        'with2: while let Some(h5) = it4.next(g) {
-                            (cx.this, cx.other) = (h5, outer6.0);
+                        let mut it8 = g.with_iter(cx, &t)?;
+                        let outer10 = (cx.this, cx.other);
+                        'with2: while let Some(h9) = it8.next(g) {
+                            (cx.this, cx.other) = (h9, outer10.0);
                             // 45: alarm[0] = 1;
                             g.at("oSacAltarLeft/destroy#0", 45);
                             g.set_a(cx.this, v::alarm, 0, 0, r(1.0))?;
                         }
-                        (cx.this, cx.other) = outer6;
+                        (cx.this, cx.other) = outer10;
                     }
                 } else {
                     // 50: global.darkLevel = true;
@@ -174,10 +174,10 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oSacAltarLeft/destroy#0", 62);
         {
             let t = obj::oSacAltarLeft;
-            let mut it7 = g.with_iter(cx, &t)?;
-            let outer9 = (cx.this, cx.other);
-            'with3: while let Some(h8) = it7.next(g) {
-                (cx.this, cx.other) = (h8, outer9.0);
+            let mut it11 = g.with_iter(cx, &t)?;
+            let outer13 = (cx.this, cx.other);
+            'with3: while let Some(h12) = it11.next(g) {
+                (cx.this, cx.other) = (h12, outer13.0);
                 // 64: defile = false;
                 g.at("oSacAltarLeft/destroy#0", 64);
                 g.set(cx.this, v::defile, r(0.0))?;
@@ -185,7 +185,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oSacAltarLeft/destroy#0", 65);
                 b::instance_destroy(g, cx, [])?;
             }
-            (cx.this, cx.other) = outer9;
+            (cx.this, cx.other) = outer13;
         }
     }
     Ok(())

@@ -6,7 +6,7 @@ pub fn playMusic(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (global.music && !SS_IsSoundPlaying(argument0))
     g.at("scripts/playMusic", 1);
-    if and(g.gget(gv::music)?.cond(Cond::And)?, scr::SS_IsSoundPlaying(g, cx, &[cx.arg(0)?])?.not()?.cond(Cond::And)?) {
+    if { let p1 = g.gget(gv::music)?; let q2 = scr::SS_IsSoundPlaying(g, cx, &[cx.arg(0)?])?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: if (argument1)
         g.at("scripts/playMusic", 3);
         if cx.arg(1)?.cond(Cond::If)? {

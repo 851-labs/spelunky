@@ -157,15 +157,15 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if g.get(cx.this, v::solidId)?.gml_gt(&r(0.0))? {
                     // 46: if (object_get_parent(solidId.object_index) == oMoveableSolid && canPushMoveableSolids())
                     g.at("scripts/moveTo", 46);
-                    if and(({ let a = [g.get_on(cx, &g.get(cx.this, v::solidId)?, v::object_index)?]; b::object_get_parent(g, cx, a)? }).gml_eq(&obj::oMoveableSolid)?, scr::canPushMoveableSolids(g, cx, &[])?.cond(Cond::And)?) {
+                    if { let p1 = ({ let a = [g.get_on(cx, &g.get(cx.this, v::solidId)?, v::object_index)?]; b::object_get_parent(g, cx, a)? }).gml_eq(&obj::oMoveableSolid)?; let q2 = scr::canPushMoveableSolids(g, cx, &[])?; and(p1, q2.cond(Cond::And)?) } {
                         // 49: with (solidId)
                         g.at("scripts/moveTo", 49);
                         {
                             let t = g.get(cx.this, v::solidId)?;
-                            let mut it1 = g.with_iter(cx, &t)?;
-                            let outer3 = (cx.this, cx.other);
-                            'with3: while let Some(h2) = it1.next(g) {
-                                (cx.this, cx.other) = (h2, outer3.0);
+                            let mut it3 = g.with_iter(cx, &t)?;
+                            let outer5 = (cx.this, cx.other);
+                            'with3: while let Some(h4) = it3.next(g) {
+                                (cx.this, cx.other) = (h4, outer5.0);
                                 // 51: if (place_meeting(x + 1, y, oSolid))
                                 g.at("scripts/moveTo", 51);
                                 if ({ let a = [g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid]; b::place_meeting(g, cx, a)? }).cond(Cond::If)? {
@@ -190,7 +190,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     }
                                 }
                             }
-                            (cx.this, cx.other) = outer3;
+                            (cx.this, cx.other) = outer5;
                         }
                     } else {
                         // 63: break;
@@ -236,15 +236,15 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if g.get(cx.this, v::solidId)?.gml_gt(&r(0.0))? {
                     // 74: if (object_get_parent(solidId.object_index) == oMoveableSolid && canPushMoveableSolids())
                     g.at("scripts/moveTo", 74);
-                    if and(({ let a = [g.get_on(cx, &g.get(cx.this, v::solidId)?, v::object_index)?]; b::object_get_parent(g, cx, a)? }).gml_eq(&obj::oMoveableSolid)?, scr::canPushMoveableSolids(g, cx, &[])?.cond(Cond::And)?) {
+                    if { let p6 = ({ let a = [g.get_on(cx, &g.get(cx.this, v::solidId)?, v::object_index)?]; b::object_get_parent(g, cx, a)? }).gml_eq(&obj::oMoveableSolid)?; let q7 = scr::canPushMoveableSolids(g, cx, &[])?; and(p6, q7.cond(Cond::And)?) } {
                         // 77: with (solidId)
                         g.at("scripts/moveTo", 77);
                         {
                             let t = g.get(cx.this, v::solidId)?;
-                            let mut it4 = g.with_iter(cx, &t)?;
-                            let outer6 = (cx.this, cx.other);
-                            'with6: while let Some(h5) = it4.next(g) {
-                                (cx.this, cx.other) = (h5, outer6.0);
+                            let mut it8 = g.with_iter(cx, &t)?;
+                            let outer10 = (cx.this, cx.other);
+                            'with6: while let Some(h9) = it8.next(g) {
+                                (cx.this, cx.other) = (h9, outer10.0);
                                 // 79: if (place_meeting(x - 1, y, oSolid))
                                 g.at("scripts/moveTo", 79);
                                 if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid]; b::place_meeting(g, cx, a)? }).cond(Cond::If)? {
@@ -269,7 +269,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     }
                                 }
                             }
-                            (cx.this, cx.other) = outer6;
+                            (cx.this, cx.other) = outer10;
                         }
                     } else {
                         // 91: break;
@@ -315,7 +315,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if scr::canLandOnPlatforms(g, cx, &[])?.cond(Cond::If)? {
                     // 101: if (isCollisionPlatform() == 0 && isCollisionPlatformBottom(1) && kDown == 0)
                     g.at("scripts/moveTo", 101);
-                    if and(and(scr::isCollisionPlatform(g, cx, &[])?.gml_eq(&r(0.0))?, scr::isCollisionPlatformBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?), g.get(cx.this, v::kDown)?.gml_eq(&r(0.0))?) {
+                    if and({ let p11 = scr::isCollisionPlatform(g, cx, &[])?.gml_eq(&r(0.0))?; let q12 = scr::isCollisionPlatformBottom(g, cx, &[r(1.0)])?; and(p11, q12.cond(Cond::And)?) }, g.get(cx.this, v::kDown)?.gml_eq(&r(0.0))?) {
                         // 102: break;
                         g.at("scripts/moveTo", 102);
                         break 'for7;

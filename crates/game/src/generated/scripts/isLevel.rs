@@ -6,7 +6,7 @@ pub fn isLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 7: if (isRoom("rTutorial") || isRoom("rLoadLevel") || isRoom("rLevel") || isRoom("rLevel2") || isRoom("
     g.at("scripts/isLevel", 7);
-    if or(or(or(or(or(scr::isRoom(g, cx, &[s!("rTutorial")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rLoadLevel")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rLevel")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rLevel2")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rLevel3")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rOlmec")])?.cond(Cond::Or)?) {
+    if { let p9 = { let p7 = { let p5 = { let p3 = { let p1 = scr::isRoom(g, cx, &[s!("rTutorial")])?; let q2 = scr::isRoom(g, cx, &[s!("rLoadLevel")])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }; let q4 = scr::isRoom(g, cx, &[s!("rLevel")])?; or(p3, q4.cond(Cond::Or)?) }; let q6 = scr::isRoom(g, cx, &[s!("rLevel2")])?; or(p5, q6.cond(Cond::Or)?) }; let q8 = scr::isRoom(g, cx, &[s!("rLevel3")])?; or(p7, q8.cond(Cond::Or)?) }; let q10 = scr::isRoom(g, cx, &[s!("rOlmec")])?; or(p9, q10.cond(Cond::Or)?) } {
         // 7: return true;
         g.at("scripts/isLevel", 7);
         return Ok(r(1.0));

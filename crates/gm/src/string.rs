@@ -178,7 +178,7 @@ pub fn real_to_string(x: f64) -> GmString {
 /// The byte `real()` trims: the space alone. A tab, LF, VT, FF, CR or Windows-1252's no-break space (0xA0)
 /// before or after the number is "Error in function real()." in GM8 (probes `real-lead-*`, `real-trail-*`,
 /// `real-spaces`, 851-3801). OpenGMK decodes the string with the game's code page and calls `str::trim`,
-/// which takes all of them (oracle patch 0044 follows GM8).
+/// which takes all of them (oracle patch 0043 follows GM8).
 fn is_trimmed(b: u8) -> bool {
     b == b' '
 }

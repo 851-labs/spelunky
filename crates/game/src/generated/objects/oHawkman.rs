@@ -202,7 +202,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 42: if (isCollisionBottom(1) && status != STUNNED)
         g.at("oHawkman/step#1", 42);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if { let p1 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q2 = g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?; and(p1.cond(Cond::And)?, q2) } {
             // 42: yVel = 0;
             g.at("oHawkman/step#1", 42);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -212,7 +212,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)? {
             // 46: if (isCollisionBottom(1) && (collision_point(x - 1, y, oSolid, -1, -1) || collision_point(x + 16, y,
             g.at("oHawkman/step#1", 46);
-            if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, or(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
+            if { let p5 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q6 = { let p3 = { let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }; let q4 = { let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) }; and(p5.cond(Cond::And)?, q6) } {
                 // 49: yVel = -6;
                 g.at("oHawkman/step#1", 49);
                 g.set(cx.this, v::yVel, r(-6.0))?;
@@ -233,14 +233,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 55: if (yVel < 0 && isCollisionTop(1))
             g.at("oHawkman/step#1", 55);
-            if and(g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?, scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?) {
+            if { let p7 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; let q8 = scr::isCollisionTop(g, cx, &[r(1.0)])?; and(p7, q8.cond(Cond::And)?) } {
                 // 57: yVel = 0;
                 g.at("oHawkman/step#1", 57);
                 g.set(cx.this, v::yVel, r(0.0))?;
             }
             // 60: if (isCollisionBottom(1) && counter > 0)
             g.at("oHawkman/step#1", 60);
-            if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
+            if { let p9 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q10 = g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?; and(p9.cond(Cond::And)?, q10) } {
                 // 60: counter -= 1;
                 g.at("oHawkman/step#1", 60);
                 g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
@@ -299,7 +299,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WALK)?)? {
                 // 79: if (isCollisionLeft(1) || isCollisionRight(1))
                 g.at("oHawkman/step#1", 79);
-                if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+                if { let p11 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q12 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p11.cond(Cond::Or)?, q12.cond(Cond::Or)?) } {
                     // 81: if (facing == LEFT)
                     g.at("oHawkman/step#1", 81);
                     if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -409,7 +409,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::image_speed, r(1.0))?;
                     // 127: if (isCollisionLeft(1) || isCollisionRight(1))
                     g.at("oHawkman/step#1", 127);
-                    if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+                    if { let p13 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q14 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p13.cond(Cond::Or)?, q14.cond(Cond::Or)?) } {
                         // 129: if (facing == LEFT)
                         g.at("oHawkman/step#1", 129);
                         if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -435,7 +435,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 135: if (isCollisionBottom(1) && !collision_point(x, y - 16, oSolid, 0, 0))
                     g.at("oHawkman/step#1", 135);
-                    if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                    if { let p15 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q16 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p15.cond(Cond::And)?, q16.cond(Cond::And)?) } {
                         // 137: yVel = -6;
                         g.at("oHawkman/step#1", 137);
                         g.set(cx.this, v::yVel, r(-6.0))?;
@@ -481,7 +481,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 154: if (colBot && !bounced)
                         g.at("oHawkman/step#1", 154);
-                        if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, g.get(cx.this, v::bounced)?.not()?.cond(Cond::And)?) {
+                        if { let p17 = g.get(cx.this, v::colBot)?; let q18 = g.get(cx.this, v::bounced)?.not()?; and(p17.cond(Cond::And)?, q18.cond(Cond::And)?) } {
                             // 156: bounced = true;
                             g.at("oHawkman/step#1", 156);
                             g.set(cx.this, v::bounced, r(1.0))?;
@@ -491,7 +491,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 160: if (held || colBot)
                         g.at("oHawkman/step#1", 160);
-                        if or(g.get(cx.this, v::held)?.cond(Cond::Or)?, g.get(cx.this, v::colBot)?.cond(Cond::Or)?) {
+                        if { let p19 = g.get(cx.this, v::held)?; let q20 = g.get(cx.this, v::colBot)?; or(p19.cond(Cond::Or)?, q20.cond(Cond::Or)?) } {
                             // 162: if (counter > 0)
                             g.at("oHawkman/step#1", 162);
                             if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
@@ -515,10 +515,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.at("oHawkman/step#1", 169);
                                         {
                                             let t = obj::oPlayer1;
-                                            let mut it1 = g.with_iter(cx, &t)?;
-                                            let outer3 = (cx.this, cx.other);
-                                            'with1: while let Some(h2) = it1.next(g) {
-                                                (cx.this, cx.other) = (h2, outer3.0);
+                                            let mut it21 = g.with_iter(cx, &t)?;
+                                            let outer23 = (cx.this, cx.other);
+                                            'with1: while let Some(h22) = it21.next(g) {
+                                                (cx.this, cx.other) = (h22, outer23.0);
                                                 // 169: holdItem = 0;
                                                 g.at("oHawkman/step#1", 169);
                                                 g.set(cx.this, v::holdItem, r(0.0))?;
@@ -526,7 +526,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 g.at("oHawkman/step#1", 169);
                                                 g.set(cx.this, v::pickupItemType, s!(""))?;
                                             }
-                                            (cx.this, cx.other) = outer3;
+                                            (cx.this, cx.other) = outer23;
                                         }
                                     }
                                 }
@@ -769,7 +769,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 8: if (!other.dead && !other.stunned && (other.state == 15 || other.state == 16) && other.y < y + 5 && 
             g.at("oHawkman/collision_oCharacter#0", 8);
-            if and(and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, g.get(cx.other, v::stunned)?.not()?.cond(Cond::And)?), or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(5.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
+            if { let p3 = and(and({ let p1 = g.get(cx.other, v::dead)?.not()?; let q2 = g.get(cx.other, v::stunned)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) }, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(5.0))?)?); let q4 = g.get(cx.other, v::swimming)?.not()?; and(p3, q4.cond(Cond::And)?) } {
                 // 10: other.yVel = -6 - 0.2 * other.yVel;
                 g.at("oHawkman/collision_oCharacter#0", 10);
                 g.set(cx.other, v::yVel, r(-6.0).sub(&r(0.2).mul(&g.get(cx.other, v::yVel)?)?)?)?;
@@ -866,7 +866,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                             // 38: if (global.plife <= 0 && isRealLevel())
                             g.at("oHawkman/collision_oCharacter#0", 38);
-                            if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                            if { let p5 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q6 = scr::isRealLevel(g, cx, &[])?; and(p5, q6.cond(Cond::And)?) } {
                                 // 38: global.enemyDeaths[18] += 1;
                                 g.at("oHawkman/collision_oCharacter#0", 38);
                                 g.gset_a(gv::enemyDeaths, 0, 18, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 18)?, &r(1.0))?)?;
@@ -939,10 +939,10 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.at("oHawkman/collision_oCharacter#0", 69);
                             {
                                 let t = r(-2.0);
-                                let mut it1 = g.with_iter(cx, &t)?;
-                                let outer3 = (cx.this, cx.other);
-                                'with1: while let Some(h2) = it1.next(g) {
-                                    (cx.this, cx.other) = (h2, outer3.0);
+                                let mut it7 = g.with_iter(cx, &t)?;
+                                let outer9 = (cx.this, cx.other);
+                                'with1: while let Some(h8) = it7.next(g) {
+                                    (cx.this, cx.other) = (h8, outer9.0);
                                     // 71: if (holdItem)
                                     g.at("oHawkman/collision_oCharacter#0", 71);
                                     if g.get(cx.this, v::holdItem)?.cond(Cond::If)? {
@@ -961,7 +961,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::scrDropItem(g, cx, &a)? };
                                     }
                                 }
-                                (cx.this, cx.other) = outer3;
+                                (cx.this, cx.other) = outer9;
                             }
                         }
                     }

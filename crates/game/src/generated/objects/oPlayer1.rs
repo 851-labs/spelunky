@@ -369,7 +369,7 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 11: if (global.cemetary && global.darkLevel)
             g.at("oPlayer1/alarm_1#0", 11);
-            if and(g.gget(gv::cemetary)?.cond(Cond::And)?, g.gget(gv::darkLevel)?.cond(Cond::And)?) {
+            if { let p1 = g.gget(gv::cemetary)?; let q2 = g.gget(gv::darkLevel)?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
                 // 13: global.message = "THE DEAD ARE RESTLESS!";
                 g.at("oPlayer1/alarm_1#0", 13);
                 g.gset(gv::message, s!("THE DEAD ARE RESTLESS!"))?;
@@ -647,7 +647,7 @@ pub fn step_end_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::holdItem)?.cond(Cond::If)? {
         // 3: if (state == CLIMBING && (global.hasJetpack || global.hasCape))
         g.at("oPlayer1/step_end#0", 3);
-        if and(g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::CLIMBING)?)?, or(g.gget(gv::hasJetpack)?.cond(Cond::Or)?, g.gget(gv::hasCape)?.cond(Cond::Or)?)) {
+        if and(g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::CLIMBING)?)?, { let p1 = g.gget(gv::hasJetpack)?; let q2 = g.gget(gv::hasCape)?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) }) {
             // 3: holdItem.depth = 51;
             g.at("oPlayer1/step_end#0", 3);
             { let t = g.get(cx.this, v::holdItem)?; g.set_on(cx, &t, v::depth, r(51.0))?; }
@@ -672,7 +672,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 2: if (isRoom("rTitle") || isRoom("rHighscores"))
     g.at("oPlayer1/step#0", 2);
-    if or(scr::isRoom(g, cx, &[s!("rTitle")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rHighscores")])?.cond(Cond::Or)?) {
+    if { let p1 = scr::isRoom(g, cx, &[s!("rTitle")])?; let q2 = scr::isRoom(g, cx, &[s!("rHighscores")])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 4: if (global.isTunnelMan)
         g.at("oPlayer1/step#0", 4);
         if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
@@ -708,7 +708,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 12: if (global.hasCape && !instance_exists(oCape))
     g.at("oPlayer1/step#0", 12);
-    if and(g.gget(gv::hasCape)?.cond(Cond::And)?, b::instance_exists(g, cx, [obj::oCape])?.not()?.cond(Cond::And)?) {
+    if { let p3 = g.gget(gv::hasCape)?; let q4 = b::instance_exists(g, cx, [obj::oCape])?.not()?; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) } {
         // 12: instance_create(x, y, oCape);
         g.at("oPlayer1/step#0", 12);
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oCape]; b::instance_create(g, cx, a)? };
@@ -788,7 +788,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 49: if (isRoom("rTitle") && state == CLIMBING && y < 32)
     g.at("oPlayer1/step#0", 49);
-    if and(and(scr::isRoom(g, cx, &[s!("rTitle")])?.cond(Cond::And)?, g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::CLIMBING)?)?), g.get(cx.this, v::y)?.gml_lt(&r(32.0))?) {
+    if and({ let p5 = scr::isRoom(g, cx, &[s!("rTitle")])?; let q6 = g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::CLIMBING)?)?; and(p5.cond(Cond::And)?, q6) }, g.get(cx.this, v::y)?.gml_lt(&r(32.0))?) {
         // 51: if (holdItem)
         g.at("oPlayer1/step#0", 51);
         if g.get(cx.this, v::holdItem)?.cond(Cond::If)? {
@@ -811,7 +811,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 63: if (dead && !visible)
     g.at("oPlayer1/step#0", 63);
-    if and(g.get(cx.this, v::dead)?.cond(Cond::And)?, g.get(cx.this, v::visible)?.not()?.cond(Cond::And)?) {
+    if { let p7 = g.get(cx.this, v::dead)?; let q8 = g.get(cx.this, v::visible)?.not()?; and(p7.cond(Cond::And)?, q8.cond(Cond::And)?) } {
         // 65: xVel = 0;
         g.at("oPlayer1/step#0", 65);
         g.set(cx.this, v::xVel, r(0.0))?;
@@ -1114,7 +1114,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 159: if (holdItem.type == "Bow" && bowArmed)
                 g.at("oPlayer1/step#0", 159);
-                if and(g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Bow"))?, g.get(cx.this, v::bowArmed)?.cond(Cond::And)?) {
+                if { let p9 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Bow"))?; let q10 = g.get(cx.this, v::bowArmed)?; and(p9, q10.cond(Cond::And)?) } {
                     // 161: scrFireBow();
                     g.at("oPlayer1/step#0", 161);
                     scr::scrFireBow(g, cx, &[])?;
@@ -1222,14 +1222,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 214: if (global.hasJetpack && platformCharacterIs(ON_GROUND))
     g.at("oPlayer1/step#0", 214);
-    if and(g.gget(gv::hasJetpack)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?) {
+    if { let p11 = g.gget(gv::hasJetpack)?; let q12 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p11.cond(Cond::And)?, q12.cond(Cond::And)?) } {
         // 216: jetpackFuel = 50;
         g.at("oPlayer1/step#0", 216);
         g.set(cx.this, v::jetpackFuel, r(50.0))?;
     }
     // 220: if (y > room_height + 16 && !dead)
     g.at("oPlayer1/step#0", 220);
-    if and(g.get(cx.this, v::y)?.gml_gt(&g.bget(v::room_height, 0)?.add(&r(16.0))?)?, g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?) {
+    if { let p13 = g.get(cx.this, v::y)?.gml_gt(&g.bget(v::room_height, 0)?.add(&r(16.0))?)?; let q14 = g.get(cx.this, v::dead)?.not()?; and(p13, q14.cond(Cond::And)?) } {
         // 222: if (isRealLevel())
         g.at("oPlayer1/step#0", 222);
         if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
@@ -1320,7 +1320,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 257: if (global.hasParachute && !stunned && fallTimer > 14)
             g.at("oPlayer1/step#0", 257);
-            if and(and(g.gget(gv::hasParachute)?.cond(Cond::And)?, g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?), g.get(cx.this, v::fallTimer)?.gml_gt(&r(14.0))?) {
+            if and({ let p15 = g.gget(gv::hasParachute)?; let q16 = g.get(cx.this, v::stunned)?.not()?; and(p15.cond(Cond::And)?, q16.cond(Cond::And)?) }, g.get(cx.this, v::fallTimer)?.gml_gt(&r(14.0))?) {
                 // 259: if (!collision_point(x, y + 32, oSolid, 0, 0))
                 g.at("oPlayer1/step#0", 259);
                 if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
@@ -1338,7 +1338,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 267: if (platformCharacterIs(ON_GROUND) && fallTimer > 16 && !collision_rectangle(x - 8, y - 8, x + 8, y 
             g.at("oPlayer1/step#0", 267);
-            if and(and(({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?, g.get(cx.this, v::fallTimer)?.gml_gt(&r(16.0))?), ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSpringTrap, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?.cond(Cond::And)?) {
+            if { let p19 = { let p17 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; let q18 = g.get(cx.this, v::fallTimer)?.gml_gt(&r(16.0))?; and(p17.cond(Cond::And)?, q18) }; let q20 = ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSpringTrap, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).not()?; and(p19, q20.cond(Cond::And)?) } {
                 // 270: stunned = true;
                 g.at("oPlayer1/step#0", 270);
                 g.set(cx.this, v::stunned, r(1.0))?;
@@ -1397,15 +1397,15 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#0", 284);
                 {
                     let t = g.get(cx.this, v::obj)?;
-                    let mut it1 = g.with_iter(cx, &t)?;
-                    let outer3 = (cx.this, cx.other);
-                    'with1: while let Some(h2) = it1.next(g) {
-                        (cx.this, cx.other) = (h2, outer3.0);
+                    let mut it21 = g.with_iter(cx, &t)?;
+                    let outer23 = (cx.this, cx.other);
+                    'with1: while let Some(h22) = it21.next(g) {
+                        (cx.this, cx.other) = (h22, outer23.0);
                         // 284: xVel = -0.4;
                         g.at("oPlayer1/step#0", 284);
                         g.set(cx.this, v::xVel, r(-0.4))?;
                     }
-                    (cx.this, cx.other) = outer3;
+                    (cx.this, cx.other) = outer23;
                 }
                 // 285: obj = instance_create(x + 4, y + 6, oPoof);
                 g.at("oPlayer1/step#0", 285);
@@ -1417,15 +1417,15 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#0", 286);
                 {
                     let t = g.get(cx.this, v::obj)?;
-                    let mut it4 = g.with_iter(cx, &t)?;
-                    let outer6 = (cx.this, cx.other);
-                    'with2: while let Some(h5) = it4.next(g) {
-                        (cx.this, cx.other) = (h5, outer6.0);
+                    let mut it24 = g.with_iter(cx, &t)?;
+                    let outer26 = (cx.this, cx.other);
+                    'with2: while let Some(h25) = it24.next(g) {
+                        (cx.this, cx.other) = (h25, outer26.0);
                         // 286: xVel = 0.4;
                         g.at("oPlayer1/step#0", 286);
                         g.set(cx.this, v::xVel, r(0.4))?;
                     }
-                    (cx.this, cx.other) = outer6;
+                    (cx.this, cx.other) = outer26;
                 }
                 // 287: playSound(global.sndThud);
                 g.at("oPlayer1/step#0", 287);
@@ -1444,22 +1444,22 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oPlayer1/step#0", 295);
                     {
                         let t = obj::oParachute;
-                        let mut it7 = g.with_iter(cx, &t)?;
-                        let outer9 = (cx.this, cx.other);
-                        'with3: while let Some(h8) = it7.next(g) {
-                            (cx.this, cx.other) = (h8, outer9.0);
+                        let mut it27 = g.with_iter(cx, &t)?;
+                        let outer29 = (cx.this, cx.other);
+                        'with3: while let Some(h28) = it27.next(g) {
+                            (cx.this, cx.other) = (h28, outer29.0);
                             // 295: instance_destroy();
                             g.at("oPlayer1/step#0", 295);
                             b::instance_destroy(g, cx, [])?;
                         }
-                        (cx.this, cx.other) = outer9;
+                        (cx.this, cx.other) = outer29;
                     }
                 }
             }
         }
         // 301: if (swimming && !collision_point(x, y, oLava, 0, 0))
         g.at("oPlayer1/step#0", 301);
-        if and(g.get(cx.this, v::swimming)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+        if { let p30 = g.get(cx.this, v::swimming)?; let q31 = ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p30.cond(Cond::And)?, q31.cond(Cond::And)?) } {
             // 303: fallTimer = 0;
             g.at("oPlayer1/step#0", 303);
             g.set(cx.this, v::fallTimer, r(0.0))?;
@@ -1484,7 +1484,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 316: if (state != DUCKTOHANG && !stunned && !dead && sprite_index != sPExit && sprite_index != sDamselExi
         g.at("oPlayer1/step#0", 316);
-        if and(and(and(and(and(g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKTOHANG)?)?, g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?), g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sTunnelExit)?) {
+        if and(and(and({ let p34 = { let p32 = g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKTOHANG)?)?; let q33 = g.get(cx.this, v::stunned)?.not()?; and(p32, q33.cond(Cond::And)?) }; let q35 = g.get(cx.this, v::dead)?.not()?; and(p34, q35.cond(Cond::And)?) }, g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sTunnelExit)?) {
             // 318: bounced = false;
             g.at("oPlayer1/step#0", 318);
             g.set(cx.this, v::bounced, r(0.0))?;
@@ -1503,13 +1503,13 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 328: if (dead || stunned)
     g.at("oPlayer1/step#0", 328);
-    if or(g.get(cx.this, v::dead)?.cond(Cond::Or)?, g.get(cx.this, v::stunned)?.cond(Cond::Or)?) {
+    if { let p36 = g.get(cx.this, v::dead)?; let q37 = g.get(cx.this, v::stunned)?; or(p36.cond(Cond::Or)?, q37.cond(Cond::Or)?) } {
         // 330: if (holdItem)
         g.at("oPlayer1/step#0", 330);
         if g.get(cx.this, v::holdItem)?.cond(Cond::If)? {
             // 332: if (holdItem.type == "Bow" && bowArmed)
             g.at("oPlayer1/step#0", 332);
-            if and(g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Bow"))?, g.get(cx.this, v::bowArmed)?.cond(Cond::And)?) {
+            if { let p38 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Bow"))?; let q39 = g.get(cx.this, v::bowArmed)?; and(p38, q39.cond(Cond::And)?) } {
                 // 334: scrFireBow();
                 g.at("oPlayer1/step#0", 334);
                 scr::scrFireBow(g, cx, &[])?;
@@ -1548,21 +1548,21 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 351: if (isCollisionTop(1) && yVel < 0)
         g.at("oPlayer1/step#0", 351);
-        if and(scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?) {
+        if { let p40 = scr::isCollisionTop(g, cx, &[r(1.0)])?; let q41 = g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?; and(p40.cond(Cond::And)?, q41) } {
             // 353: yVel = -yVel * 0.8;
             g.at("oPlayer1/step#0", 353);
             g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?.mul(&r(0.8))?)?;
         }
         // 356: if (isCollisionLeft(1) || isCollisionRight(1))
         g.at("oPlayer1/step#0", 356);
-        if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+        if { let p42 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; let q43 = scr::isCollisionRight(g, cx, &[r(1.0)])?; or(p42.cond(Cond::Or)?, q43.cond(Cond::Or)?) } {
             // 358: xVel = -xVel * 0.5;
             g.at("oPlayer1/step#0", 358);
             g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?.mul(&r(0.5))?)?;
         }
         // 361: if (isCollisionBottom(1) || isCollisionPlatformBottom(1))
         g.at("oPlayer1/step#0", 361);
-        if or(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionPlatformBottom(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+        if { let p44 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q45 = scr::isCollisionPlatformBottom(g, cx, &[r(1.0)])?; or(p44.cond(Cond::Or)?, q45.cond(Cond::Or)?) } {
             // 364: if (yVel > 1)
             g.at("oPlayer1/step#0", 364);
             if g.get(cx.this, v::yVel)?.gml_gt(&r(1.0))? {
@@ -1583,7 +1583,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 369: if (abs(xVel) != 0 && collision_point(x, y + 16, oIce, 0, 0))
                 g.at("oPlayer1/step#0", 369);
-                if and(({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oIce, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?) {
+                if { let p46 = ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_ne(&r(0.0))?; let q47 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oIce, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p46, q47.cond(Cond::And)?) } {
                     // 369: xVel *= 0.8;
                     g.at("oPlayer1/step#0", 369);
                     g.set(cx.this, v::xVel, lenient(Value::mul, g.get(cx.this, v::xVel)?, &r(0.8))?)?;
@@ -1643,7 +1643,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if scr::isLevel(g, cx, &[])?.cond(Cond::If)? {
             // 386: if (kDown && (platformCharacterIs(ON_GROUND) || state == HANGING) && !kRight && !kLeft)
             g.at("oPlayer1/step#0", 386);
-            if and(and(and(g.get(cx.this, v::kDown)?.cond(Cond::And)?, or(({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::Or)?, g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::HANGING)?)?)), g.get(cx.this, v::kRight)?.not()?.cond(Cond::And)?), g.get(cx.this, v::kLeft)?.not()?.cond(Cond::And)?) {
+            if { let p54 = { let p52 = { let p50 = g.get(cx.this, v::kDown)?; let q51 = { let p48 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; let q49 = g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::HANGING)?)?; or(p48.cond(Cond::Or)?, q49) }; and(p50.cond(Cond::And)?, q51) }; let q53 = g.get(cx.this, v::kRight)?.not()?; and(p52, q53.cond(Cond::And)?) }; let q55 = g.get(cx.this, v::kLeft)?.not()?; and(p54, q55.cond(Cond::And)?) } {
                 // 388: if (viewCount <= 30)
                 g.at("oPlayer1/step#0", 388);
                 if g.get(cx.this, v::viewCount)?.gml_le(&r(30.0))? {
@@ -1658,7 +1658,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 391: if (kUp && (platformCharacterIs(ON_GROUND) || state == HANGING) && !kRight && !kLeft)
                 g.at("oPlayer1/step#0", 391);
-                if and(and(and(g.get(cx.this, v::kUp)?.cond(Cond::And)?, or(({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::Or)?, g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::HANGING)?)?)), g.get(cx.this, v::kRight)?.not()?.cond(Cond::And)?), g.get(cx.this, v::kLeft)?.not()?.cond(Cond::And)?) {
+                if { let p62 = { let p60 = { let p58 = g.get(cx.this, v::kUp)?; let q59 = { let p56 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; let q57 = g.get(cx.this, v::state)?.gml_eq(&g.get(cx.this, v::HANGING)?)?; or(p56.cond(Cond::Or)?, q57) }; and(p58.cond(Cond::And)?, q59) }; let q61 = g.get(cx.this, v::kRight)?.not()?; and(p60, q61.cond(Cond::And)?) }; let q63 = g.get(cx.this, v::kLeft)?.not()?; and(p62, q63.cond(Cond::And)?) } {
                     // 393: if (viewCount <= 30)
                     g.at("oPlayer1/step#0", 393);
                     if g.get(cx.this, v::viewCount)?.gml_le(&r(30.0))? {
@@ -2019,7 +2019,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::holdItem)?.gml_gt(&r(0.0))? {
         // 143: if (holdItem.cost > 0 && isLevel())
         g.at("oPlayer1/step#2", 143);
-        if and(g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::cost)?.gml_gt(&r(0.0))?, scr::isLevel(g, cx, &[])?.cond(Cond::And)?) {
+        if { let p7 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::cost)?.gml_gt(&r(0.0))?; let q8 = scr::isLevel(g, cx, &[])?; and(p7, q8.cond(Cond::And)?) } {
             // 145: if (global.roomPath[scrGetRoomX(x), scrGetRoomY(y)] != 4 && global.roomPath[scrGetRoomX(x), scrGetRo
             g.at("oPlayer1/step#2", 145);
             if and(({ let i = ix(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?; let j = ix(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?; g.gget_a(gv::roomPath, i, j)? }).gml_ne(&r(4.0))?, ({ let i = ix(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?; let j = ix(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?; g.gget_a(gv::roomPath, i, j)? }).gml_ne(&r(5.0))?) {
@@ -2046,7 +2046,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 161: if (kUp && kAttackPressed && collision_point(x, y, oChest, 0, 0))
     g.at("oPlayer1/step#2", 161);
-    if and(and(g.get(cx.this, v::kUp)?.cond(Cond::And)?, g.get(cx.this, v::kAttackPressed)?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oChest, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?) {
+    if { let p11 = { let p9 = g.get(cx.this, v::kUp)?; let q10 = g.get(cx.this, v::kAttackPressed)?; and(p9.cond(Cond::And)?, q10.cond(Cond::And)?) }; let q12 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oChest, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p11, q12.cond(Cond::And)?) } {
         // 163: if (isRealLevel())
         g.at("oPlayer1/step#2", 163);
         if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
@@ -2089,10 +2089,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#2", 173);
                 {
                     let t = g.get(cx.this, v::obj)?;
-                    let mut it7 = g.with_iter(cx, &t)?;
-                    let outer9 = (cx.this, cx.other);
-                    'with3: while let Some(h8) = it7.next(g) {
-                        (cx.this, cx.other) = (h8, outer9.0);
+                    let mut it13 = g.with_iter(cx, &t)?;
+                    let outer15 = (cx.this, cx.other);
+                    'with3: while let Some(h14) = it13.next(g) {
+                        (cx.this, cx.other) = (h14, outer15.0);
                         // 175: sprite_index = sBombArmed;
                         g.at("oPlayer1/step#2", 175);
                         g.set(cx.this, v::sprite_index, spr::sBombArmed)?;
@@ -2100,7 +2100,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#2", 176);
                         g.set_a(cx.this, v::alarm, 0, 1, r(40.0))?;
                     }
-                    (cx.this, cx.other) = outer9;
+                    (cx.this, cx.other) = outer15;
                 }
                 // 178: playSound(global.sndTrap);
                 g.at("oPlayer1/step#2", 178);
@@ -2241,7 +2241,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 212: if (kUp && kAttackPressed && collision_point(x, y, oCrate, 0, 0))
     g.at("oPlayer1/step#2", 212);
-    if and(and(g.get(cx.this, v::kUp)?.cond(Cond::And)?, g.get(cx.this, v::kAttackPressed)?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oCrate, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?) {
+    if { let p18 = { let p16 = g.get(cx.this, v::kUp)?; let q17 = g.get(cx.this, v::kAttackPressed)?; and(p16.cond(Cond::And)?, q17.cond(Cond::And)?) }; let q19 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oCrate, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p18, q19.cond(Cond::And)?) } {
         // 214: if (isRealLevel())
         g.at("oPlayer1/step#2", 214);
         if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
@@ -2501,10 +2501,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oPlayer1/step#2", 244);
         {
             let t = g.get(cx.this, v::chest)?;
-            let mut it10 = g.with_iter(cx, &t)?;
-            let outer12 = (cx.this, cx.other);
-            'with7: while let Some(h11) = it10.next(g) {
-                (cx.this, cx.other) = (h11, outer12.0);
+            let mut it20 = g.with_iter(cx, &t)?;
+            let outer22 = (cx.this, cx.other);
+            'with7: while let Some(h21) = it20.next(g) {
+                (cx.this, cx.other) = (h21, outer22.0);
                 // 244: instance_create(x, y, oPoof);
                 g.at("oPlayer1/step#2", 244);
                 { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oPoof]; b::instance_create(g, cx, a)? };
@@ -2512,7 +2512,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#2", 244);
                 b::instance_destroy(g, cx, [])?;
             }
-            (cx.this, cx.other) = outer12;
+            (cx.this, cx.other) = outer22;
         }
         // 246: kAttackPressed = false;
         g.at("oPlayer1/step#2", 246);
@@ -2520,7 +2520,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 251: if (kUp && kAttackPressed && collision_point(x, y, oFlareCrate, 0, 0))
     g.at("oPlayer1/step#2", 251);
-    if and(and(g.get(cx.this, v::kUp)?.cond(Cond::And)?, g.get(cx.this, v::kAttackPressed)?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oFlareCrate, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?) {
+    if { let p25 = { let p23 = g.get(cx.this, v::kUp)?; let q24 = g.get(cx.this, v::kAttackPressed)?; and(p23.cond(Cond::And)?, q24.cond(Cond::And)?) }; let q26 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oFlareCrate, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p25, q26.cond(Cond::And)?) } {
         // 253: chest = instance_place(x, y, oFlareCrate);
         g.at("oPlayer1/step#2", 253);
         {
@@ -2577,10 +2577,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oPlayer1/step#2", 266);
         {
             let t = g.get(cx.this, v::chest)?;
-            let mut it13 = g.with_iter(cx, &t)?;
-            let outer15 = (cx.this, cx.other);
-            'with10: while let Some(h14) = it13.next(g) {
-                (cx.this, cx.other) = (h14, outer15.0);
+            let mut it27 = g.with_iter(cx, &t)?;
+            let outer29 = (cx.this, cx.other);
+            'with10: while let Some(h28) = it27.next(g) {
+                (cx.this, cx.other) = (h28, outer29.0);
                 // 266: instance_create(x, y, oPoof);
                 g.at("oPlayer1/step#2", 266);
                 { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oPoof]; b::instance_create(g, cx, a)? };
@@ -2588,7 +2588,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#2", 266);
                 b::instance_destroy(g, cx, [])?;
             }
-            (cx.this, cx.other) = outer15;
+            (cx.this, cx.other) = outer29;
         }
         // 268: kAttackPressed = false;
         g.at("oPlayer1/step#2", 268);
@@ -2596,10 +2596,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 274: if (!dead && !stunned && !whipping && collision_point(x, y, oXStart, 0, 0) && kUp && platformCharact
     g.at("oPlayer1/step#2", 274);
-    if and(and(and(and(and(and(and(and(g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?, g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?), g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oXStart, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), g.get(cx.this, v::kUp)?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sTunnelExit)?) {
+    if and(and(and({ let p38 = { let p36 = { let p34 = { let p32 = { let p30 = g.get(cx.this, v::dead)?.not()?; let q31 = g.get(cx.this, v::stunned)?.not()?; and(p30.cond(Cond::And)?, q31.cond(Cond::And)?) }; let q33 = g.get(cx.this, v::whipping)?.not()?; and(p32, q33.cond(Cond::And)?) }; let q35 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oXStart, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p34, q35.cond(Cond::And)?) }; let q37 = g.get(cx.this, v::kUp)?; and(p36, q37.cond(Cond::And)?) }; let q39 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p38, q39.cond(Cond::And)?) }, g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sTunnelExit)?) {
         // 283: if (isRoom("rOlmec") && holdItem)
         g.at("oPlayer1/step#2", 283);
-        if and(scr::isRoom(g, cx, &[s!("rOlmec")])?.cond(Cond::And)?, g.get(cx.this, v::holdItem)?.cond(Cond::And)?) {
+        if { let p40 = scr::isRoom(g, cx, &[s!("rOlmec")])?; let q41 = g.get(cx.this, v::holdItem)?; and(p40.cond(Cond::And)?, q41.cond(Cond::And)?) } {
             // 285: if (holdItem.heavy)
             g.at("oPlayer1/step#2", 285);
             if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::heavy)?.cond(Cond::If)? {
@@ -2630,15 +2630,15 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#2", 300);
                         {
                             let t = g.get(cx.this, v::holdItem)?;
-                            let mut it16 = g.with_iter(cx, &t)?;
-                            let outer18 = (cx.this, cx.other);
-                            'with11: while let Some(h17) = it16.next(g) {
-                                (cx.this, cx.other) = (h17, outer18.0);
+                            let mut it42 = g.with_iter(cx, &t)?;
+                            let outer44 = (cx.this, cx.other);
+                            'with11: while let Some(h43) = it42.next(g) {
+                                (cx.this, cx.other) = (h43, outer44.0);
                                 // 300: instance_destroy();
                                 g.at("oPlayer1/step#2", 300);
                                 b::instance_destroy(g, cx, [])?;
                             }
-                            (cx.this, cx.other) = outer18;
+                            (cx.this, cx.other) = outer44;
                         }
                     }
                     // 303: global.pickupItem = pickupItemType;
@@ -2655,15 +2655,15 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#2", 308);
                         {
                             let t = g.get(cx.this, v::holdItem)?;
-                            let mut it19 = g.with_iter(cx, &t)?;
-                            let outer21 = (cx.this, cx.other);
-                            'with12: while let Some(h20) = it19.next(g) {
-                                (cx.this, cx.other) = (h20, outer21.0);
+                            let mut it45 = g.with_iter(cx, &t)?;
+                            let outer47 = (cx.this, cx.other);
+                            'with12: while let Some(h46) = it45.next(g) {
+                                (cx.this, cx.other) = (h46, outer47.0);
                                 // 308: instance_destroy();
                                 g.at("oPlayer1/step#2", 308);
                                 b::instance_destroy(g, cx, [])?;
                             }
-                            (cx.this, cx.other) = outer21;
+                            (cx.this, cx.other) = outer47;
                         }
                         // 310: global.pickupItem = pickupItemType;
                         g.at("oPlayer1/step#2", 310);
@@ -2676,10 +2676,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#2", 315);
                         {
                             let t = g.get(cx.this, v::holdItem)?;
-                            let mut it22 = g.with_iter(cx, &t)?;
-                            let outer24 = (cx.this, cx.other);
-                            'with13: while let Some(h23) = it22.next(g) {
-                                (cx.this, cx.other) = (h23, outer24.0);
+                            let mut it48 = g.with_iter(cx, &t)?;
+                            let outer50 = (cx.this, cx.other);
+                            'with13: while let Some(h49) = it48.next(g) {
+                                (cx.this, cx.other) = (h49, outer50.0);
                                 // 317: breakPieces = false;
                                 g.at("oPlayer1/step#2", 317);
                                 g.set(cx.this, v::breakPieces, r(0.0))?;
@@ -2687,7 +2687,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oPlayer1/step#2", 318);
                                 b::instance_destroy(g, cx, [])?;
                             }
-                            (cx.this, cx.other) = outer24;
+                            (cx.this, cx.other) = outer50;
                         }
                     }
                 }
@@ -2870,7 +2870,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 359: if (!dead && !stunned && !whipping && collision_point(x, y, oExit, 0, 0) && kUp && platformCharacter
     g.at("oPlayer1/step#2", 359);
-    if and(and(and(and(and(and(and(and(g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?, g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?), g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), g.get(cx.this, v::kUp)?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }).cond(Cond::And)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sTunnelExit)?) {
+    if and(and(and({ let p59 = { let p57 = { let p55 = { let p53 = { let p51 = g.get(cx.this, v::dead)?.not()?; let q52 = g.get(cx.this, v::stunned)?.not()?; and(p51.cond(Cond::And)?, q52.cond(Cond::And)?) }; let q54 = g.get(cx.this, v::whipping)?.not()?; and(p53, q54.cond(Cond::And)?) }; let q56 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; and(p55, q56.cond(Cond::And)?) }; let q58 = g.get(cx.this, v::kUp)?; and(p57, q58.cond(Cond::And)?) }; let q60 = { let a = [g.get(cx.this, v::ON_GROUND)?]; scr::platformCharacterIs(g, cx, &a)? }; and(p59, q60.cond(Cond::And)?) }, g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sTunnelExit)?) {
         // 367: holdArrow = 0;
         g.at("oPlayer1/step#2", 367);
         g.set(cx.this, v::holdArrow, r(0.0))?;
@@ -2914,15 +2914,15 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#2", 379);
                 {
                     let t = g.get(cx.this, v::holdItem)?;
-                    let mut it25 = g.with_iter(cx, &t)?;
-                    let outer27 = (cx.this, cx.other);
-                    'with14: while let Some(h26) = it25.next(g) {
-                        (cx.this, cx.other) = (h26, outer27.0);
+                    let mut it61 = g.with_iter(cx, &t)?;
+                    let outer63 = (cx.this, cx.other);
+                    'with14: while let Some(h62) = it61.next(g) {
+                        (cx.this, cx.other) = (h62, outer63.0);
                         // 379: instance_destroy();
                         g.at("oPlayer1/step#2", 379);
                         b::instance_destroy(g, cx, [])?;
                     }
-                    (cx.this, cx.other) = outer27;
+                    (cx.this, cx.other) = outer63;
                 }
                 // 380: holdItem = 0;
                 g.at("oPlayer1/step#2", 380);
@@ -2969,10 +2969,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#2", 393);
                         {
                             let t = g.get(cx.this, v::holdItem)?;
-                            let mut it28 = g.with_iter(cx, &t)?;
-                            let outer30 = (cx.this, cx.other);
-                            'with15: while let Some(h29) = it28.next(g) {
-                                (cx.this, cx.other) = (h29, outer30.0);
+                            let mut it64 = g.with_iter(cx, &t)?;
+                            let outer66 = (cx.this, cx.other);
+                            'with15: while let Some(h65) = it64.next(g) {
+                                (cx.this, cx.other) = (h65, outer66.0);
                                 // 395: if (global.isDamsel)
                                 g.at("oPlayer1/step#2", 395);
                                 if g.gget(gv::isDamsel)?.cond(Cond::If)? {
@@ -3006,7 +3006,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oPlayer1/step#2", 403);
                                 g.set(cx.this, v::active, r(0.0))?;
                             }
-                            (cx.this, cx.other) = outer30;
+                            (cx.this, cx.other) = outer66;
                         }
                         // 405: holdItem = 0;
                         g.at("oPlayer1/step#2", 405);
@@ -3056,15 +3056,15 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oPlayer1/step#2", 430);
                                 {
                                     let t = g.get(cx.this, v::holdItem)?;
-                                    let mut it31 = g.with_iter(cx, &t)?;
-                                    let outer33 = (cx.this, cx.other);
-                                    'with16: while let Some(h32) = it31.next(g) {
-                                        (cx.this, cx.other) = (h32, outer33.0);
+                                    let mut it67 = g.with_iter(cx, &t)?;
+                                    let outer69 = (cx.this, cx.other);
+                                    'with16: while let Some(h68) = it67.next(g) {
+                                        (cx.this, cx.other) = (h68, outer69.0);
                                         // 430: instance_destroy();
                                         g.at("oPlayer1/step#2", 430);
                                         b::instance_destroy(g, cx, [])?;
                                     }
-                                    (cx.this, cx.other) = outer33;
+                                    (cx.this, cx.other) = outer69;
                                 }
                             }
                             // 433: global.pickupItem = pickupItemType;
@@ -3081,15 +3081,15 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oPlayer1/step#2", 438);
                                 {
                                     let t = g.get(cx.this, v::holdItem)?;
-                                    let mut it34 = g.with_iter(cx, &t)?;
-                                    let outer36 = (cx.this, cx.other);
-                                    'with17: while let Some(h35) = it34.next(g) {
-                                        (cx.this, cx.other) = (h35, outer36.0);
+                                    let mut it70 = g.with_iter(cx, &t)?;
+                                    let outer72 = (cx.this, cx.other);
+                                    'with17: while let Some(h71) = it70.next(g) {
+                                        (cx.this, cx.other) = (h71, outer72.0);
                                         // 438: instance_destroy();
                                         g.at("oPlayer1/step#2", 438);
                                         b::instance_destroy(g, cx, [])?;
                                     }
-                                    (cx.this, cx.other) = outer36;
+                                    (cx.this, cx.other) = outer72;
                                 }
                                 // 440: global.pickupItem = pickupItemType;
                                 g.at("oPlayer1/step#2", 440);
@@ -3102,10 +3102,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oPlayer1/step#2", 445);
                                 {
                                     let t = g.get(cx.this, v::holdItem)?;
-                                    let mut it37 = g.with_iter(cx, &t)?;
-                                    let outer39 = (cx.this, cx.other);
-                                    'with18: while let Some(h38) = it37.next(g) {
-                                        (cx.this, cx.other) = (h38, outer39.0);
+                                    let mut it73 = g.with_iter(cx, &t)?;
+                                    let outer75 = (cx.this, cx.other);
+                                    'with18: while let Some(h74) = it73.next(g) {
+                                        (cx.this, cx.other) = (h74, outer75.0);
                                         // 447: breakPieces = false;
                                         g.at("oPlayer1/step#2", 447);
                                         g.set(cx.this, v::breakPieces, r(0.0))?;
@@ -3113,7 +3113,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.at("oPlayer1/step#2", 448);
                                         b::instance_destroy(g, cx, [])?;
                                     }
-                                    (cx.this, cx.other) = outer39;
+                                    (cx.this, cx.other) = outer75;
                                 }
                             }
                         }
@@ -3242,10 +3242,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oPlayer1/step#2", 490);
         {
             let t = obj::oMonkey;
-            let mut it40 = g.with_iter(cx, &t)?;
-            let outer42 = (cx.this, cx.other);
-            'with19: while let Some(h41) = it40.next(g) {
-                (cx.this, cx.other) = (h41, outer42.0);
+            let mut it76 = g.with_iter(cx, &t)?;
+            let outer78 = (cx.this, cx.other);
+            'with19: while let Some(h77) = it76.next(g) {
+                (cx.this, cx.other) = (h77, outer78.0);
                 // 493: if (status == 7)
                 g.at("oPlayer1/step#2", 493);
                 if g.get(cx.this, v::status)?.gml_eq(&r(7.0))? {
@@ -3269,12 +3269,12 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::grabCounter, r(60.0))?;
                 }
             }
-            (cx.this, cx.other) = outer42;
+            (cx.this, cx.other) = outer78;
         }
     }
     // 507: if (checkAttackPressed() || checkStartPressed() && dead)
     g.at("oPlayer1/step#2", 507);
-    if and(or(scr::checkAttackPressed(g, cx, &[])?.cond(Cond::Or)?, scr::checkStartPressed(g, cx, &[])?.cond(Cond::Or)?), g.get(cx.this, v::dead)?.cond(Cond::And)?) {
+    if { let p81 = { let p79 = scr::checkAttackPressed(g, cx, &[])?; let q80 = scr::checkStartPressed(g, cx, &[])?; or(p79.cond(Cond::Or)?, q80.cond(Cond::Or)?) }; let q82 = g.get(cx.this, v::dead)?; and(p81, q82.cond(Cond::And)?) } {
         // 509: if (oGame.moneyCount < global.money || oGame.drawStatus < 3)
         g.at("oPlayer1/step#2", 509);
         if or(g.get_on(cx, &obj::oGame, v::moneyCount)?.gml_lt(&g.gget(gv::money)?)?, g.get_on(cx, &obj::oGame, v::drawStatus)?.gml_lt(&r(3.0))?) {
@@ -3378,11 +3378,11 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 550: if (dead || stunned || !active)
     g.at("oPlayer1/step#2", 550);
-    if or(or(g.get(cx.this, v::dead)?.cond(Cond::Or)?, g.get(cx.this, v::stunned)?.cond(Cond::Or)?), g.get(cx.this, v::active)?.not()?.cond(Cond::Or)?) {
+    if { let p85 = { let p83 = g.get(cx.this, v::dead)?; let q84 = g.get(cx.this, v::stunned)?; or(p83.cond(Cond::Or)?, q84.cond(Cond::Or)?) }; let q86 = g.get(cx.this, v::active)?.not()?; or(p85, q86.cond(Cond::Or)?) } {
     } else {
         // 554: if (inGame && kItemPressed && !whipping)
         g.at("oPlayer1/step#2", 554);
-        if and(and(g.get(cx.this, v::inGame)?.cond(Cond::And)?, g.get(cx.this, v::kItemPressed)?.cond(Cond::And)?), g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?) {
+        if { let p89 = { let p87 = g.get(cx.this, v::inGame)?; let q88 = g.get(cx.this, v::kItemPressed)?; and(p87.cond(Cond::And)?, q88.cond(Cond::And)?) }; let q90 = g.get(cx.this, v::whipping)?.not()?; and(p89, q90.cond(Cond::And)?) } {
             // 557: if (holdItem)
             g.at("oPlayer1/step#2", 557);
             if g.get(cx.this, v::holdItem)?.cond(Cond::If)? {
@@ -3397,10 +3397,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#2", 565);
                         {
                             let t = g.get(cx.this, v::holdItem)?;
-                            let mut it43 = g.with_iter(cx, &t)?;
-                            let outer45 = (cx.this, cx.other);
-                            'with20: while let Some(h44) = it43.next(g) {
-                                (cx.this, cx.other) = (h44, outer45.0);
+                            let mut it91 = g.with_iter(cx, &t)?;
+                            let outer93 = (cx.this, cx.other);
+                            'with20: while let Some(h92) = it91.next(g) {
+                                (cx.this, cx.other) = (h92, outer93.0);
                                 // 567: global.bombs += 1;
                                 g.at("oPlayer1/step#2", 567);
                                 g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(1.0))?)?;
@@ -3408,7 +3408,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oPlayer1/step#2", 568);
                                 b::instance_destroy(g, cx, [])?;
                             }
-                            (cx.this, cx.other) = outer45;
+                            (cx.this, cx.other) = outer93;
                         }
                         // 571: if (global.rope > 0)
                         g.at("oPlayer1/step#2", 571);
@@ -3441,10 +3441,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.at("oPlayer1/step#2", 585);
                             {
                                 let t = g.get(cx.this, v::holdItem)?;
-                                let mut it46 = g.with_iter(cx, &t)?;
-                                let outer48 = (cx.this, cx.other);
-                                'with21: while let Some(h47) = it46.next(g) {
-                                    (cx.this, cx.other) = (h47, outer48.0);
+                                let mut it94 = g.with_iter(cx, &t)?;
+                                let outer96 = (cx.this, cx.other);
+                                'with21: while let Some(h95) = it94.next(g) {
+                                    (cx.this, cx.other) = (h95, outer96.0);
                                     // 587: global.rope += 1;
                                     g.at("oPlayer1/step#2", 587);
                                     g.gset(gv::rope, lenient(Value::add, g.gget(gv::rope)?, &r(1.0))?)?;
@@ -3452,7 +3452,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     g.at("oPlayer1/step#2", 588);
                                     b::instance_destroy(g, cx, [])?;
                                 }
-                                (cx.this, cx.other) = outer48;
+                                (cx.this, cx.other) = outer96;
                             }
                             // 591: scrHoldItem(pickupItemType);
                             g.at("oPlayer1/step#2", 591);
@@ -3460,7 +3460,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         } else {
                             // 593: if (!holdItem.heavy && holdItem.cost == 0)
                             g.at("oPlayer1/step#2", 593);
-                            if and(g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::heavy)?.not()?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::cost)?.gml_eq(&r(0.0))?) {
+                            if { let p97 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::heavy)?.not()?; let q98 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::cost)?.gml_eq(&r(0.0))?; and(p97.cond(Cond::And)?, q98) } {
                                 // 595: if (global.bombs > 0 || global.rope > 0)
                                 g.at("oPlayer1/step#2", 595);
                                 if or(g.gget(gv::bombs)?.gml_gt(&r(0.0))?, g.gget(gv::rope)?.gml_gt(&r(0.0))?) {
@@ -3469,7 +3469,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     g.set(cx.this, v::pickupItemType, g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?)?;
                                     // 598: if (holdItem.type == "Bow" && bowArmed)
                                     g.at("oPlayer1/step#2", 598);
-                                    if and(g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Bow"))?, g.get(cx.this, v::bowArmed)?.cond(Cond::And)?) {
+                                    if { let p99 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Bow"))?; let q100 = g.get(cx.this, v::bowArmed)?; and(p99, q100.cond(Cond::And)?) } {
                                         // 600: scrFireBow();
                                         g.at("oPlayer1/step#2", 600);
                                         scr::scrFireBow(g, cx, &[])?;
@@ -3478,10 +3478,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     g.at("oPlayer1/step#2", 602);
                                     {
                                         let t = g.get(cx.this, v::holdItem)?;
-                                        let mut it49 = g.with_iter(cx, &t)?;
-                                        let outer51 = (cx.this, cx.other);
-                                        'with22: while let Some(h50) = it49.next(g) {
-                                            (cx.this, cx.other) = (h50, outer51.0);
+                                        let mut it101 = g.with_iter(cx, &t)?;
+                                        let outer103 = (cx.this, cx.other);
+                                        'with22: while let Some(h102) = it101.next(g) {
+                                            (cx.this, cx.other) = (h102, outer103.0);
                                             // 604: breakPieces = false;
                                             g.at("oPlayer1/step#2", 604);
                                             g.set(cx.this, v::breakPieces, r(0.0))?;
@@ -3489,7 +3489,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             g.at("oPlayer1/step#2", 605);
                                             b::instance_destroy(g, cx, [])?;
                                         }
-                                        (cx.this, cx.other) = outer51;
+                                        (cx.this, cx.other) = outer103;
                                     }
                                 }
                                 // 609: if (global.bombs > 0)
@@ -3593,10 +3593,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 645: if (inGame && kRopePressed && global.rope > 0 && !whipping)
             g.at("oPlayer1/step#2", 645);
-            if and(and(and(g.get(cx.this, v::inGame)?.cond(Cond::And)?, g.get(cx.this, v::kRopePressed)?.cond(Cond::And)?), g.gget(gv::rope)?.gml_gt(&r(0.0))?), g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?) {
+            if { let p106 = and({ let p104 = g.get(cx.this, v::inGame)?; let q105 = g.get(cx.this, v::kRopePressed)?; and(p104.cond(Cond::And)?, q105.cond(Cond::And)?) }, g.gget(gv::rope)?.gml_gt(&r(0.0))?); let q107 = g.get(cx.this, v::whipping)?.not()?; and(p106, q107.cond(Cond::And)?) } {
                 // 647: if (!kDown && colTop)
                 g.at("oPlayer1/step#2", 647);
-                if and(g.get(cx.this, v::kDown)?.not()?.cond(Cond::And)?, g.get(cx.this, v::colTop)?.cond(Cond::And)?) {
+                if { let p108 = g.get(cx.this, v::kDown)?.not()?; let q109 = g.get(cx.this, v::colTop)?; and(p108.cond(Cond::And)?, q109.cond(Cond::And)?) } {
                 } else {
                     // 653: if (kDown)
                     g.at("oPlayer1/step#2", 653);
@@ -3622,10 +3622,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#2", 664);
                         {
                             let t = g.get(cx.this, v::obj)?;
-                            let mut it52 = g.with_iter(cx, &t)?;
-                            let outer54 = (cx.this, cx.other);
-                            'with23: while let Some(h53) = it52.next(g) {
-                                (cx.this, cx.other) = (h53, outer54.0);
+                            let mut it110 = g.with_iter(cx, &t)?;
+                            let outer112 = (cx.this, cx.other);
+                            'with23: while let Some(h111) = it110.next(g) {
+                                (cx.this, cx.other) = (h111, outer112.0);
                                 // 666: t = true;
                                 g.at("oPlayer1/step#2", 666);
                                 g.set(cx.this, v::t, r(1.0))?;
@@ -3721,7 +3721,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     { let a = [g.gget(gv::sndThrow)?]; scr::playSound(g, cx, &a)? };
                                 }
                             }
-                            (cx.this, cx.other) = outer54;
+                            (cx.this, cx.other) = outer112;
                         }
                     } else {
                         // 721: obj = instance_create(x, y, oRopeThrow);
@@ -3756,7 +3756,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 732: if (inGame && kBombPressed && global.bombs > 0 && !whipping && bowArmed)
                 g.at("oPlayer1/step#2", 732);
-                if and(and(and(and(g.get(cx.this, v::inGame)?.cond(Cond::And)?, g.get(cx.this, v::kBombPressed)?.cond(Cond::And)?), g.gget(gv::bombs)?.gml_gt(&r(0.0))?), g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?), g.get(cx.this, v::bowArmed)?.cond(Cond::And)?) {
+                if { let p117 = { let p115 = and({ let p113 = g.get(cx.this, v::inGame)?; let q114 = g.get(cx.this, v::kBombPressed)?; and(p113.cond(Cond::And)?, q114.cond(Cond::And)?) }, g.gget(gv::bombs)?.gml_gt(&r(0.0))?); let q116 = g.get(cx.this, v::whipping)?.not()?; and(p115, q116.cond(Cond::And)?) }; let q118 = g.get(cx.this, v::bowArmed)?; and(p117, q118.cond(Cond::And)?) } {
                     // 734: holdArrow = ARROW_BOMB;
                     g.at("oPlayer1/step#2", 734);
                     g.set(cx.this, v::holdArrow, g.get(cx.this, v::ARROW_BOMB)?)?;
@@ -3766,7 +3766,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                 } else {
                     // 737: if (inGame && kBombPressed && global.bombs > 0 && !whipping)
                     g.at("oPlayer1/step#2", 737);
-                    if and(and(and(g.get(cx.this, v::inGame)?.cond(Cond::And)?, g.get(cx.this, v::kBombPressed)?.cond(Cond::And)?), g.gget(gv::bombs)?.gml_gt(&r(0.0))?), g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?) {
+                    if { let p121 = and({ let p119 = g.get(cx.this, v::inGame)?; let q120 = g.get(cx.this, v::kBombPressed)?; and(p119.cond(Cond::And)?, q120.cond(Cond::And)?) }, g.gget(gv::bombs)?.gml_gt(&r(0.0))?); let q122 = g.get(cx.this, v::whipping)?.not()?; and(p121, q122.cond(Cond::And)?) } {
                         // 739: obj = instance_create(x, y, oBomb);
                         g.at("oPlayer1/step#2", 739);
                         {
@@ -3790,10 +3790,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#2", 743);
                         {
                             let t = g.get(cx.this, v::obj)?;
-                            let mut it55 = g.with_iter(cx, &t)?;
-                            let outer57 = (cx.this, cx.other);
-                            'with24: while let Some(h56) = it55.next(g) {
-                                (cx.this, cx.other) = (h56, outer57.0);
+                            let mut it123 = g.with_iter(cx, &t)?;
+                            let outer125 = (cx.this, cx.other);
+                            'with24: while let Some(h124) = it123.next(g) {
+                                (cx.this, cx.other) = (h124, outer125.0);
                                 // 745: alarm[0] = 80;
                                 g.at("oPlayer1/step#2", 745);
                                 g.set_a(cx.this, v::alarm, 0, 0, r(80.0))?;
@@ -3801,7 +3801,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oPlayer1/step#2", 746);
                                 g.set(cx.this, v::image_speed, r(0.2))?;
                             }
-                            (cx.this, cx.other) = outer57;
+                            (cx.this, cx.other) = outer125;
                         }
                         // 748: obj.safe = true;
                         g.at("oPlayer1/step#2", 748);
@@ -3866,7 +3866,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get(cx.this, v::holdItem)?.gml_eq(&r(0.0))? {
                             // 777: if (kAttackPressed && state != DUCKING && state != DUCKTOHANG && !whipping && sprite_index != sPExit
                             g.at("oPlayer1/step#2", 777);
-                            if and(and(and(and(and(g.get(cx.this, v::kAttackPressed)?.cond(Cond::And)?, g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKING)?)?), g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKTOHANG)?)?), g.get(cx.this, v::whipping)?.not()?.cond(Cond::And)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?) {
+                            if and(and({ let p128 = and({ let p126 = g.get(cx.this, v::kAttackPressed)?; let q127 = g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKING)?)?; and(p126.cond(Cond::And)?, q127) }, g.get(cx.this, v::state)?.gml_ne(&g.get(cx.this, v::DUCKTOHANG)?)?); let q129 = g.get(cx.this, v::whipping)?.not()?; and(p128, q129.cond(Cond::And)?) }, g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?) {
                                 // 780: image_speed = 0.6;
                                 g.at("oPlayer1/step#2", 780);
                                 g.set(cx.this, v::image_speed, r(0.6000000000000001))?;
@@ -3914,7 +3914,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                             } else {
                                 // 803: if (kAttackPressed && kDown)
                                 g.at("oPlayer1/step#2", 803);
-                                if and(g.get(cx.this, v::kAttackPressed)?.cond(Cond::And)?, g.get(cx.this, v::kDown)?.cond(Cond::And)?) {
+                                if { let p130 = g.get(cx.this, v::kAttackPressed)?; let q131 = g.get(cx.this, v::kDown)?; and(p130.cond(Cond::And)?, q131.cond(Cond::And)?) } {
                                     // 806: if (collision_rectangle(x - 8, y, x + 8, y + 8, oItem, 0, 0))
                                     g.at("oPlayer1/step#2", 806);
                                     if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oItem, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
@@ -3926,7 +3926,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         }
                                         // 809: if (obj.canPickUp && !collision_point(obj.x, obj.y, oSolid, 0, 0))
                                         g.at("oPlayer1/step#2", 809);
-                                        if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::canPickUp)?.cond(Cond::And)?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                                        if { let p132 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::canPickUp)?; let q133 = ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p132.cond(Cond::And)?, q133.cond(Cond::And)?) } {
                                             // 811: holdItem = obj;
                                             g.at("oPlayer1/step#2", 811);
                                             g.set(cx.this, v::holdItem, g.get(cx.this, v::obj)?)?;
@@ -3941,7 +3941,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             g.set(cx.this, v::pickupItemType, g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?)?;
                                             // 816: if (holdItem.type == "Bow" && holdItem.new)
                                             g.at("oPlayer1/step#2", 816);
-                                            if and(g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Bow"))?, g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::new)?.cond(Cond::And)?) {
+                                            if { let p134 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Bow"))?; let q135 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::new)?; and(p134, q135.cond(Cond::And)?) } {
                                                 // 818: holdItem.new = false;
                                                 g.at("oPlayer1/step#2", 818);
                                                 { let t = g.get(cx.this, v::holdItem)?; g.set_on(cx, &t, v::new, r(0.0))?; }
@@ -3951,7 +3951,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             }
                                             // 822: if (holdItem.type == "Gold Idol" && holdItem.trigger && !isRoom("rLoadLevel"))
                                             g.at("oPlayer1/step#2", 822);
-                                            if and(and(g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Gold Idol"))?, g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::trigger)?.cond(Cond::And)?), scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.cond(Cond::And)?) {
+                                            if { let p138 = { let p136 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Gold Idol"))?; let q137 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::trigger)?; and(p136, q137.cond(Cond::And)?) }; let q139 = scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?; and(p138, q139.cond(Cond::And)?) } {
                                                 // 824: global.idolsGrabbed += 1;
                                                 g.at("oPlayer1/step#2", 824);
                                                 g.gset(gv::idolsGrabbed, lenient(Value::add, g.gget(gv::idolsGrabbed)?, &r(1.0))?)?;
@@ -3968,15 +3968,15 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     g.at("oPlayer1/step#2", 828);
                                                     {
                                                         let t = g.get(cx.this, v::trap)?;
-                                                        let mut it58 = g.with_iter(cx, &t)?;
-                                                        let outer60 = (cx.this, cx.other);
-                                                        'with25: while let Some(h59) = it58.next(g) {
-                                                            (cx.this, cx.other) = (h59, outer60.0);
+                                                        let mut it140 = g.with_iter(cx, &t)?;
+                                                        let outer142 = (cx.this, cx.other);
+                                                        'with25: while let Some(h141) = it140.next(g) {
+                                                            (cx.this, cx.other) = (h141, outer142.0);
                                                             // 828: alarm[0] = 100;
                                                             g.at("oPlayer1/step#2", 828);
                                                             g.set_a(cx.this, v::alarm, 0, 0, r(100.0))?;
                                                         }
-                                                        (cx.this, cx.other) = outer60;
+                                                        (cx.this, cx.other) = outer142;
                                                     }
                                                     // 829: scrShake(100);
                                                     g.at("oPlayer1/step#2", 829);
@@ -3990,7 +3990,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     if g.gget(gv::levelType)?.gml_eq(&r(1.0))? {
                                                         // 834: if (global.cemetary && !global.ghostExists)
                                                         g.at("oPlayer1/step#2", 834);
-                                                        if and(g.gget(gv::cemetary)?.cond(Cond::And)?, g.gget(gv::ghostExists)?.not()?.cond(Cond::And)?) {
+                                                        if { let p143 = g.gget(gv::cemetary)?; let q144 = g.gget(gv::ghostExists)?.not()?; and(p143.cond(Cond::And)?, q144.cond(Cond::And)?) } {
                                                             // 836: if (oPlayer1.x > room_width / 2)
                                                             g.at("oPlayer1/step#2", 836);
                                                             if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.bget(v::room_width, 0)?.div(&r(2.0))?)? {
@@ -4010,10 +4010,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         g.at("oPlayer1/step#2", 840);
                                                         {
                                                             let t = obj::oTrapBlock;
-                                                            let mut it61 = g.with_iter(cx, &t)?;
-                                                            let outer63 = (cx.this, cx.other);
-                                                            'with26: while let Some(h62) = it61.next(g) {
-                                                                (cx.this, cx.other) = (h62, outer63.0);
+                                                            let mut it145 = g.with_iter(cx, &t)?;
+                                                            let outer147 = (cx.this, cx.other);
+                                                            'with26: while let Some(h146) = it145.next(g) {
+                                                                (cx.this, cx.other) = (h146, outer147.0);
                                                                 // 842: dist = distance_to_object(oCharacter);
                                                                 g.at("oPlayer1/step#2", 842);
                                                                 { let x = b::distance_to_object(g, cx, [obj::oCharacter])?; g.set(cx.this, v::dist, x)?; }
@@ -4025,7 +4025,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                     g.set(cx.this, v::dying, r(1.0))?;
                                                                 }
                                                             }
-                                                            (cx.this, cx.other) = outer63;
+                                                            (cx.this, cx.other) = outer147;
                                                         }
                                                     } else {
                                                         // 850: if (global.levelType == 3)
@@ -4038,10 +4038,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                 g.at("oPlayer1/step#2", 854);
                                                                 {
                                                                     let t = obj::oCeilingTrap;
-                                                                    let mut it64 = g.with_iter(cx, &t)?;
-                                                                    let outer66 = (cx.this, cx.other);
-                                                                    'with27: while let Some(h65) = it64.next(g) {
-                                                                        (cx.this, cx.other) = (h65, outer66.0);
+                                                                    let mut it148 = g.with_iter(cx, &t)?;
+                                                                    let outer150 = (cx.this, cx.other);
+                                                                    'with27: while let Some(h149) = it148.next(g) {
+                                                                        (cx.this, cx.other) = (h149, outer150.0);
                                                                         // 856: status = 1;
                                                                         g.at("oPlayer1/step#2", 856);
                                                                         g.set(cx.this, v::status, r(1.0))?;
@@ -4049,7 +4049,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                         g.at("oPlayer1/step#2", 857);
                                                                         g.set(cx.this, v::yVel, r(0.5))?;
                                                                     }
-                                                                    (cx.this, cx.other) = outer66;
+                                                                    (cx.this, cx.other) = outer150;
                                                                 }
                                                                 // 859: scrShake(20);
                                                                 g.at("oPlayer1/step#2", 859);
@@ -4083,10 +4083,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                 g.at("oPlayer1/step#2", 869);
                                                                 {
                                                                     let t = obj::oTrapBlock;
-                                                                    let mut it67 = g.with_iter(cx, &t)?;
-                                                                    let outer69 = (cx.this, cx.other);
-                                                                    'with28: while let Some(h68) = it67.next(g) {
-                                                                        (cx.this, cx.other) = (h68, outer69.0);
+                                                                    let mut it151 = g.with_iter(cx, &t)?;
+                                                                    let outer153 = (cx.this, cx.other);
+                                                                    'with28: while let Some(h152) = it151.next(g) {
+                                                                        (cx.this, cx.other) = (h152, outer153.0);
                                                                         // 871: dist = distance_to_object(oCharacter);
                                                                         g.at("oPlayer1/step#2", 871);
                                                                         { let x = b::distance_to_object(g, cx, [obj::oCharacter])?; g.set(cx.this, v::dist, x)?; }
@@ -4104,7 +4104,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                         g.at("oPlayer1/step#2", 877);
                                                                         scr::scrShake(g, cx, &[r(10.0)])?;
                                                                     }
-                                                                    (cx.this, cx.other) = outer69;
+                                                                    (cx.this, cx.other) = outer153;
                                                                 }
                                                             }
                                                             // 881: holdItem.trigger = false;
@@ -4162,7 +4162,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             }
                                             // 903: if (obj.status >= 98 && obj.canPickUp)
                                             g.at("oPlayer1/step#2", 903);
-                                            if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::status)?.gml_ge(&r(98.0))?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::canPickUp)?.cond(Cond::And)?) {
+                                            if { let p154 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::status)?.gml_ge(&r(98.0))?; let q155 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::canPickUp)?; and(p154, q155.cond(Cond::And)?) } {
                                                 // 905: holdItem = obj;
                                                 g.at("oPlayer1/step#2", 905);
                                                 g.set(cx.this, v::holdItem, g.get(cx.this, v::obj)?)?;
@@ -4200,10 +4200,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 959: if (isLevel() && active && kPayPressed && !dead && !stunned)
     g.at("oPlayer1/step#2", 959);
-    if and(and(and(and(scr::isLevel(g, cx, &[])?.cond(Cond::And)?, g.get(cx.this, v::active)?.cond(Cond::And)?), g.get(cx.this, v::kPayPressed)?.cond(Cond::And)?), g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?), g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?) {
+    if { let p162 = { let p160 = { let p158 = { let p156 = scr::isLevel(g, cx, &[])?; let q157 = g.get(cx.this, v::active)?; and(p156.cond(Cond::And)?, q157.cond(Cond::And)?) }; let q159 = g.get(cx.this, v::kPayPressed)?; and(p158, q159.cond(Cond::And)?) }; let q161 = g.get(cx.this, v::dead)?.not()?; and(p160, q161.cond(Cond::And)?) }; let q163 = g.get(cx.this, v::stunned)?.not()?; and(p162, q163.cond(Cond::And)?) } {
         // 961: if (isInShop(x, y) && instance_exists(oShopkeeper))
         g.at("oPlayer1/step#2", 961);
-        if and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).cond(Cond::And)?, b::instance_exists(g, cx, [obj::oShopkeeper])?.cond(Cond::And)?) {
+        if { let p164 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }; let q165 = b::instance_exists(g, cx, [obj::oShopkeeper])?; and(p164.cond(Cond::And)?, q165.cond(Cond::And)?) } {
             // 963: n = 0;
             g.at("oPlayer1/step#2", 963);
             g.set(cx.this, v::n, r(0.0))?;
@@ -4230,15 +4230,15 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#2", 975);
                         {
                             let t = g.get(cx.this, v::holdItem)?;
-                            let mut it70 = g.with_iter(cx, &t)?;
-                            let outer72 = (cx.this, cx.other);
-                            'with29: while let Some(h71) = it70.next(g) {
-                                (cx.this, cx.other) = (h71, outer72.0);
+                            let mut it166 = g.with_iter(cx, &t)?;
+                            let outer168 = (cx.this, cx.other);
+                            'with29: while let Some(h167) = it166.next(g) {
+                                (cx.this, cx.other) = (h167, outer168.0);
                                 // 975: held = false;
                                 g.at("oPlayer1/step#2", 975);
                                 g.set(cx.this, v::held, r(0.0))?;
                             }
-                            (cx.this, cx.other) = outer72;
+                            (cx.this, cx.other) = outer168;
                         }
                         // 976: holdItem = 0;
                         g.at("oPlayer1/step#2", 976);
@@ -4271,10 +4271,10 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 992: if (global.blackMarket && global.roomPath[scrGetRoomX(x), scrGetRoomY(y)] == 5 || (!global.blackMark
             g.at("oPlayer1/step#2", 992);
-            if or(and(g.gget(gv::blackMarket)?.cond(Cond::And)?, ({ let i = ix(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?; let j = ix(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?; g.gget_a(gv::roomPath, i, j)? }).gml_eq(&r(5.0))?), and(g.gget(gv::blackMarket)?.not()?.cond(Cond::And)?, g.get_on(cx, &obj::oShopkeeper, v::style)?.gml_eq(&s!("Craps"))?)) {
+            if or({ let p169 = g.gget(gv::blackMarket)?; let q170 = ({ let i = ix(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?; let j = ix(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?; g.gget_a(gv::roomPath, i, j)? }).gml_eq(&r(5.0))?; and(p169.cond(Cond::And)?, q170) }, { let p171 = g.gget(gv::blackMarket)?.not()?; let q172 = g.get_on(cx, &obj::oShopkeeper, v::style)?.gml_eq(&s!("Craps"))?; and(p171.cond(Cond::And)?, q172) }) {
                 // 995: if (global.thiefLevel > 0 || global.murderer)
                 g.at("oPlayer1/step#2", 995);
-                if or(g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?, g.gget(gv::murderer)?.cond(Cond::Or)?) {
+                if { let p173 = g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?; let q174 = g.gget(gv::murderer)?; or(p173, q174.cond(Cond::Or)?) } {
                 } else {
                     // 999: if (bet == 0 && global.money >= 1000 + global.currLevel * 500)
                     g.at("oPlayer1/step#2", 999);
@@ -4345,14 +4345,14 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 1025: if (global.thiefLevel > 0 || global.murderer || !obj.forSale)
                 g.at("oPlayer1/step#2", 1025);
-                if or(or(g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?, g.gget(gv::murderer)?.cond(Cond::Or)?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::forSale)?.not()?.cond(Cond::Or)?) {
+                if { let p177 = { let p175 = g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?; let q176 = g.gget(gv::murderer)?; or(p175, q176.cond(Cond::Or)?) }; let q178 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::forSale)?.not()?; or(p177, q178.cond(Cond::Or)?) } {
                 } else {
                     // 1029: if (n == 0 && global.money >= getKissValue())
                     g.at("oPlayer1/step#2", 1029);
                     if and(g.get(cx.this, v::n)?.gml_eq(&r(0.0))?, g.gget(gv::money)?.gml_ge(&scr::getKissValue(g, cx, &[])?)?) {
                         // 1031: if (obj.forSale && !obj.held)
                         g.at("oPlayer1/step#2", 1031);
-                        if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::forSale)?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?.cond(Cond::And)?) {
+                        if { let p179 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::forSale)?; let q180 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?; and(p179.cond(Cond::And)?, q180.cond(Cond::And)?) } {
                             // 1033: if (isRealLevel())
                             g.at("oPlayer1/step#2", 1033);
                             if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
@@ -4433,7 +4433,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 1063: if (kAttack && bowArmed && bowStrength < 12)
     g.at("oPlayer1/step#2", 1063);
-    if and(and(g.get(cx.this, v::kAttack)?.cond(Cond::And)?, g.get(cx.this, v::bowArmed)?.cond(Cond::And)?), g.get(cx.this, v::bowStrength)?.gml_lt(&r(12.0))?) {
+    if and({ let p181 = g.get(cx.this, v::kAttack)?; let q182 = g.get(cx.this, v::bowArmed)?; and(p181.cond(Cond::And)?, q182.cond(Cond::And)?) }, g.get(cx.this, v::bowStrength)?.gml_lt(&r(12.0))?) {
         // 1065: bowStrength += 0.2;
         g.at("oPlayer1/step#2", 1065);
         g.set(cx.this, v::bowStrength, lenient(Value::add, g.get(cx.this, v::bowStrength)?, &r(0.2))?)?;
@@ -4460,7 +4460,7 @@ pub fn step_a2(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 1076: if (kAttackReleased && bowArmed)
     g.at("oPlayer1/step#2", 1076);
-    if and(g.get(cx.this, v::kAttackReleased)?.cond(Cond::And)?, g.get(cx.this, v::bowArmed)?.cond(Cond::And)?) {
+    if { let p183 = g.get(cx.this, v::kAttackReleased)?; let q184 = g.get(cx.this, v::bowArmed)?; and(p183.cond(Cond::And)?, q184.cond(Cond::And)?) } {
         // 1078: scrFireBow();
         g.at("oPlayer1/step#2", 1078);
         scr::scrFireBow(g, cx, &[])?;
@@ -4480,7 +4480,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 3: if (global.plife < -99 && visible)
     g.at("oPlayer1/step#4", 3);
-    if and(g.gget(gv::plife)?.gml_lt(&r(-99.0))?, g.get(cx.this, v::visible)?.cond(Cond::And)?) {
+    if { let p1 = g.gget(gv::plife)?.gml_lt(&r(-99.0))?; let q2 = g.get(cx.this, v::visible)?; and(p1, q2.cond(Cond::And)?) } {
         // 5: scrCreateBlood(x, y, 3);
         g.at("oPlayer1/step#4", 5);
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
@@ -4490,7 +4490,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 9: if (global.plife >= -99 && visible && sprite_index != sPExit && sprite_index != sDamselExit && sprit
     g.at("oPlayer1/step#4", 9);
-    if and(and(and(and(g.gget(gv::plife)?.gml_ge(&r(-99.0))?, g.get(cx.this, v::visible)?.cond(Cond::And)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sTunnelExit)?) {
+    if and(and(and({ let p3 = g.gget(gv::plife)?.gml_ge(&r(-99.0))?; let q4 = g.get(cx.this, v::visible)?; and(p3, q4.cond(Cond::And)?) }, g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sPExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sDamselExit)?), g.get(cx.this, v::sprite_index)?.gml_ne(&spr::sTunnelExit)?) {
         // 12: if (collision_point(x, y, oSolid, 0, 0))
         g.at("oPlayer1/step#4", 12);
         if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
@@ -4543,7 +4543,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 35: if (obj && abs(obj.xVel) > 3 && !obj.safe)
             g.at("oPlayer1/step#4", 35);
-            if and(and(g.get(cx.this, v::obj)?.cond(Cond::And)?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(3.0))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::safe)?.not()?.cond(Cond::And)?) {
+            if { let p7 = { let p5 = g.get(cx.this, v::obj)?; let q6 = ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(3.0))?; and(p5.cond(Cond::And)?, q6) }; let q8 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::safe)?.not()?; and(p7, q8.cond(Cond::And)?) } {
                 // 37: if (global.plife > 0)
                 g.at("oPlayer1/step#4", 37);
                 if g.gget(gv::plife)?.gml_gt(&r(0.0))? {
@@ -4552,7 +4552,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
                     // 40: if (global.plife <= 0 && isRealLevel())
                     g.at("oPlayer1/step#4", 40);
-                    if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                    if { let p9 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q10 = scr::isRealLevel(g, cx, &[])?; and(p9, q10.cond(Cond::And)?) } {
                         // 40: global.miscDeaths[6] += 1;
                         g.at("oPlayer1/step#4", 40);
                         g.gset_a(gv::miscDeaths, 0, 6, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 6)?, &r(1.0))?)?;
@@ -4571,15 +4571,15 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#4", 47);
                 {
                     let t = g.get(cx.this, v::obj)?;
-                    let mut it1 = g.with_iter(cx, &t)?;
-                    let outer3 = (cx.this, cx.other);
-                    'with1: while let Some(h2) = it1.next(g) {
-                        (cx.this, cx.other) = (h2, outer3.0);
+                    let mut it11 = g.with_iter(cx, &t)?;
+                    let outer13 = (cx.this, cx.other);
+                    'with1: while let Some(h12) = it11.next(g) {
+                        (cx.this, cx.other) = (h12, outer13.0);
                         // 49: instance_destroy();
                         g.at("oPlayer1/step#4", 49);
                         b::instance_destroy(g, cx, [])?;
                     }
-                    (cx.this, cx.other) = outer3;
+                    (cx.this, cx.other) = outer13;
                 }
                 // 51: playSound(global.sndHurt);
                 g.at("oPlayer1/step#4", 51);
@@ -4603,10 +4603,10 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 60: if (obj && abs(obj.xVel) > 4 && !obj.safe && !stunned && !dead)
             g.at("oPlayer1/step#4", 60);
-            if and(and(and(and(g.get(cx.this, v::obj)?.cond(Cond::And)?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(4.0))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::safe)?.not()?.cond(Cond::And)?), g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?), g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?) {
+            if { let p20 = { let p18 = { let p16 = { let p14 = g.get(cx.this, v::obj)?; let q15 = ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(4.0))?; and(p14.cond(Cond::And)?, q15) }; let q17 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::safe)?.not()?; and(p16, q17.cond(Cond::And)?) }; let q19 = g.get(cx.this, v::stunned)?.not()?; and(p18, q19.cond(Cond::And)?) }; let q21 = g.get(cx.this, v::dead)?.not()?; and(p20, q21.cond(Cond::And)?) } {
                 // 62: if (global.hasMitt && !holdItem)
                 g.at("oPlayer1/step#4", 62);
-                if and(g.gget(gv::hasMitt)?.cond(Cond::And)?, g.get(cx.this, v::holdItem)?.not()?.cond(Cond::And)?) {
+                if { let p22 = g.gget(gv::hasMitt)?; let q23 = g.get(cx.this, v::holdItem)?.not()?; and(p22.cond(Cond::And)?, q23.cond(Cond::And)?) } {
                     // 64: holdItem = oRock;
                     g.at("oPlayer1/step#4", 64);
                     g.set(cx.this, v::holdItem, obj::oRock)?;
@@ -4625,7 +4625,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
                         // 72: if (global.plife <= 0 && isRealLevel())
                         g.at("oPlayer1/step#4", 72);
-                        if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                        if { let p24 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q25 = scr::isRealLevel(g, cx, &[])?; and(p24, q25.cond(Cond::And)?) } {
                             // 72: global.miscDeaths[0] += 1;
                             g.at("oPlayer1/step#4", 72);
                             g.gset_a(gv::miscDeaths, 0, 0, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 0)?, &r(1.0))?)?;
@@ -4672,7 +4672,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(3.0))?)?;
                     // 94: if (global.plife <= 0 && isRealLevel())
                     g.at("oPlayer1/step#4", 94);
-                    if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                    if { let p26 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q27 = scr::isRealLevel(g, cx, &[])?; and(p26, q27.cond(Cond::And)?) } {
                         // 94: global.enemyDeaths[16] += 1;
                         g.at("oPlayer1/step#4", 94);
                         g.gset_a(gv::enemyDeaths, 0, 16, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 16)?, &r(1.0))?)?;
@@ -4699,10 +4699,10 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#4", 102);
                 {
                     let t = g.get(cx.this, v::obj)?;
-                    let mut it4 = g.with_iter(cx, &t)?;
-                    let outer6 = (cx.this, cx.other);
-                    'with2: while let Some(h5) = it4.next(g) {
-                        (cx.this, cx.other) = (h5, outer6.0);
+                    let mut it28 = g.with_iter(cx, &t)?;
+                    let outer30 = (cx.this, cx.other);
+                    'with2: while let Some(h29) = it28.next(g) {
+                        (cx.this, cx.other) = (h29, outer30.0);
                         // 104: instance_create(x, y, oLaserExplode);
                         g.at("oPlayer1/step#4", 104);
                         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oLaserExplode]; b::instance_create(g, cx, a)? };
@@ -4710,7 +4710,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#4", 105);
                         b::instance_destroy(g, cx, [])?;
                     }
-                    (cx.this, cx.other) = outer6;
+                    (cx.this, cx.other) = outer30;
                 }
                 // 107: playSound(global.sndHurt);
                 g.at("oPlayer1/step#4", 107);
@@ -4725,7 +4725,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 113: if (collision_rectangle(x - 8, y - 8, x + 8, y + 8, oPsychicWave, 0, 0) && !stunned && !dead)
         g.at("oPlayer1/step#4", 113);
-        if and(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oPsychicWave, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?), g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?) {
+        if { let p33 = { let p31 = { let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oPsychicWave, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; let q32 = g.get(cx.this, v::stunned)?.not()?; and(p31.cond(Cond::And)?, q32.cond(Cond::And)?) }; let q34 = g.get(cx.this, v::dead)?.not()?; and(p33, q34.cond(Cond::And)?) } {
             // 115: obj = instance_nearest(x, y, oPsychicWave);
             g.at("oPlayer1/step#4", 115);
             {
@@ -4743,7 +4743,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(1.0))?)?;
                     // 121: if (global.plife <= 0 && isRealLevel())
                     g.at("oPlayer1/step#4", 121);
-                    if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                    if { let p35 = g.gget(gv::plife)?.gml_le(&r(0.0))?; let q36 = scr::isRealLevel(g, cx, &[])?; and(p35, q36.cond(Cond::And)?) } {
                         // 121: global.enemyDeaths[17] += 1;
                         g.at("oPlayer1/step#4", 121);
                         g.gset_a(gv::enemyDeaths, 0, 17, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 17)?, &r(1.0))?)?;
@@ -4782,7 +4782,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(10.0))?)?;
             // 136: if (global.plife > 0 && isRealLevel())
             g.at("oPlayer1/step#4", 136);
-            if and(g.gget(gv::plife)?.gml_gt(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+            if { let p37 = g.gget(gv::plife)?.gml_gt(&r(0.0))?; let q38 = scr::isRealLevel(g, cx, &[])?; and(p37, q38.cond(Cond::And)?) } {
                 // 136: global.miscDeaths[1] += 1;
                 g.at("oPlayer1/step#4", 136);
                 g.gset_a(gv::miscDeaths, 0, 1, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 1)?, &r(1.0))?)?;
@@ -4837,7 +4837,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::image_index)?.gml_ge(&r(20.0))?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::image_index)?.gml_lt(&r(24.0))?) {
                 // 153: if (global.plife > 0 && isRealLevel())
                 g.at("oPlayer1/step#4", 153);
-                if and(g.gget(gv::plife)?.gml_gt(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                if { let p39 = g.gget(gv::plife)?.gml_gt(&r(0.0))?; let q40 = scr::isRealLevel(g, cx, &[])?; and(p39, q40.cond(Cond::And)?) } {
                     // 153: global.miscDeaths[7] += 1;
                     g.at("oPlayer1/step#4", 153);
                     g.gset_a(gv::miscDeaths, 0, 7, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 7)?, &r(1.0))?)?;
@@ -4872,7 +4872,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
         if ({ let a = [g.get(cx.this, v::x)?.sub(&r(6.0))?, g.get(cx.this, v::y)?.sub(&r(6.0))?, g.get(cx.this, v::x)?.add(&r(6.0))?, g.get(cx.this, v::y)?.add(&r(7.0))?, obj::oSmashTrap, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
             // 170: if (global.plife > 0 && isRealLevel())
             g.at("oPlayer1/step#4", 170);
-            if and(g.gget(gv::plife)?.gml_gt(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+            if { let p41 = g.gget(gv::plife)?.gml_gt(&r(0.0))?; let q42 = scr::isRealLevel(g, cx, &[])?; and(p41, q42.cond(Cond::And)?) } {
                 // 170: global.miscDeaths[8] += 1;
                 g.at("oPlayer1/step#4", 170);
                 g.gset_a(gv::miscDeaths, 0, 8, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 8)?, &r(1.0))?)?;
@@ -4939,7 +4939,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get_on(cx, &g.get(cx.this, v::obj)?, v::status)?.gml_gt(&r(0.0))? {
                 // 194: if (global.plife > 0 && isRealLevel())
                 g.at("oPlayer1/step#4", 194);
-                if and(g.gget(gv::plife)?.gml_gt(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
+                if { let p43 = g.gget(gv::plife)?.gml_gt(&r(0.0))?; let q44 = scr::isRealLevel(g, cx, &[])?; and(p43, q44.cond(Cond::And)?) } {
                     // 194: global.miscDeaths[9] += 1;
                     g.at("oPlayer1/step#4", 194);
                     g.gset_a(gv::miscDeaths, 0, 9, lenient(Value::add, g.gget_a(gv::miscDeaths, 0, 9)?, &r(1.0))?)?;
@@ -4964,7 +4964,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 204: if (colSpikes && dead)
         g.at("oPlayer1/step#4", 204);
-        if and(g.get(cx.this, v::colSpikes)?.cond(Cond::And)?, g.get(cx.this, v::dead)?.cond(Cond::And)?) {
+        if { let p45 = g.get(cx.this, v::colSpikes)?; let q46 = g.get(cx.this, v::dead)?; and(p45.cond(Cond::And)?, q46.cond(Cond::And)?) } {
             // 207: if (!collision_point(x, y + 9, oSolid, 0, 0))
             g.at("oPlayer1/step#4", 207);
             if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
@@ -4983,7 +4983,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 212: if (colSpikes && yVel > 0 && (fallTimer > 4 || stunned))
         g.at("oPlayer1/step#4", 212);
-        if and(and(g.get(cx.this, v::colSpikes)?.cond(Cond::And)?, g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?), or(g.get(cx.this, v::fallTimer)?.gml_gt(&r(4.0))?, g.get(cx.this, v::stunned)?.cond(Cond::Or)?)) {
+        if and({ let p47 = g.get(cx.this, v::colSpikes)?; let q48 = g.get(cx.this, v::yVel)?.gml_gt(&r(0.0))?; and(p47.cond(Cond::And)?, q48) }, { let p49 = g.get(cx.this, v::fallTimer)?.gml_gt(&r(4.0))?; let q50 = g.get(cx.this, v::stunned)?; or(p49, q50.cond(Cond::Or)?) }) {
             // 214: if (!dead)
             g.at("oPlayer1/step#4", 214);
             if g.get(cx.this, v::dead)?.not()?.cond(Cond::If)? {
@@ -5023,22 +5023,22 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#4", 227);
                 {
                     let t = g.get(cx.this, v::obj)?;
-                    let mut it7 = g.with_iter(cx, &t)?;
-                    let outer9 = (cx.this, cx.other);
-                    'with3: while let Some(h8) = it7.next(g) {
-                        (cx.this, cx.other) = (h8, outer9.0);
+                    let mut it51 = g.with_iter(cx, &t)?;
+                    let outer53 = (cx.this, cx.other);
+                    'with3: while let Some(h52) = it51.next(g) {
+                        (cx.this, cx.other) = (h52, outer53.0);
                         // 227: sprite_index = sSpikesBlood;
                         g.at("oPlayer1/step#4", 227);
                         g.set(cx.this, v::sprite_index, spr::sSpikesBlood)?;
                     }
-                    (cx.this, cx.other) = outer9;
+                    (cx.this, cx.other) = outer53;
                 }
             }
         }
     }
     // 233: if (dead || stunned && holdItem != 0)
     g.at("oPlayer1/step#4", 233);
-    if and(or(g.get(cx.this, v::dead)?.cond(Cond::Or)?, g.get(cx.this, v::stunned)?.cond(Cond::Or)?), g.get(cx.this, v::holdItem)?.gml_ne(&r(0.0))?) {
+    if and({ let p54 = g.get(cx.this, v::dead)?; let q55 = g.get(cx.this, v::stunned)?; or(p54.cond(Cond::Or)?, q55.cond(Cond::Or)?) }, g.get(cx.this, v::holdItem)?.gml_ne(&r(0.0))?) {
         // 235: holdItem.held = false;
         g.at("oPlayer1/step#4", 235);
         { let t = g.get(cx.this, v::holdItem)?; g.set_on(cx, &t, v::held, r(0.0))?; }
@@ -5083,7 +5083,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 257: if (dead || stunned)
     g.at("oPlayer1/step#4", 257);
-    if or(g.get(cx.this, v::dead)?.cond(Cond::Or)?, g.get(cx.this, v::stunned)?.cond(Cond::Or)?) {
+    if { let p56 = g.get(cx.this, v::dead)?; let q57 = g.get(cx.this, v::stunned)?; or(p56.cond(Cond::Or)?, q57.cond(Cond::Or)?) } {
         // 259: if (instance_exists(oParachute))
         g.at("oPlayer1/step#4", 259);
         if b::instance_exists(g, cx, [obj::oParachute])?.cond(Cond::If)? {
@@ -5094,15 +5094,15 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oPlayer1/step#4", 262);
             {
                 let t = obj::oParachute;
-                let mut it10 = g.with_iter(cx, &t)?;
-                let outer12 = (cx.this, cx.other);
-                'with4: while let Some(h11) = it10.next(g) {
-                    (cx.this, cx.other) = (h11, outer12.0);
+                let mut it58 = g.with_iter(cx, &t)?;
+                let outer60 = (cx.this, cx.other);
+                'with4: while let Some(h59) = it58.next(g) {
+                    (cx.this, cx.other) = (h59, outer60.0);
                     // 262: instance_destroy();
                     g.at("oPlayer1/step#4", 262);
                     b::instance_destroy(g, cx, [])?;
                 }
-                (cx.this, cx.other) = outer12;
+                (cx.this, cx.other) = outer60;
             }
         }
         // 265: if (whipping)
@@ -5115,15 +5115,15 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oPlayer1/step#4", 268);
             {
                 let t = obj::oWhip;
-                let mut it13 = g.with_iter(cx, &t)?;
-                let outer15 = (cx.this, cx.other);
-                'with5: while let Some(h14) = it13.next(g) {
-                    (cx.this, cx.other) = (h14, outer15.0);
+                let mut it61 = g.with_iter(cx, &t)?;
+                let outer63 = (cx.this, cx.other);
+                'with5: while let Some(h62) = it61.next(g) {
+                    (cx.this, cx.other) = (h62, outer63.0);
                     // 270: instance_destroy();
                     g.at("oPlayer1/step#4", 270);
                     b::instance_destroy(g, cx, [])?;
                 }
-                (cx.this, cx.other) = outer15;
+                (cx.this, cx.other) = outer63;
             }
         }
         // 274: if (global.isDamsel)
@@ -5279,7 +5279,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 329: if (collision_point(x, y, oSpikes, 0, 0) && dead && yVel != 0)
         g.at("oPlayer1/step#4", 329);
-        if and(and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::dead)?.cond(Cond::And)?), g.get(cx.this, v::yVel)?.gml_ne(&r(0.0))?) {
+        if and({ let p64 = { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }; let q65 = g.get(cx.this, v::dead)?; and(p64.cond(Cond::And)?, q65.cond(Cond::And)?) }, g.get(cx.this, v::yVel)?.gml_ne(&r(0.0))?) {
             // 331: if (rand(1, 8) == 1)
             g.at("oPlayer1/step#4", 331);
             if scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_eq(&r(1.0))? {
@@ -5290,7 +5290,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 334: if (isCollisionRight(1) || isCollisionLeft(1) || isCollisionBottom(1))
         g.at("oPlayer1/step#4", 334);
-        if or(or(scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?), scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
+        if { let p68 = { let p66 = scr::isCollisionRight(g, cx, &[r(1.0)])?; let q67 = scr::isCollisionLeft(g, cx, &[r(1.0)])?; or(p66.cond(Cond::Or)?, q67.cond(Cond::Or)?) }; let q69 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; or(p68, q69.cond(Cond::Or)?) } {
             // 336: if (wallHurt > 0)
             g.at("oPlayer1/step#4", 336);
             if g.get(cx.this, v::wallHurt)?.gml_gt(&r(0.0))? {
@@ -5323,7 +5323,7 @@ pub fn step_a4(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 348: if (isCollisionBottom(1) && !bounced)
         g.at("oPlayer1/step#4", 348);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::bounced)?.not()?.cond(Cond::And)?) {
+        if { let p70 = scr::isCollisionBottom(g, cx, &[r(1.0)])?; let q71 = g.get(cx.this, v::bounced)?.not()?; and(p70.cond(Cond::And)?, q71.cond(Cond::And)?) } {
             // 350: bounced = true;
             g.at("oPlayer1/step#4", 350);
             g.set(cx.this, v::bounced, r(1.0))?;
@@ -5363,17 +5363,17 @@ pub fn step_a5(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 3: if (dead && deadCounter > 0)
     g.at("oPlayer1/step#5", 3);
-    if and(g.get(cx.this, v::dead)?.cond(Cond::And)?, g.get(cx.this, v::deadCounter)?.gml_gt(&r(0.0))?) {
+    if { let p1 = g.get(cx.this, v::dead)?; let q2 = g.get(cx.this, v::deadCounter)?.gml_gt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 3: deadCounter -= 1;
         g.at("oPlayer1/step#5", 3);
         g.set(cx.this, v::deadCounter, lenient(Value::sub, g.get(cx.this, v::deadCounter)?, &r(1.0))?)?;
     }
     // 5: if (isLevel() || isRoom("rSun") || isRoom("rMoon") || isRoom("rStars"))
     g.at("oPlayer1/step#5", 5);
-    if or(or(or(scr::isLevel(g, cx, &[])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rSun")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rMoon")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rStars")])?.cond(Cond::Or)?) {
+    if { let p7 = { let p5 = { let p3 = scr::isLevel(g, cx, &[])?; let q4 = scr::isRoom(g, cx, &[s!("rSun")])?; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) }; let q6 = scr::isRoom(g, cx, &[s!("rMoon")])?; or(p5, q6.cond(Cond::Or)?) }; let q8 = scr::isRoom(g, cx, &[s!("rStars")])?; or(p7, q8.cond(Cond::Or)?) } {
         // 7: if (!dead && global.plife < 1)
         g.at("oPlayer1/step#5", 7);
-        if and(g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?, g.gget(gv::plife)?.gml_lt(&r(1.0))?) {
+        if { let p9 = g.get(cx.this, v::dead)?.not()?; let q10 = g.gget(gv::plife)?.gml_lt(&r(1.0))?; and(p9.cond(Cond::And)?, q10) } {
             // 9: if (global.hasAnkh)
             g.at("oPlayer1/step#5", 9);
             if g.gget(gv::hasAnkh)?.cond(Cond::If)? {
@@ -5387,15 +5387,15 @@ pub fn step_a5(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oPlayer1/step#5", 14);
                     {
                         let t = obj::oMoaiInside;
-                        let mut it1 = g.with_iter(cx, &t)?;
-                        let outer3 = (cx.this, cx.other);
-                        'with1: while let Some(h2) = it1.next(g) {
-                            (cx.this, cx.other) = (h2, outer3.0);
+                        let mut it11 = g.with_iter(cx, &t)?;
+                        let outer13 = (cx.this, cx.other);
+                        'with1: while let Some(h12) = it11.next(g) {
+                            (cx.this, cx.other) = (h12, outer13.0);
                             // 14: instance_destroy();
                             g.at("oPlayer1/step#5", 14);
                             b::instance_destroy(g, cx, [])?;
                         }
-                        (cx.this, cx.other) = outer3;
+                        (cx.this, cx.other) = outer13;
                     }
                     // 15: x = oMoai.x + 16 + 8;
                     g.at("oPlayer1/step#5", 15);
@@ -5429,10 +5429,10 @@ pub fn step_a5(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#5", 29);
                 {
                     let t = obj::oBall;
-                    let mut it4 = g.with_iter(cx, &t)?;
-                    let outer6 = (cx.this, cx.other);
-                    'with2: while let Some(h5) = it4.next(g) {
-                        (cx.this, cx.other) = (h5, outer6.0);
+                    let mut it14 = g.with_iter(cx, &t)?;
+                    let outer16 = (cx.this, cx.other);
+                    'with2: while let Some(h15) = it14.next(g) {
+                        (cx.this, cx.other) = (h15, outer16.0);
                         // 31: x = oPlayer1.x;
                         g.at("oPlayer1/step#5", 31);
                         g.set(cx.this, v::x, g.get_on(cx, &obj::oPlayer1, v::x)?)?;
@@ -5440,16 +5440,16 @@ pub fn step_a5(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#5", 32);
                         g.set(cx.this, v::y, g.get_on(cx, &obj::oPlayer1, v::y)?)?;
                     }
-                    (cx.this, cx.other) = outer6;
+                    (cx.this, cx.other) = outer16;
                 }
                 // 34: with (oChain)
                 g.at("oPlayer1/step#5", 34);
                 {
                     let t = obj::oChain;
-                    let mut it7 = g.with_iter(cx, &t)?;
-                    let outer9 = (cx.this, cx.other);
-                    'with3: while let Some(h8) = it7.next(g) {
-                        (cx.this, cx.other) = (h8, outer9.0);
+                    let mut it17 = g.with_iter(cx, &t)?;
+                    let outer19 = (cx.this, cx.other);
+                    'with3: while let Some(h18) = it17.next(g) {
+                        (cx.this, cx.other) = (h18, outer19.0);
                         // 36: x = oPlayer1.x;
                         g.at("oPlayer1/step#5", 36);
                         g.set(cx.this, v::x, g.get_on(cx, &obj::oPlayer1, v::x)?)?;
@@ -5457,7 +5457,7 @@ pub fn step_a5(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#5", 37);
                         g.set(cx.this, v::y, g.get_on(cx, &obj::oPlayer1, v::y)?)?;
                     }
-                    (cx.this, cx.other) = outer9;
+                    (cx.this, cx.other) = outer19;
                 }
                 // 39: xVel = 0;
                 g.at("oPlayer1/step#5", 39);
@@ -5555,7 +5555,7 @@ pub fn step_a5(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 70: if (isRoom("rSun") || isRoom("rMoon") || isRoom("rStars"))
                 g.at("oPlayer1/step#5", 70);
-                if or(or(scr::isRoom(g, cx, &[s!("rSun")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rMoon")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rStars")])?.cond(Cond::Or)?) {
+                if { let p22 = { let p20 = scr::isRoom(g, cx, &[s!("rSun")])?; let q21 = scr::isRoom(g, cx, &[s!("rMoon")])?; or(p20.cond(Cond::Or)?, q21.cond(Cond::Or)?) }; let q23 = scr::isRoom(g, cx, &[s!("rStars")])?; or(p22, q23.cond(Cond::Or)?) } {
                     // 70: scrUpdateHighscores(2);
                     g.at("oPlayer1/step#5", 70);
                     scr::scrUpdateHighscores(g, cx, &[r(2.0)])?;
@@ -5587,7 +5587,7 @@ pub fn step_a5(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a6(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!dead && invincible > 0)
     g.at("oPlayer1/step#6", 1);
-    if and(g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?, g.get(cx.this, v::invincible)?.gml_gt(&r(0.0))?) {
+    if { let p1 = g.get(cx.this, v::dead)?.not()?; let q2 = g.get(cx.this, v::invincible)?.gml_gt(&r(0.0))?; and(p1.cond(Cond::And)?, q2) } {
         // 2: invincible -= 1;
         g.at("oPlayer1/step#6", 2);
         g.set(cx.this, v::invincible, lenient(Value::sub, g.get(cx.this, v::invincible)?, &r(1.0))?)?;
@@ -5648,7 +5648,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Bow"))? {
             // 25: if (collision_rectangle(x - 8, y - 8, x + 8, y + 8, oArrow, 0, 0) && !dead && !stunned)
             g.at("oPlayer1/step#8", 25);
-            if and(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oArrow, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?), g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?) {
+            if { let p3 = { let p1 = { let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oArrow, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; let q2 = g.get(cx.this, v::dead)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) }; let q4 = g.get(cx.this, v::stunned)?.not()?; and(p3, q4.cond(Cond::And)?) } {
                 // 27: obj = instance_nearest(x, y, oArrow);
                 g.at("oPlayer1/step#8", 27);
                 {
@@ -5657,7 +5657,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 28: if (abs(obj.xVel) < 1 && abs(obj.yVel) < 1 && !obj.stuck)
                 g.at("oPlayer1/step#8", 28);
-                if and(and(({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::stuck)?.not()?.cond(Cond::And)?) {
+                if { let p5 = and(({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?); let q6 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::stuck)?.not()?; and(p5, q6.cond(Cond::And)?) } {
                     // 30: global.arrows += 1;
                     g.at("oPlayer1/step#8", 30);
                     g.gset(gv::arrows, lenient(Value::add, g.gget(gv::arrows)?, &r(1.0))?)?;
@@ -5668,15 +5668,15 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.at("oPlayer1/step#8", 32);
                     {
                         let t = g.get(cx.this, v::obj)?;
-                        let mut it1 = g.with_iter(cx, &t)?;
-                        let outer3 = (cx.this, cx.other);
-                        'with1: while let Some(h2) = it1.next(g) {
-                            (cx.this, cx.other) = (h2, outer3.0);
+                        let mut it7 = g.with_iter(cx, &t)?;
+                        let outer9 = (cx.this, cx.other);
+                        'with1: while let Some(h8) = it7.next(g) {
+                            (cx.this, cx.other) = (h8, outer9.0);
                             // 32: instance_destroy();
                             g.at("oPlayer1/step#8", 32);
                             b::instance_destroy(g, cx, [])?;
                         }
-                        (cx.this, cx.other) = outer3;
+                        (cx.this, cx.other) = outer9;
                     }
                 }
             }
@@ -5684,7 +5684,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 38: if (collision_rectangle(x - 8, y - 8, x + 8, y + 8, oTreasure, 0, 0) && !dead && !stunned)
     g.at("oPlayer1/step#8", 38);
-    if and(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oTreasure, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?), g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?) {
+    if { let p12 = { let p10 = { let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oTreasure, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; let q11 = g.get(cx.this, v::dead)?.not()?; and(p10.cond(Cond::And)?, q11.cond(Cond::And)?) }; let q13 = g.get(cx.this, v::stunned)?.not()?; and(p12, q13.cond(Cond::And)?) } {
         // 40: gem = instance_nearest(x, y, oTreasure);
         g.at("oPlayer1/step#8", 40);
         {
@@ -5818,21 +5818,21 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oPlayer1/step#8", 64);
             {
                 let t = g.get(cx.this, v::gem)?;
-                let mut it4 = g.with_iter(cx, &t)?;
-                let outer6 = (cx.this, cx.other);
-                'with2: while let Some(h5) = it4.next(g) {
-                    (cx.this, cx.other) = (h5, outer6.0);
+                let mut it14 = g.with_iter(cx, &t)?;
+                let outer16 = (cx.this, cx.other);
+                'with2: while let Some(h15) = it14.next(g) {
+                    (cx.this, cx.other) = (h15, outer16.0);
                     // 64: instance_destroy();
                     g.at("oPlayer1/step#8", 64);
                     b::instance_destroy(g, cx, [])?;
                 }
-                (cx.this, cx.other) = outer6;
+                (cx.this, cx.other) = outer16;
             }
         }
     }
     // 68: if (collision_rectangle(x - 8, y - 8, x + 8, y + 8, oBombBag, 0, 0) && !dead && !stunned)
     g.at("oPlayer1/step#8", 68);
-    if and(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oBombBag, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?), g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?) {
+    if { let p19 = { let p17 = { let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oBombBag, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; let q18 = g.get(cx.this, v::dead)?.not()?; and(p17.cond(Cond::And)?, q18.cond(Cond::And)?) }; let q20 = g.get(cx.this, v::stunned)?.not()?; and(p19, q20.cond(Cond::And)?) } {
         // 70: obj = collision_rectangle(x - 8, y - 8, x + 8, y + 8, oBombBag, 0, 0);
         g.at("oPlayer1/step#8", 70);
         {
@@ -5841,7 +5841,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 71: if (!obj.held && obj.cost == 0 && !collision_point(obj.x, obj.y, oSolid, 0, 0))
         g.at("oPlayer1/step#8", 71);
-        if and(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::cost)?.gml_eq(&r(0.0))?), ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+        if { let p23 = { let p21 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?; let q22 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::cost)?.gml_eq(&r(0.0))?; and(p21.cond(Cond::And)?, q22) }; let q24 = ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p23, q24.cond(Cond::And)?) } {
             // 73: global.bombs += 3;
             g.at("oPlayer1/step#8", 73);
             g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(3.0))?)?;
@@ -5858,15 +5858,15 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oPlayer1/step#8", 76);
             {
                 let t = g.get(cx.this, v::obj)?;
-                let mut it7 = g.with_iter(cx, &t)?;
-                let outer9 = (cx.this, cx.other);
-                'with3: while let Some(h8) = it7.next(g) {
-                    (cx.this, cx.other) = (h8, outer9.0);
+                let mut it25 = g.with_iter(cx, &t)?;
+                let outer27 = (cx.this, cx.other);
+                'with3: while let Some(h26) = it25.next(g) {
+                    (cx.this, cx.other) = (h26, outer27.0);
                     // 76: instance_destroy();
                     g.at("oPlayer1/step#8", 76);
                     b::instance_destroy(g, cx, [])?;
                 }
-                (cx.this, cx.other) = outer9;
+                (cx.this, cx.other) = outer27;
             }
             // 77: playSound(global.sndPickup);
             g.at("oPlayer1/step#8", 77);
@@ -5884,7 +5884,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 84: if (collision_rectangle(x - 8, y - 8, x + 8, y + 8, oBombBox, 0, 0) && !dead && !stunned)
     g.at("oPlayer1/step#8", 84);
-    if and(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oBombBox, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?), g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?) {
+    if { let p30 = { let p28 = { let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oBombBox, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; let q29 = g.get(cx.this, v::dead)?.not()?; and(p28.cond(Cond::And)?, q29.cond(Cond::And)?) }; let q31 = g.get(cx.this, v::stunned)?.not()?; and(p30, q31.cond(Cond::And)?) } {
         // 86: obj = collision_rectangle(x - 8, y - 8, x + 8, y + 8, oBombBox, 0, 0);
         g.at("oPlayer1/step#8", 86);
         {
@@ -5893,7 +5893,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 87: if (!obj.held && obj.cost == 0 && !collision_point(obj.x, obj.y, oSolid, 0, 0))
         g.at("oPlayer1/step#8", 87);
-        if and(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::cost)?.gml_eq(&r(0.0))?), ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+        if { let p34 = { let p32 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?; let q33 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::cost)?.gml_eq(&r(0.0))?; and(p32.cond(Cond::And)?, q33) }; let q35 = ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p34, q35.cond(Cond::And)?) } {
             // 89: global.bombs += 12;
             g.at("oPlayer1/step#8", 89);
             g.gset(gv::bombs, lenient(Value::add, g.gget(gv::bombs)?, &r(12.0))?)?;
@@ -5910,15 +5910,15 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oPlayer1/step#8", 92);
             {
                 let t = g.get(cx.this, v::obj)?;
-                let mut it10 = g.with_iter(cx, &t)?;
-                let outer12 = (cx.this, cx.other);
-                'with4: while let Some(h11) = it10.next(g) {
-                    (cx.this, cx.other) = (h11, outer12.0);
+                let mut it36 = g.with_iter(cx, &t)?;
+                let outer38 = (cx.this, cx.other);
+                'with4: while let Some(h37) = it36.next(g) {
+                    (cx.this, cx.other) = (h37, outer38.0);
                     // 92: instance_destroy();
                     g.at("oPlayer1/step#8", 92);
                     b::instance_destroy(g, cx, [])?;
                 }
-                (cx.this, cx.other) = outer12;
+                (cx.this, cx.other) = outer38;
             }
             // 93: playSound(global.sndPickup);
             g.at("oPlayer1/step#8", 93);
@@ -5936,7 +5936,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 100: if (collision_rectangle(x - 8, y - 8, x + 8, y + 8, oRopePile, 0, 0) && !dead && !stunned)
     g.at("oPlayer1/step#8", 100);
-    if and(and(({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oRopePile, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::dead)?.not()?.cond(Cond::And)?), g.get(cx.this, v::stunned)?.not()?.cond(Cond::And)?) {
+    if { let p41 = { let p39 = { let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oRopePile, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }; let q40 = g.get(cx.this, v::dead)?.not()?; and(p39.cond(Cond::And)?, q40.cond(Cond::And)?) }; let q42 = g.get(cx.this, v::stunned)?.not()?; and(p41, q42.cond(Cond::And)?) } {
         // 102: obj = collision_rectangle(x - 8, y - 8, x + 8, y + 8, oRopePile, 0, 0);
         g.at("oPlayer1/step#8", 102);
         {
@@ -5945,7 +5945,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 103: if (!obj.held && obj.cost == 0 && !collision_point(obj.x, obj.y, oSolid, 0, 0))
         g.at("oPlayer1/step#8", 103);
-        if and(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::cost)?.gml_eq(&r(0.0))?), ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+        if { let p45 = { let p43 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.not()?; let q44 = g.get_on(cx, &g.get(cx.this, v::obj)?, v::cost)?.gml_eq(&r(0.0))?; and(p43.cond(Cond::And)?, q44) }; let q46 = ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p45, q46.cond(Cond::And)?) } {
             // 105: global.rope += 3;
             g.at("oPlayer1/step#8", 105);
             g.gset(gv::rope, lenient(Value::add, g.gget(gv::rope)?, &r(3.0))?)?;
@@ -5962,15 +5962,15 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oPlayer1/step#8", 108);
             {
                 let t = g.get(cx.this, v::obj)?;
-                let mut it13 = g.with_iter(cx, &t)?;
-                let outer15 = (cx.this, cx.other);
-                'with5: while let Some(h14) = it13.next(g) {
-                    (cx.this, cx.other) = (h14, outer15.0);
+                let mut it47 = g.with_iter(cx, &t)?;
+                let outer49 = (cx.this, cx.other);
+                'with5: while let Some(h48) = it47.next(g) {
+                    (cx.this, cx.other) = (h48, outer49.0);
                     // 108: instance_destroy();
                     g.at("oPlayer1/step#8", 108);
                     b::instance_destroy(g, cx, [])?;
                 }
-                (cx.this, cx.other) = outer15;
+                (cx.this, cx.other) = outer49;
             }
             // 109: playSound(global.sndPickup);
             g.at("oPlayer1/step#8", 109);
@@ -6039,15 +6039,15 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.at("oPlayer1/step#8", 131);
                 {
                     let t = g.get(cx.this, v::holdItem)?;
-                    let mut it16 = g.with_iter(cx, &t)?;
-                    let outer18 = (cx.this, cx.other);
-                    'with6: while let Some(h17) = it16.next(g) {
-                        (cx.this, cx.other) = (h17, outer18.0);
+                    let mut it50 = g.with_iter(cx, &t)?;
+                    let outer52 = (cx.this, cx.other);
+                    'with6: while let Some(h51) = it50.next(g) {
+                        (cx.this, cx.other) = (h51, outer52.0);
                         // 131: instance_destroy();
                         g.at("oPlayer1/step#8", 131);
                         b::instance_destroy(g, cx, [])?;
                     }
-                    (cx.this, cx.other) = outer18;
+                    (cx.this, cx.other) = outer52;
                 }
                 // 132: holdItem = 0;
                 g.at("oPlayer1/step#8", 132);
@@ -6058,7 +6058,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Damsel"))? {
                     // 136: if (holdItem.active && holdItem.hp > 0)
                     g.at("oPlayer1/step#8", 136);
-                    if and(g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::active)?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::hp)?.gml_gt(&r(0.0))?) {
+                    if { let p53 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::active)?; let q54 = g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::hp)?.gml_gt(&r(0.0))?; and(p53.cond(Cond::And)?, q54) } {
                         // 138: if (isRealLevel())
                         g.at("oPlayer1/step#8", 138);
                         if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
@@ -6094,10 +6094,10 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.at("oPlayer1/step#8", 144);
                         {
                             let t = g.get(cx.this, v::holdItem)?;
-                            let mut it19 = g.with_iter(cx, &t)?;
-                            let outer21 = (cx.this, cx.other);
-                            'with7: while let Some(h20) = it19.next(g) {
-                                (cx.this, cx.other) = (h20, outer21.0);
+                            let mut it55 = g.with_iter(cx, &t)?;
+                            let outer57 = (cx.this, cx.other);
+                            'with7: while let Some(h56) = it55.next(g) {
+                                (cx.this, cx.other) = (h56, outer57.0);
                                 // 146: if (global.isDamsel)
                                 g.at("oPlayer1/step#8", 146);
                                 if g.gget(gv::isDamsel)?.cond(Cond::If)? {
@@ -6134,7 +6134,7 @@ pub fn step_a8(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.at("oPlayer1/step#8", 155);
                                 g.set(cx.this, v::canPickUp, r(0.0))?;
                             }
-                            (cx.this, cx.other) = outer21;
+                            (cx.this, cx.other) = outer57;
                         }
                         // 157: holdItem = 0;
                         g.at("oPlayer1/step#8", 157);
@@ -6155,7 +6155,7 @@ pub fn collision_oBlood_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (global.hasKapala && other.collectible)
     g.at("oPlayer1/collision_oBlood#0", 1);
-    if and(g.gget(gv::hasKapala)?.cond(Cond::And)?, g.get(cx.other, v::collectible)?.cond(Cond::And)?) {
+    if { let p1 = g.gget(gv::hasKapala)?; let q2 = g.get(cx.other, v::collectible)?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 3: global.bloodLevel += 1;
         g.at("oPlayer1/collision_oBlood#0", 3);
         g.gset(gv::bloodLevel, lenient(Value::add, g.gget(gv::bloodLevel)?, &r(1.0))?)?;
@@ -6166,15 +6166,15 @@ pub fn collision_oBlood_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.at("oPlayer1/collision_oBlood#0", 5);
         {
             let t = r(-2.0);
-            let mut it1 = g.with_iter(cx, &t)?;
-            let outer3 = (cx.this, cx.other);
-            'with1: while let Some(h2) = it1.next(g) {
-                (cx.this, cx.other) = (h2, outer3.0);
+            let mut it3 = g.with_iter(cx, &t)?;
+            let outer5 = (cx.this, cx.other);
+            'with1: while let Some(h4) = it3.next(g) {
+                (cx.this, cx.other) = (h4, outer5.0);
                 // 5: instance_destroy();
                 g.at("oPlayer1/collision_oBlood#0", 5);
                 b::instance_destroy(g, cx, [])?;
             }
-            (cx.this, cx.other) = outer3;
+            (cx.this, cx.other) = outer5;
         }
         // 7: if (global.bloodLevel > 8)
         g.at("oPlayer1/collision_oBlood#0", 7);
@@ -6336,7 +6336,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 52: if (pExit == xSTART && global.gameStart)
                 g.at("oPlayer1/other_7#0", 52);
-                if and(g.get(cx.this, v::pExit)?.gml_eq(&g.get(cx.this, v::xSTART)?)?, g.gget(gv::gameStart)?.cond(Cond::And)?) {
+                if { let p1 = g.get(cx.this, v::pExit)?.gml_eq(&g.get(cx.this, v::xSTART)?)?; let q2 = g.gget(gv::gameStart)?; and(p1, q2.cond(Cond::And)?) } {
                     // 54: global.gameStart = false;
                     g.at("oPlayer1/other_7#0", 54);
                     g.gset(gv::gameStart, r(0.0))?;

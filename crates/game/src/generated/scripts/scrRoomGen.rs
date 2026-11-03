@@ -302,7 +302,7 @@ pub fn scrRoomGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             if g.get(cx.this, v::roomPath)?.gml_eq(&r(0.0))? {
                 // 87: if (global.currLevel > 1 && !oGame.altar && rand(1, 16) == 1)
                 g.at("scripts/scrRoomGen", 87);
-                if and(and(g.gget(gv::currLevel)?.gml_gt(&r(1.0))?, g.get_on(cx, &obj::oGame, v::altar)?.not()?.cond(Cond::And)?), scr::rand(g, cx, &[r(1.0), r(16.0)])?.gml_eq(&r(1.0))?) {
+                if and({ let p1 = g.gget(gv::currLevel)?.gml_gt(&r(1.0))?; let q2 = g.get_on(cx, &obj::oGame, v::altar)?.not()?; and(p1, q2.cond(Cond::And)?) }, scr::rand(g, cx, &[r(1.0), r(16.0)])?.gml_eq(&r(1.0))?) {
                     // 89: n = 11;
                     g.at("scripts/scrRoomGen", 89);
                     {
@@ -321,7 +321,7 @@ pub fn scrRoomGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 } else {
                     // 92: if (oGame.idol || scrGetRoomY(y) == 3)
                     g.at("scripts/scrRoomGen", 92);
-                    if or(g.get_on(cx, &obj::oGame, v::idol)?.cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? }).gml_eq(&r(3.0))?) {
+                    if { let p3 = g.get_on(cx, &obj::oGame, v::idol)?; let q4 = ({ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? }).gml_eq(&r(3.0))?; or(p3.cond(Cond::Or)?, q4) } {
                         // 94: n = rand(1, 9);
                         g.at("scripts/scrRoomGen", 94);
                         {
@@ -2548,7 +2548,7 @@ pub fn scrRoomGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 325: if (tile == "1" && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGen", 325);
-                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                    if { let p5 = g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?; let q6 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p5, q6.cond(Cond::And)?) } {
                         // 327: if (rand(1, 10) == 1)
                         g.at("scripts/scrRoomGen", 327);
                         if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {
@@ -2563,7 +2563,7 @@ pub fn scrRoomGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     } else {
                         // 333: if (tile == "2" && rand(1, 2) == 1 && !collision_point(xpos, ypos, oSolid, 0, 0))
                         g.at("scripts/scrRoomGen", 333);
-                        if and(and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                        if { let p7 = and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?); let q8 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p7, q8.cond(Cond::And)?) } {
                             // 335: if (rand(1, 10) == 1)
                             g.at("scripts/scrRoomGen", 335);
                             if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {
@@ -2769,7 +2769,7 @@ pub fn scrRoomGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                 if g.get(cx.this, v::tile)?.gml_eq(&s!("W"))? {
                                                                                     // 406: if (global.murderer || global.thiefLevel > 0)
                                                                                     g.at("scripts/scrRoomGen", 406);
-                                                                                    if or(g.gget(gv::murderer)?.cond(Cond::Or)?, g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
+                                                                                    if { let p9 = g.gget(gv::murderer)?; let q10 = g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?; or(p9.cond(Cond::Or)?, q10) } {
                                                                                         // 408: if (global.isDamsel)
                                                                                         g.at("scripts/scrRoomGen", 408);
                                                                                         if g.gget(gv::isDamsel)?.cond(Cond::If)? {
@@ -2793,7 +2793,7 @@ pub fn scrRoomGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                 } else {
                                                                                     // 413: if (tile == "." && !collision_point(xpos, ypos, oSolid, 0, 0))
                                                                                     g.at("scripts/scrRoomGen", 413);
-                                                                                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("."))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
+                                                                                    if { let p11 = g.get(cx.this, v::tile)?.gml_eq(&s!("."))?; let q12 = ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?; and(p11, q12.cond(Cond::And)?) } {
                                                                                         // 415: if (rand(1, 10) == 1)
                                                                                         g.at("scripts/scrRoomGen", 415);
                                                                                         if scr::rand(g, cx, &[r(1.0), r(10.0)])?.gml_eq(&r(1.0))? {

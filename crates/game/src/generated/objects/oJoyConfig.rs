@@ -133,7 +133,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 62: if (joyPressed || keyboard_check_pressed(vk_escape))
     g.at("oJoyConfig/step#0", 62);
-    if or(g.get(cx.this, v::joyPressed)?.cond(Cond::Or)?, b::keyboard_check_pressed(g, cx, [k::vk_escape])?.cond(Cond::Or)?) {
+    if { let p1 = g.get(cx.this, v::joyPressed)?; let q2 = b::keyboard_check_pressed(g, cx, [k::vk_escape])?; or(p1.cond(Cond::Or)?, q2.cond(Cond::Or)?) } {
         // 64: status += 1;
         g.at("oJoyConfig/step#0", 64);
         g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0))?)?;

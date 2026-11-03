@@ -125,7 +125,7 @@ impl Slot {
             Slot::Scalar(v) => (index == 0).then(|| v.clone()),
             Slot::Array(m) => m.get(&index).cloned().or_else(|| {
                 let row_end = (index / ARRAY_STRIDE + 1) * ARRAY_STRIDE;
-                (index == 0 || m.range(index + 1..row_end).next().is_some())
+                ((index == 0 && !m.is_empty()) || m.range(index + 1..row_end).next().is_some())
                     .then_some(Value::Real(0.0))
             }),
         }

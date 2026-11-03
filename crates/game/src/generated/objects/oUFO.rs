@@ -115,7 +115,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 20: if (dist < 160 && !alerted)
         g.at("oUFO/step#0", 20);
-        if and(g.get(cx.this, v::dist)?.gml_lt(&r(160.0))?, g.get(cx.this, v::alerted)?.not()?.cond(Cond::And)?) {
+        if { let p1 = g.get(cx.this, v::dist)?.gml_lt(&r(160.0))?; let q2 = g.get(cx.this, v::alerted)?.not()?; and(p1, q2.cond(Cond::And)?) } {
             // 22: alerted = true;
             g.at("oUFO/step#0", 22);
             g.set(cx.this, v::alerted, r(1.0))?;
@@ -229,7 +229,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 81: if (instance_exists(oCharacter) && !oCharacter.swimming && !oCharacter.dead)
                 g.at("oUFO/step#0", 81);
-                if and(and(b::instance_exists(g, cx, [obj::oCharacter])?.cond(Cond::And)?, g.get_on(cx, &obj::oCharacter, v::swimming)?.not()?.cond(Cond::And)?), g.get_on(cx, &obj::oCharacter, v::dead)?.not()?.cond(Cond::And)?) {
+                if { let p5 = { let p3 = b::instance_exists(g, cx, [obj::oCharacter])?; let q4 = g.get_on(cx, &obj::oCharacter, v::swimming)?.not()?; and(p3.cond(Cond::And)?, q4.cond(Cond::And)?) }; let q6 = g.get_on(cx, &obj::oCharacter, v::dead)?.not()?; and(p5, q6.cond(Cond::And)?) } {
                     // 83: if (y > oCharacter.y - 48)
                     g.at("oUFO/step#0", 83);
                     if g.get(cx.this, v::y)?.gml_gt(&g.get_on(cx, &obj::oCharacter, v::y)?.sub(&r(48.0))?)? {

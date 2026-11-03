@@ -9,7 +9,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     cx.ret = scr::setCollisionBounds(g, cx, &[r(2.0), r(6.0), r(14.0), r(16.0)])?;
     // 26: if (colLeft && !colRight)
     g.at("scripts/scrCheckCollisions", 26);
-    if and(g.get(cx.this, v::colLeft)?.cond(Cond::And)?, g.get(cx.this, v::colRight)?.not()?.cond(Cond::And)?) {
+    if { let p1 = g.get(cx.this, v::colLeft)?; let q2 = g.get(cx.this, v::colRight)?.not()?; and(p1.cond(Cond::And)?, q2.cond(Cond::And)?) } {
         // 28: x += 1;
         g.at("scripts/scrCheckCollisions", 28);
         {
@@ -34,7 +34,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 35: if (colLeft || colRight)
     g.at("scripts/scrCheckCollisions", 35);
-    if or(g.get(cx.this, v::colLeft)?.cond(Cond::Or)?, g.get(cx.this, v::colRight)?.cond(Cond::Or)?) {
+    if { let p3 = g.get(cx.this, v::colLeft)?; let q4 = g.get(cx.this, v::colRight)?; or(p3.cond(Cond::Or)?, q4.cond(Cond::Or)?) } {
         // 37: xVel = -xVel * 0.5;
         g.at("scripts/scrCheckCollisions", 37);
         {
@@ -45,7 +45,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 40: if (colTop && !colBot)
     g.at("scripts/scrCheckCollisions", 40);
-    if and(g.get(cx.this, v::colTop)?.cond(Cond::And)?, g.get(cx.this, v::colBot)?.not()?.cond(Cond::And)?) {
+    if { let p5 = g.get(cx.this, v::colTop)?; let q6 = g.get(cx.this, v::colBot)?.not()?; and(p5.cond(Cond::And)?, q6.cond(Cond::And)?) } {
         // 42: y += 1;
         g.at("scripts/scrCheckCollisions", 42);
         {
