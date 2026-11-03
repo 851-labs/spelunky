@@ -106,11 +106,13 @@ while IFS= read -r group; do
     map(select((.body | contains($marker)) or .title == $title)) | .[0].number // empty' <<<"$open")
   if [ -n "$number" ]; then
     # Only the runs this issue doesn't have yet (a re-run of this job reports the rest). Its markers count only
-    # in the body and in this workflow's comments (github-actions, as gh names the GITHUB_TOKEN's bot): anyone can
-    # comment on a public repository's issue, and a run's id is public once it starts, so a comment of theirs
-    # with the markers would keep the divergence from being reported again (851-3907).
-    seen=$(gh issue view "$number" --json body,comments \
-      --jq '[.body, (.comments[] | select(.author.login == "github-actions") | .body)] | join("\n")')
+    # in the body and in comments this workflow wrote (github-actions, as gh names the GITHUB_TOKEN's bot) or the
+    # repository's people did (a run of this script with their own token): anyone can comment on a public
+    # repository's issue, and a run's id is public once it starts, so an outsider's comment with the markers
+    # would keep the divergence from being reported again (851-3907).
+    seen=$(gh issue view "$number" --json body,comments --jq '[.body, (.comments[]
+      | select(.author.login == "github-actions" or (.authorAssociation | IN("OWNER", "MEMBER", "COLLABORATOR")))
+      | .body)] | join("\n")')
     group=$(jq -c --arg seen "$seen" --arg id "$RUN_ID" \
       'map(select(. as $r | $seen | contains("<!-- soak-run: \($id) \($r.name) -->") | not))' <<<"$group")
     if [ "$(jq length <<<"$group")" = 0 ]; then

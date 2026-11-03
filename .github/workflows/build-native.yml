@@ -321,8 +321,6 @@ jobs:
           name: smoke-macos-${{ matrix.arch }}
           path: ${{ runner.temp }}/smoke/*.png
           if-no-files-found: ignore
-      - if: always()
-        run: rm -rf "$RUNNER_TEMP/package" "$RUNNER_TEMP/smoke"
 
   smoke:
     name: Test Win/Linux app
