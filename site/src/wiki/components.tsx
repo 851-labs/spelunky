@@ -1,6 +1,6 @@
 // The components a page's MDX renders with (docs/wiki-style.md, "Body components"). compile.ts has already
 // resolved what they show (a stat's text, a citation's number, a clip's files), so each only draws it.
-import type { ComponentProps, CSSProperties, ReactNode } from "react";
+import { Children, cloneElement, isValidElement, type ComponentProps, type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { clipAnchor } from "./anchors.ts";
 import { CardLink } from "./hover-card";
 import { LiveClip } from "./live-clip";
@@ -207,12 +207,48 @@ function GmlExcerpt({ cite, code, href }: { cite: string; code: string; href?: s
   );
 }
 
-// A body's table, in a box that scrolls it sideways on a narrow screen rather than widening the page.
-function Table(props: ComponentProps<"table">) {
+// A body's table, in a box that scrolls it sideways on a narrow screen rather than widening the page. A column
+// of citations has an empty header in the MDX (`| Way | Damage | |`), which a screen reader would read as
+// "blank": it gets a name only they read (851-3893). The Markdown twins keep it empty.
+function Table({ children, ...props }: ComponentProps<"table">) {
   return (
     <div className="table-wrap">
-      <table {...props} />
+      <table {...props}>{nameCitationColumns(children)}</table>
     </div>
+  );
+}
+
+type Parent = ReactElement<{ children?: ReactNode }>;
+const elements = (node: ReactNode) => Children.toArray(node).filter((child): child is Parent => isValidElement(child));
+const section = (table: ReactNode, tag: string) => elements(table).filter((child) => child.type === tag);
+// A row's cells: every element in it, as nameCitationColumns counts them by position.
+const cells = (row: Parent) => elements(row.props.children);
+// A cell's content: nothing but whitespace (`blank`), or one with a citation's note in it (`cites`, which may
+// add a word: "[4], the markup").
+const isBlank = (node: ReactNode) => Children.toArray(node).every((child) => typeof child === "string" && !child.trim());
+const cites = (node: ReactNode) => Children.toArray(node).some((child) => isValidElement(child) && child.type === Cite);
+
+function nameCitationColumns(table: ReactNode): ReactNode {
+  const head = section(table, "thead")[0];
+  const header = head && elements(head.props.children)[0];
+  if (!header) return table;
+  const bodyRows = section(table, "tbody").flatMap((body) => elements(body.props.children)).map(cells);
+  const named = cells(header).flatMap((th, i) => {
+    if (!isBlank(th.props.children)) return [];
+    const column = bodyRows.map((row) => row[i]?.props.children);
+    return column.some(cites) && column.every((cell) => isBlank(cell) || cites(cell)) ? [i] : [];
+  });
+  if (!named.length) return table;
+  // Rebuilt by position, not by identity: toArray's elements (above) are re-keyed copies of Children.map's.
+  const mapElements = (node: ReactNode, f: (child: Parent, i: number) => ReactNode) => {
+    let i = 0;
+    return Children.map(node, (child) => (isValidElement(child) ? f(child as Parent, i++) : child));
+  };
+  const nameCell = (th: Parent, i: number) => (named.includes(i) ? cloneElement(th, {}, <span className="visually-hidden">Sources</span>) : th);
+  return mapElements(table, (child) =>
+    child.type === "thead"
+      ? cloneElement(child, {}, mapElements(child.props.children, (row, r) => (r === 0 ? cloneElement(row, {}, mapElements(row.props.children, nameCell)) : row)))
+      : child,
   );
 }
 
