@@ -133,9 +133,9 @@ scripts/cargo run --release -p harness --bin replay-coverage -- --lines --missed
 scripts/cargo run --release -p harness --bin replay-coverage -- --lines --by-line oSnake/   # which replays run each line
 ```
 
-All 261 committed replays, 498,402 frames:
+All 264 committed replays, 508,152 frames:
 
-- **The game**: 16941 of 20278 lines (83.5%), in 1435 units: 176 never ran, 238 partly.
+- **The game**: 16958 of 20278 lines (83.6%), in 1435 units: 175 never ran, 238 partly.
 - **The settings program**: 556 of 1231 lines (45.2%), in 114 units: 69 never ran, 11 partly.
 
 The game's units that never ran, by why:
@@ -147,13 +147,36 @@ The game's units that never ran, by why:
   objects copied into the game (`oKeyConfig`, `oJoyConfig` and their rooms, `oCheckBox`..., `oSlider*`, `oOKButton`,
   `oPageUp`, `oPageDown`), which only `oKeyConfigButton` and `oJoyConfigButton`, which nothing creates, lead to;
   and the unused items, traps and backgrounds. `core/create#0`, `core/create#1`, `core/draw#0`, `core/mouse_12#0`, `core/other_3#0`, `mascara/create#0`, `oAlienShipFloor/create#0`, `oAlienShipFloor/destroy#0`, `oAlienShipFloor/destroy#1`, `oBackdrop/create#0`, `oBasketball/create#0`, `oBasketball/create#1`, `oBasketball/step#0`, `oBasketball/step#1`, `oCaveBG/create#0`, `oCheckBox/create#0`, `oCheckBox/mouse_4#0`, `oCheckBox2/create#0`, `oCheckBox2/mouse_4#0`, `oCheckBox3/create#0`, `oCheckBox3/mouse_4#0`, `oCheckBox4/create#0`, `oCheckBox4/mouse_4#0`, `oEntranceCheck/collision_oSolid#0`, `oEntranceCheck/step#0`, `oFireFrogArmed/create#0`, `oFireFrogArmed/create#1`, `oFireFrogArmed/step#0`, `oForeground/create#0`, `oGold/destroy#0`, `oGoldBig/destroy#0`, `oJordans/create#0`, `oJordans/create#1`, `oJoyConfig/create#0`, `oJoyConfig/draw#0`, `oJoyConfig/other_5#0`, `oJoyConfig/step#0`, `oJoyConfigButton/mouse_11#0`, `oJoyConfigButton/mouse_4#0`, `oJoyConfigButton/mouse_7#0`, `oKeyConfig/create#0`, `oKeyConfig/draw#0`, `oKeyConfig/keypress_1#0`, `oKeyConfig/other_5#0`, `oKeyConfigButton/mouse_11#0`, `oKeyConfigButton/mouse_4#0`, `oKeyConfigButton/mouse_7#0`, `oOKButton/mouse_11#0`, `oOKButton/mouse_4#0`, `oOKButton/mouse_7#0`, `oPageDown/keypress_40#0`, `oPageUp/keypress_38#0`, `oRadioBox/create#0`, `oRadioBox/mouse_4#0`, `oRopeBag/create#0`, `oRopeBag/create#1`, `oSlider1/create#0`, `oSlider1/mouse_4#0`, `oSlider1/step#0`, `oSlider2/alarm_0#0`, `oSlider2/create#0`, `oSlider2/mouse_4#0`, `oSlider2/step#0`, `oSmallCollect/alarm_0#0`, `oSmallCollect/create#0`, `oSmallCollect/create#1`, `oSmallCollect/step#0`, `oTarget/collision_oArrow#0`, `oTarget/create#0`, `oTarget/step#0`, `oTemp/alarm_0#0`, `oTemp/create#0`, `oTemp/create#1`, `oTemp/step#0`, `oTemp/step#1`, `oThwompTrap/create#0`, `oThwompTrap/create#1`, `oThwompTrap/step#0`.
-- **Keys and pads no replay uses**: `oGame/keypress_77#0`, the M key's music toggle (851-3785);
-  `scripts/checkFlarePressed`, unreachable, as its only call is commented out (`objects/oPlayer1/step.gml:413`);
-  and the whole joystick path, `oGamepad/step#1`, `scripts/checkJoyButton`, `scripts/scrGetJoy`, reachable with a gamepad (851-3949).
+- **Keys and pads no replay uses**: `scripts/checkFlarePressed`, unreachable, as its only call is commented out
+  (`objects/oPlayer1/step.gml:413`); and the whole joystick path, `oGamepad/step#1`, `scripts/checkJoyButton`, `scripts/scrGetJoy`, reachable with a gamepad (851-3949).
 - **Monsters and traps on each other** (851-3843, 851-3783): `oManTrap/collision_oCaveman#0`, `oManTrap/collision_oDamsel#0`, `oManTrap/collision_oShopkeeper#0`, `oMagma/collision_oEnemy#0`, `oMagmaMan/collision_oEnemy#0`, `oPsychicWave/collision_oDamsel#0`, `oPsychicWaveP/collision_oDamsel#0`, `oLaser/collision_oDamsel#0`, `oUFOCrash/collision_oEnemy#0`.
 - **Explosions on webs, boulders and barrier emitters, and destroy events** (851-3781, 851-3807): `oExplosion/collision_oBarrierEmitter#0`, `oExplosion/collision_oBoulder#0`, `oExplosion/collision_oWeb#0`, `oBarrierEmitter/destroy#0`, `oCeilingTrap/destroy#0`, `oDoor/destroy#0`, `oSign/destroy#0`, `oIceBlock/destroy#0`.
 - **Weapons and thrown things no replay hits with, and web balls** (851-3811, 851-3782): `oSkull/collision_oBullet#0`, `oBarrier/collision_oBullet#0`, `oBarrierEmitter/collision_oBullet#0`, `oHawkman/collision_oWhipPre#0`, `oWebBall/collision_oEnemy#0`, `oWebBall/collision_oWater#0`, `oWebBall/alarm_0#0`, `oWebBall/alarm_1#0`, `oWebBall/other_0#0`, `oWeb/collision_oLaser#0`, `oWeb/collision_oSlash#0`.
-- **Not classified yet** (42, 851-3948: unreachable or reachable, each to say): `oAlienBoss/collision_oCharacter#0`, `oAlienEject/collision_oPlayer1#0`, `oAlienEject/collision_oWeb#0`, `oAlienEject/other_0#0`, `oArrowRepeaterL/alarm_0#0`, `oArrowRepeaterL/alarm_1#0`, `oArrowRepeaterL/destroy#0`, `oArrowRepeaterR/alarm_0#0`, `oArrowRepeaterR/alarm_1#0`, `oArrowRepeaterR/destroy#0`, `oArrowTrapLeft/alarm_0#0`, `oArrowTrapRight/alarm_0#0`, `oBarrier/collision_oCharacter#0`, `oBarrier/collision_oWebBall#0`, `oBarrierEmitter/collision_oItem#0`, `oBasket/other_7#0`, `oBullet/alarm_0#0`, `oFly/collision_oDamsel#0`, `oHawkman/alarm_0#0`, `oLaser/other_0#0`, `oLavaDrip/other_7#0`, `oNewButton/mouse_11#0`, `oPDummy3/alarm_0#0`, `oPDummy3/alarm_2#0`, `oPlayer1/alarm_3#0`, `oPsychicCreateP/other_7#0`, `oPsychicWave/other_0#0`, `oPsychicWaveP/other_0#0`, `oPushBlock/other_0#0`, `oScreen/create#2`, `oSpearTrapBottom/alarm_0#0`, `oSpearTrapTop/alarm_0#0`, `oSpider/alarm_1#0`, `oVampire/alarm_0#0`, `oYellowBall/alarm_0#0`, `oYellowBall/other_0#0`, `scripts/getIdCollisionCharacter`, `scripts/getIdCollisionCharacterTop`, `scripts/isCollisionCharacter`, `scripts/isCollisionCharacterLeft`, `scripts/isCollisionMovingSolidBottom`, `scripts/scrMoveableSolidRecurseDrop`.
+- **Unreachable, from their GML** (851-3948):
+  - alarms whose only setter is commented out in their object's create: `oArrowRepeaterL/alarm_0#0`,
+    `oArrowRepeaterL/alarm_1#0`, `oArrowRepeaterR/alarm_0#0`, `oArrowRepeaterR/alarm_1#0` (`//alarm[0] = 50;
+    //alarm[1] = 1;`), `oArrowTrapLeft/alarm_0#0`, `oArrowTrapRight/alarm_0#0` (`//alarm[0] = 50;`),
+    `oSpearTrapBottom/alarm_0#0`, `oSpearTrapTop/alarm_0#0` (`// alarm[0] = 50;`), `oBullet/alarm_0#0`
+    (`// alarm[0] = 5;`), `oYellowBall/alarm_0#0` (`//alarm[0] = 40;`);
+  - alarms nothing sets: `oHawkman/alarm_0#0` and `oVampire/alarm_0#0` (their `whipped = false`), and
+    `oPlayer1/alarm_3#0` (the walk sound);
+  - `oBasket/other_7#0`: the Moon Room's basket is made only in a commented-out block of `oMoonRoom/alarm_0.gml`,
+    and only `oBasketball`, which nothing creates, sets its swoosh;
+  - scripts nothing calls: `scripts/getIdCollisionCharacter`, `scripts/getIdCollisionCharacterTop`,
+    `scripts/isCollisionCharacter`, `scripts/isCollisionMovingSolidBottom`; and `scripts/isCollisionCharacterLeft`,
+    called only inside `gameStepEvent`'s `with oMovingSolid`, which nothing creates.
+- **The mothership and UFOs** (851-3955): `oAlienBoss/collision_oCharacter#0`, `oAlienEject/collision_oPlayer1#0`,
+  `oAlienEject/collision_oWeb#0`, `oAlienEject/other_0#0`, `oPsychicWave/other_0#0`, `oBarrier/collision_oCharacter#0`,
+  `oBarrier/collision_oWebBall#0`, `oBarrierEmitter/collision_oItem#0`, `oLaser/other_0#0`.
+- **Out of the room, animation ends, lava** (851-3956): `oPushBlock/other_0#0` (the Ice Caves' and Temple's borders
+  have no bottom row), `scripts/scrMoveableSolidRecurseDrop` (a push block sinking in lava), `oYellowBall/other_0#0`,
+  `oPsychicWaveP/other_0#0`, `oPsychicCreateP/other_7#0`, `oLavaDrip/other_7#0`, `oArrowRepeaterL/destroy#0`,
+  `oArrowRepeaterR/destroy#0`, `oFly/collision_oDamsel#0`.
+- **The intro played through, and fullscreen** (851-3957): `oPDummy3/alarm_0#0`, `oPDummy3/alarm_2#0` (the intro's
+  walking player's rope and climb, which a second skip press fades out before), `oScreen/create#2`
+  (`action_fullscreen(2)`, for settings.cfg's fullscreen).
+- **Others' tickets**: `oSpider/alarm_1#0` (a spider drowning, 851-3843), `oNewButton/mouse_11#0` (the editor
+  button's mouse-leave, 851-3794).
 
 The settings program's units that never ran: its `SS_*` wrappers, replaced as the game's are
 (23); scripts nothing in it calls, left over from the game's code (`scripts/checkAttack`, `scripts/checkAttackPressed`, `scripts/checkAttackReleased`, `scripts/checkBombPressed`, `scripts/checkDown`, `scripts/checkDownPressed`, `scripts/checkFlarePressed`, `scripts/checkItemPressed`, `scripts/checkJump`, `scripts/checkJumpPressed`, `scripts/checkJumpReleased`, `scripts/checkLeft`, `scripts/checkLeftPressed`, `scripts/checkLeftReleased`, `scripts/checkPayPressed`, `scripts/checkRight`, `scripts/checkRightPressed`, `scripts/checkRightReleased`, `scripts/checkRopePressed`, `scripts/checkRun`, `scripts/checkStartPressed`, `scripts/checkUp`, `scripts/checkUpPressed`, `scripts/rand`, `scripts/scrGetChar`, `scripts/scrGetJoy`, `scripts/scrGetKey`); the objects nothing in it creates
