@@ -79,15 +79,16 @@ if [ -n "$check" ]; then
   [ -f "$out" ] || { echo "scripts/third-party-licenses: no $out: run scripts/third-party-licenses" >&2; exit 1; }
   set --
   for t in $targets; do set -- "$@" --target "$t"; done
-  # name version, from cargo tree's lines (not our own path crates).
+  # name version, from cargo tree's lines (not our own path crates). Uncoloured, whatever CARGO_TERM_COLOR says (CI
+  # sets it to always, which wraps cargo tree's (*) in colour codes).
   crates() { grep -v ' (/' | sed 's/ (\*)$//; s/ (proc-macro)$//; s/ v\([^ ]*\)$/ \1/' | grep . | sort -u; }
   # What the app links on the platforms it's built for: not build or dev dependencies, nor proc macros, which run
   # in the compiler and ship nothing (cargo-about lists them all the same).
-  scripts/cargo tree --quiet --locked -p app -e normal "$@" --prefix none -f '{p}' | grep -v '(proc-macro)' |
+  scripts/cargo tree --quiet --color never --locked -p app -e normal "$@" --prefix none -f '{p}' | grep -v '(proc-macro)' |
     crates >"$tmp/linked"
   # What the app depends on at all, on any target, proc macros included: a crate it lists that isn't one of these
   # is one the app has dropped.
-  scripts/cargo tree --quiet --locked -p app -e normal --target all --prefix none -f '{p}' | crates >"$tmp/depended"
+  scripts/cargo tree --quiet --color never --locked -p app -e normal --target all --prefix none -f '{p}' | crates >"$tmp/depended"
   # Each license's "used by:" list, up to the rule under it.
   part "$CRATES" "$STD" | awk '/^used by:$/ { on = 1; next } /^=+$/ { on = 0 } on { print $1, $2 }' | sort -u >"$tmp/listed"
   missing=$(comm -23 "$tmp/linked" "$tmp/listed")
