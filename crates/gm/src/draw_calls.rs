@@ -1,7 +1,9 @@
 //! Each frame's draw calls in the canonical form the trace's `draws` hashes and `draw_calls` lists, which the
 //! oracle's patch 0041 writes too (docs/formats.md, "Draw calls"; 851-3871). It is what GML asked to draw, not
 //! how a renderer carries it out: one call per `draw_text` (OpenGMK draws per glyph), a sprite's frame wrapped
-//! into its frame count (as both renderers do), a font by its id, colours cut to their 24 bits.
+//! into its frame count (as both renderers do), a font by its id (`draw_set_font`'s, not the first font made
+//! the same: the settings program makes its fonts again each time it enters its first room), colours cut to
+//! their 24 bits.
 //!
 //! A call is a name, a tag and typed fields. The hash is [`trace::canon::hash`] of every call in order, each as
 //! its tag (a `u64`) and its fields ([`Encoder`]: an `i32`, a real bit for bit with every NaN the same, a
@@ -222,7 +224,7 @@ impl World {
                 "text",
                 15,
                 &[
-                    Int(self.font_id(&t.font)),
+                    Int(t.font_id),
                     Real(t.x),
                     Real(t.y),
                     Arg::Bytes(&t.text),
@@ -387,6 +389,7 @@ mod tests {
             },
             Command::Text(draw::Text {
                 font: w.font(font).unwrap(),
+                font_id: font,
                 x: 8.0,
                 y: 24.0,
                 text: b"$1,000 \"#\xe9".to_vec(),
