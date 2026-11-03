@@ -1,0 +1,42 @@
+# The M key's music toggle in the Mines, while paused and in rHighscores (851-3785).
+# flow-pause-game-over-new-game.txt's input to frame 1030 (seed 1, a returning player with zeroed stats; level 1 at
+# 565, paused at 700 and 870, killed with F1 at 900, rHighscores at 1000), with M pressed at 600 (global.music
+# false, the music stopped) and 620 (true, the cave music, levelType 0's branch, played again). M at 750, while
+# paused, does nothing: the pause deactivates oGame with everything else but oScreen and oGamepad, so its
+# keypress doesn't run. In rHighscores, neither a level nor the title, M at 1040 stops the music and M at 1056
+# turns global.music back on and plays nothing. Ends at 1069.
+# story: room=rLevel@565 !levelType>0 music=0@600..600 music=1@620..620 oScreen.paused=1@700..700
+# story: !music=0@621..1039 room=rHighscores@1000 music=0@1040..1040 music=1@1056..1056
+seed 1
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 70
+535 hold up 5
+640 hold right 30
+700 hold escape 2
+720 hold right 30
+730 hold Z 6
+745 hold X 4
+760 hold C 4
+775 hold left 20
+800 hold escape 2
+830 hold right 20
+870 hold escape 2
+900 hold F1 2
+1000 hold X 2
+600 hold M 2
+620 hold M 2
+750 hold M 2
+1040 hold M 2
+1056 hold M 2
+frames 1070
