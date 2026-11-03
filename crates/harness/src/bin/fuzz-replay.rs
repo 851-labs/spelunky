@@ -19,7 +19,9 @@ Without <out.txt>, the replay goes to stdout.
 
 options:
   --start <where> mines (default; the first level), or jungle, ice or temple (levels 5, 9 and 13, through
-                  the title's shortcut doors, with the Tunnel Man paid off)
+                  the title's shortcut doors, with the Tunnel Man paid off); or partway through a committed
+                  replay (harness::fuzz::FROM_REPLAYS), at a frame the seed picks, with its seed and files:
+                  olmec, ending, credits, title, editor, custom or stars
   --seed <n>      the game's RNG seed (default 12345)
   --fuzz <n>      the fuzz seed (default 1)
   --frames <n>    frames of random input after the prelude (default 3000)
@@ -103,7 +105,7 @@ fn run() -> Result<(), String> {
         o.seed,
         o.fuzz,
         o.frames,
-        o.start.fuzz_start(),
+        o.start.fuzz_start(o.seed),
         replay.to_text()
     );
     match &o.out {

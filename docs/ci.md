@@ -202,8 +202,13 @@ replay's two traces take gigabytes.
 The committed replays each check one path through the game, and its levels are random, so a divergence can
 hide where no replay goes. `soak.yml` keeps looking: every night at 10:17 UTC it plays 80 game seeds that no
 run has played, on the oracle and the port with `--fields` (`fuzz-sweep`,
-[fidelity/COVERAGE.md](../fidelity/COVERAGE.md#chaos-soak-851-3299)): three in four goal-directed (`--directed`),
-the rest random input. A run's seeds follow from its run number, 80 after the last run's (run 5, the first on
+[fidelity/COVERAGE.md](../fidelity/COVERAGE.md#chaos-soak-851-3299)): half goal-directed (`--directed`) from a
+level start, a quarter random input from a level start, and a quarter random input from partway through a
+committed replay (`--starts olmec,ending,credits,title,editor,custom,stars`, `harness::fuzz::FROM_REPLAYS`), where
+a run from a level start never gets: Olmec's Lair, the ending and the credits, the title's menus, the level editor
+(with the mouse) and a custom level, a bonus room (851-3793). Every run may press M, Enter or F10 from the pause
+screen now and then, besides the ten actions, and a third of the level starts begin with a `stats.txt` a game left
+behind. A run's seeds follow from its run number, 80 after the last run's (run 5, the first on
 `main`, starts at 1451, after the seeds earlier sweeps took), so a re-run plays the same seeds and no two runs share
 one. The organization's projects share 20 concurrent jobs on GitHub's machines, so the soak never takes more
 than two: its jobs run in turn (the seeds, the two builds, the two shards, the report), and only one soak runs at

@@ -12,7 +12,7 @@ use std::sync::Arc;
 use game::Game;
 use game::replay::Playback;
 use serde::Serialize;
-use trace::replay::{Button, Event, Highscore, InputState, ReplayHeader};
+use trace::replay::{Button, Event, Highscore, InputState, MouseButton, ReplayHeader};
 
 use crate::route;
 use trace::{Frame, Replay, Value};
@@ -38,11 +38,15 @@ pub mod vk {
     pub const PAY: u8 = 80;
     /// Escape: pause. While paused, rope quits the game and bomb kills the player (`oScreen`'s begin step).
     pub const START: u8 = 27;
+    /// M: the music on or off (`oGame`'s key press).
+    pub const MUSIC: u8 = 77;
+    pub const ENTER: u8 = 13;
+    /// F10: quits the game from the pause screen (`oScreen`'s key press), which writes `stats.txt`.
+    pub const F10: u8 = 121;
 }
 
 /// Where a fuzz run starts playing.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "snake_case")]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Start {
     /// The first mines level, through the title's START door, as a returning player.
     Mines,
@@ -51,10 +55,119 @@ pub enum Start {
     Jungle,
     Ice,
     Temple,
+    /// Partway through a committed replay ([`FromReplay`]): where a run from the title never gets.
+    From(&'static FromReplay),
+}
+
+/// A start partway through a committed replay (851-3793), so the soak reaches what its level starts never
+/// leave the level play for: Olmec's Lair, the ending and the credits, the title's menus, the level editor
+/// and a custom level, a bonus room. The run plays the replay's input up to a frame in `frames` (the run's
+/// game seed picks which, so a re-run plays the same), lets go of what it held, and fuzzes from there, with
+/// the replay's header: its seed, its files and its highscore table.
+#[derive(Debug, PartialEq, Eq)]
+pub struct FromReplay {
+    pub name: &'static str,
+    /// `fidelity/replays/<replay>.txt`.
+    pub replay: &'static str,
+    /// The frames fuzzing may start at, `lo..hi`, all in `room`.
+    pub frames: (u64, u64),
+    pub room: &'static str,
+}
+
+/// Every replay start (`replay-story` shows each replay's rooms by frame).
+pub const FROM_REPLAYS: [FromReplay; 7] = [
+    FromReplay {
+        name: "olmec",
+        replay: "ending-seed-1",
+        frames: (1760, 5600),
+        room: "rOlmec",
+    },
+    FromReplay {
+        name: "ending",
+        replay: "ending-seed-1",
+        frames: (5700, 6180),
+        room: "rEnd",
+    },
+    FromReplay {
+        name: "credits",
+        replay: "ending-seed-1",
+        frames: (6850, 8380),
+        room: "rCredits2",
+    },
+    FromReplay {
+        name: "title",
+        replay: "title-credits-to-the-end",
+        frames: (100, 900),
+        room: "rTitle",
+    },
+    FromReplay {
+        name: "editor",
+        replay: "editor-every-tile",
+        frames: (210, 262),
+        room: "rLevelEditor",
+    },
+    FromReplay {
+        name: "custom",
+        replay: "custom-chain-end",
+        frames: (210, 320),
+        room: "rLoadLevel",
+    },
+    FromReplay {
+        name: "stars",
+        replay: "bonus-stars-shotgun",
+        frames: (760, 1240),
+        room: "rStars",
+    },
+];
+
+impl FromReplay {
+    /// The frame a run with this game seed starts fuzzing at.
+    pub fn frame(&self, seed: i32) -> u64 {
+        let (lo, hi) = self.frames;
+        lo + u64::from(seed.unsigned_abs()).wrapping_mul(7919) % (hi - lo)
+    }
+
+    /// The replay, from the repository: the first directory with `fidelity/replays` above this executable
+    /// (the soak runs a copy of it, built in the checkout, without Cargo), `CARGO_MANIFEST_DIR` or the
+    /// current directory.
+    pub fn load(&self) -> Result<Replay, String> {
+        let starts = [
+            std::env::current_exe().ok(),
+            std::env::var_os("CARGO_MANIFEST_DIR").map(std::path::PathBuf::from),
+            std::env::current_dir().ok(),
+        ];
+        let replays = (starts.iter().flatten())
+            .find_map(|s| {
+                s.ancestors()
+                    .map(|d| d.join("fidelity/replays"))
+                    .find(|d| d.is_dir())
+            })
+            .ok_or("no fidelity/replays above this executable or the current directory")?;
+        let path = replays.join(format!("{}.txt", self.replay));
+        let text =
+            std::fs::read_to_string(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+        Replay::parse(&text).map_err(|e| format!("{}: {e}", path.display()))
+    }
+}
+
+impl Serialize for Start {
+    /// As its name: `results.jsonl`'s `start`.
+    fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        s.serialize_str(self.name())
+    }
 }
 
 impl Start {
+    /// The level starts.
     pub const ALL: [Start; 4] = [Start::Mines, Start::Jungle, Start::Ice, Start::Temple];
+
+    /// The level starts and the replay starts.
+    pub fn every() -> Vec<Start> {
+        Start::ALL
+            .into_iter()
+            .chain(FROM_REPLAYS.iter().map(Start::From))
+            .collect()
+    }
 
     pub fn name(self) -> &'static str {
         match self {
@@ -62,14 +175,18 @@ impl Start {
             Start::Jungle => "jungle",
             Start::Ice => "ice",
             Start::Temple => "temple",
+            Start::From(f) => f.name,
         }
     }
 
     pub fn parse(name: &str) -> Result<Start, String> {
-        Start::ALL
+        Start::every()
             .into_iter()
             .find(|s| s.name() == name)
-            .ok_or_else(|| format!("unknown start {name} (mines, jungle, ice or temple)"))
+            .ok_or_else(|| {
+                let names: Vec<&str> = Start::every().into_iter().map(Start::name).collect();
+                format!("unknown start {name} ({})", names.join(", "))
+            })
     }
 
     /// The input that gets there: skip the intro (attack, twice) and walk into the door, as
@@ -110,6 +227,8 @@ impl Start {
                 (640, vk::JUMP, 6),
                 (705, vk::UP, 5),
             ],
+            // Its replay's input, which `fuzz_replay` takes itself.
+            Start::From(_) => &[],
         }
     }
 
@@ -134,13 +253,15 @@ impl Start {
         replay
     }
 
-    /// The first frame with random input: the level's step events have been running for a while.
-    pub fn fuzz_start(self) -> u64 {
+    /// The first frame with random input: the level's step events have been running for a while. A replay
+    /// start's depends on the game seed ([`FromReplay::frame`]): the frame after the one it lets go at.
+    pub fn fuzz_start(self, seed: i32) -> u64 {
         match self {
             Start::Mines => 580,
             Start::Jungle => 800,
             Start::Ice => 772,
             Start::Temple => 750,
+            Start::From(f) => f.frame(seed) + 1,
         }
     }
 
@@ -150,6 +271,8 @@ impl Start {
     pub fn header(self, seed: i32) -> ReplayHeader {
         let (money, tunnel1, tunnel2) = match self {
             Start::Mines => (9_000_000.0, 2_100_001.0, 1_200_001.0),
+            // Not used: its replay's header is the run's.
+            Start::From(_) => (0.0, 0.0, 0.0),
             _ => (9_000_100.0, 2_000_000.0, 1_000_000.0),
         };
         let mut h = ReplayHeader::new(seed);
@@ -241,6 +364,8 @@ struct View {
     can_pause: bool,
     /// Whether the player is in the title or high score room, on the way back into the game.
     menu: bool,
+    /// Whether the room takes the mouse: the level editor (a [`FromReplay`] start's).
+    mouse: bool,
 }
 
 impl View {
@@ -257,6 +382,7 @@ impl View {
         View {
             player: find("oPlayer1"),
             menu: level_exit.is_none(),
+            mouse: frame.room_name.as_deref() == Some("rLevelEditor"),
             can_pause: level_exit.is_some()
                 && frame.instances.iter().any(|i| {
                     i.object == "oPlayer1" && !truthy(i.vars.as_ref().and_then(|v| v.get("dead")))
@@ -400,6 +526,37 @@ impl Generator {
     /// Plans input from frame `t` on and returns where the next segment starts.
     fn segment(&mut self, t: u64, view: &View) -> u64 {
         let (rng, k) = (&mut self.rng, &mut self.keys);
+        // The level editor: point somewhere in its window (three times its 320x240) and click, place or
+        // erase, half the time; its keys (the arrows scroll, letters pick what to place) the rest.
+        if view.mouse && rng.chance(50) {
+            let (x, y) = (rng.below(960) as i32, rng.below(720) as i32);
+            k.events
+                .entry(t)
+                .or_default()
+                .push(Event::MouseMove { x, y });
+            // A click only inside the run (an event at its end or after is no replay's), and one at a time:
+            // the next segment starts after the release.
+            if rng.chance(60) && t + 1 < k.end {
+                let b = if rng.chance(75) {
+                    MouseButton::Left
+                } else {
+                    MouseButton::Right
+                };
+                let len = rng.range(1, 20);
+                k.events
+                    .entry(t + 1)
+                    .or_default()
+                    .push(Event::Press(Button::Mouse(b)));
+                if t + 1 + len < k.end {
+                    k.events
+                        .entry(t + 1 + len)
+                        .or_default()
+                        .push(Event::Release(Button::Mouse(b)));
+                }
+                return t + len + 3;
+            }
+            return t + rng.range(2, 10);
+        }
         let to_exit = view.to_exit();
         // At the door: go in, most of the time.
         if let Some((dx, dy)) = to_exit
@@ -535,12 +692,15 @@ impl Generator {
                 }
                 n
             }
-            // Switch items, light a flare, pay a shopkeeper; use the selected item.
+            // Switch items, light a flare, pay a shopkeeper; use the selected item. Now and then the keys
+            // play that isn't the ten actions: the music toggle and Enter.
             83..=86 => {
-                let key = match rng.below(10) {
-                    0..=6 => vk::ITEM,
-                    7 | 8 => vk::PAY,
-                    _ => vk::FLARE,
+                let key = match rng.below(20) {
+                    0..=13 => vk::ITEM,
+                    14..=16 => vk::PAY,
+                    17 => vk::FLARE,
+                    18 => vk::MUSIC,
+                    _ => vk::ENTER,
                 };
                 k.hold(key, t, rng.range(1, 3));
                 if rng.chance(40) {
@@ -556,7 +716,13 @@ impl Generator {
                 let at = t;
                 k.hold(vk::START, at, rng.range(1, 2));
                 let resume = at + 3 + rng.range(10, 60);
-                k.hold(vk::START, resume, rng.range(1, 2));
+                // Once in twenty, quit there instead (F10): the game ends, writing stats.txt, and the run
+                // with it.
+                if rng.chance(5) {
+                    k.hold(vk::F10, resume, 1);
+                } else {
+                    k.hold(vk::START, resume, rng.range(1, 2));
+                }
                 let done = resume + 3;
                 for f in &mut k.free {
                     *f = (*f).max(done);
@@ -588,8 +754,8 @@ pub fn fuzz_replay(
     frames: u64,
     directed: Option<Directed>,
 ) -> Result<Replay, String> {
-    let header = start.header(game_seed);
-    let end = start.fuzz_start() + frames;
+    let fuzz_from = start.fuzz_start(game_seed);
+    let end = fuzz_from + frames;
     let mut g = Generator {
         rng: Rng::new(game_seed, fuzz_seed),
         keys: Keys {
@@ -598,15 +764,48 @@ pub fn fuzz_replay(
             end,
         },
     };
-    for &(at, key, len) in start.prelude() {
-        g.keys.hold(key, at, len);
-    }
+    let header = match start {
+        Start::From(from) => {
+            // The replay's input up to the frame it lets go at, then letting go of all it held then.
+            let prefix = from.load()?;
+            let at = fuzz_from - 1;
+            let mut held = InputState::default();
+            for (f, e) in prefix.events().iter().take_while(|(f, _)| *f < at) {
+                g.keys.events.entry(*f).or_default().push(*e);
+                held.apply(e);
+            }
+            let release = held.events_to(&InputState {
+                mouse_x: held.mouse_x,
+                mouse_y: held.mouse_y,
+                ..InputState::default()
+            });
+            if !release.is_empty() {
+                g.keys.events.entry(at).or_default().extend(release);
+            }
+            g.keys.free = [fuzz_from; 256];
+            prefix.header.clone()
+        }
+        _ => {
+            for &(at, key, len) in start.prelude() {
+                g.keys.hold(key, at, len);
+            }
+            let mut header = start.header(game_seed);
+            // A third of the runs, by game seed, as a player who has played before: with the stats.txt a
+            // game left, which scrReadStats reads at the start (851-3778).
+            if game_seed.rem_euclid(3) == 0
+                && let Some(stats) = played_stats(&assets)
+            {
+                header.files.insert("stats.txt".into(), stats);
+            }
+            header
+        }
+    };
 
     // Booted as the replay will be, by `Playback`, but stepped here: the input is still being written.
     let mut game = Playback::boot(assets, &Replay::new(header.clone()))
         .ok()
         .map(Playback::into_game);
-    let mut t = start.fuzz_start();
+    let mut t = fuzz_from;
     // Directed: frames of random play left before the next route.
     let mut burst = 0;
     while t < end {
@@ -651,6 +850,29 @@ pub fn fuzz_replay(
     }
     replay.set_len(end).map_err(|e| e.to_string())?;
     Ok(replay)
+}
+
+/// The `stats.txt` a game leaves when it ends: what `fidelity/replays/flow-pause-dying-quit-seed-1.txt`
+/// writes as it quits from the pause screen on level 6, played on the port once. `None` if it can't be
+/// (the replay is missing, or it no longer writes one).
+fn played_stats(assets: &Arc<gm::Assets>) -> Option<String> {
+    static STATS: std::sync::OnceLock<Option<String>> = std::sync::OnceLock::new();
+    STATS
+        .get_or_init(|| {
+            let from = FromReplay {
+                name: "stats",
+                replay: "flow-pause-dying-quit-seed-1",
+                frames: (0, 1),
+                room: "",
+            };
+            let replay = from.load().ok()?;
+            let mut p = Playback::boot(assets.clone(), &replay).ok()?;
+            while let Ok(Some(_)) = p.step() {}
+            let stats = p.game().world().host().files.get("stats.txt")?;
+            // As the replay format's `file` directive holds it: GM's strings are Latin-1.
+            Some(stats.as_bytes().iter().map(|&b| char::from(b)).collect())
+        })
+        .clone()
 }
 
 /// The replay cut off before frame `len`: later events dropped, keys still down stay down.

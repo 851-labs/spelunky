@@ -219,7 +219,10 @@ piles instead (`editor-test-hud-caps`).
 ## Chaos soak (851-3299)
 
 The nightly chaos soak (`soak.yml`, [docs/ci.md](../docs/ci.md#the-chaos-soak)) plays 80 new seeds a night with
-`fuzz-sweep --fields` against the oracle, from seed 1451 on, and files what differs as GitHub issues. Before it,
+`fuzz-sweep --fields` against the oracle, from seed 1451 on, and files what differs as GitHub issues. Since 851-3793 a
+quarter of them start partway through a committed replay (Olmec's Lair, the ending, the credits, the title, the level
+editor, a custom level, the Stars room), and the runs press M, Enter and F10 too, and the mouse in the editor, and a
+third of the level starts read a `stats.txt`: until then every run stayed in an area's level play. Before it,
 one big run played seeds 101-1450, three in four goal-directed and the rest random input, as the soak does: 881
 runs (786 goal-directed, 95 random), 3,280,236 frames, **every one identical to the oracle** with `--fields`.
 

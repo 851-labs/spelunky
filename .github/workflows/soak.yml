@@ -66,8 +66,12 @@ env:
   SEEDS_PER_RUN: 80
   FIRST_RUN: 5
   FIRST_SEED: 1451
-  # Every RANDOM_EVERY-th of a shard's seeds is a random-input run; the rest are goal-directed.
+  # Every RANDOM_EVERY-th of a shard's seeds is a random-input run from a level start, and the one after it (of
+  # each RANDOM_EVERY) a random-input run from partway through a committed replay (fuzz-sweep's --starts:
+  # Olmec's Lair, the ending, the credits, the title, the level editor, a custom level, the Stars room, taken
+  # in turn: 851-3793), which the level starts never leave their level play for; the rest are goal-directed.
   RANDOM_EVERY: 4
+  REPLAY_STARTS: olmec,ending,credits,title,editor,custom,stars
 
 jobs:
   seeds:
@@ -227,17 +231,19 @@ jobs:
           chmod +x target/release/fidelity target/release/fuzz-sweep
           directed=
           random=
+          from=
           for ((seed = FIRST; seed < FIRST + COUNT; seed++)); do
             (((seed - FIRST) % SOAK_SHARDS == SHARD - 1)) || continue
-            # Every RANDOM_EVERY-th of the shard's own seeds, so each shard gets the same mix.
-            if (((seed - FIRST) / SOAK_SHARDS % RANDOM_EVERY == RANDOM_EVERY - 1)); then
-              random+=${random:+,}$seed
-            else
-              directed+=${directed:+,}$seed
-            fi
+            # Of each RANDOM_EVERY of the shard's own seeds, so each shard gets the same mix.
+            case $(((seed - FIRST) / SOAK_SHARDS % RANDOM_EVERY)) in
+              $((RANDOM_EVERY - 1))) random+=${random:+,}$seed ;;
+              $((RANDOM_EVERY - 2))) from+=${from:+,}$seed ;;
+              *) directed+=${directed:+,}$seed ;;
+            esac
           done
           echo "directed: ${directed:-none}"
           echo "random:   ${random:-none}"
+          echo "replays:  ${from:-none}"
           status=0
           # 0 every run identical, 1 some run wasn't, 2 an error: the worst of the two.
           sweep() {
@@ -247,6 +253,7 @@ jobs:
           }
           [ -z "$directed" ] || sweep --directed --seeds "$directed" --out "$OUT/directed"
           [ -z "$random" ] || sweep --seeds "$random" --out "$OUT/random"
+          [ -z "$from" ] || sweep --starts "$REPLAY_STARTS" --seeds "$from" --out "$OUT/replays"
           exit "$status"
       - name: Pretend a run diverged
         if: always() && matrix.shard == 1 && needs.seeds.outputs.fake_mismatch == 'true'

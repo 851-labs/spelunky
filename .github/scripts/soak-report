@@ -9,7 +9,7 @@
 #
 #   .github/scripts/soak-report <dir>
 #
-# <dir> holds the shards' artifacts: soak-shard-<n>/<directed|random>/results.jsonl. From the environment:
+# <dir> holds the shards' artifacts: soak-shard-<n>/<directed|random|replays>/results.jsonl. From the environment:
 # LABEL, RUN_ID, RUN_URL, SHA, FIRST and COUNT (the seeds the run was given), GH_REPO and GH_TOKEN for gh,
 # and DRY_RUN=true to print the issues and comments instead of filing them.
 #

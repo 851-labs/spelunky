@@ -37,7 +37,9 @@ another run), and the command that runs it alone (`reproduce`). Each run's fidel
 options:
   --seeds <list>   game seeds: 1-10, or 1,5,9, or both (default 1-10)
   --fuzz <list>    fuzz seeds, the same way (default 1)
-  --starts <list>  where runs start, taken in turn: mines, jungle, ice, temple (default all four)
+  --starts <list>  where runs start, taken in turn: mines, jungle, ice, temple (the levels, the default), or
+                   partway through a committed replay, at a frame the game seed picks: olmec, ending, credits,
+                   title, editor, custom, stars (harness::fuzz::FROM_REPLAYS); `all` for every one
   --frames <n>     frames of random input per run (default 3000)
   --jobs <n>       runs at once (default 3); each oracle run is its own container
   --fields         compare instance variables and globals too (much slower, and bigger traces)
@@ -144,11 +146,14 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             "--seeds" => o.seeds = parse_list(&args.value(&flag)?)?,
             "--fuzz" => o.fuzz = parse_list(&args.value(&flag)?)?,
             "--starts" => {
-                o.starts = args
-                    .list(&flag)?
-                    .iter()
-                    .map(|s| Start::parse(s))
-                    .collect::<Result<_, _>>()?
+                let list = args.list(&flag)?;
+                o.starts = if list == ["all"] {
+                    Start::every()
+                } else {
+                    list.iter()
+                        .map(|s| Start::parse(s))
+                        .collect::<Result<_, _>>()?
+                }
             }
             "--frames" => o.frames = args.number(&flag)?,
             "--jobs" => o.jobs = args.number::<usize>(&flag)?.max(1),
