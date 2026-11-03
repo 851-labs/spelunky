@@ -250,6 +250,26 @@ a header saying where it came from (`fuzz-goal-ice-seed-63-alien-boss.txt` is on
 fingerprint with `scripts/fidelity --refresh-fingerprints` once the port matches the oracle
 ([docs/formats.md](formats.md), "Fingerprints"), so the check can't regress.
 
+## Dependency audit
+
+`audit.yml` checks what ships for known vulnerabilities: `cargo audit` (RustSec's own binary, pinned by version and
+SHA-256, `CARGO_AUDIT`; it reads a lockfile alone, so no toolchain) on every tracked
+`Cargo.lock` (the game's, which the apps and the web build come from, and the probes' under `tools/`) against the
+RustSec advisory database, and `npm audit --omit=dev` on `site/package-lock.json`'s production packages (the pages'
+scripts and the Worker; the build's tools, `devDependencies`, run on Workers Builds' and our machines, though Vite
+and the Cloudflare plugin put a few helpers of their own in the bundles, which this doesn't cover). A
+vulnerability fails it; an unmaintained or yanked crate is a warning in its log (today, RUSTSEC-2026-0192:
+`ttf-parser` is unmaintained, under winit's Wayland decorations on Linux, with nothing to upgrade to).
+
+It runs every night (an advisory can come out against a crate nothing here changed), and for a pull request or a
+push to `main` that changes a lockfile, as one job on one of GitHub's machines, never the minis, with no secrets.
+`pr-ok` doesn't wait for it, so an advisory against what's on `main` doesn't stop every pull request: a red night
+is a ticket: upgrade the crate (or the package), or, for a crate with no fix whose flaw doesn't reach what ships,
+add its advisory's ID to `audit.yml`'s `CARGO_AUDIT_IGNORE`, with why in the comment above it. npm has no such list:
+an npm advisory without a fix takes an `overrides` entry in `site/package.json` pinning a fixed version. GitHub mails a failed scheduled run to whoever last changed its schedule. Dependabot's alerts
+cover the same ground once the repository's dependency graph is on (Settings → Advanced Security), which needs
+an admin.
+
 ## Warnings
 
 A run should show no warnings or notices of ours, so a new one stands out: fix it where it comes from,

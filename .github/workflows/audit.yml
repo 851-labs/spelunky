@@ -1,0 +1,83 @@
+# The dependency audit (docs/ci.md, "Dependency audit"): known vulnerabilities in what ships. `cargo audit` checks
+# Cargo.lock (the game, its apps and the web build) and the tools' own lockfiles against the RustSec advisory
+# database, and `npm audit --omit=dev` the site's production packages (the pages' scripts and the Worker) against
+# npm's. A vulnerability fails the run; an unmaintained or yanked crate is only a warning in its log.
+#
+# Every night, since an advisory can come out against a crate nothing here changed, and for a pull request or a push
+# to main that changes a lockfile. One job on one of GitHub's machines, never the Mac minis, with no secrets; not
+# a check pr-ok waits for, so a new advisory against what's on main doesn't stop every pull request.
+name: Dependency audit
+
+on:
+  schedule:
+    # 10:47 UTC, half an hour after the chaos soak, off the hour most schedules start on.
+    - cron: "47 10 * * *"
+  push:
+    branches: [main]
+    paths: ["**/Cargo.lock", "site/package-lock.json", "site/.node-version", ".github/workflows/audit.yml"]
+  pull_request:
+    paths: ["**/Cargo.lock", "site/package-lock.json", "site/.node-version", ".github/workflows/audit.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A pull request's newer push replaces its older run; the nightly run and main's pushes each run to the end, so a
+# push never cancels the night's.
+concurrency:
+  group: audit-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # cargo-audit, RustSec's own build of it (its release's x86_64 Linux binary), checked against its SHA-256: a new
+  # version is a pull request, not whatever is newest that night.
+  CARGO_AUDIT: 0.22.2
+  CARGO_AUDIT_SHA256: 7fb9497f8594b389e5fce5ef9b92db08432996895b2e0c5a0167a69ed445c428
+  # Advisories that have no fix and don't reach what ships, each with why (docs/ci.md, "Dependency audit"): as
+  # cargo audit's --ignore IDs, space-separated. None today.
+  CARGO_AUDIT_IGNORE: ""
+
+jobs:
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      # The lockfiles and site/: not the wiki's media (about 200 MB), whose files a partial clone never fetches.
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
+      - name: Install cargo-audit
+        run: |
+          name=cargo-audit-x86_64-unknown-linux-musl-v$CARGO_AUDIT
+          curl -fsSL -o "$RUNNER_TEMP/$name.tgz" \
+            "https://github.com/rustsec/rustsec/releases/download/cargo-audit/v$CARGO_AUDIT/$name.tgz"
+          echo "$CARGO_AUDIT_SHA256  $RUNNER_TEMP/$name.tgz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$name.tgz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/$name" >>"$GITHUB_PATH"
+      # Each lockfile, the game's and the tools', every advisory against what it pins. --deny warnings would fail on
+      # an unmaintained crate too, which has no fix to take (ttf-parser, under winit's Wayland decorations). It
+      # reads the lockfile alone: no toolchain needed.
+      - name: cargo audit
+        run: |
+          ignore=
+          for id in $CARGO_AUDIT_IGNORE; do ignore="$ignore --ignore $id"; done
+          status=0
+          for lock in $(git ls-files '*Cargo.lock'); do
+            echo "::group::$lock"
+            cargo-audit audit --file "$lock" $ignore || status=1
+            echo "::endgroup::"
+          done
+          exit $status
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: site/.node-version
+      # The packages the site ships (dependencies), not the build's tools (devDependencies). Every severity fails it.
+      - name: npm audit
+        working-directory: site
+        run: npm audit --omit=dev
