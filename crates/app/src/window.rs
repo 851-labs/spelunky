@@ -492,6 +492,9 @@ pub struct App<G> {
     waiting: bool,
     /// The display kept awake while the window has focus, for a session of play ([`App::keeping_awake`]).
     awake: Option<Awake>,
+    /// Where F9 saves screenshots of a session of play ([`App::with_screenshots`]).
+    #[cfg(not(target_arch = "wasm32"))]
+    screenshots: Option<std::path::PathBuf>,
 }
 
 /// Whether the window has lost focus, for a game that [freezes](Game::freezes_unfocused) without it.
@@ -631,6 +634,8 @@ impl<G: Game> App<G> {
             link: None,
             waiting: false,
             awake: None,
+            #[cfg(not(target_arch = "wasm32"))]
+            screenshots: None,
         }
     }
 
@@ -694,6 +699,27 @@ impl<G: Game> App<G> {
     /// Whether the input is the window's: live, not a replay's or a page's clip's (until the reader takes it).
     fn live(&self) -> bool {
         matches!(self.source, Source::Live { .. }) && self.embed.is_none()
+    }
+
+    /// Lets F9 save a screenshot of a session of play in `dir`, as 1.1's game settings have GM8's runner
+    /// do (`crate::screenshot`). The key still reaches the game, as it does in GM8.
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn with_screenshots(mut self, dir: Option<std::path::PathBuf>) -> App<G> {
+        self.screenshots = dir;
+        self
+    }
+
+    /// F9 in a session of play: the game's picture, saved ([`App::with_screenshots`], which the frontend
+    /// gives only a session of play).
+    #[cfg(not(target_arch = "wasm32"))]
+    fn screenshot(&self) {
+        let (Some(dir), Some(g)) = (&self.screenshots, &self.graphics) else {
+            return;
+        };
+        match crate::screenshot::take(&g.renderer, dir) {
+            Ok(path) => println!("screenshot: {}", path.display()),
+            Err(e) => eprintln!("app: can't save a screenshot: {e}"),
+        }
     }
 
     /// Draws `notice` over the game's picture for its first seconds.
@@ -1594,6 +1620,12 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                         self.taken.push(key);
                     }
                     return;
+                }
+                // F9 saves a screenshot, as in the original's game settings, and goes on to the game. Not
+                // one the app's dialog took.
+                #[cfg(not(target_arch = "wasm32"))]
+                if down && key == KeyCode::F9 && !repeat {
+                    self.screenshot();
                 }
                 if let Some(c) = self.collector() {
                     c.key(key, &typed, down);

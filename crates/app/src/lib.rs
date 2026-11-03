@@ -15,6 +15,8 @@ pub mod present;
 pub mod preview;
 pub mod render;
 pub mod save;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod screenshot;
 pub mod settings;
 pub mod textures;
 pub mod unrendered;
