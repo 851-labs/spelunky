@@ -1,0 +1,31 @@
+# The load-level menu (F3 on the title) driven by the keyboard (851-3794), with `mouse-load-level`'s twelve levels in
+# levels/: two pages. A and B type AB into the name (oLoadLevel's any-key event), Backspace deletes the B, Down
+# (oPageDown's keypress_40) turns to page 2, which activates page-up and deactivates page-down, and Up (oPageUp's
+# keypress_38) back to page 1; each also reaches the any-key event. Escape returns to the title (titleStart 2). The window is 3x (screenScale 3).
+# story: room=rLoadLevel@200 oLoadLevel.levelName=AB@224 oLoadLevel.levelName=A@228 oLoadLevel.page=2@236
+# story: oLoadLevel.page=1@244 room=rTitle@252
+seed 777
+frames 280
+file levels/!draft.lvl ""
+file levels/a_b.lvl ""
+file levels/ab.lvl ""
+file levels/alpha.lvl ""
+file levels/beta.lvl ""
+file levels/cave.lvl ""
+file levels/dark.lvl ""
+file levels/echo.lvl ""
+file levels/fox.lvl ""
+file levels/golf.lvl ""
+file levels/hotel.lvl ""
+file levels/india.lvl ""
+file levels/Zed.LVL ""
+file levels/notes.txt "not a level"
+20 hold X 2
+60 hold X 2
+200 hold f3 2
+220 hold A 2
+224 hold B 2
+228 hold backspace 2
+236 hold down 2
+244 hold up 2
+252 hold escape 2

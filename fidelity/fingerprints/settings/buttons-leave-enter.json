@@ -1,0 +1,11 @@
+{
+  "replay": "c69b8be3cadd3d00",
+  "oracle": "cebc1ddc9f7cdb8a",
+  "frames": 58,
+  "trace": "60dfeab345a2f945",
+  "host": "09e4fd20916b5e15",
+  "checkpoints": [
+    [0,"rInit","d71106106fc8f75e"],
+    [57,"rInit","60dfeab345a2f945"]
+  ]
+}

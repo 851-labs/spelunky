@@ -1,0 +1,51 @@
+# The settings program (config.exe; scripts/fidelity --settings), from the shipped files (0 1 0 1 3 15 15): each
+# checkbox clicked twice, so both of its branches run (fullscreen on then off, high detail off then on, down to run
+# on then off, gamepad off then on, start game on exit off then on); then the OK, key config and Exit buttons each
+# pressed and dragged off before the release, so each one's mouse leave resets its pressed sprite and nothing
+# happens; then Enter, which quits without saving (oInit's keypress_13): no settings.cfg is written (851-3794). The
+# window is 2x (rInit's view port), so a room pixel is two window pixels.
+# story: fullscreen=1@3 fullscreen=0@5 graphicsHigh=0@9 graphicsHigh=1@11 downToRun=1@15 downToRun=0@17
+# story: gamepadOn=0@21 gamepadOn=1@23 oCheckBox5.on=0@27 oCheckBox5.on=1@29
+# story: oOKButton.sprite_index=sOKButtonPressed@34 oOKButton.sprite_index=sOKButton@36
+# story: oKeyConfigButton.sprite_index=sKeyConfigButtonPressed@42 oKeyConfigButton.sprite_index=sKeyConfigButton@44
+# story: oExitButton.sprite_index=sExitButtonPressed@50 oExitButton.sprite_index=sExitButton@52 room=rInit
+frames 66
+2 mouse 38 198
+3 press mb_left
+4 release mb_left
+5 press mb_left
+6 release mb_left
+8 mouse 38 214
+9 press mb_left
+10 release mb_left
+11 press mb_left
+12 release mb_left
+14 mouse 38 294
+15 press mb_left
+16 release mb_left
+17 press mb_left
+18 release mb_left
+20 mouse 38 310
+21 press mb_left
+22 release mb_left
+23 press mb_left
+24 release mb_left
+26 mouse 22 470
+27 press mb_left
+28 release mb_left
+29 press mb_left
+30 release mb_left
+33 mouse 300 504
+34 press mb_left
+36 mouse 200 600
+38 release mb_left
+41 mouse 28 504
+42 press mb_left
+44 mouse 200 600
+46 release mb_left
+49 mouse 300 552
+50 press mb_left
+52 mouse 200 600
+54 release mb_left
+57 press enter
+58 release enter
