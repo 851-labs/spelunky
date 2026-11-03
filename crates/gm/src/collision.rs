@@ -1,7 +1,8 @@
 //! Collision tests, the collision built-ins and the collision event stage (runtime.md section 7).
 //!
 //! Runner behaviour follows OpenGMK: `game.rs` (`check_collision`, `check_collision_point`,
-//! `check_collision_rectangle`, `check_collision_line`, `find_instance_with`), `asset/sprite.rs`
+//! `check_collision_rectangle`, `find_instance_with`), but for the line test, read from GM8's own routines
+//! ([`line_hits`]), `asset/sprite.rs`
 //! (`Collider::check_collision_point_precise`), `gml/kernel.rs` (the built-ins) and `game/events.rs`
 //! (`run_collisions`). Masks are the GM8 ones in the asset bundle (`assets::Mask`), one per frame or one
 //! shared, in sprite pixel coordinates.
@@ -9,7 +10,7 @@
 //! Every test first compares bounding boxes (inclusive integer edges, [`Assets::bbox_at`]). A point, a
 //! rectangle's corners and a line's ends are compared unrounded, as the real area the box's pixels cover: GM8's
 //! tests (Spelunky.exe 0x4ac734 for a point, 0x4ac834 for a rectangle, 0x4aceec for a line) pass a coordinate `v`
-//! for `left <= v < right + 1` ([`within`] for points and rectangles, [`line_hits`] for lines, as OpenGMK had it),
+//! for `left <= v < right + 1` ([`within`] for points and rectangles, [`line_hits`] for lines),
 //! where OpenGMK took a point's box as `left <= v <= right` and rounded a rectangle's corners first (probe
 //! `collision-edges`, 851-3306). A precise test then maps room pixels into the
 //! mask: GM8 rounds the instance's position half to even, rotates the pixel's offset from it by `image_angle`,
@@ -194,16 +195,34 @@ impl<'a> Xform<'a> {
                 (i64::from(self.ox) + sx * i64::from(dx)) as i32,
                 (i64::from(self.oy) + sy * i64::from(dy)) as i32,
             ),
-            None => {
-                let (dx, dy) = (f64::from(dx), f64::from(dy));
-                let rx = dx * self.cos - dy * self.sin;
-                let ry = dx * self.sin + dy * self.cos;
-                (
-                    (f64::from(self.ox) + rx / self.xscale).floor() as i64 as i32,
-                    (f64::from(self.oy) + ry / self.yscale).floor() as i64 as i32,
-                )
-            }
+            None => self.map_offset(f64::from(dx), f64::from(dy)),
         }
+    }
+
+    /// The mask pixel a point `(dx, dy)` from the instance's rounded position falls on, as reals: for a
+    /// pixel the offsets are whole, for a point on a line ([`line_hits`]) one of them isn't.
+    #[inline]
+    fn map_offset(&self, dx: f64, dy: f64) -> (i32, i32) {
+        let rx = dx * self.cos - dy * self.sin;
+        let ry = dx * self.sin + dy * self.cos;
+        (
+            (f64::from(self.ox) + rx / self.xscale).floor() as i64 as i32,
+            (f64::from(self.oy) + ry / self.yscale).floor() as i64 as i32,
+        )
+    }
+
+    /// Whether the room point `(x, y)`, one coordinate whole and the other not, is solid in the mask.
+    #[inline]
+    fn hit_offset(&self, dx: f64, dy: f64) -> bool {
+        let (mx, my) = self.map_offset(dx, dy);
+        mask_pixel(self.mask, mx, my)
+    }
+
+    /// Whether any pixel of the rectangle `left..=right` by `top..=bottom` inside `b` is solid in the mask:
+    /// GM8's precise rectangle test (Spelunky.exe 0x48ab50), walked row by row.
+    fn rect_hit(&self, b: &Bbox, left: i32, top: i32, right: i32, bottom: i32) -> bool {
+        let (l, r) = (b.left.max(left), b.right.min(right));
+        (b.top.max(top)..=b.bottom.min(bottom)).any(|y| (l..=r).any(|x| self.hit(x, y)))
     }
 }
 
@@ -279,7 +298,7 @@ pub(crate) enum Query {
         bottom: f64,
         precise: bool,
     },
-    /// `collision_line`. OpenGMK `check_collision_line`.
+    /// `collision_line`, as GM8's runner tests it ([`line_hits`]).
     Line {
         x1: f64,
         y1: f64,
@@ -379,8 +398,7 @@ impl Query {
                 let round = math::int_arg;
                 let (left, top, right, bottom) =
                     (round(left)?, round(top)?, round(right)?, round(bottom)?);
-                let (l, r) = (b.left.max(left), b.right.min(right));
-                Ok((b.top.max(top)..=b.bottom.min(bottom)).any(|y| (l..=r).any(|x| xf.hit(x, y))))
+                Ok(xf.rect_hit(&b, left, top, right, bottom))
             }
             Query::Line {
                 x1,
@@ -394,11 +412,23 @@ impl Query {
     }
 }
 
-/// OpenGMK `game.rs` (`check_collision_line`), step by step. Its quirks, kept: the bounding box counts
-/// as one pixel wider and taller for the line (`right + 1`, `bottom + 1`); the line is clipped to the box
-/// horizontally only; and the precise test walks the rounded line one pixel per step along its longer
-/// axis, mapping each unrounded point into the mask with `origin + floor(offset / scale)`, not the point
-/// test's `floor(origin + offset / scale)` on rounded pixels.
+/// `collision_line` against one instance, as GM8's runner tests it (Spelunky.exe 0x4aceec, then the sprite's
+/// 0x4a4fd8 and the mask's 0x48b0d4). The comparisons are the x87's, so a NaN goes the way its flags send it.
+///
+/// The box first, the line's ends unrounded against `left <= v < right + 1` as for points: rejected if both
+/// ends are past one side. Then the line, its end with the larger x first, is clipped to `left..right + 1` in x,
+/// each clipped end's y interpolated from the other's, and rejected if both ends are now above `top` or both at
+/// or below `bottom + 1`. Without `precise`, that's a hit.
+///
+/// The precise test rounds the clipped ends half to even into 32 bits ([`math::int_arg`], with its trap), as it
+/// does the instance's position ([`Xform::new`]). A line with both ends in one column or one row is the
+/// precise rectangle between them ([`Xform::rect_hit`], 0x48ab50 as `collision_rectangle`'s). Otherwise it walks
+/// the box's columns from the left end to the right one if the line is at least as wide as it's tall, else its
+/// rows from the top end to the bottom one, taking the other coordinate from the slope between the rounded ends
+/// (unrounded: `(c - start) * slope + start's`, then the offset from the instance), and maps each point into the
+/// mask as a pixel is mapped ([`Xform::map_offset`]).
+// `!(a > b)` isn't `a <= b` with a NaN: these are the x87's branches, NaN included.
+#[allow(clippy::neg_cmp_op_on_partial_ord)]
 fn line_hits(
     assets: &Assets,
     body: &Body,
@@ -409,83 +439,72 @@ fn line_hits(
     precise: bool,
 ) -> Result<bool, ValueError> {
     let b = body.bbox;
-    let (left, right) = (f64::from(b.left), f64::from(b.right));
-    let (top, bottom) = (f64::from(b.top), f64::from(b.bottom));
-    if right + 1.0 <= x1.min(x2)
-        || x1.max(x2) < left
-        || bottom + 1.0 <= y1.min(y2)
-        || y1.max(y2) < top
-    {
+    let (left, top) = (f64::from(b.left), f64::from(b.top));
+    let (right1, bottom1) = (
+        f64::from(b.right.wrapping_add(1)),
+        f64::from(b.bottom.wrapping_add(1)),
+    );
+    let (min_x, max_x) = (
+        if x2 >= x1 { x1 } else { x2 },
+        if x2 > x1 { x2 } else { x1 },
+    );
+    let (min_y, max_y) = (
+        if y2 >= y1 { y1 } else { y2 },
+        if y2 > y1 { y2 } else { y1 },
+    );
+    if !(right1 > min_x) || left > max_x || !(bottom1 > min_y) || top > max_y {
         return Ok(false);
     }
-    let (mut x1, mut y1, mut x2, mut y2) = if x2 < x1 {
-        (x2, y2, x1, y1)
+    // a is the end with the larger x.
+    let ((mut xa, mut ya), (mut xb, mut yb)) = if x1 >= x2 {
+        ((x1, y1), (x2, y2))
     } else {
-        (x1, y1, x2, y2)
+        ((x2, y2), (x1, y1))
     };
-    if x1 < left {
-        y1 = (y2 - y1) * (left - x1) / (x2 - x1) + y1;
-        x1 = left;
+    if left > xb {
+        yb = (left - xb) * (ya - yb) / (xa - xb) + yb;
+        xb = left;
     }
-    if x2 > right + 1.0 {
-        let nx2 = right + 1.0;
-        y2 = (y2 - y1) * (nx2 - x2) / (x2 - x1) + y2;
-        x2 = nx2;
+    if !(right1 >= xa) {
+        ya = (right1 - xa) * (ya - yb) / (xa - xb) + ya;
+        xa = right1;
     }
-    if (top > y1 && top > y2) || (y1 >= bottom + 1.0 && y2 >= bottom + 1.0) {
+    if (top > yb && top > ya) || (!(bottom1 > yb) && !(bottom1 > ya)) {
         return Ok(false);
     }
     if !precise {
         return Ok(true);
     }
-    let Some(sprite) = mask_sprite(assets, body.sprite) else {
+    let Some(xf) = point_xform(assets, body)? else {
         return Ok(false);
     };
-    let mask = frame_mask(sprite, body.image_index)?;
-    // GM8's line routine (0x4a4fd8) takes the instance's position as the 32-bit integers its caller rounded, as the
-    // other tests do; OpenGMK kept the rounded double.
     let round = math::int_arg;
-    let (ix, iy) = (f64::from(round(body.x)?), f64::from(round(body.y)?));
-    let (sin, cos) = body.sin_cos();
-    let (x1, y1, x2, y2) = (round(x1)?, round(y1)?, round(x2)?, round(y2)?);
-    // In i32, wrapping like OpenGMK's release build.
-    let vertical = x2.wrapping_sub(x1).wrapping_abs() < y2.wrapping_sub(y1).wrapping_abs();
-    let (x1, y1, x2, y2) = if vertical && y2 < y1 {
-        (x2, y2, x1, y1)
-    } else {
-        (x1, y1, x2, y2)
-    };
-    let count = if vertical {
-        y2.wrapping_sub(y1)
-    } else {
-        x2.wrapping_sub(x1)
+    let (mut xa, mut ya, mut xb, mut yb) = (round(xa)?, round(ya)?, round(xb)?, round(yb)?);
+    if xa == xb || ya == yb {
+        return Ok(xf.rect_hit(&b, xb, ya.min(yb), xa, ya.max(yb)));
     }
-    .wrapping_add(1);
-    // OpenGMK computes the slope at every step (unused for a single point, where it would divide by 0).
-    let slope = if vertical {
-        f64::from(x2.wrapping_sub(x1)) / f64::from(y2.wrapping_sub(y1))
+    let (ix, iy) = (xf.ix, xf.iy);
+    if xa.wrapping_sub(xb).wrapping_abs() >= ya.wrapping_sub(yb).wrapping_abs() {
+        if xa < xb {
+            (xa, ya, xb, yb) = (xb, yb, xa, ya);
+        }
+        let slope = f64::from(ya.wrapping_sub(yb)) / f64::from(xa.wrapping_sub(xb));
+        let (from, to) = (b.left.max(xb), b.right.min(xa));
+        Ok((from..=to).any(|x| {
+            let y = f64::from(x.wrapping_sub(xb)) * slope + f64::from(yb);
+            xf.hit_offset(f64::from(x.wrapping_sub(ix)), y - f64::from(iy))
+        }))
     } else {
-        f64::from(y2.wrapping_sub(y1)) / f64::from(x2.wrapping_sub(x1))
-    };
-    let point = |i: i32| match (count, vertical) {
-        (1, _) => (f64::from(x1), f64::from(y1)),
-        (_, true) => (
-            f64::from(x1) + f64::from(i) * slope,
-            f64::from(y1.wrapping_add(i)),
-        ),
-        (_, false) => (
-            f64::from(x1.wrapping_add(i)),
-            f64::from(y1) + f64::from(i) * slope,
-        ),
-    };
-    Ok((0..count).any(|i| {
-        let (px, py) = point(i);
-        let (dx, dy) = (px - ix, py - iy);
-        let (rx, ry) = (dx * cos - dy * sin, dx * sin + dy * cos);
-        let mx = (f64::from(sprite.origin_x) + (rx / body.xscale).floor()) as i64 as i32;
-        let my = (f64::from(sprite.origin_y) + (ry / body.yscale).floor()) as i64 as i32;
-        mask_pixel(mask, mx, my)
-    }))
+        if ya < yb {
+            (xa, ya, xb, yb) = (xb, yb, xa, ya);
+        }
+        let slope = f64::from(xa.wrapping_sub(xb)) / f64::from(ya.wrapping_sub(yb));
+        let (from, to) = (b.top.max(yb), b.bottom.min(ya));
+        Ok((from..=to).any(|y| {
+            let x = f64::from(y.wrapping_sub(yb)) * slope + f64::from(xb);
+            xf.hit_offset(x - f64::from(ix), f64::from(y.wrapping_sub(iy)))
+        }))
+    }
 }
 
 impl World {
