@@ -10,7 +10,7 @@
 //
 // Everything has its size before it loads (the sprite, the clips' boxes) and nothing moves once it has: no
 // layout shift.
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment } from "react";
 import type { ReactNode } from "react";
 import type { Crumb } from "../seo/jsonld";
 import type { Navbox, Reference as ReferenceData, Section } from "./build/compile";
@@ -253,13 +253,11 @@ const INFOBOX_IMAGE_MAX = 224;
 // page's quirk box is one too.
 function Infobox({ page }: { page: PageModule }) {
   const { meta, Infobox: fragments } = page;
-  const ref = useRef<HTMLElement>(null);
-  useEffect(() => fitsOnScreen(ref.current), []);
   if (!meta.image && meta.infobox.length === 0 && !meta.quirk) return null;
   const image = meta.image;
   const scale = image && image.width * 2 <= INFOBOX_IMAGE_MAX && image.height * 2 <= INFOBOX_IMAGE_MAX ? 2 : 1;
   return (
-    <aside className="infobox" aria-labelledby="infobox-title" ref={ref}>
+    <aside className="infobox" aria-labelledby="infobox-title" ref={fitsOnScreen}>
       <p className="infobox-title" id="infobox-title">
         {meta.quirk ? "Quirk" : meta.title}
       </p>
@@ -335,17 +333,18 @@ function Infobox({ page }: { page: PageModule }) {
   );
 }
 
-// The room a stuck infobox needs on the screen (wiki.css): above its frame and below the frame and drop shadow
-// under it, the rail's 16 pixels, and the frame's 8 each side and the shadow's 8.
-const STUCK_ROOM = 16 + 8 + 8 + 8 + 16;
-
-// Marks the infobox data-fits while it fits on the screen with that room, which on a wide screen keeps it there as
-// the page scrolls (wiki.css); a taller one scrolls with the page, or its bottom would be out of reach. Checked
-// again whenever the box or the window changes size. The attribute is only the script's, so hydrating never
-// changes what the server rendered, and it moves nothing: the infobox's column is there either way.
+// Marks the infobox data-fits while it fits on the screen, which on a wide screen keeps it there as the page scrolls
+// (wiki.css); a taller one scrolls with the page, or its bottom would be out of reach. Its room is its sticky top
+// (wiki.css's, which it has whether it sticks or not) above it and as much below it, for its frame and a gap.
+// Checked again whenever the box or the window changes size. A ref callback, so it follows the box as it mounts
+// and unmounts. The attribute is only the script's, so hydrating never changes what the server rendered, and it
+// moves nothing: the infobox's column is there either way.
 function fitsOnScreen(box: HTMLElement | null) {
   if (!box) return;
-  const check = () => box.toggleAttribute("data-fits", box.offsetHeight + STUCK_ROOM <= window.innerHeight);
+  const check = () => {
+    const top = parseFloat(getComputedStyle(box).top) || 0;
+    box.toggleAttribute("data-fits", box.offsetHeight + 2 * top <= window.innerHeight);
+  };
   const observer = new ResizeObserver(check);
   observer.observe(box);
   window.addEventListener("resize", check);

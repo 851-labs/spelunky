@@ -177,7 +177,7 @@ function keylineProblems(source) {
           const side = holder in SIDE_MARGINS ? margins.map((m) => m.right).filter((m) => m !== undefined) : [left];
           for (const m of side) {
             // Held in from its column's edge by the frame, within a padding its container keeps for it.
-            if (holder in SIDE_MARGINS && m === `calc(${token} - var(--infobox-column))`) continue;
+            if (holder === ".infobox" && m === `calc(${token} - var(--infobox-column))`) continue;
             if (m !== token) problems.push(`${selector}: its ${edge} is outside its box, but ${holder}'s margin is ${m}, not ${token}`);
           }
         }

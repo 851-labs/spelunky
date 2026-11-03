@@ -165,9 +165,17 @@ h3 { font-size: 16px; }
      its gap, so nothing beside it narrows). Its column is there whether it sticks or not, so nothing moves when
      it starts to. Its box (.intro) lets go of it, so that it sticks within the article, not the lede. */
   .wiki-page article:has(.infobox) { --infobox-column: calc(32px + 300px + var(--frame)); padding-right: var(--infobox-column); }
-  .intro { display: contents; }
-  .infobox { margin-right: calc(var(--frame) - var(--infobox-column)); }
-  .infobox[data-fits] { position: sticky; top: calc(16px + var(--frame)); }
+  .wiki-page article:has(.infobox) .intro { display: contents; }
+  /* Its top, which the script reads too, for the room it needs: as much again below it. */
+  .infobox { margin-right: calc(var(--frame) - var(--infobox-column)); top: calc(16px + var(--frame)); }
+  .infobox[data-fits] { position: sticky; }
+  /* Nothing wide runs into the column: a table scrolls in its box. */
+  .wiki-page article:has(.infobox) .table-wrap { overflow-x: auto; }
+}
+/* Until the column beside the infobox's is 75 characters wide, its References in one column, as a narrower
+   screen's. */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .wiki-page article:has(.infobox) :is(.references, .sources) { columns: auto; }
 }
 
 .sprite-missing { display: inline-block; background: var(--dirt); vertical-align: middle; }
