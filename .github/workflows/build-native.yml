@@ -1,17 +1,23 @@
-# The native releases (docs/releasing.md): built on a Mac mini, then each smoke-tested as a player gets it on
-# a machine of its own OS and architecture. release.yml calls it; run it by hand (Actions › Native builds ›
-# Run workflow) to build and test a branch, unsigned.
+# The native releases (docs/releasing.md): built and signed on GitHub's macOS machines, then each smoke-tested as
+# a player gets it on a machine of its own OS and architecture. release.yml calls it; run it by hand (Actions ›
+# Native builds › Run workflow) to build and test a branch, unsigned.
 #
-# - build: all six builds on one Mac mini (scripts/release/build): macOS arm64 and x86_64, combined into a
+# What gets built and signed never touches the self-hosted Mac minis (851-3899): they're persistent and shared,
+# with pull requests' jobs and other repositories', so a job before could leave something there (a
+# .cargo/config.toml above the checkout, which Cargo reads whatever CARGO_HOME is, a login item, a tool on PATH)
+# that a build or the signing would then run. GitHub's machines are a fresh VM a job, gone when it ends.
+#
+# - build: all six builds on one of GitHub's Apple silicon Macs (scripts/release/build, set up from nothing by
+#   scripts/release/ci-setup): macOS arm64 and x86_64, combined into a
 #   universal `Spelunky Classic.app`; Windows x64 and ARM64 with llvm-mingw; Linux x64 and ARM64 with zig. All
 #   open source: no Windows SDK, MSVC or license. It also fingerprints the smoke replay's trace on the port.
 # - macos-sign (with `sign`): signs the app with Developer ID, notarizes and staples it, and packages it in a
-#   .dmg (notarized and stapled too) and a zip for the updater. Only this job sees the signing secrets, in
-#   the `release` environment (main and v* tags only; release.yml passes them on with `secrets: inherit`),
-#   and it compiles nothing.
+#   .dmg (notarized and stapled too) and a zip for the updater, on another of GitHub's Macs. Only this job sees
+#   the signing secrets, in the `release` environment (main and v* tags only; release.yml passes them on with
+#   `secrets: inherit`), and it compiles nothing.
 # - smoke-macos, smoke: scripts/release/smoke.py on each downloadable file: the macOS app's arm64 half on a
-#   Mac mini and its x86_64 half on GitHub's Intel Mac; Windows and Linux on GitHub's machines (WARP and
-#   lavapipe draw).
+#   Mac mini (which only runs what's built, and holds no secret) and its x86_64 half on GitHub's Intel Mac;
+#   Windows and Linux on GitHub's machines (WARP and lavapipe draw).
 #
 # Every file is an artifact named as the file, spelunky-<version>-<platform>.<ext>, which release.yml
 # publishes when the whole workflow passed. Nothing else this makes is named spelunky-*.
@@ -58,14 +64,13 @@ env:
 jobs:
   build:
     name: Build apps
-    runs-on:
-      group: Mac minis
-      labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
-    timeout-minutes: 150
+    # GitHub's Apple silicon Mac (arm64), a fresh VM: never the minis (above).
+    runs-on: macos-15
+    timeout-minutes: 180
     outputs:
       fingerprint: ${{ steps.fingerprint.outputs.fingerprint }}
     steps:
-      # The workspace outlives the job on a self-hosted runner, so the token isn't left in .git/config.
+      # The token isn't left in .git/config, where the build (every dependency's build script) could read it.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -81,8 +86,8 @@ jobs:
             echo "::error::A signed build is a release: its version must be MAJOR.MINOR.PATCH[-PRE], not $VERSION"
             exit 1
           fi
-      # A build that gets signed and published starts from nothing; a branch's reuses the last one's.
-      - run: scripts/release/ci-setup ${{ inputs.sign && 'fresh' || 'cached' }}
+      # From nothing, in the job's temp directory: rustup, the toolchain, the cross toolchains, the target dir.
+      - run: scripts/release/ci-setup
       - run: scripts/release/build --version "$VERSION" --out "$RUNNER_TEMP/packages"
       # What every package's smoke test must reproduce: the replay's trace on the port, here, which
       # fidelity-check first holds to the oracle's committed fingerprint (fidelity/fingerprints/). Each
@@ -166,19 +171,14 @@ jobs:
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-arm64.tar.gz
           if-no-files-found: error
           compression-level: 0
-      # The cached target dir and toolchains stay (ci-setup caps them); the packages and a fresh build's
-      # toolchain and target dir go.
-      - if: always()
-        run: |
-          rm -rf "$RUNNER_TEMP/packages" "$RUNNER_TEMP/macos-app.tar" "$RUNNER_TEMP/smoke-replay.jsonl" "$RUNNER_TEMP/spelunky-release"
 
   macos-sign:
     name: Sign Mac app
     needs: build
     if: inputs.sign
-    runs-on:
-      group: Mac minis
-      labels: [self-hosted, macOS, ARM64, codevisor-macos-arm64]
+    # A fresh VM of GitHub's, as build's: the signing key is only ever on a machine no other job has run on, and
+    # that's gone when this one ends.
+    runs-on: macos-15
     environment: release
     timeout-minutes: 120
     steps:
@@ -191,7 +191,9 @@ jobs:
           path: ${{ runner.temp }}/spelunky-sign
       # As lil.tech's release does (its docs/RELEASING.md): the key goes into a keychain made for the job, in
       # a folder only it reads, both deleted when the job ends however it ends. The login keychain and the
-      # default keychain are never touched. Only codesign may use the key.
+      # default keychain are never touched. Only codesign may use the key. The .p12's password is on `security
+      # import`'s command line (it reads it from nowhere else), which is only a risk on a machine shared with
+      # other processes: this VM runs this job alone.
       - name: Set up signing
         env:
           DEVELOPER_ID_P12_BASE64: ${{ secrets.DEVELOPER_ID_P12_BASE64 }}

@@ -8,7 +8,7 @@ they're made of.
 | `pr.yml` | every pull request | `scripts/check` (`suite.yml`), `site/test.sh` for changes to the site, then on one Mac mini `scripts/check --apple`, `scripts/web --check` and `scripts/wiki-media --check` for changes to what the wiki's media are made from; the updater's tests; then `pr-ok` | `ubuntu-24.04` for the suite and the site, one Mac mini, GitHub's machines for the updater |
 | `suite.yml` | from `pr.yml`, and every push to `main` | `scripts/check`, with the build cache main's run saves for every pull request's ([below](#pull-requests)) | `ubuntu-24.04` |
 | `release.yml` | a `v*` tag, or by hand | the suite, the oracle fidelity run, the web and native builds, the updater's tests, then the GitHub Release and the pull request that puts it live ([below](#releases)) | the Mac minis and `ubuntu-24.04` |
-| `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | a Mac mini, then each OS |
+| `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | GitHub's `macos-15` for the build and the signing, then each OS (a Mac mini for the arm64 smoke test) |
 | `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
 | `mini.yml` | from `pr.yml` and `release.yml` | one command on a Mac mini, optionally only for a pull request that changes some paths | the Mac minis |
 | `soak.yml` | nightly, or by hand | the chaos soak: new fuzz runs against the oracle, filed as issues ([below](#the-chaos-soak)) | `ubuntu-24.04` |
@@ -33,12 +33,13 @@ job.
   cargo target dir kept there too, so builds are incremental across jobs; the action wipes it once it outgrows
   12 GiB (the minis have about 30 GB free). npm's cache is there too, not in `~/.npm`, wiped past 1 GiB, and
   `cleanup.sh` (the last step of each job) drops the extracted assets, the site's `node_modules` and other
-  per-job output. A job on the minis is a call to `.github/workflows/mini.yml` with the command to run. The native builds
-  (`build-native.yml`) set themselves up with `scripts/release/ci-setup` instead, with a target dir and cross
-  toolchains of their own, and from nothing in the job's temp directory for a build that gets signed.
+  per-job output. A job on the minis is a call to `.github/workflows/mini.yml` with the command to run. What a
+  release builds or signs never runs on them (below).
 - **`ubuntu-24.04`** (GitHub-hosted, free for public repositories) runs a pull request's test suite and site
   test ([Pull requests](#pull-requests)), everything that needs Docker (the oracle), and builds the web version a
   release publishes.
+- **GitHub-hosted `macos-15`** (Apple silicon, a fresh VM a job) builds a release's native apps and signs the
+  macOS one (`build-native.yml`), set up from nothing by `scripts/release/ci-setup`.
 - **GitHub-hosted `macos-15-intel`, `windows-2025`, `windows-11-arm`, `ubuntu-24.04` and
   `ubuntu-24.04-arm`** smoke-test the native builds, each on its own OS and architecture.
 
@@ -46,7 +47,7 @@ GitHub's machines are named by OS version (`ubuntu-24.04`, `windows-2025`, `maco
 `*-latest`, which moves to each new OS on GitHub's schedule (`ubuntu-latest` to 26.04 from October 2026):
 the oracle's Docker setup and the Linux smoke test's packages (`libasound2t64`) are 24.04's, and a new OS
 should come in a pull request of its own. (`windows-11-arm` has no versioned name.) The Linux release builds
-don't depend on it: they're built on a mini with zig, for glibc 2.31 ([docs/releasing.md](releasing.md)).
+don't depend on it: they're built on `macos-15` with zig, for glibc 2.31 ([docs/releasing.md](releasing.md)).
 
 ### The Mac minis' loose objects
 
@@ -125,14 +126,17 @@ all of that, line by line: the parse check before `trap cleanup EXIT` (no other 
 `finished`, `finished=1` as the last line (unless it ends by `exec`), and `finished=1` before every `exit 0`
 after the trap.
 
-The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
+Code from outside never runs on the minis: they're persistent and shared, so what one job leaves there
+reaches the next (the reason releases are built and signed elsewhere, on GitHub's fresh `macos-15`). Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside
 contributors wait for a maintainer's approval (the Actions setting "Require approval for all external
 contributors"), and `pr.yml` itself skips its mini job for a pull request from a fork and fails `pr-ok`, so
 keeping a fork's code off the minis doesn't rest on those settings alone.
 
-A pull request's code can still change what the minis keep between jobs (the toolchain, the target dir), so
-nothing a release publishes is built from those caches: the web build runs on a fresh GitHub-hosted machine.
+A pull request's code can still change what the minis keep between jobs (the toolchain, the target dir, and
+anything else its user can write: a `.cargo/config.toml` above a checkout, a login item, a tool on `PATH`), so
+nothing a release publishes is built or signed on them: the web build and the native builds and their signing
+run on fresh GitHub-hosted machines ([docs/releasing.md](releasing.md#on-ci), 851-3899).
 
 ## Releases
 
@@ -166,7 +170,7 @@ and `release.yml`:
 4. builds the web version from scratch on `ubuntu-24.04`, `spelunky-web-TAG.tar.gz` (`scripts/web
    --package`), and checks it the way the site's build will (`site/build.sh --local`);
 5. builds, signs, notarizes and smoke-tests the native apps (`build-native.yml`, [docs/releasing.md](releasing.md)):
-   all six built on a mini, each file then played on its own OS and architecture, and runs the updater's
+   all six built on GitHub's `macos-15`, each file then played on its own OS and architecture, and runs the updater's
    tests (`updater.yml`), as a pull request does;
 6. signs the native apps' update manifest, `latest.json`, for those downloads (`scripts/release/manifest`,
    [docs/updates.md](updates.md)), except for a prerelease, which is never offered to the apps;

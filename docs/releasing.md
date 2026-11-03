@@ -95,20 +95,25 @@ variables the app is signed ad hoc, which runs where it was built but which Gate
 `.github/workflows/build-native.yml`, which `release.yml` calls with the version and `sign` ([docs/ci.md](ci.md)),
 and which runs by hand (Actions › Native builds › Run workflow) to try a branch, unsigned:
 
-1. **Build apps** (`build`), on a Mac mini: `scripts/release/ci-setup` installs rustup and the pinned
-   toolchain, then `scripts/release/build` makes all six. A signed build sets everything up afresh in the
-   job's temp directory, since pull requests' jobs can change what the minis keep; a branch's reuses the
-   tool cache (capped at 10 GiB of target dir). It also checks the smoke replay against its committed oracle
-   fingerprint (`fidelity-check`, [docs/formats.md](formats.md#fingerprints)) and runs it on `replay-run`
-   for the trace every shipped build must reproduce. (The wiki's media aren't a release's: they're committed,
+1. **Build apps** (`build`), on GitHub's Apple silicon Mac (`macos-15`, a fresh VM), never a Mac mini: the
+   minis are persistent and shared with pull requests' jobs and other repositories', so a job before could
+   leave something a build would run (a `.cargo/config.toml` above the checkout, which Cargo reads whatever
+   `CARGO_HOME` is, a login item, a tool on `PATH`; 851-3899). `scripts/release/ci-setup` installs
+   rustup, the pinned toolchain and the cross toolchains in the job's temp directory, failing if a Cargo
+   config sits above the checkout, then `scripts/release/build` makes all six, from nothing every time. It also
+   checks the smoke replay against its committed oracle fingerprint (`fidelity-check`,
+   [docs/formats.md](formats.md#fingerprints)) and runs it on `replay-run` for the trace every shipped build
+   must reproduce. (The wiki's media aren't a release's: they're committed,
    [docs/wiki-media.md](wiki-media.md#committing).)
-2. **Sign Mac app** (`macos-sign`, with `sign`), on a Mac mini, in the `release` environment:
-   the only job with the signing secrets, and it compiles nothing. It imports the Developer ID identity into
+2. **Sign Mac app** (`macos-sign`, with `sign`), on another fresh `macos-15`, in the `release` environment:
+   the only job with the signing secrets, and it compiles nothing, so the Developer ID key is only ever on a
+   machine no other job has run on. It imports the Developer ID identity into
    a keychain made for the job (as lil.tech's release does), runs `macos-dmg` with it and the notary key,
    and deletes the keychain and key however the job ends.
 3. **Test Mac app** and **Test Win/Linux app** (`smoke-macos`, `smoke`), on each file as a player
    downloads it, on its own OS and architecture: the macOS `.dmg` and
-   zip as arm64 on a Mac mini and as x86_64 on `macos-15-intel` (the minis have no Rosetta); Windows on
+   zip as arm64 on a Mac mini (which only runs what's built, and holds no secret) and as x86_64 on
+   `macos-15-intel` (the minis have no Rosetta); Windows on
    `windows-2025` and `windows-11-arm` (Direct3D 12 on WARP); Linux's AppImage and tarball on
    `ubuntu-24.04` and `ubuntu-24.04-arm` (Vulkan on lavapipe; the AppImage extracts itself, as there's no
    FUSE).
