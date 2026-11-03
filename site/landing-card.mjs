@@ -4,8 +4,20 @@
 // page's own pixels, scaled by whole factors with nearest neighbour so the pixel art stays sharp: its gameplay
 // still and its logo, twice over each, on the logo's own background.
 //
-//   node landing-card.mjs           write public/media/card.png from public/media/gameplay.png and logo.png
-//   node landing-card.mjs --check   fail unless the committed card is what they make (site/test.sh)
+// Every one of public/media's files is made from the game, so each carries the Spelunky notice (NOTICE), as the
+// wiki's media do (851-3964): the PNGs in a Copyright text chunk, the video in its metadata. The still and the
+// logo get theirs here, pixels unchanged. The video, scripts/clip's from fidelity/replays/mines-seed-7.txt (851-3252),
+// got its once, with its frames copied as they were, as wiki-clips writes a clip's:
+//
+//   ffmpeg -i gameplay.mp4 -map 0 -c copy -map_metadata -1 -fflags +bitexact -movflags +faststart \
+//     -metadata "title=Spelunky Classic: the Mines" -metadata "copyright=$NOTICE" -metadata "comment=$CAPTION" OUT.mp4
+//
+// (CAPTION being wiki-clips.rs's), which a video made again needs too.
+//
+//   node landing-card.mjs           write public/media/card.png from public/media/gameplay.png and logo.png, and
+//                                   add the notice to those two if they haven't got it
+//   node landing-card.mjs --check   fail unless the committed card is what they make, and all four carry the
+//                                   notice (site/test.sh)
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { NOTICE, OG_HEIGHT, OG_WIDTH } from "./src/wiki/build/og.ts";
@@ -18,6 +30,36 @@ const LOGO_SCALE = 2;
 // Around the still: the wiki's dark gold (src/wiki/wiki.css's --gold-dark).
 const BORDER = [0xa8, 0x78, 0x1c];
 const BORDER_WIDTH = 4;
+
+// A PNG's tEXt chunks (Latin-1), by keyword.
+function pngText(bytes) {
+  const text = {};
+  for (let at = 8; at + 8 <= bytes.length; ) {
+    const length = bytes.readUInt32BE(at);
+    const type = bytes.toString("latin1", at + 4, at + 8);
+    if (type === "tEXt") {
+      const body = bytes.subarray(at + 8, at + 8 + length);
+      const nul = body.indexOf(0);
+      text[body.toString("latin1", 0, nul)] = body.toString("latin1", nul + 1);
+    }
+    at += 12 + length;
+  }
+  return text;
+}
+
+// The still or the logo with the notice, its pixels as they were (both are opaque, so RGB loses nothing).
+function withNotice(file) {
+  const bytes = readFileSync(here(`public/media/${file}`));
+  if (pngText(bytes).Copyright === NOTICE) return null;
+  const image = opaque(file);
+  const rgb = new Uint8Array(image.width * image.height * 3);
+  for (let i = 0, j = 0; i < image.data.length; i += 4, j += 3) rgb.set(image.data.subarray(i, i + 3), j);
+  const out = encodePng(image.width, image.height, rgb, { Copyright: NOTICE });
+  if (!Buffer.from(decodePng(out, file).data).equals(Buffer.from(image.data))) {
+    throw new Error(`public/media/${file}: its pixels changed in encoding`);
+  }
+  return out;
+}
 
 function opaque(file) {
   const image = decodePng(readFileSync(here(`public/media/${file}`)), file);
@@ -63,14 +105,28 @@ function card() {
   return encodePng(OG_WIDTH, OG_HEIGHT, rgb, { Copyright: NOTICE });
 }
 
-const made = card();
+const STAMPED = ["gameplay.png", "logo.png"];
 if (process.argv[2] === "--check") {
-  if (!made.equals(readFileSync(CARD))) {
+  const missing = STAMPED.filter((file) => withNotice(file) !== null);
+  // The video's copyright tag, in UTF-8 in its metadata.
+  if (!readFileSync(here("public/media/gameplay.mp4")).includes(Buffer.from(NOTICE))) missing.push("gameplay.mp4");
+  if (missing.length > 0) {
+    console.error(`landing-card.mjs: public/media's ${missing.join(", ")} lack the notice: run node landing-card.mjs (the video: its header)`);
+    process.exit(1);
+  }
+  if (!card().equals(readFileSync(CARD))) {
     console.error("landing-card.mjs: public/media/card.png isn't what gameplay.png and logo.png make: run node landing-card.mjs");
     process.exit(1);
   }
-  console.log("landing-card.mjs: public/media/card.png is current");
+  console.log("landing-card.mjs: public/media/card.png is current, and the media carry the notice");
 } else {
+  for (const file of STAMPED) {
+    const out = withNotice(file);
+    if (out === null) continue;
+    writeFileSync(here(`public/media/${file}`), out);
+    console.log(`landing-card.mjs: added the notice to public/media/${file}`);
+  }
+  const made = card();
   writeFileSync(CARD, made);
   console.log(`landing-card.mjs: wrote public/media/card.png (${made.length} bytes)`);
 }
