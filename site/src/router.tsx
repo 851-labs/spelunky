@@ -7,6 +7,10 @@ export function getRouter() {
     // Only for a link the router follows itself: a request for a path it hasn't got gets public/404.html
     // (src/server.ts).
     defaultNotFoundComponent: () => <p>Nothing down here.</p>,
+    // A path is a page only as it's written: /WIKI/snake is no page, rather than a copy of /wiki/snake the Worker
+    // would render on every request (the pages are pre-rendered at their own paths, and the asset store's are
+    // case-sensitive).
+    caseSensitive: true,
     // Plain query strings, each value a string: /wiki?q=30 searches for "30", where the router's default
     // would read the number 30 and write the string back as q=%2230%22. The WebSite JSON-LD's SearchAction
     // fills in /wiki?q={search_term_string} plainly too (src/seo/jsonld.ts).

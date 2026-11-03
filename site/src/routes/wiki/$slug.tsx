@@ -67,8 +67,9 @@ export const Route = createFileRoute("/wiki/$slug")({
           description: lede,
           path,
           about: [{ "@type": "Thing", name: title }, gameRef()],
-          // The media's paths are escaped already (%40), which absoluteUrl won't take as a site path.
-          image: image === null ? undefined : SITE_URL + image,
+          // Its card first, big enough for Google's Article images, then its sprite. The media's paths are escaped
+          // already (%40), which absoluteUrl won't take as a site path.
+          image: [...(og ? [og.path] : []), ...(image === null ? [] : [SITE_URL + image])],
           dateModified: verified,
         }),
         breadcrumbs(crumbs),

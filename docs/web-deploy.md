@@ -17,7 +17,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/opensearch.xml` | the wiki's search for browsers, as an OpenSearch description (SEO, below): pre-rendered | `no-cache` |
 | `/favicon.ico`, `/icon.svg`, `/apple-touch-icon.png` | the site's icons, the game's Spelunker (SEO, below) | `no-cache` |
 | `/wiki/<alias>`, `/wiki/<alias>.md` | a page's other names (its frontmatter's `aliases`, docs/wiki-style.md): a redirect (301) to the page, or its twin, from the Worker's map of them (`virtual:wiki/aliases`, made by the build) | `no-cache` |
-| `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
+| `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`, `X-Robots-Tag: noindex`: the pages are what search engines index), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
 | `/wiki/media/` | the wiki's sprites, clips and rooms' pictures, committed in `wiki/media` (`docs/wiki-media.md`); the clips' videos with byte ranges; its `LICENSE.txt` and `NOTICE.txt` in UTF-8, the type from `_headers`. `/wiki/media/HASH/...`, where a release's package was, redirects (301) to `/wiki/media/...` | a day |
 | `/media/` | the landing page's gameplay video and still, its Open Graph card, and the logo every page shows (`site/public/media/`): the pictures skip the Worker, and the video comes through it for byte ranges ([Wiki media](#wiki-media), "Byte ranges"); `build.sh` fails on any other kind of file there. They keep their names, so a new logo reaches a returning reader within the day | a day |
@@ -26,8 +26,12 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 
 `www.spelunky.ai` redirects (301) to `https://spelunky.ai` (www's pages: the content-hashed files under `/play/v/`,
 `/assets/` and `/wiki/og/` and the media under `/wiki/media/` and `/media/` skip the Worker, all but the videos,
-but only a page on www would ask for them there), as does plain HTTP ([HTTPS](#https)), and a path that's none of
-these is a 404 with `site/public/404.html`. Everything is in `site/`:
+but only a page on www would ask for them there), as does plain HTTP ([HTTPS](#https)), a GET or HEAD in one hop to where the apex would send
+it on (an alias's page, a name written another way, the slash the asset store adds or drops, an old media URL).
+A path that's none of these is a 404 with `site/public/404.html`, as are the 404 page's own paths, `/404` and
+`/404.html`, so no crawler indexes it. The asset store's redirects for a page's slash and `.html`
+(`html_handling`: `/wiki/` to `/wiki`, `/play` to `/play/`, `/index.html` to `/`) are 307s, which the Worker makes
+301s (308s for other methods than GET and HEAD), as they're for good. Everything is in `site/`:
 
 - `src/`: the app. `routes/` has its pages (TanStack Router's file routes; `routeTree.gen.ts` is generated
   from them by the build and `vite dev`, and committed), and `seo/` their head tags, JSON-LD and the
@@ -36,8 +40,9 @@ these is a 404 with `site/public/404.html`. Everything is in `site/`:
   build time and served as a static asset like the rest, so the Worker renders nothing on a page view.
   `server.ts` is the Worker: the www redirect, the wiki's aliases' redirects, the static assets with the `no-cache` header, the wiki's clips
   with byte ranges ([Wiki media](#wiki-media)), and the router
-  for server functions and for a page that isn't a file (neither exists yet, so on spelunky.ai the router
-  only runs to confirm a 404).
+  for a page that isn't a file (none is, so on spelunky.ai the router only runs to confirm a 404; it matches a
+  path's case exactly, so `/WIKI/snake` is one, not a page rendered on every request). The site has no server
+  functions, so their path, `/_serverFn/`, is the 404 page, not the router's.
 - `content/`: the wiki's pages (`content/wiki/<slug>.mdx`), the pages it plans but hasn't written
   (`content/wiki-planned.yaml`, docs/wiki-style.md, "Red links"), and the snapshots of its stats and
   relations (`content/wiki-data/`, docs/wiki-data.md).
@@ -403,7 +408,8 @@ link have those URLs. The rules above don't match them, so they come through the
 No directory of the media's is 16 hex digits. The router never sees `/wiki/media/...`, and a wiki page
 mustn't be called `media` (`build.sh` fails if the app pre-renders one).
 
-**Escape `@` as `%40`.** The asset store answers `0@4x.png` with a 307 to `0%404x.png`, its canonical form, so
+**Escape `@` as `%40`.** The asset store answers `0@4x.png` with a 307 to `0%404x.png`, its canonical form (and
+the Worker's redirect from an old URL goes straight there), so
 a page asks for that directly, saving a round trip per image (`encodeURIComponent` on each path segment).
 
 **Byte ranges.** The asset store ignores `Range`: a request for `bytes=0-1` gets a 200 with the whole file,
