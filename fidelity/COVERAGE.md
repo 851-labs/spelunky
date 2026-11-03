@@ -133,9 +133,9 @@ scripts/cargo run --release -p harness --bin replay-coverage -- --lines --missed
 scripts/cargo run --release -p harness --bin replay-coverage -- --lines --by-line oSnake/   # which replays run each line
 ```
 
-All 282 committed replays, 525,569 frames:
+All 288 committed replays, 531,190 frames:
 
-- **The game**: 17221 of 20278 lines (84.9%), in 1435 units: 162 never ran, 218 partly.
+- **The game**: 17254 of 20278 lines (85.1%), in 1435 units: 155 never ran, 220 partly.
 - **The settings program**: 581 of 1231 lines (47.2%), in 114 units: 69 never ran, 10 partly.
 
 The game's units that never ran, by why:
@@ -168,8 +168,8 @@ The game's units that never ran, by why:
   - `oPushBlock/other_0#0`, a push block leaving the room: the Ice Caves make none (no room or obstacle of
     `scrRoomGen3`'s or `scrRoomGenYeti`'s has the `4` tile, and they make no `oBlock`, the loose blocks
     `scrSetupWalls`, run on every level, turns into push blocks when a brick, temple block or hard block is under
-    one), and every other room a push block is in has a bottom row: the one `scrInitLevel` gives the other areas' levels
-    and custom levels (y 528, or 656 in a lake's taller room), or `rOlmec`'s floor at y 864 (851-3956);
+    one), and every other room a push block is in has a bottom row: the one `scrInitLevel` gives the other areas'
+    levels and custom levels (y 528, or 656 in a lake's taller room), or `rOlmec`'s floor at y 864 (851-3956);
   - `oYellowBall/other_0#0`, one of Olmec's yellow balls leaving the room: `rOlmec` is walled on every side, and
     a ball's step destroys it in the first solid its 16-pixel box meets once it's clear of Olmec, which it can't
     cross in one step (at most 5 pixels sideways and 7 up or 6 down, through a 16-pixel wall) (851-3956).
