@@ -126,6 +126,8 @@ impl World {
             host,
             // Where GML last ran: only for error reports, and set again before any code runs.
             cursor: _,
+            // The harness's line coverage, not the game's state.
+            lines: _,
             // Only reports the step just run, and is cleared when the next one starts.
             exception: _,
             // Only lent to the world during `step_drawing`, so always `None` here.
@@ -243,6 +245,7 @@ impl World {
             draw_settings: saved.draw_settings.into_owned(),
             host,
             cursor: ("", 0),
+            lines: None,
             exception: None,
             draw: Default::default(),
         })

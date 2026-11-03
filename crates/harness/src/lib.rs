@@ -17,6 +17,7 @@ pub mod clip;
 pub mod fingerprint;
 pub mod fuzz;
 pub mod host;
+pub mod lines;
 pub mod route;
 pub mod story;
 
@@ -106,6 +107,9 @@ pub struct RunOptions {
     /// Fingerprint the run ([`RunSummary::fingerprint`]): every frame with all its fields, whatever `fields`
     /// says, as the committed fingerprints were recorded.
     pub fingerprint: bool,
+    /// Keep the GML lines the run reaches, booting included ([`RunSummary::lines`],
+    /// [`game::Config::record_lines`]): line coverage.
+    pub lines: bool,
 }
 
 /// How a run ended.
@@ -191,6 +195,10 @@ pub struct RunSummary {
     /// The run's fingerprint, if asked for: its trace and, unless it failed, its host files.
     #[serde(skip)]
     pub fingerprint: Option<fingerprint::Fingerprint>,
+    /// The GML lines the run reached, if asked for (`lines`), however it ended once booted (a boot that
+    /// fails keeps none).
+    #[serde(skip)]
+    pub lines: Option<gm::LinesRun>,
 }
 
 impl RunSummary {
@@ -292,6 +300,12 @@ pub fn run_replay_watched(
     opts: &RunOptions,
     watch: &mut dyn FnMut(u64, &gm::World),
 ) -> Result<RunSummary, String> {
+    if opts.lines && opts.savestate_in.is_some() {
+        return Err(
+            "line coverage records from the boot on, so a run from a savestate can't keep it"
+                .into(),
+        );
+    }
     if opts.settings && (opts.savestate_in.is_some() || opts.savestate_out.is_some()) {
         return Err("the settings program has no savestates".into());
     }
@@ -356,6 +370,7 @@ pub fn run_replay_watched(
         savestate: None,
         profile: None,
         fingerprint: None,
+        lines: None,
     };
     let mut fingerprinter = opts.fingerprint.then(fingerprint::Fingerprinter::new);
     let (mut step_time, mut trace_time) = (Duration::ZERO, Duration::ZERO);
@@ -364,6 +379,7 @@ pub fn run_replay_watched(
         None => {
             let mut config = Config::from_replay(&replay.header);
             config.audio = run_audio_mode(opts);
+            config.record_lines = opts.lines;
             if let Some(sounds) = &opts.sounds {
                 config.sounds = sounds.clone();
             }
@@ -442,6 +458,11 @@ pub fn run_replay_watched(
         {
             host::write_host(p.game().world().host(), &host::host_dir(path))?;
         }
+    }
+    if opts.lines {
+        summary.lines = playback
+            .as_ref()
+            .and_then(|p| p.game().world().lines_run().cloned());
     }
     if let Some(fp) = fingerprinter {
         // Like the host files: none from a run that failed.

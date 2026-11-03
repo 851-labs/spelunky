@@ -51,3 +51,36 @@ fn a_level_counts_from_olevels_first_cull() {
     let loads: Vec<(u64, usize)> = loads.iter().map(|&(f, n, _)| (f, n)).collect();
     assert_eq!(loads, [(400, 0), (560, 0)]);
 }
+
+#[test]
+fn a_run_keeps_the_gml_lines_it_reaches_from_booting_on_and_plays_the_same() {
+    // GML line coverage (851-3775): booting's lines are kept (scrInit runs in rScreenInit's create), and
+    // recording changes nothing the game sees.
+    let replay = replay("mines-seed-1.txt");
+    let run = |lines| {
+        harness::run_replay(
+            &replay,
+            assets(),
+            &harness::RunOptions {
+                lines,
+                fingerprint: true,
+                ..harness::RunOptions::default()
+            },
+        )
+        .unwrap()
+    };
+    let (with, without) = (run(true), run(false));
+    let lines = with.lines.expect("asked for");
+    assert!(
+        lines.iter().any(|&(unit, _)| unit == "scripts/scrInit"),
+        "booting"
+    );
+    assert!(
+        lines
+            .iter()
+            .any(|&(unit, _)| unit.starts_with("oPlayer1/step")),
+        "play"
+    );
+    assert!(without.lines.is_none());
+    assert_eq!(with.fingerprint, without.fingerprint);
+}

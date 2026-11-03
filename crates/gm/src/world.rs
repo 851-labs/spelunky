@@ -238,6 +238,9 @@ pub enum SceneChange {
     End,
 }
 
+/// GML lines run, as `(unit, line)`: `("oSnake/step#1", 33)` ([`World::record_lines`]).
+pub type LinesRun = std::collections::HashSet<(&'static str, u32)>;
+
 /// The game state: instances, globals, room, RNG and input, plus a reference to the static program.
 #[derive(Clone)]
 pub struct World {
@@ -264,6 +267,9 @@ pub struct World {
     pub(crate) frames: u64,
     /// The last `(unit, line)` executed, for error and divergence reports.
     pub(crate) cursor: (&'static str, u32),
+    /// Every `(unit, line)` executed, while [recording](Self::record_lines): GML line coverage for the
+    /// harness (`replay-coverage --lines`, 851-3775). Not the game's state: `None` in play.
+    pub(crate) lines: Option<Box<LinesRun>>,
     /// The exception that cut the last step short, if one did ([`World::exception`]).
     pub(crate) exception: Option<GmlError>,
     /// The size of GM8's window (its back buffer): the room's, or with views on, the extent of the visible
@@ -313,6 +319,7 @@ impl World {
             presented: false,
             frames: 0,
             cursor: ("", 0),
+            lines: None,
             exception: None,
             window: (0, 0),
             view_current: 0,
@@ -393,10 +400,35 @@ impl World {
         self.window
     }
 
-    /// Records the GML unit and line about to run, for error and divergence reports.
+    /// Records the GML unit and line about to run, for error and divergence reports, and for line
+    /// coverage while [recording](Self::record_lines).
     #[inline(always)]
     pub fn at(&mut self, unit: &'static str, line: u32) {
         self.cursor = (unit, line);
+        // The test is all the 24,000 call sites carry: the insert is out of line.
+        if self.lines.is_some() {
+            self.record_line(unit, line);
+        }
+    }
+
+    #[cold]
+    #[inline(never)]
+    fn record_line(&mut self, unit: &'static str, line: u32) {
+        if let Some(lines) = &mut self.lines {
+            lines.insert((unit, line));
+        }
+    }
+
+    /// From now on, keeps every `(unit, line)` [`at`](Self::at) sees, for [`lines_run`](Self::lines_run):
+    /// the GML lines a run reaches. It costs nothing until asked for (a branch on `None` per line), and
+    /// changes nothing the game sees.
+    pub fn record_lines(&mut self) {
+        self.lines.get_or_insert_with(Default::default);
+    }
+
+    /// The lines run since [`record_lines`](Self::record_lines), if it was called.
+    pub fn lines_run(&self) -> Option<&LinesRun> {
+        self.lines.as_deref()
     }
 
     /// The last `(unit, line)` passed to [`at`](Self::at).

@@ -65,4 +65,4 @@ pub use string::GmString;
 pub use trace::replay::Event as InputEvent;
 pub use value::{Op, Value, ValueError};
 pub use var::{Builtin, FIRST_USER_VAR, GVar, Local, Slot, Var, VarLayout};
-pub use world::{Assets, SceneChange, World};
+pub use world::{Assets, LinesRun, SceneChange, World};

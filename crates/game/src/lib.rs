@@ -114,6 +114,9 @@ pub struct Config {
     /// The game's `sound/` files (the asset bundle's `sounds/`), keyed `sound/<name>`. Shared, not cloned
     /// per world. Only [`Mode::Faithful`] reads them.
     pub sounds: Arc<SoundBank>,
+    /// Keep every GML line the run reaches, from before its first room ([`gm::World::record_lines`]): the
+    /// harness's line coverage. Off in play; it changes nothing the game sees.
+    pub record_lines: bool,
 }
 
 impl Config {
@@ -127,6 +130,7 @@ impl Config {
             host: gm::Host::from_replay(h),
             audio: Mode::OracleCompat,
             sounds: Arc::default(),
+            record_lines: false,
         }
     }
 }
@@ -168,6 +172,9 @@ impl Game {
             exe.font_slots,
         );
         world.connect_joystick(config.joystick.as_ref());
+        if config.record_lines {
+            world.record_lines();
+        }
         let mut host = config.host;
         host.ext = Some(Box::new(HostState::new(
             config.sounds,
