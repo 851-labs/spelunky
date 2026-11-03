@@ -18,6 +18,9 @@
 //! `--touch-icon RRGGBB OUT` writes Apple's touch icon: 180 pixels and opaque, as iOS fills transparency
 //! with black, so the image on that colour, scaled by the largest whole factor that leaves it a margin
 //! (180 isn't a multiple of 16 or 32). The output is the same on every run.
+//!
+//! Every PNG it writes (alone or in an `.icns` or `.ico`) carries the Spelunky notice in a `Copyright` text
+//! chunk, and the SVG in a comment, as the wiki's media do (`docs/wiki-license.md`): they're the game's art.
 
 use std::collections::BTreeMap;
 use std::error::Error;
@@ -25,7 +28,7 @@ use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use tools::{Arg, Args, bgra_to_rgba, encode_png};
+use tools::{Arg, Args, WIKI_NOTICE, bgra_to_rgba, png_encoder};
 use transpile::reference::{Program, load_program};
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -370,8 +373,15 @@ fn decode_dib(data: &[u8]) -> Result<Image> {
     })
 }
 
+/// The image as a PNG, with the notice.
 fn png_of(image: &Image) -> Result<Vec<u8>> {
-    Ok(encode_png(image.width, image.height, &image.rgba)?)
+    let mut out = Vec::new();
+    let mut encoder = png_encoder(&mut out, image.width, image.height);
+    encoder.add_text_chunk("Copyright".to_owned(), WIKI_NOTICE.to_owned())?;
+    let mut writer = encoder.write_header()?;
+    writer.write_image_data(&image.rgba)?;
+    writer.finish()?;
+    Ok(out)
 }
 
 /// An SVG of the image, a square per pixel: each colour's a path of the rows' runs of it, so a browser draws
@@ -401,7 +411,7 @@ fn svg_of(image: &Image) -> String {
     }
     let mut out = format!(
         "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}\" height=\"{height}\" \
-         viewBox=\"0 0 {width} {height}\" shape-rendering=\"crispEdges\">\n"
+         viewBox=\"0 0 {width} {height}\" shape-rendering=\"crispEdges\">\n<!-- {WIKI_NOTICE} -->\n"
     );
     for ([r, g, b, a], path) in paths {
         let opacity = if a == 255 {
@@ -479,12 +489,32 @@ mod tests {
     fn svg_runs_each_colour() {
         assert_eq!(
             svg_of(&image()),
-            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"2\" height=\"2\" viewBox=\"0 0 2 2\" \
+            format!(
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"2\" height=\"2\" viewBox=\"0 0 2 2\" \
              shape-rendering=\"crispEdges\">\n\
+             <!-- {WIKI_NOTICE} -->\n\
              <path fill=\"#0000ff\" fill-opacity=\"0.502\" d=\"M0 1h2v1h-2z\"/>\n\
              <path fill=\"#ff0000\" d=\"M0 0h1v1h-1z\"/>\n\
              </svg>\n"
+            )
         );
+        // A comment can't hold "--".
+        assert!(!WIKI_NOTICE.contains("--"));
+    }
+
+    #[test]
+    fn pngs_carry_the_notice() {
+        let png = png_of(&image()).unwrap();
+        let info = png::Decoder::new(std::io::Cursor::new(&png))
+            .read_info()
+            .unwrap();
+        let chunks = &info.info().uncompressed_latin1_text;
+        assert_eq!(chunks.len(), 1);
+        assert_eq!(
+            (chunks[0].keyword.as_str(), chunks[0].text.as_str()),
+            ("Copyright", WIKI_NOTICE)
+        );
+        assert_eq!(decode_png(&png).unwrap().rgba, image().rgba);
     }
 
     #[test]

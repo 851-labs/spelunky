@@ -32,8 +32,13 @@ trap cleanup EXIT
 case $out in
   *.gif) ffmpeg -loglevel error -y -framerate 30 -pattern_type glob -i "$frames/*.png" \
            -vf "split[a][b];[a]palettegen[p];[b][p]paletteuse" "$out" ;;
+  # With the Spelunky notice in its metadata, as wiki-clips writes a clip's (docs/wiki-license.md; the landing
+  # page's video, site/landing-card.mjs, is checked for it). A GIF has nowhere to put it.
   *)     ffmpeg -loglevel error -y -framerate 30 -pattern_type glob -i "$frames/*.png" \
-           -c:v libx264 -pix_fmt yuv420p -crf 18 "$out" ;;
+           -c:v libx264 -pix_fmt yuv420p -crf 18 \
+           -metadata "copyright=Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth." \
+           -metadata "comment=Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC." \
+           "$out" ;;
 esac
 echo "$out"
 finished=1
