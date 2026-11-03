@@ -5,7 +5,8 @@ they're made of.
 
 | Workflow | When | What | Where |
 | --- | --- | --- | --- |
-| `pr.yml` | every pull request | `scripts/check`, `scripts/web --check`, `scripts/wiki-media --check` for changes to what the wiki's media are made from, `site/test.sh` for the site's, the updater's tests, then `pr-ok` | the Mac minis, and GitHub's machines for the updater |
+| `pr.yml` | every pull request | `scripts/check` (`suite.yml`), `site/test.sh` for changes to the site, then on one Mac mini `scripts/check --apple`, `scripts/web --check` and `scripts/wiki-media --check` for changes to what the wiki's media are made from; the updater's tests; then `pr-ok` | `ubuntu-24.04` for the suite and the site, one Mac mini, GitHub's machines for the updater |
+| `suite.yml` | from `pr.yml`, and every push to `main` | `scripts/check`, with the build cache main's run saves for every pull request's ([below](#pull-requests)) | `ubuntu-24.04` |
 | `release.yml` | a `v*` tag, or by hand | the suite, the oracle fidelity run, the web and native builds, the updater's tests, then the GitHub Release and the pull request that puts it live ([below](#releases)) | the Mac minis and `ubuntu-24.04` |
 | `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | a Mac mini, then each OS |
 | `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
@@ -15,7 +16,7 @@ they're made of.
 `pr-ok` is the only check the "Protect main" ruleset requires. It fails unless every other job of the run
 succeeded, so jobs can be added or renamed without touching the ruleset; `pr-ok` itself keeps its name.
 
-Every job has a short name for people, which the run's graph shows: "Mac mini / Test suite" (a
+Every job has a short name for people, which the run's graph shows: "Linux / Test suite" (a
 `mini.yml` job is named by its caller's `name` input), "Updater / Tests (Windows x64)", "Native / Build
 apps", "Replays vs oracle (3)". A job's own name stays under about 20 characters, which is what the graph's
 boxes show of it. A matrix job's name leaves the matrix out, and the matrix holds only what tells its jobs
@@ -35,8 +36,9 @@ job.
   per-job output. A job on the minis is a call to `.github/workflows/mini.yml` with the command to run. The native builds
   (`build-native.yml`) set themselves up with `scripts/release/ci-setup` instead, with a target dir and cross
   toolchains of their own, and from nothing in the job's temp directory for a build that gets signed.
-- **`ubuntu-24.04`** (GitHub-hosted, free for public repositories) runs everything that needs Docker (the
-  oracle) and builds the web version a release publishes.
+- **`ubuntu-24.04`** (GitHub-hosted, free for public repositories) runs a pull request's test suite and site
+  test ([Pull requests](#pull-requests)), everything that needs Docker (the oracle), and builds the web version a
+  release publishes.
 - **GitHub-hosted `macos-15-intel`, `windows-2025`, `windows-11-arm`, `ubuntu-24.04` and
   `ubuntu-24.04-arm`** smoke-test the native builds, each on its own OS and architecture.
 
@@ -61,35 +63,50 @@ with one `git fast-import` (a single pack, as site/test.sh's stand-in does), not
 
 ## Pull requests
 
-The repository is public, so `pr.yml` runs untrusted code on our own machines. It uses `pull_request` (never
-`pull_request_target`), a read-only token, no secrets and no environment, and doesn't leave the token in the
-self-hosted checkout (`persist-credentials: false`). A new push to a pull request cancels its previous run.
+The repository is public, so `pr.yml` runs untrusted code, on our own machines too. It uses `pull_request` (never
+`pull_request_target`), a read-only token, no secrets and no environment, and doesn't leave the token in a
+checkout (`persist-credentials: false`). A new push to a pull request cancels its previous run.
+
+**Where each job runs** (851-3953). The two Mac minis are shared with other projects, and a pull request's three
+mini jobs used to queue behind theirs: a run that took two or three minutes of work waited 6 to 60 minutes for
+the minis. So a pull request now takes one mini, for what needs Apple silicon, and runs the rest on GitHub's
+machines (free for a public repository): two more of them a pull request, beside the updater's (the
+organization's projects share GitHub's machines too):
+
+- **"Linux / Test suite"** (`suite.yml`, `ubuntu-24.04`): the whole of `scripts/check`. Linux builds and tests the
+  workspace as the minis did, fidelity-check's replays included (the port is the same on every platform:
+  `gm::math`); it installs the libraries the app links on Linux (ALSA, udev, Wayland, xkbcommon), the pinned
+  toolchain and Node. Its build cache (Swatinem/rust-cache: the registry and `target/`) is saved by the run on
+  every push to `main`, which also checks `main` after each merge; a pull request's run restores it and saves
+  nothing, as a pull request's cache could only be read by its own later runs, and would push main's out of
+  GitHub's 10 GB.
+- **"Site test"** (`ubuntu-24.04`): `site/test.sh` (build the site with stand-ins, serve it with `wrangler dev`,
+  check every path's status, headers and content, [docs/web-deploy.md](web-deploy.md)), for a pull request that
+  changes `site/`, what the site reads from outside it (`wiki/`, the specs and the media, `LICENSE`,
+  `docs/quirks.md`), `scripts/bump-web-release` (which writes the site's pin), or `pr.yml`. Every other pull
+  request runs the job too, and `pr-ok` needs it, but it stops after the checkout and succeeds: a step diffs the
+  pull request's merge commit against its base and skips the rest when none of the paths changed (a job-level
+  `if:` can't see the changed files, and a skipped job would fail `pr-ok`). Workers Builds builds each pull
+  request's site too, but tests nothing.
+- **"Mac mini / Web, wiki media and macOS"**, one mini: `scripts/check --apple`, what a Mac checks beside Linux
+  (the sh scripts under macOS's bash 3.2; the macOS-only code, which Linux doesn't compile: clippy over the
+  workspace as macOS builds it, and the app's tests; `crates/workspace-hack`'s checks, which are Apple silicon
+  Macs'; and fidelity-check's replays on the Mac app's own architecture, so a pull request still checks the
+  port is the same there as on Linux), then `scripts/web --check` and
+  the wiki's committed media: `scripts/wiki-media --check --since HEAD^1`
+  ([docs/wiki-media.md](wiki-media.md#committing)) renders them from the pull request and fails if `wiki/media`
+  differs at all. A pull request that changes nothing the media are made from skips that at once; otherwise it
+  builds the app, captures every clip's frames on the mini's GPU and encodes again the clips whose videos it
+  changed, a few minutes more.
 
 The updater's tests (`updater.yml`) run on every pull request, whatever it changes (the app reaches the
-updater from outside `crates/update` too), on GitHub's machines alongside the minis' jobs, and `pr-ok` needs
+updater from outside `crates/update` too), on GitHub's machines alongside the others, and `pr-ok` needs
 them. They take two or three minutes, less than the test suite, so they usually add no time to the run,
-unless GitHub's macOS arm64 machines are queueing (the notice under [Warnings](#warnings)). Like every other
-check, they don't re-run on `main` after a merge; a release runs them again before it publishes.
+unless GitHub's macOS arm64 machines are queueing (the notice under [Warnings](#warnings)). They don't re-run on
+`main` after a merge (only `suite.yml` does); a release runs them again before it publishes.
 
-The wiki's committed media are checked in the web job, "Mac mini / Web and wiki media", after `scripts/web
---check`: `scripts/wiki-media --check --since HEAD^1` ([docs/wiki-media.md](wiki-media.md#committing)) renders
-them from the pull request and fails if `wiki/media` differs at all, rather than in a job of its own, so a pull
-request still takes three minis (they're shared with other projects). A pull request that changes nothing the
-media are made from skips it at once; otherwise it builds the app, captures every clip's frames on the mini's
-GPU and encodes again the clips whose videos it changed, a few minutes more.
-
-The site's smoke test, `site/test.sh` (build it with stand-ins, serve it with `wrangler dev`, check every
-path's status, headers and content, [docs/web-deploy.md](web-deploy.md)), runs on a mini, "Mac mini / Site
-test", for a pull request that changes `site/`, what the site reads from outside it (`wiki/`, the specs and
-the media, `LICENSE`), `scripts/bump-web-release` (which writes the site's pin), or the
-job's own workflows and toolchain. It takes under a minute; `npm ci` downloads only what the mini's npm
-cache lacks. Every other pull request runs the job too, and `pr-ok` needs it, but it stops after the checkout
-and succeeds: `mini.yml`'s `paths` diffs the pull request's merge commit against its base and skips the setup
-and the command when none of the paths changed. A job-level `if:` can't see the changed files, and a skipped
-job would fail `pr-ok`. Workers Builds builds each pull request's site too, but tests nothing. The test runs with its home directory
-in the job's temp directory, so wrangler's config, logs and dev registry stay out of the mini's.
-
-The test fails on any error, not only on a check that fails. The minis' `sh` is macOS's bash 3.2, which exits
+The site test fails on any error, not only on a check that fails. On a Mac (where it ran on CI until 851-3953, and
+where it runs for anyone working on the site), `sh` is macOS's bash 3.2, which exits
 from a syntax error, or an unset variable under `set -u`, with the status of the EXIT trap it then runs: 0,
 for test.sh's cleanup. So a test.sh that stopped halfway passed, skipping every check after the error
 (851-3741). Now it checks that it parses before anything else (`sh -n "$0"`), and its cleanup fails a run
@@ -111,7 +128,7 @@ after the trap.
 The minis also sign releases, so code from outside never runs on them. Only collaborators may open pull
 requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside
 contributors wait for a maintainer's approval (the Actions setting "Require approval for all external
-contributors"), and `pr.yml` itself skips its mini jobs for a pull request from a fork and fails `pr-ok`, so
+contributors"), and `pr.yml` itself skips its mini job for a pull request from a fork and fails `pr-ok`, so
 keeping a fork's code off the minis doesn't rest on those settings alone.
 
 A pull request's code can still change what the minis keep between jobs (the toolchain, the target dir), so
