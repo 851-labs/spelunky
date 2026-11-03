@@ -102,8 +102,9 @@ h3 { font-size: 16px; }
 }
 .infobox-image img, .infobox-image .sprite-missing { display: block; }
 .infobox table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.infobox th, .infobox td { padding: 6px 10px; vertical-align: top; text-align: left; border: 0; }
-.infobox tbody tr + tr > * { border-top: 2px solid var(--dirt); }
+/* Its cells and rules are the tables' too (851-3995, below). */
+:is(.infobox, .table-wrap) :is(th, td) { padding: 6px 10px; vertical-align: top; text-align: left; border: 0; }
+:is(.infobox, .table-wrap) tbody tr + tr > * { border-top: 2px solid var(--dirt); }
 .infobox th[scope="row"] { width: 40%; color: var(--dim); font-weight: 400; }
 /* A `text` value is a paragraph: inline, so its citation follows it. */
 .infobox td p { display: inline; margin: 0; }
@@ -163,21 +164,21 @@ h3 { font-size: 16px; }
 .sprite-missing { display: inline-block; background: var(--dirt); vertical-align: middle; }
 table { border-collapse: collapse; }
 th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
-/* A table is a panel, as the infobox is (851-3995): the stone frame on the dark, its column headers on the infobox
-   section bar's dirt, in gold, its rows parted by the infobox's rules and its columns by fainter ones, and a long
-   one's every other row a shade lighter, to follow across. A body's is framed by its scrolling box
-   (components.tsx's Table), which fits it, so the frame isn't cut off when it scrolls; a room page's (source-view.tsx)
-   by its own box. A block formatting context, so it stays beside the infobox, narrowing, rather than under it. */
-.table-wrap, .room-settings, .room-instances { margin: 16px var(--frame); background: var(--panel); box-shadow: var(--stone); }
-.table-wrap { display: flow-root; width: fit-content; max-width: calc(100% - 2 * var(--frame)); }
-.table-wrap table, .room-settings, .room-instances { font-size: 14px; }
-:is(.table-wrap table, .room-settings, .room-instances) :is(th, td) { padding: 6px 10px; vertical-align: top; border: 0; }
-:is(.table-wrap table, .room-settings, .room-instances) tr + tr > * { border-top: 2px solid var(--dirt); }
-:is(.table-wrap table, .room-settings, .room-instances) :is(th, td) + :is(th, td) { border-left: 1px solid var(--dirt); }
-:is(.table-wrap table, .room-instances) thead th { color: var(--gold); background: var(--dirt); }
-:is(.table-wrap table, .room-instances) thead th + th { border-left-color: var(--panel); }
+/* A table is a panel, as the infobox is (851-3995): the stone frame on the dark, its cells and rows' rules the
+   infobox's (above), its columns parted by fainter ones, its column headers on the infobox section bar's dirt, in
+   gold, and a long one's every other row a shade lighter, to follow across. The frame is its scrolling box's
+   (components.tsx's Table), which fits it and scrolls it when it's wider than the column, so the table never runs
+   out of its frame. A block formatting context, so it stays beside the infobox, narrowing, rather than under it. */
+.table-wrap {
+  display: flow-root; width: fit-content; max-width: calc(100% - 2 * var(--frame)); margin: 16px var(--frame);
+  overflow-x: auto; background: var(--panel); box-shadow: var(--stone);
+}
+.table-wrap table { font-size: 14px; }
+.table-wrap :is(th, td) + :is(th, td) { border-left: 1px solid var(--dirt); }
+.table-wrap thead th { color: var(--gold); background: var(--dirt); }
+.table-wrap thead th + th { border-left-color: var(--panel); }
 /* :where(), so a room's row pointed at keeps its highlight. */
-:where(.table-wrap table, .room-instances) > tbody:where(:has(> tr:nth-child(6))) > tr:nth-child(even) { background: #ffffff06; }
+:where(.table-wrap) > table > tbody:where(:has(> tr:nth-child(6))) > tr:nth-child(even) { background: #ffffff06; }
 .cite { font-size: 11px; line-height: 0; }
 .cite a { text-decoration: none; }
 /* A block formatting context, so a clip beside the infobox narrows rather than going under it. Its video is
@@ -269,10 +270,11 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 .source-siblings { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 14px; }
 .source-siblings ul { display: contents; list-style: none; }
 .source-code {
-  --line-hl: #f0c04026;
   margin: 16px var(--ring); padding: 8px 0; overflow-x: auto; font-size: 14px; line-height: 1.5;
   background: #000a; box-shadow: 0 0 0 var(--ring) var(--dirt);
 }
+/* A room's table's row pointed at has it too. */
+:is(.source-code, .room-instances) { --line-hl: #f0c04026; }
 .source-code code { display: block; width: max-content; min-width: 100%; font-size: inherit; }
 .source-code .line { display: block; padding-right: 16px; }
 .source-code .line:target { background: var(--line-hl); }
@@ -420,12 +422,11 @@ a.card-body:hover .card-title { text-decoration: underline; }
 .category-children { margin: 0; padding: 0 10px 10px; font-size: 13px; }
 .hub-how { max-width: 75ch; }
 
-/* A phone: the lede first (it's the answer), then the infobox, full width; tables scroll on their own. */
+/* A phone: the lede first (it's the answer), then the infobox, full width. */
 @media (max-width: 720px) {
   .intro { display: flex; flex-direction: column; }
   .lede { order: -1; }
   .infobox { float: none; width: auto; margin: 16px var(--frame) 24px; }
-  .table-wrap { overflow-x: auto; }
   .navbox dl > div { grid-template-columns: 1fr; }
   h1 { font-size: 26px; }
   /* A phone's column leaves the box no margin, so a 360-pixel screen still fits two of Olmec's 128. */

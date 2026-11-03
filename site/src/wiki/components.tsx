@@ -209,11 +209,12 @@ function GmlExcerpt({ cite, code, href }: { cite: string; code: string; href?: s
   );
 }
 
-// A body's table, in a box that scrolls it sideways on a narrow screen rather than widening the page, and a
-// tab stop while it does (scroll-focus.ts). A column of citations has an empty header in the MDX
+// A body's table, or a room page's (source-view.tsx), in a box that scrolls it sideways on a narrow screen
+// rather than widening the page, and a tab stop while it does (scroll-focus.ts); the box is the table's stone
+// frame (wiki.css). A column of citations has an empty header in the MDX
 // (`| Way | Damage | |`), which a screen reader would read as "blank": it gets a name only they read (851-3893).
 // The Markdown twins keep it empty.
-function Table({ children, ...props }: ComponentProps<"table">) {
+export function Table({ children, ...props }: ComponentProps<"table">) {
   const [ref, focus] = useScrollFocus<HTMLDivElement>(tableLabel);
   return (
     <div className="table-wrap" ref={ref} {...focus}>
