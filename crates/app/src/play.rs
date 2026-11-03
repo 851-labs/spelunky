@@ -315,7 +315,8 @@ impl WindowGame for Play {
         }
         stepped.map_err(|e| describe(game, Some(frame), &e))?;
         if let Some(sink) = &mut self.trace {
-            sink(&game.trace_with(false))?;
+            // With what it drew (`draws`), as `replay-run`'s trace has it.
+            sink(&game.world().trace_frame_drawn(false, out, false))?;
         }
         self.play_sounds();
         Ok(())

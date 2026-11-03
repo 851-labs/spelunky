@@ -108,6 +108,15 @@ pub struct Frame {
     /// absent means not dumped.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tiles: Option<Vec<Tile>>,
+    /// The hash of the frame's draw calls, everything drawn from the line before this one's to this one, in
+    /// their canonical form (docs/formats.md, "Draw calls"), as 16 hex digits. An extension; absent means not
+    /// dumped.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub draws: Option<String>,
+    /// The draw calls `draws` hashes, one line each, to tell which one differs. Not in the canonical encoding
+    /// (`draws` stands for them). An extension; absent means not dumped.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub draw_calls: Option<Vec<String>>,
 }
 
 /// One tile: part of a background drawn at a depth, among the instances.
@@ -548,6 +557,8 @@ pub(crate) mod tests {
             globals: Some(BTreeMap::from([("money".into(), Value::from(500.0))])),
             builtins: None,
             tiles: None,
+            draws: None,
+            draw_calls: None,
         }
     }
 

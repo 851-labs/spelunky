@@ -101,14 +101,18 @@ next frame starts from, so after a `room_goto` the line already shows the new ro
 | `instances` | The active instances, **sorted by id**. |
 | `globals` | `global.*` variables, without the prefix. The oracle writes this only with `OPENGMK_DUMP_FIELDS=1`. |
 | `deactivated` *(ext)* | Deactivated instances (`instance_deactivate_*`, `oLevel` culling), sorted by id, in the same shape as active ones. If absent, they weren't dumped. |
-| `builtins` *(ext)* | Runner built-ins that are neither per-instance nor global, keyed by GML name with the index written out: `view_xview[0]`, `keyboard_key`, and so on. |
+| `builtins` *(ext)* | Runner built-ins that are neither per-instance nor global, keyed by GML name with the index written out: `view_xview[0]`, `keyboard_key`, and so on. Both writers dump every field of all 8 views (`view_visible`, `view_xview`, `view_yview`, `view_wview`, `view_hview`, `view_xport`, `view_yport`, `view_wport`, `view_hport`, `view_angle`, `view_hborder`, `view_vborder`, `view_hspeed`, `view_vspeed`, `view_object`) and all 8 background layers (`background_visible`, `background_foreground`, `background_index`, `background_x`, `background_y`, `background_htiled`, `background_vtiled`, `background_hspeed`, `background_vspeed`, `background_xscale`, `background_yscale`, `background_blend`, `background_alpha`), `background_color`, `background_showcolor` and `view_enabled`, and the drawing state the frame leaves, which has no GML variables, so it's named for what sets it: `draw_color`, `draw_alpha`, `draw_font` (-1 for GM's built-in font), `draw_blend_src` and `draw_blend_dest` (the blend mode's `bm_*` factors, `bm_zero` 1 to `bm_src_alpha_sat` 11) and `draw_target` (the surface drawn to, -1 for the screen). Every value is a real, `true` 1 (851-3870). |
+| `draws` *(ext)* | The hash of the frame's [draw calls](#draw-calls), as 16 hex digits: everything drawn since the line before. If absent, they weren't dumped. |
+| `draw_calls` *(ext)* | The calls `draws` hashes, one string each, written only when asked for (`replay-run --draws`, the oracle's `--draws`). Not part of a [fingerprint](#fingerprints): `draws` stands for them. |
 | `tiles` *(ext)* | The room's tiles in draw order: by depth, highest first, and at one depth in the order they were added (a stable sort, so the same whether or not a draw has sorted them yet; 851-3842). Each is `{"id","background","left","top","width","height","x","y","depth","xscale","yscale","blend","alpha","visible"}`: the background's index, the part of it drawn, the position, the depth, the scale, the blend colour (`0xBBGGRR`), the alpha and whether it's drawn. If absent, they weren't dumped. |
 
 ### Instance keys
 
 `id`, `object_index`, `object` (name), `x`, `y`, `xprevious`, `yprevious`, `hspeed`, `vspeed`, `speed`,
-`direction`, `gravity`, `friction`, `image_index`, `image_speed`, `image_xscale`, `image_yscale`, `depth`,
-`sprite_index` (-1 for none), `sprite` (name, `""` for none), `visible`, `solid`, `alarms`, and `vars`.
+`direction`, `gravity`, `friction`, `image_index`, `image_speed`, `image_xscale`, `image_yscale`, *(ext)*
+`image_angle`, *(ext)* `image_alpha`, `depth`, `sprite_index` (-1 for none), `sprite` (name, `""` for none),
+`visible`, `solid`, *(ext)* `image_blend` (`0xBBGGRR`, an integer), `alarms`, and `vars`. The three extensions are
+what only drawing reads (and GM8's rotated masks, for the angle; 851-3870).
 
 - `alarms` maps the alarm index (`"0"` to `"11"`) to an integer. Like OpenGMK, it holds only the alarms that
   were ever set. **A missing alarm means -1.**
@@ -130,6 +134,45 @@ next frame starts from, so after a `room_goto` the line already shows the new ro
   GM 8 arrays are 2-D: `a[i,j]` is stored at `i*32000 + j`, and `a[j]` is `a[0,j]`. Only elements that were
   set appear. GML reads a plain `a` as `a[0]`.
 
+### Draw calls *(ext)*
+
+A frame's `draws` hashes what it drew, as GML asked for it, not as a renderer carries it out (851-3871,
+[design](design/draw-comparison.md)): the port's GML-level draw commands (`draw::Frame`, `gm::draw_calls`) and,
+on the oracle, the calls its patch 0041 logs where OpenGMK makes them. They run from the frame's start (its input,
+then its events) to its line, room change included; what the boot draws before frame 0 is in no line. Each call is
+a name and its fields:
+
+| Call | Fields | Made by |
+|---|---|---|
+| `clear` | colour, alpha | `draw_clear`, `draw_clear_alpha`; the draw clearing the window (views on) and each view (the room colour, if shown) |
+| `view` | the view's x, y, w, h, the port's x, y, w, h | each view drawn, then the reset to the whole window after the draw |
+| `target` | surface, -1 for the screen | `surface_set_target` (of a surface that exists), `surface_reset_target`, `surface_free` of the target |
+| `blend` | the `bm_*` source and destination factors (1 to 11) | `draw_set_blend_mode`, `_ext` |
+| `present` | | `screen_refresh`, `screen_redraw`, the end of a frame with no room change pending |
+| `surface_create` | id, width, height | `surface_create` |
+| `surface_free` | id | `surface_free` of a surface that exists |
+| `resize` | width, height | a room whose views change the window's size |
+| `sprite` | sprite, frame, x, y, xscale, yscale, angle, blend, alpha | `draw_sprite`, `draw_sprite_ext`, the default draw of an instance without a draw event |
+| `background` | background, x, y, tiled horizontally, vertically, xscale, yscale, blend, alpha | each visible layer whose background exists, in each view |
+| `tile` | background, left, top, width, height, x, y, xscale, yscale, blend, alpha | each visible tile whose background exists, in each view |
+| `rectangle` | x1, y1, x2, y2, colour, alpha, outline | `draw_rectangle` |
+| `line` | x1, y1, x2, y2, colour, alpha | `draw_line` (the game never calls it) |
+| `circle` | x, y, radius, colour, alpha, outline | `draw_circle` |
+| `text` | font, x, y, text, colour, alpha | `draw_text`: one call, not the glyphs OpenGMK draws |
+| `surface` | surface, x, y, xscale, yscale, blend, alpha | `draw_surface`, `draw_surface_stretched` (scaled to its size) |
+
+A sprite's frame is wrapped into its frame count (`rem_euclid`), as both renderers do; one that draws nothing (no
+such sprite, no frames, no such surface) is no call. Colours are cut to their 24 bits. A font is its id, the
+draw-time `draw_set_font` (-1 for GM's built-in font). The calls are compared as the trace's reals are, bit for bit.
+The tags, in the table's order, are 1 (`clear`) to 16 (`surface`).
+
+`draws` is [the fingerprints' hash](#fingerprints) of every call in order, each as its tag (8 bytes) and its fields:
+an integer as 4 bytes (two's complement), a real as its 8 (every NaN the same NaN), a flag as a byte (0 or 1), the
+text as its length (8 bytes) and its bytes, all little-endian. `draw_calls` writes each call as its name and fields,
+separated by spaces: reals as the shortest decimal that round-trips (Rust `{:?}`: `16.0`, `-0.0`, `NaN`, `inf`),
+flags as `true`/`false`, the text as a JSON string of its bytes read as Latin-1 (`"$1,000"`, with `"`, `\` and the
+control characters escaped).
+
 ### Header line *(ext)*
 
 A trace may start with a header such as
@@ -144,12 +187,14 @@ A frame with variables is about 170 KB, and a level's tiles (`tiles`) add some 6
 comparing. It has four lists of globs, where `*` matches any run of characters: `objects`, `ignore_objects`,
 `fields`, and `ignore_fields`. Field patterns match these **paths**:
 
-- Frame paths: `room`, `room_name`, `seed`, `instance_count`, `globals.NAME`, `builtins.NAME`, and `tiles`. A
-  writer keeps or drops the tiles whole; `trace-diff` compares each tile by its id, as `tiles.ID.FIELD` (one of
+- Frame paths: `room`, `room_name`, `seed`, `instance_count`, `globals.NAME`, `builtins.NAME`, `draws`,
+  `draw_calls` (a writer keeps or drops them whole; `trace-diff` reports the first call that differs as
+  `draw_calls[N]`, `N` from 0, absent past the end of the shorter list: after one call more or less, every later one
+  differs too), and `tiles`. A writer keeps or drops the tiles whole; `trace-diff` compares each tile by its id, as `tiles.ID.FIELD` (one of
   its keys, or `after`, the id of the tile drawn just before it, -1 for the first), so a tile only one trace has
   is its own fields and the `after` of the tile behind it, not a difference for every tile after it.
 - Instance paths: `active`, `object_index`, `x` and the other real built-ins, `sprite_index`, `sprite`,
-  `visible`, `solid`, `alarms[0]` to `alarms[11]`, `vars.NAME`.
+  `visible`, `solid`, `image_blend`, `alarms[0]` to `alarms[11]`, `vars.NAME`.
 - Array elements: `vars.NAME[j]` and `vars.NAME[i,j]`. Element 0 is `vars.NAME` itself.
 
 A pattern also matches every path below it, so `vars` matches all variables and `alarms` matches every
@@ -192,6 +237,9 @@ How frames are compared:
   `active: false`) when both traces dumped them.
 - **Comparison is exact.** Reals are compared bit for bit, so `0` and `-0` differ, while NaN equals NaN.
   `--tolerance` allows an absolute difference.
+- **Draws.** A frame's `draws` is a field like any other; with `draw_calls` on both sides, the first call that
+  differs is one more (`draw_calls[N]`). The history leaves both out: what earlier frames drew says nothing about
+  this one's.
 - **Missing values.** If one trace didn't dump a field or map at all (the oracle without fields has no
   `vars` or `globals`), it isn't compared. The report lists it under
   `not_compared_only_in_a`/`_b`. Inside a map that both traces dumped, a key on only one side is a difference
@@ -251,6 +299,7 @@ convention (`game::replay::Playback`).
 replay-run [options] <replay.txt> [<out.jsonl>]
   --assets DIR            the asset bundle (default assets/, from scripts/extract)
   --fields                also dump vars and globals, like the oracle's --fields
+  --draws                 also list each frame's draw calls (draw_calls); every line has their hash (draws)
   --frames N              stop before frame N
   --savestate-out F [--at N]   write a savestate after the last frame, or before frame N runs
   --savestate-in F        resume from a savestate; the trace starts at its frame
@@ -280,8 +329,9 @@ differences, the one with the smallest signature, so the same divergence gets th
 (files byte for byte, the table by name and value, bit for bit), listing each file and table place that
 differs. `host_differs` means the traces match but those don't; a trace divergence or a port error takes
 precedence. It takes trace-diff's options, except that `--fields` is the dump switch
-(as for the oracle) and `--compare` is the field filter. The oracle's trace is cached next to the port's
-(`target/fidelity/<replay name>/`) while the replay, `--fields` and the oracle build are unchanged.
+(as for the oracle) and `--compare` is the field filter. `--draws` lists both runs' draw calls, so a frame whose
+`draws` differ names the first call that does. The oracle's trace is cached next to the port's
+(`target/fidelity/<replay name>/`) while the replay, `--fields`, `--draws` and the oracle build are unchanged.
 
 `fidelity/replays/` holds more replays that matched the oracle with `--fields` when they were added, like
 `tools/oracle/examples/`. Each one's header comment says what it plays through and roughly on which frames
@@ -347,9 +397,10 @@ and `fidelity-check` (in `crates/harness`, run by `scripts/check`) plays every r
 and in parallel, as `scripts/fidelity --fields` does (OracleCompat audio, `--settings` for the settings
 program), fingerprints that run the same way and compares. The port's frames are encoded straight from the
 world (`gm::FrameEncoder`), without building a `trace::Frame`, which would take three times as long as
-stepping the game. The whole set (113 replays, 246,566 frames) takes about 12 s on a 10-core M-series Mac,
-roughly half of it simulation and half encoding and hashing; the longest replay, `city-of-gold-seed-9-to-olmec`,
-takes about 5 s. `fidelity-check <replay>...` checks some.
+stepping the game. Each frame's `draws` needs what it drew, so the port records its draw commands as it plays
+(headless runs skip them otherwise), which adds about a fifth (851-3871). The whole set (113 replays, 246,566
+frames) took about 12 s on a 10-core M-series Mac before that, roughly half of it simulation and half encoding and
+hashing; the longest replay, `city-of-gold-seed-9-to-olmec`, about 5 s. `fidelity-check <replay>...` checks some.
 
 ```json
 {
@@ -477,8 +528,9 @@ panicking later. The port's savestates are unrelated to the oracle's (OpenGMK's 
 
 `tools/oracle` (851-3118) implements the extensions above, with these limits:
 
-- Traces: it writes `deactivated` on every frame, `builtins` with `view_xview[0]`, `view_yview[0]`,
-  `view_wview[0]` and `view_hview[0]` (the view drives `oLevel`'s deactivation region), and
+- Traces: it writes `deactivated`, `tiles` and `draws` on every frame (`draw_calls` with `--draws`), `builtins` with
+  every field the [frame keys](#frame-keys) list (patch 0040: view 0's rectangle, which drives `oLevel`'s
+  deactivation region, came first), and
   `{"real":"nan"}`-style non-finite values in `vars`/`globals`. It writes no header line.
 - Replays: it accepts `settings`, `keys`, `gamepad`, `file`, `highscore`, mouse buttons, `wheel`, `mouse` and
   `close` (patch 0034).

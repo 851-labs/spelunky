@@ -456,6 +456,10 @@ fn divergence(
         else {
             continue;
         };
+        // A frame's draws are its own: earlier frames' say nothing about this one's.
+        if a_instance.is_none() && ["draws", "draw_calls"].contains(&group(path)) {
+            continue;
+        }
         let mut points: Vec<HistoryPoint> = history
             .iter()
             .enumerate()
@@ -549,6 +553,16 @@ fn frame_fields_with(f: &Frame, filter: &Filters, tiles: bool) -> Fields {
         if tiles {
             push_tiles(&mut out, list, filter);
         }
+    }
+    if let Some(h) = &f.draws {
+        maps.push("draws");
+        if filter.keeps_path("draws") {
+            out.push((Cow::Borrowed("draws"), Datum::Text(h.clone())));
+        }
+    }
+    // Compared on their own ([`Comparison::draw_calls`]).
+    if f.draw_calls.is_some() {
+        maps.push("draw_calls");
     }
     (out, maps)
 }
@@ -684,7 +698,8 @@ impl<'o> Comparison<'o> {
             && fa.instance_count == fb.instance_count
             && fa.globals == fb.globals
             && fa.builtins == fb.builtins
-            && fa.tiles == fb.tiles;
+            && fa.tiles == fb.tiles
+            && fa.draws == fb.draws;
         if !same {
             let filter = self.filters;
             let tiles = fa.tiles != fb.tiles;
@@ -694,7 +709,40 @@ impl<'o> Comparison<'o> {
                 frame_fields_with(fb, filter, tiles),
             );
         }
+        self.draw_calls(fa, fb);
         self.instances(fa, fb);
+    }
+
+    /// The first draw call that differs, as `draw_calls[N]` (absent past the end of the shorter list): after
+    /// one call more or less, every later one would differ too, so the rest aren't listed.
+    fn draw_calls(&mut self, fa: &Frame, fb: &Frame) {
+        match (&fa.draw_calls, &fb.draw_calls) {
+            (Some(a), Some(b)) if a != b => {
+                let n = a.iter().zip(b).take_while(|(x, y)| x == y).count();
+                let path = format!("draw_calls[{n}]");
+                if !self.filters.keeps_path(&path) {
+                    return;
+                }
+                let at = |list: &[String]| {
+                    list.get(n)
+                        .map_or(Datum::Absent, |c| Datum::Text(c.clone()))
+                };
+                self.differences.push(Difference::Field {
+                    a_instance: None,
+                    b_instance: None,
+                    path,
+                    a: at(a),
+                    b: at(b),
+                });
+            }
+            (Some(_), None) => {
+                self.only_a.insert("draw_calls".into());
+            }
+            (None, Some(_)) => {
+                self.only_b.insert("draw_calls".into());
+            }
+            _ => {}
+        }
     }
 
     /// Compares flattened fields; `refs` names the instance pair, if any.
@@ -1581,6 +1629,62 @@ mod tests {
     }
 
     #[test]
+    fn draws_compare_by_hash_and_name_the_first_call_that_differs() {
+        let calls = |v: &[&str]| Some(v.iter().map(|c| c.to_string()).collect::<Vec<_>>());
+        let mut a = walk();
+        for f in &mut a {
+            f.draws = Some("00000000000000aa".into());
+            f.draw_calls = calls(&[
+                "view 0 0 320 240 0 0 320 240",
+                "sprite 1 0 1.0 2.0",
+                "present",
+            ]);
+        }
+        let mut b = a.clone();
+        b[3].draws = Some("00000000000000bb".into());
+        b[3].draw_calls = calls(&["view 0 0 320 240 0 0 320 240", "present"]);
+        let r = diff(&a, &b);
+        let d = r.divergence.as_ref().unwrap();
+        assert_eq!(d.frame, 3);
+        assert_eq!(
+            fields(&r),
+            [
+                (
+                    "draws".into(),
+                    Datum::Text("00000000000000aa".into()),
+                    Datum::Text("00000000000000bb".into())
+                ),
+                (
+                    "draw_calls[1]".into(),
+                    Datum::Text("sprite 1 0 1.0 2.0".into()),
+                    Datum::Text("present".into())
+                ),
+            ]
+        );
+        // A frame's draws have no history: the frames before drew other things.
+        assert!(d.history.is_empty(), "{:?}", d.history);
+        // A call past the end of the shorter list is absent.
+        b[3].draw_calls = calls(&["view 0 0 320 240 0 0 320 240", "sprite 1 0 1.0 2.0"]);
+        assert_eq!(
+            fields(&diff(&a, &b))[1],
+            (
+                "draw_calls[2]".into(),
+                Datum::Text("present".into()),
+                Datum::Absent
+            )
+        );
+        // Only one trace lists the calls, or hashes them: they're left out.
+        for f in &mut b {
+            f.draws = None;
+            f.draw_calls = None;
+        }
+        let r = diff(&a, &b);
+        assert_eq!(r.outcome, Outcome::Identical);
+        assert!(r.not_compared_only_in_a.contains("draws"));
+        assert!(r.not_compared_only_in_a.contains("draw_calls"));
+    }
+
+    #[test]
     fn tiles_compare_by_id() {
         let tile = |id: i32, x: f64, depth: f64| Tile {
             id,
@@ -1786,10 +1890,10 @@ mod tests {
         let d = r.divergence.as_ref().unwrap();
         assert_eq!(
             (d.total_differences, d.differences.len(), d.history.len()),
-            (30, 4, 4)
+            (34, 4, 4)
         );
         assert!(d.history.iter().all(|h| h.points.len() == 1));
-        assert!(r.to_text().contains("  ... 26 more\n"));
+        assert!(r.to_text().contains("  ... 30 more\n"));
         let all = DiffOptions {
             max_differences: 0,
             ..DiffOptions::default()
@@ -1800,7 +1904,7 @@ mod tests {
                 .unwrap()
                 .differences
                 .len(),
-            30
+            34
         );
     }
 

@@ -46,7 +46,7 @@ dir; one left behind by a killed build is taken over). `run` uses the binary ins
 stamp, so a build of other patches in another worktree never changes what it runs. If that binary doesn't exist,
 `run` asks for `tools/oracle/build`.
 
-`tools/oracle/run <replay> <out.jsonl> [--fields] [--savestate-out F] [--savestate-in F]`:
+`tools/oracle/run <replay> <out.jsonl> [--fields] [--draws] [--savestate-out F] [--savestate-in F]`:
 
 - Extracts the game into the cache dir if needed, then plays the replay on a fresh copy of it, so files the game
   writes (`stats.txt`) never carry over between runs.
@@ -56,6 +56,8 @@ stamp, so a build of other patches in another worktree never changes what it run
   [Host files](../../docs/formats.md#host-files).
 - Dumps are big: the 1700-frame example writes about 275 MB. `--fields` adds every instance's variables and the
   globals, which makes lines several times larger.
+- `--draws` lists each frame's draw calls (`draw_calls`), which every line hashes (`draws`) anyway, so
+  `scripts/fidelity --draws` can name the call that differs.
 - `--savestate-out F` writes an OpenGMK savestate after the replay's last frame.
 - `--savestate-in F` resumes from such a savestate. The replay must extend the one the savestate was made with.
   Dumping starts at the savestate's frame, and the lines are identical to a full run's.
@@ -73,7 +75,8 @@ docker image rm $(docker images -q spelunky-oracle)
 Replays and dumps use the port's formats, specified in [`docs/formats.md`](../../docs/formats.md): the dump is a
 trace that `trace-diff` compares directly with the port's. This section covers what the oracle supports and how
 it fills them in. Keep the two in step when changing `patches/opengmk/0005-text-replays.patch`,
-`0006-state-dump.patch` or `0038-trace-tiles.patch`.
+`0006-state-dump.patch`, `0038-trace-tiles.patch`, `0040-trace-draw-state.patch` or
+`0041-trace-draw-calls.patch`.
 
 ### Replays
 
@@ -130,10 +133,15 @@ fills them in like this:
 - `instances` (active) and `deactivated` (`instance_deactivate_*`) are each sorted by instance id, with the same
   keys. `oLevel` deactivates everything more than 96 px outside the view every step, so most of a level is
   usually in `deactivated`. `instance_count` counts the active ones.
+- Each instance has `image_angle`, `image_alpha` and `image_blend` too (patch 0040), which only drawing reads (and,
+  for the angle, GM8's rotated masks).
 - `builtins` holds `view_xview[0]`, `view_yview[0]`, `view_wview[0]` and `view_hview[0]`, which decide what
-  `oLevel` deactivates.
+  `oLevel` deactivates, and (patch 0040) every other field of all 8 views, all 8 background layers, the room's
+  colour and the drawing state the frame leaves (`docs/formats.md`, "Frame keys").
 - `tiles` (patch 0038) holds every tile in draw order: by depth, highest first, and at one depth in the order they
   were added. It's always written, with or without `--fields`.
+- `draws` (patch 0041) is the hash of the frame's draw calls, always written; `--draws` lists them too, as
+  `draw_calls` (`docs/formats.md`, "Draw calls").
 - `vars` and `globals` are only written with `--fields`.
 - Reals are Rust's shortest round-trip form. Non-finite reals are `"NaN"`, `"inf"` and `"-inf"` in fixed fields
   and `{"real":"nan"}`, `{"real":"inf"}` and `{"real":"-inf"}` in `vars` and `globals`.
@@ -155,7 +163,7 @@ and a run resumed from a savestate matches the full run from the savestate's fra
 tools/oracle/run tools/oracle/examples/start.txt /tmp/start.jsonl
 tools/oracle/examples/trim-dump /tmp/start.jsonl 0 1315 1316 | cmp - tools/oracle/examples/start.expected.jsonl
 shasum -a 256 /tmp/start.jsonl
-# 57e337fad0bec8dc5e3395c5484b147591467b74e8bb6aa778aaea4a6157ce96
+# 9a7e315e1e25befd55ceb44b3cc36d816731e902c18df43298ec8d9f681c50a7
 ```
 
 `examples/start.expected.jsonl` holds frames 0, 1315 and 1316 of that dump, each cut down to its first three
@@ -163,8 +171,9 @@ active and first three deactivated instances and first three tiles by `trim-dump
 for byte.
 `examples/returning.txt` is the same input from a returning player's highscore table. It ends in `rLevel`
 instead of `rTutorial`, and its dump's SHA-256 is
-`365de7fbbdd1724396317ee4be33f74ff152d7c3d6ac0f0308b78bc2fe099eda`. Both hashes are of dumps with the tiles (patch 0038,
-851-3842), which added them to every line; the rest of each line is as it was. Both were re-run after patches 0007,
+`7136bf6f2f0fa1e65b07d8066e8a0d8d59b7474955a66faf1624824e732306f1`. Both hashes are of dumps with the tiles (patch 0038,
+851-3842), the draw-only state (patch 0040, 851-3870) and the draw calls' hash (patch 0041, 851-3871), which added
+them to every line; the rest of each line is as it was. Both were re-run after patches 0007,
 0008 and 0011 and still matched: neither replay reaches the trigonometry, the fractional `distance_to_point` or the
 `file_find_first` they change.
 
@@ -564,6 +573,28 @@ the POV its hundredths / 100, and -1 past 360 (65535 when centred); a button is 
 its low 32 tested as 1-32; and `joystick_direction` leans each raw `joyGetPos` axis below 20000 or above 44000. A
 replay's axis value stands for the raw value GM8 would report it as (`round((V + 1) * 32767)`, half to even), as the
 port's `gm::input` takes it.
+
+### `opengmk/0040-trace-draw-state.patch`
+
+What only drawing reads, in the dump (851-3870, `docs/formats.md`, "Frame keys"): each instance's `image_angle`,
+`image_alpha` and `image_blend`, and in `builtins` every view (visible, rectangle, port, angle, borders, speeds,
+followed object), every background layer (visible, foreground, index, position, tiling, speed, scale, blend, alpha),
+the room's colour and whether it's shown, whether views are on, and the drawing state the frame leaves: the colour,
+alpha and font `draw_set_*` set, the blend mode's `bm_*` factors, and the surface drawn to (-1 the screen). With it,
+an `image_alpha` only `oWeb` sets, a background layer or a view other than view 0's rectangle, and drawing state
+leaking from one frame into the next, fail `fidelity-check`.
+
+### `opengmk/0041-trace-draw-calls.patch`
+
+The dump's `draws` and, with `OPENGMK_DUMP_DRAWS=1` (`tools/oracle/run --draws`), `draw_calls` (851-3871,
+`docs/formats.md`, "Draw calls"): what each frame drew, logged as GML asked for it where OpenGMK carries it out
+(`game/drawlog.rs`). The `draw_*` built-ins the game calls (`draw_sprite`, `_ext`, `draw_text`, `draw_rectangle`,
+`draw_circle`, `draw_line`, `draw_clear`, `_alpha`, the blend modes, the surface draws), the default instance draw,
+the tiles, background layers, room colour and views of `Game::draw`, the surfaces made, freed and drawn to, the
+window's resizes and each time the back buffer is shown. A text is one call, not OpenGMK's glyphs; a sprite's frame is
+wrapped into its count. Each frame's calls are hashed as the port's `gm::draw_calls` hashes them, so a frame that
+draws the wrong sprite, frame, text, font, colour, position, blend mode or target, or draws something only one side
+does, fails `fidelity-check`.
 
 ## Caveats
 

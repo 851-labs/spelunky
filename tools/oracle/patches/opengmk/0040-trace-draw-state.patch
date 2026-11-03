@@ -1,5 +1,4 @@
 diff --git a/gm8emulator/src/game/statedump.rs b/gm8emulator/src/game/statedump.rs
-index c13b65f7..e669e992 100644
 --- a/gm8emulator/src/game/statedump.rs
 +++ b/gm8emulator/src/game/statedump.rs
 @@ -184,6 +184,10 @@ impl<W: Write> StateDump<W> {

@@ -27,8 +27,8 @@ where the port stopped if it stopped before diverging. Then it compares what eac
 its trace (<trace>.host/): the game directory's new or changed files, byte for byte, and the highscore
 table, value for value.
 
-The oracle's trace is cached in the output directory and reused while the replay, --fields and the
-oracle build are unchanged, so after the first run only the port runs.
+The oracle's trace is cached in the output directory and reused while the replay, --fields, --draws and
+the oracle build are unchanged, so after the first run only the port runs.
 
 With --refresh-fingerprints, it records the fingerprints of committed replays (by default all of
 fidelity/replays/ and fidelity/settings/) from the oracle, with --fields, into fidelity/fingerprints/,
@@ -42,6 +42,8 @@ options:
   --oracle-trace <file>  compare against this oracle trace instead of running the oracle
   --rerun-oracle         run the oracle even if its cached trace is current
   --fields               dump (and compare) instance variables and globals in both runs
+  --draws                list each frame's draw calls in both runs, so a difference in what they draw
+                         (draws, which both traces always have) names the call (draw_calls[N])
   --assets <dir>         the port's asset bundle (default: assets/ in the repo; assets/config/ with
                          --settings)
   --settings             run the settings program, config.exe, on both instead of the game
@@ -62,6 +64,7 @@ struct Options {
     oracle_trace: Option<PathBuf>,
     rerun_oracle: bool,
     fields: bool,
+    draws: bool,
     settings: bool,
     assets: Option<PathBuf>,
     json: bool,
@@ -83,6 +86,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         oracle_trace: None,
         rerun_oracle: false,
         fields: false,
+        draws: false,
         settings: false,
         assets: None,
         json: false,
@@ -106,6 +110,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             | "--help"
             | "--json"
             | "--fields"
+            | "--draws"
             | "--rerun-oracle"
             | "--settings"
             | "--refresh-fingerprints" => {
@@ -113,6 +118,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
                 match flag.name.as_str() {
                     "--json" => a.json = true,
                     "--fields" => a.fields = true,
+                    "--draws" => a.draws = true,
                     "--rerun-oracle" => a.rerun_oracle = true,
                     "--settings" => a.settings = true,
                     "--refresh-fingerprints" => a.refresh = Some(Vec::new()),
@@ -133,13 +139,14 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             || a.oracle_trace.is_some()
             || a.json
             || a.fields
+            || a.draws
             || a.settings
             || diff_given
         {
             return Err(
-                "--refresh-fingerprints takes no --out, --oracle-trace, --json, --fields, --settings or diff \
-                 options (it always dumps the fields, a replay's directory says which program it runs, and \
-                 fingerprints match exactly)"
+                "--refresh-fingerprints takes no --out, --oracle-trace, --json, --fields, --draws, --settings or \
+                 diff options (it always dumps the fields, fingerprints hash the draw calls, a replay's \
+                 directory says which program it runs, and fingerprints match exactly)"
                     .into(),
             );
         }
@@ -161,12 +168,12 @@ fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-/// What the cached oracle trace depends on: the oracle build, the program, the replay, and `--fields`.
-/// `None` if the oracle's build stamp can't be computed (the trace then isn't cached).
-fn oracle_key(replay_text: &str, exe: &str, fields: bool) -> Option<String> {
+/// What the cached oracle trace depends on: the oracle build, the program, the replay, `--fields` and
+/// `--draws`. `None` if the oracle's build stamp can't be computed (the trace then isn't cached).
+fn oracle_key(replay_text: &str, exe: &str, fields: bool, draws: bool) -> Option<String> {
     let stamp = oracle_stamp().ok()?;
     Some(format!(
-        "oracle {stamp}\nexe {exe}\nfields {fields}\nreplay {}\n{replay_text}",
+        "oracle {stamp}\nexe {exe}\nfields {fields}\ndraws {draws}\nreplay {}\n{replay_text}",
         replay_text.len()
     ))
 }
@@ -186,7 +193,7 @@ fn oracle_stamp() -> Result<String, String> {
 enum OracleSource {
     /// `--oracle-trace`: not checked against the replay or the oracle build.
     Given,
-    /// The cache, made by the same oracle build from the same replay and `--fields`.
+    /// The cache, made by the same oracle build from the same replay, `--fields` and `--draws`.
     Cached,
     /// The oracle ran now.
     Ran,
@@ -208,7 +215,7 @@ fn oracle_trace(
     } else {
         "Spelunky.exe"
     };
-    let key = oracle_key(replay_text, exe, args.fields);
+    let key = oracle_key(replay_text, exe, args.fields, args.draws);
     let cached = std::fs::read_to_string(&key_path).ok();
     // A trace from before the oracle wrote its host files has none: run it again.
     let host = host_dir(&path).exists();
@@ -222,6 +229,9 @@ fn oracle_trace(
     cmd.arg(&args.replay).arg(&path).arg("--exe").arg(exe);
     if args.fields {
         cmd.arg("--fields");
+    }
+    if args.draws {
+        cmd.arg("--draws");
     }
     let status = cmd.status().map_err(|e| format!("tools/oracle/run: {e}"))?;
     if !status.success() {
@@ -446,6 +456,7 @@ fn refresh_one(
         oracle_trace: None,
         rerun_oracle: args.rerun_oracle,
         fields: true,
+        draws: false,
         settings: suite.settings,
         assets: None,
         json: false,
@@ -529,6 +540,7 @@ fn run() -> Result<Verdict, String> {
         &RunOptions {
             trace: Some(port_path.clone()),
             fields: args.fields,
+            draws: args.draws,
             settings: args.settings,
             ..RunOptions::default()
         },
@@ -624,6 +636,7 @@ mod tests {
         let a = parse(&[
             "r.txt",
             "--fields",
+            "--draws",
             "--compare=x,vars.hp",
             "--ignore-fields",
             "vars.randNum",
@@ -635,7 +648,7 @@ mod tests {
         .unwrap()
         .unwrap();
         assert_eq!(a.replay, PathBuf::from("r.txt"));
-        assert!(a.fields && a.json && !a.rerun_oracle);
+        assert!(a.fields && a.draws && a.json && !a.rerun_oracle);
         assert_eq!(a.out, Some(PathBuf::from("o")));
         assert_eq!(a.diff.filter.fields, ["x", "vars.hp"]);
         assert_eq!(a.diff.filter.ignore_fields, ["vars.randNum"]);
@@ -666,6 +679,10 @@ mod tests {
             ),
             (
                 &["--refresh-fingerprints", "--fields"],
+                "--refresh-fingerprints takes no",
+            ),
+            (
+                &["--refresh-fingerprints", "--draws"],
                 "--refresh-fingerprints takes no",
             ),
         ] {

@@ -276,6 +276,9 @@ pub fn encode_frame(out: &mut Vec<u8>, f: &Frame) {
         globals,
         builtins,
         tiles,
+        draws,
+        // What `draws` hashes, spelled out: `draws` stands for it.
+        draw_calls: _,
     } = f;
     let e = &mut Encoder(out);
     e.u64(*frame);
@@ -288,6 +291,7 @@ pub fn encode_frame(out: &mut Vec<u8>, f: &Frame) {
     e.vars(globals.as_ref());
     e.vars(builtins.as_ref());
     e.opt(tiles.as_deref(), Encoder::tiles);
+    e.opt(draws.as_deref(), Encoder::str);
 }
 
 /// A fixed 64-bit hash: replay fingerprints' (`harness::fingerprint`), and the wiki clips' state at their

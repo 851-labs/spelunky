@@ -3,9 +3,11 @@
 # per-frame state dump, plus what the run left behind outside it (the game directory's new or changed files and
 # the highscore table) in <out>.host/, <out> without its extension (docs/formats.md, "Host files").
 #
-# Usage: tools/oracle/run <replay.txt> <out.jsonl> [--fields] [--savestate-out FILE] [--savestate-in FILE] [--exe NAME]
+# Usage: tools/oracle/run <replay.txt> <out.jsonl> [--fields] [--draws] [--savestate-out FILE] [--savestate-in FILE]
+#                        [--exe NAME]
 #
 #   --fields             also dump every instance's variables and the globals (much larger output)
+#   --draws              also list each frame's draw calls (draw_calls); every line has their hash (draws)
 #   --exe NAME           run another program of the game directory: config.exe, the settings program
 #   --savestate-out FILE write an OpenGMK savestate after the replay's last frame
 #   --savestate-in FILE  start from a savestate written for a prefix of this replay; frames before it aren't dumped
@@ -20,7 +22,7 @@ bash -n "$0" || exit 2
 source "$(dirname "${BASH_SOURCE[0]}")/common.sh"
 
 usage() {
-  sed -n '6,11p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' >&2
+  sed -n '6,13p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' >&2
   exit 2
 }
 
@@ -31,10 +33,11 @@ abspath() {
   echo "$dir/$(basename "$1")"
 }
 
-replay="" out="" fields="" savestate_in="" savestate_out="" exe="Spelunky.exe"
+replay="" out="" fields="" draws="" savestate_in="" savestate_out="" exe="Spelunky.exe"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --fields) fields=1 ;;
+    --draws) draws=1 ;;
     --savestate-in) [[ $# -ge 2 ]] || usage; savestate_in="$2"; shift ;;
     --savestate-out) [[ $# -ge 2 ]] || usage; savestate_out="$2"; shift ;;
     --exe) [[ $# -ge 2 ]] || usage; exe="$2"; shift ;;
@@ -135,6 +138,9 @@ env=(
 )
 if [[ -n "$fields" ]]; then
   env+=(--env FIELDS=1)
+fi
+if [[ -n "$draws" ]]; then
+  env+=(--env DRAWS=1)
 fi
 if [[ -n "$savestate_in" ]]; then
   mounts+=(--volume "$(abspath "$savestate_in"):/in/start.bin:ro")

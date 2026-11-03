@@ -39,6 +39,9 @@ export OPENGMK_DUMP="$DUMP" OPENGMK_EXIT_AT_END=1 OPENGMK_HIGHSCORES="$host_dir/
 if [[ -n "${FIELDS:-}" ]]; then
   export OPENGMK_DUMP_FIELDS=1
 fi
+if [[ -n "${DRAWS:-}" ]]; then
+  export OPENGMK_DUMP_DRAWS=1
+fi
 
 cd "$work"
 # In the background so an interrupt (Ctrl-C on the host) stops the emulator now, not after the whole replay.

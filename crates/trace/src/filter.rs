@@ -3,7 +3,9 @@
 //! Patterns are globs where `*` matches any run of characters. Field patterns match *paths*:
 //!
 //! - frame level: `room`, `room_name`, `seed`, `instance_count`, `globals.NAME`, `builtins.NAME`, `tiles` (a
-//!   writer keeps or drops them whole; `trace-diff` compares `tiles.ID.FIELD`, `FIELD` a tile's or `after`)
+//!   writer keeps or drops them whole; `trace-diff` compares `tiles.ID.FIELD`, `FIELD` a tile's or `after`),
+//!   `draws`, and `draw_calls` (kept or dropped whole; `trace-diff` reports the first that differs as
+//!   `draw_calls[N]`)
 //! - instance level: `active`, `object_index`, the real built-ins (`x`, `image_index`...), `sprite_index`,
 //!   `sprite`, `visible`, `solid`, `image_blend`, `alarms[0]` to `alarms[11]`, and `vars.NAME`
 //! - array elements: `vars.NAME[j]` and `vars.NAME[i,j]` (likewise for globals)
@@ -108,6 +110,16 @@ impl Filter {
                 keep("tiles")
                     || (self.fields.iter().any(|p| p.starts_with("tiles."))
                         && !self.ignore_fields.iter().any(|p| path_matches(p, "tiles")))
+            }),
+            draws: frame.draws.clone().filter(|_| keep("draws")),
+            // Kept or dropped whole, as the tiles are.
+            draw_calls: frame.draw_calls.clone().filter(|_| {
+                keep("draw_calls")
+                    || (self.fields.iter().any(|p| p.starts_with("draw_calls["))
+                        && !self
+                            .ignore_fields
+                            .iter()
+                            .any(|p| path_matches(p, "draw_calls")))
             }),
         }
     }

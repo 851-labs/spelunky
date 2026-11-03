@@ -11,6 +11,7 @@ assets.workspace = true
 # wiki-clips: each clip's sound, mixed offline as the app's player would play it.
 audio = { workspace = true, features = ["mixer"] }
 config.workspace = true
+draw.workspace = true
 game.workspace = true
 gm.workspace = true
 serde = { version = "1", features = ["derive"] }

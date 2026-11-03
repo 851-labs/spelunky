@@ -141,6 +141,16 @@ impl World {
         s.fonts.get(i).copied()
     }
 
+    /// The id of the font `font` is, the first made so if two are the same (they'd draw the same), or -1 if
+    /// none is: what a recorded [`draw::Text`] was drawn in (`crate::draw_calls`). Fonts are never deleted.
+    pub(crate) fn font_id(&self, font: &draw::SpriteFont) -> i32 {
+        let s = &self.draw_settings;
+        s.fonts
+            .iter()
+            .position(|f| f == font)
+            .map_or(-1, |i| (s.font_base + i) as i32)
+    }
+
     /// `font_add_sprite(sprite, first, prop, sep)`: a font with one character per frame of `sprite`,
     /// starting at byte `first` (clamped to 0..=255). Returns its id, the next after the game file's fonts
     /// and those made before. OpenGMK `gml/kernel.rs` (`font_add_sprite`).

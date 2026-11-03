@@ -82,9 +82,12 @@ is the renderer's, not the game's.
 
 ## Tickets
 
-1. **851-3842** (in progress): tiles in the trace.
-2. **851-3870, layer 1**: draw-only instance fields and the drawing state, background layers and views in the
-   trace. High: reached in every level (its background layers and views; `oWeb`'s alpha).
-3. **851-3871, layer 2**: the draw-call digest. High: the only check of what draw events draw.
+1. **851-3842** (done): tiles in the trace.
+2. **851-3870, layer 1** (done, oracle patch 0040): draw-only instance fields and the drawing state, background
+   layers and views in the trace. High: reached in every level (its background layers and views; `oWeb`'s alpha).
+3. **851-3871, layer 2** (done, oracle patch 0041): the draw-call digest. High: the only check of what draw events
+   draw. As built ([formats.md](../formats.md), "Draw calls"): neither side culls tiles, so every tile is a call on
+   both; a view's and a surface draw's angle are left out (the port's commands have none, and Spelunky rotates
+   neither); every frame is hashed, which costs `fidelity-check` about a fifth more.
 4. **851-3872, layer 3**: oracle screenshots and pixel checks of a committed set. Medium: after layer 2, it only checks the
    renderer.

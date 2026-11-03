@@ -134,6 +134,16 @@ impl<'r> Playback<'r> {
     /// Runs the next frame and returns its number, or `None` if the replay is over (or the game ended).
     /// After an error the game is mid-frame: don't step it further.
     pub fn step(&mut self) -> Result<Option<u64>, RunError> {
+        self.step_with(None)
+    }
+
+    /// [`step`](Self::step), recording what the frame draws into `drawn` ([`Game::step_drawing`]), which is
+    /// left as it was if no frame ran.
+    pub fn step_drawing(&mut self, drawn: &mut draw::Frame) -> Result<Option<u64>, RunError> {
+        self.step_with(Some(drawn))
+    }
+
+    fn step_with(&mut self, drawn: Option<&mut draw::Frame>) -> Result<Option<u64>, RunError> {
         let frame = self.next_frame();
         if self.game_ended() || frame >= self.end {
             return Ok(None);
@@ -141,9 +151,12 @@ impl<'r> Playback<'r> {
         let rest = &self.events[self.next_event..];
         let n = rest.iter().take_while(|&&(f, _)| f == frame).count();
         self.next_event += n;
-        self.game
-            .step(rest[..n].iter().map(|(_, e)| e))
-            .map_err(|e| self.error(Some(frame), e))?;
+        let input = rest[..n].iter().map(|(_, e)| e);
+        match drawn {
+            Some(drawn) => self.game.step_drawing(input, drawn),
+            None => self.game.step(input),
+        }
+        .map_err(|e| self.error(Some(frame), e))?;
         Ok(Some(frame))
     }
 

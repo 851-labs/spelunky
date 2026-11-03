@@ -88,6 +88,9 @@ pub struct RunOptions {
     pub trace: Option<PathBuf>,
     /// Dump every instance's variables and the globals, like the oracle's `--fields`.
     pub fields: bool,
+    /// Also list each frame's draw calls (`draw_calls`), like the oracle's `--draws`. The trace always has
+    /// their hash (`draws`).
+    pub draws: bool,
     /// Stop before this frame.
     pub frames: Option<u64>,
     /// Start from this savestate instead of booting.
@@ -111,7 +114,8 @@ pub struct RunOptions {
     /// [`game::Config::record_lines`]): line coverage.
     pub lines: bool,
     /// Leave the globals this names out of the fingerprint ([`fingerprint::Fingerprinter::skipping_globals`]),
-    /// to compare two of the port's runs that may differ only there.
+    /// to compare two of the port's runs that may differ only there, and what the frames draw (`draws`): the
+    /// two runs' states are compared.
     pub fingerprint_skips: Option<fn(&str) -> bool>,
 }
 
@@ -380,6 +384,11 @@ pub fn run_replay_watched(
         None => fingerprint::Fingerprinter::new(),
     });
     let (mut step_time, mut trace_time) = (Duration::ZERO, Duration::ZERO);
+    // What each frame draws is in the trace and the fingerprint (`draws`), but not in one that skips globals,
+    // which compares two runs' state ([`fingerprint::Fingerprinter::world`]). The frame, and its canonical
+    // calls' bytes, are reused.
+    let drawing = writer.is_some() || (opts.fingerprint && opts.fingerprint_skips.is_none());
+    let (mut drawn, mut draws_buf) = (draw::Frame::default(), Vec::new());
     let booted = match resumed {
         Some(game) => Ok(Playback::resume(game, replay)),
         None => {
@@ -411,7 +420,11 @@ pub fn run_replay_watched(
                 summary.savestate = Some(write_savestate(p.game(), path)?);
             }
             let t = Instant::now();
-            let stepped = p.step();
+            let stepped = if drawing {
+                p.step_drawing(&mut drawn)
+            } else {
+                p.step()
+            };
             step_time += t.elapsed();
             match stepped {
                 Ok(Some(frame)) => {
@@ -427,13 +440,15 @@ pub fn run_replay_watched(
                         });
                     }
                     let t = Instant::now();
+                    let world = p.game().world();
                     if let Some((w, path)) = &mut writer {
-                        w.write_frame(&p.game().trace_with(opts.fields))
+                        w.write_frame(&world.trace_frame_drawn(opts.fields, &drawn, opts.draws))
                             .map_err(|e| format!("{}: {e}", path.display()))?;
                     }
                     // Every field, encoded straight from the world: building the frame would cost more.
                     if let Some(fp) = &mut fingerprinter {
-                        fp.world(p.game().world());
+                        let draws = drawing.then(|| world.draws_hash(&drawn, &mut draws_buf));
+                        fp.world(world, draws);
                     }
                     if writer.is_some() || fingerprinter.is_some() {
                         trace_time += t.elapsed();

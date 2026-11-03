@@ -22,6 +22,8 @@ options:
   --settings             run the settings program, config.exe, instead of the game (no savestates;
                          --faithful-audio takes the game's sounds, from the bundle above --assets)
   --fields               also dump every instance's variables and the globals, like the oracle's --fields
+  --draws                also list each frame's draw calls (draw_calls), like the oracle's --draws; the
+                         trace always has their hash (draws)
   --frames <n>           stop before frame n (default: the replay's length)
   --savestate-out <file> write a savestate after the last frame, or with --at, before frame n runs (an
                          older file there is deleted first, even if the run stops before)
@@ -63,11 +65,12 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             Arg::Flag(flag) => flag,
         };
         match flag.name.as_str() {
-            "-h" | "--help" | "--fields" | "--profile" | "--json" | "--faithful-audio"
-            | "--settings" => {
+            "-h" | "--help" | "--fields" | "--draws" | "--profile" | "--json"
+            | "--faithful-audio" | "--settings" => {
                 args.switch(&flag)?;
                 match flag.name.as_str() {
                     "--fields" => run.fields = true,
+                    "--draws" => run.draws = true,
                     "--profile" => run.profile = true,
                     "--json" => json = true,
                     "--faithful-audio" => faithful_audio = true,
@@ -160,6 +163,7 @@ mod tests {
         let a = parse(&[
             "r.txt",
             "--fields",
+            "--draws",
             "--frames=100",
             "--savestate-out",
             "s.bin",
@@ -175,7 +179,7 @@ mod tests {
         assert_eq!(a.replay, PathBuf::from("r.txt"));
         assert_eq!(a.run.trace, Some(PathBuf::from("out.jsonl")));
         assert_eq!(a.assets, PathBuf::from("a"));
-        assert!(a.run.fields && a.run.profile && !a.json);
+        assert!(a.run.fields && a.run.draws && a.run.profile && !a.json);
         assert_eq!((a.run.frames, a.run.savestate_at), (Some(100), Some(40)));
         assert_eq!(a.run.savestate_out, Some(PathBuf::from("s.bin")));
         assert!(parse(&["--help"]).unwrap().is_none());

@@ -297,11 +297,12 @@ impl Fingerprinter {
         self.add(f.frame, f.room, f.room_name.as_deref());
     }
 
-    /// The world's frame, as [`frame`](Self::frame) of its `trace_frame()` takes it, but encoded straight
-    /// from the world, which is several times faster.
-    pub fn world(&mut self, w: &gm::World) {
+    /// The world's frame, as [`frame`](Self::frame) of its `trace_frame_drawn()` takes it (with `draws`, the
+    /// hash of what it drew, [`gm::World::draws_hash`]), but encoded straight from the world, which is
+    /// several times faster.
+    pub fn world(&mut self, w: &gm::World, draws: Option<u64>) {
         self.buf.clear();
-        let key = self.encoder.encode(w, &mut self.buf);
+        let key = self.encoder.encode_drawn(w, draws, &mut self.buf);
         self.add(key.frame, Some(key.room), key.room_name);
     }
 

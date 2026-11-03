@@ -140,8 +140,25 @@ impl World {
         self.trace_frame_with(true)
     }
 
+    /// [`trace_frame_with`](Self::trace_frame_with), with `drawn`, what the frame drew (the frame
+    /// [`step_drawing`](Self::step_drawing) recorded), as `draws` ([`draws_hash`](Self::draws_hash)) and, if
+    /// `calls`, `draw_calls` ([`draw_calls`](Self::draw_calls)).
+    pub fn trace_frame_drawn(
+        &self,
+        fields: bool,
+        drawn: &draw::Frame,
+        calls: bool,
+    ) -> trace::Frame {
+        trace::Frame {
+            draws: Some(draws_hex(self.draws_hash(drawn, &mut Vec::new()))),
+            draw_calls: calls.then(|| self.draw_calls(drawn)),
+            ..self.trace_frame_with(fields)
+        }
+    }
+
     /// [`trace_frame`](Self::trace_frame), leaving out `vars` and `globals` unless `fields` (what the
-    /// oracle does without `--fields`).
+    /// oracle does without `--fields`). Without what it drew, it has no `draws`
+    /// ([`trace_frame_drawn`](Self::trace_frame_drawn)).
     pub fn trace_frame_with(&self, fields: bool) -> trace::Frame {
         let dump = |state: State| {
             let mut v: Vec<trace::Instance> = self
@@ -171,6 +188,8 @@ impl World {
                     .map(|&i| trace_tile(&self.room.tiles[i]))
                     .collect()
             }),
+            draws: None,
+            draw_calls: None,
         }
     }
 
@@ -319,6 +338,11 @@ impl World {
     }
 }
 
+/// A [`World::draws_hash`] as the trace's `draws` holds it.
+fn draws_hex(h: u64) -> String {
+    format!("{h:016x}")
+}
+
 fn trace_tile(t: &crate::room::Tile) -> trace::Tile {
     trace::Tile {
         id: t.id,
@@ -396,6 +420,9 @@ const _: fn(&trace::Frame, &trace::Instance) = |f, i| {
         globals: _,
         builtins: _,
         tiles: _,
+        draws: _,
+        // Not in the canonical encoding.
+        draw_calls: _,
     } = f;
     let trace::Instance {
         id: _,
@@ -443,8 +470,19 @@ impl FrameEncoder {
         }
     }
 
-    /// Appends the world's frame to `out`.
+    /// Appends the world's frame to `out`, without `draws`, as [`World::trace_frame`] has it.
     pub fn encode<'w>(&mut self, w: &'w World, out: &mut Vec<u8>) -> FrameKey<'w> {
+        self.encode_drawn(w, None, out)
+    }
+
+    /// Appends the world's frame to `out`, with `draws` if given ([`World::draws_hash`] of what the frame
+    /// drew), as [`World::trace_frame_drawn`] has it.
+    pub fn encode_drawn<'w>(
+        &mut self,
+        w: &'w World,
+        draws: Option<u64>,
+        out: &mut Vec<u8>,
+    ) -> FrameKey<'w> {
         let p = w.program;
         if !self.program.is_some_and(|q| std::ptr::eq(q, p)) {
             let skip = self.skip_global;
@@ -511,6 +549,7 @@ impl FrameEncoder {
             e.tile(&trace_tile(&w.room.tiles[i]));
         }
         self.tiles = order;
+        e.opt(draws, |e, h| e.str(&draws_hex(h)));
         key
     }
 
@@ -777,7 +816,7 @@ mod tests {
         assert_eq!(fast, slow);
         // Committed in the wiki's clips (`World::frame_hash`), and compared with the web build's: the same
         // natively and on wasm32 (scripts/wasm-test), NaN, -0 and all.
-        assert_eq!(format!("{:016x}", w.frame_hash()), "98e8b21eb68b8cff");
+        assert_eq!(format!("{:016x}", w.frame_hash()), "0f2e08498cc90111");
     }
 
     #[test]
