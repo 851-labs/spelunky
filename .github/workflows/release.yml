@@ -57,6 +57,8 @@ jobs:
       - id: meta
         env:
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           if [ "$GITHUB_REF_TYPE" = tag ] && [[ "$GITHUB_REF_NAME" == v* ]]; then
             tag=$GITHUB_REF_NAME
@@ -64,6 +66,38 @@ jobs:
             # hour of building.
             [[ "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$ ]] ||
               { echo "::error::$tag isn't a release version: vMAJOR.MINOR.PATCH, or with a -suffix"; exit 1; }
+            # Only a commit on main, which a pull request's review and pr-ok brought there, is released: a tag on
+            # anything else (a branch, a commit never merged) would get every job after this one, the release
+            # environments' secrets and a published release, running that commit's own workflows. So every job
+            # that names an environment, or passes secrets on, must need this one. The tag's commit (an annotated
+            # tag's, peeled) is on the main branch (refs/heads/main: not a tag that happens to be called main) if
+            # GitHub's compare of the two finds it identical or behind; anything else, or no answer, stops here. A
+            # tag's own release.yml could drop this check, so the lock is the tag ruleset (docs/ci.md, "Release
+            # tags"); this is for a mistake.
+            commit=$(gh api "repos/$GH_REPO/commits/refs/tags/$tag" --jq .sha 2>&1) &&
+              on_main=$(gh api "repos/$GH_REPO/compare/refs/heads/main...$commit?per_page=1" --jq .status 2>&1) ||
+              { echo "::error::Can't tell whether main has $tag's commit: ${on_main:-$commit}"; exit 1; }
+            [[ "$on_main" == identical || "$on_main" == behind ]] ||
+              { echo "::error::$tag is on $commit, which isn't on main ($on_main): tag a commit main has"; exit 1; }
+            # And a release (not a prerelease, which is never latest) must come after the ones out: Publish makes it
+            # GitHub's latest release, which the site's downloads and the apps' updater follow, so a mistyped tag
+            # (v0.1.6 for v0.1.17) or one on an older commit would put an older build there. Its version must be
+            # above the latest release's (or be it: a re-run, which Draft release then stops if it's published),
+            # and its commit be that release's or after it (851-3765). Publish checks the version again, for a
+            # release that came out while this one built.
+            if [[ "$tag" != *-* ]]; then
+              latest=$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name 2>&1) ||
+                { [[ "$latest" == *"Not Found"* ]] && latest=; } ||
+                { echo "::error::Can't ask GitHub for the latest release: $latest"; exit 1; }
+              if [ -n "$latest" ] && [ "$latest" != "$tag" ]; then
+                [ "$(printf '%s\n' "$latest" "$tag" | sort -V | tail -1)" = "$tag" ] ||
+                  { echo "::error::$tag isn't above the latest release, $latest: tag the next version"; exit 1; }
+                after=$(gh api "repos/$GH_REPO/compare/refs/tags/$latest...$commit?per_page=1" --jq .status 2>&1) ||
+                  { echo "::error::Can't tell whether $tag's commit comes after $latest's: $after"; exit 1; }
+                [[ "$after" == ahead || "$after" == identical ]] ||
+                  { echo "::error::$tag's commit $commit is before $latest's ($after): tag a newer commit"; exit 1; }
+              fi
+            fi
           elif [ "$DRY_RUN" = true ]; then
             tag=dev-${GITHUB_SHA::7}
           else
@@ -386,6 +420,15 @@ jobs:
           if [ "$PRERELEASE" = true ]; then
             gh release edit "$TAG" --draft=false --prerelease --latest=false
           else
+            # Still above the latest release (Version checked an hour ago; another tag's run may have published
+            # since): marking an older version latest would send the site's downloads and the updater back to it.
+            latest=$(gh api "repos/$GH_REPO/releases/latest" --jq .tag_name 2>&1) ||
+              { [[ "$latest" == *"Not Found"* ]] && latest=; } ||
+              { echo "::error::Can't ask GitHub for the latest release: $latest"; exit 1; }
+            if [ -n "$latest" ] && [ "$latest" != "$TAG" ] &&
+              [ "$(printf '%s\n' "$latest" "$TAG" | sort -V | tail -1)" != "$TAG" ]; then
+              echo "::error::$latest came out while $TAG built, and it's newer: $TAG stays a draft"; exit 1
+            fi
             gh release edit "$TAG" --draft=false --prerelease=false --latest
           fi
 

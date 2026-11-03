@@ -131,6 +131,12 @@ git tag -a v0.1.N -m "Spelunky Classic port v0.1.N" && git push origin v0.1.N
 
 and `release.yml`:
 
+0. refuses the tag unless its commit is on `main`, before anything that uses the release secrets
+   ([Release tags](#release-tags), below), and a release's (not a prerelease's) unless its version is above the
+   latest release's and its commit is that release's or after it: it becomes GitHub's latest release, which the
+   site's downloads and the apps' updater follow, so a mistyped tag (`v0.1.6` for `v0.1.17`) would otherwise put
+   an older build there. (The latest release's own tag passes, so a failed run can be re-run; once it's published,
+   Draft release refuses it.) Publish checks the version again, as another release may have come out meanwhile;
 1. creates a draft GitHub Release for the tag (or reuses its draft on a re-run; a published release is never
    touched);
 2. runs `scripts/check` on a mini;
@@ -156,6 +162,21 @@ into `build-native.yml` with `secrets: inherit` (a called workflow's job gets no
 secrets without it). The environment has no required reviewer, only deployment rules that allow `main` and
 `v*` tags, and only collaborators can push either. A failed job is re-run like any other: the draft is
 reused, and the bump's push replaces its last.
+
+### Release tags
+
+A `v*` tag runs the workflow file at its commit, with the release environments' secrets, so what may push one is
+what may publish a release, and a tag on a branch's commit, never reviewed or passed by `pr-ok`, would run that
+commit's own workflows with every release secret and publish what they build. `release.yml`'s first job (Version)
+refuses a tag whose commit `main` hasn't got (GitHub's compare of `refs/heads/main` with it: `identical` or
+`behind`), and every job that uses an environment or passes secrets on needs it. But a tag's own copy of
+`release.yml` could leave that out, so the lock is the repository's settings, which an admin makes (851-3901: until
+they're made, any collaborator's `v*` tag still runs its own workflows):
+
+- a tag ruleset on `refs/tags/v*`: creation only for its bypass list (the admins, who push release tags or have
+  them pushed for them), and no updates or deletions, so a release's tag can never be moved to other code;
+- optionally, a required reviewer on the `release` environment, so a person approves each release's signing;
+- GitHub's immutable releases, so a published release's files can't be replaced.
 
 ### The site's bump pull request
 
