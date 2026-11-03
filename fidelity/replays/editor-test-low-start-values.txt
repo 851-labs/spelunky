@@ -1,0 +1,66 @@
+# The level editor's test doesn't clamp the start values from below or round them (851-3937, docs/quirks.md §1,
+# "The editor's test doesn't clamp the start values."). As editor-test-hud-caps.txt: F2 on the title opens the
+# editor, R names the level and Enter (230) starts editing; the entrance (242), the exit with the wheel (246-250) and
+# a Mines floor (S twice, 254-258, dragged 264-299). The Edit button (312) asks for the info, a key every two frames,
+# each Enter one field on: three Enters (322-326) keep the name, author and music, Backspace and 0 make START LIFE 0
+# (328-332), Backspace, 2, "." (VK 190, scrGetChar) and 5 make START BOMBS 2.5 (334-342), Enter keeps the ropes
+# (344), Backspace four times and B make the next level B (346-354), and Enter (356) ends it. Test (370) runs
+# scrTestLevel, which sets global.plife and global.bombs to real() of what was typed: scrLoadLevel(-1) skips the
+# floor and the limits a level from the menu gets (1-99 hearts, 0-99 bombs). rLoadLevel loads at 372 with no hearts
+# and 2.5 bombs, and oPlayer1's step, which counts rLoadLevel as a level (isLevel), finds plife below 1 and kills
+# the player on his first step (373). The bombs stay 2.5, never floored to 2, and the hearts are never raised to 1.
+# story: room=rLoadLevel@372 plife=0@372 bombs=2.5@372 oPlayer1.dead=1@373 !bombs=2 !plife=1
+seed 777
+frames 480
+20 hold X 2
+60 hold X 2
+200 hold f2 2
+220 hold R 2
+230 hold enter 2
+240 mouse 168 360
+242 hold mb_left 2
+246 wheel up
+248 mouse 792 360
+250 hold mb_left 2
+254 hold S 2
+258 hold S 2
+262 mouse 72 408
+264 hold mb_left 36
+266 mouse 120 408
+268 mouse 168 408
+270 mouse 216 408
+272 mouse 264 408
+274 mouse 312 408
+276 mouse 360 408
+278 mouse 408 408
+280 mouse 456 408
+282 mouse 504 408
+284 mouse 552 408
+286 mouse 600 408
+288 mouse 648 408
+290 mouse 696 408
+292 mouse 744 408
+294 mouse 792 408
+296 mouse 840 408
+310 mouse 72 642
+312 hold mb_left 2
+322 hold enter 1
+324 hold enter 1
+326 hold enter 1
+328 hold backspace 1
+330 hold 0 1
+332 hold enter 1
+334 hold backspace 1
+336 hold 2 1
+338 hold 190 1
+340 hold 5 1
+342 hold enter 1
+344 hold enter 1
+346 hold backspace 1
+348 hold backspace 1
+350 hold backspace 1
+352 hold backspace 1
+354 hold B 1
+356 hold enter 1
+368 mouse 840 642
+370 hold mb_left 2

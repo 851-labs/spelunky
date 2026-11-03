@@ -82,6 +82,9 @@ In the level editor, click Edit, press Enter four times to reach START BOMBS, cl
 number over 99, and finish the info; then click Test. Few players type more than 99 bombs, and the count only shows
 for a frame. In the clip's replay the bombs are typed as 1111, and the test level loads
 on frame 548 with 1111 bombs, which are 99 on 549 <Cite replay="fidelity/replays/editor-test-hud-caps.txt" />.
+Typed low, the values aren't raised or rounded either: another replay types START LIFE 0 and START BOMBS 2.5, and
+its test level loads on frame 372 with no hearts and 2.5 bombs; the player dies on the next, and the bombs stay 2.5
+<Cite replay="fidelity/replays/editor-test-low-start-values.txt" />.
 
 ## In the port
 
