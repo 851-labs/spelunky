@@ -90,5 +90,6 @@ is the renderer's, not the game's.
    both; a view's and a surface draw's angle are left out (the port's commands have none, and Spelunky rotates
    neither); every frame is hashed, which costs `fidelity-check` about a fifth more.
 4. **851-3872, layer 3** (done, oracle patch 0042): oracle screenshots and pixel checks of a committed set. Medium:
-   after layer 2, it only checks the renderer. As built ([formats.md](../formats.md), "Screenshots"): 16 pictures
-   of 7 replays, all exact; the settings program's 2x view is a pixel off (851-3967), so it's left out for now.
+   after layer 2, it only checks the renderer. As built ([formats.md](../formats.md), "Screenshots"): 18 pictures
+   of 8 replays, all exact. The settings program's 2x view first came out a pixel off: GM8 itself (under Wine)
+   agreed with the port but for one column, and the oracle and the port were both fixed to it (851-3967).
