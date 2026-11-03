@@ -2,7 +2,7 @@
 # published: the full suite (scripts/check), the full oracle fidelity run over every committed replay, the web
 # build, the native builds (build-native.yml, which signs and notarizes macOS) and
 # the updater's tests (updater.yml). The GitHub Release is a draft until then; `publish` attaches the files and
-# publishes it, and `bump` then opens the pull request that puts it live (scripts/bump-web-release).
+# publishes it, and `bump` and `bump-pr` then open the pull request that puts it live (scripts/bump-web-release).
 # A tag with a `-` (`v0.1.0-rc1`) is published as a prerelease, any other as the latest release.
 #
 # What it publishes is built on fresh GitHub-hosted machines, or (the native builds) by build-native.yml; the
@@ -460,12 +460,65 @@ jobs:
   # The pull request that puts the release live (scripts/bump-web-release), opened as the release-bot App so that
   # pr-ok runs on it: a pull request opened with GITHUB_TOKEN starts no workflow. Without the App (or a token),
   # the run's summary says what to do by hand. Not for a dry run, nor a prerelease, which is never put live.
+  # The site's bump, in two jobs (851-3906). This one makes the change, `scripts/bump-web-release`, which builds and
+  # runs Rust (scripts/release/manifest checks latest.json), so every dependency's build script runs here: with no
+  # secret, a read-only token, and nothing kept in .git/config. The next one, on another machine, has the
+  # release-bot's token and runs none of the repository's code: it only commits this one's file and pushes.
   bump:
-    name: Site bump PR
+    name: Site bump
     needs: [meta, publish]
     if: needs.meta.outputs.dry_run != 'true' && needs.meta.outputs.prerelease != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ needs.meta.outputs.tag }}
+    outputs:
+      changed: ${{ steps.bump.outputs.changed }}
+      # site/web-release.txt as the bump wrote it, base64 (a few lines).
+      web-release: ${{ steps.bump.outputs.web-release }}
+    steps:
+      # Main as it is now, not the tag's commit.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
+      # For scripts/release/manifest, which checks the release's latest.json. Up front, as in the web build.
+      - run: rustup toolchain install --no-self-update
+      - id: bump
+        run: |
+          # Never back to an older version than main pins (a re-run of an older release, or a tag pushed out of
+          # order).
+          pinned=$(sed -n 's/^tag //p' site/web-release.txt)
+          if [ "$pinned" != "$TAG" ] && [ "$(printf '%s\n' "$pinned" "$TAG" | sort -V | tail -n 1)" = "$pinned" ]; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            echo "main already pins $pinned, newer than $TAG." >>"$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          scripts/bump-web-release "$TAG"
+          # Only site/web-release.txt may change: the next job commits that file alone.
+          other=$(git status --porcelain | grep -v ' site/web-release.txt$' || true)
+          [ -z "$other" ] || { echo "::error::scripts/bump-web-release changed more than site/web-release.txt: $other"; exit 1; }
+          if git diff --quiet; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            echo "main already pins $TAG." >>"$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >>"$GITHUB_OUTPUT"
+            echo "web-release=$(base64 -w0 site/web-release.txt)" >>"$GITHUB_OUTPUT"
+            git diff
+          fi
+
+  bump-pr:
+    name: Site bump PR
+    needs: [meta, bump]
+    if: needs.bump.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     # Its secrets, for `main` and `v*` tags only (docs/ci.md, "The site's bump pull request").
     environment: release-bot
     env:
@@ -495,38 +548,21 @@ jobs:
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
           permission-contents: write
           permission-pull-requests: write
-      # Main as it is now, not the tag's commit. The checkout keeps the credential for the push (a fresh GitHub
-      # machine, gone after the job).
+      # Main again, without the token in .git/config: only the push below gets it, through gh's credential helper.
+      # What the bump job wrote, as it wrote it. Nothing of the repository's runs here.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
-          token: ${{ steps.app.outputs.token || secrets.RELEASE_BOT_TOKEN || github.token }}
+          persist-credentials: false
           filter: blob:none
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /*
             !/wiki/media/
-      # For scripts/release/manifest, which checks the release's latest.json. Up front, as in the web build.
-      - run: rustup toolchain install --no-self-update
-      - id: bump
-        run: |
-          # Never back to an older version than main pins (a re-run of an older release, or a tag pushed out of
-          # order).
-          pinned=$(sed -n 's/^tag //p' site/web-release.txt)
-          if [ "$pinned" != "$TAG" ] && [ "$(printf '%s\n' "$pinned" "$TAG" | sort -V | tail -n 1)" = "$pinned" ]; then
-            echo "changed=false" >>"$GITHUB_OUTPUT"
-            echo "main already pins $pinned, newer than $TAG." >>"$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          scripts/bump-web-release "$TAG"
-          if git diff --quiet; then
-            echo "changed=false" >>"$GITHUB_OUTPUT"
-            echo "main already pins $TAG." >>"$GITHUB_STEP_SUMMARY"
-          else
-            echo "changed=true" >>"$GITHUB_OUTPUT"
-            git diff
-          fi
-      - if: steps.bump.outputs.changed == 'true' && steps.credential.outputs.kind == 'none'
+      - env:
+          WEB_RELEASE: ${{ needs.bump.outputs.web-release }}
+        run: printf %s "$WEB_RELEASE" | base64 -d >site/web-release.txt && git diff
+      - if: steps.credential.outputs.kind == 'none'
         run: |
           echo "::warning::$TAG is published but not live: no release-bot credential to open its pull request with"
           {
@@ -536,7 +572,7 @@ jobs:
             git diff
             echo '```'
           } >>"$GITHUB_STEP_SUMMARY"
-      - if: steps.bump.outputs.changed == 'true' && steps.credential.outputs.kind != 'none'
+      - if: steps.credential.outputs.kind != 'none'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token || secrets.RELEASE_BOT_TOKEN }}
           APP_SLUG: ${{ steps.app.outputs.app-slug }}
@@ -564,7 +600,9 @@ jobs:
           fi
           git switch -q -c "$branch"
           git commit -q -am "$title"
-          # A re-run's push replaces its last.
+          # A re-run's push replaces its last. The token reaches git through gh's credential helper, from GH_TOKEN:
+          # not on the command line, nor in .git/config.
+          gh auth setup-git
           git push -q --force origin "$branch"
           pr=$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')
           if [ -z "$pr" ]; then
