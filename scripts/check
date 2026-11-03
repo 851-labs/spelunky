@@ -33,6 +33,10 @@ $cargo fmt --manifest-path tools/gm8-probe/angles/Cargo.toml --check
 python3 -I tools/oracle/sync-gm8-arith --check
 # Every sh script parses: macOS's sh passes one that stops at a syntax error after an EXIT trap (851-3741).
 scripts/check-sh
+# Every action the workflows use is pinned to a full commit SHA, its version in a comment, as a tag can be moved to
+# other code (851-3902; .github/dependabot.yml moves the pins).
+unpinned=$(grep -rnE 'uses: [^.][^@ ]*@' .github | grep -vE 'uses: [^@ ]+@[0-9a-f]{40} # v[0-9]' || true)
+[ -z "$unpinned" ] || { printf 'scripts/check: actions not pinned to a commit SHA with its version:\n%s\n' "$unpinned" >&2; exit 1; }
 [ "${1:-}" = "--fast" ] && exit 0
 # A build of one package must resolve the workspace's features, so a worktree reuses the main checkout's
 # builds (crates/workspace-hack, 851-3738).

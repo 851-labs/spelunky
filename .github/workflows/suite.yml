@@ -39,7 +39,7 @@ jobs:
     env:
       CARGO_TERM_COLOR: always
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       # What the app links on Linux: cpal's ALSA, gilrs' udev, and winit's Wayland and xkbcommon (pkg-config).
@@ -51,13 +51,13 @@ jobs:
       # rust-toolchain.toml's toolchain, with its wasm32 targets.
       - run: rustup toolchain install --no-self-update
       # scripts/wasm-test runs gm's wasm32 tests under Node.
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: site/.node-version
       # The registry and target/ between runs, in GitHub's cache (10 GB a repository). Saved only by main's run,
       # which every pull request's can read (a pull request's own could only be read by its later runs, and would
       # push main's out). Swatinem/rust-cache, at its v2.9.3's commit.
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           shared-key: check
           save-if: ${{ github.event_name == 'push' }}

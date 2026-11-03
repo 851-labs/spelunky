@@ -8,7 +8,7 @@ runs:
   steps:
     # scripts/check (wasm-test), scripts/web and site/test.sh need Node: the version Workers Builds builds the
     # site with. setup-node keeps it in the runner's tool cache, so only a new version downloads.
-    - uses: actions/setup-node@v7
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version-file: site/.node-version
         # site/test.sh's npm ci has a cache of its own in the tool cache (setup.sh), on the mini's disk rather

@@ -318,6 +318,17 @@ an npm advisory without a fix takes an `overrides` entry in `site/package.json` 
 cover the same ground once the repository's dependency graph is on (Settings → Advanced Security), which needs
 an admin.
 
+## Pinned actions
+
+Every action a workflow uses is pinned to a full commit SHA, its release in a comment
+(`actions/checkout@3d3c42e5… # v7.0.1`), not a tag, which its owner (or someone who takes over their account or
+release process) can move to other code: the jobs that hold the signing key, the update key and the release
+bot's token run actions too (851-3902). `scripts/check --fast` fails on a `uses:` that isn't pinned that way.
+Dependabot (`.github/dependabot.yml`) opens a weekly pull request moving the pins, all in one, to the newest
+releases. The repository's settings can enforce the same (Settings → Actions → General: "Require actions to be
+pinned to a full-length commit SHA", and allowing only GitHub's actions and the ones listed), which an admin
+sets.
+
 ## Warnings
 
 A run should show no warnings or notices of ours, so a new one stands out: fix it where it comes from,

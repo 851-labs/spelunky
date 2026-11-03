@@ -66,7 +66,7 @@ jobs:
       fingerprint: ${{ steps.fingerprint.outputs.fingerprint }}
     steps:
       # The workspace outlives the job on a self-hosted runner, so the token isn't left in .git/config.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       # Anything file-name safe; but what gets signed is a release, which the updater must know by its version
@@ -109,7 +109,7 @@ jobs:
             echo "Smoke replay fingerprint: \`${{ steps.fingerprint.outputs.fingerprint }}\`"
           } >>"$GITHUB_STEP_SUMMARY"
       - if: inputs.sign
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: macos-app
           path: ${{ runner.temp }}/macos-app.tar
@@ -117,50 +117,50 @@ jobs:
           retention-days: 3
       # Unsigned, the .dmg and zip build made are the ones to test (and, on a dry run, to keep).
       - if: ${{ !inputs.sign }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-${{ env.VERSION }}-macos.dmg
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-macos.dmg
           if-no-files-found: error
           compression-level: 0
       - if: ${{ !inputs.sign }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-${{ env.VERSION }}-macos.zip
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-macos.zip
           if-no-files-found: error
           compression-level: 0
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-${{ env.VERSION }}-windows-x64.zip
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-windows-x64.zip
           if-no-files-found: error
           compression-level: 0
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-${{ env.VERSION }}-windows-arm64.zip
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-windows-arm64.zip
           if-no-files-found: error
           compression-level: 0
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-${{ env.VERSION }}-linux-x64.AppImage
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-x64.AppImage
           if-no-files-found: error
           compression-level: 0
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-${{ env.VERSION }}-linux-x64.tar.gz
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-x64.tar.gz
           if-no-files-found: error
           compression-level: 0
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-${{ env.VERSION }}-linux-arm64.AppImage
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-arm64.AppImage
           if-no-files-found: error
           compression-level: 0
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-${{ env.VERSION }}-linux-arm64.tar.gz
           path: ${{ runner.temp }}/packages/spelunky-${{ env.VERSION }}-linux-arm64.tar.gz
@@ -182,10 +182,10 @@ jobs:
     environment: release
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: macos-app
           path: ${{ runner.temp }}/spelunky-sign
@@ -241,13 +241,13 @@ jobs:
           mkdir out
           "$GITHUB_WORKSPACE/scripts/release/macos-dmg" "Spelunky Classic.app" \
             "out/spelunky-$VERSION-macos.dmg" "out/spelunky-$VERSION-macos.zip"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-${{ env.VERSION }}-macos.dmg
           path: ${{ runner.temp }}/spelunky-sign/out/spelunky-${{ env.VERSION }}-macos.dmg
           if-no-files-found: error
           compression-level: 0
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-${{ env.VERSION }}-macos.zip
           path: ${{ runner.temp }}/spelunky-sign/out/spelunky-${{ env.VERSION }}-macos.zip
@@ -291,13 +291,13 @@ jobs:
       SIGNED: ${{ inputs.sign }}
       ARCH: ${{ matrix.arch }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: |
             scripts/release
             fidelity/replays
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: spelunky-${{ env.VERSION }}-macos.*
           merge-multiple: true
@@ -314,7 +314,7 @@ jobs:
             echo "::endgroup::"
           done
       - if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: smoke-macos-${{ matrix.arch }}
           path: ${{ runner.temp }}/smoke/*.png
@@ -337,13 +337,13 @@ jobs:
       FINGERPRINT: ${{ needs.build.outputs.fingerprint }}
       PLATFORM: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           sparse-checkout: |
             scripts/release
             fidelity/replays
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: spelunky-${{ env.VERSION }}-${{ matrix.platform }}.*
           merge-multiple: true
@@ -368,7 +368,7 @@ jobs:
             echo "::endgroup::"
           done
       - if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: smoke-${{ matrix.platform }}
           path: ${{ runner.temp }}/smoke/*.png
