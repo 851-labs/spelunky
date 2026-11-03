@@ -1,11 +1,12 @@
 # An explosion on an item the player holds (851-3971): no other replay runs the held branch of oExplosion's
-# collision with oItem. oPlayer1's step hurts and stuns him for any explosion within 8 pixels and drops what he
-# holds in the same step, before the collision events, so an explosion that's there for his step always finds the
-# item dropped. One made later in the step, by an instance stepping after him, meets the held item first: here a
-# bomb he takes out (made after him, so stepping after him) hits a UFO, whose explosion oItem's step makes. A
-# staged scene: it boots, loads this custom level, with 99 hearts and 99 bombs, from the title's load-level menu
-# (240), and plays the scene's inputs from 241, its frame 0 (as the wiki's staged scenes, docs/wiki-media.md). The
-# player (@) stands by two steps, a rock (r) on the second, a UFO (U) beside it:
+# collision with oItem. oPlayer1's step hurts and stuns him for any explosion within 8 pixels
+# (objects/oPlayer1/step.gml:1614) and, further on in the same step, drops what a stunned player holds (line 1714),
+# before the collision events, so an explosion that's there for his step always finds the item dropped. One made
+# later in the step, by an instance stepping after him, meets the held item first: here a bomb he takes out (made
+# after him, so stepping after him) hits a UFO, whose explosion oItem's step makes. A staged scene: it boots, loads
+# this custom level, with 99 hearts and 99 bombs, from the title's load-level menu (240), and plays the scene's
+# inputs from 241, its frame 0 (as the wiki's staged scenes, docs/wiki-media.md). The player (@) stands by two
+# steps, a rock (r) on the second, a UFO (U) beside it:
 #   1111111111111111111111
 #   1000000000000000000001
 #   1000000000000000000001

@@ -1,9 +1,10 @@
 # A block destroyed under a tiki torch (851-3971): no other replay runs oSolid's destroy event with a tiki torch on
 # the block. Seed 2: fidelity/gen-area.sh jungle 2 800 (level 5 loads on 781), then area-route --levels 3's route
-# to level 6 (1722), which is dark, so scrEntityGen puts tiki torches on some of its spots (1 in 20,
-# scripts/scrEntityGen.gml:235), three of them here; then area-route --steps '*oTikiTorch' --wait 30: the player
-# throws a bomb left (left + A, 1762) toward the block one stands on. Its explosion (1881) destroys the block,
-# whose destroy event (oSolid's) finds the tiki torch on it and destroys it (1883). Ends at 1935.
+# to level 6 (its exit taken on 1652, the level loading on 1722), which is dark, so scrEntityGen puts tiki torches
+# on some of its spots (1 in 20, scripts/scrEntityGen.gml:235), three of them here; then area-route --steps
+# '*oTikiTorch' --wait 30: the player throws a bomb left (left + A, 1762) toward the block one stands on. Its
+# explosion (1881) destroys the block, whose destroy event (oSolid's) finds the tiki torch on it and destroys it
+# (1883). Ends at 1935.
 # story: currLevel=6@1652 darkLevel=1@1722..1722 +oTikiTorch*3@1722..1722 bombs=3@1762..1762 +oExplosion@1881..1881
 # story: -oTikiTorch@1883..1883 !plife<4
 seed 2
