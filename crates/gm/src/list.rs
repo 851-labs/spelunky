@@ -85,17 +85,16 @@ enum Source {
 
 /// A non-borrowing iterator over one of the instance lists. It holds a position and the list's length
 /// when it started, and on each step scans the *current* list from the position, so the list can change
-/// between steps. OpenGMK `instancelist.rs` (`ILIterDrawOrder`, `ObjectIter`, `IdentityIter`,
-/// `nb_il_iter`):
+/// between steps. GM8 (Spelunky.exe 0x528510, `with`: the list's entry at each index, up to the starting
+/// count):
 ///
-/// - Draw-order iterators never go past the starting length, so instances created during the loop are
-///   never visited.
-/// - Object iterators stop once the position reaches the starting length, but each step scans to the end
-///   of the current list. An instance appended during the loop is visited if deleted entries before it
-///   are skipped in the same step.
+/// - No iterator goes past the starting length, so instances created during the loop are never visited,
+///   even when every entry between the position and that length was destroyed (probe `with-created`,
+///   851-3795). OpenGMK's object iterators (`instancelist.rs`, `ObjectIter`, `IdentityIter`, `nb_il_iter`)
+///   scanned on to the end of the current list in that case, and visited them (oracle patch 0045 follows
+///   GM8).
 /// - If a (de)activation moves instances between the arrays mid-loop, iteration continues at the same
-///   index of the new array or list, which can skip or repeat instances. GM8 does the same (Spelunky.exe
-///   0x528510, `with`: the list's entry at each index, up to the starting count).
+///   index of the new array or list, which can skip or repeat instances. GM8 does the same.
 #[derive(Clone, Copy, Debug)]
 pub struct InstIter {
     source: Source,
@@ -111,21 +110,12 @@ impl InstIter {
     }
 
     pub(crate) fn next(&mut self, list: &InstanceList) -> Option<Inst> {
-        let (vec, limit) = match self.source {
-            Source::Drawing => (&list.draw_order, self.count),
-            Source::Object(o) | Source::Ancestor(o) => {
-                if self.pos >= self.count {
-                    return None;
-                }
-                let lists = match self.source {
-                    Source::Object(_) => &list.by_object,
-                    _ => &list.by_ancestor,
-                };
-                let vec = lists.get(o.0 as usize)?;
-                (vec, vec.len())
-            }
+        let vec = match self.source {
+            Source::Drawing => &list.draw_order,
+            Source::Object(o) => list.by_object.get(o.0 as usize)?,
+            Source::Ancestor(o) => list.by_ancestor.get(o.0 as usize)?,
         };
-        let end = limit.min(vec.len());
+        let end = self.count.min(vec.len());
         let slice = vec.get(self.pos..end)?;
         let off = slice.iter().position(|&h| list.get(h).is_active())?;
         self.pos += off + 1;
