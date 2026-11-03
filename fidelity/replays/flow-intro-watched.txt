@@ -1,0 +1,8 @@
+# The intro watched past one skip (851-3957). Attack once (20) fades the intro's scene in with its walking player
+# (oPDummy3, made when the fade ends, 30; oIntro's step); every other replay presses again and fades it out before
+# what follows. Here it walks right to x 904 (498), its alarm 0 throws a rope (519: an oRopeThrow, status 3), it
+# climbs (status 4 from 527, alarm 2's climb sounds), and the intro gives way to the title (575). Ends at 619.
+# story: oPDummy3.status=1@498 +oRopeThrow@519 oPDummy3.status=3@519 oPDummy3.status=4@527 room=rTitle@575
+seed 1
+frames 620
+20 hold X 2
