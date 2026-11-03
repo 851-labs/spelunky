@@ -9,9 +9,13 @@
 # `pull_request` (never `pull_request_target`), with a read-only token, no secrets and no environment, and
 # outside contributors' runs wait for approval (the repository's Actions setting).
 #
-# The minis also sign releases, so a pull request from a fork never runs on them at all, even if approved:
-# only collaborators may open pull requests (the repository's `pull_request_creation_policy`), and if that
-# ever changes, a fork's pull request skips the mini job below and fails `pr-ok`.
+# A pull request from a fork must never run on the minis, which are persistent and shared. What stops it isn't this
+# file: a pull request's run uses the workflow files from the pull request, so a fork's could drop the mini job's
+# `if:` below or change its runner. The locks are outside the repository's files (docs/ci.md, "Pull requests"):
+# only collaborators may open pull requests (the repository's `pull_request_creation_policy`), outside
+# contributors' runs wait for approval, and the minis' job-started hook (.github/runner-hooks/job-started.sh,
+# installed on each mini) fails a fork's job before it starts. The `if:` and `pr-ok`'s failure for a fork are only
+# the fast, readable answer for a pull request that leaves this file alone.
 name: PR
 
 on:
@@ -78,6 +82,7 @@ jobs:
   # a pull request holds one mini.
   web:
     name: Mac mini
+    # Not a fork's (the header says why this is the readable answer, not the lock).
     if: github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/mini.yml
     with:
