@@ -658,6 +658,15 @@ slope. OpenGMK walked every point between the ends, past the box too, which meet
 box (a manual box: Spelunky has no precise sprite with one), and a row or a column as points. Unreached: every one of
 Spelunky's `collision_line` calls is a row or a column.
 
+### `opengmk/0049-gm8-background-layer-rounding.patch`
+
+A room's background layer is placed as GM8's tiled draw places it (851-3970, `docs/quirks.md` §6, probe
+`background-fractional`, which the patched oracle answers line for line as GM8 does): its tile, `w * xscale` and
+`h * yscale`, and its position are rounded half to even into whole pixels, a tile under a pixel draws nothing, and
+the copies step by the rounded tile from the rounded start, each still drawn at the layer's scale
+(`draw_background_layer`, beside `draw_sprite_tiled`, which GML's tiled draws keep). OpenGMK stepped by the
+unrounded tile from the unrounded position. It changes only pixels: the dump, the draw log included, is the same.
+
 ## Caveats
 
 - **OpenGMK is not the real runner.** It's a careful reimplementation of GM8, but it has bugs and gaps of its own.

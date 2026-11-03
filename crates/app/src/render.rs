@@ -589,7 +589,24 @@ impl Renderer {
                 let Some(rect) = self.background(b.background) else {
                     return;
                 };
-                let (w, h) = (f64::from(rect.w) * b.xscale, f64::from(rect.h) * b.yscale);
+                // GM8 rounds the tile, `w * xscale` and `h * yscale`, and the layer's position half to even into
+                // whole pixels, draws nothing for a tile under a pixel, and steps the copies by the rounded tile from
+                // the rounded start, each still at the layer's scale (its tiled draw, 0x4a459c, which
+                // `gm::gm8::draw_background` describes; probe `background-fractional`, 851-3970). Where `Round`
+                // traps, `gm` has stopped the game before the frame is drawn.
+                let whole = |v: f64| gm::math::round(v).ok().map(|r| r as i64 as i32);
+                let (Some(w), Some(h), Some(x), Some(y)) = (
+                    whole(f64::from(rect.w) * b.xscale),
+                    whole(f64::from(rect.h) * b.yscale),
+                    whole(b.x),
+                    whole(b.y),
+                ) else {
+                    return;
+                };
+                if w <= 0 || h <= 0 {
+                    return;
+                }
+                let (w, h, x, y) = (f64::from(w), f64::from(h), f64::from(x), f64::from(y));
                 let part = (0.0, 0.0, f64::from(rect.w), f64::from(rect.h));
                 let view = state.view;
                 // GM8 tiles up to the view's right and bottom edges, not past them (its tiled draw, 0x4a459c;
@@ -599,8 +616,8 @@ impl Renderer {
                 // In wrapping 32-bit arithmetic, as GM8's (`gm::gm8::view_span`).
                 let end_x = f64::from(view.x.wrapping_add(view.w));
                 let end_y = f64::from(view.y.wrapping_add(view.h));
-                let xs = tile_positions(b.x, w, b.tile_h, f64::from(view.x), end_x);
-                let ys = tile_positions(b.y, h, b.tile_v, f64::from(view.y), end_y);
+                let xs = tile_positions(x, w, b.tile_h, f64::from(view.x), end_x);
+                let ys = tile_positions(y, h, b.tile_v, f64::from(view.y), end_y);
                 self.begin_batch(state, tris, Source::Images, None);
                 for y in ys {
                     for x in xs.clone() {
@@ -1422,6 +1439,101 @@ mod tests {
         for x in 0..96 {
             let black = x == 95 || x % 32 == 31 || x % 32 == 0;
             assert_eq!(row[x as usize], !black, "pixel {x}");
+        }
+    }
+
+    /// A tiled layer at a fractional position and scale (851-3970, probe `background-fractional`, as GM8 drew it
+    /// under Wine): a 16x16 background, gray with a white first column and row, tiled through a 128x128 view at 1x
+    /// onto black, at the probe's four positions and scales. GM8 rounds the tile and the position to whole pixels
+    /// and steps by the rounded tile, so row 8 and column 8 have their white lines where its picture has them.
+    #[test]
+    fn tiled_layers_round_their_tile_and_position_as_gm8() {
+        let Some(gpu) = pollster::block_on(crate::gpu::request(crate::gpu::instance(), None)).ok()
+        else {
+            eprintln!("skipped: no GPU");
+            return;
+        };
+        let root = std::path::PathBuf::from(std::env::var_os("CARGO_MANIFEST_DIR").unwrap());
+        let gm8 = std::fs::read_to_string(
+            root.join("../../tools/gm8-probe/results/gm8-wine/background-fractional.txt"),
+        )
+        .unwrap();
+        let line = |name: &str| -> String {
+            let prefix = format!("{name} = \"");
+            let l = gm8
+                .lines()
+                .find_map(|l| l.strip_prefix(prefix.as_str()))
+                .unwrap();
+            l.strip_suffix('"').unwrap().to_owned()
+        };
+        let mut pixels = vec![128; 16 * 16 * 4];
+        for (i, p) in pixels.chunks_mut(4).enumerate() {
+            if i % 16 == 0 || i < 16 {
+                p[..3].fill(255);
+            }
+            p[3] = 255;
+        }
+        let textures = Textures {
+            background_pages: Layers {
+                width: 16,
+                height: 16,
+                layers: vec![pixels],
+            },
+            backgrounds: vec![Some(TexRect {
+                bank: crate::textures::Bank::Backgrounds,
+                layer: 0,
+                x: 0,
+                y: 0,
+                w: 16,
+                h: 16,
+            })],
+            ..no_images()
+        };
+        let mut renderer = Renderer::new(gpu.device, gpu.queue, textures);
+        for (k, (x, y, xscale, yscale)) in [
+            (3.6, 2.4, 1.0, 1.0),
+            (0.0, 0.0, 1.3, 1.3),
+            (3.6, 2.5, 1.3, 0.7),
+            (-5.5, -9.4, 1.55, 1.45),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            let mut frame = Frame::new(128, 128);
+            frame.commands = vec![
+                Command::SetView {
+                    view: Rect::new(0, 0, 128, 128),
+                    port: Rect::new(0, 0, 128, 128),
+                },
+                Command::Clear {
+                    color: Color::BLACK,
+                    alpha: 1.0,
+                },
+                Command::Background(draw::Background {
+                    background: 0,
+                    x,
+                    y,
+                    tile_h: true,
+                    tile_v: true,
+                    xscale,
+                    yscale,
+                    blend: Color::WHITE,
+                    alpha: 1.0,
+                }),
+                Command::Present,
+            ];
+            renderer.render(&frame);
+            let (w, _, rgba) = renderer.read_screen().unwrap();
+            let at = |x: u32, y: u32| match rgba[((y * w + x) * 4) as usize] {
+                255 => 'w',
+                128 => 'g',
+                0 => '.',
+                _ => '?',
+            };
+            let row: String = (0..128).map(|x| at(x, 8)).collect();
+            let col: String = (0..128).map(|y| at(8, y)).collect();
+            assert_eq!(row, line(&format!("row8_{k}")), "case {k}: row 8");
+            assert_eq!(col, line(&format!("col8_{k}")), "case {k}: column 8");
         }
     }
 
