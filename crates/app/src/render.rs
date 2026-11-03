@@ -592,8 +592,9 @@ impl Renderer {
                 // GM8 rounds the tile, `w * xscale` and `h * yscale`, and the layer's position half to even into
                 // whole pixels, draws nothing for a tile under a pixel, and steps the copies by the rounded tile from
                 // the rounded start, each still at the layer's scale (its tiled draw, 0x4a459c, which
-                // `gm::gm8::draw_background` describes; probe `background-fractional`, 851-3970). Where `Round`
-                // traps, `gm` has stopped the game before the frame is drawn.
+                // `gm::gm8::draw_background` describes; probe `background-fractional`, 851-3970). A layer whose
+                // `Round` would trap is skipped (`gm` stops the game where GM8's draw traps, which rounds `y` only
+                // for a column reaching the view).
                 let whole = |v: f64| gm::math::round(v).ok().map(|r| r as i64 as i32);
                 let (Some(w), Some(h), Some(x), Some(y)) = (
                     whole(f64::from(rect.w) * b.xscale),
@@ -1118,7 +1119,8 @@ const MAX_TILE_COPIES: u32 = 4096;
 
 /// Where copies of a background layer go along one axis. GM tiles from the first copy at or before the
 /// room's edge (`pos` wrapped into `(-size, 0]`) until a copy starts at or past `end`. Copies that end
-/// before `view_start` would be clipped, so they're skipped.
+/// before `view_start` would be clipped, so they're skipped. The layer's draw passes whole-pixel `pos` and
+/// `size`, a `size` of a pixel or more (GM8 draws nothing for less: `Command::Background`).
 fn tile_positions(
     pos: f64,
     size: f64,
@@ -1444,8 +1446,9 @@ mod tests {
 
     /// A tiled layer at a fractional position and scale (851-3970, probe `background-fractional`, as GM8 drew it
     /// under Wine): a 16x16 background, gray with a white first column and row, tiled through a 128x128 view at 1x
-    /// onto black, at the probe's four positions and scales. GM8 rounds the tile and the position to whole pixels
-    /// and steps by the rounded tile, so row 8 and column 8 have their white lines where its picture has them.
+    /// onto black, at the probe's seven positions and scales, tiled or not. GM8 rounds the tile and the position to
+    /// whole pixels, draws nothing for a tile under a pixel, and steps by the rounded tile, so row 8 and column 8
+    /// have their white lines where its picture has them.
     #[test]
     fn tiled_layers_round_their_tile_and_position_as_gm8() {
         let Some(gpu) = pollster::block_on(crate::gpu::request(crate::gpu::instance(), None)).ok()
@@ -1490,11 +1493,15 @@ mod tests {
             ..no_images()
         };
         let mut renderer = Renderer::new(gpu.device, gpu.queue, textures);
+        // Untiled in cases 4 and 5 (one copy, at its rounded position), and a tile under a pixel in 6 (nothing).
         for (k, (x, y, xscale, yscale)) in [
             (3.6, 2.4, 1.0, 1.0),
             (0.0, 0.0, 1.3, 1.3),
             (3.6, 2.5, 1.3, 0.7),
             (-5.5, -9.4, 1.55, 1.45),
+            (3.6, 2.4, 1.3, 1.3),
+            (3.5, 4.5, 1.0, 1.0),
+            (0.0, 0.0, -1.0, 1.0),
         ]
         .into_iter()
         .enumerate()
@@ -1513,8 +1520,8 @@ mod tests {
                     background: 0,
                     x,
                     y,
-                    tile_h: true,
-                    tile_v: true,
+                    tile_h: k < 4 || k == 6,
+                    tile_v: k < 4 || k == 6,
                     xscale,
                     yscale,
                     blend: Color::WHITE,

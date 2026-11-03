@@ -3,7 +3,8 @@
 // `y` before it steps the columns and rows). A 16 x 16 background made from a surface, gray with a white first column
 // and first row, is tiled through a 128 x 128 view at 1x into a 128 x 128 surface, black behind it, at four settings
 // (`case_N`: x, y, xscale, yscale). For each, row 8 and column 8 of the surface ("w" white, "g" gray, "." black, "r"
-// the surface's red): where each copy's white line falls says where the copy starts.
+// the surface's red): where each copy's white line falls says where the copy starts. Cases 4 and 5 are untiled (one
+// copy, at 3.6, 2.4, scaled 1.3), and case 6 tiled at a scale of -1 (a tile under a pixel).
 var t, b, s, k, bx, by, bxs, bys;
 t = surface_create(16, 16);
 surface_set_target(t);
@@ -45,11 +46,16 @@ view_object[0] = noone;
 out("tile_row0", SS_GetSoundVol(t, 1, 0));
 out("tile_row5", SS_GetSoundVol(t, 1, 5));
 s = surface_create(128, 128);
-for (k = 0; k < 4; k += 1) {
+for (k = 0; k < 7; k += 1) {
+    background_htiled[0] = k < 4 || k == 6;
+    background_vtiled[0] = k < 4 || k == 6;
     if (k == 0) { bx = 3.6; by = 2.4; bxs = 1; bys = 1; }
     if (k == 1) { bx = 0; by = 0; bxs = 1.3; bys = 1.3; }
     if (k == 2) { bx = 3.6; by = 2.5; bxs = 1.3; bys = 0.7; }
     if (k == 3) { bx = -5.5; by = -9.4; bxs = 1.55; bys = 1.45; }
+    if (k == 4) { bx = 3.6; by = 2.4; bxs = 1.3; bys = 1.3; }
+    if (k == 5) { bx = 3.5; by = 4.5; bxs = 1; bys = 1; }
+    if (k == 6) { bx = 0; by = 0; bxs = -1; bys = 1; }
     background_x[0] = bx;
     background_y[0] = by;
     background_xscale[0] = bxs;
