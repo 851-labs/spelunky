@@ -4,7 +4,8 @@ What the committed replays (`fidelity/replays/`) exercised, [all together](#all-
 fuzz sweeps did: [goal-directed](#goal-directed-851-3189) runs, which get through levels, plain
 [random](#random-input-851-3183) ones, and the [chaos soak](#chaos-soak-851-3299) that keeps adding both. [Deliberate interactions](#deliberate-interactions-851-3137-851-3153-851-3154)
 lists which replays exercise the player's actions, items, bombs and ropes, and
-[Game flow](#game-flow-851-3159) the transitions, deaths, pause, HUD and deactivation.
+[Game flow](#game-flow-851-3159) the transitions, deaths, pause, HUD and deactivation. [GML lines](#gml-lines-851-3775)
+goes below the objects: which lines of the GML the replays run, and why each unit that never runs doesn't.
 
 ## All committed replays
 
@@ -116,6 +117,48 @@ altar, so the six more spiders need a later level that is dark with a ghost: `it
 A sacrifice to an angry Kali, with the favor below 0 but above -8: `item-seed-11-kali-angry-sacrifice`
 (851-3549) defiles level 9's altar at a favor of 12 (-4, 1455) and puts a dead yeti on level 10's (1968), whose
 `global.favor < 0` branch adds its 2 as the other branch would (-2, quirks §1).
+
+## GML lines (851-3775)
+
+Below the objects, which lines of the GML the committed replays run. `replay-coverage --lines` plays every committed
+replay (the settings program's too) with `gm::World::record_lines` on, and holds what they reached to every line of
+the generated code, `// N: <GML>` then `g.at("<unit>", N)` (crates/transpile), read from `crates/game/src/generated`
+and `crates/config/src/generated`. A unit is an event's code action or a script.
+
+```sh
+scripts/cargo run --release -p harness --bin replay-coverage -- --lines            # totals, and the units never run
+scripts/cargo run --release -p harness --bin replay-coverage -- --lines --missed   # and each partly run unit's lines that didn't, with their GML
+scripts/cargo run --release -p harness --bin replay-coverage -- --lines --by-line oSnake/   # which replays run each line
+```
+
+All 256 committed replays, 491,636 frames:
+
+- **The game**: 16587 of 19934 lines (83.2%), in 1091 units: 153 never ran, 238 partly.
+- **The settings program**: 554 of 1226 lines (45.2%), in 109 units: 66 never ran, 11 partly.
+
+The game's units that never ran, by why:
+
+- **Replaced by the port's own code** (23, never run by design): the `SS_*` wrappers, which `crates/game/src/overrides.rs`
+  answers as supersound.dll would (docs/quirks.md §7). `scripts/SS_FreeSound`, `scripts/SS_GetSoundBytesPerSecond`, `scripts/SS_GetSoundFreq`, `scripts/SS_GetSoundLength`, `scripts/SS_GetSoundPan`, `scripts/SS_GetSoundPosition`, `scripts/SS_GetSoundVol`, `scripts/SS_Init`, `scripts/SS_IsHandleValid`, `scripts/SS_IsSoundLooping`, `scripts/SS_IsSoundPaused`, `scripts/SS_IsSoundPlaying`, `scripts/SS_LoadSound`, `scripts/SS_LoopSound`, `scripts/SS_PauseSound`, `scripts/SS_PlaySound`, `scripts/SS_ResumeSound`, `scripts/SS_SetSoundFreq`, `scripts/SS_SetSoundPan`, `scripts/SS_SetSoundPosition`, `scripts/SS_SetSoundVol`, `scripts/SS_StopSound`, `scripts/SS_Unload`.
+- **Of objects nothing in 1.1 creates** (64, unreachable; the object table above has why for the objects it lists):
+  the SuperSound demo `core` and `mascara`, placed only in `room0`, which nothing goes to; the settings program's
+  objects copied into the game (`oKeyConfig`, `oJoyConfig` and their rooms, `oCheckBox`..., `oSlider*`, `oOKButton`,
+  `oPageUp`, `oPageDown`), which only `oKeyConfigButton` and `oJoyConfigButton`, which nothing creates, lead to;
+  and the unused items, traps and backgrounds. `core/create#1`, `core/draw#0`, `core/mouse_12#0`, `mascara/create#0`, `oAlienShipFloor/destroy#1`, `oBackdrop/create#0`, `oBasketball/create#1`, `oBasketball/step#1`, `oCaveBG/create#0`, `oCheckBox/create#0`, `oCheckBox/mouse_4#0`, `oCheckBox2/create#0`, `oCheckBox2/mouse_4#0`, `oCheckBox3/create#0`, `oCheckBox3/mouse_4#0`, `oCheckBox4/create#0`, `oCheckBox4/mouse_4#0`, `oEntranceCheck/collision_oSolid#0`, `oEntranceCheck/step#0`, `oFireFrogArmed/create#1`, `oForeground/create#0`, `oGold/destroy#0`, `oGoldBig/destroy#0`, `oJordans/create#1`, `oJoyConfig/create#0`, `oJoyConfig/draw#0`, `oJoyConfig/other_5#0`, `oJoyConfig/step#0`, `oJoyConfigButton/mouse_11#0`, `oJoyConfigButton/mouse_4#0`, `oJoyConfigButton/mouse_7#0`, `oKeyConfig/create#0`, `oKeyConfig/draw#0`, `oKeyConfig/keypress_1#0`, `oKeyConfig/other_5#0`, `oKeyConfigButton/mouse_11#0`, `oKeyConfigButton/mouse_4#0`, `oKeyConfigButton/mouse_7#0`, `oOKButton/mouse_11#0`, `oOKButton/mouse_4#0`, `oOKButton/mouse_7#0`, `oPageDown/keypress_40#0`, `oPageUp/keypress_38#0`, `oRadioBox/create#0`, `oRadioBox/mouse_4#0`, `oRopeBag/create#1`, `oSlider1/create#0`, `oSlider1/mouse_4#0`, `oSlider1/step#0`, `oSlider2/alarm_0#0`, `oSlider2/create#0`, `oSlider2/mouse_4#0`, `oSlider2/step#0`, `oSmallCollect/create#1`, `oSmallCollect/step#0`, `oTarget/collision_oArrow#0`, `oTarget/create#0`, `oTarget/step#0`, `oTemp/alarm_0#0`, `oTemp/create#1`, `oTemp/step#0`, `oTemp/step#1`, `oThwompTrap/create#1`, `oThwompTrap/step#0`.
+- **Keys and pads no replay uses**: `oGame/keypress_77#0`, the M key's music toggle (851-3785);
+  `scripts/checkFlarePressed`, unreachable, as its only call is commented out (`objects/oPlayer1/step.gml:413`);
+  and the whole joystick path, `oGamepad/step#1`, `scripts/checkJoyButton`, `scripts/scrGetJoy`, reachable with a gamepad (851-3949).
+- **Monsters and traps on each other** (851-3843, 851-3783): `oManTrap/collision_oCaveman#0`, `oManTrap/collision_oDamsel#0`, `oManTrap/collision_oShopkeeper#0`, `oMagma/collision_oEnemy#0`, `oMagmaMan/collision_oEnemy#0`, `oPsychicWave/collision_oDamsel#0`, `oPsychicWaveP/collision_oDamsel#0`, `oLaser/collision_oDamsel#0`, `oUFOCrash/collision_oEnemy#0`.
+- **Explosions on webs, boulders and barrier emitters, and destroy events** (851-3781, 851-3807): `oExplosion/collision_oBarrierEmitter#0`, `oExplosion/collision_oBoulder#0`, `oExplosion/collision_oWeb#0`, `oBarrierEmitter/destroy#0`, `oCeilingTrap/destroy#0`, `oDoor/destroy#0`, `oSign/destroy#0`, `oIceBlock/destroy#0`.
+- **Weapons and thrown things no replay hits with** (851-3811, 851-3782): `oSkull/collision_oBullet#0`, `oBarrier/collision_oBullet#0`, `oBarrierEmitter/collision_oBullet#0`, `oHawkman/collision_oWhipPre#0`, `oWebBall/collision_oEnemy#0`, `oWebBall/collision_oWater#0`, `oWebBall/alarm_0#0`, `oWebBall/alarm_1#0`, `oWeb/collision_oLaser#0`.
+- **Not classified yet** (35, 851-3948: unreachable or reachable, each to say): `oAlienBoss/collision_oCharacter#0`, `oAlienEject/collision_oPlayer1#0`, `oAlienEject/collision_oWeb#0`, `oAlienEject/other_0#0`, `oArrowRepeaterL/alarm_0#0`, `oArrowRepeaterL/alarm_1#0`, `oArrowRepeaterL/destroy#0`, `oArrowRepeaterR/alarm_0#0`, `oArrowRepeaterR/alarm_1#0`, `oArrowRepeaterR/destroy#0`, `oArrowTrapLeft/alarm_0#0`, `oArrowTrapRight/alarm_0#0`, `oBarrier/collision_oCharacter#0`, `oBarrier/collision_oWebBall#0`, `oBarrierEmitter/collision_oItem#0`, `oBasket/other_7#0`, `oBullet/alarm_0#0`, `oFly/collision_oDamsel#0`, `oHawkman/alarm_0#0`, `oNewButton/mouse_11#0`, `oPDummy3/alarm_0#0`, `oPDummy3/alarm_2#0`, `oPlayer1/alarm_3#0`, `oPushBlock/other_0#0`, `oSpearTrapBottom/alarm_0#0`, `oSpearTrapTop/alarm_0#0`, `oSpider/alarm_1#0`, `oVampire/alarm_0#0`, `oYellowBall/alarm_0#0`, `scripts/getIdCollisionCharacter`, `scripts/getIdCollisionCharacterTop`, `scripts/isCollisionCharacter`, `scripts/isCollisionCharacterLeft`, `scripts/isCollisionMovingSolidBottom`, `scripts/scrMoveableSolidRecurseDrop`.
+
+The settings program's units that never ran: its `SS_*` wrappers, replaced as the game's are
+(23); scripts nothing in it calls, left over from the game's code (`scripts/checkAttack`, `scripts/checkAttackPressed`, `scripts/checkAttackReleased`, `scripts/checkBombPressed`, `scripts/checkDown`, `scripts/checkDownPressed`, `scripts/checkFlarePressed`, `scripts/checkItemPressed`, `scripts/checkJump`, `scripts/checkJumpPressed`, `scripts/checkJumpReleased`, `scripts/checkLeft`, `scripts/checkLeftPressed`, `scripts/checkLeftReleased`, `scripts/checkPayPressed`, `scripts/checkRight`, `scripts/checkRightPressed`, `scripts/checkRightReleased`, `scripts/checkRopePressed`, `scripts/checkRun`, `scripts/checkStartPressed`, `scripts/checkUp`, `scripts/checkUpPressed`, `scripts/rand`, `scripts/scrGetChar`, `scripts/scrGetJoy`, `scripts/scrGetKey`); the objects nothing in it creates
+or places (`core/create#1`, `core/draw#0`, `core/mouse_12#0`, `mascara/create#0`, `oGamepad/create#0`, `oGamepad/step#1`, `oLoadVal/create#0`); and the events no settings replay fires (851-3794): `oExitButton/mouse_11#0`, `oInit/keypress_13#0`, `oInit/other_30#0`, `oKeyConfigButton/mouse_11#0`, `oOKButton/mouse_11#0`, `oPageDown/keypress_40#0`, `oPageDown/mouse_7#0`, `oPageUp/keypress_38#0`, `oPageUp/mouse_7#0`.
+
+The lines that didn't run inside units that did (`--missed`) are mostly the branches behind the tickets above, and the
+everyday-play gaps 851-3772's audit filed one by one.
 
 ## Level editor and custom levels (851-3135, 851-3245)
 
