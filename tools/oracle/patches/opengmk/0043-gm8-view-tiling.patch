@@ -1,0 +1,46 @@
+diff --git a/gm8emulator/src/game/draw.rs b/gm8emulator/src/game/draw.rs
+--- a/gm8emulator/src/game/draw.rs
++++ b/gm8emulator/src/game/draw.rs
+@@ -420,14 +420,18 @@ impl Game {
+             game.particles.draw_system(id, &mut game.renderer, &game.assets, true);
+         }
+ 
+-        // Extent for drawing tiles in case view is rotated
+-        let tile_end_x = f64::from(src_x + src_w + src_h / 2);
+-        let tile_end_y = f64::from(src_y + src_h + src_w / 2);
+-
+         // Spelunky oracle: each background layer's Rounds can trap on Intel, over the view's span: its left edge and
+         // width, wider for a rotated view, taken before the draw events (the port's `World::draw_backgrounds`,
+         // 851-3304).
+         let span = gml::gm8::view_span(src_x, src_w, src_h, angle);
++        // Spelunky oracle: a tiled layer's columns go up to the view's right edge, not past it, and its rows to the
++        // bottom edge, as GM8 tiles them (its tiled draw, 0x4a459c, which `gml::gm8::draw_background` describes;
++        // probe `view-tiling`, 851-3967). Under a scaled view the half-pixel shift then leaves the last pixels
++        // uncovered, as GM8 does. Only a rotated view spans wider, by half its other side each way (Spelunky
++        // rotates none). OpenGMK tiled half the view's other side past both, rotated or not.
++        let rows = gml::gm8::view_span(src_y, src_h, src_w, angle);
++        let tile_end_x = f64::from(span.0.wrapping_add(span.1));
++        let tile_end_y = f64::from(rows.0.wrapping_add(rows.1));
+         let gm8_background = |background: &crate::game::background::Background, bg_asset: &asset::Background| {
+             gml::gm8::draw_background(
+                 (f64::from(bg_asset.width), f64::from(bg_asset.height)),
+diff --git a/gm8emulator/src/render/opengl.rs b/gm8emulator/src/render/opengl.rs
+--- a/gm8emulator/src/render/opengl.rs
++++ b/gm8emulator/src/render/opengl.rs
+@@ -148,8 +148,14 @@ impl RenderState {
+         unsafe {
+             gl.GetIntegerv(gl::VIEWPORT, viewport.as_mut_ptr());
+         }
+-        let offset_x = 1.0 / f64::from(viewport[2]);
+-        let offset_y = 1.0 / f64::from(viewport[3]);
++        // Spelunky oracle: a hair less than half a pixel (1/512 of one less), so a pixel centre exactly on a quad's
++        // edge, or a sample exactly on a texel boundary, lands where Direct3D 8's rules put it, inside on the top and
++        // left edges and in the later texel, whatever the f32 matrices round (851-3967). At a scale of 2, every other
++        // pixel's sample is on a texel boundary, and exactly half a pixel left some on the earlier texel. An edge or a
++        // boundary within that 1/512 of a pixel centre moves too: well under any f32 error that mattered, and over
++        // the rasterizer's snapping of an exact tie.
++        let offset_x = (1.0 - 1.0 / 256.0) / f64::from(viewport[2]);
++        let offset_y = (1.0 - 1.0 / 256.0) / f64::from(viewport[3]);
+         // build viewproj matrix
+         #[rustfmt::skip]
+             let viewproj = mat4mult(

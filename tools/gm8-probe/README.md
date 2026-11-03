@@ -46,7 +46,20 @@ must be off (`echo 0 | sudo tee /proc/sys/fs/binfmt_misc/qemu-i386` in `colima s
 loader runs under QEMU instead of on the CPU.
 
 The unmodified `Spelunky.exe` boots the same way, with the real `supersound.dll`, and plays its intro
-(screenshotted 70 s in); playing it would need input injected (`xdotool`), which nothing here does yet.
+(screenshotted 70 s in).
+
+`tools/gm8-probe/shoot EXE OUTDIR 'ACTIONS'` takes GM8's picture of the game's own programs, unmodified, for a renderer
+question (851-3967): it runs `Spelunky.exe` or `config.exe` under Wine in a window manager (`openbox`: without one the
+window takes no keyboard focus and isn't resized between rooms), plays `wait S`, `click X Y` and `key NAME` steps
+(`xdotool`) and saves the window's client area as `OUTDIR/window.png`. The picture is of a state, not a frame: it's
+compared with a replay's frame showing the same state, when nothing on it moves. `config.exe`'s key config asking for
+LEFT and its main screen, shot so, are `fidelity/settings/key-config.txt`'s frames 10 and 30 in `fidelity-shots` to
+the pixel:
+
+```sh
+tools/gm8-probe/shoot config.exe /tmp/kc 'wait 60; click 28 504; wait 6; key w; wait 3; key w; wait 6'
+tools/gm8-probe/shoot config.exe /tmp/init 'wait 60'
+```
 
 `GM8_PROBE_MEMORY` (e.g. `4g`) caps the container's memory, for the probes that build huge strings: GM8 is a
 32-bit process, but the oracle isn't. A probe whose game hasn't ended after `GM8_PROBE_TIMEOUT` seconds (default
@@ -129,6 +142,7 @@ answers otherwise, the row says so ("Real x87" below).
 | A `WM_KEYDOWN` for a key already down, as keyboard auto-repeat sends (`key-repeat`, 851-3774: `keyboard_key_press(ord("N"))`, M tapped, `keyboard_key` and `keyboard_lastkey` set to 0, then N pressed again while held; `keyboard_key_press` goes through GM8's message loop, so it arrives on the next step) | not pressed again (`keyboard_check_pressed`, of N and of `vk_anykey`, 0), but `keyboard_key` and `keyboard_lastkey` become N; Wine only, as OpenGMK doesn't implement `keyboard_key_press` | pressed again (the oracle's patch 0035 and the port follow GM8) |
 | How often, and when, a key press "any key" event runs for one press (`keypress-anykey`, 851-3773: an `oKeyConfig`, whose any-key event counts its runs in `status`, and `keyboard_key_press(vk_f1)`; `oScreen`'s F1 press event calls `isLevel()`, which logs the count from inside it) | once, after the specific keys' events: `status` 0 inside F1's event, 1 after it and on every later step; Wine only, as OpenGMK doesn't implement `keyboard_key_press` | twice, the first before the specific keys' (the oracle's patch 0036 and the port follow GM8) |
 | `tile_layer_find` (`tile-layer-find`, 851-3787: a 16x48 tile's edges, fractional and other depths, ties between tiles at one depth added with tiles at other depths between them, before and after `screen_redraw()` and after a `tile_delete`, and a tile scaled 2x; then `tile_layer_delete_at` there) | the first tile added, at exactly the depth, in `left <= x < left + width`, `top <= y < top + height`, unscaled (found at (508, 508), not (520, 520)); a draw doesn't change which. `tile_layer_delete_at` deletes every tile in that box | -1 always: 8.0 taken to measure the tile as 0 by 0 (the oracle's patch 0037 and the port follow GM8; `results/opengmk/` is the patched oracle's, the same lines) |
+| A tiled background layer through a scaled view (`view-tiling`, 851-3967: `backgroundClouds`, 32x32, tiled through a 64x64 view stretched 2x over a 128x128 surface, read back with `surface_getpixel`) | lit to pixel 126 of each row and column; the last column and row (127) black. The layer goes up to the view's edges and no further (its tiled draw, 0x4a459c), and the half-pixel shift, a whole pixel at 2x, leaves the edge uncovered: the settings program's 2x window has the black column | lit to 127: OpenGMK tiled half the view's other side past it, rotated or not (the oracle's patch 0043 and the port's renderer follow GM8; `results/opengmk/` is the patched oracle's) |
 | GML errors after the game's start (`late-div0`, `late-ln0`) | "Division by 0." and, on Intel, "Error in function ln().": GM8's error dialog, as at game start (`ln` catches its own trap) | the same errors |
 | `make_color_rgb(-1, 1, 0)`, `(2^32 + 1, 0, 0)`, `(0, 0, 2^48)` (`color-components`: components past a byte and past 32 bits) | 255, 4294967297, 0: `r + g * 256 + b * 65536` on `Int64` components, wrapping; the same on Intel | -1, 1, 0: `r \| g << 8 \| b << 16` on 32-bit components (patch 0014 follows GM8, 851-3270) |
 | `n * "a"` for `n` of 2^28 + 1, `19 * 2^24` (304 MiB), `39 * 2^23` (312 MiB), 2^29; 2^23 copies of 64 bytes | built, built, "Unexpected error occured when running the game." (out of memory), the same; the same error: the limit is on bytes. The same on Intel (twice) and under Rosetta (`mulstr-2p28+1`, `mulstr-19x2p24`, ...) | built, up to `i32::MAX` bytes (the port and patch 0014 stop past 304 MiB, 851-3282) |
