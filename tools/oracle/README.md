@@ -92,7 +92,7 @@ Supported:
   runs, as GM8's does (patch 0034).
 
 Not supported, and rejected with an error: any other `room`. Joystick input, `joystick` (`joystick pov`), `joy1`-`joy32`
-and `axis` events, is patch 0038's.
+and `axis` events, is patch 0039's.
 
 The game's bindings come from `keys.cfg`: by default the arrow keys, `Z` jump, `X` attack, `C` item, `Shift`
 run, `A` bomb, `S` rope, `F` flare and `P` pay. `Escape` is start (pause).
@@ -540,7 +540,7 @@ match in the draw order is the first added, as in GM8, since every match is at t
 stable. `tile_layer_delete_at`, which has the same test, deletes every tile in the same box, as GM 8.0's does (the same probe;
 the game never calls it).
 
-### `opengmk/0038-gm8-joystick.patch`
+### `opengmk/0039-gm8-joystick.patch`
 
 A text replay's joystick (851-3949, `docs/quirks.md` §7, "Joysticks"): the `joystick` / `joystick pov` directive
 connects joystick 1, `press`/`release`/`hold` take `joy1`-`joy32`, and `axis x|y|z|pov V` moves an axis, held from
@@ -582,7 +582,7 @@ port's `gm::input` takes it.
   the handle globals differ from a real run. The port's `audio` crate reproduces the stub in its `OracleCompat`
   mode: run the port in that mode when diffing against the oracle, and `--fields` diffs match on those globals too.
   The default `Faithful` mode models the real DLL. See the `audio` crate docs for the full table.
-- **Joysticks are patch 0038's.** OpenGMK reports no joystick; the patch gives a replay's joystick to the
+- **Joysticks are patch 0039's.** OpenGMK reports no joystick; the patch gives a replay's joystick to the
   `joystick_*` functions the game calls, as GM8's runner computes them. The others (`joystick_name`, `_axes`,
   `_buttons`, `_rpos`, `_upos`, `_vpos`) are still stubs: the game never calls them.
 - **The clock doesn't matter.** OpenGMK spoofs it from the replay's `time` and advances it one frame per frame,

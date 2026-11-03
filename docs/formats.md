@@ -469,4 +469,4 @@ panicking later. The port's savestates are unrelated to the oracle's (OpenGMK's 
 - Replays: it accepts `settings`, `keys`, `gamepad`, `file`, `highscore`, mouse buttons, `wheel`, `mouse` and
   `close` (patch 0034).
   It rejects `room` other than `rScreenInit`. Joystick input (the `joystick` directive, `joy1`-`joy32`, `axis`)
-  it plays through patch 0038, as GM8's runner reads winmm.
+  it plays through patch 0039, as GM8's runner reads winmm.

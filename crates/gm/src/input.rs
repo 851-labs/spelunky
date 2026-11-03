@@ -8,7 +8,7 @@
 //! GM8 reads joysticks through winmm when a `joystick_*` function is called. Here joystick 1 is the
 //! replay's (its `joystick` directive, [`World::connect_joystick`]) and its buttons and axes follow the
 //! replay's events; joystick 2 never exists. Each built-in answers as GM8's runner computes it from winmm's
-//! raw values (below, 851-3949), as the oracle's patch 0038 does; a joystick that doesn't exist answers what
+//! raw values (below, 851-3949), as the oracle's patch 0039 does; a joystick that doesn't exist answers what
 //! GM8 and OpenGMK's stubs answer without one.
 
 use crate::World;
