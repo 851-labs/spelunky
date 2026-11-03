@@ -189,6 +189,7 @@ const ROUTES = {
   [`${GAME}/assets/bundle.bin`]: false,
   [`${GAME}/assets/config/bundle.bin`]: false,
   ["/media/logo.png"]: false,
+  ["/media/card.png"]: false,
   ["/media/gameplay.png"]: false,
   ["/media/gameplay.mp4"]: true,
   [`${MEDIA}/clips/snake/bite/clip.mp4`]: true,

@@ -1009,8 +1009,9 @@ got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 # www redirects to https://spelunky.ai, path and query kept, from plain HTTP too (as wrangler dev is) in one hop.
 check "http://localhost:$www_port/play/?a=1" 301 "location: https://spelunky.ai/play/?a=1" "$hsts"
 
-# The landing page's card (landing-card.mjs checks it's current, above), served.
-check "$site/media/card.png" 200 "$no_cache" "content-type: image/png"
+# The landing page's card (landing-card.mjs checks it's current, above), served as /media/'s pictures are: without
+# the Worker, cached for a day (it keeps its name, and social sites keep their own copy longer anyway).
+check "$site/media/card.png" 200 "$media_cache" "content-type: image/png" "x-content-type-options: nosniff"
 same public/media/card.png
 # Every page's Content-Security-Policy names exactly its inline scripts.
 node csp.mjs check dist/client || fail "csp.mjs check"
