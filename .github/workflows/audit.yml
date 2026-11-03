@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      # The lockfiles and site/: not the wiki's media (about 200 MB), whose files a partial clone never fetches.
+      # The lockfiles and site/: not the wiki's media (about 250 MB), whose files a partial clone never fetches.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false

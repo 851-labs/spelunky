@@ -11,8 +11,8 @@ official or unmodified version of Spelunky.
 The goal is an exact replica: the same behavior tick for tick, bugs included, verified against the original
 game. It runs natively (Metal on macOS) and in the browser (WebGPU).
 
-Play: https://spelunky.ai (live once Cloudflare's Workers Builds is connected to the repo and a release's web
-build is bumped in: see [docs/web-deploy.md](docs/web-deploy.md)).
+Play: https://spelunky.ai/play/, the release `site/web-release.txt` pins (see
+[docs/web-deploy.md](docs/web-deploy.md)), with the wiki at https://spelunky.ai/wiki.
 
 ## Setup
 
@@ -94,8 +94,16 @@ same pixels as native.
 - `crates/trace`: replay and trace formats shared with the reference oracle.
 - `crates/transpile`: the GML-to-Rust transpiler that generates the game's code.
 - `crates/game`: Spelunky's logic, transpiled from the original GML: headless, deterministic, cloneable.
+- `crates/config`: the settings program (`config.exe`) on the same runtime.
+- `crates/audio`: `supersound.dll` for the port, a deterministic model of every sound handle, and the device.
+- `crates/draw`: draw lists, what the game emits each tick and the app renders.
 - `crates/app`: native and web frontend.
-- `crates/tools`: extractor, wiki sprite exporter, transpiler driver, replay runner, trace diff.
+- `crates/update`: the native apps' updater ([docs/updates.md](docs/updates.md)).
+- `crates/harness`: the headless replay runner (`replay-run`), the oracle-vs-port loop (`fidelity`,
+  `fidelity-check`), the fuzzer (`fuzz-sweep`), the area router and the wiki's clips (`wiki-clips`).
+- `crates/tools`: extractor, wiki sprite, room and data exporters, citation checker, icon maker, transpiler
+  driver, trace diff.
+- `crates/workspace-hack`: the workspace's features for a build of one package (`scripts/workspace-hack`).
 - `reference/`: the original 1.1 game and source, unmodified (see `reference/README.md`).
 - `docs/`: design notes and the [source inventory](docs/source-inventory.md).
 - `site/`: spelunky.ai, the landing page and the web build's deploy ([docs/web-deploy.md](docs/web-deploy.md)).

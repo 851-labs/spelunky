@@ -717,8 +717,8 @@ which is otherwise 1.5 a core, so a Mac with another number of cores than the mi
 frames differently (libvpx's VP9 doesn't, with `row-mt`). Intel Macs and other systems aren't covered: the
 capture's GPU and the mix's floats could differ.
 
-**The repository's size.** The media are about 200 MB, nearly all the clips' videos (273 clips, an MP4 and a
-WebM each, 186 MB; the sprites' 6,935 PNGs are 10 MB), and Git keeps every version of a file it's had: a
+**The repository's size.** The media are about 245 MB, nearly all the clips' videos (329 clips, an MP4 and a
+WebM each, 236 MB; the sprites' 6,662 PNGs are 6.5 MB), and Git keeps every version of a file it's had: a
 change that re-renders every clip adds its size again. So a pull request commits its media in one commit,
 rendered once it's otherwise done, rather than again with each fix: the squash merge keeps only the last, but a
 branch's every pushed commit is fetched by the minis and kept by GitHub until it's gone. The jobs on GitHub's
