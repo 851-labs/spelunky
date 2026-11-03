@@ -43,12 +43,11 @@ fn fs_main(v: VertexOut) -> @location(0) vec4<f32> {
     if v.layer == UNTEXTURED {
         return v.color;
     }
-    // A sample exactly on a texel boundary takes the later texel, as Direct3D 8's point sampling does: under a 2x
-    // view every other pixel's sample is on one, and the interpolated f32 may land a hair short of it, so it's
-    // nudged by 1/512 of a texel (851-3967). Then clamped to the image like GM's renderer does, so an edge pixel
-    // never reads its neighbour.
-    let uv = floor(v.uv + vec2<f32>(1.0 / 512.0));
-    let texel = clamp(vec2<i32>(uv), vec2<i32>(v.rect.xy), vec2<i32>(v.rect.zw) - 1);
+    // Clamp to the image like GM's renderer does, so an edge pixel never reads its neighbour. A sample exactly on a
+    // texel boundary (every other pixel's under a 2x view) takes the later texel, as Direct3D 8's point sampling
+    // does: the UVs come from f64 on the CPU, so the f32 interpolation lands on it (`tiled_layers_stop_at_the_views_edges`
+    // checks; a nudge here would move the samples of rotated and scaled sprites that are only near one, 851-3967).
+    let texel = clamp(vec2<i32>(floor(v.uv)), vec2<i32>(v.rect.xy), vec2<i32>(v.rect.zw) - 1);
     let layer = i32(v.layer & ~BACKGROUND_BANK);
     if (v.layer & BACKGROUND_BANK) != 0u {
         return textureLoad(backgrounds, texel, layer, 0) * v.color;
