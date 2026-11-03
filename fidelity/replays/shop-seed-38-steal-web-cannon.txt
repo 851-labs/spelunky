@@ -1,0 +1,85 @@
+# Stealing the web cannon (851-3784): scrStealItem's Web Cannon branch. Seed 38: weapon-seed-38-web-cannon.txt to
+# frame 1020 (level 2 at 835, in Andy's Armory), then area-route --steps '+oWebCannon$' --wait 2 (holds the
+# unpaid web cannon, "A WEB CANNON FOR $2000.", 1038), then by hand: he runs right (run key, 1043) and jumps (1055)
+# out of the shop's room, which steals it (1057: its cost and forSale cleared, thiefLevel 2, "COME BACK HERE,
+# THIEF!" replacing the theft's own message on the same step). The shopkeeper's shot kills him (1071). Ends at
+# 1150.
+# story: currLevel=2@763 held=oWebCannon@1038 thiefLevel=2@1057..1057 plife=0@1071
+# story: oWebCannon.cost=0@1057..1057 oWebCannon.forSale=0@1057..1057
+seed 38
+highscore 9000000 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2100001 "TUNNEL1"
+highscore 1200001 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+520 release left
+535 press up
+540 release up
+600 press left
+660 release left
+660 press down
+666 release down
+666 press left
+666 press Z
+672 release Z
+732 release left
+732 press right
+762 release right
+762 press up
+768 release up
+768 press left
+795 release left
+795 press X
+797 release X
+803 press X
+805 release X
+811 press X
+813 release X
+819 press X
+821 release X
+827 press X
+829 release X
+835 press X
+836 release X
+836 press left
+866 release left
+866 press Z
+872 release Z
+872 press left
+878 press Z
+884 release Z
+884 press X
+890 release X
+896 press X
+902 release X
+908 release left
+908 press right
+914 release right
+914 press down
+920 release down
+920 press left
+920 press Z
+926 release Z
+1016 release left
+1020 press right
+1020 press X
+1026 release X
+1038 release right
+1038 press down
+1038 press X
+1039 release down
+1039 release X
+1043 hold shift 60
+1043 hold right 60
+1055 hold Z 10
+frames 1151
