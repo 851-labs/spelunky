@@ -26,8 +26,9 @@ faq:
       after he's dead.
   - q: What happens when you're a murderer in Spelunky Classic?
     a: >-
-      For the rest of the game, every Shopkeeper patrols and shouts "YOU'LL PAY FOR YOUR CRIMES!", every ware
-      is free, and a Shopkeeper waits by each level's exit.
+      For the rest of the game, every Shopkeeper patrols and attacks on sight, every ware is free, and a
+      Shopkeeper waits by each level's exit. A Shopkeeper angered some other way before he attacks (by a lit
+      bomb, say) shouts "YOU'LL PAY FOR YOUR CRIMES!" in place of his usual line.
   - q: Do other monsters killed by Spikes count as kills?
     a: >-
       No. A monster the Spikes or a Spear Trap kill isn't counted as the player's kill. Only the Shopkeeper's
@@ -35,7 +36,7 @@ faq:
 sources:
   - objects/oShopkeeper/step.gml
   - objects/oEnemy/step.gml
-verified: { port: v0.1.10, date: 2026-10-28 }
+verified: { port: v0.1.17, date: 2026-11-02 }
 ---
 
 Monsters killed by traps don't count as the player's kills: [[spikes|Spikes]] and the
@@ -70,8 +71,12 @@ The player is made a murderer when a Shopkeeper is crushed or found inside a sol
 what did it either
 <Cite gml="objects/oShopkeeper/step.gml:24-68" />. Only the [[stars-room|Stars Room]]'s Shopkeepers are spared, where a
 death counts toward the room's score instead. A murderer stays one until a new game: every Shopkeeper patrols
-and shouts "YOU'LL PAY FOR YOUR CRIMES!", every ware is free, and each level's exit has a Shopkeeper waiting
-by it <Cite gml="scripts/scrInitLevel.gml:245-257" /> <Cite quirk="1" />.
+<Cite gml="objects/oShopkeeper/step.gml:121-124" />, and attacks without a word once the player comes near
+him or lines up with him above or below <Cite gml="objects/oShopkeeper/step.gml:87-97" />; every ware is free
+<Cite gml="objects/oItem/step.gml:8-15" />; and each level's exit has a Shopkeeper waiting by it
+<Cite gml="scripts/scrInitLevel.gml:245-257" /> <Cite quirk="1" />. A Shopkeeper shouts "YOU'LL PAY FOR YOUR
+CRIMES!" only when something else angers him before he attacks (a lit bomb, a broken wall), in place
+of the line he'd shout at anyone else <Cite gml="scripts/scrShopkeeperAnger.gml:10-18" />.
 
 ## Reproducing it
 

@@ -30,20 +30,22 @@ faq:
       frame, before the player's step has capped them to 99. Four digits run over the rope icon.
   - q: Can the test start with more hearts or ropes too?
     a: >-
-      The test doesn't limit them either, so they can be typed above 99 too; the player's step caps them at 99 as it
-      does the bombs.
+      Yes, and with fewer. The test doesn't limit the hearts or ropes either: above 99, the player's step caps them
+      at 99 as it does the bombs, but nothing raises a low value, so a test started with 0 hearts kills the player
+      as soon as the level loads, where the menu would start him with 1.
 sources:
   - scripts/scrTestLevel.gml
   - scripts/scrLoadLevel.gml
   - scripts/scrDrawHUD.gml
   - objects/oPlayer1/step.gml
-verified: { port: v0.1.13, date: 2026-10-28 }
+verified: { port: v0.1.17, date: 2026-11-02 }
 ---
 
-A custom level's info sets the hearts, bombs and ropes it starts with. Played from the menu, the game limits them,
-the bombs and ropes to 0-99 and the hearts to 1-99. The [[level-editor|level editor]]'s Test button starts the level
-with them as they were typed, and the player's step caps them at 99 a frame later, so all it shows is a four-digit
-count on the HUD for the level's first frame.
+A custom level's info sets the hearts, bombs and ropes it starts with. Played from the menu, the game rounds them
+down and limits them, the bombs and ropes to 0-99 and the hearts to 1-99. The [[level-editor|level editor]]'s Test
+button starts the level with them as they were typed. The player's step caps them at 99 a frame later, so a high
+count shows only as four digits on the HUD for the level's first frame, but nothing raises a low one or rounds a
+fraction: a test with 0 hearts kills the player on arrival, and one with 2.5 bombs starts with 2.5.
 
 ## What happens
 
@@ -67,7 +69,12 @@ The test room then loads the level with `scrLoadLevel(-1)` <Cite gml="objects/oL
 the -1 skips the rounding down and the limits that a level played from the menu gets
 <Cite gml="scripts/scrLoadLevel.gml:138-148" /> <Cite quirk="1" />. The HUD draws the bombs' count after their
 icon, where four digits reach past the rope icon <Cite gml="scripts/scrDrawHUD.gml:27-40" />. From the next frame,
-the player's step caps the hearts, bombs and ropes at 99 <Cite gml="objects/oPlayer1/step.gml:9-11" />.
+the player's step caps the hearts, bombs and ropes at 99 <Cite gml="objects/oPlayer1/step.gml:9-11" />. It has no
+lower limit, and the info's fields take whatever is typed, digits and "." among it, as long as they aren't left
+empty <Cite gml="objects/oLevelEditor/keypress_anykey.gml:252-267" /> <Cite gml="scripts/scrGetChar.gml:61" />. So
+a START LIFE of 0 starts the test with no hearts, and the same step, which counts the test's room as a level,
+kills the player for having fewer than 1 <Cite gml="objects/oPlayer1/step.gml:1849-1851" />
+<Cite gml="scripts/isLevel.gml:7" />.
 
 ## Reproducing it
 

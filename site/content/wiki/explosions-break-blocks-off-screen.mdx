@@ -36,7 +36,7 @@ sources:
   - objects/oExplosion/collision_oSolid.gml
   - scripts/isLevel.gml
   - objects/oLevel/step.gml
-verified: { port: v0.1.14, date: 2026-10-29 }
+verified: { port: v0.1.17, date: 2026-11-02 }
 ---
 
 A [[bomb|Bomb]] that goes off out of sight breaks the [[block|blocks]] around it as one on the screen does. The code that
@@ -65,7 +65,10 @@ step does ([[items-freeze-off-screen]]). The first half reads as "or this is the
 no argument (GameMaker passes it one anyway, and nothing reads it). It asks whether the room is a level at all,
 the Tutorial, any level of the game, [[olmec|Olmec]]'s lair or a [[level-editor|custom level]]
 <Cite gml="scripts/isLevel.gml:7" />. So on a level the test always passes, and the explosion breaks every block
-it touches but the unbreakable ones, the level's border and the blocks under its doors <Cite quirk="1" />. (The
+it touches but the unbreakable ones, such as the level's border, the block under its exit (both doors' in Olmec's
+Lair) and those under the gold door and the Black Market's door <Cite gml="scripts/scrRoomGen.gml:345-357" /> <Cite
+gml="scripts/scrRoomGen5.gml:160-171" /> <Cite gml="scripts/scrEntityGen.gml:400-406" /> <Cite
+gml="scripts/scrEntityGen.gml:215-223" /> <Cite quirk="1" />. (The
 only other room with explosions, the high scores room's [[sun-room|Sun Room]], passes the screen test anyway: its screen
 doesn't move, and the room is barely taller than it <Cite gml="objects/oSunRoom/alarm_0.gml:31-36" />.) Whether `isRoom`, which does take a room's name, was meant is a guess: the screen's own
 code uses `isRoom("rTutorial")` to keep the Tutorial's messages white <Cite gml="objects/oScreen/step_begin.gml:252" />.
