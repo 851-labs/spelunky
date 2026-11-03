@@ -1,10 +1,11 @@
 # The level editor (F2 on the title) and a few of its corners no other replay reaches (851-3794): Q and Enter start
-# an empty level, 2 picks another kind of tile and 1 the blocks again (oLevelEditor's keypress_1: the entrance
-# first, 240), the New button
-# pressed and dragged off (its mouse leave resets the pressed sprite, 256) and released off it (nothing), then
-# pressed and released on it (270: the "new level" prompt, status 10), and N there (280), which empties testLevel and
-# restarts the room at the name prompt; Escape returns to the title. The window is 3x (screenScale 3).
-# story: room=rLevelEditor@200 oCursObj.sprite_index=sEntrance@240 oNewButton.sprite_index=sNewButton@256
+# an empty level; 2 picks another kind of tile and 1 the blocks again (oLevelEditor's keypress_49: the entrance
+# first, 240); the New button pressed and dragged off (its mouse leave resets the pressed sprite, 256) and released
+# off it (nothing), then pressed and released on it (270: the "new level" prompt, status 10); and N there (280),
+# which empties testLevel and restarts the room at the name prompt. Escape returns to the title. The window is 3x
+# (screenScale 3).
+# story: room=rLevelEditor@200 oCursObj.sprite_index=sBatLeft@234 oCursObj.sprite_index=sEntrance@240
+# story: oNewButton.sprite_index=sNewButtonPressed@252 oNewButton.sprite_index=sNewButton@256
 # story: oLevelEditor.status=10@270 room=rTitle@300
 seed 777
 frames 340
