@@ -206,9 +206,11 @@ run has played, on the oracle and the port with `--fields` (`fuzz-sweep`,
 level start, a quarter random input from a level start, and a quarter random input from partway through a
 committed replay (`--starts olmec,ending,credits,title,editor,custom,stars`, `harness::fuzz::FROM_REPLAYS`), where
 a run from a level start never gets: Olmec's Lair, the ending and the credits, the title's menus, the level editor
-(with the mouse) and a custom level, a bonus room (851-3793). Every run may press M, Enter or F10 from the pause
-screen now and then, besides the ten actions, and a third of the level starts begin with a `stats.txt` a game left
-behind. A run's seeds follow from its run number, 80 after the last run's (run 5, the first on
+(with the mouse and its keys) and a custom level, a bonus room (851-3793). A replay start plays its replay's own game
+seed, and the run's seed picks where in it to start (each start's frames: `FromReplay::frames`); it fuzzes freely in
+any room, and its frame count and coverage are its fuzzed frames only. Besides the ten actions, every run presses M
+and Enter now and then, and F10 from a level's pause screen, which ends the game; and a third of the level starts
+begin with a `stats.txt` a game left behind. A run's seeds follow from its run number, 80 after the last run's (run 5, the first on
 `main`, starts at 1451, after the seeds earlier sweeps took), so a re-run plays the same seeds and no two runs share
 one. The organization's projects share 20 concurrent jobs on GitHub's machines, so the soak never takes more
 than two: its jobs run in turn (the seeds, the two builds, the two shards, the report), and only one soak runs at

@@ -11,7 +11,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
 use harness::fuzz::{
-    Coverage, Directed, Start, coverage, fuzz_replay, object_folders, object_table, truncate,
+    Coverage, Directed, Start, coverage_from, fuzz_replay, object_folders, object_table, truncate,
 };
 use harness::load_assets;
 use serde::Serialize;
@@ -363,7 +363,12 @@ fn run_one(o: &Options, assets: &Arc<gm::Assets>, job: &Job) -> Result<RunResult
     } else if !o.port_only {
         remove_traces(&dir);
     }
-    let coverage = coverage(&replay, assets.clone());
+    // A replay start's own frames only: its committed replay's are the fingerprints' to vouch for.
+    let own = match job.start {
+        Start::From(_) => job.start.fuzz_start(job.seed),
+        _ => 0,
+    };
+    let coverage = coverage_from(&replay, assets.clone(), own);
     let reproduce = format!(
         "scripts/cargo run --release -p harness --bin fuzz-sweep --{} --starts {} --seeds {} --fuzz {} \
          --frames {}{}",
@@ -379,7 +384,7 @@ fn run_one(o: &Options, assets: &Arc<gm::Assets>, job: &Job) -> Result<RunResult
         start: job.start,
         seed: job.seed,
         fuzz: job.fuzz,
-        frames: replay.len(),
+        frames: replay.len() - own,
         seconds: started.elapsed().as_secs_f64(),
         verdict,
         reproduce,
@@ -486,7 +491,9 @@ fn run() -> Result<bool, String> {
         .flat_map(|&seed| o.fuzz.iter().map(move |&fuzz| (seed, fuzz)))
         .enumerate()
         .map(|(i, (seed, fuzz))| Job {
-            start: o.starts[i % o.starts.len()],
+            // In turn, from the first seed's place: the soak's nights start at seeds 80 apart, so the starts
+            // a shard's few seeds get rotate from night to night.
+            start: o.starts[(i + o.seeds[0].unsigned_abs() as usize) % o.starts.len()],
             seed,
             fuzz,
             directed: o.directed,

@@ -12,6 +12,7 @@ use harness::fuzz::{FROM_REPLAYS, Start, fuzz_replay};
 fn every_replay_start_is_in_its_room_throughout() {
     // Each replay played once, for all its starts.
     let mut replays: Vec<&str> = FROM_REPLAYS.iter().map(|f| f.replay).collect();
+    replays.sort();
     replays.dedup();
     for name in replays {
         let starts: Vec<_> = FROM_REPLAYS.iter().filter(|f| f.replay == name).collect();
