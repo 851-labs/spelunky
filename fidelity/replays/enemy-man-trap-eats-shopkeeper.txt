@@ -22,17 +22,21 @@
 #   100001M0!0010000000001
 #   1111111111111111111111
 # He picks the shoes up (duck + X, 251: "YOU GOT SPIKE SHOES!"), walks off the ledge (271-) and falls, which
-# brings the pen into view. The shopkeeper turns on him as he lands (303), and the man trap walks into the
+# brings the pen into view. The shopkeeper turns on him as he falls (303), and the man trap walks into the
 # shopkeeper (309): oManTrap's collision with oShopkeeper makes it eat him (sManTrapEatShopkeeperL,
 # ateShopkeeper as he had hit points left) and, as he has his gun, drops a shotgun (cost 0, not for sale), flung
-# out at 4 to 6 pixels a step, then destroys him. The shotgun, still that fast, hits the trap (oItem's step:
-# 3 hit points to 2, stunned, 317). The player hops left onto it (Z + left, 421), and the spike shoes stomp it
-# (oManTrap's collision with oCharacter: 3 times fallTimer/16+1, 432), which kills it (433, global.mantraps):
-# oManTrap's step, its hit points gone, puts the shopkeeper back where it was, without his gun (hasGun false),
-# and he's stunned at once (status 98). Ends at 480.
+# out at 4 to 6 pixels a step, then destroys him. The player lands, a heart lost to the fall (315). The shotgun
+# bounces and comes down on the trap faster than 2 pixels a step (oItem's step: 3 hit points to 2, stunned, 317).
+# The player hops left onto it (Z + left, 421), and the spike shoes stomp it (oManTrap's collision with
+# oCharacter: 3 times fallTimer/16+1, 432), which kills it (433, global.mantraps): oManTrap's step, its hit
+# points gone, puts the shopkeeper back where it was, angry (status 2) and without his gun (hasGun false). The
+# player, bounced up off the trap, is still over him, and oShopkeeper's collision with oCharacter stomps him on
+# the way up in the same step: stunned (status 98), but ceil(fallTimer/16) of a fallTimer of 0 takes none of
+# his 20 hit points (docs/quirks.md §1, stomping a Shopkeeper on the way up). Ends at 480.
 # story: customLevelName=WIKI@240 hasSpikeShoes=1@251..251 -oShopkeeper@309..309 +oShotgun@309..309
 # story: oManTrap.sprite_index=sManTrapEatShopkeeperL@309..309 oManTrap.hp=2@317..317 mantraps=1@433..433
 # story: -oManTrap@433..433 +oShopkeeper@433..433 oShopkeeper.hasGun=0@433..433 oShopkeeper.status=98@433..433
+# story: plife=98@315..315 !plife<98@315.. oShopkeeper.hp=20@433..433
 seed 1
 frames 481
 file levels/wiki.lvl "1111111111111111111111000000000000000000\r\n10@V000000000000000001000000000000000000\r\n1111111000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n1000000000000000000001000000000000000000\r\n100001M0!0010000000001000000000000000000\r\n1111111111111111111111000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\nWIKI\r\nCAVE\r\n99\r\n4\r\n4\r\n\r\n0\r\n0"

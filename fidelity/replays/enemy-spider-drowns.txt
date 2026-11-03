@@ -11,7 +11,9 @@
 #   1111111111111111111111
 # oSpiderHang's step drops it at once, as it has no solid above (240, an oSpider). It falls into the water, and
 # oSpider's step, its middle in oWater, makes it drown (261: status DROWNED, sSpiderDrowning, an oSplash, alarm
-# 1 set). Its alarm 1 destroys it (300). Ends at 330.
+# 1 set to 30). Its alarm 0, a hop set before it reached the water, still goes off (270): status BOUNCE, so the next step's
+# test `status != DROWNED` drowns it again, with another splash and alarm 1 back at 30 (docs/quirks.md §1).
+# Alarm 1 destroys it 30 steps on (300). Ends at 330.
 # story: customLevelName=WIKI@240 +oSpider@240..240 oSpider.status=4@261..261 oSpider.sprite_index=sSpiderDrowning@261..261
 # story: -oSpider@300..300
 seed 1

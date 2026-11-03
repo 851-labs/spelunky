@@ -9,8 +9,8 @@
 #   1000000000000000000001
 #   10@000D00E000000000001
 #   1111111111111111111111
-# He steps right (251-254), within 96 pixels of the Alien Lord, whose step sends a psychic wave at him (340, six
-# oPsychicCreate sparks around it). The wave homes on him through the damsel, who stands between them (362):
+# He steps right (251-254), within 96 pixels of the Alien Lord, whose step sends a psychic wave at him once its
+# psychicRecover, 100 from its create event, has run out (340, six oPsychicCreate sparks around it). The wave homes on him through the damsel, who stands between them (362):
 # oPsychicWave's collision with oDamsel takes 3 of her 4 hit points and throws her up (yVel -6), and destroys the
 # wave. Its `status = 2` sets the wave's own variable, not hers. She lands, startled (status THROWN,
 # global.damselsGrabbed, 376). Ends at 380.

@@ -14,13 +14,16 @@
 #   1111111111111111111111111111111111
 #   1111111111111111111111111111111111
 # scrSetupWalls makes 1 in 4 of the lava's top tiles spurt (spurt), and each spurting tile within 240 pixels of
-# the player throws up an oFlame, or 1 time in 8 an oMagma, every 100 to 300 steps (oLava's step). An oMagma
-# (445) lands on a snake: oMagma's collision with oEnemy, the snake not a Magma Man, sets it burning, takes 2 hit
-# points and stuns it. Others land on the islands and become Magma Men (oMagma's animation end), and one (1548)
-# walks into a snake (about 1570): oMagmaMan's collision with oEnemy throws it, burning, 2 hit points off, stunned
-# as it isn't a Tomb Lord or the Yeti King; it dies (1570, global.snakes and
-# global.kills). Ends at 1585.
-# story: customLevelName=WIKI@240 +oMagma@445..445 +oMagmaMan@1548..1548 snakes=3@1570..1570 !plife<99@240..
+# the player throws up an oFlame, or 1 time in 8 an oMagma, every 100 to 300 steps (oLava's step). The cavemen
+# walk off their islands into the lava (252, 402). An oMagma (445) comes down on the second one's body in the
+# lava (459): oMagma's collision with oEnemy, a caveman not a Magma Man, throws it, sets it burning, takes 2 hit
+# points and stuns it. Magma landing on an island becomes a Magma Man (oMagma's animation end), which becomes
+# magma again once there's no floor under it (oMagmaMan's step): such an oMagma (1206) burns a snake (1210),
+# which dies (1211, global.snakes), and another (from 1475) a second (1497-1498). Then a Magma Man (1548) walks
+# left into the third snake (1569): oMagmaMan's collision with oEnemy throws it, burning, 2 hit points off,
+# stunned as it isn't a Tomb Lord or the Yeti King, and it dies (1570). Ends at 1585.
+# story: customLevelName=WIKI@240 +oMagma@445..445 snakes=1@1211..1211 snakes=2@1498..1498 +oMagmaMan@1548..1548
+# story: snakes=3@1570..1570 !plife<99@240..
 seed 1
 frames 1586
 file levels/wiki.lvl "1111111111111111111111111111111111000000\r\n1000000000000000000000000000000001000000\r\n1000000000000000000000000000000001000000\r\n1000000000000000000000000000000001000000\r\n1000000000000000@00000000000000001000000\r\n1000000000000000100000000000000001000000\r\n1000n000000h000n00n000h000000n0001000000\r\n1lll11llll11lll1111lll11llll11lll1000000\r\n1111111111111111111111111111111111000000\r\n1111111111111111111111111111111111000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\n0000000000000000000000000000000000000000\r\nWIKI\r\nCAVE\r\n99\r\n4\r\n4\r\n\r\n0\r\n0"

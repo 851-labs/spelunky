@@ -10,8 +10,8 @@
 #   10@D00000M000000000001
 #   1111111111111111111111
 # He steps right and picks her up (duck + X, 253), then walks right with her (271-290) as the man trap walks
-# left. It meets her, held in front of him (364): oManTrap's collision with oDamsel, as she is neither stunned
-# nor eating, makes it eat her (sManTrapEatDamselL) and, as she's held, empties his hands, then destroys her. He
+# left. It meets her, held in front of him (364): oManTrap's collision with oDamsel, the trap neither stunned nor
+# eating already, makes it eat her (sManTrapEatDamselL) and, as she's held, empties his hands, then destroys her. He
 # hops onto it while it eats (Z + right, 365), and oManTrap's collision with oCharacter stomps it, its status
 # EATING letting him without spike shoes: 1 hit point for a short fall (fallTimer under 16), 3 to 2, and
 # stunned (377). Ends at 430.
