@@ -1,0 +1,64 @@
+# The test suite (scripts/check) on one of GitHub's Linux machines (x86_64), not the self-hosted Mac minis, which
+# are shared with other projects and were the queue every pull request waited in (851-3953). pr.yml calls it for a
+# pull request; a push to main runs it too, which checks main after each merge and saves the build cache every
+# pull request's run starts from (a pull request's own cache only its later runs could use).
+#
+# Everything in scripts/check runs on Linux, fidelity-check's replays too (gm::math is the same everywhere), but
+# crates/workspace-hack's checks, which are Apple silicon Macs' and skip themselves, and the macOS-only code, which
+# Linux doesn't compile: pr.yml's mini job runs those (scripts/check --apple).
+name: Test suite
+
+on:
+  workflow_call:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  # Only main's newest push matters; a pull request's runs are pr.yml's to cancel.
+  group: suite-${{ github.event_name == 'push' && 'main' || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
+
+env:
+  # As in release.yml, for a workspace actions/checkout has to `git init`.
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
+
+jobs:
+  check:
+    name: Test suite
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # What the app links on Linux: cpal's ALSA, gilrs' udev, and winit's Wayland and xkbcommon (pkg-config).
+      - name: Linux libraries
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -qy --no-install-recommends pkg-config libasound2-dev libudev-dev libwayland-dev \
+            libxkbcommon-dev
+      # rust-toolchain.toml's toolchain, with its wasm32 targets.
+      - run: rustup toolchain install --no-self-update
+      # scripts/wasm-test runs gm's wasm32 tests under Node.
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: site/.node-version
+      # The registry and target/ between runs, in GitHub's cache (10 GB a repository). Saved only by main's run,
+      # which every pull request's can read (a pull request's own could only be read by its later runs, and would
+      # push main's out). Swatinem/rust-cache, at its v2.9.3's commit.
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0
+        with:
+          shared-key: check
+          save-if: ${{ github.event_name == 'push' }}
+      # -x: the log shows every step it runs, each line with the runner's timestamp.
+      - run: sh -x scripts/check

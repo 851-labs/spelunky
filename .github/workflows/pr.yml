@@ -1,16 +1,17 @@
-# Every pull request: the full local suite (scripts/check), the web build, the wiki's committed media (if it
-# changes what they're made from) and, if it changes the site, the site's smoke test (site/test.sh), on the
-# self-hosted Mac minis, and the updater's tests on GitHub's macOS,
-# Windows and Linux machines (updater.yml). `pr-ok` is the one check the "Protect main" ruleset requires, so
-# jobs can be added or renamed here without touching the ruleset.
+# Every pull request: the full local suite (scripts/check) and, if it changes the site, the site's smoke test
+# (site/test.sh), on GitHub's Linux machines; on the self-hosted Mac minis, only what needs Apple silicon: the web
+# build, the wiki's committed media (if it changes what they're made from) and scripts/check --apple (the macOS-only
+# code's lints and tests, crates/workspace-hack's checks); and the updater's tests on GitHub's macOS, Windows and
+# Linux machines (updater.yml). `pr-ok` is the one check the "Protect main" ruleset requires, so jobs can be added
+# or renamed here without touching the ruleset (docs/ci.md, "Pull requests").
 #
-# The repository is public: this runs untrusted code from pull requests on our own machines. So it's
+# The repository is public: this runs untrusted code from pull requests, on our own machines too. So it's
 # `pull_request` (never `pull_request_target`), with a read-only token, no secrets and no environment, and
 # outside contributors' runs wait for approval (the repository's Actions setting).
 #
 # The minis also sign releases, so a pull request from a fork never runs on them at all, even if approved:
 # only collaborators may open pull requests (the repository's `pull_request_creation_policy`), and if that
-# ever changes, a fork's pull request skips the mini jobs below and fails `pr-ok`.
+# ever changes, a fork's pull request skips the mini job below and fails `pr-ok`.
 name: PR
 
 on:
@@ -23,53 +24,72 @@ concurrency:
   group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
-jobs:
-  check:
-    name: Mac mini
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    uses: ./.github/workflows/mini.yml
-    with:
-      name: Test suite
-      # -x: the log shows every step it runs, each line with the runner's timestamp.
-      run: sh -x scripts/check
+env:
+  # As in release.yml, for a workspace actions/checkout has to `git init` (the site job's).
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: init.defaultBranch
+  GIT_CONFIG_VALUE_0: main
 
-  # And the wiki's media (docs/wiki-media.md, "Checking"), in the same job to keep a pull request to three
-  # minis: if the pull request changes what they're made from, wiki/media must be what it renders, byte for
-  # byte. The merge commit's first parent is the base.
+jobs:
+  # The test suite on one of GitHub's Linux machines (suite.yml), not the minis.
+  check:
+    name: Linux
+    uses: ./.github/workflows/suite.yml
+
+  # The site's smoke test (site/test.sh), on one of GitHub's Linux machines, for a pull request that changes the
+  # site, what it reads from outside site/ (wiki/'s specs and media, LICENSE, docs/quirks.md, whose rows the quirk
+  # pages name), the script that writes its pin or this workflow. Any other passes as soon as it has checked out.
+  # Those inputs are Workers Builds' build watch paths too (docs/web-deploy.md), which site/test.sh checks.
+  site:
+    name: Site test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          # The merge commit's parents too, for what it changes.
+          fetch-depth: 2
+      - id: changes
+        env:
+          PATHS: >-
+            site wiki LICENSE docs/quirks.md scripts/bump-web-release .github/workflows/pr.yml
+        run: |
+          read -ra paths <<<"$PATHS"
+          if git rev-parse -q --verify HEAD^2 >/dev/null && git diff --quiet HEAD^1 HEAD -- "${paths[@]}"; then
+            echo "nothing under $PATHS changed: skipping"
+            echo "skip=true" >>"$GITHUB_OUTPUT"
+          fi
+      - if: steps.changes.outputs.skip != 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: site/.node-version
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - if: steps.changes.outputs.skip != 'true'
+        run: site/test.sh
+
+  # On the minis, only what needs Apple silicon: the web build (scripts/web --check) and the wiki's media
+  # (docs/wiki-media.md, "Checking": if the pull request changes what they're made from, wiki/media must be what
+  # it renders, byte for byte; the merge commit's first parent is the base), and scripts/check --apple. One job, so
+  # a pull request holds one mini.
   web:
     name: Mac mini
     if: github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/mini.yml
     with:
-      name: Web and wiki media
+      name: Web, wiki media and macOS
       fetch-depth: 2
       run: |
+        scripts/check --apple
         scripts/web --check
         scripts/wiki-media --check --since HEAD^1
       timeout-minutes: 45
 
-  # The site's smoke test (site/test.sh), for a pull request that changes the site, what it reads from outside
-  # site/ (wiki/'s specs and media, LICENSE, docs/quirks.md, whose rows the quirk pages name), the script that
-  # writes its pin or this job. Any other passes as soon as it has checked out (mini.yml's `paths`). Those inputs
-  # are Workers Builds' build watch paths too (docs/web-deploy.md), which site/test.sh checks.
-  site:
-    name: Mac mini
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    uses: ./.github/workflows/mini.yml
-    with:
-      name: Site test
-      paths: >-
-        site wiki LICENSE docs/quirks.md scripts/bump-web-release
-        .github/workflows/pr.yml .github/workflows/mini.yml .github/actions/mini-toolchain
-      # wrangler keeps its config, logs and dev registry in the home directory, which the minis share with other
-      # repositories' jobs: a home in the job's temp directory instead (npm's cache is the toolchain's).
-      run: |
-        export HOME="$RUNNER_TEMP/home"
-        mkdir -p "$HOME"
-        site/test.sh
-      timeout-minutes: 15
-
-  # On GitHub's machines, alongside the minis' jobs, and on every pull request: the updater is reached from
+  # On GitHub's machines, alongside the others, and on every pull request: the updater is reached from
   # outside crates/update too (the app's update.rs). No secrets, so it runs for a fork's too.
   updater:
     name: Updater
