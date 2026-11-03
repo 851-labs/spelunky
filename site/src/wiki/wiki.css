@@ -162,8 +162,22 @@ h3 { font-size: 16px; }
 
 .sprite-missing { display: inline-block; background: var(--dirt); vertical-align: middle; }
 table { border-collapse: collapse; }
-article table:not(.infobox table) { margin: 12px 0; font-size: 14px; }
 th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
+/* A table is a panel, as the infobox is (851-3995): the stone frame on the dark, its column headers on the infobox
+   section bar's dirt, in gold, its rows parted by the infobox's rules and its columns by fainter ones, and a long
+   one's every other row a shade lighter, to follow across. A body's is framed by its scrolling box
+   (components.tsx's Table), which fits it, so the frame isn't cut off when it scrolls; a room page's (source-view.tsx)
+   by its own box. A block formatting context, so it stays beside the infobox, narrowing, rather than under it. */
+.table-wrap, .room-settings, .room-instances { margin: 16px var(--frame); background: var(--panel); box-shadow: var(--stone); }
+.table-wrap { display: flow-root; width: fit-content; max-width: calc(100% - 2 * var(--frame)); }
+.table-wrap table, .room-settings, .room-instances { font-size: 14px; }
+:is(.table-wrap table, .room-settings, .room-instances) :is(th, td) { padding: 6px 10px; vertical-align: top; border: 0; }
+:is(.table-wrap table, .room-settings, .room-instances) tr + tr > * { border-top: 2px solid var(--dirt); }
+:is(.table-wrap table, .room-settings, .room-instances) :is(th, td) + :is(th, td) { border-left: 1px solid var(--dirt); }
+:is(.table-wrap table, .room-instances) thead th { color: var(--gold); background: var(--dirt); }
+:is(.table-wrap table, .room-instances) thead th + th { border-left-color: var(--panel); }
+/* :where(), so a room's row pointed at keeps its highlight. */
+:where(.table-wrap table, .room-instances) > tbody:where(:has(> tr:nth-child(6))) > tr:nth-child(even) { background: #ffffff06; }
 .cite { font-size: 11px; line-height: 0; }
 .cite a { text-decoration: none; }
 /* A block formatting context, so a clip beside the infobox narrows rather than going under it. Its video is
@@ -239,7 +253,8 @@ th, td { padding: 4px 8px; border: 1px solid var(--dirt); text-align: left; }
 /* A box that scrolls sideways is a tab stop while it does (scroll-focus.ts), ringed as a link is, outside its
    own ring if it has one. */
 .gml pre:focus-visible { outline: 2px solid var(--gold); outline-offset: calc(var(--ring) + 2px); }
-.table-wrap:focus-visible, .room-picture-scroll:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.table-wrap:focus-visible { outline: 2px solid var(--gold); outline-offset: calc(var(--frame) + 2px); }
+.room-picture-scroll:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 /* The source viewer (source-view.tsx): a file's lines, numbered, in one box that scrolls sideways rather than
    wrapping, so a line is always one row. The numbers are generated content, out of a copy's text. The lines a
