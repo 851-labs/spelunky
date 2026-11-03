@@ -16,7 +16,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (instance_exists(oPDummy))
     g.at("oChain2/step#0", 1);
-    if b::instance_exists(g, cx, [obj::oPDummy])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPDummy])?.cond(Cond::If)? {
         // 3: x = oBall2.x + (oPDummy.x - oBall2.x) / 4 * linkVal;
         g.at("oChain2/step#0", 3);
         g.set(cx.this, v::x, g.get_on(cx, &obj::oBall2, v::x)?.add(&g.get_on(cx, &obj::oPDummy, v::x)?.sub(&g.get_on(cx, &obj::oBall2, v::x)?)?.div(&r(4.0))?.mul(&g.get(cx.this, v::linkVal)?)?)?)?;

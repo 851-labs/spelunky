@@ -6,7 +6,7 @@ pub fn checkDown(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.down)
     g.at("scripts/checkDown", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::down)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::down)?.cond(Cond::If)? {
         // 2: return gamepad.down;
         g.at("scripts/checkDown", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::down)?);

@@ -32,7 +32,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 5: if (!collision_point(x, y + 16, oSolid, 0, 0))
         g.at("oSpringTrap/step#0", 5);
-        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
             // 5: instance_destroy();
             g.at("oSpringTrap/step#0", 5);
             b::instance_destroy(g, cx, [])?;
@@ -46,7 +46,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (status == IDLE && abs(other.x - (x + 8)) < 6 && !other.held && counter == 0 && other.active)
     g.at("oSpringTrap/collision_oItem#0", 1);
-    if and(and(and(and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)?, ({ let a = [g.get(cx.other, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(6.0))?), g.get(cx.other, v::held)?.not()?.is_truthy()), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?), g.get(cx.other, v::active)?.is_truthy()) {
+    if and(and(and(and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)?, ({ let a = [g.get(cx.other, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(6.0))?), g.get(cx.other, v::held)?.not()?.cond(Cond::And)?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?), g.get(cx.other, v::active)?.cond(Cond::And)?) {
         // 4: sprite_index = sSpringTrapSprung;
         g.at("oSpringTrap/collision_oItem#0", 4);
         g.set(cx.this, v::sprite_index, spr::sSpringTrapSprung)?;
@@ -100,7 +100,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (status == IDLE && abs(other.x - x) < 6 && counter == 0 && !other.flying)
     g.at("oSpringTrap/collision_oEnemy#0", 1);
-    if and(and(and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)?, ({ let a = [g.get(cx.other, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_lt(&r(6.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?), g.get(cx.other, v::flying)?.not()?.is_truthy()) {
+    if and(and(and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::IDLE)?)?, ({ let a = [g.get(cx.other, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_lt(&r(6.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?), g.get(cx.other, v::flying)?.not()?.cond(Cond::And)?) {
         // 3: sprite_index = sSpringTrapSprung;
         g.at("oSpringTrap/collision_oEnemy#0", 3);
         g.set(cx.this, v::sprite_index, spr::sSpringTrapSprung)?;

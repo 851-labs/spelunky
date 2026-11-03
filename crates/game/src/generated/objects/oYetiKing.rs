@@ -105,7 +105,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 9: if (collision_point(x + 16, y + 16, oSolid, 0, 0))
         g.at("oYetiKing/step#1", 9);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 11: hp = 0;
             g.at("oYetiKing/step#1", 11);
             g.set(cx.this, v::hp, r(0.0))?;
@@ -183,7 +183,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 39: if (countsAsKill)
             g.at("oYetiKing/step#1", 39);
-            if g.get(cx.this, v::countsAsKill)?.is_truthy() {
+            if g.get(cx.this, v::countsAsKill)?.cond(Cond::If)? {
                 // 41: global.enemyKills[14] += 1;
                 g.at("oYetiKing/step#1", 41);
                 g.gset_a(gv::enemyKills, 0, 14, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 14)?, &r(1.0))?)?;
@@ -200,7 +200,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 48: if (isCollisionBottom(1) && status != STUNNED)
         g.at("oYetiKing/step#1", 48);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
             // 48: yVel = 0;
             g.at("oYetiKing/step#1", 48);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -252,7 +252,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
                     // 67: if (isCollisionLeft(1) || (oPlayer1.x > x + 16 && abs(oPlayer1.y - (y + 32)) < 16 && counter == 0))
                     g.at("oYetiKing/step#1", 67);
-                    if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy(), and(and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(16.0))?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(32.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(16.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?)) {
+                    if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, and(and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(16.0))?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(32.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(16.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?)) {
                         // 70: sprite_index = sYetiKingTurnR;
                         g.at("oYetiKing/step#1", 70);
                         g.set(cx.this, v::sprite_index, spr::sYetiKingTurnR)?;
@@ -290,7 +290,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)? {
                         // 85: if (isCollisionRight(1) || (oPlayer1.x < x + 16 && abs(oPlayer1.y - (y + 32)) < 16 && counter == 0))
                         g.at("oYetiKing/step#1", 85);
-                        if or(scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy(), and(and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(16.0))?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(32.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(16.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?)) {
+                        if or(scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?, and(and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(16.0))?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::y)?.sub(&g.get(cx.this, v::y)?.add(&r(32.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(16.0))?), g.get(cx.this, v::counter)?.gml_eq(&r(0.0))?)) {
                             // 88: sprite_index = sYetiKingTurnL;
                             g.at("oYetiKing/step#1", 88);
                             g.set(cx.this, v::sprite_index, spr::sYetiKingTurnL)?;
@@ -349,7 +349,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if and(g.get(cx.this, v::image_index)?.gml_ge(&r(7.0))?, g.get(cx.this, v::image_index)?.gml_le(&r(12.0))?) {
                             // 113: if (!SS_IsSoundPlaying(global.sndYetiYell))
                             g.at("oYetiKing/step#1", 113);
-                            if ({ let a = [g.gget(gv::sndYetiYell)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).not()?.is_truthy() {
+                            if ({ let a = [g.gget(gv::sndYetiYell)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).not()?.cond(Cond::If)? {
                                 // 113: playSound(global.sndYetiYell);
                                 g.at("oYetiKing/step#1", 113);
                                 { let a = [g.gget(gv::sndYetiYell)?]; scr::playSound(g, cx, &a)? };
@@ -364,7 +364,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     (cx.this, cx.other) = (h2, outer3.0);
                                     // 116: if (instance_exists(oYetiKing))
                                     g.at("oYetiKing/step#1", 116);
-                                    if b::instance_exists(g, cx, [obj::oYetiKing])?.is_truthy() {
+                                    if b::instance_exists(g, cx, [obj::oYetiKing])?.cond(Cond::If)? {
                                         // 118: if (rand(1, 60) == 1 && abs(oYetiKing.x + 16 - (x + 8)) > 16 && point_distance(x, y, oYetiKing.x, oY
                                         g.at("oYetiKing/step#1", 118);
                                         if and(and(scr::rand(g, cx, &[r(1.0), r(60.0)])?.gml_eq(&r(1.0))?, ({ let a = [g.get_on(cx, &obj::oYetiKing, v::x)?.add(&r(16.0))?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_gt(&r(16.0))?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &obj::oYetiKing, v::x)?, g.get_on(cx, &obj::oYetiKing, v::y)?]; b::point_distance(g, cx, a)? }).gml_lt(&r(96.0))?) {
@@ -400,7 +400,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 134: if (isCollisionSolid())
         g.at("oYetiKing/step#1", 134);
-        if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
+        if scr::isCollisionSolid(g, cx, &[])?.cond(Cond::If)? {
             // 135: y -= 2;
             g.at("oYetiKing/step#1", 135);
             g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;
@@ -454,7 +454,7 @@ pub fn collision_oWhip_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(g.get(cx.this, v::whipped)?.gml_eq(&r(0.0))?, g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(12.0))?)?) {
         // 3: if (other.puncture)
         g.at("oYetiKing/collision_oWhip#0", 3);
-        if g.get(cx.other, v::puncture)?.is_truthy() {
+        if g.get(cx.other, v::puncture)?.cond(Cond::If)? {
             // 5: hp -= other.damage;
             g.at("oYetiKing/collision_oWhip#0", 5);
             g.set(cx.this, v::hp, lenient(Value::sub, g.get(cx.this, v::hp)?, &g.get(cx.other, v::damage)?)?)?;
@@ -490,13 +490,13 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 6: if (!other.dead && (other.state == 15 || other.state == 16) && other.y < y + 8 && !other.swimming)
         g.at("oYetiKing/collision_oCharacter#0", 6);
-        if and(and(and(g.get(cx.other, v::dead)?.not()?.is_truthy(), or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), g.get(cx.other, v::swimming)?.not()?.is_truthy()) {
+        if and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
             // 8: other.yVel = -6 - 0.2 * other.yVel;
             g.at("oYetiKing/collision_oCharacter#0", 8);
             g.set(cx.other, v::yVel, r(-6.0).sub(&r(0.2).mul(&g.get(cx.other, v::yVel)?)?)?)?;
             // 9: if (global.hasSpikeShoes)
             g.at("oYetiKing/collision_oCharacter#0", 9);
-            if g.gget(gv::hasSpikeShoes)?.is_truthy() {
+            if g.gget(gv::hasSpikeShoes)?.cond(Cond::If)? {
                 // 9: hp -= 3 * ceil(other.fallTimer / 16);
                 g.at("oYetiKing/collision_oCharacter#0", 9);
                 {
@@ -558,7 +558,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 27: if (global.plife > 0 && isRealLevel())
                 g.at("oYetiKing/collision_oCharacter#0", 27);
-                if and(g.gget(gv::plife)?.gml_gt(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
+                if and(g.gget(gv::plife)?.gml_gt(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
                     // 29: global.plife -= 2;
                     g.at("oYetiKing/collision_oCharacter#0", 29);
                     g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;

@@ -32,7 +32,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (true)
     g.at("oBigTreasure/step#0", 1);
-    if r(1.0).is_truthy() {
+    if r(1.0).cond(Cond::If)? {
         // 3: x += xVel;
         g.at("oBigTreasure/step#0", 3);
         g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
@@ -48,21 +48,21 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 11: if (isCollisionTop(1) && yVel < 0)
         g.at("oBigTreasure/step#0", 11);
-        if and(scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?) {
+        if and(scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?) {
             // 13: yVel = -yVel * 0.8;
             g.at("oBigTreasure/step#0", 13);
             g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?.mul(&r(0.8))?)?;
         }
         // 16: if (isCollisionLeft(1) || isCollisionRight(1))
         g.at("oBigTreasure/step#0", 16);
-        if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy(), scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy()) {
+        if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
             // 18: xVel = -xVel * 0.5;
             g.at("oBigTreasure/step#0", 18);
             g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?.mul(&r(0.5))?)?;
         }
         // 21: if (isCollisionBottom(1))
         g.at("oBigTreasure/step#0", 21);
-        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 23: if (yVel > 5)
             g.at("oBigTreasure/step#0", 23);
             if g.get(cx.this, v::yVel)?.gml_gt(&r(5.0))? {
@@ -139,7 +139,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 44: if (isCollisionBottom(0) && abs(yVel) < 1)
         g.at("oBigTreasure/step#0", 44);
-        if and(scr::isCollisionBottom(g, cx, &[r(0.0)])?.is_truthy(), ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
+        if and(scr::isCollisionBottom(g, cx, &[r(0.0)])?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
             // 46: y -= 1;
             g.at("oBigTreasure/step#0", 46);
             g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;

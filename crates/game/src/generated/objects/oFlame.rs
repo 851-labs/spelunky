@@ -55,7 +55,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 3: if (isCollisionBottom(1))
     g.at("oFlame/step#1", 3);
-    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
         // 5: if (life > 20)
         g.at("oFlame/step#1", 5);
         if g.get(cx.this, v::life)?.gml_gt(&r(20.0))? {

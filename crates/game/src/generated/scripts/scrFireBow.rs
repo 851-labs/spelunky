@@ -6,7 +6,7 @@ pub fn scrFireBow(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 24: if (holdItem)
     g.at("scripts/scrFireBow", 24);
-    if g.get(cx.this, v::holdItem)?.is_truthy() {
+    if g.get(cx.this, v::holdItem)?.cond(Cond::If)? {
         // 26: if (holdItem.type == "Bow")
         g.at("scripts/scrFireBow", 26);
         if g.get_on(cx, &g.get(cx.this, v::holdItem)?, v::r#type)?.gml_eq(&s!("Bow"))? {
@@ -15,7 +15,7 @@ pub fn scrFireBow(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
                 // 30: if (collision_point(x - 14, y, oSolid, 0, 0))
                 g.at("scripts/scrFireBow", 30);
-                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(14.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(14.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                     // 30: obj = instance_create(x, y, oArrow);
                     g.at("scripts/scrFireBow", 30);
                     {
@@ -100,7 +100,7 @@ pub fn scrFireBow(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)? {
                     // 43: if (collision_point(x + 14, y, oSolid, 0, 0))
                     g.at("scripts/scrFireBow", 43);
-                    if ({ let a = [g.get(cx.this, v::x)?.add(&r(14.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::x)?.add(&r(14.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                         // 43: obj = instance_create(x, y, oArrow);
                         g.at("scripts/scrFireBow", 43);
                         {
@@ -230,7 +230,7 @@ pub fn scrFireBow(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/scrFireBow", 66);
                 {
                     let t = g.get(cx.this, v::obj)?;
-                    let old = { let t2 = g.get(cx.this, v::obj)?; g.get_on(cx, &t2, v::y)? };
+                    let old = g.get_on(cx, &t, v::y)?;
                     let x = lenient(Value::add, old, &r(4.0))?;
                     cx.ret = x.clone();
                     g.set_on(cx, &t, v::y, x)?;
@@ -252,7 +252,7 @@ pub fn scrFireBow(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 71: if (SS_IsSoundPlaying(global.sndBowPull))
             g.at("scripts/scrFireBow", 71);
-            if ({ let a = [g.gget(gv::sndBowPull)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.gget(gv::sndBowPull)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                 // 71: SS_StopSound(global.sndBowPull);
                 g.at("scripts/scrFireBow", 71);
                 cx.ret = { let a = [g.gget(gv::sndBowPull)?]; scr::SS_StopSound(g, cx, &a)? };

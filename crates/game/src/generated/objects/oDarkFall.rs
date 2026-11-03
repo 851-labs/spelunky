@@ -31,7 +31,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (isCollisionCharacterTop(1))
     g.at("oDarkFall/step#1", 1);
-    if scr::isCollisionCharacterTop(g, cx, &[r(1.0)])?.is_truthy() {
+    if scr::isCollisionCharacterTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
         // 3: timeFall -= 1;
         g.at("oDarkFall/step#1", 3);
         g.set(cx.this, v::timeFall, lenient(Value::sub, g.get(cx.this, v::timeFall)?, &r(1.0))?)?;

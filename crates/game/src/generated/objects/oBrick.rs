@@ -32,7 +32,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 8: if (isLevel() && x > 1 && x < room_width - 16 && y > 1 && y < room_height - 16)
             g.at("oBrick/create#1", 8);
-            if and(and(and(and(scr::isLevel(g, cx, &[])?.is_truthy(), g.get(cx.this, v::x)?.gml_gt(&r(1.0))?), g.get(cx.this, v::x)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&r(1.0))?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(16.0))?)?) {
+            if and(and(and(and(scr::isLevel(g, cx, &[])?.cond(Cond::And)?, g.get(cx.this, v::x)?.gml_gt(&r(1.0))?), g.get(cx.this, v::x)?.gml_lt(&g.bget(v::room_width, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&r(1.0))?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::room_height, 0)?.sub(&r(16.0))?)?) {
                 // 10: if (rand(1, 100) == 1)
                 g.at("oBrick/create#1", 10);
                 if scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_eq(&r(1.0))? {
@@ -74,7 +74,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oBrick/destroy#1", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if and(g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::And)?, g.gget(gv::cleanSolids)?.not()?.cond(Cond::And)?) {
         // 3: instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oBrick/destroy#1", 3);
         { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.add(&scr::rand(g, cx, &[r(0.0), r(8.0)])?)?.sub(&scr::rand(g, cx, &[r(0.0), r(8.0)])?)?, g.get(cx.this, v::y)?.add(&r(8.0))?.add(&scr::rand(g, cx, &[r(0.0), r(8.0)])?)?.sub(&scr::rand(g, cx, &[r(0.0), r(8.0)])?)?, obj::oRubble]; b::instance_create(g, cx, a)? };

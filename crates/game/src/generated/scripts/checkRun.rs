@@ -6,7 +6,7 @@ pub fn checkRun(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.run)
     g.at("scripts/checkRun", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::run)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::run)?.cond(Cond::If)? {
         // 2: return gamepad.run;
         g.at("scripts/checkRun", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::run)?);

@@ -239,7 +239,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             if and(g.get(cx.this, v::roomPath)?.gml_eq(&r(0.0))?, scr::rand(g, cx, &[r(1.0), r(4.0)])?.gml_lt(&r(4.0))?) {
                 // 82: if (oGame.idol || scrGetRoomY(y) == 3)
                 g.at("scripts/scrRoomGenYeti", 82);
-                if or(g.get_on(cx, &obj::oGame, v::idol)?.is_truthy(), ({ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? }).gml_eq(&r(3.0))?) {
+                if or(g.get_on(cx, &obj::oGame, v::idol)?.cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? }).gml_eq(&r(3.0))?) {
                     // 83: n = rand(1, 2);
                     g.at("scripts/scrRoomGenYeti", 83);
                     {
@@ -308,7 +308,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if or(g.get(cx.this, v::roomPath)?.gml_eq(&r(0.0))?, g.get(cx.this, v::roomPath)?.gml_eq(&r(1.0))?) {
                     // 103: if (!instance_exists(oYetiKing))
                     g.at("scripts/scrRoomGenYeti", 103);
-                    if b::instance_exists(g, cx, [obj::oYetiKing])?.not()?.is_truthy() {
+                    if b::instance_exists(g, cx, [obj::oYetiKing])?.not()?.cond(Cond::If)? {
                         // 105: n = rand(1, 10);
                         g.at("scripts/scrRoomGenYeti", 105);
                         {
@@ -2301,7 +2301,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 301: if (tile == "1" && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGenYeti", 301);
-                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                         // 303: if (rand(1, 6) == 1)
                         g.at("scripts/scrRoomGenYeti", 303);
                         if scr::rand(g, cx, &[r(1.0), r(6.0)])?.gml_eq(&r(1.0))? {
@@ -2316,7 +2316,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 306: if (tile == "2" && rand(1, 2) == 1 && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGenYeti", 306);
-                    if and(and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if and(and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                         // 308: if (rand(1, 6) == 1)
                         g.at("scripts/scrRoomGenYeti", 308);
                         if scr::rand(g, cx, &[r(1.0), r(6.0)])?.gml_eq(&r(1.0))? {
@@ -2331,7 +2331,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 311: if (tile == "t" && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGenYeti", 311);
-                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("t"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("t"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                         // 313: instance_create(xpos, ypos, oThinIce);
                         g.at("scripts/scrRoomGenYeti", 313);
                         cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oThinIce]; b::instance_create(g, cx, a)? };
@@ -2441,7 +2441,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                         } else {
                                                             // 349: if (tile == "." && !collision_point(xpos, ypos, oSolid, 0, 0))
                                                             g.at("scripts/scrRoomGenYeti", 349);
-                                                            if and(g.get(cx.this, v::tile)?.gml_eq(&s!("."))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                                            if and(g.get(cx.this, v::tile)?.gml_eq(&s!("."))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                                                                 // 351: obj = instance_create(xpos, ypos, oDark);
                                                                 g.at("scripts/scrRoomGenYeti", 351);
                                                                 {
@@ -2523,17 +2523,17 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                             if g.get(cx.this, v::tile)?.gml_eq(&s!("W"))? {
                                                                                 // 375: if (global.murderer || global.thiefLevel > 0)
                                                                                 g.at("scripts/scrRoomGenYeti", 375);
-                                                                                if or(g.gget(gv::murderer)?.is_truthy(), g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
+                                                                                if or(g.gget(gv::murderer)?.cond(Cond::Or)?, g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
                                                                                     // 377: if (global.isDamsel)
                                                                                     g.at("scripts/scrRoomGenYeti", 377);
-                                                                                    if g.gget(gv::isDamsel)?.is_truthy() {
+                                                                                    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                                                                                         // 377: tile_add(bgWanted, 32, 0, 32, 32, xpos, ypos, 9004);
                                                                                         g.at("scripts/scrRoomGenYeti", 377);
                                                                                         cx.ret = { let a = [bgr::bgWanted, r(32.0), r(0.0), r(32.0), r(32.0), g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, r(9004.0)]; b::tile_add(g, cx, a)? };
                                                                                     } else {
                                                                                         // 378: if (global.isTunnelMan)
                                                                                         g.at("scripts/scrRoomGenYeti", 378);
-                                                                                        if g.gget(gv::isTunnelMan)?.is_truthy() {
+                                                                                        if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
                                                                                             // 378: tile_add(bgWanted, 64, 0, 32, 32, xpos, ypos, 9004);
                                                                                             g.at("scripts/scrRoomGenYeti", 378);
                                                                                             cx.ret = { let a = [bgr::bgWanted, r(64.0), r(0.0), r(32.0), r(32.0), g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, r(9004.0)]; b::tile_add(g, cx, a)? };
@@ -2577,7 +2577,7 @@ pub fn scrRoomGenYeti(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                     if g.get(cx.this, v::tile)?.gml_eq(&s!("l"))? {
                                                                                         // 390: if (oGame.damsel)
                                                                                         g.at("scripts/scrRoomGenYeti", 390);
-                                                                                        if g.get_on(cx, &obj::oGame, v::damsel)?.is_truthy() {
+                                                                                        if g.get_on(cx, &obj::oGame, v::damsel)?.cond(Cond::If)? {
                                                                                             // 390: instance_create(xpos, ypos, oLampRed);
                                                                                             g.at("scripts/scrRoomGenYeti", 390);
                                                                                             cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oLampRed]; b::instance_create(g, cx, a)? };

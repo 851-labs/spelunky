@@ -123,7 +123,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttackPressed() ||
     g.at("oEnd3/step#0", 1);
-    if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.is_truthy(), b::keyboard_check_pressed(g, cx, [k::vk_escape])?.is_truthy()), scr::checkAttackPressed(g, cx, &[])?.is_truthy()), scr::checkStartPressed(g, cx, &[])?.is_truthy()) {
+    if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.cond(Cond::Or)?, b::keyboard_check_pressed(g, cx, [k::vk_escape])?.cond(Cond::Or)?), scr::checkAttackPressed(g, cx, &[])?.cond(Cond::Or)?), scr::checkStartPressed(g, cx, &[])?.cond(Cond::Or)?) {
         // 6: if (drawStatus == 7)
         g.at("oEnd3/step#0", 6);
         if g.get(cx.this, v::drawStatus)?.gml_eq(&r(7.0))? {
@@ -144,14 +144,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::drawStatus)?.gml_eq(&r(8.0))? {
                 // 19: if (gamepad.attackPressed)
                 g.at("oEnd3/step#0", 19);
-                if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {
+                if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::If)? {
                     // 19: gamepad.attackPressed = false;
                     g.at("oEnd3/step#0", 19);
                     { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::attackPressed, r(0.0))?; }
                 }
                 // 20: if (gamepad.startPressed)
                 g.at("oEnd3/step#0", 20);
-                if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.is_truthy() {
+                if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.cond(Cond::If)? {
                     // 20: gamepad.startPressed = false;
                     g.at("oEnd3/step#0", 20);
                     { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::startPressed, r(0.0))?; }
@@ -189,7 +189,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 35: if (drawStatus == 3 && moneyDiff == 0 && !poop)
         g.at("oEnd3/step#0", 35);
-        if and(and(g.get(cx.this, v::drawStatus)?.gml_eq(&r(3.0))?, g.get(cx.this, v::moneyDiff)?.gml_eq(&r(0.0))?), g.get(cx.this, v::poop)?.not()?.is_truthy()) {
+        if and(and(g.get(cx.this, v::drawStatus)?.gml_eq(&r(3.0))?, g.get(cx.this, v::moneyDiff)?.gml_eq(&r(0.0))?), g.get(cx.this, v::poop)?.not()?.cond(Cond::And)?) {
             // 37: alarm[11] = 50;
             g.at("oEnd3/step#0", 37);
             g.set_a(cx.this, v::alarm, 0, 11, r(50.0))?;
@@ -200,7 +200,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 42: if (fadeOut)
     g.at("oEnd3/step#0", 42);
-    if g.get(cx.this, v::fadeOut)?.is_truthy() {
+    if g.get(cx.this, v::fadeOut)?.cond(Cond::If)? {
         // 44: if (fadeLevel < 1)
         g.at("oEnd3/step#0", 44);
         if g.get(cx.this, v::fadeLevel)?.gml_lt(&r(1.0))? {
@@ -346,7 +346,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 54: if (fadeOut)
     g.at("oEnd3/draw#0", 54);
-    if g.get(cx.this, v::fadeOut)?.is_truthy() {
+    if g.get(cx.this, v::fadeOut)?.cond(Cond::If)? {
         // 56: draw_set_color(c_black);
         g.at("oEnd3/draw#0", 56);
         b::draw_set_color(g, cx, [k::c_black])?;

@@ -44,7 +44,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!other.invincible)
     g.at("oPsychicWave/collision_oDamsel#0", 1);
-    if g.get(cx.other, v::invincible)?.not()?.is_truthy() {
+    if g.get(cx.other, v::invincible)?.not()?.cond(Cond::If)? {
         // 3: other.hp -= 3;
         g.at("oPsychicWave/collision_oDamsel#0", 3);
         g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(3.0))?)?;

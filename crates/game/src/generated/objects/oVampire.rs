@@ -140,35 +140,35 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::colTop, r(0.0))?;
         // 12: if (isCollisionLeft(1))
         g.at("oVampire/step#1", 12);
-        if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 12: colLeft = true;
             g.at("oVampire/step#1", 12);
             g.set(cx.this, v::colLeft, r(1.0))?;
         }
         // 13: if (isCollisionRight(1))
         g.at("oVampire/step#1", 13);
-        if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 13: colRight = true;
             g.at("oVampire/step#1", 13);
             g.set(cx.this, v::colRight, r(1.0))?;
         }
         // 14: if (isCollisionBottom(1))
         g.at("oVampire/step#1", 14);
-        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 14: colBot = true;
             g.at("oVampire/step#1", 14);
             g.set(cx.this, v::colBot, r(1.0))?;
         }
         // 15: if (isCollisionTop(1))
         g.at("oVampire/step#1", 15);
-        if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 15: colTop = true;
             g.at("oVampire/step#1", 15);
             g.set(cx.this, v::colTop, r(1.0))?;
         }
         // 17: if (!held && status != HANG && status != FLY)
         g.at("oVampire/step#1", 17);
-        if and(and(g.get(cx.this, v::held)?.not()?.is_truthy(), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::HANG)?)?), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::FLY)?)?) {
+        if and(and(g.get(cx.this, v::held)?.not()?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::HANG)?)?), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::FLY)?)?) {
             // 17: yVel += myGrav;
             g.at("oVampire/step#1", 17);
             g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
@@ -185,7 +185,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::status)?.gml_ge(&g.get(cx.this, v::STUNNED)?)? {
             // 22: if (collision_point(x + 8, y + 12, oSolid, 0, 0))
             g.at("oVampire/step#1", 22);
-            if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(12.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+            if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(12.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                 // 24: instance_create(x + 8, y + 8, oSmokePuff);
                 g.at("oVampire/step#1", 24);
                 { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSmokePuff]; b::instance_create(g, cx, a)? };
@@ -199,10 +199,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 29: if (!held)
             g.at("oVampire/step#1", 29);
-            if g.get(cx.this, v::held)?.not()?.is_truthy() {
+            if g.get(cx.this, v::held)?.not()?.cond(Cond::If)? {
                 // 31: if (collision_point(x + 8, y + 8, oSolid, 0, 0))
                 g.at("oVampire/step#1", 31);
-                if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                     // 33: instance_create(x + 8, y + 8, oSmokePuff);
                     g.at("oVampire/step#1", 33);
                     { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSmokePuff]; b::instance_create(g, cx, a)? };
@@ -217,7 +217,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 39: if (isCollisionBottom(1) && status != STUNNED)
         g.at("oVampire/step#1", 39);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
             // 40: yVel = 0;
             g.at("oVampire/step#1", 40);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -257,7 +257,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::bounced, r(0.0))?;
             // 58: if (colBot && (collision_point(x - 1, y, oSolid, -1, -1) || collision_point(x + 16, y, oSolid, -1, -
             g.at("oVampire/step#1", 58);
-            if and(g.get(cx.this, v::colBot)?.is_truthy(), or(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy())) {
+            if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, or(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
                 // 61: yVel = -6;
                 g.at("oVampire/step#1", 61);
                 g.set(cx.this, v::yVel, r(-6.0))?;
@@ -278,14 +278,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 67: if (yVel < 0 && isCollisionTop(1))
             g.at("oVampire/step#1", 67);
-            if and(g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?, scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy()) {
+            if and(g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?, scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?) {
                 // 69: yVel = 0;
                 g.at("oVampire/step#1", 69);
                 g.set(cx.this, v::yVel, r(0.0))?;
             }
             // 72: if (isCollisionBottom(1) && counter > 0)
             g.at("oVampire/step#1", 72);
-            if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
+            if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::counter)?.gml_gt(&r(0.0))?) {
                 // 72: counter -= 1;
                 g.at("oVampire/step#1", 72);
                 g.set(cx.this, v::counter, lenient(Value::sub, g.get(cx.this, v::counter)?, &r(1.0))?)?;
@@ -328,7 +328,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WALK)?)? {
                 // 88: if (isCollisionLeft(1) || isCollisionRight(1))
                 g.at("oVampire/step#1", 88);
-                if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy(), scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy()) {
+                if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
                     // 90: if (facing == LEFT)
                     g.at("oVampire/step#1", 90);
                     if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
@@ -343,7 +343,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 94: if (!colBot)
                 g.at("oVampire/step#1", 94);
-                if g.get(cx.this, v::colBot)?.not()?.is_truthy() {
+                if g.get(cx.this, v::colBot)?.not()?.cond(Cond::If)? {
                 } else {
                     // 98: if (rand(1, 100) == 1)
                     g.at("oVampire/step#1", 98);
@@ -366,7 +366,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.set(cx.this, v::xVel, r(-1.5))?;
                             // 107: if (!collision_point(x - 1, y + 16, oSolid, -1, -1))
                             g.at("oVampire/step#1", 107);
-                            if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                            if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                                 // 109: status = IDLE;
                                 g.at("oVampire/step#1", 109);
                                 g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -389,7 +389,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 g.set(cx.this, v::xVel, r(1.5))?;
                                 // 118: if (!collision_point(x + 16, y + 16, oSolid, -1, -1))
                                 g.at("oVampire/step#1", 118);
-                                if ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                                if ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                                     // 120: status = IDLE;
                                     g.at("oVampire/step#1", 120);
                                     g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -423,10 +423,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.set(cx.this, v::image_speed, r(1.0))?;
                     // 132: if (facing == LEFT && isCollisionLeft(4))
                     g.at("oVampire/step#1", 132);
-                    if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, scr::isCollisionLeft(g, cx, &[r(4.0)])?.is_truthy()) {
+                    if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, scr::isCollisionLeft(g, cx, &[r(4.0)])?.cond(Cond::And)?) {
                         // 134: if (isCollisionTop(1))
                         g.at("oVampire/step#1", 134);
-                        if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+                        if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                             // 134: facing = RIGHT;
                             g.at("oVampire/step#1", 134);
                             g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
@@ -438,10 +438,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     } else {
                         // 137: if (facing == RIGHT && isCollisionRight(4))
                         g.at("oVampire/step#1", 137);
-                        if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, scr::isCollisionRight(g, cx, &[r(4.0)])?.is_truthy()) {
+                        if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, scr::isCollisionRight(g, cx, &[r(4.0)])?.cond(Cond::And)?) {
                             // 139: if (isCollisionTop(1))
                             g.at("oVampire/step#1", 139);
-                            if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+                            if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                                 // 139: facing = LEFT;
                                 g.at("oVampire/step#1", 139);
                                 g.set(cx.this, v::facing, g.get(cx.this, v::LEFT)?)?;
@@ -456,7 +456,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)? {
                                 // 144: if (!collision_point(x - 8, y + 16, oSolid, 0, 0))
                                 g.at("oVampire/step#1", 144);
-                                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                                     // 146: status = BOUNCE;
                                     g.at("oVampire/step#1", 146);
                                     g.set(cx.this, v::status, g.get(cx.this, v::BOUNCE)?)?;
@@ -467,7 +467,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 if g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)? {
                                     // 151: if (!collision_point(x + 8, y + 16, oSolid, 0, 0))
                                     g.at("oVampire/step#1", 151);
-                                    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                                    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                                         // 153: status = BOUNCE;
                                         g.at("oVampire/step#1", 153);
                                         g.set(cx.this, v::status, g.get(cx.this, v::BOUNCE)?)?;
@@ -478,7 +478,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 157: if (abs(oPlayer1.x - x) < 32 && oPlayer1.y < y + 8 && !collision_point(x + 8, y + 8, oWater, 0, 0))
                     g.at("oVampire/step#1", 157);
-                    if and(and(({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_lt(&r(32.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if and(and(({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_lt(&r(32.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                         // 157: status = FLY;
                         g.at("oVampire/step#1", 157);
                         g.set(cx.this, v::status, g.get(cx.this, v::FLY)?)?;
@@ -500,7 +500,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::RECOVER)?)? {
                         // 164: if (facing == LEFT && isCollisionLeft(1))
                         g.at("oVampire/step#1", 164);
-                        if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy()) {
+                        if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::And)?) {
                             // 166: facing = RIGHT;
                             g.at("oVampire/step#1", 166);
                             g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
@@ -510,7 +510,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         } else {
                             // 169: if (facing == RIGHT && isCollisionRight(1))
                             g.at("oVampire/step#1", 169);
-                            if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy()) {
+                            if and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::And)?) {
                                 // 171: facing = LEFT;
                                 g.at("oVampire/step#1", 171);
                                 g.set(cx.this, v::facing, g.get(cx.this, v::LEFT)?)?;
@@ -520,7 +520,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             } else {
                                 // 174: if (colBot)
                                 g.at("oVampire/step#1", 174);
-                                if g.get(cx.this, v::colBot)?.is_truthy() {
+                                if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
                                     // 176: status = IDLE;
                                     g.at("oVampire/step#1", 176);
                                     g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -536,7 +536,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 } else {
                                     // 181: if (!collision_point(x + 8, y + 8, oWater, 0, 0))
                                     g.at("oVampire/step#1", 181);
-                                    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                                    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                                         // 183: if (rand(1, 100) == 1)
                                         g.at("oVampire/step#1", 183);
                                         if scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_eq(&r(1.0))? {
@@ -546,7 +546,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         } else {
                                             // 184: if (collision_point(x + 8, y + 24, oWater, 0, 0))
                                             g.at("oVampire/step#1", 184);
-                                            if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(24.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                                            if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(24.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                                                 // 184: status = FLY;
                                                 g.at("oVampire/step#1", 184);
                                                 g.set(cx.this, v::status, g.get(cx.this, v::FLY)?)?;
@@ -562,7 +562,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::BOUNCE)?)? {
                             // 189: if (colBot)
                             g.at("oVampire/step#1", 189);
-                            if g.get(cx.this, v::colBot)?.is_truthy() {
+                            if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
                                 // 191: yVel = -1 * rand(3, 6);
                                 g.at("oVampire/step#1", 191);
                                 { let x = r(-1.0).mul(&scr::rand(g, cx, &[r(3.0), r(6.0)])?)?; g.set(cx.this, v::yVel, x)?; }
@@ -577,7 +577,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::STUNNED)?)? {
                                 // 200: if (colBot)
                                 g.at("oVampire/step#1", 200);
-                                if g.get(cx.this, v::colBot)?.is_truthy() {
+                                if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
                                 } else {
                                     // 206: if (xVel == 0 && hp > 0)
                                     g.at("oVampire/step#1", 206);
@@ -588,7 +588,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     } else {
                                         // 207: if (bounced)
                                         g.at("oVampire/step#1", 207);
-                                        if g.get(cx.this, v::bounced)?.is_truthy() {
+                                        if g.get(cx.this, v::bounced)?.cond(Cond::If)? {
                                             // 209: if (yVel < 0)
                                             g.at("oVampire/step#1", 209);
                                             if g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))? {
@@ -617,7 +617,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 219: if (colBot && !bounced)
                                 g.at("oVampire/step#1", 219);
-                                if and(g.get(cx.this, v::colBot)?.is_truthy(), g.get(cx.this, v::bounced)?.not()?.is_truthy()) {
+                                if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, g.get(cx.this, v::bounced)?.not()?.cond(Cond::And)?) {
                                     // 221: bounced = true;
                                     g.at("oVampire/step#1", 221);
                                     g.set(cx.this, v::bounced, r(1.0))?;
@@ -627,7 +627,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 }
                                 // 225: if (held || colBot)
                                 g.at("oVampire/step#1", 225);
-                                if or(g.get(cx.this, v::held)?.is_truthy(), g.get(cx.this, v::colBot)?.is_truthy()) {
+                                if or(g.get(cx.this, v::held)?.cond(Cond::Or)?, g.get(cx.this, v::colBot)?.cond(Cond::Or)?) {
                                     // 227: if (counter > 0)
                                     g.at("oVampire/step#1", 227);
                                     if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {
@@ -643,7 +643,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
                                             // 231: if (held)
                                             g.at("oVampire/step#1", 231);
-                                            if g.get(cx.this, v::held)?.is_truthy() {
+                                            if g.get(cx.this, v::held)?.cond(Cond::If)? {
                                                 // 233: held = false;
                                                 g.at("oVampire/step#1", 233);
                                                 g.set(cx.this, v::held, r(0.0))?;
@@ -701,10 +701,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     }
                                     // 248: if (countsAsKill)
                                     g.at("oVampire/step#1", 248);
-                                    if g.get(cx.this, v::countsAsKill)?.is_truthy() {
+                                    if g.get(cx.this, v::countsAsKill)?.cond(Cond::If)? {
                                         // 250: if (isRealLevel())
                                         g.at("oVampire/step#1", 250);
-                                        if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+                                        if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                                             // 250: global.enemyKills[7] += 1;
                                             g.at("oVampire/step#1", 250);
                                             g.gset_a(gv::enemyKills, 0, 7, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 7)?, &r(1.0))?)?;
@@ -746,7 +746,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         g.set(cx.this, v::yVel, r(0.0))?;
                                         // 265: if (!oPlayer1.dead && !oPlayer1.swimming && (dist < 90 && oPlayer1.y > y + 16 || !collision_point(x 
                                         g.at("oVampire/step#1", 265);
-                                        if and(and(g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.is_truthy(), g.get_on(cx, &obj::oPlayer1, v::swimming)?.not()?.is_truthy()), or(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(16.0))?)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy())) {
+                                        if and(and(g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::swimming)?.not()?.cond(Cond::And)?), or(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(16.0))?)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Or)?)) {
                                             // 268: status = FLY;
                                             g.at("oVampire/step#1", 268);
                                             g.set(cx.this, v::status, g.get(cx.this, v::FLY)?)?;
@@ -757,7 +757,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     } else {
                                         // 272: if (status == FLY && instance_exists(oPlayer1) && !oPlayer1.swimming && !oPlayer1.dead)
                                         g.at("oVampire/step#1", 272);
-                                        if and(and(and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::FLY)?)?, b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy()), g.get_on(cx, &obj::oPlayer1, v::swimming)?.not()?.is_truthy()), g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.is_truthy()) {
+                                        if and(and(and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::FLY)?)?, b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::And)?), g.get_on(cx, &obj::oPlayer1, v::swimming)?.not()?.cond(Cond::And)?), g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?) {
                                             // 274: xVel = 0;
                                             g.at("oVampire/step#1", 274);
                                             g.set(cx.this, v::xVel, r(0.0))?;
@@ -775,7 +775,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 280: if (isCollisionRight(1) && oPlayer1.x > x + 8)
                                                 g.at("oVampire/step#1", 280);
-                                                if and(scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy(), g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?) {
+                                                if and(scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?) {
                                                     // 282: if (oPlayer1.y < y + 8)
                                                     g.at("oVampire/step#1", 282);
                                                     if g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)? {
@@ -790,7 +790,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 285: if (isCollisionLeft(1) && oPlayer1.x < x + 8)
                                                 g.at("oVampire/step#1", 285);
-                                                if and(scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy(), g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?) {
+                                                if and(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?) {
                                                     // 287: if (oPlayer1.y < y + 8)
                                                     g.at("oVampire/step#1", 287);
                                                     if g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)? {
@@ -805,7 +805,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 290: if (isCollisionTop(1) && oPlayer1.y < y + 8 && abs(oPlayer1.x - x) > 8)
                                                 g.at("oVampire/step#1", 290);
-                                                if and(and(scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy(), g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_gt(&r(8.0))?) {
+                                                if and(and(scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_gt(&r(8.0))?) {
                                                     // 292: if (oPlayer1.x < x + 8)
                                                     g.at("oVampire/step#1", 292);
                                                     if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)? {
@@ -820,7 +820,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 295: if (isCollisionBottom(1) && oPlayer1.y > y + 8 && abs(oPlayer1.x - x) > 8)
                                                 g.at("oVampire/step#1", 295);
-                                                if and(and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_gt(&r(8.0))?) {
+                                                if and(and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?)?]; b::abs(g, cx, a)? }).gml_gt(&r(8.0))?) {
                                                     // 297: if (oPlayer1.x < x + 8)
                                                     g.at("oVampire/step#1", 297);
                                                     if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)? {
@@ -835,14 +835,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 }
                                                 // 301: if (collision_point(x + 8, y + 16, oWater, 0, 0) && dir > 180 && dir < 360)
                                                 g.at("oVampire/step#1", 301);
-                                                if and(and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), g.get(cx.this, v::dir)?.gml_gt(&r(180.0))?), g.get(cx.this, v::dir)?.gml_lt(&r(360.0))?) {
+                                                if and(and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::dir)?.gml_gt(&r(180.0))?), g.get(cx.this, v::dir)?.gml_lt(&r(360.0))?) {
                                                     // 303: dir = 90;
                                                     g.at("oVampire/step#1", 303);
                                                     g.set(cx.this, v::dir, r(90.0))?;
                                                 }
                                                 // 306: if (!collision_point(x, y + 12, oWater, 0, 0) || oPlayer1.y < y)
                                                 g.at("oVampire/step#1", 306);
-                                                if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(12.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?)?) {
+                                                if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(12.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Or)?, g.get_on(cx, &obj::oPlayer1, v::y)?.gml_lt(&g.get(cx.this, v::y)?)?) {
                                                     // 308: xVel = 2 * cos(degtorad(dir));
                                                     g.at("oVampire/step#1", 308);
                                                     {
@@ -859,7 +859,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             } else {
                                                 // 314: if (collision_point(x + 8, y - 1, oSolid, 0, 0))
                                                 g.at("oVampire/step#1", 314);
-                                                if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                                                if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                                                     // 314: status = HANG;
                                                     g.at("oVampire/step#1", 314);
                                                     g.set(cx.this, v::status, g.get(cx.this, v::HANG)?)?;
@@ -894,7 +894,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             }
                                             // 326: if (colBot || collision_point(x, y, oWater, 0, 0))
                                             g.at("oVampire/step#1", 326);
-                                            if or(g.get(cx.this, v::colBot)?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()) {
+                                            if or(g.get(cx.this, v::colBot)?.cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
                                                 // 328: status = IDLE;
                                                 g.at("oVampire/step#1", 328);
                                                 g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -911,7 +911,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 g.set(cx.this, v::yVel, r(0.0))?;
                                                 // 336: if (collision_point(x + 8, y - 1, oSolid, 0, 0))
                                                 g.at("oVampire/step#1", 336);
-                                                if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                                                if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                                                     // 336: status = HANG;
                                                     g.at("oVampire/step#1", 336);
                                                     g.set(cx.this, v::status, g.get(cx.this, v::HANG)?)?;
@@ -1018,7 +1018,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 366: if (held)
         g.at("oVampire/step#1", 366);
-        if g.get(cx.this, v::held)?.is_truthy() {
+        if g.get(cx.this, v::held)?.cond(Cond::If)? {
             // 368: if (hp > 0)
             g.at("oVampire/step#1", 368);
             if g.get(cx.this, v::hp)?.gml_gt(&r(0.0))? {
@@ -1154,7 +1154,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 5: if (!other.dead && (other.state == 15 || other.state == 16) && other.y < y + 5 && !other.swimming)
         g.at("oVampire/collision_oCharacter#0", 5);
-        if and(and(and(g.get(cx.other, v::dead)?.not()?.is_truthy(), or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(5.0))?)?), g.get(cx.other, v::swimming)?.not()?.is_truthy()) {
+        if and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(5.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
             // 8: if (status < STUNNED)
             g.at("oVampire/collision_oCharacter#0", 8);
             if g.get(cx.this, v::status)?.gml_lt(&g.get(cx.this, v::STUNNED)?)? {
@@ -1163,7 +1163,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.other, v::yVel, r(-6.0).sub(&r(0.2).mul(&g.get(cx.other, v::yVel)?)?)?)?;
                 // 11: if (global.hasSpikeShoes)
                 g.at("oVampire/collision_oCharacter#0", 11);
-                if g.gget(gv::hasSpikeShoes)?.is_truthy() {
+                if g.gget(gv::hasSpikeShoes)?.cond(Cond::If)? {
                     // 11: hp -= 3 * (floor(other.fallTimer / 16) + 1);
                     g.at("oVampire/collision_oCharacter#0", 11);
                     {
@@ -1173,7 +1173,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 11: if (!bloodless)
                     g.at("oVampire/collision_oCharacter#0", 11);
-                    if g.get(cx.this, v::bloodless)?.not()?.is_truthy() {
+                    if g.get(cx.this, v::bloodless)?.not()?.cond(Cond::If)? {
                         // 11: instance_create(other.x, other.y + 8, oBlood);
                         g.at("oVampire/collision_oCharacter#0", 11);
                         { let a = [g.get(cx.other, v::x)?, g.get(cx.other, v::y)?.add(&r(8.0))?, obj::oBlood]; b::instance_create(g, cx, a)? };

@@ -18,7 +18,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oIce/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if and(g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::And)?, g.gget(gv::cleanSolids)?.not()?.cond(Cond::And)?) {
         // 3: repeat (3)
         g.at("oIce/destroy#0", 3);
         'repeat1: for _ in 0..repeat_count(&r(3.0))? {
@@ -28,7 +28,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 8: if (collision_point(x + 8, y + 8, oFrozenCaveman, 0, 0))
         g.at("oIce/destroy#0", 8);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oFrozenCaveman, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oFrozenCaveman, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 10: with (instance_place(x + 8, y + 8, oFrozenCaveman))
             g.at("oIce/destroy#0", 10);
             {

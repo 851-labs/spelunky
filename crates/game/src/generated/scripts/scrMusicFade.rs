@@ -6,7 +6,7 @@ pub fn scrMusicFade(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (isLevel())
     g.at("scripts/scrMusicFade", 1);
-    if scr::isLevel(g, cx, &[])?.is_truthy() {
+    if scr::isLevel(g, cx, &[])?.cond(Cond::If)? {
         // 3: if (global.levelType == 1)
         g.at("scripts/scrMusicFade", 3);
         if g.gget(gv::levelType)?.gml_eq(&r(1.0))? {
@@ -30,10 +30,10 @@ pub fn scrMusicFade(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 } else {
                     // 6: if (isRoom("rOlmec"))
                     g.at("scripts/scrMusicFade", 6);
-                    if scr::isRoom(g, cx, &[s!("rOlmec")])?.is_truthy() {
+                    if scr::isRoom(g, cx, &[s!("rOlmec")])?.cond(Cond::If)? {
                         // 8: if (oPlayer1.active)
                         g.at("scripts/scrMusicFade", 8);
-                        if g.get_on(cx, &obj::oPlayer1, v::active)?.is_truthy() {
+                        if g.get_on(cx, &obj::oPlayer1, v::active)?.cond(Cond::If)? {
                             // 9: SS_SetSoundFreq(global.musBoss, SS_GetSoundFreq(global.musBoss) - 100);
                             g.at("scripts/scrMusicFade", 9);
                             cx.ret = { let a = [g.gget(gv::musBoss)?, ({ let a = [g.gget(gv::musBoss)?]; scr::SS_GetSoundFreq(g, cx, &a)? }).sub(&r(100.0))?]; scr::SS_SetSoundFreq(g, cx, &a)? };

@@ -19,7 +19,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (true)
     g.at("oPlayerSil/step#0", 1);
-    if r(1.0).is_truthy() {
+    if r(1.0).cond(Cond::If)? {
         // 3: x += xVel;
         g.at("oPlayerSil/step#0", 3);
         g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &g.get(cx.this, v::xVel)?)?)?;

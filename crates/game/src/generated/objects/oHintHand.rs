@@ -13,7 +13,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (instance_exists(oPlayer1))
     g.at("oHintHand/draw#0", 1);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 3: if (abs(oPlayer1.x - (x + 8)) < 8)
         g.at("oHintHand/draw#0", 3);
         if ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))? {

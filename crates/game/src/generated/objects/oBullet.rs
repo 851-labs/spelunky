@@ -39,7 +39,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!other.invincible)
     g.at("oBullet/collision_oDamsel#0", 1);
-    if g.get(cx.other, v::invincible)?.not()?.is_truthy() {
+    if g.get(cx.other, v::invincible)?.not()?.cond(Cond::If)? {
         // 3: with (other)
         g.at("oBullet/collision_oDamsel#0", 3);
         {
@@ -64,7 +64,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 10: if (held)
                 g.at("oBullet/collision_oDamsel#0", 10);
-                if g.get(cx.this, v::held)?.is_truthy() {
+                if g.get(cx.this, v::held)?.cond(Cond::If)? {
                     // 12: held = false;
                     g.at("oBullet/collision_oDamsel#0", 12);
                     g.set(cx.this, v::held, r(0.0))?;
@@ -116,7 +116,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!safe)
     g.at("oBullet/collision_oEnemy#0", 1);
-    if g.get(cx.this, v::safe)?.not()?.is_truthy() {
+    if g.get(cx.this, v::safe)?.not()?.cond(Cond::If)? {
         // 3: if (other.type == "Yeti King" || other.type == "Tomb Lord")
         g.at("oBullet/collision_oEnemy#0", 3);
         if or(g.get(cx.other, v::r#type)?.gml_eq(&s!("Yeti King"))?, g.get(cx.other, v::r#type)?.gml_eq(&s!("Tomb Lord"))?) {
@@ -196,7 +196,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(4.0))?)?;
             // 6: if (global.plife <= 0 && isRealLevel())
             g.at("oBullet/collision_oCharacter#0", 6);
-            if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
+            if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
                 // 6: global.enemyDeaths[19] += 1;
                 g.at("oBullet/collision_oCharacter#0", 6);
                 g.gset_a(gv::enemyDeaths, 0, 19, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 19)?, &r(1.0))?)?;

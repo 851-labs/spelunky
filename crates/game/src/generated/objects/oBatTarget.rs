@@ -113,7 +113,7 @@ pub fn collision_oArrow_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.at("oBatTarget/collision_oArrow#0", 3);
     {
         let t = obj::oMoonRoom;
-        g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &g.get(cx.this, v::difficulty)?)?)?;
+        g.set_on(cx, &t, v::baskets, lenient(Value::add, g.get_on(cx, &t, v::baskets)?, &g.get(cx.this, v::difficulty)?)?)?;
     }
     // 5: with (other)
     g.at("oBatTarget/collision_oArrow#0", 5);
@@ -157,7 +157,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 6: if (!other.dead && (other.state == 15 || other.state == 16) && other.y < y + 8 && !other.swimming)
         g.at("oBatTarget/collision_oCharacter#0", 6);
-        if and(and(and(g.get(cx.other, v::dead)?.not()?.is_truthy(), or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), g.get(cx.other, v::swimming)?.not()?.is_truthy()) {
+        if and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.add(&r(8.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
             // 8: other.yVel = -6 - 0.2 * other.yVel;
             g.at("oBatTarget/collision_oCharacter#0", 8);
             g.set(cx.other, v::yVel, r(-6.0).sub(&r(0.2).mul(&g.get(cx.other, v::yVel)?)?)?)?;
@@ -171,7 +171,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.at("oBatTarget/collision_oCharacter#0", 11);
             {
                 let t = obj::oMoonRoom;
-                g.set_on(cx, &t, v::baskets, lenient(Value::add, { let t2 = obj::oMoonRoom; g.get_on(cx, &t2, v::baskets)? }, &g.get(cx.this, v::difficulty)?)?)?;
+                g.set_on(cx, &t, v::baskets, lenient(Value::add, g.get_on(cx, &t, v::baskets)?, &g.get(cx.this, v::difficulty)?)?)?;
             }
             // 13: instance_create(x, -64, oBatTarget);
             g.at("oBatTarget/collision_oCharacter#0", 13);

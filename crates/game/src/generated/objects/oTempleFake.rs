@@ -5,7 +5,7 @@ use crate::rt::*;
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!collision_point(x + 8, y + 8, oDoor, 0, 0))
     g.at("oTempleFake/step#0", 1);
-    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oDoor, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oDoor, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
         // 3: instance_create(x, y, oTemple);
         g.at("oTempleFake/step#0", 3);
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oTemple]; b::instance_create(g, cx, a)? };

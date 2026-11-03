@@ -37,17 +37,17 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
     // 3: if (global.graphicsHigh)
     g.at("oFireFrogBomb/alarm_1#0", 3);
-    if g.gget(gv::graphicsHigh)?.is_truthy() {
+    if g.gget(gv::graphicsHigh)?.cond(Cond::If)? {
         // 5: scrCreateFlame(x, y, 3);
         g.at("oFireFrogBomb/alarm_1#0", 5);
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(3.0)]; scr::scrCreateFlame(g, cx, &a)? };
     }
     // 8: if (held)
     g.at("oFireFrogBomb/alarm_1#0", 8);
-    if g.get(cx.this, v::held)?.is_truthy() {
+    if g.get(cx.this, v::held)?.cond(Cond::If)? {
         // 10: if (oCharacter)
         g.at("oFireFrogBomb/alarm_1#0", 10);
-        if obj::oCharacter.is_truthy() {
+        if obj::oCharacter.cond(Cond::If)? {
             // 10: oCharacter.holdItem = 0;
             g.at("oFireFrogBomb/alarm_1#0", 10);
             { let t = obj::oCharacter; g.set_on(cx, &t, v::holdItem, r(0.0))?; }
@@ -64,7 +64,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (armed && instance_exists(oShopkeeper))
     g.at("oFireFrogBomb/step#1", 1);
-    if and(g.get(cx.this, v::armed)?.is_truthy(), b::instance_exists(g, cx, [obj::oShopkeeper])?.is_truthy()) {
+    if and(g.get(cx.this, v::armed)?.cond(Cond::And)?, b::instance_exists(g, cx, [obj::oShopkeeper])?.cond(Cond::And)?) {
         // 3: if (global.roomPath[scrGetRoomX(x), scrGetRoomY(y)] == 4 || global.roomPath[scrGetRoomX(x), scrGetRo
         g.at("oFireFrogBomb/step#1", 3);
         if and(or(({ let i = ix(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?; let j = ix(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?; g.gget_a(gv::roomPath, i, j)? }).gml_eq(&r(4.0))?, ({ let i = ix(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?; let j = ix(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?; g.gget_a(gv::roomPath, i, j)? }).gml_eq(&r(5.0))?), b::distance_to_object(g, cx, [obj::oShopkeeper])?.gml_lt(&r(96.0))?) {
@@ -86,10 +86,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 14: if (collision_point(x, y, oWaterSwim, -1, -1))
     g.at("oFireFrogBomb/step#1", 14);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWaterSwim, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWaterSwim, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 16: if (!swimming)
         g.at("oFireFrogBomb/step#1", 16);
-        if g.get(cx.this, v::swimming)?.not()?.is_truthy() {
+        if g.get(cx.this, v::swimming)?.not()?.cond(Cond::If)? {
             // 18: instance_create(x, y, oSplash);
             g.at("oFireFrogBomb/step#1", 18);
             { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSplash]; b::instance_create(g, cx, a)? };

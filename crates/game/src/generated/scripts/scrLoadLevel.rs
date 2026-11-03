@@ -6,7 +6,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 24: if (global.customLevel)
     g.at("scripts/scrLoadLevel", 24);
-    if g.gget(gv::customLevel)?.is_truthy() {
+    if g.gget(gv::customLevel)?.cond(Cond::If)? {
         // 24: levelName = global.nextCustomLevel;
         g.at("scripts/scrLoadLevel", 24);
         {
@@ -36,7 +36,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 28: if (file)
     g.at("scripts/scrLoadLevel", 28);
-    if g.get(cx.this, v::file)?.is_truthy() {
+    if g.get(cx.this, v::file)?.cond(Cond::If)? {
         // 30: window_set_cursor(cr_none);
         g.at("scripts/scrLoadLevel", 30);
         cx.ret = b::window_set_cursor(g, cx, [k::cr_none])?;
@@ -238,7 +238,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 62: if (!file_text_eof(file))
         g.at("scripts/scrLoadLevel", 62);
-        if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.is_truthy() {
+        if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.cond(Cond::If)? {
             // 64: file_text_readln(file);
             g.at("scripts/scrLoadLevel", 64);
             cx.ret = { let a = [g.get(cx.this, v::file)?]; b::file_text_readln(g, cx, a)? };
@@ -303,7 +303,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 77: if (!file_text_eof(file))
         g.at("scripts/scrLoadLevel", 77);
-        if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.is_truthy() {
+        if ({ let a = [g.get(cx.this, v::file)?]; b::file_text_eof(g, cx, a)? }).not()?.cond(Cond::If)? {
             // 79: file_text_readln(file);
             g.at("scripts/scrLoadLevel", 79);
             cx.ret = { let a = [g.get(cx.this, v::file)?]; b::file_text_readln(g, cx, a)? };
@@ -435,7 +435,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         }
                         // 110: if (obj)
                         g.at("scripts/scrLoadLevel", 110);
-                        if g.get(cx.this, v::obj)?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                             // 112: if (exitNamesNum > 0)
                             g.at("scripts/scrLoadLevel", 112);
                             if g.get(cx.this, v::exitNamesNum)?.gml_gt(&r(0.0))? {
@@ -481,7 +481,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         }
                         // 124: if (obj)
                         g.at("scripts/scrLoadLevel", 124);
-                        if g.get(cx.this, v::obj)?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                             // 126: if (signNamesNum > 0)
                             g.at("scripts/scrLoadLevel", 126);
                             if g.get(cx.this, v::signNamesNum)?.gml_gt(&r(0.0))? {
@@ -641,7 +641,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 150: if (global.customLevel)
         g.at("scripts/scrLoadLevel", 150);
-        if g.gget(gv::customLevel)?.is_truthy() {
+        if g.gget(gv::customLevel)?.cond(Cond::If)? {
             // 150: blackOut = false;
             g.at("scripts/scrLoadLevel", 150);
             {
@@ -653,7 +653,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 154: if (global.customLevel && !instance_exists(oLoadButton))
         g.at("scripts/scrLoadLevel", 154);
-        if and(g.gget(gv::customLevel)?.is_truthy(), b::instance_exists(g, cx, [obj::oLoadButton])?.not()?.is_truthy()) {
+        if and(g.gget(gv::customLevel)?.cond(Cond::And)?, b::instance_exists(g, cx, [obj::oLoadButton])?.not()?.cond(Cond::And)?) {
             // 156: room_goto(rEndCustom);
             g.at("scripts/scrLoadLevel", 156);
             cx.ret = b::room_goto(g, cx, [rm::rEndCustom])?;
@@ -675,7 +675,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 162: if (levelLoaded)
     g.at("scripts/scrLoadLevel", 162);
-    if g.get(cx.this, v::levelLoaded)?.is_truthy() {
+    if g.get(cx.this, v::levelLoaded)?.cond(Cond::If)? {
         // 164: obj = instance_nearest(x, y, oEntrance);
         g.at("scripts/scrLoadLevel", 164);
         {
@@ -685,7 +685,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 166: if (instance_exists(obj))
         g.at("scripts/scrLoadLevel", 166);
-        if ({ let a = [g.get(cx.this, v::obj)?]; b::instance_exists(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::obj)?]; b::instance_exists(g, cx, a)? }).cond(Cond::If)? {
             // 168: instance_create(obj.x + 8, obj.y + 8, oPlayer1);
             g.at("scripts/scrLoadLevel", 168);
             cx.ret = { let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.add(&r(8.0))?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?.add(&r(8.0))?, obj::oPlayer1]; b::instance_create(g, cx, a)? };
@@ -751,7 +751,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 190: if (gamepad.attackPressed)
         g.at("scripts/scrLoadLevel", 190);
-        if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {
+        if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::If)? {
             // 190: gamepad.attackPressed = false;
             g.at("scripts/scrLoadLevel", 190);
             {
@@ -763,7 +763,7 @@ pub fn scrLoadLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 191: if (gamepad.startPressed)
         g.at("scripts/scrLoadLevel", 191);
-        if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.is_truthy() {
+        if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.cond(Cond::If)? {
             // 191: gamepad.startPressed = false;
             g.at("scripts/scrLoadLevel", 191);
             {

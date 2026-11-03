@@ -185,7 +185,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [g.gget(gv::musTitle)?, r(1.0)]; scr::playMusic(g, cx, &a)? };
             // 79: if (global.firstTime)
             g.at("oTitle/create#0", 79);
-            if g.gget(gv::firstTime)?.is_truthy() {
+            if g.gget(gv::firstTime)?.cond(Cond::If)? {
                 // 79: instance_create(384, 144, oHintHand);
                 g.at("oTitle/create#0", 79);
                 b::instance_create(g, cx, [r(384.0), r(144.0), obj::oHintHand])?;
@@ -225,7 +225,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 { let a = [g.gget(gv::musTitle)?, r(1.0)]; scr::playMusic(g, cx, &a)? };
                 // 88: if (global.firstTime)
                 g.at("oTitle/create#0", 88);
-                if g.gget(gv::firstTime)?.is_truthy() {
+                if g.gget(gv::firstTime)?.cond(Cond::If)? {
                     // 88: instance_create(384, 144, oHintHand);
                     g.at("oTitle/create#0", 88);
                     b::instance_create(g, cx, [r(384.0), r(144.0), obj::oHintHand])?;
@@ -265,7 +265,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     { let a = [g.gget(gv::musTitle)?, r(1.0)]; scr::playMusic(g, cx, &a)? };
                     // 97: if (global.firstTime)
                     g.at("oTitle/create#0", 97);
-                    if g.gget(gv::firstTime)?.is_truthy() {
+                    if g.gget(gv::firstTime)?.cond(Cond::If)? {
                         // 97: instance_create(384, 144, oHintHand);
                         g.at("oTitle/create#0", 97);
                         b::instance_create(g, cx, [r(384.0), r(144.0), obj::oHintHand])?;
@@ -276,7 +276,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 100: if (global.firstTime)
     g.at("oTitle/create#0", 100);
-    if g.gget(gv::firstTime)?.is_truthy() {
+    if g.gget(gv::firstTime)?.cond(Cond::If)? {
         // 102: instance_create(320, 160, oBrick);
         g.at("oTitle/create#0", 102);
         b::instance_create(g, cx, [r(320.0), r(160.0), obj::oBrick])?;
@@ -359,23 +359,23 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttackPressed() ||
     g.at("oTitle/step#0", 1);
-    if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.is_truthy(), b::keyboard_check_pressed(g, cx, [k::vk_escape])?.is_truthy()), scr::checkAttackPressed(g, cx, &[])?.is_truthy()), scr::checkStartPressed(g, cx, &[])?.is_truthy()) {
+    if or(or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.cond(Cond::Or)?, b::keyboard_check_pressed(g, cx, [k::vk_escape])?.cond(Cond::Or)?), scr::checkAttackPressed(g, cx, &[])?.cond(Cond::Or)?), scr::checkStartPressed(g, cx, &[])?.cond(Cond::Or)?) {
         // 6: if (instance_exists(oScreen))
         g.at("oTitle/step#0", 6);
-        if b::instance_exists(g, cx, [obj::oScreen])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oScreen])?.cond(Cond::If)? {
             // 8: if (!oScreen.canPause)
             g.at("oTitle/step#0", 8);
-            if g.get_on(cx, &obj::oScreen, v::canPause)?.not()?.is_truthy() {
+            if g.get_on(cx, &obj::oScreen, v::canPause)?.not()?.cond(Cond::If)? {
                 // 10: if (gamepad.attackPressed)
                 g.at("oTitle/step#0", 10);
-                if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {
+                if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::If)? {
                     // 10: gamepad.attackPressed = false;
                     g.at("oTitle/step#0", 10);
                     { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::attackPressed, r(0.0))?; }
                 }
                 // 11: if (gamepad.startPressed)
                 g.at("oTitle/step#0", 11);
-                if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.is_truthy() {
+                if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.cond(Cond::If)? {
                     // 11: gamepad.startPressed = false;
                     g.at("oTitle/step#0", 11);
                     { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::startPressed, r(0.0))?; }
@@ -390,14 +390,14 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 18: if (gamepad.attackPressed)
             g.at("oTitle/step#0", 18);
-            if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {
+            if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::If)? {
                 // 18: gamepad.attackPressed = false;
                 g.at("oTitle/step#0", 18);
                 { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::attackPressed, r(0.0))?; }
             }
             // 19: if (gamepad.startPressed)
             g.at("oTitle/step#0", 19);
-            if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.is_truthy() {
+            if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.cond(Cond::If)? {
                 // 19: gamepad.startPressed = false;
                 g.at("oTitle/step#0", 19);
                 { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::startPressed, r(0.0))?; }
@@ -412,7 +412,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 25: if (instance_exists(oPlayer1))
     g.at("oTitle/step#0", 25);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 27: if (oPlayer1.x <= 320 && view_xview[0] > 0)
         g.at("oTitle/step#0", 27);
         if and(g.get_on(cx, &obj::oPlayer1, v::x)?.gml_le(&r(320.0))?, g.bget(v::view_xview, 0)?.gml_gt(&r(0.0))?) {
@@ -430,7 +430,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 38: if (fadeOut)
     g.at("oTitle/step#0", 38);
-    if g.get(cx.this, v::fadeOut)?.is_truthy() {
+    if g.get(cx.this, v::fadeOut)?.cond(Cond::If)? {
         // 40: if (darkness < 1)
         g.at("oTitle/step#0", 40);
         if g.get(cx.this, v::darkness)?.gml_lt(&r(1.0))? {
@@ -450,7 +450,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (instance_exists(oFlare) && needDark)
     g.at("oTitle/draw#0", 1);
-    if and(b::instance_exists(g, cx, [obj::oFlare])?.is_truthy(), g.get(cx.this, v::needDark)?.is_truthy()) {
+    if and(b::instance_exists(g, cx, [obj::oFlare])?.cond(Cond::And)?, g.get(cx.this, v::needDark)?.cond(Cond::And)?) {
         // 3: dist = 160 - oFlare.y;
         g.at("oTitle/draw#0", 3);
         g.set(cx.this, v::dist, r(160.0).sub(&g.get_on(cx, &obj::oFlare, v::y)?)?)?;
@@ -477,7 +477,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     b::draw_set_alpha(g, cx, [r(1.0)])?;
     // 17: if (instance_exists(oPlayer1))
     g.at("oTitle/draw#0", 17);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
         // 19: player = instance_nearest(0, 0, oPlayer1);
         g.at("oTitle/draw#0", 19);
         { let x = b::instance_nearest(g, cx, [r(0.0), r(0.0), obj::oPlayer1])?; g.set(cx.this, v::player, x)?; }

@@ -79,7 +79,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
         // 6: if (collision_point(x + 8, y + 8, oSolid, 0, 0))
         g.at("oAlien/step#1", 6);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 8: hp = 0;
             g.at("oAlien/step#1", 8);
             g.set(cx.this, v::hp, r(0.0))?;
@@ -92,10 +92,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
             // 14: if (countsAsKill)
             g.at("oAlien/step#1", 14);
-            if g.get(cx.this, v::countsAsKill)?.is_truthy() {
+            if g.get(cx.this, v::countsAsKill)?.cond(Cond::If)? {
                 // 16: if (isRealLevel())
                 g.at("oAlien/step#1", 16);
-                if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+                if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                     // 16: global.enemyKills[15] += 1;
                     g.at("oAlien/step#1", 16);
                     g.gset_a(gv::enemyKills, 0, 15, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 15)?, &r(1.0))?)?;
@@ -116,7 +116,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.6000000000000001))?)?;
         // 25: if (isCollisionBottom(1) && status != STUNNED)
         g.at("oAlien/step#1", 25);
-        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
+        if and(scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::status)?.gml_ne(&g.get(cx.this, v::STUNNED)?)?) {
             // 26: yVel = 0;
             g.at("oAlien/step#1", 26);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -147,28 +147,28 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::WALK)?)? {
                 // 39: if (isCollisionRight(1))
                 g.at("oAlien/step#1", 39);
-                if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 41: facing = LEFT;
                     g.at("oAlien/step#1", 41);
                     g.set(cx.this, v::facing, g.get(cx.this, v::LEFT)?)?;
                 }
                 // 43: if (isCollisionLeft(1))
                 g.at("oAlien/step#1", 43);
-                if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 45: facing = RIGHT;
                     g.at("oAlien/step#1", 45);
                     g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
                 }
                 // 47: if (facing == LEFT && !collision_point(x - 1, y, oSolid, -1, -1) && !collision_point(x - 1, y + 16, 
                 g.at("oAlien/step#1", 47);
-                if and(and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                if and(and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::LEFT)?)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                     // 50: facing = RIGHT;
                     g.at("oAlien/step#1", 50);
                     g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;
                 } else {
                     // 52: if (facing == RIGHT && !collision_point(x + 16, y, oSolid, -1, -1) && !collision_point(x + 16, y + 1
                     g.at("oAlien/step#1", 52);
-                    if and(and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if and(and(g.get(cx.this, v::facing)?.gml_eq(&g.get(cx.this, v::RIGHT)?)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                         // 55: facing = LEFT;
                         g.at("oAlien/step#1", 55);
                         g.set(cx.this, v::facing, g.get(cx.this, v::LEFT)?)?;
@@ -176,10 +176,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 57: if (!collision_point(x - 1, y + 16, oSolid, -1, -1) || collision_point(x - 1, y, oSolid, -1, -1) && 
                 g.at("oAlien/step#1", 57);
-                if and(or(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy()), or(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy())) {
+                if and(or(({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?), or(({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
                     // 60: if (collision_point(x - 1, y, oSolid, -1, -1))
                     g.at("oAlien/step#1", 60);
-                    if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                    if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                         // 60: facing = RIGHT;
                         g.at("oAlien/step#1", 60);
                         g.set(cx.this, v::facing, g.get(cx.this, v::RIGHT)?)?;

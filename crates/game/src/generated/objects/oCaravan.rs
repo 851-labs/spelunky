@@ -8,7 +8,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.gget(gv::damsels)?.gml_gt(&r(0.0))? {
         // 3: if (global.isDamsel)
         g.at("oCaravan/create#0", 3);
-        if g.gget(gv::isDamsel)?.is_truthy() {
+        if g.gget(gv::isDamsel)?.cond(Cond::If)? {
             // 3: sprite_index = sCaravan3;
             g.at("oCaravan/create#0", 3);
             g.set(cx.this, v::sprite_index, spr::sCaravan3)?;

@@ -59,7 +59,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::hit, r(0.0))?;
     // 2: if (collision_point(x, y, oSolid, 0, 0))
     g.at("oMattockHit/other_7#0", 2);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 4: obj = instance_place(x, y, oSolid);
         g.at("oMattockHit/other_7#0", 4);
         {
@@ -68,7 +68,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 5: if (!obj.invincible)
         g.at("oMattockHit/other_7#0", 5);
-        if g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.is_truthy() {
+        if g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.cond(Cond::If)? {
             // 5: hit = true;
             g.at("oMattockHit/other_7#0", 5);
             g.set(cx.this, v::hit, r(1.0))?;
@@ -76,7 +76,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 7: if (collision_point(x, y + 9, oSolid, 0, 0))
         g.at("oMattockHit/other_7#0", 7);
-        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(9.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 9: obj = instance_place(x, y + 9, oSolid);
             g.at("oMattockHit/other_7#0", 9);
             {
@@ -85,7 +85,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 10: if (!obj.invincible)
             g.at("oMattockHit/other_7#0", 10);
-            if g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.is_truthy() {
+            if g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.cond(Cond::If)? {
                 // 10: hit = true;
                 g.at("oMattockHit/other_7#0", 10);
                 g.set(cx.this, v::hit, r(1.0))?;
@@ -94,7 +94,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 13: if (hit && !isRoom("rTitle") && !isRoom("rHighscores"))
     g.at("oMattockHit/other_7#0", 13);
-    if and(and(g.get(cx.this, v::hit)?.is_truthy(), scr::isRoom(g, cx, &[s!("rTitle")])?.not()?.is_truthy()), scr::isRoom(g, cx, &[s!("rHighscores")])?.not()?.is_truthy()) {
+    if and(and(g.get(cx.this, v::hit)?.cond(Cond::And)?, scr::isRoom(g, cx, &[s!("rTitle")])?.not()?.cond(Cond::And)?), scr::isRoom(g, cx, &[s!("rHighscores")])?.not()?.cond(Cond::And)?) {
         // 15: with (obj)
         g.at("oMattockHit/other_7#0", 15);
         {
@@ -111,7 +111,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 18: if (tile)
                 g.at("oMattockHit/other_7#0", 18);
-                if g.get(cx.this, v::tile)?.is_truthy() {
+                if g.get(cx.this, v::tile)?.cond(Cond::If)? {
                     // 18: tile_delete(tile);
                     g.at("oMattockHit/other_7#0", 18);
                     { let a = [g.get(cx.this, v::tile)?]; b::tile_delete(g, cx, a)? };
@@ -124,14 +124,14 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 20: if (tile)
                 g.at("oMattockHit/other_7#0", 20);
-                if g.get(cx.this, v::tile)?.is_truthy() {
+                if g.get(cx.this, v::tile)?.cond(Cond::If)? {
                     // 20: tile_delete(tile);
                     g.at("oMattockHit/other_7#0", 20);
                     { let a = [g.get(cx.this, v::tile)?]; b::tile_delete(g, cx, a)? };
                 }
                 // 22: if (!invincible)
                 g.at("oMattockHit/other_7#0", 22);
-                if g.get(cx.this, v::invincible)?.not()?.is_truthy() {
+                if g.get(cx.this, v::invincible)?.not()?.cond(Cond::If)? {
                     // 22: instance_destroy();
                     g.at("oMattockHit/other_7#0", 22);
                     b::instance_destroy(g, cx, [])?;
@@ -163,7 +163,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 (cx.this, cx.other) = (h8, outer9.0);
                 // 32: if (!collision_point(x, y + 16, oSolid, 0, 0))
                 g.at("oMattockHit/other_7#0", 32);
-                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                     // 34: instance_destroy();
                     g.at("oMattockHit/other_7#0", 34);
                     b::instance_destroy(g, cx, [])?;
@@ -173,7 +173,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 39: if (rand(1, 20) == 1 && !global.isTunnelMan)
         g.at("oMattockHit/other_7#0", 39);
-        if and(scr::rand(g, cx, &[r(1.0), r(20.0)])?.gml_eq(&r(1.0))?, g.gget(gv::isTunnelMan)?.not()?.is_truthy()) {
+        if and(scr::rand(g, cx, &[r(1.0), r(20.0)])?.gml_eq(&r(1.0))?, g.gget(gv::isTunnelMan)?.not()?.cond(Cond::And)?) {
             // 41: with (oPlayer1)
             g.at("oMattockHit/other_7#0", 41);
             {
@@ -216,7 +216,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     (cx.this, cx.other) = (h14, outer15.0);
                     // 52: if (!visible)
                     g.at("oMattockHit/other_7#0", 52);
-                    if g.get(cx.this, v::visible)?.not()?.is_truthy() {
+                    if g.get(cx.this, v::visible)?.not()?.cond(Cond::If)? {
                         // 52: instance_destroy();
                         g.at("oMattockHit/other_7#0", 52);
                         b::instance_destroy(g, cx, [])?;

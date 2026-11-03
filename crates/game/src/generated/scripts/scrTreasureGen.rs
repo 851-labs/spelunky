@@ -34,7 +34,7 @@ pub fn scrTreasureGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 32: if (!collision_point(x, y - 16, oSolid, 0, 0) && !collision_point(x, y - 1, oTreasure, 0, 0) && !col
     g.at("scripts/scrTreasureGen", 32);
-    if and(and(and(and(and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oTreasure, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oChest, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oEntrance, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+    if and(and(and(and(and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(1.0))?, obj::oTreasure, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oChest, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oEntrance, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
         // 39: colStuff = false;
         g.at("scripts/scrTreasureGen", 39);
         {
@@ -45,7 +45,7 @@ pub fn scrTreasureGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 42: if (!colStuff)
     g.at("scripts/scrTreasureGen", 42);
-    if g.get(cx.this, v::colStuff)?.not()?.is_truthy() {
+    if g.get(cx.this, v::colStuff)?.not()?.cond(Cond::If)? {
         // 44: if (rand(1, 100) == 1)
         g.at("scripts/scrTreasureGen", 44);
         if scr::rand(g, cx, &[r(1.0), r(100.0)])?.gml_eq(&r(1.0))? {
@@ -70,7 +70,7 @@ pub fn scrTreasureGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 48: if (!colStuff && collision_point(x, y - 32, oSolid, 0, 0) && (collision_point(x - 16, y - 16, oSolid
     g.at("scripts/scrTreasureGen", 48);
-    if and(and(g.get(cx.this, v::colStuff)?.not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), or(or(or(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy())) {
+    if and(and(g.get(cx.this, v::colStuff)?.not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(32.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), or(or(or(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?), ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?)) {
         // 52: n = 60;
         g.at("scripts/scrTreasureGen", 52);
         {
@@ -80,7 +80,7 @@ pub fn scrTreasureGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 53: if (distance_to_object(oGiantSpider < 100))
         g.at("scripts/scrTreasureGen", 53);
-        if b::distance_to_object(g, cx, [b2v(obj::oGiantSpider.gml_lt(&r(100.0))?)])?.is_truthy() {
+        if b::distance_to_object(g, cx, [b2v(obj::oGiantSpider.gml_lt(&r(100.0))?)])?.cond(Cond::If)? {
             // 53: n = 5;
             g.at("scripts/scrTreasureGen", 53);
             {
@@ -98,7 +98,7 @@ pub fn scrTreasureGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 56: if (global.genUdjatEye && !global.LockedChest)
             g.at("scripts/scrTreasureGen", 56);
-            if and(g.gget(gv::genUdjatEye)?.is_truthy(), g.gget(gv::LockedChest)?.not()?.is_truthy()) {
+            if and(g.gget(gv::genUdjatEye)?.cond(Cond::And)?, g.gget(gv::LockedChest)?.not()?.cond(Cond::And)?) {
                 // 58: if (rand(1, global.lockedChestChance) == 1)
                 g.at("scripts/scrTreasureGen", 58);
                 if ({ let a = [r(1.0), g.gget(gv::lockedChestChance)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))? {
@@ -139,7 +139,7 @@ pub fn scrTreasureGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     } else {
                         // 73: if (!oGame.damsel && rand(1, 8) == 1 && !collision_point(x + 8, y - 8, oWater, 0, 0))
                         g.at("scripts/scrTreasureGen", 73);
-                        if and(and(g.get_on(cx, &obj::oGame, v::damsel)?.not()?.is_truthy(), scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                        if and(and(g.get_on(cx, &obj::oGame, v::damsel)?.not()?.cond(Cond::And)?, scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                             // 75: obj = instance_create(x + 8, y - 8, oDamsel);
                             g.at("scripts/scrTreasureGen", 75);
                             {
@@ -238,7 +238,7 @@ pub fn scrTreasureGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 95: if (!colStuff && (collision_point(x - 16, y - 16, oSolid, 0, 0) && collision_point(x + 16, y - 16, o
         g.at("scripts/scrTreasureGen", 95);
-        if and(g.get(cx.this, v::colStuff)?.not()?.is_truthy(), and(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy())) {
+        if and(g.get(cx.this, v::colStuff)?.not()?.cond(Cond::And)?, and(({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(16.0))?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?)) {
             // 98: n = 60;
             g.at("scripts/scrTreasureGen", 98);
             {
@@ -248,7 +248,7 @@ pub fn scrTreasureGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             }
             // 99: if (distance_to_object(oGiantSpider < 100))
             g.at("scripts/scrTreasureGen", 99);
-            if b::distance_to_object(g, cx, [b2v(obj::oGiantSpider.gml_lt(&r(100.0))?)])?.is_truthy() {
+            if b::distance_to_object(g, cx, [b2v(obj::oGiantSpider.gml_lt(&r(100.0))?)])?.cond(Cond::If)? {
                 // 99: n = 10;
                 g.at("scripts/scrTreasureGen", 99);
                 {
@@ -326,7 +326,7 @@ pub fn scrTreasureGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 116: if (!collision_point(x, y - 16, oSolid, 0, 0) && !collision_point(x, y - 8, oChest, 0, 0) && !collis
             g.at("scripts/scrTreasureGen", 116);
-            if and(and(and(and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oChest, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oEntrance, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+            if and(and(and(and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oChest, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oSpikes, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oEntrance, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(8.0))?, obj::oExit, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                 // 122: if (rand(1, 40) == 1)
                 g.at("scripts/scrTreasureGen", 122);
                 if scr::rand(g, cx, &[r(1.0), r(40.0)])?.gml_eq(&r(1.0))? {

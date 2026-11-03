@@ -20,7 +20,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (scroll)
     g.at("oDesertTopScroll/step#0", 1);
-    if g.get(cx.this, v::scroll)?.is_truthy() {
+    if g.get(cx.this, v::scroll)?.cond(Cond::If)? {
         // 1: x += 1;
         g.at("oDesertTopScroll/step#0", 1);
         g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;

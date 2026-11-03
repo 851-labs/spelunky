@@ -179,7 +179,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 71: if (global.lake)
             g.at("scripts/scrInitLevel", 71);
-            if g.gget(gv::lake)?.is_truthy() {
+            if g.gget(gv::lake)?.cond(Cond::If)? {
                 // 72: k = 41;
                 g.at("scripts/scrInitLevel", 72);
                 {
@@ -224,7 +224,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 'body8: {
                     // 79: if (!isLevel())
                     g.at("scripts/scrInitLevel", 79);
-                    if scr::isLevel(g, cx, &[])?.not()?.is_truthy() {
+                    if scr::isLevel(g, cx, &[])?.not()?.cond(Cond::If)? {
                         // 81: i = 999;
                         g.at("scripts/scrInitLevel", 81);
                         {
@@ -294,7 +294,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     }
                                     // 103: if (!global.cityOfGold)
                                     g.at("scripts/scrInitLevel", 103);
-                                    if g.gget(gv::cityOfGold)?.not()?.is_truthy() {
+                                    if g.gget(gv::cityOfGold)?.not()?.cond(Cond::If)? {
                                         // 103: obj.sprite_index = sTemple;
                                         g.at("scripts/scrInitLevel", 103);
                                         {
@@ -308,7 +308,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             } else {
                                 // 106: if (global.lake)
                                 g.at("scripts/scrInitLevel", 106);
-                                if g.gget(gv::lake)?.is_truthy() {
+                                if g.gget(gv::lake)?.cond(Cond::If)? {
                                     // 108: if (i * 16 == 0 || i * 16 == 656 || j * 16 == 0 || j * 16 >= 656)
                                     g.at("scripts/scrInitLevel", 108);
                                     if or(or(or(g.get(cx.this, v::i)?.mul(&r(16.0))?.gml_eq(&r(0.0))?, g.get(cx.this, v::i)?.mul(&r(16.0))?.gml_eq(&r(656.0))?), g.get(cx.this, v::j)?.mul(&r(16.0))?.gml_eq(&r(0.0))?), g.get(cx.this, v::j)?.mul(&r(16.0))?.gml_ge(&r(656.0))?) {
@@ -387,7 +387,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 }
                                                 // 124: if (!global.cityOfGold)
                                                 g.at("scripts/scrInitLevel", 124);
-                                                if g.gget(gv::cityOfGold)?.not()?.is_truthy() {
+                                                if g.gget(gv::cityOfGold)?.not()?.cond(Cond::If)? {
                                                     // 124: obj.sprite_index = sTemple;
                                                     g.at("scripts/scrInitLevel", 124);
                                                     {
@@ -520,7 +520,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if g.gget(gv::levelType)?.gml_eq(&r(1.0))? {
                     // 155: if (global.blackMarket)
                     g.at("scripts/scrInitLevel", 155);
-                    if g.gget(gv::blackMarket)?.is_truthy() {
+                    if g.gget(gv::blackMarket)?.cond(Cond::If)? {
                         // 155: scrRoomGenMarket();
                         g.at("scripts/scrInitLevel", 155);
                         cx.ret = scr::scrRoomGenMarket(g, cx, &[])?;
@@ -535,7 +535,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     if g.gget(gv::levelType)?.gml_eq(&r(2.0))? {
                         // 160: if (global.yetiLair)
                         g.at("scripts/scrInitLevel", 160);
-                        if g.gget(gv::yetiLair)?.is_truthy() {
+                        if g.gget(gv::yetiLair)?.cond(Cond::If)? {
                             // 160: scrRoomGenYeti();
                             g.at("scripts/scrInitLevel", 160);
                             cx.ret = scr::scrRoomGenYeti(g, cx, &[])?;
@@ -571,7 +571,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 169: if (!global.hadDarkLevel && !global.noDarkLevel && global.currLevel != 0 && global.currLevel != 1 &&
     g.at("scripts/scrInitLevel", 169);
-    if and(and(and(and(and(and(g.gget(gv::hadDarkLevel)?.not()?.is_truthy(), g.gget(gv::noDarkLevel)?.not()?.is_truthy()), g.gget(gv::currLevel)?.gml_ne(&r(0.0))?), g.gget(gv::currLevel)?.gml_ne(&r(1.0))?), g.gget(gv::levelType)?.gml_ne(&r(2.0))?), g.gget(gv::currLevel)?.gml_ne(&r(16.0))?), ({ let a = [r(1.0), g.gget(gv::probDarkLevel)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))?) {
+    if and(and(and(and(and(and(g.gget(gv::hadDarkLevel)?.not()?.cond(Cond::And)?, g.gget(gv::noDarkLevel)?.not()?.cond(Cond::And)?), g.gget(gv::currLevel)?.gml_ne(&r(0.0))?), g.gget(gv::currLevel)?.gml_ne(&r(1.0))?), g.gget(gv::levelType)?.gml_ne(&r(2.0))?), g.gget(gv::currLevel)?.gml_ne(&r(16.0))?), ({ let a = [r(1.0), g.gget(gv::probDarkLevel)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))?) {
         // 171: global.darkLevel = true;
         g.at("scripts/scrInitLevel", 171);
         {
@@ -589,7 +589,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 176: if (global.blackMarket)
     g.at("scripts/scrInitLevel", 176);
-    if g.gget(gv::blackMarket)?.is_truthy() {
+    if g.gget(gv::blackMarket)?.cond(Cond::If)? {
         // 176: global.darkLevel = false;
         g.at("scripts/scrInitLevel", 176);
         {
@@ -607,7 +607,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 179: if (!global.madeUdjatEye)
     g.at("scripts/scrInitLevel", 179);
-    if g.gget(gv::madeUdjatEye)?.not()?.is_truthy() {
+    if g.gget(gv::madeUdjatEye)?.not()?.cond(Cond::If)? {
         // 181: if (global.currLevel == 2 && rand(1, 3) == 1)
         g.at("scripts/scrInitLevel", 181);
         if and(g.gget(gv::currLevel)?.gml_eq(&r(2.0))?, scr::rand(g, cx, &[r(1.0), r(3.0)])?.gml_eq(&r(1.0))?) {
@@ -653,7 +653,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 187: if (!global.madeMarketEntrance)
     g.at("scripts/scrInitLevel", 187);
-    if g.gget(gv::madeMarketEntrance)?.not()?.is_truthy() {
+    if g.gget(gv::madeMarketEntrance)?.not()?.cond(Cond::If)? {
         // 189: if (global.currLevel == 5 && rand(1, 3) == 1)
         g.at("scripts/scrInitLevel", 189);
         if and(g.gget(gv::currLevel)?.gml_eq(&r(5.0))?, scr::rand(g, cx, &[r(1.0), r(3.0)])?.gml_eq(&r(1.0))?) {
@@ -699,14 +699,14 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 198: if (!isRoom("rTutorial") && !isRoom("rLoadLevel"))
     g.at("scripts/scrInitLevel", 198);
-    if and(scr::isRoom(g, cx, &[s!("rTutorial")])?.not()?.is_truthy(), scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.is_truthy()) {
+    if and(scr::isRoom(g, cx, &[s!("rTutorial")])?.not()?.cond(Cond::And)?, scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.cond(Cond::And)?) {
         // 198: scrEntityGen();
         g.at("scripts/scrInitLevel", 198);
         cx.ret = scr::scrEntityGen(g, cx, &[])?;
     }
     // 200: if (instance_exists(oEntrance) && !global.customLevel)
     g.at("scripts/scrInitLevel", 200);
-    if and(b::instance_exists(g, cx, [obj::oEntrance])?.is_truthy(), g.gget(gv::customLevel)?.not()?.is_truthy()) {
+    if and(b::instance_exists(g, cx, [obj::oEntrance])?.cond(Cond::And)?, g.gget(gv::customLevel)?.not()?.cond(Cond::And)?) {
         // 202: oPlayer1.x = oEntrance.x + 8;
         g.at("scripts/scrInitLevel", 202);
         {
@@ -726,10 +726,10 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 206: if (global.darkLevel || global.blackMarket || global.snakePit || global.cemetary || global.lake || g
     g.at("scripts/scrInitLevel", 206);
-    if or(or(or(or(or(or(or(or(g.gget(gv::darkLevel)?.is_truthy(), g.gget(gv::blackMarket)?.is_truthy()), g.gget(gv::snakePit)?.is_truthy()), g.gget(gv::cemetary)?.is_truthy()), g.gget(gv::lake)?.is_truthy()), g.gget(gv::yetiLair)?.is_truthy()), g.gget(gv::alienCraft)?.is_truthy()), g.gget(gv::sacrificePit)?.is_truthy()), g.gget(gv::cityOfGold)?.is_truthy()) {
+    if or(or(or(or(or(or(or(or(g.gget(gv::darkLevel)?.cond(Cond::Or)?, g.gget(gv::blackMarket)?.cond(Cond::Or)?), g.gget(gv::snakePit)?.cond(Cond::Or)?), g.gget(gv::cemetary)?.cond(Cond::Or)?), g.gget(gv::lake)?.cond(Cond::Or)?), g.gget(gv::yetiLair)?.cond(Cond::Or)?), g.gget(gv::alienCraft)?.cond(Cond::Or)?), g.gget(gv::sacrificePit)?.cond(Cond::Or)?), g.gget(gv::cityOfGold)?.cond(Cond::Or)?) {
         // 216: if (!isRoom("rLoadLevel"))
         g.at("scripts/scrInitLevel", 216);
-        if scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.is_truthy() {
+        if scr::isRoom(g, cx, &[s!("rLoadLevel")])?.not()?.cond(Cond::If)? {
             // 218: with (oPlayer1)
             g.at("scripts/scrInitLevel", 218);
             {
@@ -759,7 +759,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 223: if (global.lake)
         g.at("scripts/scrInitLevel", 223);
-        if g.gget(gv::lake)?.is_truthy() {
+        if g.gget(gv::lake)?.cond(Cond::If)? {
             // 223: scrSetupWalls(656);
             g.at("scripts/scrInitLevel", 223);
             cx.ret = scr::scrSetupWalls(g, cx, &[r(656.0)])?;
@@ -771,7 +771,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 227: if (global.graphicsHigh)
     g.at("scripts/scrInitLevel", 227);
-    if g.gget(gv::graphicsHigh)?.is_truthy() {
+    if g.gget(gv::graphicsHigh)?.cond(Cond::If)? {
         // 229: repeat (20)
         g.at("scripts/scrInitLevel", 229);
         'repeat13: for _ in 0..repeat_count(&r(20.0))? {
@@ -814,7 +814,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 246: if (global.murderer || global.thiefLevel > 0)
     g.at("scripts/scrInitLevel", 246);
-    if or(g.gget(gv::murderer)?.is_truthy(), g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
+    if or(g.gget(gv::murderer)?.cond(Cond::Or)?, g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
         // 248: with (oExit)
         g.at("scripts/scrInitLevel", 248);
         {
@@ -856,7 +856,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             (cx.this, cx.other) = (h11, outer12.0);
             // 261: if (collision_point(x, y, oSolid, 0, 0))
             g.at("scripts/scrInitLevel", 261);
-            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                 // 263: obj = instance_place(x, y, oSolid);
                 g.at("scripts/scrInitLevel", 263);
                 {
@@ -866,7 +866,7 @@ pub fn scrInitLevel(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 264: if (obj.invincible)
                 g.at("scripts/scrInitLevel", 264);
-                if g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.is_truthy() {
+                if g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.cond(Cond::If)? {
                     // 264: instance_destroy();
                     g.at("scripts/scrInitLevel", 264);
                     cx.ret = b::instance_destroy(g, cx, [])?;

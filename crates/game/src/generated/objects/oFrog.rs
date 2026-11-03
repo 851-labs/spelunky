@@ -77,7 +77,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::shakeToggle, r(1.0))?;
     // 34: if (collision_point(x, y, oWater, 0, 0))
     g.at("oFrog/create#1", 34);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 34: swimming = true;
         g.at("oFrog/create#1", 34);
         g.set(cx.this, v::swimming, r(1.0))?;
@@ -105,7 +105,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 9: if (collision_point(x + 8, y + 8, oSolid, 0, 0))
         g.at("oFrog/step#1", 9);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 9: hp = -999;
             g.at("oFrog/step#1", 9);
             g.set(cx.this, v::hp, r(-999.0))?;
@@ -118,10 +118,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
             // 14: if (countsAsKill)
             g.at("oFrog/step#1", 14);
-            if g.get(cx.this, v::countsAsKill)?.is_truthy() {
+            if g.get(cx.this, v::countsAsKill)?.cond(Cond::If)? {
                 // 16: if (isRealLevel())
                 g.at("oFrog/step#1", 16);
-                if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+                if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                     // 16: global.enemyKills[8] += 1;
                     g.at("oFrog/step#1", 16);
                     g.gset_a(gv::enemyKills, 0, 8, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 8)?, &r(1.0))?)?;
@@ -139,14 +139,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 23: if (isCollisionRight(1))
         g.at("oFrog/step#1", 23);
-        if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 25: xVel = -1;
             g.at("oFrog/step#1", 25);
             g.set(cx.this, v::xVel, r(-1.0))?;
         }
         // 28: if (isCollisionLeft(1))
         g.at("oFrog/step#1", 28);
-        if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 30: xVel = 1;
             g.at("oFrog/step#1", 30);
             g.set(cx.this, v::xVel, r(1.0))?;
@@ -156,7 +156,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::colBot, r(0.0))?;
         // 34: if (isCollisionBottom(1))
         g.at("oFrog/step#1", 34);
-        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 34: colBot = true;
             g.at("oFrog/step#1", 34);
             g.set(cx.this, v::colBot, r(1.0))?;
@@ -198,7 +198,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::RECOVER)?)? {
                 // 48: if (colBot)
                 g.at("oFrog/step#1", 48);
-                if g.get(cx.this, v::colBot)?.is_truthy() {
+                if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
                     // 50: status = IDLE;
                     g.at("oFrog/step#1", 50);
                     g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -218,7 +218,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::BOUNCE)?)? {
                     // 58: if (colBot)
                     g.at("oFrog/step#1", 58);
-                    if g.get(cx.this, v::colBot)?.is_truthy() {
+                    if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
                         // 60: yVel = -1 * rand(2, 4);
                         g.at("oFrog/step#1", 60);
                         { let x = r(-1.0).mul(&scr::rand(g, cx, &[r(2.0), r(4.0)])?)?; g.set(cx.this, v::yVel, x)?; }
@@ -260,14 +260,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 83: if (isCollisionTop(1))
         g.at("oFrog/step#1", 83);
-        if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 84: yVel = 1;
             g.at("oFrog/step#1", 84);
             g.set(cx.this, v::yVel, r(1.0))?;
         }
         // 89: if (!colBot)
         g.at("oFrog/step#1", 89);
-        if g.get(cx.this, v::colBot)?.not()?.is_truthy() {
+        if g.get(cx.this, v::colBot)?.not()?.cond(Cond::If)? {
             // 89: sprite_index = sFrogJumpL;
             g.at("oFrog/step#1", 89);
             g.set(cx.this, v::sprite_index, spr::sFrogJumpL)?;

@@ -10,7 +10,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.gset(gv::joyid, r(1.0))?;
     // 7: if (!joystick_exists(1) && joystick_exists(2))
     g.at("oGlobals/create#0", 7);
-    if and(b::joystick_exists(g, cx, [r(1.0)])?.not()?.is_truthy(), b::joystick_exists(g, cx, [r(2.0)])?.is_truthy()) {
+    if and(b::joystick_exists(g, cx, [r(1.0)])?.not()?.cond(Cond::And)?, b::joystick_exists(g, cx, [r(2.0)])?.cond(Cond::And)?) {
         // 7: joyid = 2;
         g.at("oGlobals/create#0", 7);
         g.gset(gv::joyid, r(2.0))?;

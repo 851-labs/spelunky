@@ -6,7 +6,7 @@ pub fn checkJump(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.jump)
     g.at("scripts/checkJump", 1);
-    if g.get_on(cx, &g.get(cx.this, v::gamepad)?, v::jump)?.is_truthy() {
+    if g.get_on(cx, &g.get(cx.this, v::gamepad)?, v::jump)?.cond(Cond::If)? {
         // 2: return gamepad.jump;
         g.at("scripts/checkJump", 2);
         return Ok(g.get_on(cx, &g.get(cx.this, v::gamepad)?, v::jump)?);

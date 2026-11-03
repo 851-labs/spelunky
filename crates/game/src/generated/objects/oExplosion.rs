@@ -56,7 +56,7 @@ pub fn collision_oWeb_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!other.invincible)
     g.at("oExplosion/collision_oDamsel#0", 1);
-    if g.get(cx.other, v::invincible)?.not()?.is_truthy() {
+    if g.get(cx.other, v::invincible)?.not()?.cond(Cond::If)? {
         // 3: other.hp -= 100;
         g.at("oExplosion/collision_oDamsel#0", 3);
         g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(100.0))?)?;
@@ -226,7 +226,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.other, v::r#type)?.gml_eq(&s!("Rope"))? {
                 // 22: if (!other.falling)
                 g.at("oExplosion/collision_oItem#0", 22);
-                if g.get(cx.other, v::falling)?.not()?.is_truthy() {
+                if g.get(cx.other, v::falling)?.not()?.cond(Cond::If)? {
                     // 24: if (other.y < y)
                     g.at("oExplosion/collision_oItem#0", 24);
                     if g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?)? {
@@ -294,7 +294,7 @@ pub fn collision_oItem_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 38: if (other.held)
     g.at("oExplosion/collision_oItem#0", 38);
-    if g.get(cx.other, v::held)?.is_truthy() {
+    if g.get(cx.other, v::held)?.cond(Cond::If)? {
         // 40: with (oPlayer1)
         g.at("oExplosion/collision_oItem#0", 40);
         {
@@ -368,7 +368,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 12: if (!other.invincible)
         g.at("oExplosion/collision_oEnemy#0", 12);
-        if g.get(cx.other, v::invincible)?.not()?.is_truthy() {
+        if g.get(cx.other, v::invincible)?.not()?.cond(Cond::If)? {
             // 14: other.hp -= 30;
             g.at("oExplosion/collision_oEnemy#0", 14);
             g.set(cx.other, v::hp, lenient(Value::sub, g.get(cx.other, v::hp)?, &r(30.0))?)?;
@@ -399,7 +399,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (isLevel("rTutorial") || (x > view_xview[0] - 16 && x < view_xview[0] + view_wview[0] + 16 && y >
     g.at("oExplosion/collision_oSolid#0", 1);
-    if or(scr::isLevel(g, cx, &[s!("rTutorial")])?.is_truthy(), and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(16.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(16.0))?)?)) {
+    if or(scr::isLevel(g, cx, &[s!("rTutorial")])?.cond(Cond::Or)?, and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(16.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(16.0))?)?)) {
         // 4: with (other)
         g.at("oExplosion/collision_oSolid#0", 4);
         {
@@ -419,7 +419,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 9: if (tile)
                     g.at("oExplosion/collision_oSolid#0", 9);
-                    if g.get(cx.this, v::tile)?.is_truthy() {
+                    if g.get(cx.this, v::tile)?.cond(Cond::If)? {
                         // 9: tile_delete(tile);
                         g.at("oExplosion/collision_oSolid#0", 9);
                         { let a = [g.get(cx.this, v::tile)?]; b::tile_delete(g, cx, a)? };
@@ -433,14 +433,14 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 12: if (tile)
                 g.at("oExplosion/collision_oSolid#0", 12);
-                if g.get(cx.this, v::tile)?.is_truthy() {
+                if g.get(cx.this, v::tile)?.cond(Cond::If)? {
                     // 12: tile_delete(tile);
                     g.at("oExplosion/collision_oSolid#0", 12);
                     { let a = [g.get(cx.this, v::tile)?]; b::tile_delete(g, cx, a)? };
                 }
                 // 14: if (!invincible)
                 g.at("oExplosion/collision_oSolid#0", 14);
-                if g.get(cx.this, v::invincible)?.not()?.is_truthy() {
+                if g.get(cx.this, v::invincible)?.not()?.cond(Cond::If)? {
                     // 14: instance_destroy();
                     g.at("oExplosion/collision_oSolid#0", 14);
                     b::instance_destroy(g, cx, [])?;
@@ -472,7 +472,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 (cx.this, cx.other) = (h8, outer9.0);
                 // 24: if (!collision_point(x, y + 16, oSolid, 0, 0))
                 g.at("oExplosion/collision_oSolid#0", 24);
-                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                     // 26: instance_destroy();
                     g.at("oExplosion/collision_oSolid#0", 26);
                     b::instance_destroy(g, cx, [])?;

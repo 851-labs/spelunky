@@ -16,7 +16,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (mouse_check_button(mb_left) && focus)
     g.at("oSlider1/step#0", 1);
-    if and(b::mouse_check_button(g, cx, [k::mb_left])?.is_truthy(), g.get(cx.this, v::focus)?.is_truthy()) {
+    if and(b::mouse_check_button(g, cx, [k::mb_left])?.cond(Cond::And)?, g.get(cx.this, v::focus)?.cond(Cond::And)?) {
         // 3: x = mouse_x - 4;
         g.at("oSlider1/step#0", 3);
         g.set(cx.this, v::x, g.bget(v::mouse_x, 0)?.sub(&r(4.0))?)?;

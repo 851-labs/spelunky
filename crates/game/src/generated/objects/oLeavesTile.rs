@@ -8,7 +8,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::r#type, s!("Tree Leaves"))?;
     // 2: if (collision_point(x - 16, y, oTree, 0, 0))
     g.at("oLeavesTile/create#0", 2);
-    if ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?.sub(&r(16.0))?, g.get(cx.this, v::y)?, obj::oTree, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 4: sprite_index = sLeavesRight;
         g.at("oLeavesTile/create#0", 4);
         g.set(cx.this, v::sprite_index, spr::sLeavesRight)?;

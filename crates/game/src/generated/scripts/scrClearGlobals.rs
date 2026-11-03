@@ -440,7 +440,7 @@ pub fn scrClearGlobals(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 103: if (global.isTunnelMan)
     g.at("scripts/scrClearGlobals", 103);
-    if g.gget(gv::isTunnelMan)?.is_truthy() {
+    if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
         // 105: global.plife = 2;
         g.at("scripts/scrClearGlobals", 105);
         {

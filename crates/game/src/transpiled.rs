@@ -3,7 +3,7 @@
 //! (this crate's, and `crates/config`'s) re-exports it beside its own names, built-ins and scripts, so
 //! the two programs can't drift apart.
 
-pub use gm::{Ctx, Local, R, Value, World, case_eq, ix, lenient, repeat_count};
+pub use gm::{Cond, Ctx, Local, R, Value, World, case_eq, ix, lenient, repeat_count};
 
 /// A real literal.
 #[inline(always)]

@@ -147,10 +147,10 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.other, v::invincible)?.gml_eq(&r(0.0))? {
         // 3: if (true)
         g.at("oGhost/collision_oCharacter#0", 3);
-        if r(1.0).is_truthy() {
+        if r(1.0).cond(Cond::If)? {
             // 5: if (isRealLevel())
             g.at("oGhost/collision_oCharacter#0", 5);
-            if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+            if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                 // 5: global.enemyDeaths[23] += 1;
                 g.at("oGhost/collision_oCharacter#0", 5);
                 g.gset_a(gv::enemyDeaths, 0, 23, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 23)?, &r(1.0))?)?;
@@ -202,7 +202,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.gset(gv::drawHUD, r(0.0))?;
             // 20: if (other.holdItem)
             g.at("oGhost/collision_oCharacter#0", 20);
-            if g.get(cx.other, v::holdItem)?.is_truthy() {
+            if g.get(cx.other, v::holdItem)?.cond(Cond::If)? {
                 // 22: other.holdItem.held = false;
                 g.at("oGhost/collision_oCharacter#0", 22);
                 { let t = g.get(cx.other, v::holdItem)?; g.set_on(cx, &t, v::held, r(0.0))?; }

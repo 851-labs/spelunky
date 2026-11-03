@@ -6,7 +6,7 @@ pub fn scrExit(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (oCheckBox5.on)
     g.at("scripts/scrExit", 1);
-    if g.get_on(cx, &obj::oCheckBox5, v::on)?.is_truthy() {
+    if g.get_on(cx, &obj::oCheckBox5, v::on)?.cond(Cond::If)? {
         // 1: execute_program(global.spelunkyEXE, 0, false);
         g.at("scripts/scrExit", 1);
         cx.ret = { let a = [g.gget(gv::spelunkyEXE)?, r(0.0), r(0.0)]; b::execute_program(g, cx, a)? };

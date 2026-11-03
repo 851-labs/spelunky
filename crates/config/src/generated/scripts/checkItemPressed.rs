@@ -6,7 +6,7 @@ pub fn checkItemPressed(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.itemPressed)
     g.at("scripts/checkItemPressed", 1);
-    if g.get_on(cx, &g.get(cx.this, v::gamepad)?, v::itemPressed)?.is_truthy() {
+    if g.get_on(cx, &g.get(cx.this, v::gamepad)?, v::itemPressed)?.cond(Cond::If)? {
         // 2: return gamepad.itemPressed;
         g.at("scripts/checkItemPressed", 2);
         return Ok(g.get_on(cx, &g.get(cx.this, v::gamepad)?, v::itemPressed)?);

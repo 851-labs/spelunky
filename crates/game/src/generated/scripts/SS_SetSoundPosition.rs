@@ -6,14 +6,14 @@ pub fn SS_SetSoundPosition(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> 
     let cx = &mut cx.call(args);
     // 13: if (is_real(argument0))
     g.at("scripts/SS_SetSoundPosition", 13);
-    if b::is_real(g, cx, [cx.arg(0)?])?.is_truthy() {
+    if b::is_real(g, cx, [cx.arg(0)?])?.cond(Cond::If)? {
         // 13: return 0;
         g.at("scripts/SS_SetSoundPosition", 13);
         return Ok(r(0.0));
     }
     // 14: if (is_string(argument1))
     g.at("scripts/SS_SetSoundPosition", 14);
-    if b::is_string(g, cx, [cx.arg(1)?])?.is_truthy() {
+    if b::is_string(g, cx, [cx.arg(1)?])?.cond(Cond::If)? {
         // 14: return 0;
         g.at("scripts/SS_SetSoundPosition", 14);
         return Ok(r(0.0));

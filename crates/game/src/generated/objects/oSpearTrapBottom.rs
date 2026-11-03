@@ -22,7 +22,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oSpearTrapBottom/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if and(g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::And)?, g.gget(gv::cleanSolids)?.not()?.cond(Cond::And)?) {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oSpearTrapBottom/destroy#0", 3);
         {
@@ -101,7 +101,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 13: if (obj)
     g.at("oSpearTrapBottom/step#0", 13);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 14: if (fired == 0 && abs(obj.y - y) < prox && obj.x < x && point_distance(x, y, obj.x, obj.y) < range)
         g.at("oSpearTrapBottom/step#0", 14);
         if and(and(and(g.get(cx.this, v::fired)?.gml_eq(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?.sub(&g.get(cx.this, v::y)?)?]; b::abs(g, cx, a)? }).gml_lt(&g.get(cx.this, v::prox)?)?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.gml_lt(&g.get(cx.this, v::x)?)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?]; b::point_distance(g, cx, a)? }).gml_lt(&g.get(cx.this, v::range)?)?) {
@@ -121,7 +121,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 22: if (obj)
     g.at("oSpearTrapBottom/step#0", 22);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 23: if (fired == 0 && abs(obj.y - y) < prox && obj.x < x && point_distance(x, y, obj.x, obj.y) < range)
         g.at("oSpearTrapBottom/step#0", 23);
         if and(and(and(g.get(cx.this, v::fired)?.gml_eq(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?.sub(&g.get(cx.this, v::y)?)?]; b::abs(g, cx, a)? }).gml_lt(&g.get(cx.this, v::prox)?)?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.gml_lt(&g.get(cx.this, v::x)?)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?]; b::point_distance(g, cx, a)? }).gml_lt(&g.get(cx.this, v::range)?)?) {
@@ -141,7 +141,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 31: if (obj)
     g.at("oSpearTrapBottom/step#0", 31);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 32: if (fired == 0 && abs(obj.y - y - 8) < prox && obj.x < x + 8 && point_distance(x + 8, y + 8, obj.x, 
         g.at("oSpearTrapBottom/step#0", 32);
         if and(and(and(g.get(cx.this, v::fired)?.gml_eq(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?.sub(&g.get(cx.this, v::y)?)?.sub(&r(8.0))?]; b::abs(g, cx, a)? }).gml_lt(&g.get(cx.this, v::prox)?)?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.gml_lt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?]; b::point_distance(g, cx, a)? }).gml_lt(&g.get(cx.this, v::range)?)?) {
@@ -177,7 +177,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 50: if (obj)
     g.at("oSpearTrapBottom/step#0", 50);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 51: if (fired == 0 && abs(obj.y - y) < prox && obj.x > x && point_distance(x, y, obj.x, obj.y) < range)
         g.at("oSpearTrapBottom/step#0", 51);
         if and(and(and(g.get(cx.this, v::fired)?.gml_eq(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?.sub(&g.get(cx.this, v::y)?)?]; b::abs(g, cx, a)? }).gml_lt(&g.get(cx.this, v::prox)?)?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.gml_gt(&g.get(cx.this, v::x)?)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?]; b::point_distance(g, cx, a)? }).gml_lt(&g.get(cx.this, v::range)?)?) {
@@ -203,7 +203,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 60: if (obj)
     g.at("oSpearTrapBottom/step#0", 60);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 61: if (fired == 0 && abs(obj.y - y) < prox && obj.x > x && point_distance(x, y, obj.x, obj.y) < range)
         g.at("oSpearTrapBottom/step#0", 61);
         if and(and(and(g.get(cx.this, v::fired)?.gml_eq(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?.sub(&g.get(cx.this, v::y)?)?]; b::abs(g, cx, a)? }).gml_lt(&g.get(cx.this, v::prox)?)?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.gml_gt(&g.get(cx.this, v::x)?)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?]; b::point_distance(g, cx, a)? }).gml_lt(&g.get(cx.this, v::range)?)?) {
@@ -229,7 +229,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 70: if (obj)
     g.at("oSpearTrapBottom/step#0", 70);
-    if g.get(cx.this, v::obj)?.is_truthy() {
+    if g.get(cx.this, v::obj)?.cond(Cond::If)? {
         // 71: if (fired == 0 && abs(obj.y - y - 8) < prox && obj.x > x + 8 && point_distance(x + 8, y + 8, obj.x, 
         g.at("oSpearTrapBottom/step#0", 71);
         if and(and(and(g.get(cx.this, v::fired)?.gml_eq(&r(0.0))?, ({ let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?.sub(&g.get(cx.this, v::y)?)?.sub(&r(8.0))?]; b::abs(g, cx, a)? }).gml_lt(&g.get(cx.this, v::prox)?)?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?.gml_gt(&g.get(cx.this, v::x)?.add(&r(8.0))?)?), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?]; b::point_distance(g, cx, a)? }).gml_lt(&g.get(cx.this, v::range)?)?) {
@@ -252,7 +252,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(8.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(8.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(8.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(8.0))?)?) {
         // 82: if (!collision_point(x, y + 16, oSolid, 0, 0))
         g.at("oSpearTrapBottom/step#0", 82);
-        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
             // 84: instance_destroy();
             g.at("oSpearTrapBottom/step#0", 84);
             b::instance_destroy(g, cx, [])?;

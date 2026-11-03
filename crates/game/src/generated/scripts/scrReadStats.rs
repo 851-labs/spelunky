@@ -238,7 +238,7 @@ pub fn scrReadStats(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 63: if (file)
     g.at("scripts/scrReadStats", 63);
-    if g.get(cx.this, v::file)?.is_truthy() {
+    if g.get(cx.this, v::file)?.cond(Cond::If)? {
         // 65: file_text_readln(file);
         g.at("scripts/scrReadStats", 65);
         cx.ret = { let a = [g.get(cx.this, v::file)?]; b::file_text_readln(g, cx, a)? };

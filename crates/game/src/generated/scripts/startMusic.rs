@@ -6,7 +6,7 @@ pub fn startMusic(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (instance_exists(oLoadLevel))
     g.at("scripts/startMusic", 1);
-    if b::instance_exists(g, cx, [obj::oLoadLevel])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oLoadLevel])?.cond(Cond::If)? {
         // 3: if (oLoadLevel.music == "LUSH")
         g.at("scripts/startMusic", 3);
         if g.get_on(cx, &obj::oLoadLevel, v::music)?.gml_eq(&s!("LUSH"))? {
@@ -51,7 +51,7 @@ pub fn startMusic(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     if g.get_on(cx, &obj::oLoadLevel, v::music)?.gml_eq(&s!("BOSS"))? {
                         // 23: if (oPlayer1.active)
                         g.at("scripts/startMusic", 23);
-                        if g.get_on(cx, &obj::oPlayer1, v::active)?.is_truthy() {
+                        if g.get_on(cx, &obj::oPlayer1, v::active)?.cond(Cond::If)? {
                             // 25: playMusic(global.musBoss, true);
                             g.at("scripts/startMusic", 25);
                             cx.ret = { let a = [g.gget(gv::musBoss)?, r(1.0)]; scr::playMusic(g, cx, &a)? };
@@ -79,13 +79,13 @@ pub fn startMusic(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 38: if (isLevel())
         g.at("scripts/startMusic", 38);
-        if scr::isLevel(g, cx, &[])?.is_truthy() {
+        if scr::isLevel(g, cx, &[])?.cond(Cond::If)? {
             // 40: if (isRoom("rOlmec"))
             g.at("scripts/startMusic", 40);
-            if scr::isRoom(g, cx, &[s!("rOlmec")])?.is_truthy() {
+            if scr::isRoom(g, cx, &[s!("rOlmec")])?.cond(Cond::If)? {
                 // 42: if (oPlayer1.active)
                 g.at("scripts/startMusic", 42);
-                if g.get_on(cx, &obj::oPlayer1, v::active)?.is_truthy() {
+                if g.get_on(cx, &obj::oPlayer1, v::active)?.cond(Cond::If)? {
                     // 44: playMusic(global.musBoss, true);
                     g.at("scripts/startMusic", 44);
                     cx.ret = { let a = [g.gget(gv::musBoss)?, r(1.0)]; scr::playMusic(g, cx, &a)? };
@@ -152,14 +152,14 @@ pub fn startMusic(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 74: if (isRoom("rTitle"))
             g.at("scripts/startMusic", 74);
-            if scr::isRoom(g, cx, &[s!("rTitle")])?.is_truthy() {
+            if scr::isRoom(g, cx, &[s!("rTitle")])?.cond(Cond::If)? {
                 // 74: SS_StopSound(global.musTitle);
                 g.at("scripts/startMusic", 74);
                 cx.ret = { let a = [g.gget(gv::musTitle)?]; scr::SS_StopSound(g, cx, &a)? };
             } else {
                 // 75: if (isRoom("rSun") || isRoom("rMoon") || isRoom("rStars"))
                 g.at("scripts/startMusic", 75);
-                if or(or(scr::isRoom(g, cx, &[s!("rSun")])?.is_truthy(), scr::isRoom(g, cx, &[s!("rMoon")])?.is_truthy()), scr::isRoom(g, cx, &[s!("rStars")])?.is_truthy()) {
+                if or(or(scr::isRoom(g, cx, &[s!("rSun")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rMoon")])?.cond(Cond::Or)?), scr::isRoom(g, cx, &[s!("rStars")])?.cond(Cond::Or)?) {
                     // 77: playMusic(global.musBoss, true);
                     g.at("scripts/startMusic", 77);
                     cx.ret = { let a = [g.gget(gv::musBoss)?, r(1.0)]; scr::playMusic(g, cx, &a)? };

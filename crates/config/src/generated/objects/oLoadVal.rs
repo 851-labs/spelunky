@@ -26,7 +26,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.gset(gv::downToRun, r(1.0))?;
     // 6: if (joystick_exists(1))
     g.at("oLoadVal/create#0", 6);
-    if b::joystick_exists(g, cx, [r(1.0)])?.is_truthy() {
+    if b::joystick_exists(g, cx, [r(1.0)])?.cond(Cond::If)? {
         // 6: global.gamepadOn = false;
         g.at("oLoadVal/create#0", 6);
         g.gset(gv::gamepadOn, r(0.0))?;

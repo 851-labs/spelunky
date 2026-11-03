@@ -19,7 +19,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!instance_exists(oPlayer1))
     g.at("oWhip/step#0", 1);
-    if b::instance_exists(g, cx, [obj::oPlayer1])?.not()?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oPlayer1])?.not()?.cond(Cond::If)? {
         // 3: instance_destroy();
         g.at("oWhip/step#0", 3);
         b::instance_destroy(g, cx, [])?;

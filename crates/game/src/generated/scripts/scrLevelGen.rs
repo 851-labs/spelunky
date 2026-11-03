@@ -106,7 +106,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 44: if (global.levelType == 1 && !global.madeBlackMarket && global.genBlackMarket)
     g.at("scripts/scrLevelGen", 44);
-    if and(and(g.gget(gv::levelType)?.gml_eq(&r(1.0))?, g.gget(gv::madeBlackMarket)?.not()?.is_truthy()), g.gget(gv::genBlackMarket)?.is_truthy()) {
+    if and(and(g.gget(gv::levelType)?.gml_eq(&r(1.0))?, g.gget(gv::madeBlackMarket)?.not()?.cond(Cond::And)?), g.gget(gv::genBlackMarket)?.cond(Cond::And)?) {
         // 46: global.blackMarket = true;
         g.at("scripts/scrLevelGen", 46);
         {
@@ -559,7 +559,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 130: if (!d)
         g.at("scripts/scrLevelGen", 130);
-        if g.get(cx.this, v::d)?.not()?.is_truthy() {
+        if g.get(cx.this, v::d)?.not()?.cond(Cond::If)? {
             // 130: global.roomPath[roomX, roomY] = 1;
             g.at("scripts/scrLevelGen", 130);
             {
@@ -587,7 +587,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 136: if (global.cityOfGold)
     g.at("scripts/scrLevelGen", 136);
-    if g.gget(gv::cityOfGold)?.is_truthy() {
+    if g.gget(gv::cityOfGold)?.cond(Cond::If)? {
         // 136: global.roomPath[rand(0, 3), 2] = 6;
         g.at("scripts/scrLevelGen", 136);
         {
@@ -652,7 +652,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                             }
                             // 151: if (true)
                             g.at("scripts/scrLevelGen", 151);
-                            if r(1.0).is_truthy() {
+                            if r(1.0).cond(Cond::If)? {
                                 // 153: if (global.roomPath[i, j + 2] == 0)
                                 g.at("scripts/scrLevelGen", 153);
                                 if g.gget_a(gv::roomPath, ix(&g.get(cx.this, v::i)?)?, ix(&g.get(cx.this, v::j)?.add(&r(2.0))?)?)?.gml_eq(&r(0.0))? {
@@ -799,7 +799,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 194: if (global.lake)
     g.at("scripts/scrLevelGen", 194);
-    if g.gget(gv::lake)?.is_truthy() {
+    if g.gget(gv::lake)?.cond(Cond::If)? {
         // 196: global.roomPath[0, 3] = 8;
         g.at("scripts/scrLevelGen", 196);
         {
@@ -885,7 +885,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 213: if (!global.madeMoai && global.levelType == 2)
     g.at("scripts/scrLevelGen", 213);
-    if and(g.gget(gv::madeMoai)?.not()?.is_truthy(), g.gget(gv::levelType)?.gml_eq(&r(2.0))?) {
+    if and(g.gget(gv::madeMoai)?.not()?.cond(Cond::And)?, g.gget(gv::levelType)?.gml_eq(&r(2.0))?) {
         // 215: if (global.currLevel == 9 && rand(1, 4) == 1)
         g.at("scripts/scrLevelGen", 215);
         if and(g.gget(gv::currLevel)?.gml_eq(&r(9.0))?, scr::rand(g, cx, &[r(1.0), r(4.0)])?.gml_eq(&r(1.0))?) {
@@ -935,7 +935,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 220: if (global.madeMoai)
         g.at("scripts/scrLevelGen", 220);
-        if g.gget(gv::madeMoai)?.is_truthy() {
+        if g.gget(gv::madeMoai)?.cond(Cond::If)? {
             // 220: global.roomPath[rand(0, 3), rand(1, 2)] = 6;
             g.at("scripts/scrLevelGen", 220);
             {
@@ -1033,7 +1033,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         } else {
             // 234: if (global.levelType == 2 && !global.alienCraft && rand(1, global.probYetiLair) == 1)
             g.at("scripts/scrLevelGen", 234);
-            if and(and(g.gget(gv::levelType)?.gml_eq(&r(2.0))?, g.gget(gv::alienCraft)?.not()?.is_truthy()), ({ let a = [r(1.0), g.gget(gv::probYetiLair)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))?) {
+            if and(and(g.gget(gv::levelType)?.gml_eq(&r(2.0))?, g.gget(gv::alienCraft)?.not()?.cond(Cond::And)?), ({ let a = [r(1.0), g.gget(gv::probYetiLair)?]; scr::rand(g, cx, &a)? }).gml_eq(&r(1.0))?) {
                 // 236: global.yetiLair = true;
                 g.at("scripts/scrLevelGen", 236);
                 {
@@ -1046,7 +1046,7 @@ pub fn scrLevelGen(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 240: if (rand(1, global.currLevel) <= 2 && global.currLevel > 1 && !global.madeBlackMarket)
     g.at("scripts/scrLevelGen", 240);
-    if and(and(({ let a = [r(1.0), g.gget(gv::currLevel)?]; scr::rand(g, cx, &a)? }).gml_le(&r(2.0))?, g.gget(gv::currLevel)?.gml_gt(&r(1.0))?), g.gget(gv::madeBlackMarket)?.not()?.is_truthy()) {
+    if and(and(({ let a = [r(1.0), g.gget(gv::currLevel)?]; scr::rand(g, cx, &a)? }).gml_le(&r(2.0))?, g.gget(gv::currLevel)?.gml_gt(&r(1.0))?), g.gget(gv::madeBlackMarket)?.not()?.cond(Cond::And)?) {
         // 242: i = 0;
         g.at("scripts/scrLevelGen", 242);
         {

@@ -94,7 +94,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (active)
     g.at("oPiranha/step#0", 1);
-    if g.get(cx.this, v::active)?.is_truthy() {
+    if g.get(cx.this, v::active)?.cond(Cond::If)? {
         // 3: if (hp < 1)
         g.at("oPiranha/step#0", 3);
         if g.get(cx.this, v::hp)?.gml_lt(&r(1.0))? {
@@ -103,10 +103,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [g.get(cx.this, v::x)?.add(&r(4.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
             // 6: if (countsAsKill)
             g.at("oPiranha/step#0", 6);
-            if g.get(cx.this, v::countsAsKill)?.is_truthy() {
+            if g.get(cx.this, v::countsAsKill)?.cond(Cond::If)? {
                 // 8: if (isRealLevel())
                 g.at("oPiranha/step#0", 8);
-                if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+                if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                     // 8: global.enemyKills[11] += 1;
                     g.at("oPiranha/step#0", 8);
                     g.gset_a(gv::enemyKills, 0, 11, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 11)?, &r(1.0))?)?;
@@ -136,7 +136,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::dir)?.gml_eq(&r(0.0))? {
                 // 21: if (collision_point(x + 8 + 2, y, oWater, 0, 0) && !collision_point(x + 10, y, oSolid, 0, 0))
                 g.at("oPiranha/step#0", 21);
-                if and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.add(&r(2.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(10.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                if and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?.add(&r(2.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(10.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                     // 22: moveTo(1, 0);
                     g.at("oPiranha/step#0", 22);
                     scr::moveTo(g, cx, &[r(1.0), r(0.0)])?;
@@ -148,7 +148,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 27: if (collision_point(x - 2, y, oWater, 0, 0) && !collision_point(x - 2, y, oSolid, 0, 0))
                 g.at("oPiranha/step#0", 27);
-                if and(({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                if and(({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                     // 28: moveTo(-1, 0);
                     g.at("oPiranha/step#0", 28);
                     scr::moveTo(g, cx, &[r(-1.0), r(0.0)])?;
@@ -160,7 +160,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 32: if (dist < 90 && oCharacter.swimming && !oCharacter.dead)
             g.at("oPiranha/step#0", 32);
-            if and(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oCharacter, v::swimming)?.is_truthy()), g.get_on(cx, &obj::oCharacter, v::dead)?.not()?.is_truthy()) {
+            if and(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oCharacter, v::swimming)?.cond(Cond::And)?), g.get_on(cx, &obj::oCharacter, v::dead)?.not()?.cond(Cond::And)?) {
                 // 34: status = ATTACK;
                 g.at("oPiranha/step#0", 34);
                 g.set(cx.this, v::status, g.get(cx.this, v::ATTACK)?)?;
@@ -173,7 +173,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 38: if (obj)
             g.at("oPiranha/step#0", 38);
-            if g.get(cx.this, v::obj)?.is_truthy() {
+            if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                 // 38: if (obj.hp <= 0)
                 g.at("oPiranha/step#0", 38);
                 if g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))? {
@@ -184,7 +184,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 39: if (!obj)
             g.at("oPiranha/step#0", 39);
-            if g.get(cx.this, v::obj)?.not()?.is_truthy() {
+            if g.get(cx.this, v::obj)?.not()?.cond(Cond::If)? {
                 // 39: obj = instance_nearest(x, y, oShopkeeper);
                 g.at("oPiranha/step#0", 39);
                 {
@@ -194,7 +194,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 40: if (obj)
             g.at("oPiranha/step#0", 40);
-            if g.get(cx.this, v::obj)?.is_truthy() {
+            if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                 // 40: if (obj.hp <= 0)
                 g.at("oPiranha/step#0", 40);
                 if g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))? {
@@ -205,7 +205,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 41: if (!obj)
             g.at("oPiranha/step#0", 41);
-            if g.get(cx.this, v::obj)?.not()?.is_truthy() {
+            if g.get(cx.this, v::obj)?.not()?.cond(Cond::If)? {
                 // 41: obj = instance_nearest(x, y, oHawkman);
                 g.at("oPiranha/step#0", 41);
                 {
@@ -215,7 +215,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 42: if (obj)
             g.at("oPiranha/step#0", 42);
-            if g.get(cx.this, v::obj)?.is_truthy() {
+            if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                 // 42: if (obj.hp <= 0)
                 g.at("oPiranha/step#0", 42);
                 if g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))? {
@@ -226,7 +226,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 43: if (!obj)
             g.at("oPiranha/step#0", 43);
-            if g.get(cx.this, v::obj)?.not()?.is_truthy() {
+            if g.get(cx.this, v::obj)?.not()?.cond(Cond::If)? {
                 // 43: obj = instance_nearest(x, y, oYeti);
                 g.at("oPiranha/step#0", 43);
                 {
@@ -236,7 +236,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 44: if (obj)
             g.at("oPiranha/step#0", 44);
-            if g.get(cx.this, v::obj)?.is_truthy() {
+            if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                 // 44: if (obj.hp <= 0)
                 g.at("oPiranha/step#0", 44);
                 if g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))? {
@@ -247,10 +247,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 45: if (obj)
             g.at("oPiranha/step#0", 45);
-            if g.get(cx.this, v::obj)?.is_truthy() {
+            if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                 // 47: if (obj.swimming && obj.hp > 0)
                 g.at("oPiranha/step#0", 47);
-                if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::swimming)?.is_truthy(), g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_gt(&r(0.0))?) {
+                if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::swimming)?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_gt(&r(0.0))?) {
                     // 49: status = ATTACK_ENEMY;
                     g.at("oPiranha/step#0", 49);
                     g.set(cx.this, v::status, g.get(cx.this, v::ATTACK_ENEMY)?)?;
@@ -280,10 +280,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 63: if (status == ATTACK && instance_exists(oCharacter))
                 g.at("oPiranha/step#0", 63);
-                if and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::ATTACK)?)?, b::instance_exists(g, cx, [obj::oCharacter])?.is_truthy()) {
+                if and(g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::ATTACK)?)?, b::instance_exists(g, cx, [obj::oCharacter])?.cond(Cond::And)?) {
                     // 65: if (dist < 90 && oCharacter.swimming && !oCharacter.dead)
                     g.at("oPiranha/step#0", 65);
-                    if and(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oCharacter, v::swimming)?.is_truthy()), g.get_on(cx, &obj::oCharacter, v::dead)?.not()?.is_truthy()) {
+                    if and(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oCharacter, v::swimming)?.cond(Cond::And)?), g.get_on(cx, &obj::oCharacter, v::dead)?.not()?.cond(Cond::And)?) {
                         // 67: dir = point_direction(x + 4, y + 4, oCharacter.x, oCharacter.y) + rand(0, 1) - rand(0, 1);
                         g.at("oPiranha/step#0", 67);
                         {
@@ -292,7 +292,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 68: if (collision_point(x + cos(degtorad(dir)), y - sin(degtorad(dir)), oWater, 0, 0))
                         g.at("oPiranha/step#0", 68);
-                        if ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, g.get(cx.this, v::y)?.sub(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                        if ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, g.get(cx.this, v::y)?.sub(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                             // 69: moveTo(1 * cos(degtorad(dir)), -1 * sin(degtorad(dir)));
                             g.at("oPiranha/step#0", 69);
                             { let a = [r(1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, r(-1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?]; scr::moveTo(g, cx, &a)? };
@@ -317,7 +317,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 80: if (obj)
                         g.at("oPiranha/step#0", 80);
-                        if g.get(cx.this, v::obj)?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                             // 80: if (obj.hp <= 0)
                             g.at("oPiranha/step#0", 80);
                             if g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))? {
@@ -328,7 +328,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 81: if (!obj)
                         g.at("oPiranha/step#0", 81);
-                        if g.get(cx.this, v::obj)?.not()?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.not()?.cond(Cond::If)? {
                             // 81: obj = instance_nearest(x, y, oShopkeeper);
                             g.at("oPiranha/step#0", 81);
                             {
@@ -338,7 +338,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 82: if (obj)
                         g.at("oPiranha/step#0", 82);
-                        if g.get(cx.this, v::obj)?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                             // 82: if (obj.hp <= 0)
                             g.at("oPiranha/step#0", 82);
                             if g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))? {
@@ -349,7 +349,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 83: if (!obj)
                         g.at("oPiranha/step#0", 83);
-                        if g.get(cx.this, v::obj)?.not()?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.not()?.cond(Cond::If)? {
                             // 83: obj = instance_nearest(x, y, oHawkman);
                             g.at("oPiranha/step#0", 83);
                             {
@@ -359,7 +359,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 84: if (obj)
                         g.at("oPiranha/step#0", 84);
-                        if g.get(cx.this, v::obj)?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                             // 84: if (obj.hp <= 0)
                             g.at("oPiranha/step#0", 84);
                             if g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))? {
@@ -370,7 +370,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 85: if (!obj)
                         g.at("oPiranha/step#0", 85);
-                        if g.get(cx.this, v::obj)?.not()?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.not()?.cond(Cond::If)? {
                             // 85: obj = instance_nearest(x, y, oYeti);
                             g.at("oPiranha/step#0", 85);
                             {
@@ -380,7 +380,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 86: if (obj)
                         g.at("oPiranha/step#0", 86);
-                        if g.get(cx.this, v::obj)?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                             // 86: if (obj.hp <= 0)
                             g.at("oPiranha/step#0", 86);
                             if g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))? {
@@ -391,10 +391,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 87: if (obj)
                         g.at("oPiranha/step#0", 87);
-                        if g.get(cx.this, v::obj)?.is_truthy() {
+                        if g.get(cx.this, v::obj)?.cond(Cond::If)? {
                             // 89: if (!obj.swimming || obj.hp <= 0)
                             g.at("oPiranha/step#0", 89);
-                            if or(g.get_on(cx, &g.get(cx.this, v::obj)?, v::swimming)?.not()?.is_truthy(), g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))?) {
+                            if or(g.get_on(cx, &g.get(cx.this, v::obj)?, v::swimming)?.not()?.cond(Cond::Or)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::hp)?.gml_le(&r(0.0))?) {
                                 // 91: status = PAUSE;
                                 g.at("oPiranha/step#0", 91);
                                 g.set(cx.this, v::status, g.get(cx.this, v::PAUSE)?)?;
@@ -415,7 +415,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 99: if (collision_point(x + cos(degtorad(dir)), y - sin(degtorad(dir)), oWater, 0, 0))
                             g.at("oPiranha/step#0", 99);
-                            if ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, g.get(cx.this, v::y)?.sub(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                            if ({ let a = [g.get(cx.this, v::x)?.add(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, g.get(cx.this, v::y)?.sub(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                                 // 100: moveTo(1 * cos(degtorad(dir)), -1 * sin(degtorad(dir)));
                                 g.at("oPiranha/step#0", 100);
                                 { let a = [r(1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::cos(g, cx, a)? })?, r(-1.0).mul(&{ let a = [{ let a = [g.get(cx.this, v::dir)?]; b::degtorad(g, cx, a)? }]; b::sin(g, cx, a)? })?]; scr::moveTo(g, cx, &a)? };
@@ -441,12 +441,12 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 { let t = g.get(cx.this, v::obj)?; g.set_on(cx, &t, v::status, r(2.0))?; }
                                 // 111: if (canBite)
                                 g.at("oPiranha/step#0", 111);
-                                if g.get(cx.this, v::canBite)?.is_truthy() {
+                                if g.get(cx.this, v::canBite)?.cond(Cond::If)? {
                                     // 113: obj.hp -= 1;
                                     g.at("oPiranha/step#0", 113);
                                     {
                                         let t = g.get(cx.this, v::obj)?;
-                                        g.set_on(cx, &t, v::hp, lenient(Value::sub, { let t2 = g.get(cx.this, v::obj)?; g.get_on(cx, &t2, v::hp)? }, &r(1.0))?)?;
+                                        g.set_on(cx, &t, v::hp, lenient(Value::sub, g.get_on(cx, &t, v::hp)?, &r(1.0))?)?;
                                     }
                                     // 114: canBite = false;
                                     g.at("oPiranha/step#0", 114);
@@ -498,7 +498,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 136: if (!collision_point(x + 4, y + 4, oWater, 0, 0))
         g.at("oPiranha/step#0", 136);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(4.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(4.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
             // 138: instance_create(x, y, oFishBone);
             g.at("oPiranha/step#0", 138);
             { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oFishBone]; b::instance_create(g, cx, a)? };

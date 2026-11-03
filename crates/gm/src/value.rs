@@ -33,6 +33,12 @@ pub enum ValueError {
     /// that aren't (`inf - inf`): the x87's overflow or invalid-operation exception, which GM8 leaves unmasked
     /// ([`crate::gm8::arith`]). The same dialog as [`Self::IntOverflow`].
     Overflow,
+    /// A string as an `if` or `for` condition (or a drag-and-drop "If an expression is true"): GM8's
+    /// "Expression expected" (probes `str-if`, `str-for`, 851-3798).
+    ExpressionExpected,
+    /// A string as a `while` or `do`-`until` condition: GM8's "Boolean expression expected" (probes
+    /// `str-while`, `str-until`).
+    BooleanExpected,
     /// A `real * string` result longer than GM8 builds before its 32-bit process runs out of memory
     /// ([`crate::gm8::REPEAT_MAX_LEN`], 304 MiB). GM8 shows the same dialog as [`Self::IntOverflow`]
     /// (probes `mulstr-2p29`, `mulstr-3x2p27`, `mulstr-2p31`, ...); we report it instead of trying.
@@ -47,6 +53,8 @@ impl fmt::Display for ValueError {
             Self::DivisionByZero => f.write_str("Division by 0."),
             Self::ModuloByZero => f.write_str("Modulo by 0."),
             Self::Domain(name) => write!(f, "{name}(): argument out of range"),
+            Self::ExpressionExpected => f.write_str("Expression expected"),
+            Self::BooleanExpected => f.write_str("Boolean expression expected"),
             // GM8's message, as it spells it.
             Self::IntOverflow | Self::Overflow | Self::StringTooLong => {
                 f.write_str("Unexpected error occured when running the game.")
@@ -106,6 +114,22 @@ pub enum Op {
     BitNot,
     Shl,
     Shr,
+    And,
+    Or,
+    Xor,
+}
+
+/// Where a value is read as a condition ([`Value::cond`]): GM8's error for a string depends on it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Cond {
+    /// An `if` or a `for`, or a drag-and-drop "If an expression is true".
+    If,
+    /// A `while` or a `do`-`until`.
+    Loop,
+    /// An operand of `&&`, `||` or `^^`.
+    And,
+    Or,
+    Xor,
 }
 
 impl fmt::Display for Op {
@@ -131,6 +155,9 @@ impl fmt::Display for Op {
             Self::BitNot => "~",
             Self::Shl => "<<",
             Self::Shr => ">>",
+            Self::And => "&&",
+            Self::Or => "||",
+            Self::Xor => "^^",
         })
     }
 }
@@ -240,9 +267,27 @@ impl Value {
         }
     }
 
-    /// GML truthiness for `if`, `while`, `!` and the logical operators: a real `>= 0.5`
-    /// ([`math::is_truthy`]). Strings are always false, without an error (OpenGMK `value.rs`,
-    /// `Value::is_truthy`).
+    /// A condition (`if`, the loops) or a logical operator's operand: a real `>= 0.5` ([`math::is_truthy`]).
+    /// A string is an error, whose message depends on where (GM8, probes `str-*`, 851-3798: "Expression
+    /// expected" for `if` and `for`, "Boolean expression expected" for `while` and `do`-`until`, "Wrong type of
+    /// arguments for &&." for the operators). OpenGMK read a string as false (oracle patch 0046 follows GM8).
+    #[inline]
+    pub fn cond(&self, at: Cond) -> Result<bool, ValueError> {
+        match self {
+            Self::Real(x) => Ok(math::is_truthy(*x)),
+            Self::Str(_) => Err(match at {
+                Cond::If => ValueError::ExpressionExpected,
+                Cond::Loop => ValueError::BooleanExpected,
+                Cond::And => ValueError::WrongTypes(Op::And),
+                Cond::Or => ValueError::WrongTypes(Op::Or),
+                Cond::Xor => ValueError::WrongTypes(Op::Xor),
+            }),
+        }
+    }
+
+    /// GML truthiness for a built-in's boolean argument (`instance_activate_region`'s `inside`, a `visible`
+    /// write): a real `>= 0.5`, and a string false, without an error (OpenGMK `value.rs`,
+    /// `Value::is_truthy`). Conditions and the logical operators use [`Value::cond`].
     #[inline]
     pub fn is_truthy(&self) -> bool {
         match self {
@@ -372,8 +417,8 @@ impl Value {
         }
     }
 
-    /// GML `!a` / `not a`. An error on strings, even though strings are simply false in `&&`
-    /// (OpenGMK `value.rs`, `Value::not`).
+    /// GML `!a` / `not a`. An error on strings (OpenGMK `value.rs`, `Value::not`), as `&&`'s operands are
+    /// ([`Value::cond`]).
     #[inline]
     pub fn not(&self) -> Result<Value, ValueError> {
         match self {
@@ -382,24 +427,24 @@ impl Value {
         }
     }
 
-    /// GML `a && b`. Never an error (strings are false). GM8 doesn't short-circuit: the interpreter must
+    /// GML `a && b`: an error on a string ([`Value::cond`]). GM8 doesn't short-circuit: the interpreter must
     /// evaluate both operands, side effects included, before calling this (OpenGMK `runtime.rs`,
     /// `Node::Binary` evaluates both sides for every operator).
     #[inline]
-    pub fn and(&self, rhs: &Value) -> Value {
-        Self::from(self.is_truthy() && rhs.is_truthy())
+    pub fn and(&self, rhs: &Value) -> Result<Value, ValueError> {
+        Ok(Self::from(self.cond(Cond::And)? & rhs.cond(Cond::And)?))
     }
 
-    /// GML `a || b`. Never an error; no short-circuit (see [`Value::and`]).
+    /// GML `a || b`: an error on a string; no short-circuit (see [`Value::and`]).
     #[inline]
-    pub fn or(&self, rhs: &Value) -> Value {
-        Self::from(self.is_truthy() || rhs.is_truthy())
+    pub fn or(&self, rhs: &Value) -> Result<Value, ValueError> {
+        Ok(Self::from(self.cond(Cond::Or)? | rhs.cond(Cond::Or)?))
     }
 
-    /// GML `a ^^ b`. Never an error.
+    /// GML `a ^^ b`: an error on a string.
     #[inline]
-    pub fn xor(&self, rhs: &Value) -> Value {
-        Self::from(self.is_truthy() != rhs.is_truthy())
+    pub fn xor(&self, rhs: &Value) -> Result<Value, ValueError> {
+        Ok(Self::from(self.cond(Cond::Xor)? != rhs.cond(Cond::Xor)?))
     }
 
     /// GML `a & b` ([`math::bit_and`]).
@@ -627,11 +672,28 @@ mod tests {
         assert!(!s("1").is_truthy(), "strings are false");
         assert_eq!(r(0.5).not(), Ok(r(0.0)));
         assert_eq!(r(0.2).not(), Ok(r(1.0)));
-        assert_eq!(r(1.0).and(&r(0.6)), r(1.0));
-        assert_eq!(r(1.0).and(&s("x")), r(0.0), "no error, strings are false");
-        assert_eq!(r(0.0).or(&r(0.5)), r(1.0));
-        assert_eq!(r(1.0).xor(&r(1.0)), r(0.0));
-        assert_eq!(r(1.0).xor(&r(0.0)), r(1.0));
+        assert_eq!(r(1.0).and(&r(0.6)), Ok(r(1.0)));
+        assert_eq!(r(0.0).or(&r(0.5)), Ok(r(1.0)));
+        assert_eq!(r(1.0).xor(&r(1.0)), Ok(r(0.0)));
+        assert_eq!(r(1.0).xor(&r(0.0)), Ok(r(1.0)));
+        // A string is an error in a condition and in the operators, whose message depends on where (GM8,
+        // probes `str-*`, 851-3798); a built-in's argument still reads it as false.
+        assert_eq!(r(1.0).and(&s("x")), Err(ValueError::WrongTypes(Op::And)));
+        assert_eq!(s("x").or(&r(1.0)), Err(ValueError::WrongTypes(Op::Or)));
+        assert_eq!(s("x").xor(&r(1.0)), Err(ValueError::WrongTypes(Op::Xor)));
+        assert_eq!(s("x").cond(Cond::If), Err(ValueError::ExpressionExpected));
+        assert_eq!(s("x").cond(Cond::Loop), Err(ValueError::BooleanExpected));
+        assert_eq!(r(0.5).cond(Cond::If), Ok(true));
+        assert_eq!(r(0.49).cond(Cond::Loop), Ok(false));
+        assert!(!s("x").is_truthy());
+        assert_eq!(
+            ValueError::ExpressionExpected.to_string(),
+            "Expression expected"
+        );
+        assert_eq!(
+            ValueError::BooleanExpected.to_string(),
+            "Boolean expression expected"
+        );
     }
 
     #[test]

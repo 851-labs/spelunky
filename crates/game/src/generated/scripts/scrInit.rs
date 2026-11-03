@@ -233,7 +233,7 @@ pub fn scrInit(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 62: if (file)
     g.at("scripts/scrInit", 62);
-    if g.get(cx.this, v::file)?.is_truthy() {
+    if g.get(cx.this, v::file)?.cond(Cond::If)? {
         // 64: str = file_text_read_string(file);
         g.at("scripts/scrInit", 64);
         {
@@ -410,7 +410,7 @@ pub fn scrInit(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 91: if (file)
     g.at("scripts/scrInit", 91);
-    if g.get(cx.this, v::file)?.is_truthy() {
+    if g.get(cx.this, v::file)?.cond(Cond::If)? {
         // 93: global.keyUpVal = real(file_text_read_string(file));
         g.at("scripts/scrInit", 93);
         {
@@ -541,7 +541,7 @@ pub fn scrInit(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 120: if (file)
     g.at("scripts/scrInit", 120);
-    if g.get(cx.this, v::file)?.is_truthy() {
+    if g.get(cx.this, v::file)?.cond(Cond::If)? {
         // 122: global.joyJumpVal = real(file_text_read_string(file));
         g.at("scripts/scrInit", 122);
         {
@@ -821,7 +821,7 @@ pub fn scrInit(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     cx.ret = { let a = [g.gget(gv::sndTFall)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::soundVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
     // 206: if (!joystick_exists(1) && !joystick_exists(2))
     g.at("scripts/scrInit", 206);
-    if and(b::joystick_exists(g, cx, [r(1.0)])?.not()?.is_truthy(), b::joystick_exists(g, cx, [r(2.0)])?.not()?.is_truthy()) {
+    if and(b::joystick_exists(g, cx, [r(1.0)])?.not()?.cond(Cond::And)?, b::joystick_exists(g, cx, [r(2.0)])?.not()?.cond(Cond::And)?) {
         // 206: global.gamepadOn = false;
         g.at("scripts/scrInit", 206);
         {

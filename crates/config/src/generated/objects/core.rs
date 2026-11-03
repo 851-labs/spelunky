@@ -126,7 +126,7 @@ pub fn mouse_12_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if entry <= 9 {
             // 62: if (SS_IsSoundPaused(handle))
             g.at("core/mouse_12#0", 62);
-            if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundPaused(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundPaused(g, cx, &a)? }).cond(Cond::If)? {
                 // 63: SS_ResumeSound(handle);
                 g.at("core/mouse_12#0", 63);
                 { let a = [g.get(cx.this, v::handle)?]; scr::SS_ResumeSound(g, cx, &a)? };
@@ -150,7 +150,7 @@ pub fn mouse_12_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if entry <= 11 {
             // 72: if (SS_IsSoundPlaying(handle))
             g.at("core/mouse_12#0", 72);
-            if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                 // 73: SS_PauseSound(handle);
                 g.at("core/mouse_12#0", 73);
                 { let a = [g.get(cx.this, v::handle)?]; scr::SS_PauseSound(g, cx, &a)? };
@@ -166,10 +166,10 @@ pub fn mouse_12_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if entry <= 12 {
             // 78: if (SS_IsSoundPlaying(handle))
             g.at("core/mouse_12#0", 78);
-            if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                 // 79: if (SS_IsSoundLooping(handle))
                 g.at("core/mouse_12#0", 79);
-                if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundLooping(g, cx, &a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundLooping(g, cx, &a)? }).cond(Cond::If)? {
                     // 80: show_message("Sound is LOOPING");
                     g.at("core/mouse_12#0", 80);
                     b::show_message(g, cx, [s!("Sound is LOOPING")])?;
@@ -181,7 +181,7 @@ pub fn mouse_12_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 82: if (SS_IsSoundPaused(handle))
                 g.at("core/mouse_12#0", 82);
-                if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundPaused(g, cx, &a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundPaused(g, cx, &a)? }).cond(Cond::If)? {
                     // 83: show_message("Sound is PAUSED");
                     g.at("core/mouse_12#0", 83);
                     b::show_message(g, cx, [s!("Sound is PAUSED")])?;
@@ -198,7 +198,7 @@ pub fn mouse_12_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         if entry <= 13 {
             // 88: if (SS_IsSoundPaused(handle))
             g.at("core/mouse_12#0", 88);
-            if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundPaused(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.get(cx.this, v::handle)?]; scr::SS_IsSoundPaused(g, cx, &a)? }).cond(Cond::If)? {
                 // 89: show_message("Can't set the position of a paused sound!");
                 g.at("core/mouse_12#0", 89);
                 b::show_message(g, cx, [s!("Can't set the position of a paused sound!")])?;

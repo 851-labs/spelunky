@@ -25,7 +25,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_2_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (climbSndToggle)
     g.at("oPDummy4/alarm_2#0", 1);
-    if g.get(cx.this, v::climbSndToggle)?.is_truthy() {
+    if g.get(cx.this, v::climbSndToggle)?.cond(Cond::If)? {
         // 1: playSound(global.sndClimb1);
         g.at("oPDummy4/alarm_2#0", 1);
         { let a = [g.gget(gv::sndClimb1)?]; scr::playSound(g, cx, &a)? };

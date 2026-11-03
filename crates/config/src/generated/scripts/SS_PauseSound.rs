@@ -6,7 +6,7 @@ pub fn SS_PauseSound(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 14: if (is_real(argument0))
     g.at("scripts/SS_PauseSound", 14);
-    if b::is_real(g, cx, [cx.arg(0)?])?.is_truthy() {
+    if b::is_real(g, cx, [cx.arg(0)?])?.cond(Cond::If)? {
         // 14: return -1;
         g.at("scripts/SS_PauseSound", 14);
         return Ok(r(-1.0));

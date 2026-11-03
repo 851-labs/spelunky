@@ -39,7 +39,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!other.invincible)
     g.at("oFly/collision_oDamsel#0", 1);
-    if g.get(cx.other, v::invincible)?.not()?.is_truthy() {
+    if g.get(cx.other, v::invincible)?.not()?.cond(Cond::If)? {
         // 3: if (other.bloodLeft > 0)
         g.at("oFly/collision_oDamsel#0", 3);
         if g.get(cx.other, v::bloodLeft)?.gml_gt(&r(0.0))? {
@@ -75,7 +75,7 @@ pub fn collision_oDamsel_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 (cx.this, cx.other) = (h5, outer6.0);
                 // 13: if (held)
                 g.at("oFly/collision_oDamsel#0", 13);
-                if g.get(cx.this, v::held)?.is_truthy() {
+                if g.get(cx.this, v::held)?.cond(Cond::If)? {
                     // 15: held = false;
                     g.at("oFly/collision_oDamsel#0", 15);
                     g.set(cx.this, v::held, r(0.0))?;
@@ -130,7 +130,7 @@ pub fn collision_oEnemy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.other, v::r#type)?.gml_ne(&s!("Tomb Lord"))? {
         // 3: if (other.heavy)
         g.at("oFly/collision_oEnemy#0", 3);
-        if g.get(cx.other, v::heavy)?.is_truthy() {
+        if g.get(cx.other, v::heavy)?.cond(Cond::If)? {
             // 5: other.xVel = xVel * 0.5;
             g.at("oFly/collision_oEnemy#0", 5);
             g.set(cx.other, v::xVel, g.get(cx.this, v::xVel)?.mul(&r(0.5))?)?;
@@ -209,7 +209,7 @@ pub fn collision_oCharacter_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.gset(gv::plife, lenient(Value::sub, g.gget(gv::plife)?, &r(2.0))?)?;
             // 6: if (global.plife <= 0 && isRealLevel())
             g.at("oFly/collision_oCharacter#0", 6);
-            if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.is_truthy()) {
+            if and(g.gget(gv::plife)?.gml_le(&r(0.0))?, scr::isRealLevel(g, cx, &[])?.cond(Cond::And)?) {
                 // 6: global.enemyDeaths[20] += 1;
                 g.at("oFly/collision_oCharacter#0", 6);
                 g.gset_a(gv::enemyDeaths, 0, 20, lenient(Value::add, g.gget_a(gv::enemyDeaths, 0, 20)?, &r(1.0))?)?;

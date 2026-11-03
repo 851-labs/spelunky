@@ -64,7 +64,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let x = b::distance_to_object(g, cx, [obj::oCharacter])?; g.set(cx.this, v::dist, x)?; }
         // 5: if (collision_point(x + 8, y + 4, oSolid, 0, 0))
         g.at("oSpiderHang/step#0", 5);
-        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
             // 7: hp = 0;
             g.at("oSpiderHang/step#0", 7);
             g.set(cx.this, v::hp, r(0.0))?;
@@ -77,7 +77,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(8.0))?, r(3.0)]; scr::scrCreateBlood(g, cx, &a)? };
             // 12: if (isRealLevel())
             g.at("oSpiderHang/step#0", 12);
-            if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+            if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                 // 12: global.enemyKills[2] += 1;
                 g.at("oSpiderHang/step#0", 12);
                 g.gset_a(gv::enemyKills, 0, 2, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 2)?, &r(1.0))?)?;
@@ -94,7 +94,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 17: if (!collision_point(x, y - 16, oSolid, 0, 0) || (dist < 90 && oCharacter.y > y && abs(oCharacter.x 
             g.at("oSpiderHang/step#0", 17);
-            if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), and(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oCharacter, v::y)?.gml_gt(&g.get(cx.this, v::y)?)?), ({ let a = [g.get_on(cx, &obj::oCharacter, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?)) {
+            if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::Or)?, and(and(g.get(cx.this, v::dist)?.gml_lt(&r(90.0))?, g.get_on(cx, &obj::oCharacter, v::y)?.gml_gt(&g.get(cx.this, v::y)?)?), ({ let a = [g.get_on(cx, &obj::oCharacter, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(8.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(8.0))?)) {
                 // 19: spider = instance_create(x, y, oSpider);
                 g.at("oSpiderHang/step#0", 19);
                 {

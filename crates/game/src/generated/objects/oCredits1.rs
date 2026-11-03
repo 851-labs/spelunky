@@ -212,7 +212,7 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (scrolling)
     g.at("oCredits1/alarm_1#0", 1);
-    if g.get(cx.this, v::scrolling)?.is_truthy() {
+    if g.get(cx.this, v::scrolling)?.cond(Cond::If)? {
         // 3: if (rand(1, 8) == 1)
         g.at("oCredits1/alarm_1#0", 3);
         if scr::rand(g, cx, &[r(1.0), r(8.0)])?.gml_eq(&r(1.0))? {
@@ -330,13 +330,13 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (keyboard_check_pressed(vk_enter) || keyboard_check_pressed(vk_escape) || checkAttack())
     g.at("oCredits1/step#0", 1);
-    if or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.is_truthy(), b::keyboard_check_pressed(g, cx, [k::vk_escape])?.is_truthy()), scr::checkAttack(g, cx, &[])?.is_truthy()) {
+    if or(or(b::keyboard_check_pressed(g, cx, [k::vk_enter])?.cond(Cond::Or)?, b::keyboard_check_pressed(g, cx, [k::vk_escape])?.cond(Cond::Or)?), scr::checkAttack(g, cx, &[])?.cond(Cond::Or)?) {
         // 5: if (instance_exists(oCamel))
         g.at("oCredits1/step#0", 5);
-        if b::instance_exists(g, cx, [obj::oCamel])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oCamel])?.cond(Cond::If)? {
             // 7: if (fadeIn)
             g.at("oCredits1/step#0", 7);
-            if g.get(cx.this, v::fadeIn)?.is_truthy() {
+            if g.get(cx.this, v::fadeIn)?.cond(Cond::If)? {
                 // 9: fadeLevel = 0;
                 g.at("oCredits1/step#0", 9);
                 g.set(cx.this, v::fadeLevel, r(0.0))?;
@@ -349,10 +349,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 19: if (instance_exists(oCamel))
     g.at("oCredits1/step#0", 19);
-    if b::instance_exists(g, cx, [obj::oCamel])?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oCamel])?.cond(Cond::If)? {
         // 21: if (oCamel.x <= 160 && !scrollStart)
         g.at("oCredits1/step#0", 21);
-        if and(g.get_on(cx, &obj::oCamel, v::x)?.gml_le(&r(160.0))?, g.get(cx.this, v::scrollStart)?.not()?.is_truthy()) {
+        if and(g.get_on(cx, &obj::oCamel, v::x)?.gml_le(&r(160.0))?, g.get(cx.this, v::scrollStart)?.not()?.cond(Cond::And)?) {
             // 23: with (oDesertScroll)
             g.at("oCredits1/step#0", 23);
             {
@@ -383,7 +383,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 34: if (fadeIn)
     g.at("oCredits1/step#0", 34);
-    if g.get(cx.this, v::fadeIn)?.is_truthy() {
+    if g.get(cx.this, v::fadeIn)?.cond(Cond::If)? {
         // 36: if (fadeLevel > 0)
         g.at("oCredits1/step#0", 36);
         if g.get(cx.this, v::fadeLevel)?.gml_gt(&r(0.0))? {
@@ -401,7 +401,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 43: if (fadeOut)
         g.at("oCredits1/step#0", 43);
-        if g.get(cx.this, v::fadeOut)?.is_truthy() {
+        if g.get(cx.this, v::fadeOut)?.cond(Cond::If)? {
             // 45: if (fadeLevel < 1)
             g.at("oCredits1/step#0", 45);
             if g.get(cx.this, v::fadeLevel)?.gml_lt(&r(1.0))? {
@@ -622,7 +622,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 80: if (fadeIn || fadeOut)
     g.at("oCredits1/draw#0", 80);
-    if or(g.get(cx.this, v::fadeIn)?.is_truthy(), g.get(cx.this, v::fadeOut)?.is_truthy()) {
+    if or(g.get(cx.this, v::fadeIn)?.cond(Cond::Or)?, g.get(cx.this, v::fadeOut)?.cond(Cond::Or)?) {
         // 82: draw_set_color(c_black);
         g.at("oCredits1/draw#0", 82);
         b::draw_set_color(g, cx, [k::c_black])?;

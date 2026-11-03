@@ -17,7 +17,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oSacAltarLeft/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if and(g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::And)?, g.gget(gv::cleanSolids)?.not()?.cond(Cond::And)?) {
         // 3: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
         g.at("oSacAltarLeft/destroy#0", 3);
         {
@@ -48,7 +48,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 11: if (defile)
     g.at("oSacAltarLeft/destroy#0", 11);
-    if g.get(cx.this, v::defile)?.is_truthy() {
+    if g.get(cx.this, v::defile)?.cond(Cond::If)? {
         // 14: global.message = "YOU DARE DEFILE MY ALTAR?";
         g.at("oSacAltarLeft/destroy#0", 14);
         g.gset(gv::message, s!("YOU DARE DEFILE MY ALTAR?"))?;
@@ -127,7 +127,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 41: if (global.darkLevel && global.ghostExists)
                 g.at("oSacAltarLeft/destroy#0", 41);
-                if and(g.gget(gv::darkLevel)?.is_truthy(), g.gget(gv::ghostExists)?.is_truthy()) {
+                if and(g.gget(gv::darkLevel)?.cond(Cond::And)?, g.gget(gv::ghostExists)?.cond(Cond::And)?) {
                     // 43: with (oKaliHead)
                     g.at("oSacAltarLeft/destroy#0", 43);
                     {
@@ -148,7 +148,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     g.gset(gv::darkLevel, r(1.0))?;
                     // 51: if (!global.ghostExists)
                     g.at("oSacAltarLeft/destroy#0", 51);
-                    if g.gget(gv::ghostExists)?.not()?.is_truthy() {
+                    if g.gget(gv::ghostExists)?.not()?.cond(Cond::If)? {
                         // 53: if (oPlayer1.x > room_width / 2)
                         g.at("oSacAltarLeft/destroy#0", 53);
                         if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_gt(&g.bget(v::room_width, 0)?.div(&r(2.0))?)? {
@@ -198,7 +198,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(20.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(4.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(20.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(4.0))?)?) {
         // 4: if (!collision_point(x, y + 16, oSolid, 0, 0))
         g.at("oSacAltarLeft/step#0", 4);
-        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
             // 4: instance_destroy();
             g.at("oSacAltarLeft/step#0", 4);
             b::instance_destroy(g, cx, [])?;

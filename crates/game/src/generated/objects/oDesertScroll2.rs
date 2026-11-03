@@ -8,7 +8,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::scroll, r(0.0))?;
     // 3: if (isRoom("rCredits1"))
     g.at("oDesertScroll2/create#1", 3);
-    if scr::isRoom(g, cx, &[s!("rCredits1")])?.is_truthy() {
+    if scr::isRoom(g, cx, &[s!("rCredits1")])?.cond(Cond::If)? {
         // 3: sprite_index = sDesertNight2;
         g.at("oDesertScroll2/create#1", 3);
         g.set(cx.this, v::sprite_index, spr::sDesertNight2)?;
@@ -20,7 +20,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (scroll)
     g.at("oDesertScroll2/step#0", 1);
-    if g.get(cx.this, v::scroll)?.is_truthy() {
+    if g.get(cx.this, v::scroll)?.cond(Cond::If)? {
         // 1: x += 1;
         g.at("oDesertScroll2/step#0", 1);
         g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;

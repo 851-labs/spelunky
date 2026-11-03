@@ -6,7 +6,7 @@ pub fn scrCreateBlood(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 24: if (bloodless)
     g.at("scripts/scrCreateBlood", 24);
-    if g.get(cx.this, v::bloodless)?.is_truthy() {
+    if g.get(cx.this, v::bloodless)?.cond(Cond::If)? {
         // 24: return 0;
         g.at("scripts/scrCreateBlood", 24);
         return Ok(r(0.0));

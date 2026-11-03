@@ -5,7 +5,7 @@ use crate::rt::*;
 pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (global.fullscreen)
     g.at("oCheckBox/create#0", 1);
-    if g.gget(gv::fullscreen)?.is_truthy() {
+    if g.gget(gv::fullscreen)?.cond(Cond::If)? {
         // 1: on = true;
         g.at("oCheckBox/create#0", 1);
         g.set(cx.this, v::on, r(1.0))?;
@@ -24,7 +24,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn mouse_4_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!on)
     g.at("oCheckBox/mouse_4#0", 1);
-    if g.get(cx.this, v::on)?.not()?.is_truthy() {
+    if g.get(cx.this, v::on)?.not()?.cond(Cond::If)? {
         // 3: on = true;
         g.at("oCheckBox/mouse_4#0", 3);
         g.set(cx.this, v::on, r(1.0))?;

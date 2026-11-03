@@ -6,14 +6,14 @@ pub fn SS_SetSoundVol(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 13: if (is_real(argument0))
     g.at("scripts/SS_SetSoundVol", 13);
-    if b::is_real(g, cx, [cx.arg(0)?])?.is_truthy() {
+    if b::is_real(g, cx, [cx.arg(0)?])?.cond(Cond::If)? {
         // 13: return "0";
         g.at("scripts/SS_SetSoundVol", 13);
         return Ok(s!("0"));
     }
     // 14: if (is_string(argument1))
     g.at("scripts/SS_SetSoundVol", 14);
-    if b::is_string(g, cx, [cx.arg(1)?])?.is_truthy() {
+    if b::is_string(g, cx, [cx.arg(1)?])?.cond(Cond::If)? {
         // 15: return external_call(global.dll_SS_SetSoundVol, argument0, string(real(argument1) - 10000));
         g.at("scripts/SS_SetSoundVol", 15);
         return Ok({ let a = [g.gget(gv::dll_SS_SetSoundVol)?, cx.arg(0)?, { let a = [b::real(g, cx, [cx.arg(1)?])?.sub(&r(10000.0))?]; b::string(g, cx, a)? }]; b::external_call(g, cx, a)? });

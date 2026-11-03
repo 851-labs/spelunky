@@ -33,17 +33,17 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oExplosion]; b::instance_create(g, cx, a)? };
     // 2: if (global.graphicsHigh)
     g.at("oArrow/alarm_1#0", 2);
-    if g.gget(gv::graphicsHigh)?.is_truthy() {
+    if g.gget(gv::graphicsHigh)?.cond(Cond::If)? {
         // 4: scrCreateFlame(x, y, 3);
         g.at("oArrow/alarm_1#0", 4);
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(3.0)]; scr::scrCreateFlame(g, cx, &a)? };
     }
     // 7: if (held)
     g.at("oArrow/alarm_1#0", 7);
-    if g.get(cx.this, v::held)?.is_truthy() {
+    if g.get(cx.this, v::held)?.cond(Cond::If)? {
         // 9: if (oCharacter)
         g.at("oArrow/alarm_1#0", 9);
-        if obj::oCharacter.is_truthy() {
+        if obj::oCharacter.cond(Cond::If)? {
             // 9: oCharacter.holdItem = 0;
             g.at("oArrow/alarm_1#0", 9);
             { let t = obj::oCharacter; g.set_on(cx, &t, v::holdItem, r(0.0))?; }
@@ -106,7 +106,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     } else {
                         // 18: if (!stuck)
                         g.at("oArrow/step#1", 18);
-                        if g.get(cx.this, v::stuck)?.not()?.is_truthy() {
+                        if g.get(cx.this, v::stuck)?.not()?.cond(Cond::If)? {
                             // 18: direction = 0;
                             g.at("oArrow/step#1", 18);
                             g.set(cx.this, v::direction, r(0.0))?;
@@ -121,10 +121,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::image_angle, g.get(cx.this, v::direction)?)?;
     // 23: if (isRoom("rMoon"))
     g.at("oArrow/step#1", 23);
-    if scr::isRoom(g, cx, &[s!("rMoon")])?.is_truthy() {
+    if scr::isRoom(g, cx, &[s!("rMoon")])?.cond(Cond::If)? {
         // 25: if (instance_exists(oTarget))
         g.at("oArrow/step#1", 25);
-        if b::instance_exists(g, cx, [obj::oTarget])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oTarget])?.cond(Cond::If)? {
             // 27: if (x > oTarget.x && y > oTarget.y - 16 && y < oTarget.y + 16 && distance_to_object(oTarget) < 4)
             g.at("oArrow/step#1", 27);
             if and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.get_on(cx, &obj::oTarget, v::x)?)?, g.get(cx.this, v::y)?.gml_gt(&g.get_on(cx, &obj::oTarget, v::y)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.get_on(cx, &obj::oTarget, v::y)?.add(&r(16.0))?)?), b::distance_to_object(g, cx, [obj::oTarget])?.gml_lt(&r(4.0))?) {

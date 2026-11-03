@@ -56,7 +56,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!oPlayer1.dead)
     g.at("oSunRoom/alarm_11#0", 1);
-    if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.is_truthy() {
+    if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::If)? {
         // 3: if (points < 99)
         g.at("oSunRoom/alarm_11#0", 3);
         if g.get(cx.this, v::points)?.gml_lt(&r(99.0))? {
@@ -75,7 +75,7 @@ pub fn alarm_11_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_10_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (global.music)
     g.at("oSunRoom/alarm_10#0", 1);
-    if g.gget(gv::music)?.is_truthy() {
+    if g.gget(gv::music)?.cond(Cond::If)? {
         // 1: startMusic();
         g.at("oSunRoom/alarm_10#0", 1);
         scr::startMusic(g, cx, &[])?;
@@ -118,7 +118,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!oPlayer1.dead)
     g.at("oSunRoom/alarm_0#0", 1);
-    if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.is_truthy() {
+    if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::If)? {
         // 3: i = oPlayer1.x;
         g.at("oSunRoom/alarm_0#0", 3);
         g.set(cx.this, v::i, g.get_on(cx, &obj::oPlayer1, v::x)?)?;
@@ -141,13 +141,13 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 7: if (!collision_point(i, j, oSolid, 0, 0))
         g.at("oSunRoom/alarm_0#0", 7);
-        if ({ let a = [g.get(cx.this, v::i)?, g.get(cx.this, v::j)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+        if ({ let a = [g.get(cx.this, v::i)?, g.get(cx.this, v::j)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
             // 9: if (points >= 80)
             g.at("oSunRoom/alarm_0#0", 9);
             if g.get(cx.this, v::points)?.gml_ge(&r(80.0))? {
                 // 11: if (instance_exists(oGhost))
                 g.at("oSunRoom/alarm_0#0", 11);
-                if b::instance_exists(g, cx, [obj::oGhost])?.is_truthy() {
+                if b::instance_exists(g, cx, [obj::oGhost])?.cond(Cond::If)? {
                 } else {
                     // 12: if (oPlayer1.x > room_width / 2)
                     g.at("oSunRoom/alarm_0#0", 12);
@@ -284,7 +284,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get_on(cx, &obj::oGame, v::drawStatus)?.gml_eq(&r(0.0))? {
         // 3: if (instance_exists(oDamsel))
         g.at("oSunRoom/step#0", 3);
-        if b::instance_exists(g, cx, [obj::oDamsel])?.is_truthy() {
+        if b::instance_exists(g, cx, [obj::oDamsel])?.cond(Cond::If)? {
             // 5: if (oDamsel.hp < 1)
             g.at("oSunRoom/step#0", 5);
             if g.get_on(cx, &obj::oDamsel, v::hp)?.gml_lt(&r(1.0))? {

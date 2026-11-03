@@ -11,7 +11,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     scr::setCollisionBounds(g, cx, &[r(0.0), r(0.0), r(16.0), r(16.0)])?;
     // 3: if (global.cityOfGold)
     g.at("oPushBlock/create#1", 3);
-    if g.gget(gv::cityOfGold)?.is_truthy() {
+    if g.gget(gv::cityOfGold)?.cond(Cond::If)? {
         // 3: sprite_index = sGoldBlock;
         g.at("oPushBlock/create#1", 3);
         g.set(cx.this, v::sprite_index, spr::sGoldBlock)?;
@@ -26,10 +26,10 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath && !global.cleanSolids)
     g.at("oPushBlock/destroy#0", 1);
-    if and(g.get(cx.this, v::cleanDeath)?.not()?.is_truthy(), g.gget(gv::cleanSolids)?.not()?.is_truthy()) {
+    if and(g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::And)?, g.gget(gv::cleanSolids)?.not()?.cond(Cond::And)?) {
         // 3: if (!global.cityOfGold)
         g.at("oPushBlock/destroy#0", 3);
-        if g.gget(gv::cityOfGold)?.not()?.is_truthy() {
+        if g.gget(gv::cityOfGold)?.not()?.cond(Cond::If)? {
             // 5: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
             g.at("oPushBlock/destroy#0", 5);
             {
@@ -120,7 +120,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (collision_point(x + 8, y + 14, oLava, 0, 0) && !collision_point(x + 8, y + 17, oSolid, 0, 0))
     g.at("oPushBlock/step#1", 1);
-    if and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(14.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(17.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+    if and(({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(14.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?.add(&r(17.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
         // 3: yVel = 0;
         g.at("oPushBlock/step#1", 3);
         g.set(cx.this, v::yVel, r(0.0))?;

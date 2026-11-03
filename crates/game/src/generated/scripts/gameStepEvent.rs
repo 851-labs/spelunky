@@ -6,7 +6,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 4: if (true)
     g.at("scripts/gameStepEvent", 4);
-    if r(1.0).is_truthy() {
+    if r(1.0).cond(Cond::If)? {
         // 5: oGame.players[0] = noone;
         g.at("scripts/gameStepEvent", 5);
         {
@@ -51,7 +51,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 g.at("scripts/gameStepEvent", 13);
                 {
                     let t = obj::oGame;
-                    let old = { let t2 = obj::oGame; g.get_on(cx, &t2, v::players_length)? };
+                    let old = g.get_on(cx, &t, v::players_length)?;
                     let x = lenient(Value::add, old, &r(1.0))?;
                     cx.ret = x.clone();
                     g.set_on(cx, &t, v::players_length, x)?;
@@ -63,7 +63,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         g.at("scripts/gameStepEvent", 17);
         {
             let t = obj::oGame;
-            let old = { let t2 = obj::oGame; g.get_on(cx, &t2, v::time)? };
+            let old = g.get_on(cx, &t, v::time)?;
             let x = lenient(Value::add, old, &r(1.0))?;
             cx.ret = x.clone();
             g.set_on(cx, &t, v::time, x)?;
@@ -106,7 +106,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 29: if (approximatelyZero(xVel))
                 g.at("scripts/gameStepEvent", 29);
-                if ({ let a = [g.get(cx.this, v::xVel)?]; scr::approximatelyZero(g, cx, &a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::xVel)?]; scr::approximatelyZero(g, cx, &a)? }).cond(Cond::If)? {
                     // 30: xVel = 0;
                     g.at("scripts/gameStepEvent", 30);
                     {
@@ -117,7 +117,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 31: if (approximatelyZero(yVel))
                 g.at("scripts/gameStepEvent", 31);
-                if ({ let a = [g.get(cx.this, v::yVel)?]; scr::approximatelyZero(g, cx, &a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::yVel)?]; scr::approximatelyZero(g, cx, &a)? }).cond(Cond::If)? {
                     // 32: yVel = 0;
                     g.at("scripts/gameStepEvent", 32);
                     {
@@ -128,7 +128,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 33: if (approximatelyZero(xAcc))
                 g.at("scripts/gameStepEvent", 33);
-                if ({ let a = [g.get(cx.this, v::xAcc)?]; scr::approximatelyZero(g, cx, &a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::xAcc)?]; scr::approximatelyZero(g, cx, &a)? }).cond(Cond::If)? {
                     // 34: xAcc = 0;
                     g.at("scripts/gameStepEvent", 34);
                     {
@@ -139,7 +139,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 35: if (approximatelyZero(yAcc))
                 g.at("scripts/gameStepEvent", 35);
-                if ({ let a = [g.get(cx.this, v::yAcc)?]; scr::approximatelyZero(g, cx, &a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::yAcc)?]; scr::approximatelyZero(g, cx, &a)? }).cond(Cond::If)? {
                     // 36: yAcc = 0;
                     g.at("scripts/gameStepEvent", 36);
                     {
@@ -309,7 +309,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     'body5: {
                         // 66: if (isCollisionRectangle(x - abs(xVelInteger) - sprite_xoffset - 2, y - abs(yVelInteger) - sprite_yo
                         g.at("scripts/gameStepEvent", 66);
-                        if ({ let a = [g.get(cx.this, v::x)?.sub(&{ let a = [g.get(cx.this, v::xVelInteger)?]; b::abs(g, cx, a)? })?.sub(&g.get(cx.this, v::sprite_xoffset)?)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.sub(&{ let a = [g.get(cx.this, v::yVelInteger)?]; b::abs(g, cx, a)? })?.sub(&g.get(cx.this, v::sprite_yoffset)?)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&g.get(cx.this, v::sprite_width)?)?.add(&{ let a = [g.get(cx.this, v::xVelInteger)?]; b::abs(g, cx, a)? })?.sub(&g.get(cx.this, v::sprite_xoffset)?)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::sprite_height)?)?.add(&{ let a = [g.get(cx.this, v::yVelInteger)?]; b::abs(g, cx, a)? })?.sub(&g.get(cx.this, v::sprite_yoffset)?)?.add(&r(2.0))?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::lb)?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::tb)?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::rb)?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::bb)?]; scr::isCollisionRectangle(g, cx, &a)? }).is_truthy() {
+                        if ({ let a = [g.get(cx.this, v::x)?.sub(&{ let a = [g.get(cx.this, v::xVelInteger)?]; b::abs(g, cx, a)? })?.sub(&g.get(cx.this, v::sprite_xoffset)?)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.sub(&{ let a = [g.get(cx.this, v::yVelInteger)?]; b::abs(g, cx, a)? })?.sub(&g.get(cx.this, v::sprite_yoffset)?)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&g.get(cx.this, v::sprite_width)?)?.add(&{ let a = [g.get(cx.this, v::xVelInteger)?]; b::abs(g, cx, a)? })?.sub(&g.get(cx.this, v::sprite_xoffset)?)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&g.get(cx.this, v::sprite_height)?)?.add(&{ let a = [g.get(cx.this, v::yVelInteger)?]; b::abs(g, cx, a)? })?.sub(&g.get(cx.this, v::sprite_yoffset)?)?.add(&r(2.0))?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::lb)?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::tb)?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::rb)?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::bb)?]; scr::isCollisionRectangle(g, cx, &a)? }).cond(Cond::If)? {
                             // 68: solidIsNearPlayers = 1;
                             g.at("scripts/gameStepEvent", 68);
                             {
@@ -333,7 +333,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 }
                 // 72: if (solidIsNearPlayers)
                 g.at("scripts/gameStepEvent", 72);
-                if g.get(cx.this, v::solidIsNearPlayers)?.is_truthy() {
+                if g.get(cx.this, v::solidIsNearPlayers)?.cond(Cond::If)? {
                     // 75: if (xVelInteger > 0)
                     g.at("scripts/gameStepEvent", 75);
                     if g.get(cx.this, v::xVelInteger)?.gml_gt(&r(0.0))? {
@@ -370,7 +370,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     'body9: {
                                         // 82: if (viscidTop && isCollisionCharacterTop(1, oGame.players[i]) && (oGame.players[i].viscidMovementOk 
                                         g.at("scripts/gameStepEvent", 82);
-                                        if and(and(g.get(cx.this, v::viscidTop)?.is_truthy(), ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterTop(g, cx, &a)? }).is_truthy()), or(g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::viscidMovementOk)?.gml_eq(&r(1.0))?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::viscidMovementOk)?.gml_eq(&r(2.0))?)) {
+                                        if and(and(g.get(cx.this, v::viscidTop)?.cond(Cond::And)?, ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterTop(g, cx, &a)? }).cond(Cond::And)?), or(g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::viscidMovementOk)?.gml_eq(&r(1.0))?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::viscidMovementOk)?.gml_eq(&r(2.0))?)) {
                                             // 84: with (oGame.players[i])
                                             g.at("scripts/gameStepEvent", 84);
                                             {
@@ -404,7 +404,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         } else {
                                             // 91: if (isCollisionCharacterRight(1, oGame.players[i]))
                                             g.at("scripts/gameStepEvent", 91);
-                                            if ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterRight(g, cx, &a)? }).is_truthy() {
+                                            if ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterRight(g, cx, &a)? }).cond(Cond::If)? {
                                                 // 93: with (oGame.players[i])
                                                 g.at("scripts/gameStepEvent", 93);
                                                 {
@@ -425,7 +425,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 }
                                                 // 95: if (oGame.players[i].collision)
                                                 g.at("scripts/gameStepEvent", 95);
-                                                if g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::collision)?.is_truthy() {
+                                                if g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::collision)?.cond(Cond::If)? {
                                                     // 97: breakNow = 1;
                                                     g.at("scripts/gameStepEvent", 97);
                                                     {
@@ -441,7 +441,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 g.at("scripts/gameStepEvent", 100);
                                                 {
                                                     let t = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?;
-                                                    let old = { let t2 = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?; g.get_on(cx, &t2, v::x)? };
+                                                    let old = g.get_on(cx, &t, v::x)?;
                                                     let x = lenient(Value::add, old, &r(1.0))?;
                                                     cx.ret = x.clone();
                                                     g.set_on(cx, &t, v::x, x)?;
@@ -460,7 +460,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                                 // 103: if (breakNow)
                                 g.at("scripts/gameStepEvent", 103);
-                                if g.get(cx.this, v::breakNow)?.is_truthy() {
+                                if g.get(cx.this, v::breakNow)?.cond(Cond::If)? {
                                     // 104: break;
                                     g.at("scripts/gameStepEvent", 104);
                                     break 'for6;
@@ -512,7 +512,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     'body15: {
                                         // 115: if (viscidTop && isCollisionCharacterTop(1, oGame.players[i]) && (oGame.players[i].viscidMovementOk 
                                         g.at("scripts/gameStepEvent", 115);
-                                        if and(and(g.get(cx.this, v::viscidTop)?.is_truthy(), ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterTop(g, cx, &a)? }).is_truthy()), or(g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::viscidMovementOk)?.gml_eq(&r(1.0))?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::viscidMovementOk)?.gml_eq(&r(2.0))?)) {
+                                        if and(and(g.get(cx.this, v::viscidTop)?.cond(Cond::And)?, ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterTop(g, cx, &a)? }).cond(Cond::And)?), or(g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::viscidMovementOk)?.gml_eq(&r(1.0))?, g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::viscidMovementOk)?.gml_eq(&r(2.0))?)) {
                                             // 117: with (oGame.players[i])
                                             g.at("scripts/gameStepEvent", 117);
                                             {
@@ -546,7 +546,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         } else {
                                             // 124: if (isCollisionCharacterLeft(1, oGame.players[i]))
                                             g.at("scripts/gameStepEvent", 124);
-                                            if ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterLeft(g, cx, &a)? }).is_truthy() {
+                                            if ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterLeft(g, cx, &a)? }).cond(Cond::If)? {
                                                 // 126: with (oGame.players[i])
                                                 g.at("scripts/gameStepEvent", 126);
                                                 {
@@ -567,7 +567,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 }
                                                 // 128: if (oGame.players[i].collision)
                                                 g.at("scripts/gameStepEvent", 128);
-                                                if g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::collision)?.is_truthy() {
+                                                if g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::collision)?.cond(Cond::If)? {
                                                     // 130: breakNow = 1;
                                                     g.at("scripts/gameStepEvent", 130);
                                                     {
@@ -583,7 +583,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 g.at("scripts/gameStepEvent", 133);
                                                 {
                                                     let t = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?;
-                                                    let old = { let t2 = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?; g.get_on(cx, &t2, v::x)? };
+                                                    let old = g.get_on(cx, &t, v::x)?;
                                                     let x = lenient(Value::sub, old, &r(1.0))?;
                                                     cx.ret = x.clone();
                                                     g.set_on(cx, &t, v::x, x)?;
@@ -602,7 +602,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                                 // 136: if (breakNow)
                                 g.at("scripts/gameStepEvent", 136);
-                                if g.get(cx.this, v::breakNow)?.is_truthy() {
+                                if g.get(cx.this, v::breakNow)?.cond(Cond::If)? {
                                     // 137: break;
                                     g.at("scripts/gameStepEvent", 137);
                                     break 'for12;
@@ -654,7 +654,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     'body21: {
                                         // 148: if (viscidTop && isCollisionCharacterTop(2, oGame.players[i]))
                                         g.at("scripts/gameStepEvent", 148);
-                                        if and(g.get(cx.this, v::viscidTop)?.is_truthy(), ({ let a = [r(2.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterTop(g, cx, &a)? }).is_truthy()) {
+                                        if and(g.get(cx.this, v::viscidTop)?.cond(Cond::And)?, ({ let a = [r(2.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterTop(g, cx, &a)? }).cond(Cond::And)?) {
                                             // 152: y += 5;
                                             g.at("scripts/gameStepEvent", 152);
                                             {
@@ -697,7 +697,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         } else {
                                             // 158: if (isCollisionCharacterBottom(1, oGame.players[i]))
                                             g.at("scripts/gameStepEvent", 158);
-                                            if ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterBottom(g, cx, &a)? }).is_truthy() {
+                                            if ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterBottom(g, cx, &a)? }).cond(Cond::If)? {
                                                 // 160: with (oGame.players[i])
                                                 g.at("scripts/gameStepEvent", 160);
                                                 {
@@ -718,7 +718,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 }
                                                 // 162: if (oGame.players[i].collision)
                                                 g.at("scripts/gameStepEvent", 162);
-                                                if g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::collision)?.is_truthy() {
+                                                if g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::collision)?.cond(Cond::If)? {
                                                     // 164: breakNow = 1;
                                                     g.at("scripts/gameStepEvent", 164);
                                                     {
@@ -734,7 +734,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 g.at("scripts/gameStepEvent", 167);
                                                 {
                                                     let t = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?;
-                                                    let old = { let t2 = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?; g.get_on(cx, &t2, v::y)? };
+                                                    let old = g.get_on(cx, &t, v::y)?;
                                                     let x = lenient(Value::add, old, &r(1.0))?;
                                                     cx.ret = x.clone();
                                                     g.set_on(cx, &t, v::y, x)?;
@@ -753,7 +753,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                                 // 170: if (breakNow)
                                 g.at("scripts/gameStepEvent", 170);
-                                if g.get(cx.this, v::breakNow)?.is_truthy() {
+                                if g.get(cx.this, v::breakNow)?.cond(Cond::If)? {
                                     // 171: break;
                                     g.at("scripts/gameStepEvent", 171);
                                     break 'for18;
@@ -805,7 +805,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     'body27: {
                                         // 183: if (isCollisionCharacterTop(1, oGame.players[i]))
                                         g.at("scripts/gameStepEvent", 183);
-                                        if ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterTop(g, cx, &a)? }).is_truthy() {
+                                        if ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterTop(g, cx, &a)? }).cond(Cond::If)? {
                                             // 185: with (oGame.players[i])
                                             g.at("scripts/gameStepEvent", 185);
                                             {
@@ -826,7 +826,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             }
                                             // 187: if (oGame.players[i].collision)
                                             g.at("scripts/gameStepEvent", 187);
-                                            if g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::collision)?.is_truthy() {
+                                            if g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::collision)?.cond(Cond::If)? {
                                                 // 189: breakNow = 1;
                                                 g.at("scripts/gameStepEvent", 189);
                                                 {
@@ -842,7 +842,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             g.at("scripts/gameStepEvent", 192);
                                             {
                                                 let t = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?;
-                                                let old = { let t2 = g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?; g.get_on(cx, &t2, v::y)? };
+                                                let old = g.get_on(cx, &t, v::y)?;
                                                 let x = lenient(Value::sub, old, &r(1.0))?;
                                                 cx.ret = x.clone();
                                                 g.set_on(cx, &t, v::y, x)?;
@@ -850,7 +850,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         }
                                         // 194: if (isCollisionCharacterBottom(1, oGame.players[i]))
                                         g.at("scripts/gameStepEvent", 194);
-                                        if ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterBottom(g, cx, &a)? }).is_truthy() {
+                                        if ({ let a = [r(1.0), g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?]; scr::isCollisionCharacterBottom(g, cx, &a)? }).cond(Cond::If)? {
                                             // 198: if (oGame.players[i].jumpTime < oGame.players[i].jumpTimeTotal)
                                             g.at("scripts/gameStepEvent", 198);
                                             if g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::jumpTime)?.gml_lt(&g.get_on(cx, &g.get_on_a(cx, &obj::oGame, v::players, 0, ix(&g.get(cx.this, v::i)?)?)?, v::jumpTimeTotal)?)? {
@@ -884,7 +884,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                                 // 205: if (breakNow)
                                 g.at("scripts/gameStepEvent", 205);
-                                if g.get(cx.this, v::breakNow)?.is_truthy() {
+                                if g.get(cx.this, v::breakNow)?.cond(Cond::If)? {
                                     // 206: break;
                                     g.at("scripts/gameStepEvent", 206);
                                     break 'for24;
@@ -994,7 +994,7 @@ pub fn gameStepEvent(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                         'body32: {
                             // 250: if (place_meeting(x, y + 1, oSolid))
                             g.at("scripts/gameStepEvent", 250);
-                            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(1.0))?, obj::oSolid]; b::place_meeting(g, cx, a)? }).is_truthy() {
+                            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(1.0))?, obj::oSolid]; b::place_meeting(g, cx, a)? }).cond(Cond::If)? {
                                 // 252: if (yVel > myGrav)
                                 g.at("scripts/gameStepEvent", 252);
                                 if g.get(cx.this, v::yVel)?.gml_gt(&g.get(cx.this, v::myGrav)?)? {

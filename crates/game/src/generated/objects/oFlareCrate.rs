@@ -46,7 +46,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (collision_point(x, y, oWater, -1, -1))
     g.at("oFlareCrate/step#1", 1);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWater, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWater, r(-1.0), r(-1.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 3: instance_create(x, y, oSplash);
         g.at("oFlareCrate/step#1", 3);
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSplash]; b::instance_create(g, cx, a)? };
@@ -55,7 +55,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.gget(gv::sndSplash)?]; scr::playSound(g, cx, &a)? };
         // 5: if (held)
         g.at("oFlareCrate/step#1", 5);
-        if g.get(cx.this, v::held)?.is_truthy() {
+        if g.get(cx.this, v::held)?.cond(Cond::If)? {
             // 7: with (oPlayer1)
             g.at("oFlareCrate/step#1", 7);
             {

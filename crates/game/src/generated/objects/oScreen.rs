@@ -63,7 +63,7 @@ pub fn create_a5(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 21: if (screen)
     g.at("oScreen/create#5", 21);
-    if g.get(cx.this, v::screen)?.is_truthy() {
+    if g.get(cx.this, v::screen)?.cond(Cond::If)? {
         // 23: surface_set_target(screen);
         g.at("oScreen/create#5", 23);
         { let a = [g.get(cx.this, v::screen)?]; b::surface_set_target(g, cx, a)? };
@@ -182,7 +182,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!surface_exists(pSurf))
     g.at("oScreen/step_begin#0", 1);
-    if ({ let a = [g.get(cx.this, v::pSurf)?]; b::surface_exists(g, cx, a)? }).not()?.is_truthy() {
+    if ({ let a = [g.get(cx.this, v::pSurf)?]; b::surface_exists(g, cx, a)? }).not()?.cond(Cond::If)? {
         // 1: pSurf = surface_create(screen_w, screen_h);
         g.at("oScreen/step_begin#0", 1);
         {
@@ -192,7 +192,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 2: if (!surface_exists(screen))
     g.at("oScreen/step_begin#0", 2);
-    if ({ let a = [g.get(cx.this, v::screen)?]; b::surface_exists(g, cx, a)? }).not()?.is_truthy() {
+    if ({ let a = [g.get(cx.this, v::screen)?]; b::surface_exists(g, cx, a)? }).not()?.cond(Cond::If)? {
         // 2: screen = surface_create(screen_w, screen_h);
         g.at("oScreen/step_begin#0", 2);
         {
@@ -202,7 +202,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 3: if (!surface_exists(darkSurf))
     g.at("oScreen/step_begin#0", 3);
-    if ({ let a = [g.get(cx.this, v::darkSurf)?]; b::surface_exists(g, cx, a)? }).not()?.is_truthy() {
+    if ({ let a = [g.get(cx.this, v::darkSurf)?]; b::surface_exists(g, cx, a)? }).not()?.cond(Cond::If)? {
         // 3: darkSurf = surface_create(screen_w, screen_h);
         g.at("oScreen/step_begin#0", 3);
         {
@@ -212,10 +212,10 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 5: if (checkBombPressed())
     g.at("oScreen/step_begin#0", 5);
-    if scr::checkBombPressed(g, cx, &[])?.is_truthy() {
+    if scr::checkBombPressed(g, cx, &[])?.cond(Cond::If)? {
         // 7: if (paused && global.plife > 0 && isLevel())
         g.at("oScreen/step_begin#0", 7);
-        if and(and(g.get(cx.this, v::paused)?.is_truthy(), g.gget(gv::plife)?.gml_gt(&r(0.0))?), scr::isLevel(g, cx, &[])?.is_truthy()) {
+        if and(and(g.get(cx.this, v::paused)?.cond(Cond::And)?, g.gget(gv::plife)?.gml_gt(&r(0.0))?), scr::isLevel(g, cx, &[])?.cond(Cond::And)?) {
             // 9: instance_activate_all();
             g.at("oScreen/step_begin#0", 9);
             b::instance_activate_all(g, cx, [])?;
@@ -252,49 +252,49 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 19: if (SS_IsSoundPlaying(global.musTitle))
             g.at("oScreen/step_begin#0", 19);
-            if ({ let a = [g.gget(gv::musTitle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.gget(gv::musTitle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                 // 19: SS_SetSoundVol(global.musTitle, 2000 + 8000 * (global.musicVol / 18));
                 g.at("oScreen/step_begin#0", 19);
                 { let a = [g.gget(gv::musTitle)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
             }
             // 20: if (SS_IsSoundPlaying(global.musCave))
             g.at("oScreen/step_begin#0", 20);
-            if ({ let a = [g.gget(gv::musCave)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.gget(gv::musCave)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                 // 20: SS_SetSoundVol(global.musCave, 2000 + 8000 * (global.musicVol / 18));
                 g.at("oScreen/step_begin#0", 20);
                 { let a = [g.gget(gv::musCave)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
             }
             // 21: if (SS_IsSoundPlaying(global.musLush))
             g.at("oScreen/step_begin#0", 21);
-            if ({ let a = [g.gget(gv::musLush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.gget(gv::musLush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                 // 21: SS_SetSoundVol(global.musLush, 2000 + 8000 * (global.musicVol / 18));
                 g.at("oScreen/step_begin#0", 21);
                 { let a = [g.gget(gv::musLush)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
             }
             // 22: if (SS_IsSoundPlaying(global.musIce))
             g.at("oScreen/step_begin#0", 22);
-            if ({ let a = [g.gget(gv::musIce)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.gget(gv::musIce)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                 // 22: SS_SetSoundVol(global.musIce, 2000 + 8000 * (global.musicVol / 18));
                 g.at("oScreen/step_begin#0", 22);
                 { let a = [g.gget(gv::musIce)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
             }
             // 23: if (SS_IsSoundPlaying(global.musTemple))
             g.at("oScreen/step_begin#0", 23);
-            if ({ let a = [g.gget(gv::musTemple)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.gget(gv::musTemple)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                 // 23: SS_SetSoundVol(global.musTemple, 2000 + 8000 * (global.musicVol / 18));
                 g.at("oScreen/step_begin#0", 23);
                 { let a = [g.gget(gv::musTemple)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
             }
             // 24: if (SS_IsSoundPlaying(global.musBoss))
             g.at("oScreen/step_begin#0", 24);
-            if ({ let a = [g.gget(gv::musBoss)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+            if ({ let a = [g.gget(gv::musBoss)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                 // 24: SS_SetSoundVol(global.musBoss, 2000 + 8000 * (global.musicVol / 18));
                 g.at("oScreen/step_begin#0", 24);
                 { let a = [g.gget(gv::musBoss)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
             }
             // 26: if (!global.hasAnkh)
             g.at("oScreen/step_begin#0", 26);
-            if g.gget(gv::hasAnkh)?.not()?.is_truthy() {
+            if g.gget(gv::hasAnkh)?.not()?.cond(Cond::If)? {
                 // 26: stopAllMusic();
                 g.at("oScreen/step_begin#0", 26);
                 scr::stopAllMusic(g, cx, &[])?;
@@ -303,10 +303,10 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 29: if (checkRopePressed())
         g.at("oScreen/step_begin#0", 29);
-        if scr::checkRopePressed(g, cx, &[])?.is_truthy() {
+        if scr::checkRopePressed(g, cx, &[])?.cond(Cond::If)? {
             // 31: if (paused)
             g.at("oScreen/step_begin#0", 31);
-            if g.get(cx.this, v::paused)?.is_truthy() {
+            if g.get(cx.this, v::paused)?.cond(Cond::If)? {
                 // 32: game_end();
                 g.at("oScreen/step_begin#0", 32);
                 b::game_end(g, cx, [])?;
@@ -314,16 +314,16 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 34: if (checkStartPressed())
             g.at("oScreen/step_begin#0", 34);
-            if scr::checkStartPressed(g, cx, &[])?.is_truthy() {
+            if scr::checkStartPressed(g, cx, &[])?.cond(Cond::If)? {
                 // 36: if (!paused && canPause)
                 g.at("oScreen/step_begin#0", 36);
-                if and(g.get(cx.this, v::paused)?.not()?.is_truthy(), g.get(cx.this, v::canPause)?.is_truthy()) {
+                if and(g.get(cx.this, v::paused)?.not()?.cond(Cond::And)?, g.get(cx.this, v::canPause)?.cond(Cond::And)?) {
                     // 38: if (instance_exists(oPlayer1))
                     g.at("oScreen/step_begin#0", 38);
-                    if b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy() {
+                    if b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::If)? {
                         // 40: if (!oPlayer1.dead)
                         g.at("oScreen/step_begin#0", 40);
-                        if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.is_truthy() {
+                        if g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::If)? {
                             // 42: surface_set_target(pSurf);
                             g.at("oScreen/step_begin#0", 42);
                             { let a = [g.get(cx.this, v::pSurf)?]; b::surface_set_target(g, cx, a)? };
@@ -332,7 +332,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             b::screen_redraw(g, cx, [])?;
                             // 44: if (global.darkLevel)
                             g.at("oScreen/step_begin#0", 44);
-                            if g.gget(gv::darkLevel)?.is_truthy() {
+                            if g.gget(gv::darkLevel)?.cond(Cond::If)? {
                                 // 44: draw_set_alpha(1);
                                 g.at("oScreen/step_begin#0", 44);
                                 b::draw_set_alpha(g, cx, [r(1.0)])?;
@@ -352,42 +352,42 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             b::draw_set_alpha(g, cx, [r(1.0)])?;
                             // 49: if (SS_IsSoundPlaying(global.musTitle))
                             g.at("oScreen/step_begin#0", 49);
-                            if ({ let a = [g.gget(gv::musTitle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                            if ({ let a = [g.gget(gv::musTitle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                                 // 49: SS_SetSoundVol(global.musTitle, 0);
                                 g.at("oScreen/step_begin#0", 49);
                                 { let a = [g.gget(gv::musTitle)?, r(0.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
                             }
                             // 50: if (SS_IsSoundPlaying(global.musCave))
                             g.at("oScreen/step_begin#0", 50);
-                            if ({ let a = [g.gget(gv::musCave)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                            if ({ let a = [g.gget(gv::musCave)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                                 // 50: SS_SetSoundVol(global.musCave, 0);
                                 g.at("oScreen/step_begin#0", 50);
                                 { let a = [g.gget(gv::musCave)?, r(0.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
                             }
                             // 51: if (SS_IsSoundPlaying(global.musLush))
                             g.at("oScreen/step_begin#0", 51);
-                            if ({ let a = [g.gget(gv::musLush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                            if ({ let a = [g.gget(gv::musLush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                                 // 51: SS_SetSoundVol(global.musLush, 0);
                                 g.at("oScreen/step_begin#0", 51);
                                 { let a = [g.gget(gv::musLush)?, r(0.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
                             }
                             // 52: if (SS_IsSoundPlaying(global.musIce))
                             g.at("oScreen/step_begin#0", 52);
-                            if ({ let a = [g.gget(gv::musIce)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                            if ({ let a = [g.gget(gv::musIce)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                                 // 52: SS_SetSoundVol(global.musIce, 0);
                                 g.at("oScreen/step_begin#0", 52);
                                 { let a = [g.gget(gv::musIce)?, r(0.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
                             }
                             // 53: if (SS_IsSoundPlaying(global.musTemple))
                             g.at("oScreen/step_begin#0", 53);
-                            if ({ let a = [g.gget(gv::musTemple)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                            if ({ let a = [g.gget(gv::musTemple)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                                 // 53: SS_SetSoundVol(global.musTemple, 0);
                                 g.at("oScreen/step_begin#0", 53);
                                 { let a = [g.gget(gv::musTemple)?, r(0.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
                             }
                             // 54: if (SS_IsSoundPlaying(global.musBoss))
                             g.at("oScreen/step_begin#0", 54);
-                            if ({ let a = [g.gget(gv::musBoss)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                            if ({ let a = [g.gget(gv::musBoss)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                                 // 54: SS_SetSoundVol(global.musBoss, 0);
                                 g.at("oScreen/step_begin#0", 54);
                                 { let a = [g.gget(gv::musBoss)?, r(0.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
@@ -412,42 +412,42 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     b::instance_activate_all(g, cx, [])?;
                     // 65: if (SS_IsSoundPlaying(global.musTitle))
                     g.at("oScreen/step_begin#0", 65);
-                    if ({ let a = [g.gget(gv::musTitle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                    if ({ let a = [g.gget(gv::musTitle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                         // 65: SS_SetSoundVol(global.musTitle, 2000 + 8000 * (global.musicVol / 18));
                         g.at("oScreen/step_begin#0", 65);
                         { let a = [g.gget(gv::musTitle)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
                     }
                     // 66: if (SS_IsSoundPlaying(global.musCave))
                     g.at("oScreen/step_begin#0", 66);
-                    if ({ let a = [g.gget(gv::musCave)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                    if ({ let a = [g.gget(gv::musCave)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                         // 66: SS_SetSoundVol(global.musCave, 2000 + 8000 * (global.musicVol / 18));
                         g.at("oScreen/step_begin#0", 66);
                         { let a = [g.gget(gv::musCave)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
                     }
                     // 67: if (SS_IsSoundPlaying(global.musLush))
                     g.at("oScreen/step_begin#0", 67);
-                    if ({ let a = [g.gget(gv::musLush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                    if ({ let a = [g.gget(gv::musLush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                         // 67: SS_SetSoundVol(global.musLush, 2000 + 8000 * (global.musicVol / 18));
                         g.at("oScreen/step_begin#0", 67);
                         { let a = [g.gget(gv::musLush)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
                     }
                     // 68: if (SS_IsSoundPlaying(global.musIce))
                     g.at("oScreen/step_begin#0", 68);
-                    if ({ let a = [g.gget(gv::musIce)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                    if ({ let a = [g.gget(gv::musIce)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                         // 68: SS_SetSoundVol(global.musIce, 2000 + 8000 * (global.musicVol / 18));
                         g.at("oScreen/step_begin#0", 68);
                         { let a = [g.gget(gv::musIce)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
                     }
                     // 69: if (SS_IsSoundPlaying(global.musTemple))
                     g.at("oScreen/step_begin#0", 69);
-                    if ({ let a = [g.gget(gv::musTemple)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                    if ({ let a = [g.gget(gv::musTemple)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                         // 69: SS_SetSoundVol(global.musTemple, 2000 + 8000 * (global.musicVol / 18));
                         g.at("oScreen/step_begin#0", 69);
                         { let a = [g.gget(gv::musTemple)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
                     }
                     // 70: if (SS_IsSoundPlaying(global.musBoss))
                     g.at("oScreen/step_begin#0", 70);
-                    if ({ let a = [g.gget(gv::musBoss)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+                    if ({ let a = [g.gget(gv::musBoss)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
                         // 70: SS_SetSoundVol(global.musBoss, 2000 + 8000 * (global.musicVol / 18));
                         g.at("oScreen/step_begin#0", 70);
                         { let a = [g.gget(gv::musBoss)?, r(2000.0).add(&r(8000.0).mul(&g.gget(gv::musicVol)?.div(&r(18.0))?)?)?]; scr::SS_SetSoundVol(g, cx, &a)? };
@@ -467,7 +467,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     b::draw_clear(g, cx, [r(0.0)])?;
     // 78: if (paused)
     g.at("oScreen/step_begin#0", 78);
-    if g.get(cx.this, v::paused)?.is_truthy() {
+    if g.get(cx.this, v::paused)?.cond(Cond::If)? {
         // 80: surface_set_target(pSurf);
         g.at("oScreen/step_begin#0", 80);
         { let a = [g.get(cx.this, v::pSurf)?]; b::surface_set_target(g, cx, a)? };
@@ -485,7 +485,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.gget(gv::myFontSmall)?]; b::draw_set_font(g, cx, a)? };
         // 85: if (isLevel())
         g.at("oScreen/step_begin#0", 85);
-        if scr::isLevel(g, cx, &[])?.is_truthy() {
+        if scr::isLevel(g, cx, &[])?.cond(Cond::If)? {
             // 87: n = 128 - 24;
             g.at("oScreen/step_begin#0", 87);
             g.set(cx.this, v::n, r(128.0).sub(&r(24.0))?)?;
@@ -498,7 +498,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 89: if (isRoom("rLoadLevel"))
                 g.at("oScreen/step_begin#0", 89);
-                if scr::isRoom(g, cx, &[s!("rLoadLevel")])?.is_truthy() {
+                if scr::isRoom(g, cx, &[s!("rLoadLevel")])?.cond(Cond::If)? {
                     // 89: draw_text(40, n - 24, "LEVEL: " + global.customLevelName + " BY " + global.customLevelAuthor);
                     g.at("oScreen/step_begin#0", 89);
                     { let a = [r(40.0), g.get(cx.this, v::n)?.sub(&r(24.0))?, s!("LEVEL: ").add(&g.gget(gv::customLevelName)?)?.add(&s!(" BY "))?.add(&g.gget(gv::customLevelAuthor)?)?]; b::draw_text(g, cx, a)? };
@@ -597,7 +597,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             { let a = [r(40.0), g.get(cx.this, v::n)?.add(&r(24.0))?, s!("SAVES: ").add(&{ let a = [g.gget(gv::damsels)?]; b::string(g, cx, a)? })?]; b::draw_text(g, cx, a)? };
             // 116: if (global.gamepadOn)
             g.at("oScreen/step_begin#0", 116);
-            if g.gget(gv::gamepadOn)?.is_truthy() {
+            if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                 // 116: draw_text(24, 216, "START-RETURN  BOMB-DIE  ROPE-QUIT");
                 g.at("oScreen/step_begin#0", 116);
                 b::draw_text(g, cx, [r(24.0), r(216.0), s!("START-RETURN  BOMB-DIE  ROPE-QUIT")])?;
@@ -609,7 +609,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 121: if (global.gamepadOn)
             g.at("oScreen/step_begin#0", 121);
-            if g.gget(gv::gamepadOn)?.is_truthy() {
+            if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                 // 121: draw_text(64, 216, "START-RETURN  ROPE-QUIT");
                 g.at("oScreen/step_begin#0", 121);
                 b::draw_text(g, cx, [r(64.0), r(216.0), s!("START-RETURN  ROPE-QUIT")])?;
@@ -628,7 +628,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     } else {
         // 129: if (isRoom("rTitle"))
         g.at("oScreen/step_begin#0", 129);
-        if scr::isRoom(g, cx, &[s!("rTitle")])?.is_truthy() {
+        if scr::isRoom(g, cx, &[s!("rTitle")])?.cond(Cond::If)? {
             // 131: surface_set_target(screen);
             g.at("oScreen/step_begin#0", 131);
             { let a = [g.get(cx.this, v::screen)?]; b::surface_set_target(g, cx, a)? };
@@ -679,10 +679,10 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 148: if (isLevel() && instance_exists(oPlayer1))
             g.at("oScreen/step_begin#0", 148);
-            if and(scr::isLevel(g, cx, &[])?.is_truthy(), b::instance_exists(g, cx, [obj::oPlayer1])?.is_truthy()) {
+            if and(scr::isLevel(g, cx, &[])?.cond(Cond::And)?, b::instance_exists(g, cx, [obj::oPlayer1])?.cond(Cond::And)?) {
                 // 150: if (global.darkLevel && !oPlayer1.dead)
                 g.at("oScreen/step_begin#0", 150);
-                if and(g.gget(gv::darkLevel)?.is_truthy(), g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.is_truthy()) {
+                if and(g.gget(gv::darkLevel)?.cond(Cond::And)?, g.get_on(cx, &obj::oPlayer1, v::dead)?.not()?.cond(Cond::And)?) {
                     // 152: surface_set_target(darkSurf);
                     g.at("oScreen/step_begin#0", 152);
                     { let a = [g.get(cx.this, v::darkSurf)?]; b::surface_set_target(g, cx, a)? };
@@ -697,7 +697,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     { let a = [{ let a = [r(255.0).sub(&r(255.0).mul(&g.get_on(cx, &obj::oLevel, v::darkness)?)?)?, r(255.0).sub(&r(255.0).mul(&g.get_on(cx, &obj::oLevel, v::darkness)?)?)?, r(255.0)]; b::make_color_rgb(g, cx, a)? }]; b::draw_set_color(g, cx, a)? };
                     // 156: if (instance_exists(oLampRed))
                     g.at("oScreen/step_begin#0", 156);
-                    if b::instance_exists(g, cx, [obj::oLampRed])?.is_truthy() {
+                    if b::instance_exists(g, cx, [obj::oLampRed])?.cond(Cond::If)? {
                         // 158: with (oPlayer1)
                         g.at("oScreen/step_begin#0", 158);
                         {
@@ -722,7 +722,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 167: if (instance_exists(oLampRedItem))
                     g.at("oScreen/step_begin#0", 167);
-                    if b::instance_exists(g, cx, [obj::oLampRedItem])?.is_truthy() {
+                    if b::instance_exists(g, cx, [obj::oLampRedItem])?.cond(Cond::If)? {
                         // 169: with (oPlayer1)
                         g.at("oScreen/step_begin#0", 169);
                         {
@@ -995,7 +995,7 @@ pub fn step_begin_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     { let a = [g.get(cx.this, v::n)?, r(216.0), { let a = [g.gget(gv::message)?]; b::string(g, cx, a)? }]; b::draw_text(g, cx, a)? };
                     // 252: if (!isRoom("rTutorial"))
                     g.at("oScreen/step_begin#0", 252);
-                    if scr::isRoom(g, cx, &[s!("rTutorial")])?.not()?.is_truthy() {
+                    if scr::isRoom(g, cx, &[s!("rTutorial")])?.not()?.cond(Cond::If)? {
                         // 252: draw_set_color(c_yellow);
                         g.at("oScreen/step_begin#0", 252);
                         b::draw_set_color(g, cx, [k::c_yellow])?;
@@ -1078,7 +1078,7 @@ pub fn other_5_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn other_3_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (surface_exists(screen))
     g.at("oScreen/other_3#0", 1);
-    if ({ let a = [g.get(cx.this, v::screen)?]; b::surface_exists(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::screen)?]; b::surface_exists(g, cx, a)? }).cond(Cond::If)? {
         // 3: surface_set_target(screen);
         g.at("oScreen/other_3#0", 3);
         { let a = [g.get(cx.this, v::screen)?]; b::surface_set_target(g, cx, a)? };
@@ -1091,7 +1091,7 @@ pub fn other_3_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 7: if (surface_exists(pSurf))
     g.at("oScreen/other_3#0", 7);
-    if ({ let a = [g.get(cx.this, v::pSurf)?]; b::surface_exists(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::pSurf)?]; b::surface_exists(g, cx, a)? }).cond(Cond::If)? {
         // 9: surface_set_target(pSurf);
         g.at("oScreen/other_3#0", 9);
         { let a = [g.get(cx.this, v::pSurf)?]; b::surface_set_target(g, cx, a)? };
@@ -1104,7 +1104,7 @@ pub fn other_3_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 13: if (surface_exists(darkSurf))
     g.at("oScreen/other_3#0", 13);
-    if ({ let a = [g.get(cx.this, v::darkSurf)?]; b::surface_exists(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::darkSurf)?]; b::surface_exists(g, cx, a)? }).cond(Cond::If)? {
         // 15: surface_set_target(darkSurf);
         g.at("oScreen/other_3#0", 15);
         { let a = [g.get(cx.this, v::darkSurf)?]; b::surface_set_target(g, cx, a)? };
@@ -1131,7 +1131,7 @@ pub fn other_3_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn keypress_121_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (paused)
     g.at("oScreen/keypress_121#0", 1);
-    if g.get(cx.this, v::paused)?.is_truthy() {
+    if g.get(cx.this, v::paused)?.cond(Cond::If)? {
         // 2: game_end();
         g.at("oScreen/keypress_121#0", 2);
         b::game_end(g, cx, [])?;
@@ -1144,7 +1144,7 @@ pub fn keypress_112_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (paused && global.plife > 0 && isLevel())
     g.at("oScreen/keypress_112#0", 1);
-    if and(and(g.get(cx.this, v::paused)?.is_truthy(), g.gget(gv::plife)?.gml_gt(&r(0.0))?), scr::isLevel(g, cx, &[])?.is_truthy()) {
+    if and(and(g.get(cx.this, v::paused)?.cond(Cond::And)?, g.gget(gv::plife)?.gml_gt(&r(0.0))?), scr::isLevel(g, cx, &[])?.cond(Cond::And)?) {
         // 3: instance_activate_all();
         g.at("oScreen/keypress_112#0", 3);
         b::instance_activate_all(g, cx, [])?;
@@ -1181,35 +1181,35 @@ pub fn keypress_112_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 13: if (SS_IsSoundPlaying(global.musTitle))
         g.at("oScreen/keypress_112#0", 13);
-        if ({ let a = [g.gget(gv::musTitle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+        if ({ let a = [g.gget(gv::musTitle)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
             // 13: SS_SetSoundVol(global.musTitle, 10000);
             g.at("oScreen/keypress_112#0", 13);
             { let a = [g.gget(gv::musTitle)?, r(10000.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
         }
         // 14: if (SS_IsSoundPlaying(global.musCave))
         g.at("oScreen/keypress_112#0", 14);
-        if ({ let a = [g.gget(gv::musCave)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+        if ({ let a = [g.gget(gv::musCave)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
             // 14: SS_SetSoundVol(global.musCave, 10000);
             g.at("oScreen/keypress_112#0", 14);
             { let a = [g.gget(gv::musCave)?, r(10000.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
         }
         // 15: if (SS_IsSoundPlaying(global.musLush))
         g.at("oScreen/keypress_112#0", 15);
-        if ({ let a = [g.gget(gv::musLush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+        if ({ let a = [g.gget(gv::musLush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
             // 15: SS_SetSoundVol(global.musLush, 10000);
             g.at("oScreen/keypress_112#0", 15);
             { let a = [g.gget(gv::musLush)?, r(10000.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
         }
         // 16: if (SS_IsSoundPlaying(global.musTemple))
         g.at("oScreen/keypress_112#0", 16);
-        if ({ let a = [g.gget(gv::musTemple)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+        if ({ let a = [g.gget(gv::musTemple)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
             // 16: SS_SetSoundVol(global.musTemple, 10000);
             g.at("oScreen/keypress_112#0", 16);
             { let a = [g.gget(gv::musTemple)?, r(10000.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
         }
         // 17: if (SS_IsSoundPlaying(global.musBoss))
         g.at("oScreen/keypress_112#0", 17);
-        if ({ let a = [g.gget(gv::musBoss)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).is_truthy() {
+        if ({ let a = [g.gget(gv::musBoss)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).cond(Cond::If)? {
             // 17: SS_SetSoundVol(global.musBoss, 10000);
             g.at("oScreen/keypress_112#0", 17);
             { let a = [g.gget(gv::musBoss)?, r(10000.0)]; scr::SS_SetSoundVol(g, cx, &a)? };
@@ -1226,10 +1226,10 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
     create_a0(g, cx)?;
     // #1 action_if(global.fullscreen)
     // #2 action_fullscreen(2)
-    if { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#1", 0); g.gget(gv::fullscreen)?.is_truthy() } { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#2", 0); b::action_fullscreen(g, cx, [r(2.0)])?; }
+    if { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#1", 0); g.gget(gv::fullscreen)?.cond(Cond::If)? } { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#2", 0); b::action_fullscreen(g, cx, [r(2.0)])?; }
     // #3 not action_if(global.fullscreen)
     // #4 action_fullscreen(1)
-    if { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#3", 0); !g.gget(gv::fullscreen)?.is_truthy() } { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#4", 0); b::action_fullscreen(g, cx, [r(1.0)])?; }
+    if { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#3", 0); !g.gget(gv::fullscreen)?.cond(Cond::If)? } { if g.pending().is_some() { return Ok(()); } g.at("oScreen/create#4", 0); b::action_fullscreen(g, cx, [r(1.0)])?; }
     if g.pending().is_some() { return Ok(()); } create_a5(g, cx)?;
     Ok(())
 }

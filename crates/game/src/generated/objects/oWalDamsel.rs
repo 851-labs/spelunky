@@ -19,7 +19,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oHeart]; b::instance_create(g, cx, a)? };
         // 4: if (!oEndCustom.fadeOut)
         g.at("oWalDamsel/step#0", 4);
-        if g.get_on(cx, &obj::oEndCustom, v::fadeOut)?.not()?.is_truthy() {
+        if g.get_on(cx, &obj::oEndCustom, v::fadeOut)?.not()?.cond(Cond::If)? {
             // 4: playSound(global.sndKiss);
             g.at("oWalDamsel/step#0", 4);
             { let a = [g.gget(gv::sndKiss)?]; scr::playSound(g, cx, &a)? };

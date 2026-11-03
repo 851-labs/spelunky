@@ -493,7 +493,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 if g.get(cx.this, v::n)?.gml_eq(&r(1.0))? {
                                     // 128: if (!oGame.genSupplyShop)
                                     g.at("scripts/scrRoomGenMarket", 128);
-                                    if g.get_on(cx, &obj::oGame, v::genSupplyShop)?.not()?.is_truthy() {
+                                    if g.get_on(cx, &obj::oGame, v::genSupplyShop)?.not()?.cond(Cond::If)? {
                                         // 128: shopType = "General";
                                         g.at("scripts/scrRoomGenMarket", 128);
                                         {
@@ -516,7 +516,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     if g.get(cx.this, v::n)?.gml_eq(&r(2.0))? {
                                         // 129: if (!oGame.genBombShop)
                                         g.at("scripts/scrRoomGenMarket", 129);
-                                        if g.get_on(cx, &obj::oGame, v::genBombShop)?.not()?.is_truthy() {
+                                        if g.get_on(cx, &obj::oGame, v::genBombShop)?.not()?.cond(Cond::If)? {
                                             // 129: shopType = "Bomb";
                                             g.at("scripts/scrRoomGenMarket", 129);
                                             {
@@ -539,7 +539,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         if g.get(cx.this, v::n)?.gml_eq(&r(3.0))? {
                                             // 130: if (!oGame.genWeaponShop)
                                             g.at("scripts/scrRoomGenMarket", 130);
-                                            if g.get_on(cx, &obj::oGame, v::genWeaponShop)?.not()?.is_truthy() {
+                                            if g.get_on(cx, &obj::oGame, v::genWeaponShop)?.not()?.cond(Cond::If)? {
                                                 // 130: shopType = "Weapon";
                                                 g.at("scripts/scrRoomGenMarket", 130);
                                                 {
@@ -562,7 +562,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             if g.get(cx.this, v::n)?.gml_eq(&r(4.0))? {
                                                 // 131: if (!oGame.genRareShop)
                                                 g.at("scripts/scrRoomGenMarket", 131);
-                                                if g.get_on(cx, &obj::oGame, v::genRareShop)?.not()?.is_truthy() {
+                                                if g.get_on(cx, &obj::oGame, v::genRareShop)?.not()?.cond(Cond::If)? {
                                                     // 131: shopType = "Rare";
                                                     g.at("scripts/scrRoomGenMarket", 131);
                                                     {
@@ -585,7 +585,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 if g.get(cx.this, v::n)?.gml_eq(&r(5.0))? {
                                                     // 132: if (!oGame.genClothingShop)
                                                     g.at("scripts/scrRoomGenMarket", 132);
-                                                    if g.get_on(cx, &obj::oGame, v::genClothingShop)?.not()?.is_truthy() {
+                                                    if g.get_on(cx, &obj::oGame, v::genClothingShop)?.not()?.cond(Cond::If)? {
                                                         // 132: shopType = "Clothing";
                                                         g.at("scripts/scrRoomGenMarket", 132);
                                                         {
@@ -1443,14 +1443,14 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 245: if (tile == "1" && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGenMarket", 245);
-                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("1"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                         // 247: instance_create(xpos, ypos, oLush);
                         g.at("scripts/scrRoomGenMarket", 247);
                         cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oLush]; b::instance_create(g, cx, a)? };
                     } else {
                         // 249: if (tile == "2" && rand(1, 2) == 1 && !collision_point(xpos, ypos, oSolid, 0, 0))
                         g.at("scripts/scrRoomGenMarket", 249);
-                        if and(and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                        if and(and(g.get(cx.this, v::tile)?.gml_eq(&s!("2"))?, scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?), ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                             // 251: instance_create(xpos, ypos, oLush);
                             g.at("scripts/scrRoomGenMarket", 251);
                             cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oLush]; b::instance_create(g, cx, a)? };
@@ -1458,14 +1458,14 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                     }
                     // 253: if (tile == "t" && !collision_point(xpos, ypos, oSolid, 0, 0))
                     g.at("scripts/scrRoomGenMarket", 253);
-                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("t"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                    if and(g.get(cx.this, v::tile)?.gml_eq(&s!("t"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                         // 255: instance_create(xpos, ypos, oTemple);
                         g.at("scripts/scrRoomGenMarket", 255);
                         cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oTemple]; b::instance_create(g, cx, a)? };
                     } else {
                         // 257: if (tile == "3" && !collision_point(xpos, ypos, oSolid, 0, 0))
                         g.at("scripts/scrRoomGenMarket", 257);
-                        if and(g.get(cx.this, v::tile)?.gml_eq(&s!("3"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                        if and(g.get(cx.this, v::tile)?.gml_eq(&s!("3"))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                             // 259: if (rand(1, 2) == 1)
                             g.at("scripts/scrRoomGenMarket", 259);
                             if scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))? {
@@ -1604,7 +1604,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                         } else {
                                                                             // 299: if (tile == "." && !collision_point(xpos, ypos, oSolid, 0, 0))
                                                                             g.at("scripts/scrRoomGenMarket", 299);
-                                                                            if and(g.get(cx.this, v::tile)?.gml_eq(&s!("."))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                                                            if and(g.get(cx.this, v::tile)?.gml_eq(&s!("."))?, ({ let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                                                                                 // 301: obj = instance_create(xpos, ypos, oLush);
                                                                                 g.at("scripts/scrRoomGenMarket", 301);
                                                                                 {
@@ -1686,17 +1686,17 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                             if g.get(cx.this, v::tile)?.gml_eq(&s!("W"))? {
                                                                                                 // 325: if (global.murderer || global.thiefLevel > 0)
                                                                                                 g.at("scripts/scrRoomGenMarket", 325);
-                                                                                                if or(g.gget(gv::murderer)?.is_truthy(), g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
+                                                                                                if or(g.gget(gv::murderer)?.cond(Cond::Or)?, g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?) {
                                                                                                     // 327: if (global.isDamsel)
                                                                                                     g.at("scripts/scrRoomGenMarket", 327);
-                                                                                                    if g.gget(gv::isDamsel)?.is_truthy() {
+                                                                                                    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                                                                                                         // 327: tile_add(bgWanted, 32, 0, 32, 32, xpos, ypos, 9004);
                                                                                                         g.at("scripts/scrRoomGenMarket", 327);
                                                                                                         cx.ret = { let a = [bgr::bgWanted, r(32.0), r(0.0), r(32.0), r(32.0), g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, r(9004.0)]; b::tile_add(g, cx, a)? };
                                                                                                     } else {
                                                                                                         // 328: if (global.isTunnelMan)
                                                                                                         g.at("scripts/scrRoomGenMarket", 328);
-                                                                                                        if g.gget(gv::isTunnelMan)?.is_truthy() {
+                                                                                                        if g.gget(gv::isTunnelMan)?.cond(Cond::If)? {
                                                                                                             // 328: tile_add(bgWanted, 64, 0, 32, 32, xpos, ypos, 9004);
                                                                                                             g.at("scripts/scrRoomGenMarket", 328);
                                                                                                             cx.ret = { let a = [bgr::bgWanted, r(64.0), r(0.0), r(32.0), r(32.0), g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, r(9004.0)]; b::tile_add(g, cx, a)? };
@@ -1890,7 +1890,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                 if g.get(cx.this, v::tile)?.gml_eq(&s!("p"))? {
                                                                                                                                     // 375: if (rand(1, 2))
                                                                                                                                     g.at("scripts/scrRoomGenMarket", 375);
-                                                                                                                                    if scr::rand(g, cx, &[r(1.0), r(2.0)])?.is_truthy() {
+                                                                                                                                    if scr::rand(g, cx, &[r(1.0), r(2.0)])?.cond(Cond::If)? {
                                                                                                                                         // 375: instance_create(xpos, ypos, oFakeBones);
                                                                                                                                         g.at("scripts/scrRoomGenMarket", 375);
                                                                                                                                         cx.ret = { let a = [g.get(cx.this, v::xpos)?, g.get(cx.this, v::ypos)?, obj::oFakeBones]; b::instance_create(g, cx, a)? };
@@ -1962,7 +1962,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                 } else {
                                                                                                                                                     // 394: if (!collision_point(tx, ty - 16, oSolid, 0, 0) && !collision_point(tx - 16, ty - 16, oSolid, 0, 0) 
                                                                                                                                                     g.at("scripts/scrRoomGenMarket", 394);
-                                                                                                                                                    if and(and(({ let a = [g.get(cx.this, v::tx)?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy(), ({ let a = [g.get(cx.this, v::tx)?.sub(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()), ({ let a = [g.get(cx.this, v::tx)?.add(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy()) {
+                                                                                                                                                    if and(and(({ let a = [g.get(cx.this, v::tx)?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::tx)?.sub(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::tx)?.add(&r(16.0))?, g.get(cx.this, v::ty)?.sub(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::And)?) {
                                                                                                                                                         // 398: instance_create(tx, ty, oTree);
                                                                                                                                                         g.at("scripts/scrRoomGenMarket", 398);
                                                                                                                                                         cx.ret = { let a = [g.get(cx.this, v::tx)?, g.get(cx.this, v::ty)?, obj::oTree]; b::instance_create(g, cx, a)? };
@@ -1971,7 +1971,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                         if g.get(cx.this, v::m)?.gml_lt(&r(4.0))? {
                                                                                                                                                             // 401: if (rand(1, 5) < 4 && !b1)
                                                                                                                                                             g.at("scripts/scrRoomGenMarket", 401);
-                                                                                                                                                            if and(scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?, g.get(cx.this, v::b1)?.not()?.is_truthy()) {
+                                                                                                                                                            if and(scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?, g.get(cx.this, v::b1)?.not()?.cond(Cond::And)?) {
                                                                                                                                                                 // 403: instance_create(tx + 16, ty, oTreeBranch);
                                                                                                                                                                 g.at("scripts/scrRoomGenMarket", 403);
                                                                                                                                                                 cx.ret = { let a = [g.get(cx.this, v::tx)?.add(&r(16.0))?, g.get(cx.this, v::ty)?, obj::oTreeBranch]; b::instance_create(g, cx, a)? };
@@ -1985,7 +1985,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                             } else {
                                                                                                                                                                 // 406: if (b1)
                                                                                                                                                                 g.at("scripts/scrRoomGenMarket", 406);
-                                                                                                                                                                if g.get(cx.this, v::b1)?.is_truthy() {
+                                                                                                                                                                if g.get(cx.this, v::b1)?.cond(Cond::If)? {
                                                                                                                                                                     // 406: b1 = false;
                                                                                                                                                                     g.at("scripts/scrRoomGenMarket", 406);
                                                                                                                                                                     {
@@ -1997,7 +1997,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                             }
                                                                                                                                                             // 407: if (rand(1, 5) < 4 && !b2)
                                                                                                                                                             g.at("scripts/scrRoomGenMarket", 407);
-                                                                                                                                                            if and(scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?, g.get(cx.this, v::b2)?.not()?.is_truthy()) {
+                                                                                                                                                            if and(scr::rand(g, cx, &[r(1.0), r(5.0)])?.gml_lt(&r(4.0))?, g.get(cx.this, v::b2)?.not()?.cond(Cond::And)?) {
                                                                                                                                                                 // 409: instance_create(tx - 16, ty, oTreeBranch);
                                                                                                                                                                 g.at("scripts/scrRoomGenMarket", 409);
                                                                                                                                                                 cx.ret = { let a = [g.get(cx.this, v::tx)?.sub(&r(16.0))?, g.get(cx.this, v::ty)?, obj::oTreeBranch]; b::instance_create(g, cx, a)? };
@@ -2011,7 +2011,7 @@ pub fn scrRoomGenMarket(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                                                                                                             } else {
                                                                                                                                                                 // 412: if (b2)
                                                                                                                                                                 g.at("scripts/scrRoomGenMarket", 412);
-                                                                                                                                                                if g.get(cx.this, v::b2)?.is_truthy() {
+                                                                                                                                                                if g.get(cx.this, v::b2)?.cond(Cond::If)? {
                                                                                                                                                                     // 412: b2 = false;
                                                                                                                                                                     g.at("scripts/scrRoomGenMarket", 412);
                                                                                                                                                                     {

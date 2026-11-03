@@ -31,10 +31,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     if and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(8.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(8.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(8.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(8.0))?)?) {
         // 5: if (isLevel())
         g.at("oGoldIdol/step#1", 5);
-        if scr::isLevel(g, cx, &[])?.is_truthy() {
+        if scr::isLevel(g, cx, &[])?.cond(Cond::If)? {
             // 7: if (!held && collision_point(x, y + 4, oBrickSmooth, 0, 0) && instance_exists(oShopkeeper) && global
             g.at("oGoldIdol/step#1", 7);
-            if and(and(and(and(g.get(cx.this, v::held)?.not()?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oBrickSmooth, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()), b::instance_exists(g, cx, [obj::oShopkeeper])?.is_truthy()), g.gget(gv::thiefLevel)?.gml_eq(&r(0.0))?), g.gget(gv::murderer)?.not()?.is_truthy()) {
+            if and(and(and(and(g.get(cx.this, v::held)?.not()?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oBrickSmooth, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?), b::instance_exists(g, cx, [obj::oShopkeeper])?.cond(Cond::And)?), g.gget(gv::thiefLevel)?.gml_eq(&r(0.0))?), g.gget(gv::murderer)?.not()?.cond(Cond::And)?) {
                 // 12: if (oShopkeeper.status == 0 && abs(x - oShopkeeper.x) < 80)
                 g.at("oGoldIdol/step#1", 12);
                 if and(g.get_on(cx, &obj::oShopkeeper, v::status)?.gml_eq(&r(0.0))?, ({ let a = [g.get(cx.this, v::x)?.sub(&g.get_on(cx, &obj::oShopkeeper, v::x)?)?]; b::abs(g, cx, a)? }).gml_lt(&r(80.0))?) {
@@ -77,7 +77,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 27: if (!colBot && trigger)
         g.at("oGoldIdol/step#1", 27);
-        if and(g.get(cx.this, v::colBot)?.not()?.is_truthy(), g.get(cx.this, v::trigger)?.is_truthy()) {
+        if and(g.get(cx.this, v::colBot)?.not()?.cond(Cond::And)?, g.get(cx.this, v::trigger)?.cond(Cond::And)?) {
             // 29: trigger = false;
             g.at("oGoldIdol/step#1", 29);
             g.set(cx.this, v::trigger, r(0.0))?;

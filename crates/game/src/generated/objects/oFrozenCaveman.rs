@@ -5,7 +5,7 @@ use crate::rt::*;
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!global.cleanSolids)
     g.at("oFrozenCaveman/destroy#0", 1);
-    if g.gget(gv::cleanSolids)?.not()?.is_truthy() {
+    if g.gget(gv::cleanSolids)?.not()?.cond(Cond::If)? {
         // 3: enemy = instance_create(x, y, oCaveman);
         g.at("oFrozenCaveman/destroy#0", 3);
         {
@@ -32,7 +32,7 @@ pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!collision_point(x, y, oIce, 0, 0))
     g.at("oFrozenCaveman/step#0", 1);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oIce, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oIce, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
         // 1: instance_destroy();
         g.at("oFrozenCaveman/step#0", 1);
         b::instance_destroy(g, cx, [])?;

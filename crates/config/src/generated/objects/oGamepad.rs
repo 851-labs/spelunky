@@ -127,7 +127,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::startPressed, r(0.0))?;
     // 3: if (start)
     g.at("oGamepad/step#1", 3);
-    if g.get(cx.this, v::start)?.is_truthy() {
+    if g.get(cx.this, v::start)?.cond(Cond::If)? {
         // 5: if (global.joyStartVal > 0)
         g.at("oGamepad/step#1", 5);
         if g.gget(gv::joyStartVal)?.gml_gt(&r(0.0))? {
@@ -172,7 +172,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 18: if (!start)
         g.at("oGamepad/step#1", 18);
-        if g.get(cx.this, v::start)?.not()?.is_truthy() {
+        if g.get(cx.this, v::start)?.not()?.cond(Cond::If)? {
             // 18: startReleased = true;
             g.at("oGamepad/step#1", 18);
             g.set(cx.this, v::startReleased, r(1.0))?;
@@ -222,7 +222,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 35: if (start)
         g.at("oGamepad/step#1", 35);
-        if g.get(cx.this, v::start)?.is_truthy() {
+        if g.get(cx.this, v::start)?.cond(Cond::If)? {
             // 35: startPressed = true;
             g.at("oGamepad/step#1", 35);
             g.set(cx.this, v::startPressed, r(1.0))?;
@@ -236,7 +236,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::leftPressed, r(0.0))?;
     // 44: if (left)
     g.at("oGamepad/step#1", 44);
-    if g.get(cx.this, v::left)?.is_truthy() {
+    if g.get(cx.this, v::left)?.cond(Cond::If)? {
         // 46: if (joystick_has_pov(1) == 1 && joystick_pov(1) == 270 || joystick_direction(1) == 100)
         g.at("oGamepad/step#1", 46);
         if or(and(b::joystick_has_pov(g, cx, [r(1.0)])?.gml_eq(&r(1.0))?, b::joystick_pov(g, cx, [r(1.0)])?.gml_eq(&r(270.0))?), b::joystick_direction(g, cx, [r(1.0)])?.gml_eq(&r(100.0))?) {
@@ -250,7 +250,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 48: if (!left)
         g.at("oGamepad/step#1", 48);
-        if g.get(cx.this, v::left)?.not()?.is_truthy() {
+        if g.get(cx.this, v::left)?.not()?.cond(Cond::If)? {
             // 48: leftReleased = true;
             g.at("oGamepad/step#1", 48);
             g.set(cx.this, v::leftReleased, r(1.0))?;
@@ -269,7 +269,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 54: if (left)
         g.at("oGamepad/step#1", 54);
-        if g.get(cx.this, v::left)?.is_truthy() {
+        if g.get(cx.this, v::left)?.cond(Cond::If)? {
             // 54: leftPressed = true;
             g.at("oGamepad/step#1", 54);
             g.set(cx.this, v::leftPressed, r(1.0))?;
@@ -283,7 +283,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::rightPressed, r(0.0))?;
     // 63: if (right)
     g.at("oGamepad/step#1", 63);
-    if g.get(cx.this, v::right)?.is_truthy() {
+    if g.get(cx.this, v::right)?.cond(Cond::If)? {
         // 65: if (joystick_has_pov(1) == 1 && joystick_pov(1) == 90 || joystick_direction(1) == 102)
         g.at("oGamepad/step#1", 65);
         if or(and(b::joystick_has_pov(g, cx, [r(1.0)])?.gml_eq(&r(1.0))?, b::joystick_pov(g, cx, [r(1.0)])?.gml_eq(&r(90.0))?), b::joystick_direction(g, cx, [r(1.0)])?.gml_eq(&r(102.0))?) {
@@ -297,7 +297,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 67: if (!right)
         g.at("oGamepad/step#1", 67);
-        if g.get(cx.this, v::right)?.not()?.is_truthy() {
+        if g.get(cx.this, v::right)?.not()?.cond(Cond::If)? {
             // 67: rightReleased = true;
             g.at("oGamepad/step#1", 67);
             g.set(cx.this, v::rightReleased, r(1.0))?;
@@ -316,7 +316,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 73: if (right)
         g.at("oGamepad/step#1", 73);
-        if g.get(cx.this, v::right)?.is_truthy() {
+        if g.get(cx.this, v::right)?.cond(Cond::If)? {
             // 73: rightPressed = true;
             g.at("oGamepad/step#1", 73);
             g.set(cx.this, v::rightPressed, r(1.0))?;
@@ -330,7 +330,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::upPressed, r(0.0))?;
     // 82: if (up)
     g.at("oGamepad/step#1", 82);
-    if g.get(cx.this, v::up)?.is_truthy() {
+    if g.get(cx.this, v::up)?.cond(Cond::If)? {
         // 84: if (joystick_has_pov(1) == 1 && joystick_pov(1) == 0 || joystick_direction(1) == 104)
         g.at("oGamepad/step#1", 84);
         if or(and(b::joystick_has_pov(g, cx, [r(1.0)])?.gml_eq(&r(1.0))?, b::joystick_pov(g, cx, [r(1.0)])?.gml_eq(&r(0.0))?), b::joystick_direction(g, cx, [r(1.0)])?.gml_eq(&r(104.0))?) {
@@ -344,7 +344,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 86: if (!up)
         g.at("oGamepad/step#1", 86);
-        if g.get(cx.this, v::up)?.not()?.is_truthy() {
+        if g.get(cx.this, v::up)?.not()?.cond(Cond::If)? {
             // 86: upReleased = true;
             g.at("oGamepad/step#1", 86);
             g.set(cx.this, v::upReleased, r(1.0))?;
@@ -363,7 +363,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 92: if (up)
         g.at("oGamepad/step#1", 92);
-        if g.get(cx.this, v::up)?.is_truthy() {
+        if g.get(cx.this, v::up)?.cond(Cond::If)? {
             // 92: upPressed = true;
             g.at("oGamepad/step#1", 92);
             g.set(cx.this, v::upPressed, r(1.0))?;
@@ -377,7 +377,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::downPressed, r(0.0))?;
     // 101: if (down)
     g.at("oGamepad/step#1", 101);
-    if g.get(cx.this, v::down)?.is_truthy() {
+    if g.get(cx.this, v::down)?.cond(Cond::If)? {
         // 103: if (joystick_has_pov(1) == 1 && joystick_pov(1) == 180 || joystick_direction(1) == 98)
         g.at("oGamepad/step#1", 103);
         if or(and(b::joystick_has_pov(g, cx, [r(1.0)])?.gml_eq(&r(1.0))?, b::joystick_pov(g, cx, [r(1.0)])?.gml_eq(&r(180.0))?), b::joystick_direction(g, cx, [r(1.0)])?.gml_eq(&r(98.0))?) {
@@ -391,7 +391,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 105: if (!down)
         g.at("oGamepad/step#1", 105);
-        if g.get(cx.this, v::down)?.not()?.is_truthy() {
+        if g.get(cx.this, v::down)?.not()?.cond(Cond::If)? {
             // 105: downReleased = true;
             g.at("oGamepad/step#1", 105);
             g.set(cx.this, v::downReleased, r(1.0))?;
@@ -410,7 +410,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 111: if (down)
         g.at("oGamepad/step#1", 111);
-        if g.get(cx.this, v::down)?.is_truthy() {
+        if g.get(cx.this, v::down)?.cond(Cond::If)? {
             // 111: downPressed = true;
             g.at("oGamepad/step#1", 111);
             g.set(cx.this, v::downPressed, r(1.0))?;
@@ -464,7 +464,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::jumpPressed, r(0.0))?;
     // 148: if (jump)
     g.at("oGamepad/step#1", 148);
-    if g.get(cx.this, v::jump)?.is_truthy() {
+    if g.get(cx.this, v::jump)?.cond(Cond::If)? {
         // 150: if (global.joyJumpVal > 0)
         g.at("oGamepad/step#1", 150);
         if g.gget(gv::joyJumpVal)?.gml_gt(&r(0.0))? {
@@ -509,7 +509,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 163: if (!jump)
         g.at("oGamepad/step#1", 163);
-        if g.get(cx.this, v::jump)?.not()?.is_truthy() {
+        if g.get(cx.this, v::jump)?.not()?.cond(Cond::If)? {
             // 163: jumpReleased = true;
             g.at("oGamepad/step#1", 163);
             g.set(cx.this, v::jumpReleased, r(1.0))?;
@@ -559,7 +559,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 180: if (jump)
         g.at("oGamepad/step#1", 180);
-        if g.get(cx.this, v::jump)?.is_truthy() {
+        if g.get(cx.this, v::jump)?.cond(Cond::If)? {
             // 180: jumpPressed = true;
             g.at("oGamepad/step#1", 180);
             g.set(cx.this, v::jumpPressed, r(1.0))?;
@@ -573,7 +573,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::attackPressed, r(0.0))?;
     // 189: if (attack)
     g.at("oGamepad/step#1", 189);
-    if g.get(cx.this, v::attack)?.is_truthy() {
+    if g.get(cx.this, v::attack)?.cond(Cond::If)? {
         // 191: if (global.joyAttackVal > 0)
         g.at("oGamepad/step#1", 191);
         if g.gget(gv::joyAttackVal)?.gml_gt(&r(0.0))? {
@@ -618,7 +618,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 204: if (!attack)
         g.at("oGamepad/step#1", 204);
-        if g.get(cx.this, v::attack)?.not()?.is_truthy() {
+        if g.get(cx.this, v::attack)?.not()?.cond(Cond::If)? {
             // 204: attackReleased = true;
             g.at("oGamepad/step#1", 204);
             g.set(cx.this, v::attackReleased, r(1.0))?;
@@ -668,7 +668,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 221: if (attack)
         g.at("oGamepad/step#1", 221);
-        if g.get(cx.this, v::attack)?.is_truthy() {
+        if g.get(cx.this, v::attack)?.cond(Cond::If)? {
             // 221: attackPressed = true;
             g.at("oGamepad/step#1", 221);
             g.set(cx.this, v::attackPressed, r(1.0))?;
@@ -682,7 +682,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::itemPressed, r(0.0))?;
     // 230: if (item)
     g.at("oGamepad/step#1", 230);
-    if g.get(cx.this, v::item)?.is_truthy() {
+    if g.get(cx.this, v::item)?.cond(Cond::If)? {
         // 232: if (global.joyItemVal > 0)
         g.at("oGamepad/step#1", 232);
         if g.gget(gv::joyItemVal)?.gml_gt(&r(0.0))? {
@@ -727,7 +727,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 245: if (!item)
         g.at("oGamepad/step#1", 245);
-        if g.get(cx.this, v::item)?.not()?.is_truthy() {
+        if g.get(cx.this, v::item)?.not()?.cond(Cond::If)? {
             // 245: itemReleased = true;
             g.at("oGamepad/step#1", 245);
             g.set(cx.this, v::itemReleased, r(1.0))?;
@@ -777,7 +777,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 262: if (item)
         g.at("oGamepad/step#1", 262);
-        if g.get(cx.this, v::item)?.is_truthy() {
+        if g.get(cx.this, v::item)?.cond(Cond::If)? {
             // 262: itemPressed = true;
             g.at("oGamepad/step#1", 262);
             g.set(cx.this, v::itemPressed, r(1.0))?;
@@ -833,7 +833,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::bombPressed, r(0.0))?;
     // 288: if (bomb)
     g.at("oGamepad/step#1", 288);
-    if g.get(cx.this, v::bomb)?.is_truthy() {
+    if g.get(cx.this, v::bomb)?.cond(Cond::If)? {
         // 290: if (global.joyBombVal > 0)
         g.at("oGamepad/step#1", 290);
         if g.gget(gv::joyBombVal)?.gml_gt(&r(0.0))? {
@@ -878,7 +878,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 303: if (!bomb)
         g.at("oGamepad/step#1", 303);
-        if g.get(cx.this, v::bomb)?.not()?.is_truthy() {
+        if g.get(cx.this, v::bomb)?.not()?.cond(Cond::If)? {
             // 303: bombReleased = true;
             g.at("oGamepad/step#1", 303);
             g.set(cx.this, v::bombReleased, r(1.0))?;
@@ -928,7 +928,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 320: if (bomb)
         g.at("oGamepad/step#1", 320);
-        if g.get(cx.this, v::bomb)?.is_truthy() {
+        if g.get(cx.this, v::bomb)?.cond(Cond::If)? {
             // 320: bombPressed = true;
             g.at("oGamepad/step#1", 320);
             g.set(cx.this, v::bombPressed, r(1.0))?;
@@ -942,7 +942,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::ropePressed, r(0.0))?;
     // 329: if (rope)
     g.at("oGamepad/step#1", 329);
-    if g.get(cx.this, v::rope)?.is_truthy() {
+    if g.get(cx.this, v::rope)?.cond(Cond::If)? {
         // 331: if (global.joyRopeVal > 0)
         g.at("oGamepad/step#1", 331);
         if g.gget(gv::joyRopeVal)?.gml_gt(&r(0.0))? {
@@ -987,7 +987,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 344: if (!rope)
         g.at("oGamepad/step#1", 344);
-        if g.get(cx.this, v::rope)?.not()?.is_truthy() {
+        if g.get(cx.this, v::rope)?.not()?.cond(Cond::If)? {
             // 344: ropeReleased = true;
             g.at("oGamepad/step#1", 344);
             g.set(cx.this, v::ropeReleased, r(1.0))?;
@@ -1037,7 +1037,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 361: if (rope)
         g.at("oGamepad/step#1", 361);
-        if g.get(cx.this, v::rope)?.is_truthy() {
+        if g.get(cx.this, v::rope)?.cond(Cond::If)? {
             // 361: ropePressed = true;
             g.at("oGamepad/step#1", 361);
             g.set(cx.this, v::ropePressed, r(1.0))?;
@@ -1051,7 +1051,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::flarePressed, r(0.0))?;
     // 370: if (flare)
     g.at("oGamepad/step#1", 370);
-    if g.get(cx.this, v::flare)?.is_truthy() {
+    if g.get(cx.this, v::flare)?.cond(Cond::If)? {
         // 372: if (global.joyFlareVal > 0)
         g.at("oGamepad/step#1", 372);
         if g.gget(gv::joyFlareVal)?.gml_gt(&r(0.0))? {
@@ -1096,7 +1096,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 385: if (!flare)
         g.at("oGamepad/step#1", 385);
-        if g.get(cx.this, v::flare)?.not()?.is_truthy() {
+        if g.get(cx.this, v::flare)?.not()?.cond(Cond::If)? {
             // 385: flareReleased = true;
             g.at("oGamepad/step#1", 385);
             g.set(cx.this, v::flareReleased, r(1.0))?;
@@ -1146,7 +1146,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 402: if (flare)
         g.at("oGamepad/step#1", 402);
-        if g.get(cx.this, v::flare)?.is_truthy() {
+        if g.get(cx.this, v::flare)?.cond(Cond::If)? {
             // 402: flarePressed = true;
             g.at("oGamepad/step#1", 402);
             g.set(cx.this, v::flarePressed, r(1.0))?;
@@ -1160,7 +1160,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::payPressed, r(0.0))?;
     // 411: if (pay)
     g.at("oGamepad/step#1", 411);
-    if g.get(cx.this, v::pay)?.is_truthy() {
+    if g.get(cx.this, v::pay)?.cond(Cond::If)? {
         // 413: if (global.joyPayVal > 0)
         g.at("oGamepad/step#1", 413);
         if g.gget(gv::joyPayVal)?.gml_gt(&r(0.0))? {
@@ -1205,7 +1205,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 426: if (!pay)
         g.at("oGamepad/step#1", 426);
-        if g.get(cx.this, v::pay)?.not()?.is_truthy() {
+        if g.get(cx.this, v::pay)?.not()?.cond(Cond::If)? {
             // 426: payReleased = true;
             g.at("oGamepad/step#1", 426);
             g.set(cx.this, v::payReleased, r(1.0))?;
@@ -1255,7 +1255,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 443: if (pay)
         g.at("oGamepad/step#1", 443);
-        if g.get(cx.this, v::pay)?.is_truthy() {
+        if g.get(cx.this, v::pay)?.cond(Cond::If)? {
             // 443: payPressed = true;
             g.at("oGamepad/step#1", 443);
             g.set(cx.this, v::payPressed, r(1.0))?;
@@ -1273,6 +1273,6 @@ pub fn create(g: &mut World, cx: &mut Ctx) -> R<()> {
 /// Event `step` of `oGamepad`: its actions in order.
 pub fn step(g: &mut World, cx: &mut Ctx) -> R<()> {
     // #0 action_if(global.gamepadOn)
-    if { g.at("oGamepad/step#0", 0); g.gget(gv::gamepadOn)?.is_truthy() } { if g.pending().is_some() { return Ok(()); } step_a1(g, cx)?; }
+    if { g.at("oGamepad/step#0", 0); g.gget(gv::gamepadOn)?.cond(Cond::If)? } { if g.pending().is_some() { return Ok(()); } step_a1(g, cx)?; }
     Ok(())
 }

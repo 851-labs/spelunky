@@ -19,7 +19,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (enemyID)
     g.at("oBomb/destroy#0", 1);
-    if g.get(cx.this, v::enemyID)?.is_truthy() {
+    if g.get(cx.this, v::enemyID)?.cond(Cond::If)? {
         // 3: enemyID.bombID = 0;
         g.at("oBomb/destroy#0", 3);
         { let t = g.get(cx.this, v::enemyID)?; g.set_on(cx, &t, v::bombID, r(0.0))?; }
@@ -34,17 +34,17 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oExplosion]; b::instance_create(g, cx, a)? };
     // 2: if (global.graphicsHigh)
     g.at("oBomb/alarm_1#0", 2);
-    if g.gget(gv::graphicsHigh)?.is_truthy() {
+    if g.gget(gv::graphicsHigh)?.cond(Cond::If)? {
         // 4: scrCreateFlame(x, y, 3);
         g.at("oBomb/alarm_1#0", 4);
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(3.0)]; scr::scrCreateFlame(g, cx, &a)? };
     }
     // 7: if (held)
     g.at("oBomb/alarm_1#0", 7);
-    if g.get(cx.this, v::held)?.is_truthy() {
+    if g.get(cx.this, v::held)?.cond(Cond::If)? {
         // 9: if (oCharacter)
         g.at("oBomb/alarm_1#0", 9);
-        if obj::oCharacter.is_truthy() {
+        if obj::oCharacter.cond(Cond::If)? {
             // 9: oCharacter.holdItem = 0;
             g.at("oBomb/alarm_1#0", 9);
             { let t = obj::oCharacter; g.set_on(cx, &t, v::holdItem, r(0.0))?; }
@@ -71,7 +71,7 @@ pub fn alarm_0_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_end_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!instance_exists(enemyID))
     g.at("oBomb/step_end#1", 1);
-    if ({ let a = [g.get(cx.this, v::enemyID)?]; b::instance_exists(g, cx, a)? }).not()?.is_truthy() {
+    if ({ let a = [g.get(cx.this, v::enemyID)?]; b::instance_exists(g, cx, a)? }).not()?.cond(Cond::If)? {
         // 3: enemyID = 0;
         g.at("oBomb/step_end#1", 3);
         g.set(cx.this, v::enemyID, r(0.0))?;
@@ -101,14 +101,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 2: if (sticky)
     g.at("oBomb/step#1", 2);
-    if g.get(cx.this, v::sticky)?.is_truthy() {
+    if g.get(cx.this, v::sticky)?.cond(Cond::If)? {
         // 2: depth = 1;
         g.at("oBomb/step#1", 2);
         g.set(cx.this, v::depth, r(1.0))?;
     }
     // 4: if (armed && instance_exists(oShopkeeper))
     g.at("oBomb/step#1", 4);
-    if and(g.get(cx.this, v::armed)?.is_truthy(), b::instance_exists(g, cx, [obj::oShopkeeper])?.is_truthy()) {
+    if and(g.get(cx.this, v::armed)?.cond(Cond::And)?, b::instance_exists(g, cx, [obj::oShopkeeper])?.cond(Cond::And)?) {
         // 6: if (global.roomPath[scrGetRoomX(x), scrGetRoomY(y)] == 4 || global.roomPath[scrGetRoomX(x), scrGetRo
         g.at("oBomb/step#1", 6);
         if and(or(({ let i = ix(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?; let j = ix(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?; g.gget_a(gv::roomPath, i, j)? }).gml_eq(&r(4.0))?, ({ let i = ix(&{ let a = [g.get(cx.this, v::x)?]; scr::scrGetRoomX(g, cx, &a)? })?; let j = ix(&{ let a = [g.get(cx.this, v::y)?]; scr::scrGetRoomY(g, cx, &a)? })?; g.gget_a(gv::roomPath, i, j)? }).gml_eq(&r(5.0))?), b::distance_to_object(g, cx, [obj::oShopkeeper])?.gml_lt(&r(96.0))?) {

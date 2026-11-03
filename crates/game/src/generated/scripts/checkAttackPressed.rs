@@ -6,7 +6,7 @@ pub fn checkAttackPressed(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.attackPressed)
     g.at("scripts/checkAttackPressed", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::If)? {
         // 2: return gamepad.attackPressed;
         g.at("scripts/checkAttackPressed", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?);

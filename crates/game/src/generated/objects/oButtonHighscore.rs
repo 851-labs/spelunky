@@ -14,10 +14,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (collision_rectangle(x + 2, y + 11, x + 13, y + 15, oSolid, 0, 0))
     g.at("oButtonHighscore/step#0", 1);
-    if ({ let a = [g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(11.0))?, g.get(cx.this, v::x)?.add(&r(13.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(11.0))?, g.get(cx.this, v::x)?.add(&r(13.0))?, g.get(cx.this, v::y)?.add(&r(15.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
         // 3: if (!pushed)
         g.at("oButtonHighscore/step#0", 3);
-        if g.get(cx.this, v::pushed)?.not()?.is_truthy() {
+        if g.get(cx.this, v::pushed)?.not()?.cond(Cond::If)? {
             // 5: counter = 20;
             g.at("oButtonHighscore/step#0", 5);
             g.set(cx.this, v::counter, r(20.0))?;
@@ -35,7 +35,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 12: if (pushed)
     g.at("oButtonHighscore/step#0", 12);
-    if g.get(cx.this, v::pushed)?.is_truthy() {
+    if g.get(cx.this, v::pushed)?.cond(Cond::If)? {
         // 14: if (counter > 0)
         g.at("oButtonHighscore/step#0", 14);
         if g.get(cx.this, v::counter)?.gml_gt(&r(0.0))? {

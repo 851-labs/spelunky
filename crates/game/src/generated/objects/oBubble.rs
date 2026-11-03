@@ -22,7 +22,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
     // 3: if (!collision_point(x, y, oWater, 0, 0))
     g.at("oBubble/step#0", 3);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oWater, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
         // 5: instance_destroy();
         g.at("oBubble/step#0", 5);
         b::instance_destroy(g, cx, [])?;

@@ -34,7 +34,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 5: if (tile)
             g.at("oOlmecSlam/collision_oSolid#0", 5);
-            if g.get(cx.this, v::tile)?.is_truthy() {
+            if g.get(cx.this, v::tile)?.cond(Cond::If)? {
                 // 5: tile_delete(tile);
                 g.at("oOlmecSlam/collision_oSolid#0", 5);
                 { let a = [g.get(cx.this, v::tile)?]; b::tile_delete(g, cx, a)? };

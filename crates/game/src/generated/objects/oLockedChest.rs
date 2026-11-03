@@ -29,7 +29,7 @@ pub fn collision_oKey_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (other.held && sprite_index == sLockedChest)
     g.at("oLockedChest/collision_oKey#0", 1);
-    if and(g.get(cx.other, v::held)?.is_truthy(), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLockedChest)?) {
+    if and(g.get(cx.other, v::held)?.cond(Cond::And)?, g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLockedChest)?) {
         // 3: other.held = false;
         g.at("oLockedChest/collision_oKey#0", 3);
         g.set(cx.other, v::held, r(0.0))?;

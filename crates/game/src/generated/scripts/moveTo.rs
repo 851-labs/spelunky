@@ -157,7 +157,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if g.get(cx.this, v::solidId)?.gml_gt(&r(0.0))? {
                     // 46: if (object_get_parent(solidId.object_index) == oMoveableSolid && canPushMoveableSolids())
                     g.at("scripts/moveTo", 46);
-                    if and(({ let a = [g.get_on(cx, &g.get(cx.this, v::solidId)?, v::object_index)?]; b::object_get_parent(g, cx, a)? }).gml_eq(&obj::oMoveableSolid)?, scr::canPushMoveableSolids(g, cx, &[])?.is_truthy()) {
+                    if and(({ let a = [g.get_on(cx, &g.get(cx.this, v::solidId)?, v::object_index)?]; b::object_get_parent(g, cx, a)? }).gml_eq(&obj::oMoveableSolid)?, scr::canPushMoveableSolids(g, cx, &[])?.cond(Cond::And)?) {
                         // 49: with (solidId)
                         g.at("scripts/moveTo", 49);
                         {
@@ -168,7 +168,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 (cx.this, cx.other) = (h2, outer3.0);
                                 // 51: if (place_meeting(x + 1, y, oSolid))
                                 g.at("scripts/moveTo", 51);
-                                if ({ let a = [g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid]; b::place_meeting(g, cx, a)? }).is_truthy() {
+                                if ({ let a = [g.get(cx.this, v::x)?.add(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid]; b::place_meeting(g, cx, a)? }).cond(Cond::If)? {
                                     // 53: break;
                                     g.at("scripts/moveTo", 53);
                                     break 'with3;
@@ -183,7 +183,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     }
                                     // 58: if (!SS_IsSoundPlaying(global.sndPush))
                                     g.at("scripts/moveTo", 58);
-                                    if ({ let a = [g.gget(gv::sndPush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).not()?.is_truthy() {
+                                    if ({ let a = [g.gget(gv::sndPush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).not()?.cond(Cond::If)? {
                                         // 58: playSound(global.sndPush);
                                         g.at("scripts/moveTo", 58);
                                         cx.ret = { let a = [g.gget(gv::sndPush)?]; scr::playSound(g, cx, &a)? };
@@ -236,7 +236,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                 if g.get(cx.this, v::solidId)?.gml_gt(&r(0.0))? {
                     // 74: if (object_get_parent(solidId.object_index) == oMoveableSolid && canPushMoveableSolids())
                     g.at("scripts/moveTo", 74);
-                    if and(({ let a = [g.get_on(cx, &g.get(cx.this, v::solidId)?, v::object_index)?]; b::object_get_parent(g, cx, a)? }).gml_eq(&obj::oMoveableSolid)?, scr::canPushMoveableSolids(g, cx, &[])?.is_truthy()) {
+                    if and(({ let a = [g.get_on(cx, &g.get(cx.this, v::solidId)?, v::object_index)?]; b::object_get_parent(g, cx, a)? }).gml_eq(&obj::oMoveableSolid)?, scr::canPushMoveableSolids(g, cx, &[])?.cond(Cond::And)?) {
                         // 77: with (solidId)
                         g.at("scripts/moveTo", 77);
                         {
@@ -247,7 +247,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 (cx.this, cx.other) = (h5, outer6.0);
                                 // 79: if (place_meeting(x - 1, y, oSolid))
                                 g.at("scripts/moveTo", 79);
-                                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid]; b::place_meeting(g, cx, a)? }).is_truthy() {
+                                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, obj::oSolid]; b::place_meeting(g, cx, a)? }).cond(Cond::If)? {
                                     // 81: break;
                                     g.at("scripts/moveTo", 81);
                                     break 'with6;
@@ -262,7 +262,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     }
                                     // 86: if (!SS_IsSoundPlaying(global.sndPush))
                                     g.at("scripts/moveTo", 86);
-                                    if ({ let a = [g.gget(gv::sndPush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).not()?.is_truthy() {
+                                    if ({ let a = [g.gget(gv::sndPush)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).not()?.cond(Cond::If)? {
                                         // 86: playSound(global.sndPush);
                                         g.at("scripts/moveTo", 86);
                                         cx.ret = { let a = [g.gget(gv::sndPush)?]; scr::playSound(g, cx, &a)? };
@@ -305,17 +305,17 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             'body8: {
                 // 98: if (isCollisionBottom(1))
                 g.at("scripts/moveTo", 98);
-                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 99: break;
                     g.at("scripts/moveTo", 99);
                     break 'for7;
                 }
                 // 100: if (canLandOnPlatforms())
                 g.at("scripts/moveTo", 100);
-                if scr::canLandOnPlatforms(g, cx, &[])?.is_truthy() {
+                if scr::canLandOnPlatforms(g, cx, &[])?.cond(Cond::If)? {
                     // 101: if (isCollisionPlatform() == 0 && isCollisionPlatformBottom(1) && kDown == 0)
                     g.at("scripts/moveTo", 101);
-                    if and(and(scr::isCollisionPlatform(g, cx, &[])?.gml_eq(&r(0.0))?, scr::isCollisionPlatformBottom(g, cx, &[r(1.0)])?.is_truthy()), g.get(cx.this, v::kDown)?.gml_eq(&r(0.0))?) {
+                    if and(and(scr::isCollisionPlatform(g, cx, &[])?.gml_eq(&r(0.0))?, scr::isCollisionPlatformBottom(g, cx, &[r(1.0)])?.cond(Cond::And)?), g.get(cx.this, v::kDown)?.gml_eq(&r(0.0))?) {
                         // 102: break;
                         g.at("scripts/moveTo", 102);
                         break 'for7;
@@ -349,7 +349,7 @@ pub fn moveTo(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
             'body10: {
                 // 108: if (isCollisionTop(1))
                 g.at("scripts/moveTo", 108);
-                if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 109: break;
                     g.at("scripts/moveTo", 109);
                     break 'for9;

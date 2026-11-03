@@ -22,7 +22,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::yAcc)?)?)?;
     // 4: if (collision_point(x, y, oBrick, 0, 0) || collision_point(x, y, oBlock, 0, 0))
     g.at("oRubbleDark/step#0", 4);
-    if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy()) {
+    if or(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oBrick, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oBlock, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::Or)?) {
         // 7: instance_destroy();
         g.at("oRubbleDark/step#0", 7);
         b::instance_destroy(g, cx, [])?;

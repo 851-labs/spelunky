@@ -23,7 +23,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::downHeld, r(0.0))?;
     // 8: if (isRoom("rTitle"))
     g.at("oTunnelMan/create#0", 8);
-    if scr::isRoom(g, cx, &[s!("rTitle")])?.is_truthy() {
+    if scr::isRoom(g, cx, &[s!("rTitle")])?.cond(Cond::If)? {
         // 8: sprite_index = sTunnelManRight;
         g.at("oTunnelMan/create#0", 8);
         g.set(cx.this, v::sprite_index, spr::sTunnelManRight)?;
@@ -36,7 +36,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (checkAttackPressed())
     g.at("oTunnelMan/step#0", 1);
-    if scr::checkAttackPressed(g, cx, &[])?.is_truthy() {
+    if scr::checkAttackPressed(g, cx, &[])?.cond(Cond::If)? {
         // 3: if (talk == 1)
         g.at("oTunnelMan/step#0", 3);
         if g.get(cx.this, v::talk)?.gml_eq(&r(1.0))? {
@@ -49,7 +49,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get(cx.this, v::talk)?.gml_eq(&r(2.0))? {
                 // 6: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
                 g.at("oTunnelMan/step#0", 6);
-                if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.is_truthy(), scr::isRoom(g, cx, &[s!("rTransition3x")])?.is_truthy()) {
+                if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rTransition3x")])?.cond(Cond::Or)?) {
                     // 8: if (donate > 0)
                     g.at("oTunnelMan/step#0", 8);
                     if g.get(cx.this, v::donate)?.gml_gt(&r(0.0))? {
@@ -118,7 +118,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.set(cx.this, v::status, g.get(cx.this, v::TRANSITION)?)?;
                         // 38: if (global.isDamsel)
                         g.at("oTunnelMan/step#0", 38);
-                        if g.gget(gv::isDamsel)?.is_truthy() {
+                        if g.gget(gv::isDamsel)?.cond(Cond::If)? {
                             // 38: sprite_index = sDamselRunL;
                             g.at("oTunnelMan/step#0", 38);
                             g.set(cx.this, v::sprite_index, spr::sDamselRunL)?;
@@ -138,7 +138,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if g.get(cx.this, v::talk)?.gml_eq(&r(2.0))? {
         // 45: if (checkUp())
         g.at("oTunnelMan/step#0", 45);
-        if scr::checkUp(g, cx, &[])?.is_truthy() {
+        if scr::checkUp(g, cx, &[])?.cond(Cond::If)? {
             // 47: upHeld += 1;
             g.at("oTunnelMan/step#0", 47);
             g.set(cx.this, v::upHeld, lenient(Value::add, g.get(cx.this, v::upHeld)?, &r(1.0))?)?;
@@ -173,7 +173,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 57: if (isRoom("rTransition1x") || isRoom("rTransition3x"))
             g.at("oTunnelMan/step#0", 57);
-            if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.is_truthy(), scr::isRoom(g, cx, &[s!("rTransition3x")])?.is_truthy()) {
+            if or(scr::isRoom(g, cx, &[s!("rTransition1x")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rTransition3x")])?.cond(Cond::Or)?) {
                 // 57: if (donate > global.tunnel1)
                 g.at("oTunnelMan/step#0", 57);
                 if g.get(cx.this, v::donate)?.gml_gt(&g.gget(gv::tunnel1)?)? {
@@ -196,7 +196,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 61: if (checkDown())
             g.at("oTunnelMan/step#0", 61);
-            if scr::checkDown(g, cx, &[])?.is_truthy() {
+            if scr::checkDown(g, cx, &[])?.cond(Cond::If)? {
                 // 63: downHeld += 1;
                 g.at("oTunnelMan/step#0", 63);
                 g.set(cx.this, v::downHeld, lenient(Value::add, g.get(cx.this, v::downHeld)?, &r(1.0))?)?;

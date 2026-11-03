@@ -6,7 +6,7 @@ pub fn scrUpdateHighscores(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> 
     let cx = &mut cx.call(args);
     // 28: if (global.keepScore)
     g.at("scripts/scrUpdateHighscores", 28);
-    if g.gget(gv::keepScore)?.is_truthy() {
+    if g.gget(gv::keepScore)?.cond(Cond::If)? {
         // 32: tMoney = highscore_value(1) - 9000000;
         g.at("scripts/scrUpdateHighscores", 32);
         {
@@ -121,7 +121,7 @@ pub fn scrUpdateHighscores(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> 
         }
         // 57: if (argument0 == 1 && (global.time < tTime || tTime == 0) && !global.usedShortcut)
         g.at("scripts/scrUpdateHighscores", 57);
-        if and(and(cx.arg(0)?.gml_eq(&r(1.0))?, or(g.gget(gv::time)?.gml_lt(&g.get(cx.this, v::tTime)?)?, g.get(cx.this, v::tTime)?.gml_eq(&r(0.0))?)), g.gget(gv::usedShortcut)?.not()?.is_truthy()) {
+        if and(and(cx.arg(0)?.gml_eq(&r(1.0))?, or(g.gget(gv::time)?.gml_lt(&g.get(cx.this, v::tTime)?)?, g.get(cx.this, v::tTime)?.gml_eq(&r(0.0))?)), g.gget(gv::usedShortcut)?.not()?.cond(Cond::And)?) {
             // 59: highscore_add("TIME", global.time + 8000000);
             g.at("scripts/scrUpdateHighscores", 59);
             cx.ret = { let a = [s!("TIME"), g.gget(gv::time)?.add(&r(8000000.0))?]; b::highscore_add(g, cx, a)? };

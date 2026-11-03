@@ -57,7 +57,7 @@ pub fn mouse_4_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (!on)
     g.at("oRadioBox/mouse_4#0", 1);
-    if g.get(cx.this, v::on)?.not()?.is_truthy() {
+    if g.get(cx.this, v::on)?.not()?.cond(Cond::If)? {
         // 3: with (oRadioBox)
         g.at("oRadioBox/mouse_4#0", 3);
         {

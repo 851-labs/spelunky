@@ -95,7 +95,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::stickyYDiff, r(0.0))?;
     // 37: if (global.hasSpectacles)
     g.at("oItem/create#1", 37);
-    if g.gget(gv::hasSpectacles)?.is_truthy() {
+    if g.gget(gv::hasSpectacles)?.cond(Cond::If)? {
         // 37: depth = 51;
         g.at("oItem/create#1", 37);
         g.set(cx.this, v::depth, r(51.0))?;
@@ -111,7 +111,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (held)
     g.at("oItem/destroy#0", 1);
-    if g.get(cx.this, v::held)?.is_truthy() {
+    if g.get(cx.this, v::held)?.cond(Cond::If)? {
         // 3: oPlayer1.holdItem = 0;
         g.at("oItem/destroy#0", 3);
         { let t = obj::oPlayer1; g.set_on(cx, &t, v::holdItem, r(0.0))?; }
@@ -135,7 +135,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     if or(and(and(and(g.get(cx.this, v::x)?.gml_gt(&g.bget(v::view_xview, 0)?.sub(&r(16.0))?)?, g.get(cx.this, v::x)?.gml_lt(&g.bget(v::view_xview, 0)?.add(&g.bget(v::view_wview, 0)?)?.add(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_gt(&g.bget(v::view_yview, 0)?.sub(&r(16.0))?)?), g.get(cx.this, v::y)?.gml_lt(&g.bget(v::view_yview, 0)?.add(&g.bget(v::view_hview, 0)?)?.add(&r(16.0))?)?), g.get(cx.this, v::r#type)?.gml_eq(&s!("Rope"))?) {
         // 5: if (global.hasSpectacles)
         g.at("oItem/step#0", 5);
-        if g.gget(gv::hasSpectacles)?.is_truthy() {
+        if g.gget(gv::hasSpectacles)?.cond(Cond::If)? {
             // 5: depth = 51;
             g.at("oItem/step#0", 5);
             g.set(cx.this, v::depth, r(51.0))?;
@@ -146,10 +146,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 8: if (!instance_exists(oShopkeeper) || global.thiefLevel > 0 || global.murderer && cost > 0)
         g.at("oItem/step#0", 8);
-        if and(or(or(b::instance_exists(g, cx, [obj::oShopkeeper])?.not()?.is_truthy(), g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?), g.gget(gv::murderer)?.is_truthy()), g.get(cx.this, v::cost)?.gml_gt(&r(0.0))?) {
+        if and(or(or(b::instance_exists(g, cx, [obj::oShopkeeper])?.not()?.cond(Cond::Or)?, g.gget(gv::thiefLevel)?.gml_gt(&r(0.0))?), g.gget(gv::murderer)?.cond(Cond::Or)?), g.get(cx.this, v::cost)?.gml_gt(&r(0.0))?) {
             // 12: if (isRealLevel())
             g.at("oItem/step#0", 12);
-            if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+            if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                 // 12: global.itemsStolen += 1;
                 g.at("oItem/step#0", 12);
                 g.gset(gv::itemsStolen, lenient(Value::add, g.gget(gv::itemsStolen)?, &r(1.0))?)?;
@@ -163,10 +163,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 18: if (isRealLevel())
         g.at("oItem/step#0", 18);
-        if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+        if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
             // 20: if (cost > 0 && forSale && !isInShop(x, y))
             g.at("oItem/step#0", 20);
-            if and(and(g.get(cx.this, v::cost)?.gml_gt(&r(0.0))?, g.get(cx.this, v::forSale)?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy()) {
+            if and(and(g.get(cx.this, v::cost)?.gml_gt(&r(0.0))?, g.get(cx.this, v::forSale)?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.cond(Cond::And)?) {
                 // 22: global.itemsStolen += 1;
                 g.at("oItem/step#0", 22);
                 g.gset(gv::itemsStolen, lenient(Value::add, g.gget(gv::itemsStolen)?, &r(1.0))?)?;
@@ -180,10 +180,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 27: if (isLevel())
             g.at("oItem/step#0", 27);
-            if scr::isLevel(g, cx, &[])?.is_truthy() {
+            if scr::isLevel(g, cx, &[])?.cond(Cond::If)? {
                 // 29: if (cost > 0 && forSale && !isInShop(x, y))
                 g.at("oItem/step#0", 29);
-                if and(and(g.get(cx.this, v::cost)?.gml_gt(&r(0.0))?, g.get(cx.this, v::forSale)?.is_truthy()), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.is_truthy()) {
+                if and(and(g.get(cx.this, v::cost)?.gml_gt(&r(0.0))?, g.get(cx.this, v::forSale)?.cond(Cond::And)?), ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; scr::isInShop(g, cx, &a)? }).not()?.cond(Cond::And)?) {
                     // 31: scrShopkeeperAnger(0);
                     g.at("oItem/step#0", 31);
                     scr::scrShopkeeperAnger(g, cx, &[r(0.0)])?;
@@ -199,7 +199,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 37: if (held)
         g.at("oItem/step#0", 37);
-        if g.get(cx.this, v::held)?.is_truthy() {
+        if g.get(cx.this, v::held)?.cond(Cond::If)? {
             // 39: xVel = 0;
             g.at("oItem/step#0", 39);
             g.set(cx.this, v::xVel, r(0.0))?;
@@ -222,7 +222,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 44: if (heavy)
             g.at("oItem/step#0", 44);
-            if g.get(cx.this, v::heavy)?.is_truthy() {
+            if g.get(cx.this, v::heavy)?.cond(Cond::If)? {
                 // 46: if (type == "Gold Idol" || type == "Crystal Skull" || type == "Lamp" || type == "Damsel")
                 g.at("oItem/step#0", 46);
                 if or(or(or(g.get(cx.this, v::r#type)?.gml_eq(&s!("Gold Idol"))?, g.get(cx.this, v::r#type)?.gml_eq(&s!("Crystal Skull"))?), g.get(cx.this, v::r#type)?.gml_eq(&s!("Lamp"))?), g.get(cx.this, v::r#type)?.gml_eq(&s!("Damsel"))?) {
@@ -276,7 +276,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         } else {
             // 69: if (!collision_point(x, y, oSolid, 0, 0))
             g.at("oItem/step#0", 69);
-            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+            if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
                 // 71: moveTo(xVel, yVel);
                 g.at("oItem/step#0", 71);
                 { let a = [g.get(cx.this, v::xVel)?, g.get(cx.this, v::yVel)?]; scr::moveTo(g, cx, &a)? };
@@ -294,42 +294,42 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::colTop, r(0.0))?;
                 // 77: if (isCollisionLeft(1))
                 g.at("oItem/step#0", 77);
-                if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 77: colLeft = true;
                     g.at("oItem/step#0", 77);
                     g.set(cx.this, v::colLeft, r(1.0))?;
                 }
                 // 78: if (isCollisionRight(1))
                 g.at("oItem/step#0", 78);
-                if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 78: colRight = true;
                     g.at("oItem/step#0", 78);
                     g.set(cx.this, v::colRight, r(1.0))?;
                 }
                 // 79: if (isCollisionBottom(1))
                 g.at("oItem/step#0", 79);
-                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 79: colBot = true;
                     g.at("oItem/step#0", 79);
                     g.set(cx.this, v::colBot, r(1.0))?;
                 }
                 // 80: if (isCollisionTop(1))
                 g.at("oItem/step#0", 80);
-                if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 80: colTop = true;
                     g.at("oItem/step#0", 80);
                     g.set(cx.this, v::colTop, r(1.0))?;
                 }
                 // 82: if (!colLeft && !colRight)
                 g.at("oItem/step#0", 82);
-                if and(g.get(cx.this, v::colLeft)?.not()?.is_truthy(), g.get(cx.this, v::colRight)?.not()?.is_truthy()) {
+                if and(g.get(cx.this, v::colLeft)?.not()?.cond(Cond::And)?, g.get(cx.this, v::colRight)?.not()?.cond(Cond::And)?) {
                     // 82: stuck = false;
                     g.at("oItem/step#0", 82);
                     g.set(cx.this, v::stuck, r(0.0))?;
                 }
                 // 84: if (!colBot && !stuck)
                 g.at("oItem/step#0", 84);
-                if and(g.get(cx.this, v::colBot)?.not()?.is_truthy(), g.get(cx.this, v::stuck)?.not()?.is_truthy()) {
+                if and(g.get(cx.this, v::colBot)?.not()?.cond(Cond::And)?, g.get(cx.this, v::stuck)?.not()?.cond(Cond::And)?) {
                     // 84: yVel += myGrav;
                     g.at("oItem/step#0", 84);
                     g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &g.get(cx.this, v::myGrav)?)?)?;
@@ -343,7 +343,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 87: if (colLeft || colRight)
                 g.at("oItem/step#0", 87);
-                if or(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.is_truthy()) {
+                if or(g.get(cx.this, v::colLeft)?.cond(Cond::Or)?, g.get(cx.this, v::colRight)?.cond(Cond::Or)?) {
                     // 89: xVel = -xVel * 0.5;
                     g.at("oItem/step#0", 89);
                     g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?.mul(&r(0.5))?)?;
@@ -353,7 +353,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 93: if (colBot)
                 g.at("oItem/step#0", 93);
-                if g.get(cx.this, v::colBot)?.is_truthy() {
+                if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
                     // 95: myGrav = 0.6;
                     g.at("oItem/step#0", 95);
                     g.set(cx.this, v::myGrav, r(0.6000000000000001))?;
@@ -391,7 +391,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(1.0))?)?;
                         // 108: if (!isCollisionBottom(1))
                         g.at("oItem/step#0", 108);
-                        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.not()?.is_truthy() {
+                        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.not()?.cond(Cond::If)? {
                             // 108: y += 1;
                             g.at("oItem/step#0", 108);
                             g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
@@ -403,10 +403,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 113: if (sticky && type == "Bomb" && sprite_index == sBombArmed)
                 g.at("oItem/step#0", 113);
-                if and(and(g.get(cx.this, v::sticky)?.is_truthy(), g.get(cx.this, v::r#type)?.gml_eq(&s!("Bomb"))?), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sBombArmed)?) {
+                if and(and(g.get(cx.this, v::sticky)?.cond(Cond::And)?, g.get(cx.this, v::r#type)?.gml_eq(&s!("Bomb"))?), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sBombArmed)?) {
                     // 115: if (colLeft || colRight || colTop || colBot)
                     g.at("oItem/step#0", 115);
-                    if or(or(or(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.is_truthy()), g.get(cx.this, v::colTop)?.is_truthy()), g.get(cx.this, v::colBot)?.is_truthy()) {
+                    if or(or(or(g.get(cx.this, v::colLeft)?.cond(Cond::Or)?, g.get(cx.this, v::colRight)?.cond(Cond::Or)?), g.get(cx.this, v::colTop)?.cond(Cond::Or)?), g.get(cx.this, v::colBot)?.cond(Cond::Or)?) {
                         // 117: xVel = 0;
                         g.at("oItem/step#0", 117);
                         g.set(cx.this, v::xVel, r(0.0))?;
@@ -415,7 +415,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.set(cx.this, v::yVel, r(0.0))?;
                         // 119: if (colBot && abs(yVel) < 1)
                         g.at("oItem/step#0", 119);
-                        if and(g.get(cx.this, v::colBot)?.is_truthy(), ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
+                        if and(g.get(cx.this, v::colBot)?.cond(Cond::And)?, ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
                             // 119: y += 1;
                             g.at("oItem/step#0", 119);
                             g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
@@ -427,7 +427,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if and(g.get(cx.this, v::r#type)?.gml_eq(&s!("Arrow"))?, ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(6.0))?) {
                         // 124: if (colLeft)
                         g.at("oItem/step#0", 124);
-                        if g.get(cx.this, v::colLeft)?.is_truthy() {
+                        if g.get(cx.this, v::colLeft)?.cond(Cond::If)? {
                             // 126: x -= 2;
                             g.at("oItem/step#0", 126);
                             g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(2.0))?)?;
@@ -440,7 +440,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         } else {
                             // 130: if (colRight)
                             g.at("oItem/step#0", 130);
-                            if g.get(cx.this, v::colRight)?.is_truthy() {
+                            if g.get(cx.this, v::colRight)?.cond(Cond::If)? {
                                 // 132: x += 2;
                                 g.at("oItem/step#0", 132);
                                 g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(2.0))?)?;
@@ -458,10 +458,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     } else {
                         // 138: if (colLeft && !stuck)
                         g.at("oItem/step#0", 138);
-                        if and(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::stuck)?.not()?.is_truthy()) {
+                        if and(g.get(cx.this, v::colLeft)?.cond(Cond::And)?, g.get(cx.this, v::stuck)?.not()?.cond(Cond::And)?) {
                             // 140: if (!colRight)
                             g.at("oItem/step#0", 140);
-                            if g.get(cx.this, v::colRight)?.not()?.is_truthy() {
+                            if g.get(cx.this, v::colRight)?.not()?.cond(Cond::If)? {
                                 // 140: x += 1;
                                 g.at("oItem/step#0", 140);
                                 g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
@@ -469,7 +469,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         } else {
                             // 143: if (colRight && !stuck)
                             g.at("oItem/step#0", 143);
-                            if and(g.get(cx.this, v::colRight)?.is_truthy(), g.get(cx.this, v::stuck)?.not()?.is_truthy()) {
+                            if and(g.get(cx.this, v::colRight)?.cond(Cond::And)?, g.get(cx.this, v::stuck)?.not()?.cond(Cond::And)?) {
                                 // 145: x -= 1;
                                 g.at("oItem/step#0", 145);
                                 g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
@@ -479,11 +479,11 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 149: if (sticky && type == "Bomb" && sprite_index == sBombArmed)
                 g.at("oItem/step#0", 149);
-                if and(and(g.get(cx.this, v::sticky)?.is_truthy(), g.get(cx.this, v::r#type)?.gml_eq(&s!("Bomb"))?), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sBombArmed)?) {
+                if and(and(g.get(cx.this, v::sticky)?.cond(Cond::And)?, g.get(cx.this, v::r#type)?.gml_eq(&s!("Bomb"))?), g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sBombArmed)?) {
                 } else {
                     // 153: if (isCollisionTop(1))
                     g.at("oItem/step#0", 153);
-                    if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+                    if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                         // 155: if (yVel < 0)
                         g.at("oItem/step#0", 155);
                         if g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))? {
@@ -502,7 +502,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 160: if (collision_rectangle(x - 3, y - 3, x + 3, y + 3, oLava, 0, 0))
                 g.at("oItem/step#0", 160);
-                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(3.0))?, g.get(cx.this, v::y)?.sub(&r(3.0))?, g.get(cx.this, v::x)?.add(&r(3.0))?, g.get(cx.this, v::y)?.add(&r(3.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(3.0))?, g.get(cx.this, v::y)?.sub(&r(3.0))?, g.get(cx.this, v::x)?.add(&r(3.0))?, g.get(cx.this, v::y)?.add(&r(3.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
                     // 162: myGrav = 0;
                     g.at("oItem/step#0", 162);
                     g.set(cx.this, v::myGrav, r(0.0))?;
@@ -522,7 +522,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 172: if (collision_point(x, y - 5, oLava, 0, 0) && type != "Sceptre")
                 g.at("oItem/step#0", 172);
-                if and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), g.get(cx.this, v::r#type)?.gml_ne(&s!("Sceptre"))?) {
+                if and(({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(5.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::r#type)?.gml_ne(&s!("Sceptre"))?) {
                     // 174: if (type == "Bomb")
                     g.at("oItem/step#0", 174);
                     if g.get(cx.this, v::r#type)?.gml_eq(&s!("Bomb"))? {
@@ -559,49 +559,49 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::colTop, r(0.0))?;
                 // 193: if (isCollisionLeft(1))
                 g.at("oItem/step#0", 193);
-                if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 193: colLeft = true;
                     g.at("oItem/step#0", 193);
                     g.set(cx.this, v::colLeft, r(1.0))?;
                 }
                 // 194: if (isCollisionRight(1))
                 g.at("oItem/step#0", 194);
-                if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 194: colRight = true;
                     g.at("oItem/step#0", 194);
                     g.set(cx.this, v::colRight, r(1.0))?;
                 }
                 // 195: if (isCollisionBottom(1))
                 g.at("oItem/step#0", 195);
-                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 195: colBot = true;
                     g.at("oItem/step#0", 195);
                     g.set(cx.this, v::colBot, r(1.0))?;
                 }
                 // 196: if (isCollisionTop(1))
                 g.at("oItem/step#0", 196);
-                if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 196: colTop = true;
                     g.at("oItem/step#0", 196);
                     g.set(cx.this, v::colTop, r(1.0))?;
                 }
                 // 198: if (colTop && !colBot)
                 g.at("oItem/step#0", 198);
-                if and(g.get(cx.this, v::colTop)?.is_truthy(), g.get(cx.this, v::colBot)?.not()?.is_truthy()) {
+                if and(g.get(cx.this, v::colTop)?.cond(Cond::And)?, g.get(cx.this, v::colBot)?.not()?.cond(Cond::And)?) {
                     // 200: y += 1;
                     g.at("oItem/step#0", 200);
                     g.set(cx.this, v::y, lenient(Value::add, g.get(cx.this, v::y)?, &r(1.0))?)?;
                 } else {
                     // 202: if (colLeft && !colRight)
                     g.at("oItem/step#0", 202);
-                    if and(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.not()?.is_truthy()) {
+                    if and(g.get(cx.this, v::colLeft)?.cond(Cond::And)?, g.get(cx.this, v::colRight)?.not()?.cond(Cond::And)?) {
                         // 204: x += 1;
                         g.at("oItem/step#0", 204);
                         g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
                     } else {
                         // 206: if (colRight && !colLeft)
                         g.at("oItem/step#0", 206);
-                        if and(g.get(cx.this, v::colRight)?.is_truthy(), g.get(cx.this, v::colLeft)?.not()?.is_truthy()) {
+                        if and(g.get(cx.this, v::colRight)?.cond(Cond::And)?, g.get(cx.this, v::colLeft)?.not()?.cond(Cond::And)?) {
                             // 208: x -= 1;
                             g.at("oItem/step#0", 208);
                             g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
@@ -619,10 +619,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 217: if (type == "Bomb" && sticky)
         g.at("oItem/step#0", 217);
-        if and(g.get(cx.this, v::r#type)?.gml_eq(&s!("Bomb"))?, g.get(cx.this, v::sticky)?.is_truthy()) {
+        if and(g.get(cx.this, v::r#type)?.gml_eq(&s!("Bomb"))?, g.get(cx.this, v::sticky)?.cond(Cond::And)?) {
             // 219: if (abs(xVel) > 2 || abs(yVel) > 2 && collision_rectangle(x - 2, y - 2, x + 2, y + 2, oEnemy, 0, 0) 
             g.at("oItem/step#0", 219);
-            if and(and(or(({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(2.0))?, ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(2.0))?), ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(2.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy()), g.get(cx.this, v::enemyID)?.gml_eq(&r(0.0))?) {
+            if and(and(or(({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(2.0))?, ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(2.0))?), ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(2.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::And)?), g.get(cx.this, v::enemyID)?.gml_eq(&r(0.0))?) {
                 // 221: enemyID = instance_nearest(x, y, oEnemy);
                 g.at("oItem/step#0", 221);
                 {
@@ -641,7 +641,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             } else {
                 // 237: if (abs(xVel) > 2 || abs(yVel) > 2 && collision_rectangle(x - 2, y - 2, x + 2, y + 2, oDamsel, 0, 0)
                 g.at("oItem/step#0", 237);
-                if and(and(or(({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(2.0))?, ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(2.0))?), ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(2.0))?, obj::oDamsel, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy()), g.get(cx.this, v::enemyID)?.gml_eq(&r(0.0))?) {
+                if and(and(or(({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(2.0))?, ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(2.0))?), ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(2.0))?, obj::oDamsel, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::And)?), g.get(cx.this, v::enemyID)?.gml_eq(&r(0.0))?) {
                     // 239: enemyID = collision_rectangle(x - 2, y - 2, x + 2, y + 2, oDamsel, 0, 0);
                     g.at("oItem/step#0", 239);
                     {
@@ -665,7 +665,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if or(({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(2.0))?, ({ let a = [g.get(cx.this, v::yVel)?]; b::abs(g, cx, a)? }).gml_gt(&r(2.0))?) {
                 // 258: if (collision_rectangle(x - 2, y - 2, x + 2, y + 2, oEnemy, 0, 0))
                 g.at("oItem/step#0", 258);
-                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(2.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(2.0))?, obj::oEnemy, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
                     // 260: obj = instance_nearest(x, y, oEnemy);
                     g.at("oItem/step#0", 260);
                     {
@@ -674,7 +674,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 261: if (!obj.invincible && obj.type != "Magma Man")
                     g.at("oItem/step#0", 261);
-                    if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.is_truthy(), g.get_on(cx, &g.get(cx.this, v::obj)?, v::r#type)?.gml_ne(&s!("Magma Man"))?) {
+                    if and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::r#type)?.gml_ne(&s!("Magma Man"))?) {
                         // 263: obj.xVel = xVel;
                         g.at("oItem/step#0", 263);
                         { let t = g.get(cx.this, v::obj)?; g.set_on(cx, &t, v::xVel, g.get(cx.this, v::xVel)?)?; }
@@ -685,7 +685,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.at("oItem/step#0", 266);
                             {
                                 let t = g.get(cx.this, v::obj)?;
-                                g.set_on(cx, &t, v::hp, lenient(Value::sub, { let t2 = g.get(cx.this, v::obj)?; g.get_on(cx, &t2, v::hp)? }, &r(3.0))?)?;
+                                g.set_on(cx, &t, v::hp, lenient(Value::sub, g.get_on(cx, &t, v::hp)?, &r(3.0))?)?;
                             }
                         }
                         // 268: with (obj)
@@ -838,7 +838,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         }
                                                         // 336: if (isRealLevel())
                                                         g.at("oItem/step#0", 336);
-                                                        if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+                                                        if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                                                             // 336: global.enemyKills[16] += 1;
                                                             g.at("oItem/step#0", 336);
                                                             g.gset_a(gv::enemyKills, 0, 16, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 16)?, &r(1.0))?)?;
@@ -891,7 +891,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, obj::oExplosion]; b::instance_create(g, cx, a)? };
                             // 355: if (global.graphicsHigh)
                             g.at("oItem/step#0", 355);
-                            if g.gget(gv::graphicsHigh)?.is_truthy() {
+                            if g.gget(gv::graphicsHigh)?.cond(Cond::If)? {
                                 // 355: scrCreateFlame(x, y, 3);
                                 g.at("oItem/step#0", 355);
                                 { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?, r(3.0)]; scr::scrCreateFlame(g, cx, &a)? };
@@ -908,7 +908,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 365: if (collision_rectangle(x - 2, y - 2, x + 2, y + 2, oDamsel, false, true))
                 g.at("oItem/step#0", 365);
-                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(2.0))?, obj::oDamsel, r(0.0), r(1.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.sub(&r(2.0))?, g.get(cx.this, v::y)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(2.0))?, g.get(cx.this, v::y)?.add(&r(2.0))?, obj::oDamsel, r(0.0), r(1.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
                     // 367: obj = collision_rectangle(x - 2, y - 2, x + 2, y + 2, oDamsel, false, true);
                     g.at("oItem/step#0", 367);
                     {
@@ -917,10 +917,10 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     }
                     // 368: if (!obj.invincible && obj.status != 99 && obj.hit == 0)
                     g.at("oItem/step#0", 368);
-                    if and(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.is_truthy(), g.get_on(cx, &g.get(cx.this, v::obj)?, v::status)?.gml_ne(&r(99.0))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::hit)?.gml_eq(&r(0.0))?) {
+                    if and(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::invincible)?.not()?.cond(Cond::And)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::status)?.gml_ne(&r(99.0))?), g.get_on(cx, &g.get(cx.this, v::obj)?, v::hit)?.gml_eq(&r(0.0))?) {
                         // 370: if (!(obj.held && safe))
                         g.at("oItem/step#0", 370);
-                        if !(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.is_truthy(), g.get(cx.this, v::safe)?.is_truthy())) {
+                        if !(and(g.get_on(cx, &g.get(cx.this, v::obj)?, v::held)?.cond(Cond::And)?, g.get(cx.this, v::safe)?.cond(Cond::And)?)) {
                             // 372: scrCreateBlood(obj.x, obj.y, 1);
                             g.at("oItem/step#0", 372);
                             { let a = [g.get_on(cx, &g.get(cx.this, v::obj)?, v::x)?, g.get_on(cx, &g.get(cx.this, v::obj)?, v::y)?, r(1.0)]; scr::scrCreateBlood(g, cx, &a)? };
@@ -934,7 +934,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     (cx.this, cx.other) = (h5, outer6.0);
                                     // 375: if (held)
                                     g.at("oItem/step#0", 375);
-                                    if g.get(cx.this, v::held)?.is_truthy() {
+                                    if g.get(cx.this, v::held)?.cond(Cond::If)? {
                                         // 377: held = false;
                                         g.at("oItem/step#0", 377);
                                         g.set(cx.this, v::held, r(0.0))?;
@@ -992,7 +992,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             { let a = [g.gget(gv::sndHit)?]; scr::playSound(g, cx, &a)? };
                             // 392: if (obj.forSale)
                             g.at("oItem/step#0", 392);
-                            if g.get_on(cx, &g.get(cx.this, v::obj)?, v::forSale)?.is_truthy() {
+                            if g.get_on(cx, &g.get(cx.this, v::obj)?, v::forSale)?.cond(Cond::If)? {
                                 // 394: scrShopkeeperAnger(3);
                                 g.at("oItem/step#0", 394);
                                 scr::scrShopkeeperAnger(g, cx, &[r(3.0)])?;

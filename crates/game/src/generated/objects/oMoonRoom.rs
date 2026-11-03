@@ -169,7 +169,7 @@ pub fn alarm_10_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn alarm_9_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (global.music)
     g.at("oMoonRoom/alarm_9#0", 1);
-    if g.gget(gv::music)?.is_truthy() {
+    if g.gget(gv::music)?.cond(Cond::If)? {
         // 1: startMusic();
         g.at("oMoonRoom/alarm_9#0", 1);
         scr::startMusic(g, cx, &[])?;

@@ -6,7 +6,7 @@ pub fn checkLeft(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.left)
     g.at("scripts/checkLeft", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::left)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::left)?.cond(Cond::If)? {
         // 2: return gamepad.left;
         g.at("scripts/checkLeft", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::left)?);

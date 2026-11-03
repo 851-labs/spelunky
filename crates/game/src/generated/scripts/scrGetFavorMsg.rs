@@ -213,7 +213,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                 }
                                 // 77: if (instance_exists(oSacAltarRight))
                                 g.at("scripts/scrGetFavorMsg", 77);
-                                if b::instance_exists(g, cx, [obj::oSacAltarRight])?.is_truthy() {
+                                if b::instance_exists(g, cx, [obj::oSacAltarRight])?.cond(Cond::If)? {
                                     // 79: obj = instance_create(oSacAltarRight.x, y - 8, oPoof);
                                     g.at("scripts/scrGetFavorMsg", 79);
                                     {
@@ -276,10 +276,10 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                     }
                                     // 87: while (true)
                                     g.at("scripts/scrGetFavorMsg", 87);
-                                    'while1: while r(1.0).is_truthy() {
+                                    'while1: while r(1.0).cond(Cond::Loop)? {
                                         // 89: if (n == 1 && !global.hasCape && !global.hasJetpack)
                                         g.at("scripts/scrGetFavorMsg", 89);
-                                        if and(and(g.get(cx.this, v::n)?.gml_eq(&r(1.0))?, g.gget(gv::hasCape)?.not()?.is_truthy()), g.gget(gv::hasJetpack)?.not()?.is_truthy()) {
+                                        if and(and(g.get(cx.this, v::n)?.gml_eq(&r(1.0))?, g.gget(gv::hasCape)?.not()?.cond(Cond::And)?), g.gget(gv::hasJetpack)?.not()?.cond(Cond::And)?) {
                                             // 89: obj = instance_create(oSacAltarRight.x, y - 8, oCapePickup);
                                             g.at("scripts/scrGetFavorMsg", 89);
                                             {
@@ -293,7 +293,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         } else {
                                             // 90: if (n == 2 && !global.hasGloves)
                                             g.at("scripts/scrGetFavorMsg", 90);
-                                            if and(g.get(cx.this, v::n)?.gml_eq(&r(2.0))?, g.gget(gv::hasGloves)?.not()?.is_truthy()) {
+                                            if and(g.get(cx.this, v::n)?.gml_eq(&r(2.0))?, g.gget(gv::hasGloves)?.not()?.cond(Cond::And)?) {
                                                 // 90: obj = instance_create(oSacAltarRight.x, y - 8, oGloves);
                                                 g.at("scripts/scrGetFavorMsg", 90);
                                                 {
@@ -307,7 +307,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                             } else {
                                                 // 91: if (n == 3 && !global.hasSpectacles)
                                                 g.at("scripts/scrGetFavorMsg", 91);
-                                                if and(g.get(cx.this, v::n)?.gml_eq(&r(3.0))?, g.gget(gv::hasSpectacles)?.not()?.is_truthy()) {
+                                                if and(g.get(cx.this, v::n)?.gml_eq(&r(3.0))?, g.gget(gv::hasSpectacles)?.not()?.cond(Cond::And)?) {
                                                     // 91: obj = instance_create(oSacAltarRight.x, y - 8, oSpectacles);
                                                     g.at("scripts/scrGetFavorMsg", 91);
                                                     {
@@ -321,7 +321,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                 } else {
                                                     // 92: if (n == 4 && !global.hasMitt)
                                                     g.at("scripts/scrGetFavorMsg", 92);
-                                                    if and(g.get(cx.this, v::n)?.gml_eq(&r(4.0))?, g.gget(gv::hasMitt)?.not()?.is_truthy()) {
+                                                    if and(g.get(cx.this, v::n)?.gml_eq(&r(4.0))?, g.gget(gv::hasMitt)?.not()?.cond(Cond::And)?) {
                                                         // 92: obj = instance_create(oSacAltarRight.x, y - 8, oMitt);
                                                         g.at("scripts/scrGetFavorMsg", 92);
                                                         {
@@ -335,7 +335,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                     } else {
                                                         // 93: if (n == 5 && !global.hasSpringShoes)
                                                         g.at("scripts/scrGetFavorMsg", 93);
-                                                        if and(g.get(cx.this, v::n)?.gml_eq(&r(5.0))?, g.gget(gv::hasSpringShoes)?.not()?.is_truthy()) {
+                                                        if and(g.get(cx.this, v::n)?.gml_eq(&r(5.0))?, g.gget(gv::hasSpringShoes)?.not()?.cond(Cond::And)?) {
                                                             // 93: obj = instance_create(oSacAltarRight.x, y - 8, oSpringShoes);
                                                             g.at("scripts/scrGetFavorMsg", 93);
                                                             {
@@ -349,7 +349,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                         } else {
                                                             // 94: if (n == 6 && !global.hasSpikeShoes)
                                                             g.at("scripts/scrGetFavorMsg", 94);
-                                                            if and(g.get(cx.this, v::n)?.gml_eq(&r(6.0))?, g.gget(gv::hasSpikeShoes)?.not()?.is_truthy()) {
+                                                            if and(g.get(cx.this, v::n)?.gml_eq(&r(6.0))?, g.gget(gv::hasSpikeShoes)?.not()?.cond(Cond::And)?) {
                                                                 // 94: obj = instance_create(oSacAltarRight.x, y - 8, oSpikeShoes);
                                                                 g.at("scripts/scrGetFavorMsg", 94);
                                                                 {
@@ -363,7 +363,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                             } else {
                                                                 // 95: if (n == 7 && !global.hasStickyBombs)
                                                                 g.at("scripts/scrGetFavorMsg", 95);
-                                                                if and(g.get(cx.this, v::n)?.gml_eq(&r(7.0))?, g.gget(gv::hasStickyBombs)?.not()?.is_truthy()) {
+                                                                if and(g.get(cx.this, v::n)?.gml_eq(&r(7.0))?, g.gget(gv::hasStickyBombs)?.not()?.cond(Cond::And)?) {
                                                                     // 95: obj = instance_create(oSacAltarRight.x, y - 8, oPaste);
                                                                     g.at("scripts/scrGetFavorMsg", 95);
                                                                     {
@@ -377,7 +377,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                                                 } else {
                                                                     // 96: if (n == 8 && !global.hasCompass)
                                                                     g.at("scripts/scrGetFavorMsg", 96);
-                                                                    if and(g.get(cx.this, v::n)?.gml_eq(&r(8.0))?, g.gget(gv::hasCompass)?.not()?.is_truthy()) {
+                                                                    if and(g.get(cx.this, v::n)?.gml_eq(&r(8.0))?, g.gget(gv::hasCompass)?.not()?.cond(Cond::And)?) {
                                                                         // 96: obj = instance_create(oSacAltarRight.x, y - 8, oCompass);
                                                                         g.at("scripts/scrGetFavorMsg", 96);
                                                                         {
@@ -420,7 +420,7 @@ pub fn scrGetFavorMsg(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
                                         if g.get(cx.this, v::n)?.gml_eq(&g.get(cx.this, v::m)?)? {
                                             // 101: if (!global.hasJetpack)
                                             g.at("scripts/scrGetFavorMsg", 101);
-                                            if g.gget(gv::hasJetpack)?.not()?.is_truthy() {
+                                            if g.gget(gv::hasJetpack)?.not()?.cond(Cond::If)? {
                                                 // 101: obj = instance_create(oSacAltarRight.x, y - 8, oJetpack);
                                                 g.at("scripts/scrGetFavorMsg", 101);
                                                 {

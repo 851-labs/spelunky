@@ -16,7 +16,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!instance_exists(oBall))
     g.at("oChain/step#0", 1);
-    if b::instance_exists(g, cx, [obj::oBall])?.not()?.is_truthy() {
+    if b::instance_exists(g, cx, [obj::oBall])?.not()?.cond(Cond::If)? {
         // 3: instance_destroy();
         g.at("oChain/step#0", 3);
         b::instance_destroy(g, cx, [])?;

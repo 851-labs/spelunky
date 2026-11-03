@@ -17,7 +17,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 2: if (olmecDead && !doorOpen)
     g.at("oFinalBoss/step#0", 2);
-    if and(g.get(cx.this, v::olmecDead)?.is_truthy(), g.get(cx.this, v::doorOpen)?.not()?.is_truthy()) {
+    if and(g.get(cx.this, v::olmecDead)?.cond(Cond::And)?, g.get(cx.this, v::doorOpen)?.not()?.cond(Cond::And)?) {
         // 4: doorOpen = true;
         g.at("oFinalBoss/step#0", 4);
         g.set(cx.this, v::doorOpen, r(1.0))?;
@@ -43,7 +43,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         b::instance_create(g, cx, [r(640.0), r(544.0), obj::oXEnd])?;
         // 8: if (!collision_point(640, 560, oSolid, 0, 0))
         g.at("oFinalBoss/step#0", 8);
-        if b::collision_point(g, cx, [r(640.0), r(560.0), obj::oSolid, r(0.0), r(0.0)])?.not()?.is_truthy() {
+        if b::collision_point(g, cx, [r(640.0), r(560.0), obj::oSolid, r(0.0), r(0.0)])?.not()?.cond(Cond::If)? {
             // 10: brick = instance_create(640, 560, oTemple);
             g.at("oFinalBoss/step#0", 10);
             {

@@ -25,7 +25,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let x = scr::checkJoyButton(g, cx, &[])?; g.set(cx.this, v::joyKey, x)?; }
     // 4: if (joy)
     g.at("oJoyConfig/step#0", 4);
-    if g.get(cx.this, v::joy)?.is_truthy() {
+    if g.get(cx.this, v::joy)?.cond(Cond::If)? {
         // 6: if (joyKey != 0)
         g.at("oJoyConfig/step#0", 6);
         if g.get(cx.this, v::joyKey)?.gml_ne(&r(0.0))? {
@@ -58,7 +58,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 23: if (joyPressed)
     g.at("oJoyConfig/step#0", 23);
-    if g.get(cx.this, v::joyPressed)?.is_truthy() {
+    if g.get(cx.this, v::joyPressed)?.cond(Cond::If)? {
         // 25: if (status == 0)
         g.at("oJoyConfig/step#0", 25);
         if g.get(cx.this, v::status)?.gml_eq(&r(0.0))? {
@@ -133,20 +133,20 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 62: if (joyPressed || keyboard_check_pressed(vk_escape))
     g.at("oJoyConfig/step#0", 62);
-    if or(g.get(cx.this, v::joyPressed)?.is_truthy(), b::keyboard_check_pressed(g, cx, [k::vk_escape])?.is_truthy()) {
+    if or(g.get(cx.this, v::joyPressed)?.cond(Cond::Or)?, b::keyboard_check_pressed(g, cx, [k::vk_escape])?.cond(Cond::Or)?) {
         // 64: status += 1;
         g.at("oJoyConfig/step#0", 64);
         g.set(cx.this, v::status, lenient(Value::add, g.get(cx.this, v::status)?, &r(1.0))?)?;
         // 65: if (gamepad.attackPressed)
         g.at("oJoyConfig/step#0", 65);
-        if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy() {
+        if g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::If)? {
             // 65: gamepad.attackPressed = false;
             g.at("oJoyConfig/step#0", 65);
             { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::attackPressed, r(0.0))?; }
         }
         // 66: if (gamepad.startPressed)
         g.at("oJoyConfig/step#0", 66);
-        if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.is_truthy() {
+        if g.get_on(cx, &g.gget(gv::gamepad)?, v::startPressed)?.cond(Cond::If)? {
             // 66: gamepad.startPressed = false;
             g.at("oJoyConfig/step#0", 66);
             { let t = g.gget(gv::gamepad)?; g.set_on(cx, &t, v::startPressed, r(0.0))?; }
@@ -258,7 +258,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     b::draw_text(g, cx, [r(8.0), r(104.0), s!("CURRENT: ")])?;
     // 10: if (!joystick_exists(1))
     g.at("oJoyConfig/draw#0", 10);
-    if b::joystick_exists(g, cx, [r(1.0)])?.not()?.is_truthy() {
+    if b::joystick_exists(g, cx, [r(1.0)])?.not()?.cond(Cond::If)? {
         // 12: draw_set_color(c_red);
         g.at("oJoyConfig/draw#0", 12);
         b::draw_set_color(g, cx, [k::c_red])?;

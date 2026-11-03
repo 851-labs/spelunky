@@ -22,7 +22,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (collision_point(x + 12, y, oLava, 0, 0) && burnTimer == 0)
     g.at("oRope/step#0", 1);
-    if and(({ let a = [g.get(cx.this, v::x)?.add(&r(12.0))?, g.get(cx.this, v::y)?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy(), g.get(cx.this, v::burnTimer)?.gml_eq(&r(0.0))?) {
+    if and(({ let a = [g.get(cx.this, v::x)?.add(&r(12.0))?, g.get(cx.this, v::y)?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::And)?, g.get(cx.this, v::burnTimer)?.gml_eq(&r(0.0))?) {
         // 3: instance_create(x + 8, y, oRopeBurn);
         g.at("oRope/step#0", 3);
         { let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?, obj::oRopeBurn]; b::instance_create(g, cx, a)? };
@@ -42,7 +42,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if g.get_on(cx, &obj::oPlayer1, v::state)?.gml_eq(&r(14.0))? {
                 // 11: if (collision_point(x + 12, y + 4, oPlayer1, false, false))
                 g.at("oRope/step#0", 11);
-                if ({ let a = [g.get(cx.this, v::x)?.add(&r(12.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oPlayer1, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?.add(&r(12.0))?, g.get(cx.this, v::y)?.add(&r(4.0))?, obj::oPlayer1, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                     // 13: oPlayer1.state = 16;
                     g.at("oRope/step#0", 13);
                     { let t = obj::oPlayer1; g.set_on(cx, &t, v::state, r(16.0))?; }

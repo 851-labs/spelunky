@@ -395,18 +395,18 @@ pub fn alarm_1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (carryPlayer || collision_rectangle(x - 1, y, x + 66, y + 62, oPlayer1, 0, 0))
     g.at("oOlmec/step#1", 1);
-    if or(g.get(cx.this, v::carryPlayer)?.is_truthy(), ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(66.0))?, g.get(cx.this, v::y)?.add(&r(62.0))?, obj::oPlayer1, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy()) {
+    if or(g.get(cx.this, v::carryPlayer)?.cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::x)?.sub(&r(1.0))?, g.get(cx.this, v::y)?, g.get(cx.this, v::x)?.add(&r(66.0))?, g.get(cx.this, v::y)?.add(&r(62.0))?, obj::oPlayer1, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::Or)?) {
         // 3: oPlayer1.x += xVel;
         g.at("oOlmec/step#1", 3);
         {
             let t = obj::oPlayer1;
-            g.set_on(cx, &t, v::x, lenient(Value::add, { let t2 = obj::oPlayer1; g.get_on(cx, &t2, v::x)? }, &g.get(cx.this, v::xVel)?)?)?;
+            g.set_on(cx, &t, v::x, lenient(Value::add, g.get_on(cx, &t, v::x)?, &g.get(cx.this, v::xVel)?)?)?;
         }
         // 4: oPlayer1.y += yVel;
         g.at("oOlmec/step#1", 4);
         {
             let t = obj::oPlayer1;
-            g.set_on(cx, &t, v::y, lenient(Value::add, { let t2 = obj::oPlayer1; g.get_on(cx, &t2, v::y)? }, &g.get(cx.this, v::yVel)?)?)?;
+            g.set_on(cx, &t, v::y, lenient(Value::add, g.get_on(cx, &t, v::y)?, &g.get(cx.this, v::yVel)?)?)?;
         }
     }
     // 6: moveTo(xVel, yVel);
@@ -421,7 +421,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 13: if (isCollisionTop(1))
     g.at("oOlmec/step#1", 13);
-    if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+    if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
         // 15: instance_create(x, y - 16, oOlmecSlam);
         g.at("oOlmec/step#1", 15);
         { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(16.0))?, obj::oOlmecSlam]; b::instance_create(g, cx, a)? };
@@ -438,7 +438,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 20: if (isCollisionLeft(1))
     g.at("oOlmec/step#1", 20);
-    if scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy() {
+    if scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::If)? {
         // 22: x += 1;
         g.at("oOlmec/step#1", 22);
         g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
@@ -448,7 +448,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 26: if (isCollisionRight(1))
     g.at("oOlmec/step#1", 26);
-    if scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy() {
+    if scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::If)? {
         // 28: x -= 1;
         g.at("oOlmec/step#1", 28);
         g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
@@ -458,14 +458,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 33: if (collision_point(x, y + 64, oLava, 0, 0))
     g.at("oOlmec/step#1", 33);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(64.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(64.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 33: status = DROWNING;
         g.at("oOlmec/step#1", 33);
         g.set(cx.this, v::status, g.get(cx.this, v::DROWNING)?)?;
     }
     // 35: if (collision_point(x, y - 2, oLava, 0, 0))
     g.at("oOlmec/step#1", 35);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(2.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(2.0))?, obj::oLava, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
         // 37: global.enemyKills[21] += 1;
         g.at("oOlmec/step#1", 37);
         g.gset_a(gv::enemyKills, 0, 21, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 21)?, &r(1.0))?)?;
@@ -484,7 +484,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let x = b::distance_to_object(g, cx, [obj::oPlayer1])?.add(&r(32.0))?; g.set(cx.this, v::dist, x)?; }
     // 46: if (collision_rectangle(x, y - 2, x + 64, y + 64, oPlayer1, 0, 0))
     g.at("oOlmec/step#1", 46);
-    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(64.0))?, g.get(cx.this, v::y)?.add(&r(64.0))?, obj::oPlayer1, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).is_truthy() {
+    if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.sub(&r(2.0))?, g.get(cx.this, v::x)?.add(&r(64.0))?, g.get(cx.this, v::y)?.add(&r(64.0))?, obj::oPlayer1, r(0.0), r(0.0)]; b::collision_rectangle(g, cx, a)? }).cond(Cond::If)? {
         // 46: carryPlayer = true;
         g.at("oOlmec/step#1", 46);
         g.set(cx.this, v::carryPlayer, r(1.0))?;
@@ -512,7 +512,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 58: if (isCollisionBottom(1))
         g.at("oOlmec/step#1", 58);
-        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 59: yVel = 0;
             g.at("oOlmec/step#1", 59);
             g.set(cx.this, v::yVel, r(0.0))?;
@@ -523,7 +523,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::START2)?)? {
             // 63: if (isCollisionBottom(1))
             g.at("oOlmec/step#1", 63);
-            if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+            if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                 // 64: yVel = 0;
                 g.at("oOlmec/step#1", 64);
                 g.set(cx.this, v::yVel, r(0.0))?;
@@ -548,7 +548,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                 }
                 // 71: if (isCollisionBottom(1))
                 g.at("oOlmec/step#1", 71);
-                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                     // 73: yVel = 0;
                     g.at("oOlmec/step#1", 73);
                     g.set(cx.this, v::yVel, r(0.0))?;
@@ -588,7 +588,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::RECOVER)?)? {
                         // 92: if (isCollisionBottom(1))
                         g.at("oOlmec/step#1", 92);
-                        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                             // 94: playSound(global.sndThump);
                             g.at("oOlmec/step#1", 94);
                             { let a = [g.gget(gv::sndThump)?]; scr::playSound(g, cx, &a)? };
@@ -640,14 +640,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                 } else {
                                     // 112: if (xVel < 0 && toggle)
                                     g.at("oOlmec/step#1", 112);
-                                    if and(g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))?, g.get(cx.this, v::toggle)?.is_truthy()) {
+                                    if and(g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))?, g.get(cx.this, v::toggle)?.cond(Cond::And)?) {
                                         // 112: xVel -= 0.25;
                                         g.at("oOlmec/step#1", 112);
                                         g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.25))?)?;
                                     } else {
                                         // 113: if (xVel < 0 && !toggle)
                                         g.at("oOlmec/step#1", 113);
-                                        if and(g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))?, g.get(cx.this, v::toggle)?.not()?.is_truthy()) {
+                                        if and(g.get(cx.this, v::xVel)?.gml_lt(&r(0.0))?, g.get(cx.this, v::toggle)?.not()?.cond(Cond::And)?) {
                                             // 113: xVel += 0.25;
                                             g.at("oOlmec/step#1", 113);
                                             g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.25))?)?;
@@ -655,14 +655,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     }
                                     // 114: if (xVel > 0 && toggle)
                                     g.at("oOlmec/step#1", 114);
-                                    if and(g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))?, g.get(cx.this, v::toggle)?.is_truthy()) {
+                                    if and(g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))?, g.get(cx.this, v::toggle)?.cond(Cond::And)?) {
                                         // 114: xVel += 0.25;
                                         g.at("oOlmec/step#1", 114);
                                         g.set(cx.this, v::xVel, lenient(Value::add, g.get(cx.this, v::xVel)?, &r(0.25))?)?;
                                     } else {
                                         // 115: if (xVel > 0 && !toggle)
                                         g.at("oOlmec/step#1", 115);
-                                        if and(g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))?, g.get(cx.this, v::toggle)?.not()?.is_truthy()) {
+                                        if and(g.get(cx.this, v::xVel)?.gml_gt(&r(0.0))?, g.get(cx.this, v::toggle)?.not()?.cond(Cond::And)?) {
                                             // 115: xVel -= 0.25;
                                             g.at("oOlmec/step#1", 115);
                                             g.set(cx.this, v::xVel, lenient(Value::sub, g.get(cx.this, v::xVel)?, &r(0.25))?)?;
@@ -679,7 +679,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                             }
                             // 119: if (!oPlayer1.active && yVel >= 0 || (oPlayer1.y > y && abs(oPlayer1.x - (x + 32)) < 32 && xVel > -1
                             g.at("oOlmec/step#1", 119);
-                            if or(and(g.get_on(cx, &obj::oPlayer1, v::active)?.not()?.is_truthy(), g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?), and(and(g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(32.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(32.0))?), g.get(cx.this, v::xVel)?.gml_gt(&r(-1.0))?)) {
+                            if or(and(g.get_on(cx, &obj::oPlayer1, v::active)?.not()?.cond(Cond::And)?, g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?), and(and(g.get_on(cx, &obj::oPlayer1, v::y)?.gml_gt(&g.get(cx.this, v::y)?)?, ({ let a = [g.get_on(cx, &obj::oPlayer1, v::x)?.sub(&g.get(cx.this, v::x)?.add(&r(32.0))?)?]; b::abs(g, cx, a)? }).gml_lt(&r(32.0))?), g.get(cx.this, v::xVel)?.gml_gt(&r(-1.0))?)) {
                                 // 122: status = PREPARE;
                                 g.at("oOlmec/step#1", 122);
                                 g.set(cx.this, v::status, g.get(cx.this, v::PREPARE)?)?;
@@ -703,7 +703,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                         if g.get(cx.this, v::status)?.gml_eq(&g.get(cx.this, v::BOUNCE)?)? {
                             // 132: if (isCollisionBottom(1))
                             g.at("oOlmec/step#1", 132);
-                            if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                            if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                                 // 134: yVel = -4;
                                 g.at("oOlmec/step#1", 134);
                                 g.set(cx.this, v::yVel, r(-4.0))?;
@@ -751,10 +751,10 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                     g.set(cx.this, v::carryPlayer, r(0.0))?;
                                     // 157: if (isCollisionBottom(1))
                                     g.at("oOlmec/step#1", 157);
-                                    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+                                    if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
                                         // 159: if (!slammed)
                                         g.at("oOlmec/step#1", 159);
-                                        if g.get(cx.this, v::slammed)?.not()?.is_truthy() {
+                                        if g.get(cx.this, v::slammed)?.not()?.cond(Cond::If)? {
                                             // 161: instance_create(x, y + 64, oOlmecSlam);
                                             g.at("oOlmec/step#1", 161);
                                             { let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(64.0))?, obj::oOlmecSlam]; b::instance_create(g, cx, a)? };
@@ -767,7 +767,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         } else {
                                             // 167: if (rand(1, 2) == 1 || !oPlayer1.active)
                                             g.at("oOlmec/step#1", 167);
-                                            if or(scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?, g.get_on(cx, &obj::oPlayer1, v::active)?.not()?.is_truthy()) {
+                                            if or(scr::rand(g, cx, &[r(1.0), r(2.0)])?.gml_eq(&r(1.0))?, g.get_on(cx, &obj::oPlayer1, v::active)?.not()?.cond(Cond::Or)?) {
                                                 // 167: status = IDLE;
                                                 g.at("oOlmec/step#1", 167);
                                                 g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
@@ -787,7 +787,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             g.set(cx.this, v::counter, r(60.0))?;
                                             // 172: if (!oPlayer1.active)
                                             g.at("oOlmec/step#1", 172);
-                                            if g.get_on(cx, &obj::oPlayer1, v::active)?.not()?.is_truthy() {
+                                            if g.get_on(cx, &obj::oPlayer1, v::active)?.not()?.cond(Cond::If)? {
                                                 // 172: alarm[5] = 50;
                                                 g.at("oOlmec/step#1", 172);
                                                 g.set_a(cx.this, v::alarm, 0, 5, r(50.0))?;
@@ -812,7 +812,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
                                         scr::scrShake(g, cx, &[r(10.0)])?;
                                         // 182: if (!SS_IsSoundPlaying(global.sndFlame))
                                         g.at("oOlmec/step#1", 182);
-                                        if ({ let a = [g.gget(gv::sndFlame)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).not()?.is_truthy() {
+                                        if ({ let a = [g.gget(gv::sndFlame)?]; scr::SS_IsSoundPlaying(g, cx, &a)? }).not()?.cond(Cond::If)? {
                                             // 182: playSound(global.sndFlame);
                                             g.at("oOlmec/step#1", 182);
                                             { let a = [g.gget(gv::sndFlame)?]; scr::playSound(g, cx, &a)? };
@@ -828,21 +828,21 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     }
     // 185: if (isCollisionTop(1))
     g.at("oOlmec/step#1", 185);
-    if scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy() {
+    if scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::If)? {
         // 186: yVel = 1;
         g.at("oOlmec/step#1", 186);
         g.set(cx.this, v::yVel, r(1.0))?;
     }
     // 187: if (isCollisionLeft(1) || isCollisionRight(1))
     g.at("oOlmec/step#1", 187);
-    if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.is_truthy(), scr::isCollisionRight(g, cx, &[r(1.0)])?.is_truthy()) {
+    if or(scr::isCollisionLeft(g, cx, &[r(1.0)])?.cond(Cond::Or)?, scr::isCollisionRight(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
         // 189: xVel = -xVel;
         g.at("oOlmec/step#1", 189);
         g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?)?;
     }
     // 192: if (isCollisionSolid())
     g.at("oOlmec/step#1", 192);
-    if scr::isCollisionSolid(g, cx, &[])?.is_truthy() {
+    if scr::isCollisionSolid(g, cx, &[])?.cond(Cond::If)? {
         // 193: y -= 2;
         g.at("oOlmec/step#1", 193);
         g.set(cx.this, v::y, lenient(Value::sub, g.get(cx.this, v::y)?, &r(2.0))?)?;

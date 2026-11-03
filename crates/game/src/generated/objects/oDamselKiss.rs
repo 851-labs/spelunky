@@ -29,7 +29,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::status, g.get(cx.this, v::IDLE)?)?;
     // 12: if (global.isDamsel)
     g.at("oDamselKiss/create#1", 12);
-    if g.gget(gv::isDamsel)?.is_truthy() {
+    if g.gget(gv::isDamsel)?.cond(Cond::If)? {
         // 12: sprite_index = sStandLeft;
         g.at("oDamselKiss/create#1", 12);
         g.set(cx.this, v::sprite_index, spr::sStandLeft)?;
@@ -62,7 +62,7 @@ pub fn other_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         g.set(cx.this, v::kissed, r(1.0))?;
         // 4: if (global.isDamsel)
         g.at("oDamselKiss/other_7#0", 4);
-        if g.gget(gv::isDamsel)?.is_truthy() {
+        if g.gget(gv::isDamsel)?.cond(Cond::If)? {
             // 4: sprite_index = sStandLeft;
             g.at("oDamselKiss/other_7#0", 4);
             g.set(cx.this, v::sprite_index, spr::sStandLeft)?;

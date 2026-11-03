@@ -73,7 +73,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             g.set(cx.this, v::yVel, lenient(Value::add, g.get(cx.this, v::yVel)?, &r(0.5))?)?;
             // 11: if (yVel >= 0 || isCollisionTop(1))
             g.at("oAlienEject/step#0", 11);
-            if or(g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?, scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy()) {
+            if or(g.get(cx.this, v::yVel)?.gml_ge(&r(0.0))?, scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::Or)?) {
                 // 13: yVel = 0;
                 g.at("oAlienEject/step#0", 13);
                 g.set(cx.this, v::yVel, r(0.0))?;
@@ -103,7 +103,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                 g.set(cx.this, v::yVel, r(2.0))?;
                 // 23: if (collision_point(x, y + 6, oSolid, 0, 0))
                 g.at("oAlienEject/step#0", 23);
-                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(6.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                     // 25: instance_create(x - 8, y - 12, oAlien);
                     g.at("oAlienEject/step#0", 25);
                     { let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?.sub(&r(12.0))?, obj::oAlien]; b::instance_create(g, cx, a)? };
@@ -119,7 +119,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         g.set(cx.this, v::xVel, r(-1.0))?;
                         // 31: if (collision_point(x - 8, y, oSolid, 0, 0))
                         g.at("oAlienEject/step#0", 31);
-                        if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                        if ({ let a = [g.get(cx.this, v::x)?.sub(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                             // 31: dir = 99;
                             g.at("oAlienEject/step#0", 31);
                             g.set(cx.this, v::dir, r(99.0))?;
@@ -133,7 +133,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             g.set(cx.this, v::xVel, r(1.0))?;
                             // 36: if (collision_point(x + 8, y, oSolid, 0, 0))
                             g.at("oAlienEject/step#0", 36);
-                            if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).is_truthy() {
+                            if ({ let a = [g.get(cx.this, v::x)?.add(&r(8.0))?, g.get(cx.this, v::y)?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).cond(Cond::If)? {
                                 // 36: dir = 99;
                                 g.at("oAlienEject/step#0", 36);
                                 g.set(cx.this, v::dir, r(99.0))?;
@@ -162,7 +162,7 @@ pub fn collision_oWeb_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn collision_oPlayer1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 2: if (!other.dead && (other.state == 15 || other.state == 16) && other.y < y - 3 && !other.swimming)
     g.at("oAlienEject/collision_oPlayer1#0", 2);
-    if and(and(and(g.get(cx.other, v::dead)?.not()?.is_truthy(), or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.sub(&r(3.0))?)?), g.get(cx.other, v::swimming)?.not()?.is_truthy()) {
+    if and(and(and(g.get(cx.other, v::dead)?.not()?.cond(Cond::And)?, or(g.get(cx.other, v::state)?.gml_eq(&r(15.0))?, g.get(cx.other, v::state)?.gml_eq(&r(16.0))?)), g.get(cx.other, v::y)?.gml_lt(&g.get(cx.this, v::y)?.sub(&r(3.0))?)?), g.get(cx.other, v::swimming)?.not()?.cond(Cond::And)?) {
         // 4: other.yVel = -6 - 0.2 * other.yVel;
         g.at("oAlienEject/collision_oPlayer1#0", 4);
         g.set(cx.other, v::yVel, r(-6.0).sub(&r(0.2).mul(&g.get(cx.other, v::yVel)?)?)?)?;
@@ -181,10 +181,10 @@ pub fn collision_oPlayer1_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 11: if (countsAsKill)
         g.at("oAlienEject/collision_oPlayer1#0", 11);
-        if g.get(cx.this, v::countsAsKill)?.is_truthy() {
+        if g.get(cx.this, v::countsAsKill)?.cond(Cond::If)? {
             // 13: if (isRealLevel())
             g.at("oAlienEject/collision_oPlayer1#0", 13);
-            if scr::isRealLevel(g, cx, &[])?.is_truthy() {
+            if scr::isRealLevel(g, cx, &[])?.cond(Cond::If)? {
                 // 13: global.enemyKills[15] += 1;
                 g.at("oAlienEject/collision_oPlayer1#0", 13);
                 g.gset_a(gv::enemyKills, 0, 15, lenient(Value::add, g.gget_a(gv::enemyKills, 0, 15)?, &r(1.0))?)?;

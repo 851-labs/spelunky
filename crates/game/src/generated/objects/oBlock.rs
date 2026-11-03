@@ -8,7 +8,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::cleanDeath, r(0.0))?;
     // 2: if (global.cityOfGold)
     g.at("oBlock/create#1", 2);
-    if g.gget(gv::cityOfGold)?.is_truthy() {
+    if g.gget(gv::cityOfGold)?.cond(Cond::If)? {
         // 2: sprite_index = sGoldBlock;
         g.at("oBlock/create#1", 2);
         g.set(cx.this, v::sprite_index, spr::sGoldBlock)?;
@@ -20,10 +20,10 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn destroy_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (!cleanDeath)
     g.at("oBlock/destroy#0", 1);
-    if g.get(cx.this, v::cleanDeath)?.not()?.is_truthy() {
+    if g.get(cx.this, v::cleanDeath)?.not()?.cond(Cond::If)? {
         // 4: if (!global.cityOfGold)
         g.at("oBlock/destroy#0", 4);
-        if g.gget(gv::cityOfGold)?.not()?.is_truthy() {
+        if g.gget(gv::cityOfGold)?.not()?.cond(Cond::If)? {
             // 6: rubble = instance_create(x + 8 + rand(0, 8) - rand(0, 8), y + 8 + rand(0, 8) - rand(0, 8), oRubble);
             g.at("oBlock/destroy#0", 6);
             {

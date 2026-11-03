@@ -5,7 +5,7 @@ use crate::rt::*;
 pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (true)
     g.at("oCaveBG/create#0", 1);
-    if r(1.0).is_truthy() {
+    if r(1.0).cond(Cond::If)? {
         // 3: switch (rand(1, 2))
         g.at("oCaveBG/create#0", 3);
         'switch1: {

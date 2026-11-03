@@ -9,7 +9,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     cx.ret = scr::setCollisionBounds(g, cx, &[r(2.0), r(6.0), r(14.0), r(16.0)])?;
     // 26: if (colLeft && !colRight)
     g.at("scripts/scrCheckCollisions", 26);
-    if and(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.not()?.is_truthy()) {
+    if and(g.get(cx.this, v::colLeft)?.cond(Cond::And)?, g.get(cx.this, v::colRight)?.not()?.cond(Cond::And)?) {
         // 28: x += 1;
         g.at("scripts/scrCheckCollisions", 28);
         {
@@ -21,7 +21,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 30: if (colRight)
         g.at("scripts/scrCheckCollisions", 30);
-        if g.get(cx.this, v::colRight)?.is_truthy() {
+        if g.get(cx.this, v::colRight)?.cond(Cond::If)? {
             // 32: x -= 1;
             g.at("scripts/scrCheckCollisions", 32);
             {
@@ -34,7 +34,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 35: if (colLeft || colRight)
     g.at("scripts/scrCheckCollisions", 35);
-    if or(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.is_truthy()) {
+    if or(g.get(cx.this, v::colLeft)?.cond(Cond::Or)?, g.get(cx.this, v::colRight)?.cond(Cond::Or)?) {
         // 37: xVel = -xVel * 0.5;
         g.at("scripts/scrCheckCollisions", 37);
         {
@@ -45,7 +45,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     }
     // 40: if (colTop && !colBot)
     g.at("scripts/scrCheckCollisions", 40);
-    if and(g.get(cx.this, v::colTop)?.is_truthy(), g.get(cx.this, v::colBot)?.not()?.is_truthy()) {
+    if and(g.get(cx.this, v::colTop)?.cond(Cond::And)?, g.get(cx.this, v::colBot)?.not()?.cond(Cond::And)?) {
         // 42: y += 1;
         g.at("scripts/scrCheckCollisions", 42);
         {
@@ -57,7 +57,7 @@ pub fn scrCheckCollisions(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     } else {
         // 44: if (colBot)
         g.at("scripts/scrCheckCollisions", 44);
-        if g.get(cx.this, v::colBot)?.is_truthy() {
+        if g.get(cx.this, v::colBot)?.cond(Cond::If)? {
             // 47: if (yVel > 1)
             g.at("scripts/scrCheckCollisions", 47);
             if g.get(cx.this, v::yVel)?.gml_gt(&r(1.0))? {

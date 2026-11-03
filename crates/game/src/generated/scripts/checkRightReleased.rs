@@ -6,7 +6,7 @@ pub fn checkRightReleased(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
     let cx = &mut cx.call(args);
     // 1: if (gamepad.rightReleased)
     g.at("scripts/checkRightReleased", 1);
-    if g.get_on(cx, &g.gget(gv::gamepad)?, v::rightReleased)?.is_truthy() {
+    if g.get_on(cx, &g.gget(gv::gamepad)?, v::rightReleased)?.cond(Cond::If)? {
         // 2: return gamepad.rightReleased;
         g.at("scripts/checkRightReleased", 2);
         return Ok(g.get_on(cx, &g.gget(gv::gamepad)?, v::rightReleased)?);

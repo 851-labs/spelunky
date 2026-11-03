@@ -8,7 +8,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     g.set(cx.this, v::r#type, s!("Message Sign"))?;
     // 4: if (isRoom("rLevelEditor") || isRoom("rLoadLevel"))
     g.at("oMsgSign/create#0", 4);
-    if or(scr::isRoom(g, cx, &[s!("rLevelEditor")])?.is_truthy(), scr::isRoom(g, cx, &[s!("rLoadLevel")])?.is_truthy()) {
+    if or(scr::isRoom(g, cx, &[s!("rLevelEditor")])?.cond(Cond::Or)?, scr::isRoom(g, cx, &[s!("rLoadLevel")])?.cond(Cond::Or)?) {
         // 6: message = "";
         g.at("oMsgSign/create#0", 6);
         g.set(cx.this, v::message, s!(""))?;
@@ -31,7 +31,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
             if and(g.get(cx.this, v::x)?.gml_eq(&r(80.0))?, g.get(cx.this, v::y)?.gml_eq(&r(96.0))?) {
                 // 17: if (global.gamepadOn)
                 g.at("oMsgSign/create#0", 17);
-                if g.gget(gv::gamepadOn)?.is_truthy() {
+                if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                     // 17: message = "PRESS " + scrGetJoy(global.joyJumpVal) + " TO JUMP.";
                     g.at("oMsgSign/create#0", 17);
                     {
@@ -65,7 +65,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                     if and(g.get(cx.this, v::x)?.gml_eq(&r(240.0))?, g.get(cx.this, v::y)?.gml_eq(&r(64.0))?) {
                         // 30: if (global.gamepadOn)
                         g.at("oMsgSign/create#0", 30);
-                        if g.gget(gv::gamepadOn)?.is_truthy() {
+                        if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                             // 30: message = "PRESS " + scrGetJoy(global.joyAttackVal) + " TO USE YOUR WHIP.";
                             g.at("oMsgSign/create#0", 30);
                             {
@@ -99,7 +99,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                             if and(g.get(cx.this, v::x)?.gml_eq(&r(512.0))?, g.get(cx.this, v::y)?.gml_eq(&r(32.0))?) {
                                 // 43: if (global.gamepadOn)
                                 g.at("oMsgSign/create#0", 43);
-                                if g.gget(gv::gamepadOn)?.is_truthy() {
+                                if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                     // 43: message = "HOLD UP AND PRESS " + scrGetJoy(global.joyAttackVal) + " TO OPEN CHESTS.";
                                     g.at("oMsgSign/create#0", 43);
                                     {
@@ -153,7 +153,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                             if and(g.get(cx.this, v::x)?.gml_eq(&r(608.0))?, g.get(cx.this, v::y)?.gml_eq(&r(256.0))?) {
                                                 // 68: if (global.gamepadOn)
                                                 g.at("oMsgSign/create#0", 68);
-                                                if g.gget(gv::gamepadOn)?.is_truthy() {
+                                                if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                                     // 68: message = "DUCK AND PRESS " + scrGetJoy(global.joyAttackVal) + " TO PICK UP ITEMS.";
                                                     g.at("oMsgSign/create#0", 68);
                                                     {
@@ -177,7 +177,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                 if and(g.get(cx.this, v::x)?.gml_eq(&r(576.0))?, g.get(cx.this, v::y)?.gml_eq(&r(256.0))?) {
                                                     // 75: if (global.gamepadOn)
                                                     g.at("oMsgSign/create#0", 75);
-                                                    if g.gget(gv::gamepadOn)?.is_truthy() {
+                                                    if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                                         // 75: message = "PRESS " + scrGetJoy(global.joyAttackVal) + " TO THROW OR USE ITEMS.";
                                                         g.at("oMsgSign/create#0", 75);
                                                         {
@@ -201,7 +201,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                     if and(g.get(cx.this, v::x)?.gml_eq(&r(496.0))?, g.get(cx.this, v::y)?.gml_eq(&r(256.0))?) {
                                                         // 82: if (global.gamepadOn)
                                                         g.at("oMsgSign/create#0", 82);
-                                                        if g.gget(gv::gamepadOn)?.is_truthy() {
+                                                        if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                                             // 82: message = "PRESS " + scrGetJoy(global.joyItemVal) + " TO SELECT YOUR ROPE AND";
                                                             g.at("oMsgSign/create#0", 82);
                                                             {
@@ -218,7 +218,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         }
                                                         // 84: if (global.gamepadOn)
                                                         g.at("oMsgSign/create#0", 84);
-                                                        if g.gget(gv::gamepadOn)?.is_truthy() {
+                                                        if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                                             // 84: message2 = scrGetJoy(global.joyAttackVal) + " TO USE IT.";
                                                             g.at("oMsgSign/create#0", 84);
                                                             {
@@ -239,7 +239,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                         if and(g.get(cx.this, v::x)?.gml_eq(&r(432.0))?, g.get(cx.this, v::y)?.gml_eq(&r(176.0))?) {
                                                             // 90: if (global.gamepadOn)
                                                             g.at("oMsgSign/create#0", 90);
-                                                            if g.gget(gv::gamepadOn)?.is_truthy() {
+                                                            if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                                                 // 90: message = "CROUCH AND PRESS " + scrGetJoy(global.joyAttackVal);
                                                                 g.at("oMsgSign/create#0", 90);
                                                                 {
@@ -263,7 +263,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                             if and(g.get(cx.this, v::x)?.gml_eq(&r(384.0))?, g.get(cx.this, v::y)?.gml_eq(&r(208.0))?) {
                                                                 // 97: if (global.gamepadOn)
                                                                 g.at("oMsgSign/create#0", 97);
-                                                                if g.gget(gv::gamepadOn)?.is_truthy() {
+                                                                if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                                                     // 97: message = "TO RUN, HOLD DOWN " + scrGetJoy(global.joyAttackVal) + " OR " + scrGetJoy(global.joyRunVa
                                                                     g.at("oMsgSign/create#0", 97);
                                                                     {
@@ -297,7 +297,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                     if and(g.get(cx.this, v::x)?.gml_eq(&r(224.0))?, g.get(cx.this, v::y)?.gml_eq(&r(208.0))?) {
                                                                         // 109: if (global.gamepadOn)
                                                                         g.at("oMsgSign/create#0", 109);
-                                                                        if g.gget(gv::gamepadOn)?.is_truthy() {
+                                                                        if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                                                             // 109: message = "PRESS " + scrGetJoy(global.joyItemVal) + " TO SELECT BOMBS AND ";
                                                                             g.at("oMsgSign/create#0", 109);
                                                                             {
@@ -314,7 +314,7 @@ pub fn create_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                                                                         }
                                                                         // 111: if (global.gamepadOn)
                                                                         g.at("oMsgSign/create#0", 111);
-                                                                        if g.gget(gv::gamepadOn)?.is_truthy() {
+                                                                        if g.gget(gv::gamepadOn)?.cond(Cond::If)? {
                                                                             // 111: message2 = "PRESS " + scrGetJoy(global.joyAttackVal) + " TO USE IT.";
                                                                             g.at("oMsgSign/create#0", 111);
                                                                             {
@@ -381,7 +381,7 @@ pub fn draw_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     { let a = [g.get(cx.this, v::sprite_index)?, r(-1.0), g.get(cx.this, v::x)?, g.get(cx.this, v::y)?]; b::draw_sprite(g, cx, a)? };
     // 2: if (isRoom("rLevelEditor"))
     g.at("oMsgSign/draw#0", 2);
-    if scr::isRoom(g, cx, &[s!("rLevelEditor")])?.is_truthy() {
+    if scr::isRoom(g, cx, &[s!("rLevelEditor")])?.cond(Cond::If)? {
         // 4: draw_set_font(global.myFontSmall);
         g.at("oMsgSign/draw#0", 4);
         { let a = [g.gget(gv::myFontSmall)?]; b::draw_set_font(g, cx, a)? };

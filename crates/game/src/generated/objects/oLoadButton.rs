@@ -14,7 +14,7 @@ pub fn step_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (checkStartPressed() || gamepad.attackPressed)
     g.at("oLoadButton/step#0", 1);
-    if or(scr::checkStartPressed(g, cx, &[])?.is_truthy(), g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.is_truthy()) {
+    if or(scr::checkStartPressed(g, cx, &[])?.cond(Cond::Or)?, g.get_on(cx, &g.gget(gv::gamepad)?, v::attackPressed)?.cond(Cond::Or)?) {
         // 3: with (oLoadLevel)
         g.at("oLoadButton/step#0", 3);
         {
@@ -49,7 +49,7 @@ pub fn mouse_7_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (sprite_index == sLoadButtonPressed && active)
     g.at("oLoadButton/mouse_7#0", 1);
-    if and(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLoadButtonPressed)?, g.get(cx.this, v::active)?.is_truthy()) {
+    if and(g.get(cx.this, v::sprite_index)?.gml_eq(&spr::sLoadButtonPressed)?, g.get(cx.this, v::active)?.cond(Cond::And)?) {
         // 3: with (oLoadLevel)
         g.at("oLoadButton/mouse_7#0", 3);
         {

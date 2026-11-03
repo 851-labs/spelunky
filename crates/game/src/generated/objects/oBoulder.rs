@@ -37,7 +37,7 @@ pub fn create_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
 pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
     // 1: if (true)
     g.at("oBoulder/step#1", 1);
-    if r(1.0).is_truthy() {
+    if r(1.0).cond(Cond::If)? {
         // 3: colLeft = false;
         g.at("oBoulder/step#1", 3);
         g.set(cx.this, v::colLeft, r(0.0))?;
@@ -76,14 +76,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 26: if (isCollisionTop(1) && yVel < 0)
         g.at("oBoulder/step#1", 26);
-        if and(scr::isCollisionTop(g, cx, &[r(1.0)])?.is_truthy(), g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?) {
+        if and(scr::isCollisionTop(g, cx, &[r(1.0)])?.cond(Cond::And)?, g.get(cx.this, v::yVel)?.gml_lt(&r(0.0))?) {
             // 28: yVel = -yVel * 0.8;
             g.at("oBoulder/step#1", 28);
             g.set(cx.this, v::yVel, g.get(cx.this, v::yVel)?.neg()?.mul(&r(0.8))?)?;
         }
         // 31: if (isCollisionBottom(1))
         g.at("oBoulder/step#1", 31);
-        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.is_truthy() {
+        if scr::isCollisionBottom(g, cx, &[r(1.0)])?.cond(Cond::If)? {
             // 34: if (yVel > 3)
             g.at("oBoulder/step#1", 34);
             if g.get(cx.this, v::yVel)?.gml_gt(&r(3.0))? {
@@ -104,7 +104,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 40: if (!bounced && xVel == 0)
             g.at("oBoulder/step#1", 40);
-            if and(g.get(cx.this, v::bounced)?.not()?.is_truthy(), g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))?) {
+            if and(g.get(cx.this, v::bounced)?.not()?.cond(Cond::And)?, g.get(cx.this, v::xVel)?.gml_eq(&r(0.0))?) {
                 // 42: if (oPlayer1.x < x)
                 g.at("oBoulder/step#1", 42);
                 if g.get_on(cx, &obj::oPlayer1, v::x)?.gml_lt(&g.get(cx.this, v::x)?)? {
@@ -130,7 +130,7 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
         }
         // 56: if (!collision_point(x, y + 16, oSolid, 0, 0))
         g.at("oBoulder/step#1", 56);
-        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.is_truthy() {
+        if ({ let a = [g.get(cx.this, v::x)?, g.get(cx.this, v::y)?.add(&r(16.0))?, obj::oSolid, r(0.0), r(0.0)]; b::collision_point(g, cx, a)? }).not()?.cond(Cond::If)? {
             // 58: colLeft = collision_rectangle(x - 16, y - 16, x - 8, y + 16, oSolid, false, true);
             g.at("oBoulder/step#1", 58);
             {
@@ -145,14 +145,14 @@ pub fn step_a1(g: &mut World, cx: &mut Ctx) -> R<()> {
             }
             // 60: if (colLeft && !colRight)
             g.at("oBoulder/step#1", 60);
-            if and(g.get(cx.this, v::colLeft)?.is_truthy(), g.get(cx.this, v::colRight)?.not()?.is_truthy()) {
+            if and(g.get(cx.this, v::colLeft)?.cond(Cond::And)?, g.get(cx.this, v::colRight)?.not()?.cond(Cond::And)?) {
                 // 60: x += 1;
                 g.at("oBoulder/step#1", 60);
                 g.set(cx.this, v::x, lenient(Value::add, g.get(cx.this, v::x)?, &r(1.0))?)?;
             } else {
                 // 61: if (colRight && !colLeft)
                 g.at("oBoulder/step#1", 61);
-                if and(g.get(cx.this, v::colRight)?.is_truthy(), g.get(cx.this, v::colLeft)?.not()?.is_truthy()) {
+                if and(g.get(cx.this, v::colRight)?.cond(Cond::And)?, g.get(cx.this, v::colLeft)?.not()?.cond(Cond::And)?) {
                     // 61: x -= 1;
                     g.at("oBoulder/step#1", 61);
                     g.set(cx.this, v::x, lenient(Value::sub, g.get(cx.this, v::x)?, &r(1.0))?)?;
@@ -193,10 +193,10 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
     let cx = &mut cx.clone();
     // 1: if (true)
     g.at("oBoulder/collision_oSolid#0", 1);
-    if r(1.0).is_truthy() {
+    if r(1.0).cond(Cond::If)? {
         // 3: if (other.invincible || abs(xVel) < 1)
         g.at("oBoulder/collision_oSolid#0", 3);
-        if or(g.get(cx.other, v::invincible)?.is_truthy(), ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
+        if or(g.get(cx.other, v::invincible)?.cond(Cond::Or)?, ({ let a = [g.get(cx.this, v::xVel)?]; b::abs(g, cx, a)? }).gml_lt(&r(1.0))?) {
             // 5: xVel = -xVel * 0.5;
             g.at("oBoulder/collision_oSolid#0", 5);
             g.set(cx.this, v::xVel, g.get(cx.this, v::xVel)?.neg()?.mul(&r(0.5))?)?;
@@ -224,7 +224,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 19: if (tile)
                         g.at("oBoulder/collision_oSolid#0", 19);
-                        if g.get(cx.this, v::tile)?.is_truthy() {
+                        if g.get(cx.this, v::tile)?.cond(Cond::If)? {
                             // 19: tile_delete(tile);
                             g.at("oBoulder/collision_oSolid#0", 19);
                             { let a = [g.get(cx.this, v::tile)?]; b::tile_delete(g, cx, a)? };
@@ -237,7 +237,7 @@ pub fn collision_oSolid_a0(g: &mut World, cx: &mut Ctx) -> R<()> {
                         }
                         // 21: if (tile)
                         g.at("oBoulder/collision_oSolid#0", 21);
-                        if g.get(cx.this, v::tile)?.is_truthy() {
+                        if g.get(cx.this, v::tile)?.cond(Cond::If)? {
                             // 21: with (tile)
                             g.at("oBoulder/collision_oSolid#0", 21);
                             {

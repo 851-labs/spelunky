@@ -701,3 +701,121 @@ fn solids_keep_the_reapplied_move_when_free() {
     assert_eq!(take_log(&mut g), "mover1<-wall2@6");
     assert_eq!(g.get(m, X).unwrap(), Value::Real(3.0));
 }
+
+/// Sloped and steep precise lines against an irregular mask, unturned, turned and scaled, as GM8 tests them
+/// (851-3962, probe `collision-line-sloped`): the mask GM8 made from a surface and read back, three instances of
+/// it, and 300 lines around each from the probe's sequence, every hit and miss as GM8 answered.
+#[test]
+fn sloped_precise_lines_follow_gm8() {
+    let gm8 = include_str!("../../../tools/gm8-probe/results/gm8-wine/collision-line-sloped.txt");
+    let line = |name: &str| -> &str {
+        let prefix = format!("{name} = \"");
+        let l = gm8
+            .lines()
+            .find_map(|l| l.strip_prefix(prefix.as_str()))
+            .unwrap();
+        l.strip_suffix('"').unwrap()
+    };
+    let rows: Vec<&str> = (0..16).map(|j| line(&format!("mask_{j}"))).collect();
+    let solid = |x: u32, y: u32| rows[y as usize].as_bytes()[x as usize] == b'1';
+    let (mut left, mut top, mut right, mut bottom) = (u32::MAX, u32::MAX, 0, 0);
+    for y in 0..16 {
+        for x in 0..16 {
+            if solid(x, y) {
+                (left, top) = (left.min(x), top.min(y));
+                (right, bottom) = (right.max(x), bottom.max(y));
+            }
+        }
+    }
+    let mut bits = Vec::new();
+    let mut i = 0;
+    for y in top..=bottom {
+        for x in left..=right {
+            if i % 8 == 0 {
+                bits.push(0u8);
+            }
+            if solid(x, y) {
+                bits[i / 8] |= 1 << (i % 8);
+            }
+            i += 1;
+        }
+    }
+    let rect = assets::AtlasRect {
+        page: 0,
+        x: 0,
+        y: 0,
+        width: 16,
+        height: 16,
+    };
+    let sprite = assets::Sprite {
+        name: "sProbe".into(),
+        width: 16,
+        height: 16,
+        origin_x: 8,
+        origin_y: 8,
+        frames: vec![rect],
+        shape: assets::MaskShape::Precise,
+        bbox_mode: assets::BboxMode::Automatic,
+        alpha_tolerance: 0,
+        separate_masks: false,
+        masks: vec![assets::Mask {
+            bbox: assets::Bbox {
+                left,
+                top,
+                right,
+                bottom,
+            },
+            data: assets::MaskData::Bits(bits),
+        }],
+    };
+    let p = build(|b| {
+        for name in ["a", "b", "c"] {
+            b.push_object(ObjectInfo {
+                sprite: 0,
+                ..ObjectInfo::new(name)
+            });
+        }
+        b.push_object(ObjectInfo::new("ctl"));
+    });
+    let mut g = room_with(
+        p,
+        Assets::new(vec![Some(sprite)], Vec::new()),
+        &[
+            (ObjectId(0), 100.0, 100.0),
+            (ObjectId(1), 200.0, 100.0),
+            (ObjectId(2), 300.0, 100.0),
+        ],
+    );
+    set(&mut g, 2, Builtin::ImageAngle, 30.0);
+    set(&mut g, 3, Builtin::ImageXscale, 2.0);
+    set(&mut g, 3, Builtin::ImageYscale, -1.5);
+    for (n, name) in [(1, "box_a"), (2, "box_b"), (3, "box_c")] {
+        let (l, t, r, b) = bbox(&g, n);
+        assert_eq!(format!("{l} {t} {r} {b}"), line(name), "{name}");
+    }
+    let cx = ctx(
+        &g,
+        g.active()
+            .find(|&h| g.instance(h).object == ObjectId(3))
+            .unwrap(),
+    );
+    let mut seed = 1u32;
+    let mut next = || {
+        seed = (seed * 75 + 74) % 65537;
+        f64::from(seed % 121) / 2.0
+    };
+    for (k, name) in ["hits_a", "hits_b", "hits_c"].into_iter().enumerate() {
+        let c = 100.0 * (k as f64 + 1.0);
+        let hits: String = (0..300)
+            .map(|_| {
+                let (x1, y1) = (c - 30.0 + next(), 70.0 + next());
+                let (x2, y2) = (c - 30.0 + next(), 70.0 + next());
+                let hit = g
+                    .collision_line(&cx, x1, y1, x2, y2, k as i32, true, false)
+                    .unwrap();
+                if hit == NOONE { '0' } else { '1' }
+            })
+            .collect();
+        assert_eq!(hits, line(name), "{name}");
+    }
+}

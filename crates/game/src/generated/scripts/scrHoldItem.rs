@@ -249,7 +249,7 @@ pub fn scrHoldItem(g: &mut World, cx: &Ctx, args: &[Value]) -> R<Value> {
         }
         // 52: if (pickup)
         g.at("scripts/scrHoldItem", 52);
-        if g.get(cx.this, v::pickup)?.is_truthy() {
+        if g.get(cx.this, v::pickup)?.cond(Cond::If)? {
             // 54: holdItem.held = true;
             g.at("scripts/scrHoldItem", 54);
             {
