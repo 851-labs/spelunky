@@ -1,9 +1,10 @@
 # Level generation's later-level rolls (851-3839): scrRoomGen3's rolls (lines 130-131) on later Ice Caves levels,
-# with a Rare shop on level 10 and the Moai on level 12 (1809). No other committed replay generates these. Found by
-# a port-only sweep of 20 seeds of each area's first level, routed on 3 levels with a line-coverage build:
+# with a Rare shop on level 10 (1120) and the Moai on level 12 (1809). No other committed replay generates these.
+# Found by a port-only sweep of 20 seeds of each area's first level, routed on 3 levels with a line-coverage build:
 # fidelity/gen-area.sh ice 15 770 (level 9 (760)), then area-route --levels 3 --wait 3 --budget 6000 through levels
 # 10 (1058), 11 (1285) and 12 (1746). Ends at 1812, just after the last level loads.
 # story: currLevel=10@1058 currLevel=11@1285 currLevel=12@1746 madeMoai=1@1809..1809
+# story: +oShopkeeper@1120
 seed 15
 frames 1813
 highscore 9000100 "MONEY"

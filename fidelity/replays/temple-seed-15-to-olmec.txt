@@ -1,10 +1,11 @@
 # Level generation's later-level rolls (851-3839): scrRoomGen4's roll at line 163 on a later Temple level and
-# scrRoomGen5's at line 70 in Olmec's level (rOlmec, 2063), with the Tomb Lord and the gold door on level 14. No
-# other committed replay generates these. Found by a port-only sweep of 20 seeds of each area's first level, routed
-# on 3 levels with a line-coverage build: fidelity/gen-area.sh temple 15 760 (level 13 (738)), then area-route
-# --levels 3 --wait 3 --budget 6000 through levels 14 (1097), 15 (1535) and 16 (1991; rOlmec, loads on 2063). Ends
-# at 2065, just after the last level loads.
+# scrRoomGen5's at line 70 in Olmec's level (rOlmec, 2063), with the Tomb Lord and the gold door on level 14
+# (1169). No other committed replay generates these. Found by a port-only sweep of 20 seeds of each area's first
+# level, routed on 3 levels with a line-coverage build: fidelity/gen-area.sh temple 15 760 (level 13 (738)), then
+# area-route --levels 3 --wait 3 --budget 6000 through levels 14 (1097), 15 (1535) and 16 (1991; rOlmec, loads on
+# 2063). Ends at 2065, just after the last level loads.
 # story: currLevel=14@1097 +oGoldDoor@1169 currLevel=15@1535 currLevel=16@1991 room=rOlmec@2063
+# story: +oTombLord@1169
 seed 15
 frames 2066
 highscore 9000100 "MONEY"

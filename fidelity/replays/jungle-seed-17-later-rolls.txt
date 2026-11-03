@@ -1,10 +1,11 @@
 # Level generation's later-level rolls (851-3839): scrRoomGen2's rolls for later Jungle rooms (lines 182, 198,
-# 216), with a Kissing Parlor on level 6 and a lake on level 7 (rLevel3, 1844). No other committed replay generates
-# these. Found by a port-only sweep of 20 seeds of each area's first level, routed on 3 levels with a line-coverage
-# build: fidelity/gen-area.sh jungle 17 800 (level 5 (781)), then area-route --levels 3 --wait 3 --budget 6000
-# through levels 6 (1172), 7 (1772; a lake, loads on 1844) and 8 (2224). Ends at 2298, just after the last level
-# loads.
+# 216), with a Kissing Parlor on level 6 (1244) and a lake on level 7 (rLevel3, 1844). No other committed replay
+# generates these. Found by a port-only sweep of 20 seeds of each area's first level, routed on 3 levels with a
+# line-coverage build: fidelity/gen-area.sh jungle 17 800 (level 5 (781)), then area-route --levels 3 --wait 3
+# --budget 6000 through levels 6 (1172), 7 (1772; a lake, loads on 1844) and 8 (2224). Ends at 2298, just after the
+# last level loads.
 # story: currLevel=6@1172 currLevel=7@1772 lake=1@1843..1843 currLevel=8@2224
+# story: +oShopkeeper@1244
 seed 17
 frames 2299
 highscore 9000100 "MONEY"

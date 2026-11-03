@@ -2,9 +2,10 @@
 # 232, 267) on level 12, a yeti lair (global.yetiLair, 1617) with the Yeti King. No other committed replay
 # generates these. Found by a port-only sweep of 20 seeds of each area's first level, routed on 3 levels with a
 # line-coverage build: fidelity/gen-area.sh ice 3 770 (level 9 (760)), then area-route --levels 3 --wait 3 --budget
-# 6000 through levels 10 (908), 11 (1234; the Moai, a Kissing Parlor) and 12 (1546; loads on 1618). Ends at 1620,
-# just after the last level loads.
+# 6000 through levels 10 (908), 11 (1234; the Moai, a Kissing Parlor, loads on 1306) and 12 (1546; loads on 1618).
+# Ends at 1620, just after the last level loads.
 # story: currLevel=10@908 currLevel=11@1234 madeMoai=1@1305 currLevel=12@1546 yetiLair=1@1617..1617 +oYetiKing@1618
+# story: +oShopkeeper@1306
 seed 3
 frames 1621
 highscore 9000100 "MONEY"

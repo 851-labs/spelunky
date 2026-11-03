@@ -1,10 +1,13 @@
-# Level generation's later-level rolls (851-3839): a locked chest placed beside its spot: scrEntityGen's placement
-# when the spot itself is taken (lines 90, 95-97), on level 3 with the locked chest, its key and Kali's altar
-# (1841). No other committed replay generates these. Found by a port-only sweep of 20 seeds of each area's first
-# level, routed on 3 levels with a line-coverage build: fidelity/gen-area.sh mines 9 600 (level 1 (565)), then
-# area-route --levels 3 --wait 3 --budget 6000 through levels 2 (1534), 3 (1778; loads on 1842) and 4 (2472). Ends
-# at 2547, just after the last level loads.
+# Level generation's later-level rolls (851-3839): the Udjat eye's locked chest forced beside the exit with the
+# tile on the exit's left taken: scrEntityGen's second placement (lines 90, 95-97), on level 3, with the locked
+# chest, its key and Kali's altar (1841). That placement tests the exit's own tile (x+8) but makes the chest a tile
+# further right (x+16+8), which nothing tests: here a brick, so the chest is made inside it, at (600, 504) in the
+# brick at (592, 496) (docs/quirks.md §1). No other committed replay generates these. Found by a port-only sweep of
+# 20 seeds of each area's first level, routed on 3 levels with a line-coverage build: fidelity/gen-area.sh mines 9
+# 600 (level 1 (565)), then area-route --levels 3 --wait 3 --budget 6000 through levels 2 (1534), 3 (1778; loads on
+# 1842) and 4 (2472). Ends at 2547, just after the last level loads.
 # story: currLevel=2@1534 currLevel=3@1778 LockedChest=1@1841..1841 Key=1@1841..1841 +oLockedChest@1842 currLevel=4@2472
+# story: oLockedChest.x=600@1841..1841 +oKey@1842 +oSacAltarLeft@1842
 seed 9
 frames 2548
 highscore 9000000 "MONEY"
