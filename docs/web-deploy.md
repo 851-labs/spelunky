@@ -88,11 +88,18 @@ In the Cloudflare dashboard, account 851: **Workers & Pages → Create → Impor
 | Build command | `./build.sh` |
 | Deploy command | `npx wrangler deploy` |
 | Builds for non-production branches | on, with the non-production deploy command `npx wrangler versions upload` |
-| Build watch paths | include `site/*`, exclude nothing |
+| Build watch paths | include `site/*`, `wiki/*`, `LICENSE`, `docs/quirks.md`, exclude nothing |
 | Environment variables | none |
 
-The watch path's `*` spans directories, so a change anywhere under `site/` builds and nothing else does
-(the game's code changes don't touch the site until a release is bumped in). `wrangler deploy` attaches
+The watch paths are the site's inputs: `site/`, and what its build reads from outside it, the wiki's media and
+specs (`wiki/`), the license it serves (`LICENSE`) and the rows the quirk pages cite (`docs/quirks.md`). A `*`
+spans directories, so a change to any of them builds (and a pull request's gets a preview), and nothing else
+does: the game's code changes don't touch the site until a release is bumped in. (The pages also cite the
+committed replays and pin links to them, which neither list has yet: 851-3938.) They're the same as
+`.github/workflows/pr.yml`'s site test's `paths` (less the scripts and workflows that only test it), which
+`site/test.sh` checks against this row; a new input outside `site/` goes in both, and in the dashboard. (Until
+851-3919, only `site/*` was watched, so a pull request that only re-rendered clips, or changed a quirks row or the
+license, never deployed: its change went live with whichever later one touched `site/`.) `wrangler deploy` attaches
 both custom domains and creates their DNS records and certificates; if spelunky.ai or www already has a DNS
 record (a registrar's parking page, say), delete it first or the deploy fails.
 

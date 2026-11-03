@@ -37,6 +37,20 @@ if [ -n "${SITE_TEST_PORT:-}" ]; then
   if ! { free "$SITE_TEST_PORT" && free $((SITE_TEST_PORT + 1)); }; then taken "$SITE_TEST_PORT"; fi
 fi
 
+# Workers Builds' build watch paths (docs/web-deploy.md, set in the dashboard) are the site's inputs, the same as
+# pr.yml's site test's paths but the scripts and workflows that only test it: a change to one that's only in one
+# list would test the site but never deploy it (851-3919), or deploy it untested. Before the build: it needs none.
+watched=$(grep '^| Build watch paths |' ../docs/web-deploy.md | sed 's/, exclude.*//' | grep -o '`[^`]*`' | tr -d '`' |
+  sed 's|/\*$||' | sort | tr '\n' ' ')
+# The site job's `paths: >-` block: from its `paths:` to the first line less indented, within the job.
+tested=$(awk '/^  [a-z-]+:$/ { job = $1 } job == "site:" && /^      paths: >-$/ { on = 1; next }
+  on && !/^        / { exit } on' ../.github/workflows/pr.yml |
+  tr ' ' '\n' | grep -v -e '^$' -e '^scripts/' -e '^\.github/' | sort | tr '\n' ' ')
+if [ -z "$watched" ] || [ -z "$tested" ] || [ "$watched" != "$tested" ]; then
+  echo "site/test.sh: docs/web-deploy.md's build watch paths ($watched) aren't pr.yml's site job's inputs ($tested)" >&2
+  exit 1
+fi
+
 tmp=$(mktemp -d)
 pids=
 # Set by the last line, so a run that stops anywhere before it fails, whatever the shell's status says: the
