@@ -678,7 +678,9 @@ cites. Never from memory, another wiki or a video.
   average is fine if the arithmetic is shown and holds ("about once every 100 steps").
 - **Decimals.** Write the value the code writes (`0.6`, not 0.6000000000000001; [wiki data](wiki-data.md)).
 - **Tables** for anything with more than two values: a stat by level or by area, damage by source. Each row
-  cites its line.
+  cites its line. Every column's header says what it holds ("What", "Where", "Value"), as a screen reader reads
+  a blank one as "blank"; only the citations' column is left blank, which the page names for screen readers
+  ("Sources"). `test-wiki.mjs` checks it.
 
 ## Citing the code
 

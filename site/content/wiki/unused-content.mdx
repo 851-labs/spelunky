@@ -69,7 +69,7 @@ names one, or names it only in a comment or in a branch no level reaches (the th
 
 ### Items
 
-| | Item | What its code would do |
+| Sprite | Item | What its code would do |
 | --- | --- | --- |
 | <Sprite name="sJordans" alt="" /> | Jordans (`oJordans`) | Sneakers priced at $50,000, "JORDANS FOR $50000!" <Cite gml="objects/oJordans/create.gml:3-8" />. Picked up, they'd show "YOU GOT JORDANS!" and "YOU FEEL LIGHT ON YOUR FEET." <Cite gml="scripts/scrStealItem.gml:193-203" />, and every jump after it would push three times as hard, with twice the speed limit and gravity 0.5 in place of 1, checked before the [[spring-shoes\|Spring Shoes]]' push of half as much again <Cite gml="scripts/characterStepEvent.gml:351-362" />. |
 | <Sprite name="sRopeEnd" alt="" /> | Rope Bag (`oRopeBag`) | Drawn as the end of a rope, but its type is "Bomb Bag" <Cite gml="objects/oRopeBag/create.gml:3" />, so picking it up would be a [[bomb-bag\|Bomb Bag]]'s pickup: three more bombs, "YOU GOT 3 MORE BOMBS!" <Cite gml="scripts/scrStealItem.gml:68-78" />. |
@@ -79,14 +79,14 @@ names one, or names it only in a comment or in a branch no level reaches (the th
 
 ### The Moon Room's target and the thwomp trap
 
-| | Object | What its code would do |
+| Sprite | Object | What its code would do |
 | --- | --- | --- |
 | <Sprite name="sTarget" alt="" /> | Moon Room target (`oTarget`) | A bullseye for the [[moon-room\|Moon Room]] that sways up and down, twice as fast on the right of the room, and swings side to side in the last 30 seconds <Cite gml="objects/oTarget/create.gml:7-8" /> <Cite gml="objects/oTarget/step.gml:10-39" />. An arrow scores 5 for its middle, 3, 2 or 1 farther out <Cite gml="objects/oTarget/collision_oArrow.gml:7-18" />. The Moon Room's targets are bats and UFOs instead, but the arrow's step still checks for this one there, and finds none <Cite gml="objects/oArrow/step.gml:24-37" />. |
 | <Sprite name="sThwompTrap" alt="" /> | Thwomp trap (`oThwompTrap`) | A block that waits until the player is below it, within 8 pixels of its column, with a character within 96 pixels of it, then falls, gathering speed up to 6 pixels a step; landing, it waits 100 steps and rises again until it meets the ceiling <Cite gml="objects/oThwompTrap/step.gml:1-37" />. Only [[olmecs-lair\|Olmec's Lair]]'s room script makes one, for a `t` tile, and none of the lair's room or obstacle strings has that tile <Cite gml="scripts/scrRoomGen5.gml:191-194" /> <Cite quirk="1" row="oThwompTrap is unreachable" />. |
 
 ### Blocks and effects
 
-| | Object | What its code would do |
+| Sprite | Object | What its code would do |
 | --- | --- | --- |
 | <Sprite name="sGold" alt="" /> | Gold in the rock (`oGold`) | Breaks into three [[gold-chunk\|gold chunks]] <Cite gml="objects/oGold/destroy.gml:1-6" />. Only the [[ufo\|UFO]]'s laser names it, to destroy it <Cite gml="objects/oLaser/collision_oSolid.gml:1-14" /> <Cite quirk="1" row="Nothing creates oGold or oGoldBig." />. |
 | <Sprite name="sGoldBig" alt="" /> | Big gold in the rock (`oGoldBig`) | Breaks into a [[gold-nugget\|gold nugget]] and two or three gold chunks <Cite gml="objects/oGoldBig/destroy.gml:1-10" />; the laser names it too. |

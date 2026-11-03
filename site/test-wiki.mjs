@@ -5,7 +5,7 @@
 //
 //   node test-wiki.mjs
 import { execFileSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
@@ -1336,8 +1336,40 @@ for (const [what, files, want] of cases) {
   }
 }
 
+// No table header is blank on a committed page or a template (851-3939), which a screen reader reads as "blank": a column says
+// what it holds. But a column of citations, whose blank header the body's Table names for screen readers
+// (851-3893: a column every filled cell of which cites).
+{
+  const before = failures;
+  let tables = 0;
+  const cells = (line) => line.trim().replace(/^\||\|$/g, "").split(/(?<!\\)\|/).map((cell) => cell.trim());
+  // The pages, and the templates new pages start from.
+  const files = ["content/wiki", "../wiki/templates"].flatMap((dir) =>
+    readdirSync(here(dir))
+      .filter((n) => n.endsWith(".mdx"))
+      .map((n) => `${dir}/${n}`),
+  );
+  for (const name of files) {
+    const lines = readFileSync(here(name), "utf8").split("\n");
+    for (let i = 0; i + 1 < lines.length; i++) {
+      if (!lines[i].startsWith("|") || !/^\|\s*:?-{3}/.test(lines[i + 1])) continue;
+      tables++;
+      const rows = [];
+      for (let k = i + 2; k < lines.length && lines[k].startsWith("|"); k++) rows.push(cells(lines[k]));
+      cells(lines[i]).forEach((head, column) => {
+        if (head) return;
+        const filled = rows.map((row) => row[column] ?? "").filter(Boolean);
+        if (filled.length === 0 || !filled.every((cell) => cell.includes("<Cite"))) {
+          fail(`table headers: ${name}:${i + 1}'s column ${column + 1} has a blank header and isn't a column of citations`);
+        }
+      });
+    }
+  }
+  if (failures === before) console.log(`ok   table headers: none blank in ${tables} tables but citations' columns`);
+}
+
 if (failures > 0) {
   console.error(`site/test-wiki.mjs: ${failures} failed`);
   process.exit(1);
 }
-console.log(`site/test-wiki.mjs: all ${cases.length + 8} passed`);
+console.log(`site/test-wiki.mjs: all ${cases.length + 9} passed`);
