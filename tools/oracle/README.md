@@ -616,26 +616,26 @@ boundary, lands where Direct3D 8 puts it whatever the `f32` matrices round. At 2
 boundary, and OpenGMK's put some on the earlier texel. With it, the settings program's window is GM8's to the pixel
 (config.exe screenshotted under Wine). It changes only pixels: the dump is the same.
 
-### `opengmk/0043-gm8-real-trim.patch`
+### `opengmk/0044-gm8-real-trim.patch`
 
 `real()` trims spaces alone, as GM8 does (851-3801, `docs/quirks.md` §3, measured by `tools/gm8-probe`'s
 `real-lead-*`, `real-trail-*` and `real-spaces`): a tab, LF, VT, FF, CR or no-break space before or after the number
 is "Error in function real().", where OpenGMK's `str::trim` took them all.
 
-### `opengmk/0044-gm8-array-row0.patch`
+### `opengmk/0045-gm8-array-row0.patch`
 
 `Field::get` reads element `[0, 0]` of an array (the variable itself) as 0 when it was never set, whatever row was,
 as GM8 does (851-3796, `docs/quirks.md` §5, probes `arr2-row0*`): with only `a[1, 5]` set, `a` is 0, where OpenGMK
 stopped with "uninitialized variable". The rest of row 0 is still an error.
 
-### `opengmk/0045-gm8-loop-starting-count.patch`
+### `opengmk/0046-gm8-loop-starting-count.patch`
 
 A per-object loop (`with (obj)`, an event stage's loop over an object's instances) never goes past the list's length
 when it started, as GM8's doesn't (851-3795, `docs/quirks.md` §5, probe `with-created`): `ObjectIter` and
 `IdentityIter` scan only the entries below that count, where `nb_il_iter` scanned on to the current list's end and
 so visited an instance created during the loop once every entry before it was destroyed.
 
-### `opengmk/0046-gm8-opassign-once-string-conditions.patch`
+### `opengmk/0047-gm8-opassign-once-string-conditions.patch`
 
 Two GML rules of GM8's (851-3798, `docs/quirks.md` §2):
 
@@ -647,7 +647,7 @@ Two GML rules of GM8's (851-3798, `docs/quirks.md` §2):
   expression expected" in a `while` or an `until`, "Wrong type of arguments for &&." (`||`, `^^`) as an operand
   (probes `str-*`); a drag-and-drop condition is taken as an `if`. OpenGMK read a string as false there.
 
-### `opengmk/0047-gm8-collision-line-walk.patch`
+### `opengmk/0048-gm8-collision-line-walk.patch`
 
 `collision_line`'s precise test walks as GM8's does (851-3962, `docs/quirks.md` §5, probe `collision-line-sloped`,
 which GM8 and the port answer alike on 900 lines against an irregular mask, unturned, turned and scaled; the port's

@@ -91,7 +91,7 @@ enum Source {
 /// - No iterator goes past the starting length, so instances created during the loop are never visited,
 ///   even when every entry between the position and that length was destroyed (probe `with-created`,
 ///   851-3795). OpenGMK's object iterators (`instancelist.rs`, `ObjectIter`, `IdentityIter`, `nb_il_iter`)
-///   scanned on to the end of the current list in that case, and visited them (oracle patch 0045 follows
+///   scanned on to the end of the current list in that case, and visited them (oracle patch 0046 follows
 ///   GM8).
 /// - If a (de)activation moves instances between the arrays mid-loop, iteration continues at the same
 ///   index of the new array or list, which can skip or repeat instances. GM8 does the same.

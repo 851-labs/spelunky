@@ -149,7 +149,7 @@ fn a_string_condition_is_an_error() {
 
 #[test]
 fn a_string_operand_is_checked_after_both_run() {
-    // GM8 evaluates both operands before `&&` rejects a string (and the oracle, patch 0046): the right one runs.
+    // GM8 evaluates both operands before `&&` rejects a string (and the oracle, patch 0047): the right one runs.
     let out = emit("oX/step#0", "u = s && scrGetName(1);");
     let call = out.find("scr::scrGetName(").expect("the call");
     let check = out.find(".cond(Cond::And)?").expect("the check");

@@ -342,7 +342,7 @@ impl<'a> Emitter<'a> {
                             return (format!("{f}({l}, {r})"), Ty::Bool);
                         }
                         // Both operands are values first, and only then is either checked for a string, as GM8
-                        // evaluates both before the operator rejects one (and the oracle, patch 0046): a string on
+                        // evaluates both before the operator rejects one (and the oracle, patch 0047): a string on
                         // the left doesn't keep the right from running.
                         let (a, b) = (self.fresh("p"), self.fresh("q"));
                         let check = |name: &str, ty: Ty| match ty {

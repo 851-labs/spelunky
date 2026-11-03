@@ -270,7 +270,7 @@ impl Value {
     /// A condition (`if`, the loops) or a logical operator's operand: a real `>= 0.5` ([`math::is_truthy`]).
     /// A string is an error, whose message depends on where (GM8, probes `str-*`, 851-3798: "Expression
     /// expected" for `if` and `for`, "Boolean expression expected" for `while` and `do`-`until`, "Wrong type of
-    /// arguments for &&." for the operators). OpenGMK read a string as false (oracle patch 0046 follows GM8).
+    /// arguments for &&." for the operators). OpenGMK read a string as false (oracle patch 0047 follows GM8).
     #[inline]
     pub fn cond(&self, at: Cond) -> Result<bool, ValueError> {
         match self {
