@@ -12,7 +12,7 @@ use trace::diff::{DiffOptions, Matching};
 use trace::{Filter, TraceReader};
 
 /// The copyright notice the license asks the wiki's media to carry (`docs/wiki-license.md`): in
-/// `wiki-sprites`' and `wiki-clips`' metadata, PNGs and videos.
+/// `wiki-sprites`' and `wiki-clips`' metadata, PNGs and videos, and in `icon`'s (the site's icons and the apps').
 pub const WIKI_NOTICE: &str = "Spelunky is \u{a9} 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under \
 the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or \
 endorsed by Mossmouth.";
@@ -207,7 +207,7 @@ pub fn bgra_to_rgba(bgra: &[u8]) -> Vec<u8> {
 }
 
 /// An RGBA image as a PNG, the same bytes every time: 8 bits a channel, fixed settings (the extractor's
-/// atlases and backgrounds, and `icon`'s icons).
+/// atlases and backgrounds).
 pub fn encode_png(width: u32, height: u32, rgba: &[u8]) -> Result<Vec<u8>, png::EncodingError> {
     let mut out = Vec::new();
     let mut writer = png_encoder(&mut out, width, height).write_header()?;
@@ -217,7 +217,7 @@ pub fn encode_png(width: u32, height: u32, rgba: &[u8]) -> Result<Vec<u8>, png::
 }
 
 /// A PNG encoder with [`encode_png`]'s fixed settings, for images it can't write in one call (`wiki-sprites`'
-/// animations and text chunks).
+/// animations, and its and `icon`'s text chunks).
 pub fn png_encoder<W: Write>(out: W, width: u32, height: u32) -> png::Encoder<'static, W> {
     let mut encoder = png::Encoder::new(out, width, height);
     encoder.set_color(png::ColorType::Rgba);

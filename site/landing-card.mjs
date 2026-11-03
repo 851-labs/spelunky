@@ -6,13 +6,12 @@
 //
 // Every one of public/media's files is made from the game, so each carries the Spelunky notice (NOTICE), as the
 // wiki's media do (851-3964): the PNGs in a Copyright text chunk, the video in its metadata. The still and the
-// logo get theirs here, pixels unchanged. The video, scripts/clip's from fidelity/replays/mines-seed-7.txt (851-3252),
-// got its once, with its frames copied as they were, as wiki-clips writes a clip's:
+// logo get theirs here, pixels unchanged. The video is scripts/clip's from fidelity/replays/mines-seed-7.txt
+// (851-3252), which now writes the notice and CAPTION into what it makes, as wiki-clips does a clip's; this one,
+// made before, got them with its frames copied as they were:
 //
 //   ffmpeg -i gameplay.mp4 -map 0 -c copy -map_metadata -1 -fflags +bitexact -movflags +faststart \
 //     -metadata "title=Spelunky Classic: the Mines" -metadata "copyright=$NOTICE" -metadata "comment=$CAPTION" OUT.mp4
-//
-// (CAPTION being wiki-clips.rs's), which a video made again needs too.
 //
 //   node landing-card.mjs           write public/media/card.png from public/media/gameplay.png and logo.png, and
 //                                   add the notice to those two if they haven't got it
@@ -31,26 +30,28 @@ const LOGO_SCALE = 2;
 const BORDER = [0xa8, 0x78, 0x1c];
 const BORDER_WIDTH = 4;
 
-// A PNG's tEXt chunks (Latin-1), by keyword.
+// A PNG's tEXt chunks (Latin-1), by keyword, up to its IEND.
 function pngText(bytes) {
   const text = {};
   for (let at = 8; at + 8 <= bytes.length; ) {
     const length = bytes.readUInt32BE(at);
     const type = bytes.toString("latin1", at + 4, at + 8);
+    if (type === "IEND") break;
     if (type === "tEXt") {
       const body = bytes.subarray(at + 8, at + 8 + length);
       const nul = body.indexOf(0);
-      text[body.toString("latin1", 0, nul)] = body.toString("latin1", nul + 1);
+      if (nul > 0) text[body.toString("latin1", 0, nul)] = body.toString("latin1", nul + 1);
     }
     at += 12 + length;
   }
   return text;
 }
+const hasNotice = (file) => pngText(readFileSync(here(`public/media/${file}`))).Copyright === NOTICE;
 
 // The still or the logo with the notice, its pixels as they were (both are opaque, so RGB loses nothing).
+// Only the pixels are kept: the pHYs chunk the originals had (their pixels' aspect) says nothing a browser uses.
 function withNotice(file) {
-  const bytes = readFileSync(here(`public/media/${file}`));
-  if (pngText(bytes).Copyright === NOTICE) return null;
+  if (hasNotice(file)) return null;
   const image = opaque(file);
   const rgb = new Uint8Array(image.width * image.height * 3);
   for (let i = 0, j = 0; i < image.data.length; i += 4, j += 3) rgb.set(image.data.subarray(i, i + 3), j);
@@ -106,12 +107,21 @@ function card() {
 }
 
 const STAMPED = ["gameplay.png", "logo.png"];
+// The video's comment, as wiki-clips writes a clip's (crates/harness/src/bin/wiki-clips.rs's CAPTION).
+const CAPTION =
+  "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 " +
+  "Derek Yu and Mossmouth, LLC.";
 if (process.argv[2] === "--check") {
-  const missing = STAMPED.filter((file) => withNotice(file) !== null);
-  // The video's copyright tag, in UTF-8 in its metadata.
-  if (!readFileSync(here("public/media/gameplay.mp4")).includes(Buffer.from(NOTICE))) missing.push("gameplay.mp4");
+  const missing = STAMPED.filter((file) => !hasNotice(file));
+  // The video's copyright and comment tags, each in UTF-8 in its own atom of its metadata (cprt and ©cmt, its value 20 bytes after the name).
+  const video = readFileSync(here("public/media/gameplay.mp4"));
+  const tag = (atom, value) => {
+    const at = video.indexOf(Buffer.from(atom, "latin1"));
+    return at >= 0 && video.indexOf(Buffer.from(value), at) === at + 20;
+  };
+  if (!tag("cprt", NOTICE) || !tag("\xa9cmt", CAPTION)) missing.push("gameplay.mp4");
   if (missing.length > 0) {
-    console.error(`landing-card.mjs: public/media's ${missing.join(", ")} lack the notice: run node landing-card.mjs (the video: its header)`);
+    console.error(`landing-card.mjs: without the notice: public/media/${missing.join(", public/media/")}: run node landing-card.mjs (the video: its header)`);
     process.exit(1);
   }
   if (!card().equals(readFileSync(CARD))) {
