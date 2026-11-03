@@ -1,0 +1,121 @@
+# The mothership's barrier on the player, and a thrown rock breaking its emitter (851-3955): no other replay runs
+# oBarrier's collision with oCharacter or oBarrierEmitter's with oItem. As fuzz-goal-ice-seed-63-alien-boss.txt to
+# level 10 (it loads on 1243 with the mothership; the player starts on the rock above it, at x 568), then area-route
+# --steps '+oRock' takes him to a rock on the hull's roof, which he picks up (1376, at x 398), then by hand. He drops
+# a bomb on the roof at x 447 (1397) and backs off to x 404, still holding the rock; the blast (1516) opens the roof
+# (four oAlienShip). He walks into the hole and runs right through the craft's main room (shift, 1548), under the
+# barrier's emitter (576,176), and jumps (1564) over the ice block at the barrier's foot into the barrier: oBarrier's
+# collision with oCharacter throws him back and takes a heart, and in the same step the Alien Lord's psychic wave,
+# sent as he came within 96 pixels, takes another and stuns him (1571): he drops the rock. Up again (1648), he walks
+# back to the rock, picks it up (1663) and throws it up and right (up + X, 1667) into the emitter: oBarrierEmitter's
+# collision with an item faster than 2 pixels a step destroys it, and its destroy event the barrier (1675). The next
+# wave takes a heart (1704). Ends at 1719.
+# story: currLevel=10@1178 alienCraft=1@1243 held=oRock@1376 -oAlienShip*2@1516..1516 -oAlienShip*2@1518..1518 plife=2@1571..1571
+# story: held!=oRock@1571..1571 held=oRock@1663..1663 held!=oRock@1667..1667 -oBarrierEmitter@1675..1675
+# story: -oBarrier@1675..1675 plife=1@1704 !oPlayer1.dead=1
+seed 63
+frames 1720
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 press X
+22 release X
+60 press X
+62 release X
+450 press left
+531 release left
+538 press up
+638 release up
+640 press left
+640 press Z
+646 release Z
+718 release left
+727 press up
+732 release up
+773 press left
+773 press shift
+864 press Z
+874 release Z
+875 release left
+875 release shift
+877 press left
+906 press Z
+907 release left
+909 press S
+912 release Z
+912 release S
+926 press up
+927 press Z
+929 release Z
+968 release up
+969 press P
+971 release P
+990 press up
+1002 release up
+1004 press left
+1034 release left
+1034 press up
+1058 release up
+1058 press left
+1088 release left
+1088 press right
+1148 release right
+1148 press left
+1178 release left
+1178 press up
+1184 release up
+1184 press left
+1210 release left
+1211 press X
+1213 release X
+1219 press X
+1221 release X
+1227 press X
+1229 release X
+1235 press X
+1237 release X
+1243 press X
+1245 release X
+1250 press right
+1256 release right
+1256 press down
+1262 release down
+1262 press right
+1262 press X
+1268 release right
+1268 release X
+1268 press left
+1274 release left
+1274 press Z
+1280 release Z
+1280 press left
+1286 press Z
+1292 release Z
+1322 release left
+1322 press up
+1346 release up
+1346 press left
+1376 release left
+1376 press down
+1376 press X
+1377 release down
+1377 release X
+1380 hold right 16
+1396 hold down 4
+1397 hold A 2
+1402 hold left 14
+1532 hold right 70
+1548 hold shift 40
+1564 hold Z 14
+1650 hold right 12
+1662 hold down 4
+1663 hold X 2
+1666 hold up 4
+1667 hold X 2
