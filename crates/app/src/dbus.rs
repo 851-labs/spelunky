@@ -9,7 +9,7 @@
 
 use std::io::{self, BufRead, BufReader, Read, Write};
 use std::os::unix::net::UnixStream;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 /// How long a call may take: the inhibit is asked for as the window gets focus, so a bus that doesn't
 /// answer mustn't hold the game up for long.
@@ -74,22 +74,16 @@ impl Bus {
         Ok(bus)
     }
 
-    /// `EXTERNAL`: the bus checks the socket's peer is the user named, by uid in hex digits of its decimal.
+    /// `EXTERNAL`: the bus takes the user from the socket's peer credentials. Sent with no user named, it asks
+    /// for one (`DATA`), and an empty answer lets it take the peer's, as sd-bus does: no uid to look up, which
+    /// std can't without `/proc`.
     fn authenticate(&mut self) -> io::Result<()> {
-        use std::os::unix::fs::MetadataExt;
-        // The process's own uid, without libc: /proc/self is owned by it.
-        let uid = std::fs::metadata("/proc/self")?.uid();
-        let hex: String = uid
-            .to_string()
-            .bytes()
-            .map(|b| format!("{b:02x}"))
-            .collect();
-        self.stream
-            .write_all(format!("\0AUTH EXTERNAL {hex}\r\n").as_bytes())?;
-        let mut line = String::new();
-        BufReader::new(&self.stream)
-            .take(512)
-            .read_line(&mut line)?;
+        self.stream.write_all(b"\0AUTH EXTERNAL\r\n")?;
+        let mut line = self.auth_line()?;
+        if line.trim_end() == "DATA" {
+            self.stream.write_all(b"DATA\r\n")?;
+            line = self.auth_line()?;
+        }
         if !line.starts_with("OK ") {
             return Err(io::Error::other(format!(
                 "D-Bus refused: {}",
@@ -97,6 +91,15 @@ impl Bus {
             )));
         }
         self.stream.write_all(b"BEGIN\r\n")
+    }
+
+    /// One line of the authentication's: the bus sends one at a time, each answering the client's last.
+    fn auth_line(&mut self) -> io::Result<String> {
+        let mut line = String::new();
+        BufReader::new(&self.stream)
+            .take(512)
+            .read_line(&mut line)?;
+        Ok(line)
     }
 
     /// Calls a method and waits for its reply, whose body it returns. An error reply is an error.
@@ -107,7 +110,7 @@ impl Bus {
         interface: &str,
         member: &str,
         args: &[Arg],
-    ) -> io::Result<Vec<u8>> {
+    ) -> io::Result<Message> {
         self.serial += 1;
         let serial = self.serial;
         self.stream.write_all(&method_call(
@@ -118,17 +121,23 @@ impl Bus {
             member,
             args,
         ))?;
+        // The whole call within the timeout, however many other messages come first.
+        let deadline = Instant::now() + TIMEOUT;
         loop {
-            let (kind, reply_to, body) = read_message(&mut self.stream)?;
-            if reply_to != Some(serial) {
-                // A signal (the bus's NameAcquired after Hello), or a reply to something else.
-                continue;
+            let left = deadline.saturating_duration_since(Instant::now());
+            if left.is_zero() {
+                return Err(io::ErrorKind::TimedOut.into());
             }
-            return match kind {
-                METHOD_RETURN => Ok(body),
-                ERROR => Err(io::Error::other(format!("D-Bus {member}: error reply"))),
-                _ => continue,
-            };
+            self.stream.set_read_timeout(Some(left))?;
+            let message = read_message(&mut self.stream)?;
+            // Skip a signal (the bus's NameAcquired after Hello), or a reply to something else.
+            if message.reply_to == Some(serial) {
+                match message.kind {
+                    METHOD_RETURN => return Ok(message),
+                    ERROR => return Err(io::Error::other(format!("D-Bus {member}: error reply"))),
+                    _ => {}
+                }
+            }
         }
     }
 
@@ -253,8 +262,33 @@ fn method_call(
     out
 }
 
-/// Reads one message: its type, the serial it replies to (if it's a reply or an error), and its body.
-fn read_message(stream: &mut impl Read) -> io::Result<(u8, Option<u32>, Vec<u8>)> {
+/// A message read: its type, the serial it replies to (if it's a reply or an error), its body, and whether
+/// its numbers are big-endian (the sender's order, which the bus passes on).
+pub struct Message {
+    kind: u8,
+    reply_to: Option<u32>,
+    body: Vec<u8>,
+    big: bool,
+}
+
+impl Message {
+    /// The `u32` the body starts with.
+    pub fn u32(&self) -> Option<u32> {
+        let bytes = self.body.get(..4)?.try_into().ok()?;
+        Some(if self.big {
+            u32::from_be_bytes(bytes)
+        } else {
+            u32::from_le_bytes(bytes)
+        })
+    }
+}
+
+fn truncated() -> io::Error {
+    io::Error::other("D-Bus: a truncated message")
+}
+
+/// Reads one message.
+fn read_message(stream: &mut impl Read) -> io::Result<Message> {
     let mut fixed = [0u8; 16];
     stream.read_exact(&mut fixed)?;
     let big = match fixed[0] {
@@ -266,7 +300,7 @@ fn read_message(stream: &mut impl Read) -> io::Result<(u8, Option<u32>, Vec<u8>)
         let bytes: [u8; 4] = b
             .get(at..at + 4)
             .and_then(|s| s.try_into().ok())
-            .ok_or_else(|| io::Error::other("D-Bus: a truncated message"))?;
+            .ok_or_else(truncated)?;
         Ok(if big {
             u32::from_be_bytes(bytes)
         } else {
@@ -284,44 +318,38 @@ fn read_message(stream: &mut impl Read) -> io::Result<(u8, Option<u32>, Vec<u8>)
     stream.read_exact(&mut rest)?;
     let mut message = fixed.to_vec();
     message.extend_from_slice(&rest);
+    let fields = &message[..16 + fields_len];
+    let byte = |at: usize| fields.get(at).copied().ok_or_else(truncated);
     let mut at = 16;
     let mut reply_to = None;
-    while at < 16 + fields_len {
+    while at < fields.len() {
         at = at.div_ceil(8) * 8;
-        let code = message[at];
-        let sig_len = message[at + 1] as usize;
-        let kind = message.get(at + 2).copied().unwrap_or(0);
-        at += 2 + sig_len + 1;
+        let code = byte(at)?;
+        let sig_len = byte(at + 1)?;
+        let kind = byte(at + 2)?;
+        at += 2 + sig_len as usize + 1;
         match (sig_len, kind) {
             (1, b'u') => {
                 at = at.div_ceil(4) * 4;
                 if code == REPLY_SERIAL {
-                    reply_to = Some(u32_at(&message, at)?);
+                    reply_to = Some(u32_at(fields, at)?);
                 }
                 at += 4;
             }
             (1, b's' | b'o') => {
                 at = at.div_ceil(4) * 4;
-                at += 4 + u32_at(&message, at)? as usize + 1;
+                at += 4 + u32_at(fields, at)? as usize + 1;
             }
-            (1, b'g') => {
-                at += 1
-                    + *message
-                        .get(at)
-                        .ok_or_else(|| io::Error::other("D-Bus: a truncated message"))?
-                        as usize
-                    + 1;
-            }
+            (1, b'g') => at += 1 + byte(at)? as usize + 1,
             _ => return Err(io::Error::other("D-Bus: a header field of an unknown type")),
         }
     }
-    let body = message[padded..].to_vec();
-    Ok((fixed[1], reply_to, body))
-}
-
-/// The `u32` a reply's body starts with.
-pub fn body_u32(body: &[u8]) -> Option<u32> {
-    Some(u32::from_le_bytes(body.get(..4)?.try_into().ok()?))
+    Ok(Message {
+        kind: fixed[1],
+        reply_to,
+        body: message[padded..].to_vec(),
+        big,
+    })
 }
 
 #[cfg(test)]
@@ -358,15 +386,29 @@ mod tests {
         m.extend_from_slice(&fields);
         align(&mut m, 8);
         m.extend_from_slice(&42u32.to_le_bytes());
-        let (kind, reply_to, body) = read_message(&mut m.as_slice()).unwrap();
+        let r = read_message(&mut m.as_slice()).unwrap();
         assert_eq!(
-            (kind, reply_to, body_u32(&body)),
+            (r.kind, r.reply_to, r.u32()),
             (METHOD_RETURN, Some(3), Some(42))
         );
+        // The same, big-endian.
+        let mut b = vec![b'B', METHOD_RETURN, 1, 1, 0, 0, 0, 4, 0, 0, 0, 9];
+        let mut fields = vec![REPLY_SERIAL, 1, b'u', 0, 0, 0, 0, 3];
+        fields.extend_from_slice(&[SIGNATURE, 1, b'g', 0, 1, b'u', 0]);
+        b.extend_from_slice(&(fields.len() as u32).to_be_bytes());
+        b.extend_from_slice(&fields);
+        align(&mut b, 8);
+        b.extend_from_slice(&42u32.to_be_bytes());
+        let r = read_message(&mut b.as_slice()).unwrap();
+        assert_eq!((r.reply_to, r.u32()), (Some(3), Some(42)));
         // A message as `method_call` writes it reads back too, with no reply serial.
         let call = method_call(1, "d", "/p", "i", "m", &[Arg::Str("x")]);
-        let (kind, reply_to, body) = read_message(&mut call.as_slice()).unwrap();
-        assert_eq!((kind, reply_to, body.len()), (METHOD_CALL, None, 6));
+        let r = read_message(&mut call.as_slice()).unwrap();
+        assert_eq!((r.kind, r.reply_to, r.body.len()), (METHOD_CALL, None, 6));
+        // A fields array that runs past its own end is an error, not a panic.
+        let mut short = m.clone();
+        short[12] = 9;
+        assert!(read_message(&mut short.as_slice()).is_err());
     }
 
     #[test]

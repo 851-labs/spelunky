@@ -181,9 +181,11 @@ pub trait Overlay {
     fn modal(&self) -> bool;
 }
 
-/// Whether a hotkey's press or repeat at tick `ticks` acts ([`App::hotkey`]), given the tick it last acted at.
+/// Whether a hotkey's press or repeat at tick `ticks` acts ([`App::hotkey`]), given the tick it last acted at:
+/// a press always (no tick runs before a run starts or after it ends, and the key still works there), a repeat
+/// once a tick, natively.
 fn hotkey_acts(last: Option<u64>, ticks: u64, repeat: bool, web: bool) -> bool {
-    !(repeat && web) && last != Some(ticks)
+    !repeat || (!web && last != Some(ticks))
 }
 
 /// GM's `cr_default`, the platform's arrow, and `cr_none`, no pointer.
@@ -508,11 +510,10 @@ pub struct App<G> {
     fitted: Option<(u32, u32)>,
     /// The fullscreen state the game last asked for.
     fullscreen: bool,
-    /// Whether the pointer was last set to show over the window ([`App::follow_cursor`]): a new window
-    /// shows it.
-    /// The tick F4 and F9 last acted at ([`App::hotkey`]).
+    /// The tick F4 and F9 last acted at, in that order ([`App::hotkey`]).
     hotkeys: [Option<u64>; 2],
-    /// The pointer shown over the window, `None` for none ([`App::follow_cursor`]).
+    /// The pointer shown over the window, `None` for none ([`App::follow_cursor`]): a new window shows the
+    /// arrow.
     pointer: Option<CursorIcon>,
     /// The app's layer over the game, if it has one.
     overlay: Option<Box<dyn Overlay>>,
@@ -758,12 +759,13 @@ impl<G: Game> App<G> {
         self
     }
 
-    /// Whether F4 (`which` 0) or F9 (1), pressed or repeating, acts now: once a tick at most, as GM8's hotkey
-    /// routine acts once a frame, at its start, whenever `keyboard_lastkey` is the key, which its press and
-    /// each auto-repeat set (Spelunky.exe 0x53daa4; under Wine a held F9 took a screenshot a frame a repeat
+    /// Whether F4 or F9, pressed or repeating, acts now: a press always, a repeat once a tick at most, as GM8's
+    /// hotkey routine acts once a frame, at its start, whenever `keyboard_lastkey` is the key, which its press
+    /// and each auto-repeat set (Spelunky.exe 0x53daa4; under Wine a held F9 took a screenshot a frame a repeat
     /// reached, and a held F4 toggled fullscreen again and again: 851-3874, 851-3877). Not a repeat on the web,
     /// where F9 is the browser's and each fullscreen change is the browser's to animate.
-    fn hotkey(&mut self, which: usize, repeat: bool) -> bool {
+    fn hotkey(&mut self, key: KeyCode, repeat: bool) -> bool {
+        let which = usize::from(key == KeyCode::F9);
         let acts = hotkey_acts(
             self.hotkeys[which],
             self.ticks,
@@ -1653,7 +1655,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 // F4 toggles fullscreen, as in the original's game settings, and again as it repeats.
                 if down
                     && key == KeyCode::F4
-                    && self.hotkey(0, repeat)
+                    && self.hotkey(key, repeat)
                     && let Some(window) = &self.window
                 {
                     let full = window.fullscreen().is_none();
@@ -1708,7 +1710,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 // F9 saves a screenshot, as in the original's game settings, and goes on to the game. Not
                 // one the app's dialog took.
                 #[cfg(not(target_arch = "wasm32"))]
-                if down && key == KeyCode::F9 && self.hotkey(1, repeat) {
+                if down && key == KeyCode::F9 && self.hotkey(key, repeat) {
                     self.screenshot();
                 }
                 if let Some(c) = self.collector() {
@@ -1865,7 +1867,8 @@ mod tests {
         // A repeat in a later tick acts again; another in the same tick doesn't.
         assert!(hotkey_acts(Some(5), 6, true, false));
         assert!(!hotkey_acts(Some(6), 6, true, false));
-        assert!(!hotkey_acts(Some(6), 6, false, false));
+        // A press always acts, though no tick has run since the last (before a run starts, after it ends).
+        assert!(hotkey_acts(Some(6), 6, false, false));
         // Not a repeat on the web, but a press.
         assert!(!hotkey_acts(Some(5), 6, true, true));
         assert!(hotkey_acts(Some(5), 6, false, true));

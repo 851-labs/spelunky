@@ -8,8 +8,8 @@
 //! - Windows: `SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED)`.
 //! - The web: a screen wake lock (`navigator.wakeLock`), which the browser drops when the tab is hidden.
 //! - Linux (and the other Unixes with a freedesktop desktop): `org.freedesktop.ScreenSaver.Inhibit` on the
-//!   session bus ([`crate::dbus`]), which lasts while its connection is open; nothing without a session bus
-//!   or a screen saver service on it.
+//!   session bus ([`crate::dbus`]), or GNOME's `org.gnome.SessionManager.Inhibit`, which last while their
+//!   connection is open; nothing without a session bus or either service on it.
 //!
 //! Frontend only, and only for a session of play: never a replay, a page's clip or a headless run.
 
@@ -253,36 +253,60 @@ mod platform {
 
 #[cfg(not(any(target_os = "macos", windows, target_arch = "wasm32")))]
 mod platform {
-    use crate::dbus::{Arg, Bus, body_u32};
+    use crate::dbus::{Arg, Bus};
 
-    const SERVICE: &str = "org.freedesktop.ScreenSaver";
-    const PATH: &str = "/org/freedesktop/ScreenSaver";
+    /// The services that hold the screen saver off, the first that answers taking it: the freedesktop
+    /// `ScreenSaver` interface (KDE, Xfce, LXQt, and the screen savers themselves), then GNOME's session
+    /// manager, whose `Inhibit` takes the window (0: none) and what to inhibit (8: the session going idle). Each
+    /// lasts while the connection that asked is open. Its service, path and interface, then its two methods.
+    const SERVICES: [(&str, &str, &str, &str); 2] = [
+        (
+            "org.freedesktop.ScreenSaver",
+            "/org/freedesktop/ScreenSaver",
+            "Inhibit",
+            "UnInhibit",
+        ),
+        (
+            "org.gnome.SessionManager",
+            "/org/gnome/SessionManager",
+            "Inhibit",
+            "Uninhibit",
+        ),
+    ];
+    const APP: &str = "Spelunky Classic";
+    const REASON: &str = "Playing";
 
-    /// The inhibit's cookie, and the connection it lasts as long as.
+    /// The inhibit's cookie, the service that gave it, and the connection it lasts as long as.
     pub struct Held {
         bus: Bus,
+        service: usize,
         cookie: u32,
     }
 
     impl Held {
-        /// Asks the session's screen saver service not to start, nor the display to sleep (the freedesktop
-        /// `ScreenSaver` interface, which GNOME, KDE and Xfce provide). Best effort: `None` without a session
-        /// bus or the service.
+        /// Asks the session not to start its screen saver, nor the display to sleep. Best effort: `None` without
+        /// a session bus or either service.
         pub fn new() -> Option<Held> {
             let mut bus = Bus::session().ok()?;
-            let reply = bus
-                .call(
-                    SERVICE,
-                    PATH,
-                    SERVICE,
-                    "Inhibit",
-                    &[Arg::Str("Spelunky Classic"), Arg::Str("Playing")],
-                )
-                .ok()?;
-            Some(Held {
-                cookie: body_u32(&reply)?,
-                bus,
-            })
+            for (service, &(name, path, inhibit, _)) in SERVICES.iter().enumerate() {
+                let args: &[Arg] = if service == 0 {
+                    &[Arg::Str(APP), Arg::Str(REASON)]
+                } else {
+                    &[Arg::Str(APP), Arg::U32(0), Arg::Str(REASON), Arg::U32(8)]
+                };
+                if let Some(cookie) = bus
+                    .call(name, path, name, inhibit, args)
+                    .ok()
+                    .and_then(|r| r.u32())
+                {
+                    return Some(Held {
+                        bus,
+                        service,
+                        cookie,
+                    });
+                }
+            }
+            None
         }
 
         pub fn dropped(&self) -> bool {
@@ -293,13 +317,10 @@ mod platform {
     impl Drop for Held {
         fn drop(&mut self) {
             // Closing the connection lets it go too; this says so first, without waiting for an answer.
-            let _ = self.bus.send(
-                SERVICE,
-                PATH,
-                SERVICE,
-                "UnInhibit",
-                &[Arg::U32(self.cookie)],
-            );
+            let (name, path, _, uninhibit) = SERVICES[self.service];
+            let _ = self
+                .bus
+                .send(name, path, name, uninhibit, &[Arg::U32(self.cookie)]);
         }
     }
 }
