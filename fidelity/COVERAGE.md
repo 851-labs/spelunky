@@ -17,7 +17,7 @@ scripts/cargo run --release -p harness --bin replay-coverage                # al
 scripts/cargo run --release -p harness --bin replay-coverage -- --by-object a.txt b.txt  # which replay made what, visited which rooms, died
 ```
 
-327 replays, 597,022 frames:
+328 replays, 598,102 frames:
 
 Objects by ticket. *Active* objects were in or near the view on some frame, so their events ran; *inactive* ones only existed deactivated (generated, but never near the player); *never* ones weren't created at all.
 
@@ -133,9 +133,9 @@ scripts/cargo run --release -p harness --bin replay-coverage -- --lines --missed
 scripts/cargo run --release -p harness --bin replay-coverage -- --lines --by-line oSnake/   # which replays run each line
 ```
 
-All 335 committed replays, 597,827 frames:
+All 336 committed replays, 598,907 frames:
 
-- **The game**: 17748 of 20278 lines (87.5%), in 1435 units: 131 never ran, 207 partly.
+- **The game**: 17760 of 20278 lines (87.6%), in 1435 units: 130 never ran, 207 partly.
 - **The settings program**: 599 of 1231 lines (48.7%), in 114 units: 65 never ran, 5 partly.
 
 The game's units that never ran, by why:
