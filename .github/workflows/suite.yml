@@ -1,11 +1,15 @@
-# The test suite (scripts/check) on one of GitHub's Linux machines (x86_64), not the self-hosted Mac minis, which
-# are shared with other projects and were the queue every pull request waited in (851-3953). pr.yml calls it for a
-# pull request; a push to main runs it too, which checks main after each merge and saves the build cache every
-# pull request's run starts from (a pull request's own cache only its later runs could use).
+# The test suite (scripts/check) on GitHub's Linux machines (x86_64), not the self-hosted Mac minis, which are shared
+# with other projects and were the queue every pull request waited in (851-3953). pr.yml calls it for a pull request;
+# a push to main runs it too, which checks main after each merge and saves the build cache every pull request's run
+# starts from (a pull request's own cache only its later runs could use).
 #
 # Everything in scripts/check runs on Linux, fidelity-check's replays too (gm::math is the same everywhere), but
 # crates/workspace-hack's checks, which are Apple silicon Macs' and skip themselves, and the macOS-only code, which
 # Linux doesn't compile: pr.yml's mini job runs those (scripts/check --apple).
+#
+# Two machines side by side, each running half of it (scripts/check --part 1 and --part 2: together all of it), and
+# for a pull request that changes nothing the suite reads, neither runs it and both succeed (851-3998,
+# docs/ci.md "Pull requests").
 name: Test suite
 
 on:
@@ -31,6 +35,11 @@ env:
 jobs:
   check:
     name: Test suite
+    strategy:
+      # Each half's failures are its own: one failing doesn't hide the other's.
+      fail-fast: false
+      matrix:
+        part: [1, 2]
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     defaults:
@@ -42,24 +51,75 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # The merge commit's parents too, for what it changes.
+          fetch-depth: 2
+      # What scripts/check never reads, taken out of the checkout (git's sparse checkout, gitignore's patterns: the
+      # first line keeps everything, a `!` line drops a path, a later line brings one back). The suite then runs
+      # without them, so one it does read fails it rather than being missed here: keep a path out only if the suite
+      # passes without it. And a pull request that changes nothing left in the checkout doesn't run the suite.
+      - name: What the suite reads
+        id: changes
+        env:
+          UNREAD: |
+            /*
+            !/docs/
+            /docs/source-inventory.md
+            !/site/
+            /site/*.sh
+            /site/.node-version
+            /site/content/wiki/
+            /site/content/wiki-data/
+            /site/public/
+            !/wiki/media/
+            /wiki/media/clips/
+            !/fidelity/screenshots/
+            !/README.md
+            !/CLAUDE.md
+        run: |
+          git sparse-checkout set --no-cone --stdin <<<"$UNREAD"
+          # scripts/check-sh finds the sh scripts it checks with git grep, which skips what's out of the checkout:
+          # every one must be in it (check-sh's own search, but in the index).
+          scripts=$(git grep --cached -lI -e '^#!/bin/sh' -e '^#!/bin/bash' -e '^#!/usr/bin/env bash' -- ':!wiki/media')
+          outside=$(comm -23 <(sort <<<"$scripts") <(git sparse-checkout check-rules <<<"$scripts" | sort))
+          if [ -n "$outside" ]; then
+            echo "::error::scripts/check-sh checks these, which the sparse checkout leaves out: $outside"
+            exit 1
+          fi
+          # A pull request's run checks out its merge commit, so what it changes is the diff from the first parent
+          # (both sides of a rename). Anything else (a push to main) runs.
+          if [ "$GITHUB_EVENT_NAME" = pull_request ] && git rev-parse -q --verify HEAD^2 >/dev/null; then
+            read=$(git diff --name-only --no-renames HEAD^1 HEAD | git sparse-checkout check-rules)
+            if [ -z "$read" ]; then
+              echo "nothing the suite reads changed: skipping"
+              echo "skip=true" >>"$GITHUB_OUTPUT"
+            else
+              echo "the suite reads what changed:"
+              head -20 <<<"$read"
+            fi
+          fi
       # What the app links on Linux: cpal's ALSA, gilrs' udev, and winit's Wayland and xkbcommon (pkg-config).
       - name: Linux libraries
+        if: steps.changes.outputs.skip != 'true'
         run: |
           sudo apt-get update -q
           sudo apt-get install -qy --no-install-recommends pkg-config libasound2-dev libudev-dev libwayland-dev \
             libxkbcommon-dev
       # rust-toolchain.toml's toolchain, with its wasm32 targets.
-      - run: rustup toolchain install --no-self-update
+      - if: steps.changes.outputs.skip != 'true'
+        run: rustup toolchain install --no-self-update
       # scripts/wasm-test runs gm's wasm32 tests under Node.
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - if: steps.changes.outputs.skip != 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: site/.node-version
-      # The registry and target/ between runs, in GitHub's cache (10 GB a repository). Saved only by main's run,
-      # which every pull request's can read (a pull request's own could only be read by its later runs, and would
-      # push main's out).
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      # The registry and target/ between runs, in GitHub's cache (10 GB a repository), one for each half, as they
+      # build different things. Saved only by main's run, which every pull request's can read (a pull request's own
+      # could only be read by its later runs, and would push main's out).
+      - if: steps.changes.outputs.skip != 'true'
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
-          shared-key: check
+          shared-key: check-${{ matrix.part }}
           save-if: ${{ github.event_name == 'push' }}
       # -x: the log shows every step it runs, each line with the runner's timestamp.
-      - run: sh -x scripts/check
+      - if: steps.changes.outputs.skip != 'true'
+        run: sh -x scripts/check --part "${{ matrix.part }}"
