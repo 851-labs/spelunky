@@ -90,6 +90,8 @@ echo 'export default function init() {}' >"$tmp/web/v/0123456789abcdef/app.js"
 mkdir -p "$tmp/web/v/0123456789abcdef/assets/config"
 echo 'stand-in bundle' >"$tmp/web/v/0123456789abcdef/assets/bundle.bin"
 echo 'stand-in settings bundle' >"$tmp/web/v/0123456789abcdef/assets/config/bundle.bin"
+mkdir -p "$tmp/web/v/0123456789abcdef/assets/sounds"
+echo 'stand-in sound' >"$tmp/web/v/0123456789abcdef/assets/sounds/sndJump.wav"
 (cd "$tmp/web" && shasum -a 256 index.html v/0123456789abcdef/app.js >manifest.txt)
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 echo '{"version":"stand-in"}' >"$tmp/latest.json"
@@ -513,8 +515,8 @@ check "$site/play/manifest.txt" 200 "$no_cache"
   fail "$url: doesn't name app.js as the release does"
 check "$site/play/v/0123456789abcdef/app.js" 200 "$immutable" "x-content-type-options: nosniff" "$hsts"
 same "$tmp/web/v/0123456789abcdef/app.js"
-# Its assets, as a type Cloudflare compresses (public/_headers).
-for bin in assets/bundle.bin assets/config/bundle.bin; do
+# Its assets and sounds, as a type Cloudflare compresses (public/_headers).
+for bin in assets/bundle.bin assets/config/bundle.bin assets/sounds/sndJump.wav; do
   check "$site/play/v/0123456789abcdef/$bin" 200 "$immutable" "content-type: application/x-protobuf" \
     "x-content-type-options: nosniff"
   same "$tmp/web/v/0123456789abcdef/$bin"
