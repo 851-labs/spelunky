@@ -229,6 +229,8 @@ pub struct FrameEncoder {
     extra: Vec<usize>,
     /// The tiles in draw order, by index, reused.
     tiles: Vec<usize>,
+    /// Globals left out of the frame, by name ([`skipping_globals`](Self::skipping_globals)).
+    skip_global: Option<fn(&str) -> bool>,
 }
 
 /// An object's layout as `(variable, slot)`, in name order.
@@ -285,15 +287,29 @@ impl FrameEncoder {
         FrameEncoder::default()
     }
 
+    /// One that leaves out the globals `skip` names: a frame that isn't the trace's, for comparing two
+    /// runs that may differ only there (the sound handles of two audio modes, `harness`'s
+    /// `fidelity-check`).
+    pub fn skipping_globals(skip: fn(&str) -> bool) -> FrameEncoder {
+        FrameEncoder {
+            skip_global: Some(skip),
+            ..FrameEncoder::default()
+        }
+    }
+
     /// Appends the world's frame to `out`.
     pub fn encode<'w>(&mut self, w: &'w World, out: &mut Vec<u8>) -> FrameKey<'w> {
         let p = w.program;
         if !self.program.is_some_and(|q| std::ptr::eq(q, p)) {
-            let mut globals: Vec<u16> = (0..p.global_count() as u16).collect();
+            let skip = self.skip_global;
+            let mut globals: Vec<u16> = (0..p.global_count() as u16)
+                .filter(|&g| !skip.is_some_and(|skip| skip(p.global_name(GVar(g)))))
+                .collect();
             globals.sort_by(|&a, &b| p.global_name(GVar(a)).cmp(p.global_name(GVar(b))));
             *self = FrameEncoder {
                 program: Some(p),
                 globals: globals.into(),
+                skip_global: skip,
                 ..FrameEncoder::default()
             };
         }

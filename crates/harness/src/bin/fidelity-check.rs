@@ -12,11 +12,12 @@ use std::sync::{Arc, Mutex, PoisonError};
 use std::time::Instant;
 
 use harness::fingerprint::{
-    Fingerprint, SUITES, Suite, all_replays, fingerprint_path, port_mismatch, replay_hash,
-    run_fingerprint_watched, shown, sorted_with_extension,
+    Fingerprint, Fingerprinter, SUITES, Suite, all_replays, faithful_audio_mismatch,
+    fingerprint_path, port_mismatch, replay_hash, run_fingerprint_watched, shown,
+    sorted_with_extension, sound_handle,
 };
 use harness::story::{Story, Watcher};
-use harness::{load_assets, load_replay_story};
+use harness::{load_bundle, load_replay_story, load_sounds};
 use tools::{Arg, Args, write_stdout};
 use trace::Replay;
 
@@ -30,6 +31,11 @@ checks the replay's story facts (its `# story:` lines, docs/formats.md), so that
 port and oracle somewhere new together doesn't leave a header describing what no longer happens. A
 replay without a story fact that must hold is an error. It doesn't need the oracle or Docker. Without replays, a
 fingerprint whose replay is gone is an error too.
+
+The replays of AUDIO_REPLAYS (music in every area, the pause, Olmec, the ending, the credits, a custom level,
+the bonus rooms) are also played in the audio mode players get, Faithful, with the game's sounds, which must
+play them as the oracle's stub mode does but for the sound handles (global.snd*, global.mus*), the only state
+the two may differ in (docs/quirks.md §7).
 
 options:
   --jobs <n>      replays played at once (default: one per core)
@@ -77,6 +83,26 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
     Ok(Some(o))
 }
 
+/// The replays also played in Faithful audio, which must play them as the oracle's stub mode does
+/// (851-3792): between them, every area's music and its changes, the pause, Olmec and the ending, the
+/// credits, a custom level's, the bonus rooms and the high scores room.
+const AUDIO_REPLAYS: [&str; 7] = [
+    "ending-seed-1",
+    "mines-seed-1",
+    "flow-pause-dying-quit-seed-1",
+    "custom-chain-end",
+    "bonus-stars-shotgun",
+    "flow-highscores-moon-room-slow-win",
+    "title-credits-to-the-end",
+];
+
+/// Whether the replay is one of [`AUDIO_REPLAYS`].
+fn audio_checked(job: &Job) -> bool {
+    !job.suite.settings
+        && (job.path.file_stem().and_then(|s| s.to_str()))
+            .is_some_and(|s| AUDIO_REPLAYS.contains(&s))
+}
+
 /// A replay to check.
 struct Job {
     path: PathBuf,
@@ -106,7 +132,13 @@ fn untold(job: &Job, repo: &Path) -> Option<String> {
     })
 }
 
-fn check(job: &Job, assets: Arc<gm::Assets>, repo: &Path) -> Option<String> {
+/// `sounds`: the game's, for Faithful audio's run of one of [`AUDIO_REPLAYS`].
+fn check(
+    job: &Job,
+    assets: Arc<gm::Assets>,
+    repo: &Path,
+    sounds: Option<&Arc<game::audio::SoundBank>>,
+) -> Option<String> {
     let fp_path = fingerprint_path(repo, job.suite, &job.path);
     let replay = shown(repo, &job.path);
     if !fp_path.exists() {
@@ -127,14 +159,36 @@ fn check(job: &Job, assets: Arc<gm::Assets>, repo: &Path) -> Option<String> {
         ));
     }
     let mut watcher = Watcher::new(&job.story);
-    let (port, summary) =
-        match run_fingerprint_watched(&job.replay, assets, job.suite.settings, &mut |frame, w| {
-            watcher.frame(frame, w)
-        }) {
-            Ok(r) => r,
-            Err(e) => return Some(e),
-        };
+    // For one of AUDIO_REPLAYS, the same run fingerprinted again without the sound handles, to hold
+    // Faithful audio's run to.
+    let sounds = sounds.filter(|_| audio_checked(job));
+    let mut quiet = sounds.map(|_| Fingerprinter::skipping_globals(sound_handle));
+    let (port, summary) = match run_fingerprint_watched(
+        &job.replay,
+        assets.clone(),
+        job.suite.settings,
+        &mut |frame, w| {
+            watcher.frame(frame, w);
+            if let Some(q) = &mut quiet {
+                q.world(w);
+            }
+        },
+    ) {
+        Ok(r) => r,
+        Err(e) => return Some(e),
+    };
     let mut problems = Vec::new();
+    if let (Some(quiet), Some(sounds)) = (quiet, sounds) {
+        // The host files are the run's own, which the skipped globals don't touch.
+        let stub = Fingerprint {
+            host: port.host.clone(),
+            ..quiet.finish(&job.replay, None)
+        };
+        match faithful_audio_mismatch(&stub, &summary, &job.replay, assets, sounds.clone()) {
+            Ok(None) => {}
+            Ok(Some(m)) | Err(m) => problems.push(m),
+        }
+    }
     if let Some(m) = port_mismatch(&recorded, &port, &summary) {
         let settings = if job.suite.settings {
             " --settings"
@@ -205,11 +259,38 @@ fn run() -> Result<bool, String> {
             })
         })
         .collect::<Result<Vec<_>, String>>()?;
+    // A replay Faithful audio is checked on can't go without its check going too.
+    if o.replays.is_empty() {
+        for name in AUDIO_REPLAYS {
+            if !jobs
+                .iter()
+                .any(|j| !j.suite.settings && j.path.file_stem() == Some(name.as_ref()))
+            {
+                problems.push((
+                    SUITES[0].dir(&repo).join(format!("{name}.txt")),
+                    Some(
+                        "gone, but fidelity-check's AUDIO_REPLAYS still names it: name another"
+                            .into(),
+                    ),
+                ));
+            }
+        }
+    }
     // The longest first, so that one doesn't start last and hold everything up.
-    jobs.sort_by_key(|j| std::cmp::Reverse(j.replay.len()));
-    let game = load_assets(&o.assets)?;
+    // One of AUDIO_REPLAYS is played twice.
+    jobs.sort_by_key(|j| std::cmp::Reverse(j.replay.len() * if audio_checked(j) { 2 } else { 1 }));
+    let bundle = load_bundle(&o.assets)?;
+    // The game's sounds, for Faithful audio's runs, if any replay checked has one.
+    let sounds = if jobs.iter().any(audio_checked) {
+        Some(load_sounds(&o.assets, &bundle.sounds)?)
+    } else {
+        None
+    };
+    let game = Arc::new(gm::Assets::from_bundle(bundle));
     let settings = if jobs.iter().any(|j| j.suite.settings) {
-        Some(load_assets(&o.assets.join("config"))?)
+        Some(Arc::new(gm::Assets::from_bundle(load_bundle(
+            &o.assets.join("config"),
+        )?)))
     } else {
         None
     };
@@ -225,10 +306,13 @@ fn run() -> Result<bool, String> {
                         game.clone()
                     };
                     // One without a story is still played, for whatever else is wrong with it.
-                    let found: Vec<_> = [untold(job, &repo), check(job, assets, &repo)]
-                        .into_iter()
-                        .flatten()
-                        .collect();
+                    let found: Vec<_> = [
+                        untold(job, &repo),
+                        check(job, assets, &repo, sounds.as_ref()),
+                    ]
+                    .into_iter()
+                    .flatten()
+                    .collect();
                     let result = (!found.is_empty()).then(|| found.join("\n  "));
                     done.lock()
                         .unwrap_or_else(PoisonError::into_inner)
