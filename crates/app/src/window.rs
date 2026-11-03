@@ -205,9 +205,12 @@ fn pointer(embedded: bool, modal: bool, over: bool, game: i32) -> Option<CursorI
 /// The pointer for a GM cursor (`window_set_cursor`), `None` for `cr_none`. GM8's constants are Delphi's
 /// `crXXX` values, which its window's VCL shows as Windows' cursors (`IDC_*`) or, for `cr_drag`,
 /// `cr_nodrop`, `cr_hsplit`, `cr_vsplit`, `cr_multidrag` and `cr_sqlwait`, the VCL's own; each is the CSS
-/// cursor winit has of the same meaning (851-3945). `cr_uparrow`, `cr_drag` and `cr_multidrag` have none and
-/// show the arrow, as does any value that isn't a cursor, which the VCL shows as `cr_default`. Spelunky only
-/// sets `cr_none` and `cr_default` (`scrInit`, the level editor); the settings program sets none.
+/// cursor winit has of the same meaning (851-3945). Checked on the GM8 runner under Wine: a probe set each
+/// in turn while an XFixes client read X's pointer over the window, and each showed its shape (the up arrow,
+/// an arrow with a page and with pages for `cr_drag` and `cr_multidrag`, an hourglass marked "SQL"); -5,
+/// Delphi's old `crSize`, showed `cr_size_all`'s, and 7, not a cursor, the arrow. `cr_uparrow`, `cr_drag`
+/// and `cr_multidrag` have no CSS cursor and show the arrow. Spelunky only sets `cr_none` and `cr_default`
+/// (`scrInit`, the level editor); the settings program sets none.
 pub fn gm_cursor(cursor: i32) -> Option<CursorIcon> {
     Some(match cursor {
         CR_NONE => return None,
@@ -225,7 +228,7 @@ pub fn gm_cursor(cursor: i32) -> Option<CursorIcon> {
         -19 => CursorIcon::Progress,   // cr_appstart, IDC_APPSTARTING: the arrow with an hourglass
         -20 => CursorIcon::Help,       // cr_help, IDC_HELP
         -21 => CursorIcon::Pointer,    // cr_handpoint, IDC_HAND
-        -22 => CursorIcon::Move,       // cr_size_all, IDC_SIZEALL
+        -22 | -5 => CursorIcon::Move,  // cr_size_all (IDC_SIZEALL); -5, Delphi's old crSize
         _ => CursorIcon::Default,      // cr_default, cr_arrow, cr_uparrow, cr_drag, cr_multidrag
     })
 }
@@ -1875,9 +1878,10 @@ mod tests {
         assert_eq!(gm_cursor(-4), Some(CursorIcon::Text), "cr_beam");
         assert_eq!(gm_cursor(-21), Some(CursorIcon::Pointer), "cr_handpoint");
         assert_eq!(gm_cursor(-22), Some(CursorIcon::Move), "cr_size_all");
+        assert_eq!(gm_cursor(-5), Some(CursorIcon::Move), "Delphi's crSize");
         // Not a cursor: the default.
-        assert_eq!(gm_cursor(-5), Some(CursorIcon::Default));
         assert_eq!(gm_cursor(7), Some(CursorIcon::Default));
+        assert_eq!(gm_cursor(-23), Some(CursorIcon::Default));
     }
 
     /// Savestates of a clip from frame 270, before the frames `frames`, each holding its frame.
