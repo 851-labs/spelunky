@@ -70,7 +70,8 @@ checkout (`persist-credentials: false`). A new push to a pull request cancels it
 **Where each job runs** (851-3953). The two Mac minis are shared with other projects, and a pull request's three
 mini jobs used to queue behind theirs: a run that took two or three minutes of work waited 6 to 60 minutes for
 the minis. So a pull request now takes one mini, for what needs Apple silicon, and runs the rest on GitHub's
-machines (free for a public repository), two at a time (as the organization's projects share them):
+machines (free for a public repository): two more of them a pull request, beside the updater's (the
+organization's projects share GitHub's machines too):
 
 - **"Linux / Test suite"** (`suite.yml`, `ubuntu-24.04`): the whole of `scripts/check`. Linux builds and tests the
   workspace as the minis did, fidelity-check's replays included (the port is the same on every platform:
@@ -87,9 +88,11 @@ machines (free for a public repository), two at a time (as the organization's pr
   pull request's merge commit against its base and skips the rest when none of the paths changed (a job-level
   `if:` can't see the changed files, and a skipped job would fail `pr-ok`). Workers Builds builds each pull
   request's site too, but tests nothing.
-- **"Mac mini / Web, wiki media and macOS"**, one mini: `scripts/check --apple`, what only an Apple silicon Mac
-  checks (the macOS-only code, which Linux doesn't compile: clippy over the workspace as macOS builds it, and the
-  app's tests; `crates/workspace-hack`'s checks, which are Apple silicon Macs'), then `scripts/web --check` and
+- **"Mac mini / Web, wiki media and macOS"**, one mini: `scripts/check --apple`, what a Mac checks beside Linux
+  (the sh scripts under macOS's bash 3.2; the macOS-only code, which Linux doesn't compile: clippy over the
+  workspace as macOS builds it, and the app's tests; `crates/workspace-hack`'s checks, which are Apple silicon
+  Macs'; and fidelity-check's replays on the Mac app's own architecture, so a pull request still checks the
+  port is the same there as on Linux), then `scripts/web --check` and
   the wiki's committed media: `scripts/wiki-media --check --since HEAD^1`
   ([docs/wiki-media.md](wiki-media.md#committing)) renders them from the pull request and fails if `wiki/media`
   differs at all. A pull request that changes nothing the media are made from skips that at once; otherwise it
@@ -99,10 +102,11 @@ machines (free for a public repository), two at a time (as the organization's pr
 The updater's tests (`updater.yml`) run on every pull request, whatever it changes (the app reaches the
 updater from outside `crates/update` too), on GitHub's machines alongside the others, and `pr-ok` needs
 them. They take two or three minutes, less than the test suite, so they usually add no time to the run,
-unless GitHub's macOS arm64 machines are queueing (the notice under [Warnings](#warnings)). Like every other
-check, they don't re-run on `main` after a merge; a release runs them again before it publishes.
+unless GitHub's macOS arm64 machines are queueing (the notice under [Warnings](#warnings)). They don't re-run on
+`main` after a merge (only `suite.yml` does); a release runs them again before it publishes.
 
-The test fails on any error, not only on a check that fails. The minis' `sh` is macOS's bash 3.2, which exits
+The site test fails on any error, not only on a check that fails. On a Mac (where it ran on CI until 851-3953, and
+where it runs for anyone working on the site), `sh` is macOS's bash 3.2, which exits
 from a syntax error, or an unset variable under `set -u`, with the status of the EXIT trap it then runs: 0,
 for test.sh's cleanup. So a test.sh that stopped halfway passed, skipping every check after the error
 (851-3741). Now it checks that it parses before anything else (`sh -n "$0"`), and its cleanup fails a run

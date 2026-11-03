@@ -1,10 +1,11 @@
 #!/bin/sh
 # The full check suite: what CI's `pr-ok` runs on every pull request (docs/ci.md), on GitHub's Linux machines
 # (.github/workflows/suite.yml). Pass --fast for the pre-commit subset, which is only what's instant: formatting,
-# the oracle's arithmetic copy and the sh scripts' syntax. Pass --apple for what only an Apple silicon Mac checks,
-# which CI runs on a Mac mini beside the Linux run: the macOS-only code's lints and tests, which Linux doesn't
-# compile, and crates/workspace-hack's checks, which are Apple silicon Macs'. On such a Mac, the full suite runs
-# those too.
+# the oracle's arithmetic copy and the sh scripts' syntax. Pass --apple for what CI checks on a Mac mini beside
+# the Linux run: the sh scripts' syntax under macOS's sh (bash 3.2, where Linux's is dash), the macOS-only code's
+# lints and tests, which Linux doesn't compile, crates/workspace-hack's checks, which are Apple silicon Macs', and
+# the committed replays on the Mac app's own architecture (fidelity-check: the port must be the same on both). On
+# such a Mac, the full suite runs all of it.
 set -eu
 cd "$(dirname "$0")/.."
 cargo=scripts/cargo
@@ -12,6 +13,7 @@ cargo=scripts/cargo
 features="--features audio/backend"
 if [ "${1:-}" = "--apple" ]; then
   [ "$(uname -s) $(uname -m)" = "Darwin arm64" ] || { echo "scripts/check --apple: for Apple silicon Macs" >&2; exit 1; }
+  scripts/check-sh
   scripts/workspace-hack --check
   # The workspace as macOS compiles it: the app's menus, alerts and power assertions, the updater's installer.
   $cargo clippy --workspace --all-targets $features --quiet -- -D warnings
@@ -21,6 +23,8 @@ if [ "${1:-}" = "--apple" ]; then
   $cargo test --workspace $features --quiet --no-run
   $cargo test -p app $features --quiet
   scripts/workspace-hack --reused
+  scripts/extract >/dev/null
+  $cargo run --quiet --release -p harness --bin fidelity-check
   exit 0
 fi
 $cargo fmt --all --check

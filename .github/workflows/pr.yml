@@ -87,7 +87,8 @@ jobs:
         scripts/check --apple
         scripts/web --check
         scripts/wiki-media --check --since HEAD^1
-      timeout-minutes: 45
+      # --apple's builds, the web build and a render of every clip, from a cold target dir (a toolchain bump).
+      timeout-minutes: 75
 
   # On GitHub's machines, alongside the others, and on every pull request: the updater is reached from
   # outside crates/update too (the app's update.rs). No secrets, so it runs for a fork's too.

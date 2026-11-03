@@ -17,9 +17,10 @@ permissions:
   contents: read
 
 concurrency:
-  # Only main's newest push matters; a pull request's runs are pr.yml's to cancel.
+  # main's pushes one at a time, never cancelled, so each run gets to save the cache (pushes close together: the
+  # newest waits, and replaces any older one still waiting). A pull request's runs are pr.yml's to cancel.
   group: suite-${{ github.event_name == 'push' && 'main' || github.run_id }}
-  cancel-in-progress: ${{ github.event_name == 'push' }}
+  cancel-in-progress: false
 
 env:
   # As in release.yml, for a workspace actions/checkout has to `git init`.
