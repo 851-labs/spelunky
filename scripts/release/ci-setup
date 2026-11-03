@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# Sets up a build-native.yml job on a Mac mini, which has no Rust of its own: rustup (a pinned rustup-init,
-# checked against its SHA-256, as .github/actions/mini-toolchain installs it) and the toolchain
-# rust-toolchain.toml pins, plus where the release builds keep their target dir and cross toolchains.
+# Sets up a build-native.yml job on an Apple silicon Mac (GitHub's, a fresh VM: build-native.yml says why not the
+# minis): rustup (a pinned rustup-init, checked against its SHA-256, as .github/actions/mini-toolchain installs
+# it) and the toolchain rust-toolchain.toml pins, plus where the release builds keep their target dir and cross
+# toolchains.
 #   scripts/release/ci-setup cached|fresh
-# cached: in the runner's tool cache, kept between jobs, so a branch's builds are incremental. The target
-#   dir starts over when it outgrows its cap (the minis have about 30 GB free).
-# fresh: in the job's temp directory, made from nothing and gone when the job ends. For builds that get
-#   signed and published: the tool cache is shared with pull requests' jobs, whose code could change it.
+# cached: in the runner's tool cache, kept between jobs, so builds are incremental (on a self-hosted Mac). The
+#   target dir starts over when it outgrows its cap.
+# fresh: in the job's temp directory, made from nothing and gone when the job ends: what build-native.yml uses.
+# Either way it fails if a Cargo config sits above the checkout: Cargo reads every ancestor directory's
+# .cargo/config.toml, whatever CARGO_HOME is, and the repository has none of its own, so one there is another
+# job's (851-3899).
 # Exports RUSTUP_HOME, CARGO_HOME, CARGO_TARGET_DIR and SPELUNKY_RELEASE_TOOLS to the job.
 set -euo pipefail
 cd "${GITHUB_WORKSPACE:?}"
@@ -25,6 +28,14 @@ case ${1:-} in
   *) echo "usage: scripts/release/ci-setup cached|fresh" >&2; exit 2 ;;
 esac
 [ "$(uname -sm)" = "Darwin arm64" ] || { echo "ci-setup: for Apple Silicon Macs, not $(uname -sm)" >&2; exit 1; }
+dir=$PWD
+while :; do
+  for config in "$dir/.cargo/config" "$dir/.cargo/config.toml"; do
+    [ ! -e "$config" ] || { echo "ci-setup: $config would configure the build: not ours" >&2; exit 1; }
+  done
+  [ "$dir" != / ] || break
+  dir=$(dirname "$dir")
+done
 export RUSTUP_HOME="$root/rustup" CARGO_HOME="$root/cargo"
 if [ ! -x "$CARGO_HOME/bin/rustup" ]; then
   echo "ci-setup: installing rustup $rustup_version into $root"
