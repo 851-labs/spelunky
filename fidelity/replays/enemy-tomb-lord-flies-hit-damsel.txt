@@ -10,9 +10,10 @@
 #   100000000000D000000101
 #   1111111111111111111111
 # The Tomb Lord spits its flies (from 256). The first to reach the damsel (263) takes 2 of her 4 hit points, sets her
-# status to 2 (yVel -6, counter 120), knocks her on at 0.3 of its xVel and dies; the next ones go on hitting her as
-# she lies there, and she dies (status 99, 290). The flies go on hitting her body, and each sets her status back to 2
-# (300, 311), which her step turns to 99 again (304, 312). Ends at 340.
+# status to 2 (yVel -6, counter 120), knocks her on at 0.3 of its xVel and dies; the next three hit her as she flies
+# (264-266, hit points -8), and she lands dead (status 99, 290). No fly reaches her body, but it bounces, and coming
+# down faster than 2 it's status 2 again (300, 311) until it's on the floor (304, 312): docs/quirks.md §1, "A dead
+# Damsel's body is THROWN again". Ends at 340.
 # story: customLevelName=WIKI@240 +oFly@256..256 oDamsel.hp=2@263..263 oDamsel.status=2@263..263
 # story: oDamsel.status=99@290
 seed 0
