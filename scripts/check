@@ -4,7 +4,8 @@
 # the oracle's arithmetic copy, the sh scripts' syntax and the workflows' actions pinned to commit SHAs. Pass --apple for what CI checks on a Mac mini beside
 # the Linux run: the sh scripts' syntax under macOS's sh (bash 3.2, where Linux's is dash), the macOS-only code's
 # lints and tests, which Linux doesn't compile, crates/workspace-hack's checks, which are Apple silicon Macs', and
-# the committed replays on the Mac app's own architecture (fidelity-check: the port must be the same on both). On
+# the committed replays on the Mac app's own architecture (fidelity-check: the port must be the same on both), and
+# the renderer's pictures against the oracle's (fidelity-shots, which needs a GPU). On
 # such a Mac, the full suite runs all of it.
 set -eu
 cd "$(dirname "$0")/.."
@@ -27,6 +28,8 @@ if [ "${1:-}" = "--apple" ]; then
   scripts/workspace-hack --reused
   scripts/extract >/dev/null
   $cargo run --quiet --release -p harness --bin fidelity-check
+  # The renderer against the oracle's pictures of chosen frames (fidelity/screenshots/): it needs the GPU.
+  scripts/fidelity-shots
   exit 0
 fi
 $cargo fmt --all --check
@@ -55,6 +58,10 @@ scripts/workspace-hack --reused
 # The assets are rebuilt first (it's quick when they're current), so the check never runs on stale ones.
 scripts/extract >/dev/null
 $cargo run --quiet --release -p harness --bin fidelity-check
+# The renderer against the oracle's pictures (fidelity/screenshots/), where the Mac's GPU renders it, as --apple does.
+if [ "$(uname -s) $(uname -m)" = "Darwin arm64" ]; then
+  scripts/fidelity-shots
+fi
 # The wiki's clip specs (wiki/clips/): each still plays and shows what its story facts say, and has its
 # committed media (wiki/media/clips), with what the spec says, and no clip there is without one. It renders
 # nothing, so it needs neither a GPU nor ffmpeg; the web job checks the renders (docs/wiki-media.md).

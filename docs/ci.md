@@ -94,8 +94,9 @@ organization's projects share GitHub's machines too):
 - **"Mac mini / Web, wiki media and macOS"**, one mini: `scripts/check --apple`, what a Mac checks beside Linux
   (the sh scripts under macOS's bash 3.2; the macOS-only code, which Linux doesn't compile: clippy over the
   workspace as macOS builds it, and the app's tests; `crates/workspace-hack`'s checks, which are Apple silicon
-  Macs'; and fidelity-check's replays on the Mac app's own architecture, so a pull request still checks the
-  port is the same there as on Linux), then `scripts/web --check` and
+  Macs'; fidelity-check's replays on the Mac app's own architecture, so a pull request still checks the
+  port is the same there as on Linux; and `scripts/fidelity-shots`, the renderer's pictures of chosen frames
+  against the oracle's, on the mini's GPU: [formats.md](formats.md#screenshots)), then `scripts/web --check` and
   the wiki's committed media: `scripts/wiki-media --check --since HEAD^1`
   ([docs/wiki-media.md](wiki-media.md#committing)) renders them from the pull request and fails if `wiki/media`
   differs at all. A pull request that changes nothing the media are made from skips that at once; otherwise it

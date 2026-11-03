@@ -89,5 +89,6 @@ is the renderer's, not the game's.
    draw. As built ([formats.md](../formats.md), "Draw calls"): neither side culls tiles, so every tile is a call on
    both; a view's and a surface draw's angle are left out (the port's commands have none, and Spelunky rotates
    neither); every frame is hashed, which costs `fidelity-check` about a fifth more.
-4. **851-3872, layer 3**: oracle screenshots and pixel checks of a committed set. Medium: after layer 2, it only checks the
-   renderer.
+4. **851-3872, layer 3** (done, oracle patch 0042): oracle screenshots and pixel checks of a committed set. Medium:
+   after layer 2, it only checks the renderer. As built ([formats.md](../formats.md), "Screenshots"): 16 pictures
+   of 7 replays, all exact; the settings program's 2x view is a pixel off (851-3967), so it's left out for now.

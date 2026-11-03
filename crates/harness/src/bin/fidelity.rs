@@ -20,6 +20,7 @@ use trace::diff::{DiffOptions, Outcome, Report, diff_traces};
 const USAGE: &str = "\
 usage: fidelity [options] <replay.txt>
        fidelity --refresh-fingerprints [--jobs <n>] [--rerun-oracle] [--assets <dir>] [<replay.txt>...]
+       fidelity --refresh-screenshots [<replay.txt>...]
 
 Runs the replay on the oracle (tools/oracle/run) and on the port (like replay-run), then compares the two
 traces (like trace-diff, with the oracle as a and the port as b) and reports the first divergence, or
@@ -37,6 +38,9 @@ stays and the oracle's trace is kept for scripts/fidelity. A trace the oracle ma
 deleted afterwards (they take GBs). --jobs runs that many oracles at once (default 6), the longest
 replays first.
 
+With --refresh-screenshots, it records the oracle's pictures of the frames fidelity/screenshots/shots.txt
+lists of each replay (all by default) into fidelity/screenshots/<replay name>/, for fidelity-shots.
+
 options:
   --out <dir>            where the traces go (default: target/fidelity/<replay name> in the repo)
   --oracle-trace <file>  compare against this oracle trace instead of running the oracle
@@ -49,6 +53,7 @@ options:
   --settings             run the settings program, config.exe, on both instead of the game
   --json                 print one JSON object: verdict, paths, the port's run summary, the diff report
   --refresh-fingerprints record the replays' fingerprints from the oracle (see above)
+  --refresh-screenshots  record the oracle's pictures for fidelity-shots (see above)
   --jobs <n>             with --refresh-fingerprints, replays recorded at once (default 6)
   -h, --help
 
@@ -71,6 +76,8 @@ struct Options {
     diff: DiffOptions,
     /// `--refresh-fingerprints`, with its replays (none for all of them).
     refresh: Option<Vec<PathBuf>>,
+    /// `--refresh-screenshots`, with its replays (none for all of them).
+    refresh_shots: Option<Vec<PathBuf>>,
     /// `--jobs`, for `--refresh-fingerprints`.
     jobs: Option<usize>,
 }
@@ -92,6 +99,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         json: false,
         diff: DiffOptions::default(),
         refresh: None,
+        refresh_shots: None,
         jobs: None,
     };
     let mut replays = Vec::new();
@@ -113,7 +121,8 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
             | "--draws"
             | "--rerun-oracle"
             | "--settings"
-            | "--refresh-fingerprints" => {
+            | "--refresh-fingerprints"
+            | "--refresh-screenshots" => {
                 args.switch(&flag)?;
                 match flag.name.as_str() {
                     "--json" => a.json = true,
@@ -122,6 +131,7 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
                     "--rerun-oracle" => a.rerun_oracle = true,
                     "--settings" => a.settings = true,
                     "--refresh-fingerprints" => a.refresh = Some(Vec::new()),
+                    "--refresh-screenshots" => a.refresh_shots = Some(Vec::new()),
                     _ => return Ok(None),
                 }
             }
@@ -134,6 +144,24 @@ fn parse_args(args: impl IntoIterator<Item = String>) -> Result<Option<Options>,
         }
     }
     check_diff_options(&a.diff)?;
+    if let Some(list) = &mut a.refresh_shots {
+        if a.refresh.is_some()
+            || a.out.is_some()
+            || a.oracle_trace.is_some()
+            || a.json
+            || a.fields
+            || a.draws
+            || a.settings
+            || a.rerun_oracle
+            || a.jobs.is_some()
+            || a.assets.is_some()
+            || diff_given
+        {
+            return Err("--refresh-screenshots takes only replays".into());
+        }
+        *list = replays;
+        return Ok(Some(a));
+    }
     if let Some(list) = &mut a.refresh {
         if a.out.is_some()
             || a.oracle_trace.is_some()
@@ -428,6 +456,74 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
     }
 }
 
+/// `--refresh-screenshots`: the oracle's picture of each frame `fidelity/screenshots/shots.txt` lists, of
+/// `replays` (all of them if none), into the replay's directory there, which it replaces once they're all made,
+/// with their [`harness::shots::SOURCE`]. One replay at a time: there are few, and the oracle is heavy.
+fn refresh_screenshots(replays: &[PathBuf]) -> Result<Verdict, String> {
+    use harness::shots::{SOURCE, read_list, screenshots_dir, select, source};
+    let repo = std::fs::canonicalize(repo_root()).map_err(|e| format!("the repository: {e}"))?;
+    let list = select(read_list(&repo)?, replays)?;
+    let stamp = oracle_stamp()?;
+    let dir = screenshots_dir(&repo);
+    let work = repo.join("target/fidelity-shots/oracle");
+    let remove = |p: &Path| match std::fs::remove_dir_all(p) {
+        Err(e) if e.kind() != std::io::ErrorKind::NotFound => Err(format!("{}: {e}", p.display())),
+        _ => Ok(()),
+    };
+    for shots in &list {
+        let name = shots.name();
+        eprintln!("fidelity: the oracle's pictures of {name}");
+        let replay = harness::load_replay(&repo.join(&shots.replay))?;
+        let run = work.join(&name);
+        remove(&run)?;
+        std::fs::create_dir_all(&run).map_err(|e| format!("{}: {e}", run.display()))?;
+        let frames: Vec<String> = shots.frames.iter().map(u64::to_string).collect();
+        let exe = if shots.settings() {
+            "config.exe"
+        } else {
+            "Spelunky.exe"
+        };
+        let status = Command::new(repo.join("tools/oracle/run"))
+            .arg(repo.join(&shots.replay))
+            .arg(run.join("oracle.jsonl"))
+            .arg("--exe")
+            .arg(exe)
+            .arg("--screenshots")
+            .arg(frames.join(","))
+            .status()
+            .map_err(|e| format!("tools/oracle/run: {e}"))?;
+        if !status.success() {
+            return Err(format!("{name}: tools/oracle/run failed ({status})"));
+        }
+        // Into a directory of their own beside the old one, which is only replaced once they're all there.
+        let (made, into) = (run.join("oracle.shots"), shots.dir(&dir));
+        let new = dir.join(format!(".{name}.new"));
+        remove(&new)?;
+        std::fs::create_dir_all(&new).map_err(|e| format!("{}: {e}", new.display()))?;
+        for f in &frames {
+            let from = made.join(format!("{f}.png"));
+            std::fs::copy(&from, new.join(format!("{f}.png"))).map_err(|e| {
+                format!(
+                    "{name}: the oracle shot no frame {f} ({}: {e})",
+                    from.display()
+                )
+            })?;
+        }
+        let src = new.join(SOURCE);
+        std::fs::write(
+            &src,
+            source(&stamp, &harness::fingerprint::replay_hash(&replay)),
+        )
+        .map_err(|e| format!("{}: {e}", src.display()))?;
+        remove(&into)?;
+        std::fs::rename(&new, &into).map_err(|e| format!("{}: {e}", into.display()))?;
+        // The trace isn't needed, and takes room.
+        remove(&run)?;
+        write_stdout(&format!("{name}: {} pictures recorded\n", frames.len()))?;
+    }
+    Ok(Verdict::Identical)
+}
+
 /// How many replays `--refresh-fingerprints` records at once by default: each runs an oracle (an emulator
 /// and an X server in a container) and then the port, and 6 kept a 10-core Mac busy without thrashing.
 const REFRESH_JOBS: usize = 6;
@@ -462,6 +558,7 @@ fn refresh_one(
         json: false,
         diff: DiffOptions::default(),
         refresh: None,
+        refresh_shots: None,
         jobs: None,
     };
     let dir = repo
@@ -514,6 +611,9 @@ fn run() -> Result<Verdict, String> {
     };
     if let Some(replays) = &args.refresh {
         return refresh(&args, replays);
+    }
+    if let Some(replays) = &args.refresh_shots {
+        return refresh_screenshots(replays);
     }
     let replay_text = std::fs::read_to_string(&args.replay)
         .map_err(|e| format!("{}: {e}", args.replay.display()))?;
