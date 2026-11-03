@@ -1,0 +1,46 @@
+# Bombs in the Temple idol room once its trap has sprung (851-3781): a door's and the ceiling trap's destroy events.
+# Seed 8: trap-ceiling-crush.txt to frame 1044 (level 13 at 738; the idol picked up at 1042, which drops every
+# oCeilingTrap and the nearest oDoor on each side; the doors land at 1049, sealing the room). By hand: he walks
+# right to the right-hand door (x 624), drops a bomb by it (down + A, 1076) and walks back left. The blast (1195)
+# breaks the floor and the wall there and the door (1199, oDoor's destroy: two small rubbles). Then he drops a
+# second bomb on the floor further left (1281) and walks out right through the broken door, out of the room by
+# 1318, before the ceiling reaches the floor; the blast (1400) takes four of the six ceiling trap blocks (1400,
+# 1402, 1404; oCeilingTrap's destroy, not cleanDeath: rubble). He's never hurt. Ends at 1499.
+# story: currLevel=13@738 held=oGoldIdol@1042 oDoor.status=2@1049 bombs=2@1076..1076 +oExplosion@1195..1195
+# story: -oDoor@1199..1199 bombs=1@1281..1281 +oExplosion@1400..1400 -oCeilingTrap*2@1400..1400
+# story: -oCeilingTrap@1402..1402 -oCeilingTrap@1404..1404 oPlayer1.x=651@1318 !plife<4 !oPlayer1.dead=1
+# story: +oRubbleSmall@1199..1199 +oRubble@1400..1400 +oRubble@1402..1402 +oRubble@1404..1404
+seed 8
+highscore 9000100 "MONEY"
+highscore 8000000 "TIME"
+highscore 7000000 "KILLS"
+highscore 6000000 "SAVES"
+highscore 5000000 "PLAYS"
+highscore 4000000 "WINS"
+highscore 3000000 "DEATHS"
+highscore 2000000 "TUNNEL1"
+highscore 1000000 "TUNNEL2"
+highscore 0 "MINIGAMES"
+20 hold X 2
+60 hold X 2
+450 hold left 81
+538 hold up 100
+640 hold left 56
+640 hold Z 6
+708 hold up 5
+770 hold left 38
+815 hold down 8
+817 hold A 2
+826 hold right 22
+950 hold left 22
+995 hold right 34
+1040 hold down 10
+1042 hold X 2
+1060 hold right 12
+1075 hold down 4
+1076 hold A 2
+1082 hold left 14
+1280 hold down 4
+1281 hold A 2
+1286 hold right 40
+frames 1500
