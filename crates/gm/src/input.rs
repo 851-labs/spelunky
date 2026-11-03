@@ -7,8 +7,9 @@
 //!
 //! GM8 reads joysticks through winmm when a `joystick_*` function is called. Here joystick 1 is the
 //! replay's (its `joystick` directive, [`World::connect_joystick`]) and its buttons and axes follow the
-//! replay's events; joystick 2 never exists. A joystick that doesn't exist answers what OpenGMK's stubs
-//! answer for every joystick, so a replay without the directive runs as it does under the oracle.
+//! replay's events; joystick 2 never exists. Each built-in answers as GM8's runner computes it from winmm's
+//! raw values (below, 851-3949), as the oracle's patch 0039 does; a joystick that doesn't exist answers what
+//! GM8 and OpenGMK's stubs answer without one.
 
 use crate::World;
 use trace::keys::KeySet;
@@ -67,9 +68,41 @@ struct Joystick {
 
 /// `joystick_direction` for a centred stick, and OpenGMK's stub answer: `vk_numpad5`.
 const DIRECTION_CENTRED: i32 = 101;
-/// How far an axis must lean for `joystick_direction` to count it. GM8's threshold can't be checked
-/// against the oracle, which has no joystick; half the range is an assumption (`docs/quirks.md`).
-const DIRECTION_THRESHOLD: f64 = 0.5;
+
+// GM8 reads a joystick through winmm on every call (Spelunky.exe's `joystick_*`, 0x565240-0x565cf6,
+// 851-3949): `joyGetPosEx` for the axes, POV and buttons, `joyGetPos` for `joystick_direction` and
+// `joystick_exists`, `joyGetDevCaps` for `joystick_has_pov`. An axis is a raw 0-65535 that it reports as
+// `raw / 32767 - 1`; the POV hat hundredths of a degree, 65535 when centred. A replay gives each axis as GM8
+// reports it (`axis x 0.5`) and the POV in degrees, so both are taken back to the raw value winmm gives
+// (`raw_axis`, `raw_pov`), and every built-in answers from that, as GM8's does.
+
+/// `joystick_direction` leans an axis below this raw value, and the other way above `DIRECTION_HIGH`
+/// (0x565294's 20000 and 44000, on `joyGetPos`'s raw axes): about -0.39 and 0.34 of the range.
+const DIRECTION_LOW: u32 = 20_000;
+const DIRECTION_HIGH: u32 = 44_000;
+
+/// The raw winmm axis a replay's axis value stands for: the one GM8 would report as it.
+fn raw_axis(v: f64) -> u32 {
+    // NaN is centred, as an axis that never moved.
+    let v = if v.is_nan() { 0.0 } else { v };
+    crate::math::round_half_even((v + 1.0) * 32767.0).clamp(0.0, 65535.0) as u32
+}
+
+/// What GM8 reports for a raw axis (`joystick_xpos`, 0x56596c): `raw / 32767 - 1`, as doubles (its x87
+/// rounds arithmetic to 53 bits).
+fn axis_of_raw(raw: u32) -> f64 {
+    f64::from(raw) / 32767.0 - 1.0
+}
+
+/// The raw winmm POV a replay's POV value stands for: hundredths of a degree, or 65535 (`JOY_POVCENTERED`)
+/// for a negative value (centred).
+fn raw_pov(v: f64) -> u32 {
+    if v.is_nan() || v < 0.0 {
+        65_535
+    } else {
+        crate::math::round_half_even(v * 100.0).min(65535.0) as u32
+    }
+}
 
 impl InputState {
     /// Starts a frame: the wheel only lasts one frame, and the mouse's previous position becomes where it
@@ -247,49 +280,59 @@ impl InputState {
         });
     }
 
-    fn joystick(&self, id: i32) -> Option<&Joystick> {
-        self.joystick.as_ref().filter(|_| id == 1)
+    /// The joystick `id` names: GM8 asks winmm for its second joystick when `id` is exactly 2, and for the
+    /// first for any other id (each built-in's `id == 2.0` test), and the replay connects only the first.
+    fn joystick(&self, id: f64) -> Option<&Joystick> {
+        self.joystick.as_ref().filter(|_| id != 2.0)
     }
 
     /// `joystick_exists(id)`.
-    pub fn joystick_exists(&self, id: i32) -> bool {
+    pub fn joystick_exists(&self, id: f64) -> bool {
         self.joystick(id).is_some()
     }
 
-    /// `joystick_check_button(id, b)`: buttons outside 1-32 are never down.
-    pub fn joystick_check_button(&self, id: i32, b: i32) -> bool {
+    /// `joystick_check_button(id, b)`, `b` the integer argument GM8 makes of it (0x565504's `fistp`, as
+    /// [`crate::math::int_arg`]: half to even, its low 32 bits): button 1-32 is a bit of winmm's; 0 and anything
+    /// past 32 are never down.
+    pub fn joystick_check_button(&self, id: f64, b: i32) -> bool {
+        let n = b as u32;
         self.joystick(id)
-            .is_some_and(|j| u8::try_from(b).is_ok_and(|b| j.state.is_down(Button::Joy(b))))
+            .is_some_and(|j| u8::try_from(n).is_ok_and(|n| j.state.is_down(Button::Joy(n))))
     }
 
-    /// `joystick_xpos`, `_ypos` and `_zpos` (-1 to 1), and `joystick_pov` (degrees clockwise from up; -1
-    /// when centred, and always without a POV hat).
-    pub fn joystick_axis(&self, id: i32, axis: Axis) -> f64 {
-        match self.joystick(id) {
-            Some(j) if axis != Axis::Pov || j.has_pov => j.state.axis(axis),
-            _ => trace::replay::InputState::default().axis(axis),
+    /// `joystick_xpos`, `_ypos` and `_zpos`, from the raw axis (-1 to 1.00003), and `joystick_pov`
+    /// (degrees clockwise from up, the raw value / 100; -1 past 360, as when centred, and always without a
+    /// POV hat). Without a joystick, 0, and -1 for the POV.
+    pub fn joystick_axis(&self, id: f64, axis: Axis) -> f64 {
+        let Some(j) = self.joystick(id) else {
+            return if axis == Axis::Pov { -1.0 } else { 0.0 };
+        };
+        match axis {
+            Axis::Pov if !j.has_pov => -1.0,
+            Axis::Pov => {
+                let pov = f64::from(raw_pov(j.state.axis(Axis::Pov))) / 100.0;
+                if pov > 360.0 { -1.0 } else { pov }
+            }
+            _ => axis_of_raw(raw_axis(j.state.axis(axis))),
         }
     }
 
     /// `joystick_has_pov(id)`.
-    pub fn joystick_has_pov(&self, id: i32) -> bool {
+    pub fn joystick_has_pov(&self, id: f64) -> bool {
         self.joystick(id).is_some_and(|j| j.has_pov)
     }
 
     /// `joystick_direction(id)`: the stick's direction as the numpad key that points that way,
-    /// `vk_numpad1` (97, down-left) to `vk_numpad9` (105, up-right), and 101 when centred.
-    pub fn joystick_direction(&self, id: i32) -> i32 {
+    /// `vk_numpad1` (97, down-left) to `vk_numpad9` (105, up-right), and 101 when centred: each raw axis
+    /// leans below [`DIRECTION_LOW`] or above [`DIRECTION_HIGH`] (0x565294).
+    pub fn joystick_direction(&self, id: f64) -> i32 {
         let Some(j) = self.joystick(id) else {
             return DIRECTION_CENTRED;
         };
-        let lean = |v: f64| {
-            if v < -DIRECTION_THRESHOLD {
-                -1
-            } else if v > DIRECTION_THRESHOLD {
-                1
-            } else {
-                0
-            }
+        let lean = |v: f64| match raw_axis(v) {
+            r if r < DIRECTION_LOW => -1,
+            r if r > DIRECTION_HIGH => 1,
+            _ => 0,
         };
         let (dx, dy) = (lean(j.state.axis(Axis::X)), lean(j.state.axis(Axis::Y)));
         // The numpad's rows count upward while y grows downward: down is the bottom row (97-99).
@@ -354,12 +397,13 @@ mod tests {
     }
 
     #[test]
-    fn without_a_joystick_every_answer_is_opengmks_stub() {
+    fn without_a_joystick_every_answer_is_gm8s_none() {
+        // Joystick events without a connected joystick change nothing: GM8 and OpenGMK's stubs answer as for
+        // none.
         let mut i = InputState::default();
-        // Hosts that build events by hand may still send joystick events; they change nothing.
         i.apply(&Event::Press(Button::Joy(1)));
         i.apply(&Event::Axis(Axis::X, -1.0));
-        for id in [0, 1, 2] {
+        for id in [0.0, 1.0, 2.0] {
             assert!(!i.joystick_exists(id));
             assert!(!i.joystick_has_pov(id));
             assert!(!i.joystick_check_button(id, 1));
@@ -371,33 +415,48 @@ mod tests {
     }
 
     #[test]
-    fn joystick_one_follows_its_events() {
+    fn the_joystick_answers_as_gm8_reads_winmm() {
         let mut i = InputState::default();
         i.connect_joystick(Some(&JoystickInfo { has_pov: true }));
-        assert!(i.joystick_exists(1) && !i.joystick_exists(2));
-        assert_eq!(i.joystick_axis(1, Axis::Pov), -1.0);
+        // Any id but exactly 2 is the first joystick (each built-in's `id == 2.0`).
+        for id in [0.0, 1.0, 1.5, 2.5, 3.0, -1.0] {
+            assert!(i.joystick_exists(id), "{id}");
+        }
+        assert!(!i.joystick_exists(2.0));
+        assert_eq!(i.joystick_axis(1.0, Axis::Pov), -1.0);
         i.apply(&Event::Press(Button::Joy(3)));
         i.apply(&Event::Press(Button::Joy(32)));
         i.apply(&Event::Axis(Axis::Z, 0.5));
         i.apply(&Event::Axis(Axis::Pov, 270.0));
-        assert!(i.joystick_check_button(1, 3) && i.joystick_check_button(1, 32));
-        assert!(!i.joystick_check_button(1, 33) && !i.joystick_check_button(2, 3));
-        assert_eq!(i.joystick_axis(1, Axis::Z), 0.5);
-        assert_eq!(i.joystick_axis(1, Axis::Pov), 270.0);
+        // b is an integer argument (math::int_arg's, its low 32 bits: 2^32 + 3 is 3).
+        assert!(i.joystick_check_button(1.0, 3) && i.joystick_check_button(1.0, 32));
+        assert!(i.joystick_check_button(1.0, crate::math::int_arg(4_294_967_299.0).unwrap()));
+        assert!(!i.joystick_check_button(1.0, 33) && !i.joystick_check_button(1.0, 0));
+        assert!(!i.joystick_check_button(1.0, -1) && !i.joystick_check_button(2.0, 3));
+        // An axis is the raw winmm value GM8 reports: 0.5 stands for raw 49150 (49150.5 rounded to even),
+        // which GM8 reports as 49150 / 32767 - 1.
+        assert_eq!(i.joystick_axis(1.0, Axis::Z), 49150.0 / 32767.0 - 1.0);
+        assert_eq!(i.joystick_axis(1.0, Axis::Pov), 270.0);
+        i.apply(&Event::Axis(Axis::Z, 1.0));
+        assert_eq!(i.joystick_axis(1.0, Axis::Z), 65534.0 / 32767.0 - 1.0);
+        i.apply(&Event::Axis(Axis::Z, 2.0));
+        assert_eq!(i.joystick_axis(1.0, Axis::Z), 65535.0 / 32767.0 - 1.0);
+        i.apply(&Event::Axis(Axis::Pov, 450.0));
+        assert_eq!(i.joystick_axis(1.0, Axis::Pov), -1.0);
         // Held state only: the end of a frame doesn't release joystick buttons.
         i.end_frame();
-        assert!(i.joystick_check_button(1, 3));
+        assert!(i.joystick_check_button(1.0, 3));
         i.apply(&Event::Release(Button::Joy(3)));
-        assert!(!i.joystick_check_button(1, 3));
+        assert!(!i.joystick_check_button(1.0, 3));
 
         // Without a POV hat, `joystick_pov` stays centred whatever the events say.
         i.connect_joystick(Some(&JoystickInfo { has_pov: false }));
         i.apply(&Event::Axis(Axis::Pov, 90.0));
-        assert_eq!(i.joystick_axis(1, Axis::Pov), -1.0);
+        assert_eq!(i.joystick_axis(1.0, Axis::Pov), -1.0);
     }
 
     #[test]
-    fn joystick_direction_is_a_numpad_key() {
+    fn joystick_direction_is_a_numpad_key_by_gm8s_raw_thresholds() {
         let mut i = InputState::default();
         i.connect_joystick(Some(&JoystickInfo::default()));
         let cases = [
@@ -410,13 +469,15 @@ mod tests {
             ((-1.0, -1.0), 103),
             ((0.0, -1.0), 104),
             ((1.0, -1.0), 105),
-            // Within the threshold counts as centred.
-            ((0.5, -0.5), 101),
+            // Raw below 20000 or above 44000 leans: 0.35 is 44235, -0.39 is 19988; 0.34 (43908) and -0.38
+            // (20316) don't.
+            ((0.35, -0.39), 105),
+            ((0.34, -0.38), 101),
         ];
         for ((x, y), vk) in cases {
             i.apply(&Event::Axis(Axis::X, x));
             i.apply(&Event::Axis(Axis::Y, y));
-            assert_eq!(i.joystick_direction(1), vk, "({x}, {y})");
+            assert_eq!(i.joystick_direction(1.0), vk, "({x}, {y})");
         }
     }
 }

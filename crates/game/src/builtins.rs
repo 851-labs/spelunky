@@ -245,33 +245,35 @@ pub fn keyboard_check_released(g: &mut World, _: &Ctx, [vk]: [Value; 1]) -> R<Va
 
 // ---- Joystick and mouse (gm::input) ----
 //
-// Without the replay's `joystick` directive no joystick exists, and these answer what the oracle's
-// (OpenGMK's) stubs answer, so keyboard replays run the same on both.
+// Without the replay's `joystick` directive no joystick exists, and these answer what GM8 answers without
+// one (and OpenGMK's stubs). With one, what GM8's runner computes from winmm's raw values (`gm::input`,
+// 851-3949). GM8 reads each argument's real, so a string is 0; the button is an integer argument, an error past
+// 64 bits as on Intel (`math::int_arg`).
 
 pub fn joystick_exists(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.input().joystick_exists(id.to_int()?).into())
+    Ok(g.input().joystick_exists(id.to_real()).into())
 }
 
 pub fn joystick_check_button(g: &mut World, _: &Ctx, [id, b]: [Value; 2]) -> R<Value> {
     Ok(g.input()
-        .joystick_check_button(id.to_int()?, b.to_int()?)
+        .joystick_check_button(id.to_real(), gm::math::int_arg(b.to_real())?)
         .into())
 }
 
 pub fn joystick_direction(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.input().joystick_direction(id.to_int()?).into())
+    Ok(g.input().joystick_direction(id.to_real()).into())
 }
 
 pub fn joystick_has_pov(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.input().joystick_has_pov(id.to_int()?).into())
+    Ok(g.input().joystick_has_pov(id.to_real()).into())
 }
 
 pub fn joystick_pov(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.input().joystick_axis(id.to_int()?, Axis::Pov).into())
+    Ok(g.input().joystick_axis(id.to_real(), Axis::Pov).into())
 }
 
 pub fn joystick_zpos(g: &mut World, _: &Ctx, [id]: [Value; 1]) -> R<Value> {
-    Ok(g.input().joystick_axis(id.to_int()?, Axis::Z).into())
+    Ok(g.input().joystick_axis(id.to_real(), Axis::Z).into())
 }
 
 pub fn mouse_check_button(g: &mut World, _: &Ctx, [b]: [Value; 1]) -> R<Value> {
@@ -832,13 +834,16 @@ mod tests {
         .unwrap();
         let g = &mut game.world;
         assert_eq!(call(g, joystick_exists, [1.0]), 1.0);
+        // GM8 asks for its second joystick only for exactly 2: 0 is the first.
+        assert_eq!(call(g, joystick_exists, [0.0]), 1.0);
         assert_eq!(call(g, joystick_exists, [2.0]), 0.0);
         assert_eq!(call(g, joystick_check_button, [1.0, 2.0]), 1.0);
         assert_eq!(call(g, joystick_check_button, [1.0, 1.0]), 0.0);
         assert_eq!(call(g, joystick_direction, [1.0]), 100.0);
         assert_eq!(call(g, joystick_has_pov, [1.0]), 1.0);
         assert_eq!(call(g, joystick_pov, [1.0]), 90.0);
-        assert_eq!(call(g, joystick_zpos, [1.0]), -0.5);
+        // -0.5 stands for winmm's raw 16384 (16383.5 to even), which GM8 reports as 16384 / 32767 - 1.
+        assert_eq!(call(g, joystick_zpos, [1.0]), 16384.0 / 32767.0 - 1.0);
         assert_eq!(call(g, mouse_check_button, [1.0]), 1.0);
         assert_eq!(call(g, mouse_check_button, [-1.0]), 1.0);
         assert_eq!(call(g, mouse_check_button, [0.0]), 0.0);

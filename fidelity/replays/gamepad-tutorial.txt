@@ -1,0 +1,93 @@
+# The tutorial with a gamepad instead of the keyboard (851-3949): movement-tutorial-exit.txt's input on joystick 1,
+# by the shipped gamepad.cfg (jump 2, attack 1, item 3, run 5, bomb 7, rope 8, pay 6, start 10), with left and
+# right on the stick's x axis (joystick_direction 100 and 102) and up and down on the POV hat (0 and 180). The
+# shipped settings.cfg turns the gamepad on, and scrInit keeps it on as a joystick exists, so oGamepad's step reads
+# it and the check* scripts take its presses; the tutorial's signs name its buttons (scrGetJoy). oGamepad's step
+# runs after the title's, so the doors are entered a frame later than with the keys: rTutorial at 566 and the exit
+# at 1731. Intro skipped by button 1 (20), up the stick into the tutorial (535), then its jumps, whips, bombs and
+# rope as the keyboard replay's.
+# story: gamepadOn=1@0 oGamepad.attack=1@20 oGamepad.up=1@535 room=rTutorial@566 oGamepad.jump=1@598
+# story: room=rTransition1@1731
+joystick pov
+seed 12345
+frames 1760
+20 press joy1
+22 release joy1
+60 press joy1
+62 release joy1
+450 axis x -1
+520 axis x 0
+535 axis pov 0
+540 axis pov -1
+570 axis x 1
+598 press joy2
+608 release joy2
+625 press joy2
+639 release joy2
+642 press joy2
+650 release joy2
+660 axis x 0
+708 press joy1
+710 release joy1
+722 press joy1
+724 release joy1
+736 press joy1
+738 release joy1
+752 axis x 1
+842 press joy2
+852 release joy2
+887 axis x 0
+955 axis x -1
+1007 axis x 0
+1015 press joy8
+1017 release joy8
+1030 axis x 1
+1033 axis x 0
+1040 axis pov 0
+1042 press joy2
+1046 release joy2
+1116 axis pov -1
+1125 axis x -1
+1126 press joy2
+1132 release joy2
+1152 axis x 0
+1165 press joy3
+1167 release joy3
+1175 axis pov 180
+1180 press joy1
+1182 release joy1
+1190 axis pov -1
+1200 axis x -1
+1203 axis pov 0
+1208 axis x 0
+1215 axis pov -1
+1220 axis pov 180
+1280 axis pov -1
+1290 axis x -1
+1290 press joy5
+1299 press joy2
+1311 release joy2
+1320 release joy5
+1330 axis x 0
+1340 axis pov 0
+1342 press joy1
+1344 release joy1
+1348 axis pov -1
+1360 axis x 1
+1366 axis x 0
+1375 axis x -1
+1381 axis x 0
+1400 axis pov 180
+1404 press joy7
+1406 release joy7
+1410 axis pov -1
+1415 axis x 1
+1429 axis x 0
+1560 axis x -1
+1600 press joy2
+1608 release joy2
+1640 press joy2
+1648 release joy2
+1656 axis x 0
+1700 axis pov 0
+1706 axis pov -1
