@@ -60,6 +60,18 @@ fn arrays_follow_gm8_index_rules() {
     assert_eq!(l.get(), Err(Error::UnsetLocal));
     l.set_a(0, 2, r(5.0));
     assert_eq!(l.get(), Ok(r(0.0)));
+    // Element [0, 0] is the variable itself, there once any element is, though only a later row was set
+    // (GM8, probes arr2-row0*, 851-3796); row 0's others aren't.
+    let mut l = Local::default();
+    l.set_a(2, 3, r(1.0));
+    assert_eq!(l.get(), Ok(r(0.0)));
+    assert_eq!(l.get_a(0, 0), Ok(r(0.0)));
+    assert_eq!(l.get_a(0, 3), Err(Error::UnsetLocal));
+    assert_eq!(g.gget(SCORE), Err(Error::UnsetGlobal(SCORE)));
+    g.gset_a(SCORE, 1, 5, r(1.0)).unwrap();
+    assert_eq!(g.gget(SCORE), Ok(r(0.0)));
+    assert_eq!(g.gget_a(SCORE, 0, 0), Ok(r(0.0)));
+    assert_eq!(g.gget_a(SCORE, 0, 1), Err(Error::UnsetGlobal(SCORE)));
 }
 
 #[test]
