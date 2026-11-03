@@ -1,0 +1,28 @@
+#!/bin/bash
+# The Mac minis' job-started hook (docs/ci.md, "Pull requests", 851-3900): fails any job a pull request from a fork
+# starts, before its first step. A pull request's run uses the workflow files from the pull request itself, so a
+# check in pr.yml (its `if:`) is one the fork's pull request can drop; this one is on the machine, where no pull
+# request reaches. It isn't read from the repository at run time: a copy is installed on each mini, outside the
+# runner's work directory, and named in the runner's .env as ACTIONS_RUNNER_HOOK_JOB_STARTED, by an admin of the
+# machines ("For the user" in 851-3900). The minis are shared with the organization's other repositories, and it
+# applies to their jobs too: a fork's pull request is refused whichever repository it's for.
+#
+# It refuses a job for a pull request event (pull_request, pull_request_target and the review events) whose head
+# repository isn't the repository the job runs for, or that it can't read: no event file, no head repository (a
+# fork deleted since), or JSON it can't parse. Every other job goes on.
+set -u
+case "${GITHUB_EVENT_NAME:-}" in
+  pull_request | pull_request_target | pull_request_review | pull_request_review_comment) ;;
+  *) exit 0 ;;
+esac
+head=$(/usr/bin/python3 -I -c '
+import json, os, sys
+with open(os.environ["GITHUB_EVENT_PATH"]) as f:
+    repo = (json.load(f).get("pull_request") or {}).get("head", {}).get("repo") or {}
+print(repo.get("full_name") or "")
+' 2>/dev/null) || head=
+if [ -z "$head" ] || [ "$head" != "${GITHUB_REPOSITORY:-}" ]; then
+  echo "::error::This Mac mini doesn't run pull requests from forks (${head:-unknown} into ${GITHUB_REPOSITORY:-unknown})."
+  exit 1
+fi
+exit 0

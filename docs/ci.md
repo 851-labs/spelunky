@@ -126,12 +126,26 @@ all of that, line by line: the parse check before `trap cleanup EXIT` (no other 
 `finished`, `finished=1` as the last line (unless it ends by `exec`), and `finished=1` before every `exit 0`
 after the trap.
 
-Code from outside never runs on the minis: they're persistent and shared, so what one job leaves there
-reaches the next (the reason releases are built and signed elsewhere, on GitHub's fresh `macos-15`). Only collaborators may open pull
-requests (the repository's `pull_request_creation_policy` is `collaborators_only`), runs from outside
-contributors wait for a maintainer's approval (the Actions setting "Require approval for all external
-contributors"), and `pr.yml` itself skips its mini job for a pull request from a fork and fails `pr-ok`, so
-keeping a fork's code off the minis doesn't rest on those settings alone.
+**Fork pull requests and the minis.** Code from outside must never run on the minis: they're persistent and
+shared (with the organization's other repositories too), so a job can leave something behind for the next
+(the reason releases are built and signed elsewhere, on GitHub's fresh `macos-15`). What
+keeps a fork's code off them isn't `pr.yml` (851-3900). A pull request's run uses the workflow files from the
+pull request, so a fork's pull request runs its own `pr.yml` and `mini.yml`, which can drop the mini job's
+`if:` or point a job at the minis' labels; and the "Mac minis" runner group is open to this public repository.
+The locks are outside the repository's files:
+
+- only collaborators may open pull requests (the repository's `pull_request_creation_policy` is
+  `collaborators_only`);
+- runs from outside contributors wait for a maintainer's approval (the Actions setting "Require approval for
+  all external contributors"), which is a person clicking Approve on a run whose workflow changes may not
+  stand out;
+- each mini's job-started hook, `.github/runner-hooks/job-started`, fails any job for a pull request event
+  whose head repository isn't the job's repository, or can't be read, before its first step. It's a copy on
+  the machine, named in the runner's `.env` as `ACTIONS_RUNNER_HOOK_JOB_STARTED` (so a pull request can't
+  change it), installed by an admin of the minis; until it is, the first two are all there is.
+
+`pr.yml`'s own check, skipping the mini job for a fork and failing `pr-ok`, is the fast, readable answer for a
+fork's pull request that leaves `pr.yml` alone, not a lock.
 
 A pull request's code can still change what the minis keep between jobs (the toolchain, the target dir, and
 anything else its user can write: a `.cargo/config.toml` above a checkout, a login item, a tool on `PATH`), so
