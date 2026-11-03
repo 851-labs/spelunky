@@ -3,7 +3,10 @@
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
 
-use harness::shots::{Shots, compare, read_list, read_png, screenshots_dir, write_png};
+use harness::fingerprint::{oracle_build_stamp, replay_hash};
+use harness::shots::{
+    SOURCE, Shots, compare, read_list, read_png, screenshots_dir, select, source, write_png,
+};
 use tools::{Arg, Args, write_stdout};
 
 const USAGE: &str = "\
@@ -12,7 +15,8 @@ usage: fidelity-shots [--assets <dir>] [--app <path>] [<replay.txt>...]
 Renders the frames fidelity/screenshots/shots.txt lists of each replay (all of them by default) with the app,
 headless (`app --replay R --shots F1,F2,... --screenshot DIR`), into target/fidelity-shots/<replay name>/, and
 compares each with the oracle's picture of it, fidelity/screenshots/<replay name>/<frame>.png, within the
-line's tolerance (exact by default). Where they differ it writes <frame>.diff.png beside the port's picture:
+line's tolerance (exact by default). The pictures must be of the replay as it is, from the checkout's oracle
+build (their source.txt), and none may be left that no line lists. Where they differ it writes <frame>.diff.png beside the port's picture:
 the port's, dimmed where they agree, magenta where they don't. The pictures are recorded with
 scripts/fidelity --refresh-screenshots.
 
@@ -63,14 +67,43 @@ fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
-/// Renders and compares one line's frames; a line per frame that differs.
-fn check(repo: &Path, app: &Path, assets: &Path, shots: &Shots) -> Result<Vec<String>, String> {
-    let name = shots
-        .replay
-        .file_stem()
-        .unwrap_or_default()
-        .to_string_lossy()
-        .to_string();
+/// Renders and compares one line's frames; what's wrong, a line each.
+fn check(
+    repo: &Path,
+    app: &Path,
+    assets: &Path,
+    stamp: &str,
+    shots: &Shots,
+) -> Result<Vec<String>, String> {
+    let name = shots.name();
+    let references = shots.dir(&screenshots_dir(repo));
+    // The pictures must be of this replay, from this oracle build, as a fingerprint must.
+    let replay = harness::load_replay(&repo.join(&shots.replay))?;
+    let want = source(stamp, &replay_hash(&replay));
+    let record = format!(
+        "record them with scripts/fidelity --refresh-screenshots {}",
+        shots.replay.display()
+    );
+    match std::fs::read_to_string(references.join(SOURCE)) {
+        Ok(had) if had == want => {}
+        Ok(_) => {
+            return Ok(vec![format!(
+                "{name}: the oracle's pictures are of another oracle build or another version of the replay; \
+                 {record}"
+            )]);
+        }
+        Err(_) => return Ok(vec![format!("{name}: no oracle's pictures; {record}")]),
+    }
+    let missing: Vec<String> = (shots.frames.iter())
+        .filter(|f| !references.join(format!("{f}.png")).exists())
+        .map(u64::to_string)
+        .collect();
+    if !missing.is_empty() {
+        return Ok(vec![format!(
+            "{name}: no oracle's picture of frame {}; {record}",
+            missing.join(", ")
+        )]);
+    }
     let out = repo.join("target/fidelity-shots").join(&name);
     match std::fs::remove_dir_all(&out) {
         Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
@@ -102,7 +135,6 @@ fn check(repo: &Path, app: &Path, assets: &Path, shots: &Shots) -> Result<Vec<St
             String::from_utf8_lossy(&run.stderr).trim()
         ));
     }
-    let references = shots.dir(&screenshots_dir(repo));
     let mut problems = Vec::new();
     for f in &shots.frames {
         let oracle = read_png(&references.join(format!("{f}.png")))?;
@@ -140,28 +172,35 @@ fn run() -> Result<bool, String> {
             .with_file_name(format!("app{}", std::env::consts::EXE_SUFFIX)),
     };
     let assets = args.assets.unwrap_or_else(|| repo.join("assets"));
-    let mut list = read_list(&repo)?;
-    if !args.replays.is_empty() {
-        let wanted: Vec<_> = (args.replays.iter())
-            .map(|p| p.file_stem().map(ToOwned::to_owned))
-            .collect();
-        list.retain(|s| wanted.contains(&s.replay.file_stem().map(ToOwned::to_owned)));
-        if list.len() != wanted.len() {
-            return Err("a replay given isn't in fidelity/screenshots/shots.txt".into());
+    let all = read_list(&repo)?;
+    let mut problems = Vec::new();
+    if args.replays.is_empty() {
+        // Pictures no line asks for any more.
+        let dir = screenshots_dir(&repo);
+        let entries = std::fs::read_dir(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+        for e in entries {
+            let e = e.map_err(|e| format!("{}: {e}", dir.display()))?;
+            let name = e.file_name().to_string_lossy().into_owned();
+            if e.path().is_dir() && !all.iter().any(|s| s.name() == name) {
+                problems.push(format!(
+                    "{name}: pictures that fidelity/screenshots/shots.txt doesn't list; delete them"
+                ));
+            }
         }
     }
-    let mut problems = Vec::new();
+    let list = select(all, &args.replays)?;
+    let stamp = oracle_build_stamp(&repo)?;
     let mut frames = 0;
     for shots in &list {
-        problems.extend(check(&repo, &app, &assets, shots)?);
+        problems.extend(check(&repo, &app, &assets, &stamp, shots)?);
         frames += shots.frames.len();
     }
     for p in &problems {
         eprintln!("fidelity-shots: {p}");
     }
     eprintln!(
-        "fidelity-shots: {} of {frames} pictures of {} replays are the oracle's",
-        frames - problems.len(),
+        "fidelity-shots: {} problems in {frames} pictures of {} replays",
+        problems.len(),
         list.len()
     );
     Ok(problems.is_empty())

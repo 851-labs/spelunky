@@ -48,7 +48,7 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   binary). So a new worktree is as warm as the main worktree's `target/` is. To keep it that way, code finds
   the repository's files at run time, with `transpile::reference::repo_root()` or
   `std::env::var_os("CARGO_MANIFEST_DIR")` (which `cargo test` and `cargo run` set), not `env!`. Only the
-  harness's binaries (`fidelity`, `fidelity-check`, `fuzz-sweep`, `wiki-clips`, `replay-*`), which are also
+  harness's binaries (`fidelity`, `fidelity-check`, `fidelity-shots`, `fuzz-sweep`, `wiki-clips`, `replay-*`), which are also
   run without Cargo (`--no-build`, the soak's copied `fuzz-sweep`), keep `env!`, and tests keep
   `CARGO_BIN_EXE_*`, which Cargo sets only as it compiles. `SPELUNKY_NO_SEED=1` turns the cloning off.
   `assets/` isn't cloned: once the extractor is built, `scripts/extract` takes a second.
@@ -67,9 +67,9 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   `scripts/fidelity --refresh-fingerprints`, as each fingerprint names the oracle build it came from
   (docs/formats.md, "Fingerprints").
 - `fidelity/screenshots/` holds the oracle's pictures of chosen frames, which `scripts/fidelity-shots` holds the
-  app's renderer to (on a Mac: it needs the GPU; `scripts/check --apple`). A change to a listed replay, or to
-  what the oracle renders, records them again with `scripts/fidelity --refresh-screenshots` (docs/formats.md,
-  "Screenshots").
+  app's renderer to (on a Mac: it needs the GPU; `scripts/check --apple`). Each directory records the oracle build and the
+  replay it came from, as a fingerprint does: a change to either records them again with
+  `scripts/fidelity --refresh-screenshots` (docs/formats.md, "Screenshots").
 - The wiki's media are committed in `wiki/media`. A change to a clip spec, a replay a clip is cut from, or what
   renders them (the game, drawing, sound, `harness`, the extractor) runs `scripts/wiki-media` and commits what it
   changes, in one commit near the end of the PR (each re-commit of a video stays in history); `scripts/check`

@@ -7,9 +7,22 @@
 //! (`F1,F2,...`), and optionally how far the pictures may differ, `differ=N` pixels by at most `step=S` in any
 //! channel (both 0 by default: exact). `#` starts a comment. Each frame's picture is
 //! `fidelity/screenshots/<replay name>/<frame>.png`, as the oracle shows it after that frame (its
-//! `--screenshots`), at the window's size; `scripts/fidelity --refresh-screenshots` records them.
+//! `--screenshots`), at the window's size; `scripts/fidelity --refresh-screenshots` records them, and beside them
+//! [`SOURCE`], the oracle build and the replay they came from, as a fingerprint records them.
 
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
+
+/// The file in a replay's picture directory naming what they came from ([`source`]).
+pub const SOURCE: &str = "source.txt";
+
+/// What [`SOURCE`] holds for pictures the oracle build `stamp` (`fingerprint::oracle_build_stamp`, whose first
+/// 16 hex digits a fingerprint keeps too) made of the replay whose `fingerprint::replay_hash` is `replay`.
+pub fn source(stamp: &str, replay: &str) -> String {
+    format!(
+        "oracle {}\nreplay {replay}\n",
+        &stamp[..stamp.len().min(16)]
+    )
+}
 
 /// One line of the list.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -30,9 +43,18 @@ pub struct Tolerance {
 }
 
 impl Shots {
+    /// The replay's name: its file's, without `.txt`.
+    pub fn name(&self) -> String {
+        self.replay
+            .file_stem()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .into_owned()
+    }
+
     /// The directory of its pictures, under `dir` (`fidelity/screenshots`).
     pub fn dir(&self, dir: &Path) -> PathBuf {
-        dir.join(self.replay.file_stem().unwrap_or_default())
+        dir.join(self.name())
     }
 
     /// Whether it plays the settings program (a replay of `fidelity/settings/`).
@@ -63,7 +85,14 @@ pub fn parse_list(text: &str) -> Result<Vec<Shots>, String> {
             continue;
         }
         let mut words = line.split_whitespace();
-        let replay = PathBuf::from(words.next().expect("not empty"));
+        let word = words.next().expect("not empty");
+        if Path::new(word).is_absolute() {
+            return Err(at(format!("{word}: a path from the repository's root")));
+        }
+        // As written, but for any `./`, so `settings()` sees where it is.
+        let replay: PathBuf = (Path::new(word).components())
+            .filter(|c| !matches!(c, Component::CurDir))
+            .collect();
         let frames = words.next().ok_or_else(|| at("no frames".into()))?;
         let mut frames = (frames.split(','))
             .map(|f| f.parse().map_err(|_| at(format!("bad frame {f:?}"))))
@@ -100,6 +129,30 @@ pub fn parse_list(text: &str) -> Result<Vec<Shots>, String> {
     Ok(out)
 }
 
+/// The lines of `list` for `replays` (by name; all of them if none), each once.
+pub fn select(list: Vec<Shots>, replays: &[PathBuf]) -> Result<Vec<Shots>, String> {
+    if replays.is_empty() {
+        return Ok(list);
+    }
+    let mut names: Vec<String> = (replays.iter())
+        .map(|p| {
+            p.file_stem()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .into_owned()
+        })
+        .collect();
+    names.sort();
+    names.dedup();
+    if let Some(n) = names.iter().find(|n| !list.iter().any(|s| s.name() == **n)) {
+        return Err(format!("{n} isn't in fidelity/screenshots/shots.txt"));
+    }
+    Ok(list
+        .into_iter()
+        .filter(|s| names.contains(&s.name()))
+        .collect())
+}
+
 /// A picture: width, height and RGBA rows, top first.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Picture {
@@ -108,7 +161,8 @@ pub struct Picture {
     pub rgba: Vec<u8>,
 }
 
-/// Reads an 8-bit RGB or RGBA PNG (the port writes RGB, the oracle RGBA, opaque).
+/// Reads an 8-bit RGB or RGBA PNG: the port writes RGB, the oracle RGBA, opaque (`tools::decode_png` takes only
+/// RGBA).
 pub fn read_png(path: &Path) -> Result<Picture, String> {
     let at = |e: String| format!("{}: {e}", path.display());
     let file = std::fs::File::open(path).map_err(|e| at(e.to_string()))?;
@@ -142,15 +196,9 @@ pub fn read_png(path: &Path) -> Result<Picture, String> {
 
 /// Writes a picture as an RGBA PNG.
 pub fn write_png(path: &Path, p: &Picture) -> Result<(), String> {
-    let at = |e: String| format!("{}: {e}", path.display());
-    let file = std::fs::File::create(path).map_err(|e| at(e.to_string()))?;
-    let mut encoder = png::Encoder::new(std::io::BufWriter::new(file), p.width, p.height);
-    encoder.set_color(png::ColorType::Rgba);
-    encoder.set_depth(png::BitDepth::Eight);
-    let mut writer = encoder.write_header().map_err(|e| at(e.to_string()))?;
-    writer
-        .write_image_data(&p.rgba)
-        .map_err(|e| at(e.to_string()))
+    let bytes = tools::encode_png(p.width, p.height, &p.rgba)
+        .map_err(|e| format!("{}: {e}", path.display()))?;
+    std::fs::write(path, bytes).map_err(|e| format!("{}: {e}", path.display()))
 }
 
 /// How two pictures of a frame differ, alpha aside (the window shows none).
@@ -220,9 +268,18 @@ mod tests {
     #[test]
     fn the_list() {
         let list = parse_list(
-            "# the HUD\nfidelity/replays/a.txt 30,10,10 # two\n\nfidelity/settings/b.txt 5 differ=12 step=2\n",
+            "# the HUD\nfidelity/replays/a.txt 30,10,10 # two\n\n./fidelity/settings/b.txt 5 differ=12 step=2\n",
         )
         .unwrap();
+        assert_eq!(list[1].replay, Path::new("fidelity/settings/b.txt"));
+        assert_eq!(list[1].name(), "b");
+        let some = select(list.clone(), &["b.txt".into(), "x/b.txt".into()]).unwrap();
+        assert_eq!(some, [list[1].clone()]);
+        assert!(
+            select(list.clone(), &["c.txt".into()])
+                .unwrap_err()
+                .contains("c isn't")
+        );
         assert_eq!(list[0].frames, [10, 30]);
         assert_eq!(list[0].tolerance, Tolerance::default());
         assert!(!list[0].settings() && list[1].settings());
@@ -238,6 +295,7 @@ mod tests {
             ("a.txt 1,x", "bad frame"),
             ("a.txt 1 near=3", "unknown"),
             ("a.txt 1\nb/a.txt 2", "again"),
+            ("/a.txt 1", "from the repository's root"),
         ] {
             let e = parse_list(bad).unwrap_err();
             assert!(e.contains(want), "{bad}: {e}");

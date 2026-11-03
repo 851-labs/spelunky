@@ -928,7 +928,7 @@ mod native {
     /// rendering every frame, and shoots the last picture shown. With `--capture-from`, it shoots every
     /// frame from there on, and of the frames before, renders only those whose pixels last until then. With
     /// `--shots`, it shoots the picture shown after each of those frames, as `F.png`, as the oracle's
-    /// `--screenshots` does (`fidelity-shots`, 851-3872), rendering as `--capture-from` the first does.
+    /// `--screenshots` does (`fidelity-shots`, 851-3872), rendering the others only as far as those need them.
     fn game_screenshot(
         mut play: Play,
         textures: Textures,
@@ -994,13 +994,19 @@ mod native {
                 }
                 hashes.push(hash);
             }
-            if first.is_some_and(|from| f < from) {
+            // Whether this frame's picture is shot: every one from --capture-from's on, or --shots' own. The
+            // others are only rendered as far as a later shot's pixels need them.
+            let shot = match shots {
+                Some(shots) => shots.binary_search(&f).is_ok(),
+                None => first.is_none_or(|from| f >= from),
+            };
+            if !shot && first.is_some() {
                 unrendered.push(std::mem::take(&mut frame), |frame| renderer.render(frame));
                 continue;
             }
             unrendered.flush(|frame| renderer.render(frame));
             renderer.render(&frame);
-            if shots.is_some_and(|shots| shots.binary_search(&f).is_ok()) {
+            if shots.is_some() {
                 save_screenshot(&renderer, &out.join(format!("{f}.png")), scale)?;
                 taken += 1;
             }

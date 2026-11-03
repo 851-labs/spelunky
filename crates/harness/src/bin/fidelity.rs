@@ -457,32 +457,26 @@ fn refresh(args: &Options, replays: &[PathBuf]) -> Result<Verdict, String> {
 }
 
 /// `--refresh-screenshots`: the oracle's picture of each frame `fidelity/screenshots/shots.txt` lists, of
-/// `replays` (all of them if none), into the replay's directory there, which it replaces.
+/// `replays` (all of them if none), into the replay's directory there, which it replaces once they're all made,
+/// with their [`harness::shots::SOURCE`]. One replay at a time: there are few, and the oracle is heavy.
 fn refresh_screenshots(replays: &[PathBuf]) -> Result<Verdict, String> {
+    use harness::shots::{SOURCE, read_list, screenshots_dir, select, source};
     let repo = std::fs::canonicalize(repo_root()).map_err(|e| format!("the repository: {e}"))?;
-    let mut list = harness::shots::read_list(&repo)?;
-    if !replays.is_empty() {
-        let stems: Vec<_> = replays
-            .iter()
-            .map(|p| p.file_stem().map(ToOwned::to_owned))
-            .collect();
-        list.retain(|s| stems.contains(&s.replay.file_stem().map(ToOwned::to_owned)));
-        if list.len() != stems.len() {
-            return Err("a replay given isn't in fidelity/screenshots/shots.txt".into());
-        }
-    }
-    let dir = harness::shots::screenshots_dir(&repo);
+    let list = select(read_list(&repo)?, replays)?;
+    let stamp = oracle_stamp()?;
+    let dir = screenshots_dir(&repo);
     let work = repo.join("target/fidelity-shots/oracle");
+    let remove = |p: &Path| match std::fs::remove_dir_all(p) {
+        Err(e) if e.kind() != std::io::ErrorKind::NotFound => Err(format!("{}: {e}", p.display())),
+        _ => Ok(()),
+    };
     for shots in &list {
-        let name = shots
-            .replay
-            .file_stem()
-            .unwrap_or_default()
-            .to_string_lossy()
-            .to_string();
+        let name = shots.name();
         eprintln!("fidelity: the oracle's pictures of {name}");
-        std::fs::create_dir_all(&work).map_err(|e| format!("{}: {e}", work.display()))?;
-        let trace = work.join(format!("{name}.jsonl"));
+        let replay = harness::load_replay(&repo.join(&shots.replay))?;
+        let run = work.join(&name);
+        remove(&run)?;
+        std::fs::create_dir_all(&run).map_err(|e| format!("{}: {e}", run.display()))?;
         let frames: Vec<String> = shots.frames.iter().map(u64::to_string).collect();
         let exe = if shots.settings() {
             "config.exe"
@@ -491,7 +485,7 @@ fn refresh_screenshots(replays: &[PathBuf]) -> Result<Verdict, String> {
         };
         let status = Command::new(repo.join("tools/oracle/run"))
             .arg(repo.join(&shots.replay))
-            .arg(&trace)
+            .arg(run.join("oracle.jsonl"))
             .arg("--exe")
             .arg(exe)
             .arg("--screenshots")
@@ -501,31 +495,30 @@ fn refresh_screenshots(replays: &[PathBuf]) -> Result<Verdict, String> {
         if !status.success() {
             return Err(format!("{name}: tools/oracle/run failed ({status})"));
         }
-        // Beside the trace, as tools/oracle/run names it.
-        let shot_dir = work.join(format!("{name}.shots"));
-        let into = shots.dir(&dir);
-        match std::fs::remove_dir_all(&into) {
-            Err(e) if e.kind() != std::io::ErrorKind::NotFound => {
-                return Err(format!("{}: {e}", into.display()));
-            }
-            _ => {}
-        }
-        std::fs::create_dir_all(&into).map_err(|e| format!("{}: {e}", into.display()))?;
+        // Into a directory of their own beside the old one, which is only replaced once they're all there.
+        let (made, into) = (run.join("oracle.shots"), shots.dir(&dir));
+        let new = dir.join(format!(".{name}.new"));
+        remove(&new)?;
+        std::fs::create_dir_all(&new).map_err(|e| format!("{}: {e}", new.display()))?;
         for f in &frames {
-            let (from, to) = (
-                shot_dir.join(format!("{f}.png")),
-                into.join(format!("{f}.png")),
-            );
-            std::fs::copy(&from, &to).map_err(|e| format!("{}: {e}", from.display()))?;
+            let from = made.join(format!("{f}.png"));
+            std::fs::copy(&from, new.join(format!("{f}.png"))).map_err(|e| {
+                format!(
+                    "{name}: the oracle shot no frame {f} ({}: {e})",
+                    from.display()
+                )
+            })?;
         }
+        let src = new.join(SOURCE);
+        std::fs::write(
+            &src,
+            source(&stamp, &harness::fingerprint::replay_hash(&replay)),
+        )
+        .map_err(|e| format!("{}: {e}", src.display()))?;
+        remove(&into)?;
+        std::fs::rename(&new, &into).map_err(|e| format!("{}: {e}", into.display()))?;
         // The trace isn't needed, and takes room.
-        for p in [
-            trace,
-            host_dir(&work.join(format!("{name}.jsonl"))),
-            shot_dir,
-        ] {
-            let _ = std::fs::remove_file(&p).or_else(|_| std::fs::remove_dir_all(&p));
-        }
+        remove(&run)?;
         write_stdout(&format!("{name}: {} pictures recorded\n", frames.len()))?;
     }
     Ok(Verdict::Identical)

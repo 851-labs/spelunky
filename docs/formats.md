@@ -484,8 +484,10 @@ agree and magenta where they don't. It needs a GPU, so it runs on the Mac mini (
 
 **Adding or changing a shot means recording the oracle's pictures**: `scripts/fidelity --refresh-screenshots
 [<replay>...]` (every line without replays) runs the oracle with `--screenshots` and replaces the replay's
-directory. Record them again when a listed replay changes, or the oracle draws differently (a patch that changes what
-GL renders, not the dump); a fingerprint re-record doesn't touch them.
+directory once it has them all, with `source.txt`: the oracle build (the first 16 hex digits of its stamp, as a
+fingerprint's `oracle`) and the replay's hash. `fidelity-shots` fails pictures of another build or another version
+of the replay, and a directory no line lists, so an oracle change records them again, as it does the fingerprints
+(a fingerprint re-record doesn't touch them: it takes a few minutes).
 
 ### Stories
 
