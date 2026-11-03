@@ -1,0 +1,594 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -1,6 +1,7 @@
+ pub mod audio;
+ pub mod background;
+ pub mod draw;
++pub mod drawlog;
+ pub mod events;
+ pub mod external;
+ pub mod gm_save;
+@@ -1561,6 +1562,8 @@ impl Game {
+             self.unscaled_height = height;
+             self.window_inner_size = (width, height);
+             self.renderer.resize_framebuffer(width, height, false);
++            // Spelunky oracle: logged as a draw call (game/drawlog.rs, 851-3871).
++            drawlog::call("resize", 8, &[drawlog::Arg::Int(width as i32), drawlog::Arg::Int(height as i32)]);
+             let (width, height) = match self.scaling {
+                 Scaling::Fixed(scale) => ((f64::from(width) * scale) as u32, (f64::from(height) * scale) as u32),
+                 _ => (width, height),
+@@ -2118,6 +2121,8 @@ impl Game {
+         // Tell renderer to finish the frame
+         if self.auto_draw && self.scene_change.is_none() && self.play_type != PlayType::Record {
+             self.renderer.present(self.window_inner_size.0, self.window_inner_size.1, self.scaling);
++            // Spelunky oracle: logged as a draw call (game/drawlog.rs, 851-3871).
++            drawlog::call("present", 5, &[]);
+         }
+ 
+         // Clear inputs for this frame
+@@ -2450,6 +2455,8 @@ impl Game {
+             statedump::StateDump::new(&self, std::io::BufWriter::new(file), dump_fields)
+         });
+         let exit_at_end = std::env::var_os("OPENGMK_EXIT_AT_END").is_some();
++        // Spelunky oracle: list each frame's draw calls in the dump, not only their hash (game/drawlog.rs, 851-3871).
++        let dump_draws = std::env::var_os("OPENGMK_DUMP_DRAWS").is_some();
+ 
+         let mut time_now = Instant::now();
+         return loop {
+@@ -2489,6 +2496,9 @@ impl Game {
+                 break Ok(());
+             }
+ 
++            // Spelunky oracle: a frame's line holds what was drawn from here on (game/drawlog.rs, 851-3871).
++            drawlog::begin(dump_draws);
++
+             if let Some(frame) = replay.get_frame(frame_count) {
+                 if !self.stored_events.is_empty() {
+                     break Err(format!(
+diff --git a/gm8emulator/src/game/draw.rs b/gm8emulator/src/game/draw.rs
+--- a/gm8emulator/src/game/draw.rs
++++ b/gm8emulator/src/game/draw.rs
+@@ -1,6 +1,9 @@
+ use crate::{
+     asset::{self, font, Font},
+-    game::{Game, GetAsset, PlayType, Version},
++    game::{
++        drawlog::{self, Arg},
++        Game, GetAsset, PlayType, Version,
++    },
+     gml,
+     math::Real,
+ };
+@@ -150,6 +153,21 @@ fn gm8_follow(pos: i32, size: i32, border: i32, speed: i32, at: i32, room: i32)
+     new
+ }
+ 
++/// Spelunky oracle: a background layer's draw, logged (game/drawlog.rs, 851-3871).
++fn log_background(b: &crate::game::background::Background) {
++    drawlog::call("background", 10, &[
++        Arg::Int(b.background_id),
++        Arg::Real(b.x_offset.into()),
++        Arg::Real(b.y_offset.into()),
++        Arg::Bool(b.tile_horizontal),
++        Arg::Bool(b.tile_vertical),
++        Arg::Real(b.xscale.into()),
++        Arg::Real(b.yscale.into()),
++        drawlog::colour(b.blend),
++        Arg::Real(b.alpha.into()),
++    ]);
++}
++
+ /// Spelunky oracle: the sine and cosine a draw takes of an angle in radians, `fsin` and `fcos` stored as doubles
+ /// (the port's `math::draw_sin_cos`, 851-3304).
+ pub fn gm8_draw_sin_cos(angle: f64) -> (f64, f64) {
+@@ -170,6 +188,8 @@ impl Game {
+         // Update views that should be following objects
+         if self.room.views_enabled {
+             self.renderer.clear_view(self.background_colour, 1.0);
++            // Spelunky oracle: each draw call logged as GML asked for it (game/drawlog.rs, 851-3871).
++            drawlog::call("clear", 1, &[drawlog::colour(u32::from(self.background_colour) as i32), Arg::Real(1.0)]);
+             for view in self.room.views.iter_mut().filter(|x| x.visible) {
+                 if let Some(handle) = match view.follow_target {
+                     obj_id if obj_id < 100000 => {
+@@ -251,6 +271,8 @@ impl Game {
+             self.unscaled_width as _,
+             self.unscaled_height as _,
+         );
++        let (w, h) = (self.unscaled_width as i32, self.unscaled_height as i32);
++        drawlog::call("view", 2, &[0, 0, w, h, 0, 0, w, h].map(Arg::Int));
+ 
+         // Apply room caption
+         let title = self.get_window_title();
+@@ -285,6 +307,17 @@ impl Game {
+                 ok.ok_or(gml::Error::Overflow)?;
+             }
+             if let Some(atlas_ref) = sprite.get_atlas_ref(frame) {
++                drawlog::call("sprite", 9, &[
++                    Arg::Int(instance.sprite_index.get()),
++                    Arg::Int(frame.rem_euclid(sprite.frames.len() as i32)),
++                    Arg::Real(instance.x.get().into()),
++                    Arg::Real(instance.y.get().into()),
++                    Arg::Real(instance.image_xscale.get().into()),
++                    Arg::Real(instance.image_yscale.get().into()),
++                    Arg::Real(instance.image_angle.get().into()),
++                    drawlog::colour(instance.image_blend.get()),
++                    Arg::Real(instance.image_alpha.get().into()),
++                ]);
+                 self.renderer.draw_sprite(
+                     atlas_ref,
+                     instance.x.get().into(),
+@@ -316,9 +349,11 @@ impl Game {
+         angle: f64,
+     ) -> gml::Result<()> {
+         self.renderer.set_view(src_x, src_y, src_w, src_h, angle, port_x, port_y, port_w, port_h);
++        drawlog::call("view", 2, &[src_x, src_y, src_w, src_h, port_x, port_y, port_w, port_h].map(Arg::Int));
+ 
+         if self.room.show_colour {
+             self.renderer.clear_view(self.room.colour, 1.0);
++            drawlog::call("clear", 1, &[drawlog::colour(u32::from(self.room.colour) as i32), Arg::Real(1.0)]);
+         } else {
+             self.renderer.clear_zbuf();
+         }
+@@ -348,6 +383,19 @@ impl Game {
+             if tile.visible.get() {
+                 if let Some(Some(background)) = game.assets.backgrounds.get(tile.background_index.get() as usize) {
+                     if let Some(atlas) = background.atlas_ref {
++                        drawlog::call("tile", 11, &[
++                            Arg::Int(tile.background_index.get()),
++                            Arg::Int(tile.tile_x.get()),
++                            Arg::Int(tile.tile_y.get()),
++                            Arg::Int(tile.width.get()),
++                            Arg::Int(tile.height.get()),
++                            Arg::Real(tile.x.get().into()),
++                            Arg::Real(tile.y.get().into()),
++                            Arg::Real(tile.xscale.get().into()),
++                            Arg::Real(tile.yscale.get().into()),
++                            drawlog::colour(tile.blend.get()),
++                            Arg::Real(tile.alpha.get().into()),
++                        ]);
+                         game.renderer.set_depth(tile.depth.get().into_inner() as f32);
+                         game.renderer.draw_sprite_partial(
+                             atlas,
+@@ -397,6 +445,7 @@ impl Game {
+             if let Some(bg_asset) = self.assets.backgrounds.get_asset(background.background_id) {
+                 gm8_background(background, bg_asset)?;
+                 if let Some(atlas_ref) = bg_asset.atlas_ref {
++                    log_background(background);
+                     self.renderer.draw_sprite_tiled(
+                         atlas_ref,
+                         background.x_offset.into(),
+@@ -471,6 +520,7 @@ impl Game {
+             if let Some(bg_asset) = self.assets.backgrounds.get_asset(background.background_id) {
+                 gm8_background(background, bg_asset)?;
+                 if let Some(atlas_ref) = bg_asset.atlas_ref {
++                    log_background(background);
+                     self.renderer.draw_sprite_tiled(
+                         atlas_ref,
+                         background.x_offset.into(),
+@@ -492,6 +542,17 @@ impl Game {
+             if let Some(atlas_ref) =
+                 sprite.get_atlas_ref((self.cursor_sprite_frame % sprite.frames.len() as u32) as i32)
+             {
++                drawlog::call("sprite", 9, &[
++                    Arg::Int(self.cursor_sprite),
++                    Arg::Int((self.cursor_sprite_frame % sprite.frames.len() as u32) as i32),
++                    Arg::Real(x.into()),
++                    Arg::Real(y.into()),
++                    Arg::Real(1.0),
++                    Arg::Real(1.0),
++                    Arg::Real(0.0),
++                    drawlog::colour(0xffffff),
++                    Arg::Real(1.0),
++                ]);
+                 self.renderer.draw_sprite(atlas_ref, x.into(), y.into(), 1.0, 1.0, 0.0, 0xffffff, 1.0);
+             }
+         }
+diff --git a/gm8emulator/src/game/drawlog.rs b/gm8emulator/src/game/drawlog.rs
+new file mode 100644
+--- /dev/null
++++ b/gm8emulator/src/game/drawlog.rs
+@@ -0,0 +1,166 @@
++//! Spelunky oracle: each frame's draw calls, for the dump's `draws` and `draw_calls` (the port's
++//! `gm::draw_calls` and its docs/formats.md, "Draw calls"; 851-3871).
++//!
++//! The draw built-ins, the default draw, the tiles, background layers and views of `Game::draw`, the surfaces and
++//! the back buffer's presents each log the call GML made, in the canonical form the port writes: what was asked
++//! for, not how the renderer carries it out (one call per `draw_text`, which OpenGMK draws glyph by glyph; a
++//! sprite's frame wrapped into its frame count; colours cut to 24 bits). The dump takes each frame's calls when it
++//! writes the frame's line ([`take`]), and the main loop drops whatever came before a frame ([`begin`]), so a
++//! line holds what was drawn from the frame's start to it.
++//!
++//! The hash is the port's `trace::canon::hash` of every call in order, each as its tag (8 bytes, little-endian)
++//! and its fields: an `i32` as 4 little-endian bytes, a real as its 8 (every NaN the same NaN), a `bool` as a byte,
++//! bytes as their length (8 bytes) and themselves. With `OPENGMK_DUMP_DRAWS=1` the calls are also listed, each as
++//! its name and fields separated by spaces: reals as Rust's shortest round trip, text as a JSON string of its
++//! bytes as Latin-1.
++
++use std::{cell::RefCell, fmt::Write as _};
++
++/// A call's field.
++#[derive(Clone, Copy)]
++pub enum Arg<'a> {
++    Int(i32),
++    Real(f64),
++    Bool(bool),
++    Bytes(&'a [u8]),
++}
++
++#[derive(Default)]
++struct Log {
++    /// The calls' canonical bytes.
++    bytes: Vec<u8>,
++    /// The calls, listed, if `OPENGMK_DUMP_DRAWS` is set.
++    list: Option<Vec<String>>,
++}
++
++thread_local! {
++    static LOG: RefCell<Log> = RefCell::new(Log::default());
++}
++
++/// Starts a frame's log, dropping what came before; with `list`, the calls are listed too.
++pub fn begin(list: bool) {
++    LOG.with(|log| {
++        let mut log = log.borrow_mut();
++        log.bytes.clear();
++        log.list = if list { Some(Vec::new()) } else { None };
++    })
++}
++
++/// Logs a call: its name, its tag and its fields.
++pub fn call(name: &str, tag: u64, args: &[Arg]) {
++    LOG.with(|log| {
++        let mut log = log.borrow_mut();
++        let log = &mut *log;
++        log.bytes.extend_from_slice(&tag.to_le_bytes());
++        for a in args {
++            match *a {
++                Arg::Int(n) => log.bytes.extend_from_slice(&n.to_le_bytes()),
++                Arg::Real(r) => {
++                    let r = if r.is_nan() { f64::NAN } else { r };
++                    log.bytes.extend_from_slice(&r.to_bits().to_le_bytes());
++                },
++                Arg::Bool(b) => log.bytes.push(u8::from(b)),
++                Arg::Bytes(b) => {
++                    log.bytes.extend_from_slice(&(b.len() as u64).to_le_bytes());
++                    log.bytes.extend_from_slice(b);
++                },
++            }
++        }
++        if let Some(list) = &mut log.list {
++            let mut line = name.to_string();
++            for a in args {
++                line.push(' ');
++                match *a {
++                    Arg::Int(n) => {
++                        let _ = write!(line, "{}", n);
++                    },
++                    Arg::Real(r) => {
++                        let _ = write!(line, "{:?}", r);
++                    },
++                    Arg::Bool(b) => {
++                        let _ = write!(line, "{}", b);
++                    },
++                    Arg::Bytes(b) => {
++                        line.push('"');
++                        for &c in b {
++                            match c {
++                                b'"' => line.push_str("\\\""),
++                                b'\\' => line.push_str("\\\\"),
++                                c if c < 0x20 => {
++                                    let _ = write!(line, "\\u{:04x}", c);
++                                },
++                                c => line.push(char::from(c)),
++                            }
++                        }
++                        line.push('"');
++                    },
++                }
++            }
++            list.push(line);
++        }
++    })
++}
++
++/// The frame's calls: their hash, and their list if asked for. The log goes on from empty.
++pub fn take() -> (u64, Option<Vec<String>>) {
++    LOG.with(|log| {
++        let mut log = log.borrow_mut();
++        let h = hash(&log.bytes);
++        log.bytes.clear();
++        let list = log.list.as_mut().map(std::mem::take);
++        (h, list)
++    })
++}
++
++/// A colour, cut to its 24 bits.
++pub fn colour(c: i32) -> Arg<'static> {
++    Arg::Int(c & 0xFF_FF_FF)
++}
++
++/// The port's `trace::canon::hash`: four lanes, each from its own seed and the length, take turns at the 8-byte
++/// little-endian words (in 32-byte blocks, the last zero-padded), each mixed in by xor, multiply and rotate; then
++/// the lanes are folded together and MurmurHash3's finalizer applied.
++fn hash(bytes: &[u8]) -> u64 {
++    const K: u64 = 0x9e37_79b9_7f4a_7c15;
++    let mix = |h: u64, w: u64| (h ^ w).wrapping_mul(K).rotate_left(31);
++    let fmix = |mut h: u64| {
++        h ^= h >> 33;
++        h = h.wrapping_mul(0xff51_afd7_ed55_8ccd);
++        h ^= h >> 33;
++        h = h.wrapping_mul(0xc4ce_b9fe_1a85_ec53);
++        h ^ (h >> 33)
++    };
++    let len = bytes.len() as u64;
++    let mut lanes = [0x243f_6a88_85a3_08d3u64, 0x1319_8a2e_0370_7344, 0xa409_3822_299f_31d0, 0x082e_fa98_ec4e_6c89];
++    for lane in lanes.iter_mut() {
++        *lane = mix(*lane, len);
++    }
++    let mut block = |b: &[u8]| {
++        for (lane, w) in lanes.iter_mut().zip(b.chunks_exact(8)) {
++            let mut word = [0; 8];
++            word.copy_from_slice(w);
++            *lane = mix(*lane, u64::from_le_bytes(word));
++        }
++    };
++    let blocks = bytes.chunks_exact(32);
++    let rest = blocks.remainder();
++    for b in blocks {
++        block(b);
++    }
++    if !rest.is_empty() {
++        let mut b = [0; 32];
++        b[..rest.len()].copy_from_slice(rest);
++        block(&b);
++    }
++    fmix(lanes.iter().fold(len, |h, &lane| mix(h, fmix(lane))))
++}
++
++#[cfg(test)]
++mod tests {
++    #[test]
++    fn the_hash_is_the_ports() {
++        // The port's `the_hash_is_fixed` (gm's dump.rs).
++        assert_eq!(super::hash(b""), 0xf4a9_e556_70e1_91bb);
++        assert_eq!(super::hash(b"spelunky"), 0xb42d_3d89_3cbe_d43f);
++    }
++}
+diff --git a/gm8emulator/src/game/statedump.rs b/gm8emulator/src/game/statedump.rs
+--- a/gm8emulator/src/game/statedump.rs
++++ b/gm8emulator/src/game/statedump.rs
+@@ -366,6 +366,21 @@ impl<W: Write> StateDump<W> {
+         }
+         self.line.push(']');
+ 
++        // Spelunky oracle: the frame's draw calls, hashed, and listed with OPENGMK_DUMP_DRAWS (game/drawlog.rs, the
++        // port's `World::trace_frame_drawn`, 851-3871).
++        let (draws, calls) = crate::game::drawlog::take();
++        let _ = write!(self.line, ",\"draws\":\"{:016x}\"", draws);
++        if let Some(calls) = calls {
++            self.line.push_str(",\"draw_calls\":[");
++            for (i, c) in calls.iter().enumerate() {
++                if i > 0 {
++                    self.line.push(',');
++                }
++                string(&mut self.line, c);
++            }
++            self.line.push(']');
++        }
++
+         if self.with_fields {
+             self.line.push_str(",\"globals\":");
+             self.write_fields(game, game.globals.fields.iter());
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -5,7 +5,9 @@
+ use crate::{
+     action, asset,
+     game::{
+-        draw, external, gm_save::GMSave, model, particle, pathfinding, platform, replay, surface::Surface,
++        draw,
++        drawlog::{self, Arg},
++        external, gm_save::GMSave, model, particle, pathfinding, platform, replay, surface::Surface,
+         transition::UserTransition, view::View, Game, GameClock, GetAsset, PlayType, SceneChange, Version,
+     },
+     gml::{
+@@ -507,6 +509,8 @@ impl Game {
+         let (width, height) = self.window_inner_size;
+         if self.play_type != PlayType::Record {
+             self.renderer.present(width, height, self.scaling);
++            // Spelunky oracle: each draw call logged as GML asked for it (game/drawlog.rs, 851-3871).
++            drawlog::call("present", 5, &[]);
+         }
+         Ok(Default::default())
+     }
+@@ -516,6 +520,7 @@ impl Game {
+         let (width, height) = self.window_inner_size;
+         if self.play_type != PlayType::Record {
+             self.renderer.present(width, height, self.scaling);
++            drawlog::call("present", 5, &[]);
+         }
+         Ok(Default::default())
+     }
+@@ -665,6 +670,8 @@ impl Game {
+             _ => (BlendType::SrcAlpha, BlendType::InvSrcAlpha),  // bm_normal
+         };
+         self.renderer.set_blend_mode(src, dest);
++        // GM's bm_* constants, bm_zero (1) to bm_src_alpha_sat (11), in BlendType's order.
++        drawlog::call("blend", 4, &[Arg::Int(src as i32 + 1), Arg::Int(dest as i32 + 1)]);
+         Ok(Default::default())
+     }
+ 
+@@ -686,11 +693,13 @@ impl Game {
+         let src = int_to_blend_type(src);
+         let dest = int_to_blend_type(dest);
+         self.renderer.set_blend_mode(src, dest);
++        drawlog::call("blend", 4, &[Arg::Int(src as i32 + 1), Arg::Int(dest as i32 + 1)]);
+         Ok(Default::default())
+     }
+ 
+     pub fn draw_clear(&mut self, args: &[Value]) -> gml::Result<Value> {
+         let col = expect_args!(args, [int])?;
++        drawlog::call("clear", 1, &[drawlog::colour(col), Arg::Real(1.0)]);
+         if self.gm_version == Version::GameMaker8_0 && !self.surface_fix {
+             self.renderer.clear_view_no_zbuf((col as u32).into(), 1.0);
+         } else {
+@@ -701,6 +710,7 @@ impl Game {
+ 
+     pub fn draw_clear_alpha(&mut self, args: &[Value]) -> gml::Result<Value> {
+         let (col, alpha) = expect_args!(args, [int, real])?;
++        drawlog::call("clear", 1, &[drawlog::colour(col), Arg::Real(alpha.into())]);
+         if self.gm_version == Version::GameMaker8_0 && !self.surface_fix {
+             self.renderer.clear_view_no_zbuf((col as u32).into(), alpha.into());
+         } else {
+@@ -718,6 +728,14 @@ impl Game {
+ 
+     pub fn draw_line(&mut self, args: &[Value]) -> gml::Result<Value> {
+         let (x1, y1, x2, y2) = expect_args!(args, [real, real, real, real])?;
++        drawlog::call("line", 13, &[
++            Arg::Real(x1.into()),
++            Arg::Real(y1.into()),
++            Arg::Real(x2.into()),
++            Arg::Real(y2.into()),
++            drawlog::colour(u32::from(self.draw_colour) as i32),
++            Arg::Real(self.draw_alpha.into()),
++        ]);
+         self.renderer.draw_line(
+             x1.into(),
+             y1.into(),
+@@ -754,6 +772,15 @@ impl Game {
+             gml::gm8::DrawTrap::Invalid => gml::Error::IntOverflow,
+             gml::gm8::DrawTrap::Overflow => gml::Error::Overflow,
+         })?;
++        drawlog::call("rectangle", 12, &[
++            Arg::Real(x1.into()),
++            Arg::Real(y1.into()),
++            Arg::Real(x2.into()),
++            Arg::Real(y2.into()),
++            drawlog::colour(u32::from(self.draw_colour) as i32),
++            Arg::Real(self.draw_alpha.into()),
++            Arg::Bool(outline),
++        ]);
+         if outline {
+             self.renderer.draw_rectangle_outline(
+                 x1.into(),
+@@ -814,6 +841,14 @@ impl Game {
+         // Spelunky oracle: GM8 stores bounds and points that can trap on Intel (the port's `gm8::draw_circle`,
+         // 851-3304).
+         gml::gm8::draw_circle(x.into(), y.into(), radius.into()).ok_or(gml::Error::Overflow)?;
++        drawlog::call("circle", 14, &[
++            Arg::Real(x.into()),
++            Arg::Real(y.into()),
++            Arg::Real(radius.into()),
++            drawlog::colour(u32::from(self.draw_colour) as i32),
++            Arg::Real(self.draw_alpha.into()),
++            Arg::Bool(outline),
++        ]);
+         self.renderer.draw_ellipse(
+             x.into(),
+             y.into(),
+@@ -1301,6 +1336,15 @@ impl Game {
+         {
+             return Err(gml::Error::Overflow)
+         }
++        // One call for the text, which draw_string draws glyph by glyph.
++        drawlog::call("text", 15, &[
++            Arg::Int(self.draw_font_id),
++            Arg::Real(x.into()),
++            Arg::Real(y.into()),
++            Arg::Bytes(text.repr().as_ref()),
++            drawlog::colour(u32::from(self.draw_colour) as i32),
++            Arg::Real(self.draw_alpha.into()),
++        ]);
+         self.draw_string(x, y, text.repr(), None, None, 1.into(), 1.into(), 0.into(), None, self.draw_alpha.into());
+         Ok(Default::default())
+     }
+@@ -1442,6 +1486,17 @@ impl Game {
+                 gml::gm8::draw_quad(f64::from(x) - xo, f64::from(y) - yo, w, h).ok_or(gml::Error::Overflow)?;
+             }
+             if let Some(atlas_ref) = sprite.get_atlas_ref(image_index) {
++                drawlog::call("sprite", 9, &[
++                    Arg::Int(sprite_index),
++                    Arg::Int(image_index.rem_euclid(sprite.frames.len() as i32)),
++                    Arg::Real(x.into()),
++                    Arg::Real(y.into()),
++                    Arg::Real(1.0),
++                    Arg::Real(1.0),
++                    Arg::Real(0.0),
++                    drawlog::colour(0xffffff),
++                    Arg::Real(1.0),
++                ]);
+                 self.renderer.draw_sprite(atlas_ref, x.into(), y.into(), 1.0, 1.0, 0.0, 0xffffff, 1.0);
+             }
+             Ok(Default::default())
+@@ -1515,6 +1570,17 @@ impl Game {
+                 .ok_or(gml::Error::Overflow)?;
+             }
+             if let Some(atlas_ref) = sprite.get_atlas_ref(image_index) {
++                drawlog::call("sprite", 9, &[
++                    Arg::Int(sprite_index),
++                    Arg::Int(image_index.rem_euclid(sprite.frames.len() as i32)),
++                    Arg::Real(x.into()),
++                    Arg::Real(y.into()),
++                    Arg::Real(xscale.into()),
++                    Arg::Real(yscale.into()),
++                    Arg::Real(angle.into()),
++                    drawlog::colour(colour),
++                    Arg::Real(alpha.into()),
++                ]);
+                 self.renderer.draw_sprite(
+                     atlas_ref,
+                     x.into(),
+@@ -2259,7 +2325,9 @@ impl Game {
+                 Err(e) => return Err(gml::Error::FunctionError("surface_create".into(), e.into())),
+             },
+         };
+-        Ok(self.surfaces.put(surf).into())
++        let id = self.surfaces.put(surf);
++        drawlog::call("surface_create", 6, &[Arg::Int(id), Arg::Int(w), Arg::Int(h)]);
++        Ok(id.into())
+     }
+ 
+     pub fn surface_create_ext(args: &[Value]) -> gml::Result<Value> {
+@@ -2275,6 +2343,7 @@ impl Game {
+         }
+         if let Some(surf) = self.surfaces.remove(surf_id) {
+             self.renderer.delete_sprite(surf.atlas_ref);
++            drawlog::call("surface_free", 7, &[Arg::Int(surf_id)]);
+         }
+         Ok(Default::default())
+     }
+@@ -2308,6 +2377,7 @@ impl Game {
+         if let Some(surf) = self.surfaces.get(surf_id) {
+             self.renderer.set_target(surf.atlas_ref);
+             self.surface_target = Some(surf_id);
++            drawlog::call("target", 3, &[Arg::Int(surf_id)]);
+             if self.surface_fix && self.room.views_enabled {
+                 let view = &self.room.views[self.view_current];
+                 // would probably be good to make this its own method in the renderer
+@@ -2338,6 +2408,7 @@ impl Game {
+         // reset viewport to top left of room because lol
+         self.renderer.reset_target();
+         self.surface_target = None;
++        drawlog::call("target", 3, &[Arg::Int(-1)]);
+         if self.gm_version == Version::GameMaker8_0 {
+             self.renderer.set_zbuf_trashed(!self.surface_fix);
+         }
+@@ -2374,6 +2445,16 @@ impl Game {
+         let (surf_id, x, y, xscale, yscale, rot, colour, alpha) =
+             expect_args!(args, [int, real, real, real, real, real, int, real])?;
+         if let Some(surf) = self.surfaces.get(surf_id) {
++            // Without its angle: the port's surface draws have none (Spelunky never rotates one).
++            drawlog::call("surface", 16, &[
++                Arg::Int(surf_id),
++                Arg::Real(x.into()),
++                Arg::Real(y.into()),
++                Arg::Real(xscale.into()),
++                Arg::Real(yscale.into()),
++                drawlog::colour(colour),
++                Arg::Real(alpha.into()),
++            ]);
+             self.renderer.draw_sprite(
+                 surf.atlas_ref,
+                 x.into(),

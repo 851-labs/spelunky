@@ -1013,6 +1013,7 @@ dependencies = [
  "assets",
  "audio",
  "config",
+ "draw",
  "game",
  "gm",
  "png",

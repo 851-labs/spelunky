@@ -86,6 +86,7 @@ impl Notice {
             let x = (vw - (line.len() as u32 * cw) as i32) / 2;
             out.push(Command::Text(Text {
                 font: self.font,
+                font_id: -1,
                 x: f64::from(x.max(0)),
                 y: f64::from(vh - band + 4 + i as i32 * line_h),
                 text: line.as_bytes().to_vec(),

@@ -188,6 +188,7 @@ impl World {
         };
         let cmd = draw::Text {
             font,
+            font_id: s.font,
             x,
             y,
             text: text.to_gml_string().as_bytes().to_vec(),

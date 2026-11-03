@@ -164,6 +164,7 @@ fn each_draw_records_one_command_with_the_settings_baked_in() {
     let want = vec![
         Command::Text(draw::Text {
             font: g.font(font).unwrap(),
+            font_id: font,
             x: 1.0,
             y: 2.0,
             // As string() shows it.

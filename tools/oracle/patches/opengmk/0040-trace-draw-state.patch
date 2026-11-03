@@ -1,0 +1,128 @@
+diff --git a/gm8emulator/src/game/statedump.rs b/gm8emulator/src/game/statedump.rs
+--- a/gm8emulator/src/game/statedump.rs
++++ b/gm8emulator/src/game/statedump.rs
+@@ -184,6 +184,10 @@ impl<W: Write> StateDump<W> {
+             ("image_speed", inst.image_speed.get()),
+             ("image_xscale", inst.image_xscale.get()),
+             ("image_yscale", inst.image_yscale.get()),
++            // Spelunky oracle: what only drawing reads (and GM8's rotated masks; the port's `World::trace_frame`,
++            // 851-3870).
++            ("image_angle", inst.image_angle.get()),
++            ("image_alpha", inst.image_alpha.get()),
+             ("depth", inst.depth.get()),
+         ] {
+             let _ = write!(out, ",\"{}\":", k);
+@@ -191,7 +195,13 @@ impl<W: Write> StateDump<W> {
+         }
+         let _ = write!(out, ",\"sprite_index\":{},\"sprite\":", spr);
+         string(out, &spr_name);
+-        let _ = write!(out, ",\"visible\":{},\"solid\":{}", inst.visible.get(), inst.solid.get());
++        let _ = write!(
++            out,
++            ",\"visible\":{},\"solid\":{},\"image_blend\":{}",
++            inst.visible.get(),
++            inst.solid.get(),
++            inst.image_blend.get()
++        );
+         let mut alarms: Vec<(u32, i32)> = inst.alarms.borrow().iter().map(|(k, v)| (*k, *v)).collect();
+         alarms.sort();
+         out.push_str(",\"alarms\":{");
+@@ -240,23 +250,83 @@ impl<W: Write> StateDump<W> {
+         self.write_instances(game, "instances", &active);
+         self.write_instances(game, "deactivated", &deactivated);
+ 
+-        // The view decides oLevel's deactivation region.
+-        let view = &game.room.views[0];
++        // The view decides oLevel's deactivation region. Spelunky oracle: and every view, background layer and the
++        // room's colour, and the drawing state the frame leaves, which only drawing reads, by GML name with the
++        // index written out (the drawing state, which GML has no variables for, by what sets it), every value a
++        // real (the port's `World::trace_frame`, 851-3870).
+         self.line.push_str(",\"builtins\":{");
+-        for (i, (k, v)) in [
+-            ("view_hview[0]", view.source_h),
+-            ("view_wview[0]", view.source_w),
+-            ("view_xview[0]", view.source_x),
+-            ("view_yview[0]", view.source_y),
+-        ]
+-        .into_iter()
+-        .enumerate()
+-        {
+-            if i > 0 {
+-                self.line.push(',');
++        let b = |b: bool| if b { 1.0 } else { 0.0 };
++        let room = &game.room;
++        let (src, dest) = game.renderer.get_blend_mode();
++        let mut first = true;
++        let mut put = |line: &mut String, name: &str, index: Option<usize>, v: f64| {
++            if !first {
++                line.push(',');
++            }
++            first = false;
++            match index {
++                Some(i) => {
++                    let _ = write!(line, "\"{}[{}]\":", name, i);
++                },
++                None => {
++                    let _ = write!(line, "\"{}\":", name);
++                },
++            }
++            num(line, v);
++        };
++        for (k, v) in [
++            ("background_color", f64::from(u32::from(room.colour) as i32)),
++            ("background_showcolor", b(room.show_colour)),
++            ("view_enabled", b(room.views_enabled)),
++            ("draw_color", f64::from(u32::from(game.draw_colour) as i32)),
++            ("draw_alpha", game.draw_alpha.into_inner()),
++            ("draw_font", f64::from(game.draw_font_id)),
++            // GM's bm_* constants, bm_zero (1) to bm_src_alpha_sat (11), in BlendType's order.
++            ("draw_blend_src", f64::from(src as i32 + 1)),
++            ("draw_blend_dest", f64::from(dest as i32 + 1)),
++            ("draw_target", f64::from(game.surface_target.unwrap_or(-1))),
++        ] {
++            put(&mut self.line, k, None, v);
++        }
++        for (i, view) in room.views.iter().enumerate() {
++            for (k, v) in [
++                ("view_visible", b(view.visible)),
++                ("view_xview", f64::from(view.source_x)),
++                ("view_yview", f64::from(view.source_y)),
++                ("view_wview", f64::from(view.source_w)),
++                ("view_hview", f64::from(view.source_h)),
++                ("view_xport", f64::from(view.port_x)),
++                ("view_yport", f64::from(view.port_y)),
++                ("view_wport", f64::from(view.port_w)),
++                ("view_hport", f64::from(view.port_h)),
++                ("view_angle", view.angle.into_inner()),
++                ("view_hborder", f64::from(view.follow_hborder)),
++                ("view_vborder", f64::from(view.follow_vborder)),
++                ("view_hspeed", f64::from(view.follow_hspeed)),
++                ("view_vspeed", f64::from(view.follow_vspeed)),
++                ("view_object", f64::from(view.follow_target)),
++            ] {
++                put(&mut self.line, k, Some(i), v);
++            }
++        }
++        for (i, layer) in room.backgrounds.iter().enumerate() {
++            for (k, v) in [
++                ("background_visible", b(layer.visible)),
++                ("background_foreground", b(layer.is_foreground)),
++                ("background_index", f64::from(layer.background_id)),
++                ("background_x", layer.x_offset.into_inner()),
++                ("background_y", layer.y_offset.into_inner()),
++                ("background_htiled", b(layer.tile_horizontal)),
++                ("background_vtiled", b(layer.tile_vertical)),
++                ("background_hspeed", layer.hspeed.into_inner()),
++                ("background_vspeed", layer.vspeed.into_inner()),
++                ("background_xscale", layer.xscale.into_inner()),
++                ("background_yscale", layer.yscale.into_inner()),
++                ("background_blend", f64::from(layer.blend)),
++                ("background_alpha", layer.alpha.into_inner()),
++            ] {
++                put(&mut self.line, k, Some(i), v);
+             }
+-            let _ = write!(self.line, "\"{}\":", k);
+-            num(&mut self.line, f64::from(v));
+         }
+         self.line.push('}');
+ 

@@ -1,0 +1,125 @@
+diff --git a/gm8emulator/src/game.rs b/gm8emulator/src/game.rs
+--- a/gm8emulator/src/game.rs
++++ b/gm8emulator/src/game.rs
+@@ -15,6 +15,7 @@ pub mod platform;
+ pub mod recording;
+ pub mod replay;
+ pub mod savestate;
++pub mod screenshot;
+ pub mod statedump;
+ pub mod surface;
+ pub mod transition;
+@@ -2123,6 +2124,8 @@ impl Game {
+             self.renderer.present(self.window_inner_size.0, self.window_inner_size.1, self.scaling);
+             // Spelunky oracle: logged as a draw call (game/drawlog.rs, 851-3871).
+             drawlog::call("present", 5, &[]);
++            // Spelunky oracle: the picture shown, for the screenshots (game/screenshot.rs, 851-3872).
++            screenshot::presented(&mut self.renderer, self.unscaled_width, self.unscaled_height);
+         }
+ 
+         // Clear inputs for this frame
+@@ -2562,6 +2565,9 @@ impl Game {
+                 r => r?,
+             }
+ 
++            // Spelunky oracle: the picture shown after the frame, if asked for (game/screenshot.rs, 851-3872).
++            screenshot::frame_done(frame_count)?;
++
+             if let Some(w) = dump.as_mut() {
+                 w.write_frame(&self, frame_count)?;
+                 // game_end() ends the loop below; flush here so a write error isn't swallowed by Drop
+diff --git a/gm8emulator/src/game/screenshot.rs b/gm8emulator/src/game/screenshot.rs
+new file mode 100644
+--- /dev/null
++++ b/gm8emulator/src/game/screenshot.rs
+@@ -0,0 +1,67 @@
++//! Spelunky oracle: the picture GM8 shows after chosen frames, as PNGs, for the port's pixel checks (its
++//! `fidelity-shots`, 851-3872).
++//!
++//! `OPENGMK_SCREENSHOTS=F1,F2,...` with `OPENGMK_SCREENSHOT_DIR=<dir>` writes `<dir>/<F>.png` after frame F's dump
++//! line: the back buffer as it was last shown (`screen_refresh`, `screen_redraw`, or the end of a frame with no room
++//! change pending), at its own size, opaque. A frame that shows nothing (one that ends in a room change) keeps the
++//! picture before it up, as the window does, so that's the one written. Without the variables nothing is read back.
++
++use crate::render::Renderer;
++use image::RgbaImage;
++use std::{cell::RefCell, collections::BTreeSet, path::PathBuf};
++
++struct Shots {
++    frames: BTreeSet<usize>,
++    dir: PathBuf,
++    /// The last picture shown: its width, height and RGBA rows, top first.
++    last: Option<(u32, u32, Box<[u8]>)>,
++}
++
++thread_local! {
++    static SHOTS: RefCell<Option<Shots>> = RefCell::new({
++        match (std::env::var("OPENGMK_SCREENSHOTS"), std::env::var_os("OPENGMK_SCREENSHOT_DIR")) {
++            (Ok(list), Some(dir)) => Some(Shots {
++                frames: list
++                    .split(',')
++                    .filter(|f| !f.is_empty())
++                    .map(|f| f.trim().parse().expect("OPENGMK_SCREENSHOTS: a frame isn't a number"))
++                    .collect(),
++                dir: dir.into(),
++                last: None,
++            }),
++            _ => None,
++        }
++    });
++}
++
++/// The back buffer, `width` x `height`, was just shown.
++pub fn presented(renderer: &mut Renderer, width: u32, height: u32) {
++    SHOTS.with(|shots| {
++        if let Some(shots) = shots.borrow_mut().as_mut() {
++            renderer.flush_queue();
++            let pixels = renderer.get_pixels(0, 0, width as i32, height as i32);
++            shots.last = Some((width, height, pixels));
++        }
++    })
++}
++
++/// Frame `frame`'s line was written: its picture, if it's one asked for.
++pub fn frame_done(frame: usize) -> std::io::Result<()> {
++    SHOTS.with(|shots| {
++        let shots = shots.borrow();
++        let Some(shots) = shots.as_ref() else { return Ok(()) };
++        if !shots.frames.contains(&frame) {
++            return Ok(())
++        }
++        let path = shots.dir.join(format!("{}.png", frame));
++        let Some((w, h, rgba)) = &shots.last else {
++            return Err(std::io::Error::other(format!("frame {}: nothing shown yet", frame)))
++        };
++        let mut image = RgbaImage::from_vec(*w, *h, rgba.to_vec()).expect("the size read back");
++        // The window shows no alpha.
++        for px in image.pixels_mut() {
++            px[3] = 255;
++        }
++        image.save_with_format(&path, image::ImageFormat::Png).map_err(std::io::Error::other)
++    })
++}
+diff --git a/gm8emulator/src/gml/kernel.rs b/gm8emulator/src/gml/kernel.rs
+--- a/gm8emulator/src/gml/kernel.rs
++++ b/gm8emulator/src/gml/kernel.rs
+@@ -509,8 +509,10 @@ impl Game {
+         let (width, height) = self.window_inner_size;
+         if self.play_type != PlayType::Record {
+             self.renderer.present(width, height, self.scaling);
+-            // Spelunky oracle: each draw call logged as GML asked for it (game/drawlog.rs, 851-3871).
++            // Spelunky oracle: each draw call logged as GML asked for it (game/drawlog.rs, 851-3871), and the
++            // picture shown kept for the screenshots (game/screenshot.rs, 851-3872).
+             drawlog::call("present", 5, &[]);
++            crate::game::screenshot::presented(&mut self.renderer, self.unscaled_width, self.unscaled_height);
+         }
+         Ok(Default::default())
+     }
+@@ -521,6 +523,7 @@ impl Game {
+         if self.play_type != PlayType::Record {
+             self.renderer.present(width, height, self.scaling);
+             drawlog::call("present", 5, &[]);
++            crate::game::screenshot::presented(&mut self.renderer, self.unscaled_width, self.unscaled_height);
+         }
+         Ok(Default::default())
+     }

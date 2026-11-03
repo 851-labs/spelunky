@@ -552,6 +552,7 @@ impl Overlay for Updater {
         for (i, (row, color)) in rows.into_iter().enumerate() {
             out.push(Command::Text(Text {
                 font,
+                font_id: -1,
                 x: f64::from(x0 + cw as i32),
                 y: f64::from(y0 + ch as i32 / 2 + 2 + i as i32 * line_h),
                 text: row.into_bytes(),

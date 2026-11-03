@@ -3,13 +3,15 @@
 //! Patterns are globs where `*` matches any run of characters. Field patterns match *paths*:
 //!
 //! - frame level: `room`, `room_name`, `seed`, `instance_count`, `globals.NAME`, `builtins.NAME`, `tiles` (a
-//!   writer keeps or drops them whole; `trace-diff` compares `tiles.ID.FIELD`, `FIELD` a tile's or `order`)
+//!   writer keeps or drops them whole; `trace-diff` compares `tiles.ID.FIELD`, `FIELD` a tile's or `after`),
+//!   `draws`, and `draw_calls` (kept or dropped whole; `trace-diff` reports the first that differs as
+//!   `draw_calls[N]`)
 //! - instance level: `active`, `object_index`, the real built-ins (`x`, `image_index`...), `sprite_index`,
-//!   `sprite`, `visible`, `solid`, `alarms[0]` to `alarms[11]`, and `vars.NAME`
+//!   `sprite`, `visible`, `solid`, `image_blend`, `alarms[0]` to `alarms[11]`, and `vars.NAME`
 //! - array elements: `vars.NAME[j]` and `vars.NAME[i,j]` (likewise for globals)
 //!
 //! A pattern also matches every path below it, so `vars` matches `vars.xVel` and `alarms` matches
-//! `alarms[3]`. Instance `id` and `object` are identity, not fields, and are never filtered out.
+//! `alarms[3]`, and `draws` matches `draw_calls` (the calls it hashes). Instance `id` and `object` are identity, not fields, and are never filtered out.
 
 use std::collections::BTreeMap;
 
@@ -109,6 +111,16 @@ impl Filter {
                     || (self.fields.iter().any(|p| p.starts_with("tiles."))
                         && !self.ignore_fields.iter().any(|p| path_matches(p, "tiles")))
             }),
+            draws: frame.draws.clone().filter(|_| keep("draws")),
+            // Kept or dropped whole, as the tiles are.
+            draw_calls: frame.draw_calls.clone().filter(|_| {
+                keep("draw_calls")
+                    || (self.fields.iter().any(|p| p.starts_with("draw_calls["))
+                        && !self
+                            .ignore_fields
+                            .iter()
+                            .any(|p| path_matches(p, "draw_calls")))
+            }),
         }
     }
 
@@ -125,6 +137,7 @@ impl Filter {
         out.sprite = inst.sprite.clone().filter(|_| keep("sprite"));
         out.visible = inst.visible.filter(|_| keep("visible"));
         out.solid = inst.solid.filter(|_| keep("solid"));
+        out.image_blend = inst.image_blend.filter(|_| keep("image_blend"));
         if (0..ALARMS).any(|i| keep(&format!("alarms[{i}]"))) {
             out.alarms = inst.alarms.as_ref().map(|alarms| {
                 alarms
@@ -184,6 +197,8 @@ fn path_matches(pattern: &str, path: &str) -> bool {
         || path
             .char_indices()
             .any(|(i, c)| (c == '.' || c == '[') && glob(pattern, &path[..i]))
+        // The calls are what `draws` hashes, so a pattern for it takes them too.
+        || (path.starts_with("draw_calls") && glob(pattern, "draws"))
 }
 
 /// `*` matches any run of characters (including none); everything else matches itself.

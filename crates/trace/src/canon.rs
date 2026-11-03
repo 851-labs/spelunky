@@ -172,11 +172,14 @@ impl Encoder<'_> {
             image_speed,
             image_xscale,
             image_yscale,
+            image_angle,
+            image_alpha,
             depth,
             sprite_index,
             sprite,
             visible,
             solid,
+            image_blend,
             alarms,
             vars,
         } = i;
@@ -198,6 +201,8 @@ impl Encoder<'_> {
             image_speed,
             image_xscale,
             image_yscale,
+            image_angle,
+            image_alpha,
             depth,
         ] {
             self.opt(*r, |e, Real(r)| e.real(r));
@@ -206,6 +211,7 @@ impl Encoder<'_> {
         self.opt(sprite.as_deref(), Self::str);
         self.opt(*visible, Self::bool);
         self.opt(*solid, Self::bool);
+        self.opt(*image_blend, Self::i32);
         // A missing alarm is -1, so only the others count; `trace-diff` compares alarms 0 to 11.
         self.opt(alarms.as_ref(), |e, alarms| {
             let set = || alarms.iter().filter(|&(&k, &v)| k < ALARMS && v != -1);
@@ -270,6 +276,9 @@ pub fn encode_frame(out: &mut Vec<u8>, f: &Frame) {
         globals,
         builtins,
         tiles,
+        draws,
+        // What `draws` hashes, spelled out: `draws` stands for it.
+        draw_calls: _,
     } = f;
     let e = &mut Encoder(out);
     e.u64(*frame);
@@ -282,6 +291,7 @@ pub fn encode_frame(out: &mut Vec<u8>, f: &Frame) {
     e.vars(globals.as_ref());
     e.vars(builtins.as_ref());
     e.opt(tiles.as_deref(), Encoder::tiles);
+    e.opt(draws.as_deref(), Encoder::str);
 }
 
 /// A fixed 64-bit hash: replay fingerprints' (`harness::fingerprint`), and the wiki clips' state at their

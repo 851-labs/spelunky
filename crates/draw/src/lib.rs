@@ -376,6 +376,10 @@ pub struct Tile {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Text {
     pub font: SpriteFont,
+    /// The font's GM id, as `draw_set_font` chose it; -1 for text a frontend draws itself. A renderer has no use
+    /// for it, but two fonts made the same draw the same, and a comparison of draw calls tells them apart by it
+    /// (`gm`'s `draw_calls`, 851-3871).
+    pub font_id: i32,
     pub x: f64,
     pub y: f64,
     /// GM 8 strings are bytes; `#` starts a new line and `\#` draws a literal `#` (nothing, but the cursor

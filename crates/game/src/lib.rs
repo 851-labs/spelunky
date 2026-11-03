@@ -341,7 +341,8 @@ impl Game {
         describe_in(self.world.program(), e)
     }
 
-    /// The state after the last frame, in the oracle's trace schema.
+    /// The state after the last frame, in the oracle's trace schema, without what it drew (`draws`, which
+    /// needs the frame [`step_drawing`](Self::step_drawing) recorded: `World::trace_frame_drawn`).
     pub fn trace(&self) -> trace::Frame {
         self.world.trace_frame()
     }

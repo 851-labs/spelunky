@@ -179,7 +179,8 @@ fn check(
         &mut |frame, w| {
             watcher.frame(frame, w);
             if let Some(q) = &mut quiet {
-                q.world(w);
+                // Without what it drew, as Faithful's run is fingerprinted (`RunOptions::fingerprint_skips`).
+                q.world(w, None);
             }
         },
     ) {

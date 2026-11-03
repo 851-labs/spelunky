@@ -1,6 +1,6 @@
 //! The port's fast fingerprint path (`gm::FrameEncoder`, which encodes the world straight away) against the
-//! one the oracle's side takes (`trace::canon::encode_frame` of the frame `trace_frame` builds), on the real
-//! game: the same bytes every frame, so the same digests. `fidelity-check` matching every committed
+//! one the oracle's side takes (`trace::canon::encode_frame` of the frame `trace_frame_drawn` builds, what it
+//! drew included), on the real game: the same bytes every frame, so the same digests. `fidelity-check` matching every committed
 //! fingerprint shows it for those runs; this keeps it so for whatever a change to either side does.
 
 mod common;
@@ -22,11 +22,14 @@ fn encoding_the_world_is_encoding_its_frame() {
         let (mut fast, mut slow) = (Fingerprinter::new(), Fingerprinter::new());
         let (mut a, mut b) = (Vec::new(), Vec::new());
         let mut encoder = gm::FrameEncoder::new();
-        while let Some(frame) = p.step().unwrap() {
-            let (world, built) = (p.game().world(), p.game().trace_with(true));
+        let (mut drawn, mut draws_buf) = (draw::Frame::default(), Vec::new());
+        while let Some(frame) = p.step_drawing(&mut drawn).unwrap() {
+            let world = p.game().world();
+            let built = world.trace_frame_drawn(true, &drawn, false);
+            let draws = world.draws_hash(&drawn, &mut draws_buf);
             a.clear();
             b.clear();
-            encoder.encode(world, &mut a);
+            encoder.encode_drawn(world, Some(draws), &mut a);
             trace::canon::encode_frame(&mut b, &built);
             if a != b {
                 let at = a.iter().zip(&b).take_while(|(x, y)| x == y).count();
@@ -40,7 +43,7 @@ fn encoding_the_world_is_encoding_its_frame() {
                     String::from_utf8_lossy(&around(&b)),
                 );
             }
-            fast.world(world);
+            fast.world(world, Some(draws));
             slow.frame(&built);
         }
         assert_eq!(

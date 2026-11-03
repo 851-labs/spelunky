@@ -22,6 +22,7 @@ mod collision;
 mod collision_props;
 mod ctx;
 mod draw_builtins;
+mod draw_calls;
 mod drawing;
 mod dump;
 mod error;
