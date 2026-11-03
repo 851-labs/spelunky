@@ -164,21 +164,20 @@ fn repo_root() -> PathBuf {
 /// What the cached oracle trace depends on: the oracle build, the program, the replay, and `--fields`.
 /// `None` if the oracle's build stamp can't be computed (the trace then isn't cached).
 fn oracle_key(replay_text: &str, exe: &str, fields: bool) -> Option<String> {
-    let out = Command::new("bash")
-        .arg("-c")
-        .arg("source tools/oracle/common.sh && build_stamp")
-        .current_dir(repo_root())
-        .output()
-        .ok()?;
-    let stamp = String::from_utf8(out.stdout).ok()?;
-    let stamp = stamp.trim();
-    if !out.status.success() || stamp.is_empty() {
-        return None;
-    }
+    let stamp = oracle_stamp().ok()?;
     Some(format!(
         "oracle {stamp}\nexe {exe}\nfields {fields}\nreplay {}\n{replay_text}",
         replay_text.len()
     ))
+}
+
+/// The checkout's oracle build stamp ([`harness::fingerprint::oracle_build_stamp`]), taken once: it hashes
+/// the patches and the math crate, and a refresh asks for it for every replay.
+fn oracle_stamp() -> Result<String, String> {
+    static STAMP: std::sync::OnceLock<Result<String, String>> = std::sync::OnceLock::new();
+    STAMP
+        .get_or_init(|| harness::fingerprint::oracle_build_stamp(&repo_root()))
+        .clone()
 }
 
 /// Where the oracle's trace came from.
@@ -459,7 +458,10 @@ fn refresh_one(
         .join(path.file_stem().unwrap_or_default());
     std::fs::create_dir_all(&dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     let (oracle_path, source) = oracle_trace(&opts, &dir, &replay_text)?;
-    let oracle = fingerprint_trace(&replay, &oracle_path)?;
+    let mut oracle = fingerprint_trace(&replay, &oracle_path)?;
+    // The build it came from, which fidelity-check requires to be the checkout's (851-3791). The key the
+    // trace was cached under has the same stamp, so a cached trace is this build's too.
+    oracle.oracle = Some(oracle_stamp()?);
     if let Some(m) = port_mismatch(&oracle, &port, &summary) {
         let settings = if suite.settings { " --settings" } else { "" };
         return Err(format!(
