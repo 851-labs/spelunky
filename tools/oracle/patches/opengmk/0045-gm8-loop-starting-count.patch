@@ -1,0 +1,28 @@
+diff --git a/gm8emulator/src/instancelist.rs b/gm8emulator/src/instancelist.rs
+--- a/gm8emulator/src/instancelist.rs
++++ b/gm8emulator/src/instancelist.rs
+@@ -202,9 +202,11 @@ pub struct IdentityIter {
+ impl IdentityIter {
+     pub fn next(&mut self, list: &InstanceList) -> Option<usize> {
+         if self.position < self.count {
++            // Spelunky oracle: never past the starting count, as GM8 (851-3795, probe `with-created`); scanning on
++            // to the list's end visited an instance created during the loop once every entry before it was gone.
+             list.object_id_map_inherit
+                 .get(&self.object_index)
+-                .and_then(|v| nb_il_iter(v, &mut self.position, list, self.state))
++                .and_then(|v| nb_il_iter(&v[..self.count.min(v.len())], &mut self.position, list, self.state))
+         } else {
+             None
+         }
+@@ -223,9 +225,10 @@ pub struct ObjectIter {
+ impl ObjectIter {
+     pub fn next(&mut self, list: &InstanceList) -> Option<usize> {
+         if self.position < self.count {
++            // Spelunky oracle: never past the starting count, as GM8 (851-3795).
+             list.object_id_map
+                 .get(&self.object_index)
+-                .and_then(|v| nb_il_iter(v, &mut self.position, list, InstanceState::Active))
++                .and_then(|v| nb_il_iter(&v[..self.count.min(v.len())], &mut self.position, list, InstanceState::Active))
+         } else {
+             None
+         }

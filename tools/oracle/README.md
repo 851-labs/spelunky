@@ -605,6 +605,36 @@ renderer (851-3872). Each time the back buffer is shown (`screen_refresh`, `scre
 room change pending) it's read back (`glReadPixels`, of GM's back buffer whatever the target), and after a listed
 frame's line the last one is written, so a frame that ends in a room change has the picture before it, as the
 window does. Without the variables nothing is read back, and the dump is the same either way.
+### `opengmk/0043-gm8-real-trim.patch`
+
+`real()` trims spaces alone, as GM8 does (851-3801, `docs/quirks.md` §3, measured by `tools/gm8-probe`'s
+`real-lead-*`, `real-trail-*` and `real-spaces`): a tab, LF, VT, FF, CR or no-break space before or after the number
+is "Error in function real().", where OpenGMK's `str::trim` took them all.
+
+### `opengmk/0044-gm8-array-row0.patch`
+
+`Field::get` reads element `[0, 0]` of an array (the variable itself) as 0 when it was never set, whatever row was,
+as GM8 does (851-3796, `docs/quirks.md` §5, probes `arr2-row0*`): with only `a[1, 5]` set, `a` is 0, where OpenGMK
+stopped with "uninitialized variable". The rest of row 0 is still an error.
+
+### `opengmk/0045-gm8-loop-starting-count.patch`
+
+A per-object loop (`with (obj)`, an event stage's loop over an object's instances) never goes past the list's length
+when it started, as GM8's doesn't (851-3795, `docs/quirks.md` §5, probe `with-created`): `ObjectIter` and
+`IdentityIter` scan only the entries below that count, where `nb_il_iter` scanned on to the current list's end and
+so visited an instance created during the loop once every entry before it was destroyed.
+
+### `opengmk/0046-gm8-opassign-once-string-conditions.patch`
+
+Two GML rules of GM8's (851-3798, `docs/quirks.md` §2):
+
+- An `op=` evaluates its owner and its array index once each, for the read and the write (probe `opassign-order`:
+  `(f()).v[g()] += h()` calls each once). `make_modify_instruction`'s value re-reads the place through cloned owner
+  and index nodes, so OpenGMK evaluated them twice; `SetField` and `SetVariable` now evaluate them once
+  (`pin_accessor`, as literals of their values) and read through those, then evaluate the right-hand side.
+- A string as a condition or a logical operand is an error: "Expression expected" in an `if` or a `for`, "Boolean
+  expression expected" in a `while` or an `until`, "Wrong type of arguments for &&." (`||`, `^^`) as an operand
+  (probes `str-*`); a drag-and-drop condition is taken as an `if`. OpenGMK read a string as false there.
 
 ### `opengmk/0043-gm8-view-tiling.patch`
 
