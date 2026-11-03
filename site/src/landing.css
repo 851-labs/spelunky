@@ -41,8 +41,9 @@ kbd {
   font: inherit; font-size: 13px; padding: 0 6px; background: var(--dirt); color: var(--text);
   box-shadow: inset 0 -2px 0 #0008;
 }
-/* A wide screen: the gameplay beside Play, at its full 640 pixels. */
-@media (min-width: 1000px) {
+/* A wide screen, where the column is 1400 wide (site.css): the gameplay beside Play, at its full 640 pixels.
+   Narrower, beside it, the text would have a quarter of the column. */
+@media (min-width: 1200px) {
   .hero { grid-template-columns: minmax(0, 1fr) auto; align-items: start; column-gap: 48px; }
   .frame { width: calc(640px + 2 * var(--px)); margin-top: calc(24px + var(--frame)); }
 }

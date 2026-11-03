@@ -229,8 +229,10 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     is at least that wide, so a hub with Olmec has fewer, wider columns (two on a phone) than one without.
     /wiki's category tiles fit theirs in 64.
 - **The layout** (`site/src/wiki/layout.tsx`, `wiki.css`), Fandom's shape in the landing page's pixel look:
-  - **The masthead**: the Spelunky logo and a "Wiki" badge, linking `/wiki`, and the search box. The
-    license's notice, which says the site is unofficial, is the footer's (docs/wiki-license.md, decision 6).
+  - **The masthead**, the site's (`site/src/site/frame.tsx`, the landing page's too: 851-3994): the Spelunky
+    logo, linking `/`; the site's sections, Play and Wiki, the wiki's marked in gold beside the logo, as its
+    badge was; and the search box. The license's notice, which says the site is unofficial, is the footer's
+    (docs/wiki-license.md, decision 6).
   - **Breadcrumbs** above the title, from `src/wiki/crumbs.ts`, which the BreadcrumbList JSON-LD uses too,
     so the two can't differ: Wiki, the page's first category's hub (Items first for an item's), the page.
   - **The infobox**, floated beside the lede (after it, full width, on a phone): the title, the image

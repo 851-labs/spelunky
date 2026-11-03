@@ -111,14 +111,21 @@ function sideMargins(decls) {
 }
 
 // The width a box-shadow draws outside its box on the left: "ring", "frame", or null for none; or a string
-// naming a shadow the check can't read.
-function outsideEdge(value) {
-  if (value === "var(--stone)") return "frame";
-  if (value === "none" || value.startsWith("var(--bevel)")) return null;
+// naming a shadow the check can't read. ROOT is :root's tokens, whose shadows a var() of one has.
+function outsideEdge(value, root) {
+  if (value === "none") return null;
   let edge = null;
   for (const shadow of splitTop(value, ",")) {
     const w = words(shadow);
-    if (w.includes("inset") || shadow.trim() === "var(--bevel)") continue;
+    // A token (--stone, --bevel): its shadows, from :root.
+    const token = /^var\((--[\w-]+)\)$/.exec(shadow.trim());
+    if (token && token[1] in root) {
+      const inner = outsideEdge(root[token[1]], root);
+      if (inner !== null && inner !== "ring" && inner !== "frame") return inner;
+      if (inner === "frame" || (inner === "ring" && edge === null)) edge = inner;
+      continue;
+    }
+    if (w.includes("inset")) continue;
     const [x, y, blur, spread] = w;
     // A hard drop shadow offset right by its spread: its left edge is the box's.
     if (blur === "0" && x === spread && x !== "0") continue;
@@ -159,7 +166,7 @@ function keylineProblems(source) {
   for (const rule of rules) {
     for (const [p, v] of rule.decls) {
       if (p !== "box-shadow") continue;
-      const edge = outsideEdge(v);
+      const edge = outsideEdge(v, root);
       if (edge === null) continue;
       for (const selector of rule.selectors) {
         if (edge !== "ring" && edge !== "frame") {
