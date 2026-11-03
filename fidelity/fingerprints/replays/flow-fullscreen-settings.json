@@ -1,12 +1,12 @@
 {
   "replay": "2d00222f81e18fc5",
-  "oracle": "8cf433c2e2bd0d30",
+  "oracle": "cebc1ddc9f7cdb8a",
   "frames": 120,
-  "trace": "8db79d1df7893087",
+  "trace": "40496483586dd15c",
   "host": "2049334527ce0d00",
   "checkpoints": [
-    [0,"rIntro","6e499d8a70bb69ed"],
-    [70,"rTitle","796e33083c7d3011"],
-    [119,"rTitle","8db79d1df7893087"]
+    [0,"rIntro","12329759fb52ae88"],
+    [70,"rTitle","b43414bff09a5c96"],
+    [119,"rTitle","40496483586dd15c"]
   ]
 }

@@ -1,20 +1,20 @@
 {
   "replay": "3c3e7fbeb93a5f21",
-  "oracle": "8cf433c2e2bd0d30",
+  "oracle": "cebc1ddc9f7cdb8a",
   "frames": 1150,
-  "trace": "c3bb706f3c8fccf0",
+  "trace": "ec0976509a50ee73",
   "host": "a3210c00a111496e",
   "checkpoints": [
-    [0,"rIntro","7dc9fda7ee63d255"],
-    [70,"rTitle","4faa9d38a7196e0c"],
-    [299,"rTitle","bdf70ca320da16af"],
-    [546,"rHighscores","e2035d2163e8669e"],
-    [599,"rHighscores","31dbaf44ce0f5b30"],
-    [651,"rTitle","fbae2369982728c2"],
-    [755,"rTutorial","f400a7dade53d6d7"],
-    [899,"rTutorial","b86e2dceff1fa848"],
-    [901,"rTitle","98667457f82ae102"],
-    [1030,"rLevel","08f9f026fbe0d6fb"],
-    [1149,"rLevel","c3bb706f3c8fccf0"]
+    [0,"rIntro","dfe8346a7f2f691a"],
+    [70,"rTitle","494dd4606106d630"],
+    [299,"rTitle","4c7c0d2147f22d57"],
+    [546,"rHighscores","3d7f8af05552c436"],
+    [599,"rHighscores","642ae32b0ed5bf5f"],
+    [651,"rTitle","12b707527a8cc89e"],
+    [755,"rTutorial","53cb8beda6440cca"],
+    [899,"rTutorial","246eb4b76a258f2c"],
+    [901,"rTitle","d47d9119cfad71d4"],
+    [1030,"rLevel","c6019413219dfcfe"],
+    [1149,"rLevel","ec0976509a50ee73"]
   ]
 }
