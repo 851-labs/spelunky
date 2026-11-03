@@ -467,6 +467,26 @@ oracle image (`tools/oracle/build`), and takes about an hour for the whole set o
 port-only change never needs it: the fingerprints are the oracle's, so a port fix either keeps matching them
 or shows up as a `fidelity-check` failure to fix in the port.
 
+### Screenshots
+
+A fingerprint holds the port to what each frame asks to draw (`draws`); nothing in it sees how the renderer, the
+`draw` crate and the app's wgpu renderer, turns those calls into pixels. `fidelity-shots` does, for a few frames
+(851-3872, [design](design/draw-comparison.md), layer 3): `fidelity/screenshots/shots.txt` lists committed replays
+and frames of each, and the oracle's picture of each frame, what its window showed after it (its `--screenshots`,
+patch 0042), is committed as `fidelity/screenshots/<replay name>/<frame>.png` at the window's size.
+`scripts/fidelity-shots [<replay>...]` renders the same frames headless with the app (`app --replay R --shots
+F1,F2,... --screenshot DIR`) into `target/fidelity-shots/<replay name>/` and compares them, pixel by pixel, alpha
+aside: exactly, unless the line allows `differ=N` pixels by up to `step=S` in a channel, for what GL and wgpu may
+rasterize differently. Where they differ it writes `<frame>.diff.png` there, the port's picture dimmed where they
+agree and magenta where they don't. It needs a GPU, so it runs on the Mac mini (`scripts/check --apple`,
+[CI](ci.md)), not on Linux. A line of the list is a replay's path from the repository's root, its frames
+(`F1,F2,...`), then any tolerance; `#` starts a comment.
+
+**Adding or changing a shot means recording the oracle's pictures**: `scripts/fidelity --refresh-screenshots
+[<replay>...]` (every line without replays) runs the oracle with `--screenshots` and replaces the replay's
+directory. Record them again when a listed replay changes, or the oracle draws differently (a patch that changes what
+GL renders, not the dump); a fingerprint re-record doesn't touch them.
+
 ### Stories
 
 A fingerprint only says that the port and the oracle agree. A fix that changes play in both (GM8's collision

@@ -66,6 +66,10 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   Dockerfile, `vendor/pxfm`) fails `fidelity-check` until they're all re-recorded with
   `scripts/fidelity --refresh-fingerprints`, as each fingerprint names the oracle build it came from
   (docs/formats.md, "Fingerprints").
+- `fidelity/screenshots/` holds the oracle's pictures of chosen frames, which `scripts/fidelity-shots` holds the
+  app's renderer to (on a Mac: it needs the GPU; `scripts/check --apple`). A change to a listed replay, or to
+  what the oracle renders, records them again with `scripts/fidelity --refresh-screenshots` (docs/formats.md,
+  "Screenshots").
 - The wiki's media are committed in `wiki/media`. A change to a clip spec, a replay a clip is cut from, or what
   renders them (the game, drawing, sound, `harness`, the extractor) runs `scripts/wiki-media` and commits what it
   changes, in one commit near the end of the PR (each re-commit of a video stays in history); `scripts/check`

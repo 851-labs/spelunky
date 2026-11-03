@@ -19,6 +19,7 @@ pub mod fuzz;
 pub mod host;
 pub mod lines;
 pub mod route;
+pub mod shots;
 pub mod story;
 
 /// The asset bundle in `dir` (what `scripts/extract` writes), as the runtime uses it.

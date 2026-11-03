@@ -38,7 +38,9 @@
 //! `000750.png` and so on, for `scripts/clip` to make a video of. The frames before F run but are only
 //! rendered as far as F's pixels need them (`app::unrendered`). `--notice-frames N` burns the
 //! copyright notice the window shows at a session's start into the first N of them, since a clip from
-//! later in a session wouldn't have it (`scripts/wiki-clips`, `docs/wiki-license.md`). It prints the
+//! later in a session wouldn't have it (`scripts/wiki-clips`, `docs/wiki-license.md`). With `--shots F1,F2,...`
+//! it shoots only those frames' pictures, as `F.png` in the directory `--screenshot` names, as the oracle's
+//! `--screenshots` does (`fidelity-shots`, 851-3872). `--capture-from` prints the
 //! game's state at frame F (`gm::World::frame_hash`), and its states from there to the last frame
 //! (`trace::canon::hash_frames`), which `wiki-clips` checks are what its own run of the replay reaches: the
 //! states the web build's embed reports, a run of the game like this one.
@@ -395,10 +397,10 @@ mod native {
     use winit::event_loop::EventLoop;
 
     const USAGE: &str = "usage: app [--assets DIR] [--scale N] [--record OUT.txt | --replay IN.txt] \
-        [--trace OUT.jsonl] [--screenshot OUT.png [--frames N] [--capture-from F [--notice-frames N]]] [--data DIR | --no-save] [--mute] \
+        [--trace OUT.jsonl] [--screenshot OUT.png [--frames N] [--capture-from F [--notice-frames N]] | --screenshot DIR --shots F1,F2,...] [--data DIR | --no-save] [--mute] \
         [--no-gamepad] [--physical-keys]\n       app --preview [--room NAME] [--view X,Y] [--scale N] \
         [--screenshot OUT.png] [--record OUT.txt | --replay IN.txt]\n       app --settings [--assets DIR] \
-        [--scale N] [--replay IN.txt] [--screenshot OUT.png --frames N] [--data DIR | --no-save] [--mute]";
+        [--scale N] [--replay IN.txt] [--screenshot OUT.png --frames N | --screenshot DIR --shots F1,F2,...] [--data DIR | --no-save] [--mute]";
 
     struct Args {
         /// `--assets`, else [`default_assets`].
@@ -411,6 +413,8 @@ mod native {
         frames: Option<u64>,
         capture_from: Option<u64>,
         notice_frames: Option<u64>,
+        /// `--shots`: the frames to shoot, sorted.
+        shots: Option<Vec<u64>>,
         scale: Option<u32>,
         record: Option<PathBuf>,
         replay: Option<PathBuf>,
@@ -433,6 +437,7 @@ mod native {
             frames: None,
             capture_from: None,
             notice_frames: None,
+            shots: None,
             scale: None,
             record: None,
             replay: None,
@@ -464,6 +469,15 @@ mod native {
                     let v = value()?;
                     args.capture_from =
                         Some(v.parse().map_err(|_| format!("bad --capture-from {v}"))?);
+                }
+                "--shots" => {
+                    let v = value()?;
+                    let mut frames = (v.split(','))
+                        .map(|f| f.parse().map_err(|_| format!("bad --shots {v}")))
+                        .collect::<Result<Vec<u64>, _>>()?;
+                    frames.sort_unstable();
+                    frames.dedup();
+                    args.shots = Some(frames);
                 }
                 "--notice-frames" => {
                     let v = value()?;
@@ -511,6 +525,16 @@ mod native {
         if args.capture_from.is_some() && (args.screenshot.is_none() || args.preview) {
             return Err("--capture-from is for a game --screenshot".into());
         }
+        if args.shots.is_some()
+            && (args.screenshot.is_none()
+                || args.preview
+                || args.capture_from.is_some()
+                || args.frames.is_some())
+        {
+            return Err(
+                "--shots is for a game --screenshot DIR, without --capture-from or --frames".into(),
+            );
+        }
         if args.notice_frames.is_some() && args.capture_from.is_none() {
             return Err("--notice-frames is for --capture-from".into());
         }
@@ -530,6 +554,7 @@ mod native {
             && args.screenshot.is_some()
             && args.replay.is_none()
             && args.frames.is_none()
+            && args.shots.is_none()
         {
             return Err("--screenshot needs --replay or --frames to know when to shoot".into());
         }
@@ -901,7 +926,9 @@ mod native {
 
     /// Runs the game headless, on the replay's input (or none) up to `--frames` (or the replay's end),
     /// rendering every frame, and shoots the last picture shown. With `--capture-from`, it shoots every
-    /// frame from there on, and of the frames before, renders only those whose pixels last until then.
+    /// frame from there on, and of the frames before, renders only those whose pixels last until then. With
+    /// `--shots`, it shoots the picture shown after each of those frames, as `F.png`, as the oracle's
+    /// `--screenshots` does (`fidelity-shots`, 851-3872), rendering as `--capture-from` the first does.
     fn game_screenshot(
         mut play: Play,
         textures: Textures,
@@ -914,11 +941,20 @@ mod native {
         let header = replay
             .as_ref()
             .map_or_else(ReplayHeader::default, |r| r.header.clone());
-        let end = match (&replay, args.frames) {
+        let shots = args.shots.as_deref();
+        let frames = match shots {
+            Some(shots) => shots.last().map(|&f| f + 1),
+            None => args.frames,
+        };
+        let end = match (&replay, frames) {
             (Some(r), Some(n)) => n.min(r.len()),
             (Some(r), None) => r.len(),
             (None, n) => n.unwrap_or(0),
         };
+        // The first frame whose picture is shot, if not the last's.
+        let first = args.capture_from.or_else(|| shots?.first().copied());
+        // How many of `shots` were shot: they're in order.
+        let mut taken = 0;
         let scale = args.scale.unwrap_or(1);
         // A clip asked to carry the notice mustn't come out without it.
         if args.notice_frames.is_some() && notice.is_none() {
@@ -926,7 +962,7 @@ mod native {
                 "--notice-frames: the bundle has no sFontSmall to write the notice in".into(),
             );
         }
-        if args.capture_from.is_some() {
+        if first.is_some() {
             std::fs::create_dir_all(out).map_err(|e| format!("{}: {e}", out.display()))?;
         }
         let mut renderer = headless_renderer(textures)?;
@@ -958,12 +994,16 @@ mod native {
                 }
                 hashes.push(hash);
             }
-            if args.capture_from.is_some_and(|from| f < from) {
+            if first.is_some_and(|from| f < from) {
                 unrendered.push(std::mem::take(&mut frame), |frame| renderer.render(frame));
                 continue;
             }
             unrendered.flush(|frame| renderer.render(frame));
             renderer.render(&frame);
+            if shots.is_some_and(|shots| shots.binary_search(&f).is_ok()) {
+                save_screenshot(&renderer, &out.join(format!("{f}.png")), scale)?;
+                taken += 1;
+            }
             if let Some(from) = args.capture_from.filter(|&from| f >= from) {
                 // Over the picture, never into the game, as the window draws it.
                 if let (Some(notice), Some(shown), Some(size)) =
@@ -974,6 +1014,14 @@ mod native {
                 }
                 save_screenshot(&renderer, &out.join(format!("{f:06}.png")), scale)?;
             }
+        }
+        if let Some(shots) = shots {
+            // A run that ends first (the replay, or the game) has none of the later shots.
+            if let Some(f) = shots.get(taken) {
+                return Err(format!("--shots: the run ended before frame {f}"));
+            }
+            println!("{}: {} shots", out.display(), shots.len());
+            return Ok(());
         }
         if let Some(from) = args.capture_from {
             if !hashes.is_empty() {

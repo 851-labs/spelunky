@@ -1,0 +1,8 @@
+#!/bin/sh
+# The port's renderer against the oracle's pictures of chosen frames (fidelity/screenshots/, 851-3872): builds the
+# app and fidelity-shots, then runs it. See `fidelity-shots --help`.
+#   scripts/fidelity-shots [<replay.txt>...]
+set -eu
+repo="$(cd "$(dirname "$0")/.." && pwd)"
+"$repo/scripts/cargo" build --quiet --release --manifest-path "$repo/Cargo.toml" -p app -p harness --bin app --bin fidelity-shots
+exec "$repo/target/release/fidelity-shots" "$@"
