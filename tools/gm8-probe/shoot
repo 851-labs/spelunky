@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# The real GM8 runner's picture of one of the game's own programs, unmodified, under Wine: for a renderer question,
+# GM8's pixels (851-3967).
+#
+#   tools/gm8-probe/shoot EXE OUTDIR 'ACTIONS'
+#
+# EXE is Spelunky.exe or config.exe, from reference/spelunky_1_1.zip, on a fresh copy of the game. ACTIONS is
+# `;`-separated: `wait S`, `click X Y` (in the window's pixels), `key NAME` (xdotool's names: w, Escape, space).
+# Writes OUTDIR/window.png (the game window's client area), OUTDIR/screen.png and OUTDIR/log.txt. Under Rosetta
+# the runner takes about a minute to start, so begin with `wait 60`. For example, config.exe's key config asking
+# for LEFT (fidelity/settings/key-config.txt's frame 10):
+#
+#   tools/gm8-probe/shoot config.exe /tmp/kc 'wait 60; click 28 504; wait 6; key w; wait 3; key w; wait 6'
+#
+# Timing isn't the game's: the picture is of a state, which a replay's frame is compared with when nothing on it
+# moves (fidelity-shots' pictures were checked so).
+set -euo pipefail
+bash -n "$0" || exit 2
+here="$(cd "$(dirname "$0")" && pwd)"
+repo="$(cd "$here/../.." && pwd)"
+# shellcheck source=../oracle/common.sh
+source "$repo/tools/oracle/common.sh"
+[[ $# -eq 3 ]] || die "usage: tools/gm8-probe/shoot Spelunky.exe|config.exe OUTDIR 'ACTIONS'"
+exe="$1"
+[[ "$exe" == Spelunky.exe || "$exe" == config.exe ]] || die "EXE is Spelunky.exe or config.exe: $exe"
+mkdir -p "$2"
+out="$(cd "$2" && pwd)"
+rm -f "$out/window.png" "$out/screen.png" "$out/log.txt"
+require_docker
+probe_image="spelunky-gm8probe:$(sha256 <"$here/Dockerfile" | cut -c1-16)"
+game_dir="$CACHE_DIR/gm8-probe-game-$(sha256 <"$GAME_ZIP" | cut -c1-16)"
+if [[ ! -d "$game_dir" ]]; then
+  tmp="$(mktemp -d "$game_dir.XXXXXX")"
+  unzip -q "$GAME_ZIP" -d "$tmp"
+  mv "$tmp" "$game_dir"
+fi
+work="$(mktemp -d "${TMPDIR:-/tmp}/gm8-shoot.XXXXXX")"
+finished=
+cleanup() {
+  status=$?
+  rm -rf "$work"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "tools/gm8-probe/shoot: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
+cp -R "$game_dir/." "$work/"
+if ! docker image inspect "$probe_image" >/dev/null 2>&1; then
+  echo "gm8-probe: building $probe_image" >&2
+  docker build --platform linux/amd64 -q -t "$probe_image" "$here" >/dev/null
+fi
+docker run --rm --platform linux/amd64 -v "$here/container:/probe:ro" -v "$work:/work" -v "$out:/out" \
+  -e EXE="$exe" -e ACTIONS="$3" -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" "$probe_image" /probe/shoot-exe
+echo "$out/window.png"
+finished=1

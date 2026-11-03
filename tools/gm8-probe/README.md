@@ -46,7 +46,20 @@ must be off (`echo 0 | sudo tee /proc/sys/fs/binfmt_misc/qemu-i386` in `colima s
 loader runs under QEMU instead of on the CPU.
 
 The unmodified `Spelunky.exe` boots the same way, with the real `supersound.dll`, and plays its intro
-(screenshotted 70 s in); playing it would need input injected (`xdotool`), which nothing here does yet.
+(screenshotted 70 s in).
+
+`tools/gm8-probe/shoot EXE OUTDIR 'ACTIONS'` takes GM8's picture of the game's own programs, unmodified, for a renderer
+question (851-3967): it runs `Spelunky.exe` or `config.exe` under Wine in a window manager (`openbox`: without one the
+window takes no keyboard focus and isn't resized between rooms), plays `wait S`, `click X Y` and `key NAME` steps
+(`xdotool`) and saves the window's client area as `OUTDIR/window.png`. The picture is of a state, not a frame: it's
+compared with a replay's frame showing the same state, when nothing on it moves. `config.exe`'s key config asking for
+LEFT and its main screen, shot so, are `fidelity/settings/key-config.txt`'s frames 10 and 30 in `fidelity-shots` to
+the pixel:
+
+```sh
+tools/gm8-probe/shoot config.exe /tmp/kc 'wait 60; click 28 504; wait 6; key w; wait 3; key w; wait 6'
+tools/gm8-probe/shoot config.exe /tmp/init 'wait 60'
+```
 
 `GM8_PROBE_MEMORY` (e.g. `4g`) caps the container's memory, for the probes that build huge strings: GM8 is a
 32-bit process, but the oracle isn't. A probe whose game hasn't ended after `GM8_PROBE_TIMEOUT` seconds (default

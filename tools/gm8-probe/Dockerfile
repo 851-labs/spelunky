@@ -12,3 +12,8 @@ RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       libgl1-mesa-dri:i386 libglx-mesa0:i386 libgl1:i386 \
  && rm -rf /var/lib/apt/lists/*
+# For `shoot`: a window manager, so the runner's window takes keyboard focus and is resized as on Windows (without one
+# it stays the size it opened at), and xdotool, which plays the clicks and keys.
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openbox xdotool \
+ && rm -rf /var/lib/apt/lists/*

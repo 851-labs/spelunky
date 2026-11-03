@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Runs /work/$EXE (one of the game's own programs, unmodified) under Wine in a window manager, plays $ACTIONS at its
+# window and saves the window's picture to /out/window.png (and the whole screen to /out/screen.png). ACTIONS is
+# `;`-separated: `wait S`, `click X Y` (in the window's pixels), `key NAME` (xdotool's key names: w, Escape, space).
+set -uo pipefail
+Xvfb :99 -screen 0 1024x768x24 -nolisten tcp >/dev/null 2>&1 &
+export DISPLAY=:99
+for _ in $(seq 100); do
+  xdpyinfo >/dev/null 2>&1 && break
+  sleep 0.05
+done
+# As run-probe: a null sound device, and softpipe.
+printf 'pcm.!default { type null }\nctl.!default { type hw card 0 }\n' >/etc/asound.conf
+export GALLIUM_DRIVER=softpipe
+openbox >/dev/null 2>&1 &
+sleep 2
+cd /work
+wine "$EXE" >/out/log.txt 2>&1 &
+# The game's window: its client, the one window of the program as big as a room (not the runner's 1x1 and hidden
+# forms), at its absolute position.
+window() {
+  xwininfo -root -tree | awk '/\("'"${EXE%.exe}"'/ && !/Form|Scores|Information|WARNING|Messages|1x1\+/ {print $(NF-1), $NF}' | tail -1
+}
+status=0
+IFS=';' read -ra steps <<<"$ACTIONS"
+for step in "${steps[@]}"; do
+  read -ra a <<<"$step"
+  case "${a[0]:-}" in
+    wait) sleep "${a[1]}" ;;
+    click)
+      read -r size abs <<<"$(window)"
+      x="$(echo "$abs" | cut -d+ -f2)"; y="$(echo "$abs" | cut -d+ -f3)"
+      xdotool mousemove "$((x + a[1]))" "$((y + a[2]))"; sleep 1
+      xdotool mousedown 1; sleep 0.3; xdotool mouseup 1 ;;
+    key) xdotool key "${a[1]}" ;;
+    "") ;;
+    *) echo "shoot: unknown action: $step" >&2; status=2 ;;
+  esac
+done
+import -window root /out/screen.png
+read -r size abs <<<"$(window)"
+if [[ -n "$size" ]]; then
+  w="${size%%x*}"; rest="${size#*x}"; h="${rest%%+*}"
+  x="$(echo "$abs" | cut -d+ -f2)"; y="$(echo "$abs" | cut -d+ -f3)"
+  convert /out/screen.png -crop "${w}x${h}+${x}+${y}" +repage /out/window.png
+else
+  echo "shoot: no game window" >&2
+  status=1
+fi
+wineserver -k 2>/dev/null
+chown -R "${HOST_UID:-0}:${HOST_GID:-0}" /out
+exit "$status"
