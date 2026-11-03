@@ -1,11 +1,13 @@
-# The test suite (scripts/check) on one of GitHub's Linux machines (x86_64), not the self-hosted Mac minis, which
-# are shared with other projects and were the queue every pull request waited in (851-3953). pr.yml calls it for a
-# pull request; a push to main runs it too, which checks main after each merge and saves the build cache every
-# pull request's run starts from (a pull request's own cache only its later runs could use).
+# The test suite (scripts/check) on one of GitHub's Linux machines (x86_64): the port on another OS and
+# architecture than the Mac minis', which run the same suite for every pull request's `pr-ok` (pr.yml). pr.yml
+# calls it for a pull request as a check of its own, which `pr-ok` doesn't wait for: a fresh machine takes about
+# 15 minutes, a warm mini a few (851-3998). A push to main runs it too, which checks main after each merge and
+# saves the build cache every pull request's run starts from (a pull request's own cache only its later runs could
+# use).
 #
 # Everything in scripts/check runs on Linux, fidelity-check's replays too (gm::math is the same everywhere), but
 # crates/workspace-hack's checks, which are Apple silicon Macs' and skip themselves, and the macOS-only code, which
-# Linux doesn't compile: pr.yml's mini job runs those (scripts/check --apple).
+# Linux doesn't compile: the mini runs those, in the same suite.
 name: Test suite
 
 on:

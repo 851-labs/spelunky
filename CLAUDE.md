@@ -14,7 +14,8 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
      (`alexandru/851-xxxx-...`).
   3. Before opening the PR, rebase onto `origin/main` and run the code-review skill on the change, fixing what it
      finds. The PR's required `pr-ok` check (CI on the Mac minis, `docs/ci.md`) runs the full suite and must
-     pass before it merges.
+     pass before it merges. The Linux suite beside it (a check of its own, about 15 minutes) doesn't hold the
+     merge: if it fails, fix it in the PR, or in a new ticket if the PR has merged.
   4. Open one PR per ticket, titled `851-xxxx: <ticket title>`. The body has a `## Why` (a few sentences) and a
      `## What` (what changed and the key decisions), and ends with the Claude Code footer.
   5. Move the ticket to In Review.

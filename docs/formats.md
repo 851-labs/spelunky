@@ -478,9 +478,9 @@ patch 0042), is committed as `fidelity/screenshots/<replay name>/<frame>.png` at
 F1,F2,... --screenshot DIR`) into `target/fidelity-shots/<replay name>/` and compares them, pixel by pixel, alpha
 aside: exactly, unless the line allows `differ=N` pixels by up to `step=S` in a channel, for what GL and wgpu may
 rasterize differently. Where they differ it writes `<frame>.diff.png` there, the port's picture dimmed where they
-agree and magenta where they don't. It needs a GPU, so it runs on the Mac mini (`scripts/check --apple`,
-[CI](ci.md)), not on Linux. A line of the list is a replay's path from the repository's root, its frames
-(`F1,F2,...`), then any tolerance; `#` starts a comment.
+agree and magenta where they don't. It needs a GPU, so it runs on the Mac mini (`scripts/check` on an Apple
+silicon Mac, and `--apple`; [CI](ci.md)), not on Linux. A line of the list is a replay's path from the
+repository's root, its frames (`F1,F2,...`), then any tolerance; `#` starts a comment.
 
 **Adding or changing a shot means recording the oracle's pictures**: `scripts/fidelity --refresh-screenshots
 [<replay>...]` (every line without replays) runs the oracle with `--screenshots` and replaces the replay's

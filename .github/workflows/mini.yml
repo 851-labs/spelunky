@@ -8,7 +8,7 @@ on:
   workflow_call:
     inputs:
       name:
-        description: The job's name in the run's graph, after the calling job's ("Mac mini / Web, wiki media and macOS")
+        description: The job's name in the run's graph, after the calling job's ("Mac mini / Suite, web and media")
         type: string
         required: true
       run:

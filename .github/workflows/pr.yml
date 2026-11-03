@@ -1,9 +1,10 @@
-# Every pull request: the full local suite (scripts/check) and, if it changes the site, the site's smoke test
-# (site/test.sh), on GitHub's Linux machines; on the self-hosted Mac minis, only what needs Apple silicon: the web
-# build, the wiki's committed media (if it changes what they're made from) and scripts/check --apple (the macOS-only
-# code's lints and tests, crates/workspace-hack's checks); and the updater's tests on GitHub's macOS, Windows and
-# Linux machines (updater.yml). `pr-ok` is the one check the "Protect main" ruleset requires, so jobs can be added
-# or renamed here without touching the ruleset (docs/ci.md, "Pull requests").
+# Every pull request, on one self-hosted Mac mini: the full suite (scripts/check, which on an Apple silicon Mac
+# includes the macOS-only code's lints and tests, crates/workspace-hack's checks and the renderer's pictures), the web
+# build and the wiki's committed media (if it changes what they're made from). On GitHub's machines: the site's
+# smoke test (site/test.sh) if it changes the site, the updater's tests (updater.yml), and scripts/check again on
+# Linux (suite.yml), which `pr-ok` doesn't wait for: a warm mini runs the suite in a few minutes, a fresh Linux
+# machine in about 15 (851-3998). `pr-ok` is the one check the "Protect main" ruleset requires, so jobs can be
+# added or renamed here without touching the ruleset (docs/ci.md, "Pull requests").
 #
 # The repository is public: this runs untrusted code from pull requests, on our own machines too. So it's
 # `pull_request` (never `pull_request_target`), with a read-only token, no secrets and no environment, and
@@ -35,7 +36,10 @@ env:
   GIT_CONFIG_VALUE_0: main
 
 jobs:
-  # The test suite on one of GitHub's Linux machines (suite.yml), not the minis.
+  # scripts/check on one of GitHub's Linux machines (suite.yml): the port on another OS and architecture, so a
+  # difference there still shows on the pull request, as its own check. `pr-ok` doesn't need it (below), so a red
+  # one is fixed by hand: in the pull request if it's still open, otherwise in a ticket. main's run after each merge
+  # shows it too.
   check:
     name: Linux
     uses: ./.github/workflows/suite.yml
@@ -83,24 +87,26 @@ jobs:
       - if: steps.changes.outputs.skip != 'true'
         run: site/test.sh
 
-  # On the minis, only what needs Apple silicon: the web build (scripts/web --check) and the wiki's media
-  # (docs/wiki-media.md, "Checking": if the pull request changes what they're made from, wiki/media must be what
-  # it renders, byte for byte; the merge commit's first parent is the base), and scripts/check --apple. One job, so
-  # a pull request holds one mini.
+  # On a mini: the full suite (scripts/check: on an Apple silicon Mac it runs what --apple adds too, the renderer's
+  # pictures among them), then the web build (scripts/web --check) and the wiki's media (docs/wiki-media.md,
+  # "Checking": if the pull request changes what they're made from, wiki/media must be what it renders, byte for
+  # byte; the merge commit's first parent is the base). One job, so a pull request holds one mini, whose warm
+  # target dir makes the suite a few minutes.
   web:
     name: Mac mini
     # Not a fork's (the header says why this is the readable answer, not the lock).
     if: github.event.pull_request.head.repo.full_name == github.repository
     uses: ./.github/workflows/mini.yml
     with:
-      name: Web, wiki media and macOS
+      name: Suite, web and media
       fetch-depth: 2
+      # -x: the log shows every step it runs, each line with the runner's timestamp.
       run: |
-        scripts/check --apple
+        sh -x scripts/check
         scripts/web --check
         scripts/wiki-media --check --since HEAD^1
-      # --apple's builds, the web build and a render of every clip, from a cold target dir (a toolchain bump).
-      timeout-minutes: 75
+      # The suite's builds, the web build and a render of every clip, from a cold target dir (a toolchain bump).
+      timeout-minutes: 90
 
   # On GitHub's machines, alongside the others, and on every pull request: the updater is reached from
   # outside crates/update too (the app's update.rs). No secrets, so it runs for a fork's too.
@@ -111,7 +117,8 @@ jobs:
   # The "Protect main" ruleset requires this check by its name: keep it `pr-ok`.
   pr-ok:
     name: pr-ok
-    needs: [check, web, site, updater]
+    # Not `check`, the Linux suite: the mini runs the same suite, warm (851-3998).
+    needs: [web, site, updater]
     # Always runs, so a failed or cancelled job above fails this check rather than skipping it (a skipped
     # required check would count as passing).
     if: always()

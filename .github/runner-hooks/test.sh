@@ -1,7 +1,7 @@
 #!/bin/bash
 # The job-started hook (job-started.sh) on made-up events: a fork's pull request and workflow_run refused, the
-# repository's own and other events let through, and an event it can't read refused. scripts/check --apple runs it
-# (macOS: the hook reads JSON with plutil).
+# repository's own and other events let through, and an event it can't read refused. scripts/check runs it on a
+# Mac, and so does --apple (macOS: the hook reads JSON with plutil).
 set -eu
 # A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's bash 3.2 exits from one
 # with the trap's status, 0 (851-3743; scripts/check-sh).
