@@ -2,7 +2,7 @@
 # published: the full suite (scripts/check), the full oracle fidelity run over every committed replay, the web
 # build, the native builds (build-native.yml, which signs and notarizes macOS) and
 # the updater's tests (updater.yml). The GitHub Release is a draft until then; `publish` attaches the files and
-# publishes it, and `bump` then opens the pull request that puts it live (scripts/bump-web-release).
+# publishes it, and `bump` and `bump-pr` then open the pull request that puts it live (scripts/bump-web-release).
 # A tag with a `-` (`v0.1.0-rc1`) is published as a prerelease, any other as the latest release.
 #
 # What it publishes is built on fresh GitHub-hosted machines, or (the native builds) by build-native.yml; the
@@ -457,16 +457,73 @@ jobs:
             gh release edit "$TAG" --draft=false --prerelease=false --latest
           fi
 
-  # The pull request that puts the release live (scripts/bump-web-release), opened as the release-bot App so that
-  # pr-ok runs on it: a pull request opened with GITHUB_TOKEN starts no workflow. Without the App (or a token),
-  # the run's summary says what to do by hand. Not for a dry run, nor a prerelease, which is never put live.
+  # The pull request that puts the release live (scripts/bump-web-release). Not for a dry run, nor a prerelease,
+  # which is never put live. In two jobs (851-3906). This one makes the change, `scripts/bump-web-release`, which builds and
+  # runs Rust (scripts/release/manifest checks latest.json), so every dependency's build script runs here: with no
+  # secret, a read-only token, and nothing kept in .git/config. The next one, on another machine, has the
+  # release-bot's token and runs none of the repository's code: it only commits this one's file and pushes.
   bump:
-    name: Site bump PR
+    name: Site bump
     needs: [meta, publish]
     if: needs.meta.outputs.dry_run != 'true' && needs.meta.outputs.prerelease != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
-    # Its secrets, for `main` and `v*` tags only (docs/ci.md, "The site's bump pull request").
+    env:
+      TAG: ${{ needs.meta.outputs.tag }}
+    outputs:
+      changed: ${{ steps.bump.outputs.changed }}
+      # The main it read, which the next job commits on, so a pin that landed since is a conflict, not undone.
+      base: ${{ steps.bump.outputs.base }}
+      # site/web-release.txt as the bump wrote it, base64 (a few lines).
+      web-release: ${{ steps.bump.outputs.web-release }}
+    steps:
+      # Main as it is now, not the tag's commit.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
+      # For scripts/release/manifest, which checks the release's latest.json. Up front, as in the web build.
+      - run: rustup toolchain install --no-self-update
+      - id: bump
+        run: |
+          echo "base=$(git rev-parse HEAD)" >>"$GITHUB_OUTPUT"
+          # Never back to an older version than main pins (a re-run of an older release, or a tag pushed out of
+          # order).
+          pinned=$(sed -n 's/^tag //p' site/web-release.txt)
+          if [ "$pinned" != "$TAG" ] && [ "$(printf '%s\n' "$pinned" "$TAG" | sort -V | tail -n 1)" = "$pinned" ]; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            echo "main already pins $pinned, newer than $TAG." >>"$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          scripts/bump-web-release "$TAG"
+          # Only site/web-release.txt may change: the next job commits that file alone.
+          other=$(git status --porcelain | grep -v ' site/web-release.txt$' || true)
+          [ -z "$other" ] || { echo "::error::scripts/bump-web-release changed more than site/web-release.txt: $other"; exit 1; }
+          if git diff --quiet; then
+            echo "changed=false" >>"$GITHUB_OUTPUT"
+            echo "main already pins $TAG." >>"$GITHUB_STEP_SUMMARY"
+          else
+            encoded=$(base64 -w0 site/web-release.txt)
+            [ -n "$encoded" ] || { echo "::error::couldn't encode site/web-release.txt"; exit 1; }
+            echo "web-release=$encoded" >>"$GITHUB_OUTPUT"
+            echo "changed=true" >>"$GITHUB_OUTPUT"
+            git diff
+          fi
+
+  bump-pr:
+    name: Site bump PR
+    needs: [meta, bump]
+    if: needs.bump.outputs.changed == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # Its secrets, for `main` and `v*` tags only (docs/ci.md, "The site's bump pull request"). It opens the pull
+    # request as the release-bot App, so that pr-ok runs on it: one opened with GITHUB_TOKEN starts no workflow.
+    # Without the App (or a token), the run's summary says what to do by hand.
     environment: release-bot
     env:
       GH_REPO: ${{ github.repository }}
@@ -495,38 +552,55 @@ jobs:
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
           permission-contents: write
           permission-pull-requests: write
-      # Main as it is now, not the tag's commit. The checkout keeps the credential for the push (a fresh GitHub
-      # machine, gone after the job).
+      # The main the bump job read, without the token in .git/config: only the push below gets it, through gh's
+      # credential helper. Nothing of the repository's runs here.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: main
-          token: ${{ steps.app.outputs.token || secrets.RELEASE_BOT_TOKEN || github.token }}
+          ref: ${{ needs.bump.outputs.base }}
+          persist-credentials: false
           filter: blob:none
           sparse-checkout-cone-mode: false
           sparse-checkout: |
             /*
             !/wiki/media/
-      # For scripts/release/manifest, which checks the release's latest.json. Up front, as in the web build.
-      - run: rustup toolchain install --no-self-update
-      - id: bump
+      # The bump job's file, not taken on trust: that job ran every dependency's build script, which could write
+      # its outputs. It must be main's comment and three lines, pinning this release, no older than main does, with
+      # the SHA-256s of the web build and the latest.json this release has published (downloaded again here).
+      - env:
+          WEB_RELEASE: ${{ needs.bump.outputs.web-release }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          # Never back to an older version than main pins (a re-run of an older release, or a tag pushed out of
-          # order).
-          pinned=$(sed -n 's/^tag //p' site/web-release.txt)
-          if [ "$pinned" != "$TAG" ] && [ "$(printf '%s\n' "$pinned" "$TAG" | sort -V | tail -n 1)" = "$pinned" ]; then
-            echo "changed=false" >>"$GITHUB_OUTPUT"
-            echo "main already pins $pinned, newer than $TAG." >>"$GITHUB_STEP_SUMMARY"
-            exit 0
+          new=$RUNNER_TEMP/web-release.txt
+          [ -n "$WEB_RELEASE" ] || { echo "::error::the bump job passed on no site/web-release.txt"; exit 1; }
+          printf %s "$WEB_RELEASE" | base64 -d >"$new"
+          [ "$(grep '^#' site/web-release.txt)" = "$(grep '^#' "$new")" ] ||
+            { echo "::error::the bump changed site/web-release.txt's comment"; exit 1; }
+          grep -v '^#' "$new" >"$RUNNER_TEMP/lines"
+          if [ "$(wc -l <"$RUNNER_TEMP/lines")" -ne 3 ] ||
+            grep -vxE 'tag v[0-9A-Za-z.+-]+|sha256 [0-9a-f]{64}|manifest-sha256 ([0-9a-f]{64}|none)' "$RUNNER_TEMP/lines"; then
+            echo "::error::site/web-release.txt from the bump isn't a tag, a sha256 and a manifest-sha256"
+            exit 1
           fi
-          scripts/bump-web-release "$TAG"
-          if git diff --quiet; then
-            echo "changed=false" >>"$GITHUB_OUTPUT"
-            echo "main already pins $TAG." >>"$GITHUB_STEP_SUMMARY"
-          else
-            echo "changed=true" >>"$GITHUB_OUTPUT"
-            git diff
+          value() { sed -n "s/^$1 //p" "$2"; }
+          [ "$(value tag "$new")" = "$TAG" ] || { echo "::error::the bump pins another release than $TAG"; exit 1; }
+          pinned=$(value tag site/web-release.txt)
+          case $pinned in v*)
+            [ "$(printf '%s\n' "$pinned" "$TAG" | sort -V | tail -n 1)" = "$TAG" ] ||
+              { echo "::error::main pins $pinned, newer than $TAG"; exit 1; } ;;
+          esac
+          mkdir "$RUNNER_TEMP/release"
+          gh release download "$TAG" --dir "$RUNNER_TEMP/release" --pattern "spelunky-web-$TAG.tar.gz"
+          [ "$(value sha256 "$new")" = "$(sha256sum <"$RUNNER_TEMP/release/spelunky-web-$TAG.tar.gz" | cut -d' ' -f1)" ] ||
+            { echo "::error::the bump's sha256 isn't $TAG's web build's"; exit 1; }
+          manifest=none
+          if gh release download "$TAG" --dir "$RUNNER_TEMP/release" --pattern latest.json; then
+            manifest=$(sha256sum <"$RUNNER_TEMP/release/latest.json" | cut -d' ' -f1)
           fi
-      - if: steps.bump.outputs.changed == 'true' && steps.credential.outputs.kind == 'none'
+          [ "$(value manifest-sha256 "$new")" = "$manifest" ] ||
+            { echo "::error::the bump's manifest-sha256 isn't $TAG's latest.json's"; exit 1; }
+          cp "$new" site/web-release.txt
+          git diff
+      - if: steps.credential.outputs.kind == 'none'
         run: |
           echo "::warning::$TAG is published but not live: no release-bot credential to open its pull request with"
           {
@@ -536,7 +610,7 @@ jobs:
             git diff
             echo '```'
           } >>"$GITHUB_STEP_SUMMARY"
-      - if: steps.bump.outputs.changed == 'true' && steps.credential.outputs.kind != 'none'
+      - if: steps.credential.outputs.kind != 'none'
         env:
           GH_TOKEN: ${{ steps.app.outputs.token || secrets.RELEASE_BOT_TOKEN }}
           APP_SLUG: ${{ steps.app.outputs.app-slug }}
@@ -564,7 +638,9 @@ jobs:
           fi
           git switch -q -c "$branch"
           git commit -q -am "$title"
-          # A re-run's push replaces its last.
+          # A re-run's push replaces its last. The token reaches git through gh's credential helper, from GH_TOKEN:
+          # not on the command line, nor in .git/config.
+          gh auth setup-git
           git push -q --force origin "$branch"
           pr=$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')
           if [ -z "$pr" ]; then

@@ -201,10 +201,19 @@ they're made, any collaborator's `v*` tag still runs its own workflows):
 ### The site's bump pull request
 
 A published release isn't live until `scripts/bump-web-release TAG` pins it in `site/web-release.txt` and that
-merges ([docs/web-deploy.md](web-deploy.md)). `release.yml`'s last job, **Site bump PR**, runs the script on
-`main` as it is then, pushes it to `bump-web-release/TAG` and opens its pull request, "Release: put TAG live on
-spelunky.ai", which closes the pull requests of earlier releases that haven't merged. It never puts back an
-older version than `main` pins (a re-run of an older release, or tags pushed out of order), nor opens one while
+merges ([docs/web-deploy.md](web-deploy.md)). `release.yml`'s last two jobs do it. **Site bump** runs the script on
+`main` as it is then, with no secret: the script builds and runs Rust (`scripts/release/manifest` checks the
+release's `latest.json`), so every dependency's build script runs there, and it passes on the one file it
+changes. **Site bump PR**, on another machine and in the `release-bot` environment, runs none of the repository's
+code: it checks that file (`main`'s comment and three lines, pinning this release and no older one than `main`
+does, whose SHA-256s are those of the web build and `latest.json` the release has published, which it downloads
+again), commits it on the `main` the first job read, pushes it to `bump-web-release/TAG` (the token reaching git through gh's
+credential helper, never `.git/config` or a command line) and opens its pull request, "Release: put TAG live on
+spelunky.ai", which closes the pull requests of earlier releases that haven't merged. So no code a build runs is
+ever on a machine with the token (851-3906), and what that code could change of the one file is checked
+against the release. What it can't recheck without running Rust is `latest.json`'s signature, which only the
+first job verifies: but the file is the release's own, which this workflow signed. It never puts back an older
+version than `main` pins (a re-run of an older release, or tags pushed out of order), nor opens one while
 a newer release's is open. `pr-ok` runs on it like any other, and it merges itself once that passes if the
 repository allows auto-merge (Settings → General → "Allow auto-merge"); otherwise whoever merges pull requests
 merges it. It has no Linear ticket, and its body says why: the workflow has no Linear credential, and the
