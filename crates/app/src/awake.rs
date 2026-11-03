@@ -7,7 +7,9 @@
 //! - macOS: an IOKit assertion that prevents the display's idle sleep, which also holds off the screen saver.
 //! - Windows: `SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED)`.
 //! - The web: a screen wake lock (`navigator.wakeLock`), which the browser drops when the tab is hidden.
-//! - Linux: nothing yet (the freedesktop `ScreenSaver.Inhibit` call needs a D-Bus client: 851-3873).
+//! - Linux (and the other Unixes with a freedesktop desktop): `org.freedesktop.ScreenSaver.Inhibit` on the
+//!   session bus ([`crate::dbus`]), which lasts while its connection is open; nothing without a session bus
+//!   or a screen saver service on it.
 //!
 //! Frontend only, and only for a session of play: never a replay, a page's clip or a headless run.
 
@@ -57,10 +59,12 @@ mod tests {
         let mut awake = Awake::new();
         assert!(!awake.holding());
         awake.hold(true);
-        // Where the platform has a way (Linux doesn't yet).
-        assert_eq!(awake.holding(), cfg!(any(target_os = "macos", windows)));
+        // Where the platform has a way: Linux's needs a session bus with a screen saver service, which a test
+        // machine may not have, so there it only mustn't fail.
+        let unix = cfg!(not(any(target_os = "macos", windows)));
+        assert!(unix || awake.holding());
         awake.hold(true);
-        assert_eq!(awake.holding(), cfg!(any(target_os = "macos", windows)));
+        assert!(unix || awake.holding());
         awake.hold(false);
         assert!(!awake.holding());
     }
@@ -249,16 +253,53 @@ mod platform {
 
 #[cfg(not(any(target_os = "macos", windows, target_arch = "wasm32")))]
 mod platform {
-    /// Nothing to hold yet.
-    pub struct Held;
+    use crate::dbus::{Arg, Bus, body_u32};
+
+    const SERVICE: &str = "org.freedesktop.ScreenSaver";
+    const PATH: &str = "/org/freedesktop/ScreenSaver";
+
+    /// The inhibit's cookie, and the connection it lasts as long as.
+    pub struct Held {
+        bus: Bus,
+        cookie: u32,
+    }
 
     impl Held {
+        /// Asks the session's screen saver service not to start, nor the display to sleep (the freedesktop
+        /// `ScreenSaver` interface, which GNOME, KDE and Xfce provide). Best effort: `None` without a session
+        /// bus or the service.
         pub fn new() -> Option<Held> {
-            None
+            let mut bus = Bus::session().ok()?;
+            let reply = bus
+                .call(
+                    SERVICE,
+                    PATH,
+                    SERVICE,
+                    "Inhibit",
+                    &[Arg::Str("Spelunky Classic"), Arg::Str("Playing")],
+                )
+                .ok()?;
+            Some(Held {
+                cookie: body_u32(&reply)?,
+                bus,
+            })
         }
 
         pub fn dropped(&self) -> bool {
             false
+        }
+    }
+
+    impl Drop for Held {
+        fn drop(&mut self) {
+            // Closing the connection lets it go too; this says so first, without waiting for an answer.
+            let _ = self.bus.send(
+                SERVICE,
+                PATH,
+                SERVICE,
+                "UnInhibit",
+                &[Arg::U32(self.cookie)],
+            );
         }
     }
 }
