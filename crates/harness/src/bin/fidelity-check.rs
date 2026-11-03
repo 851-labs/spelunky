@@ -13,8 +13,8 @@ use std::time::Instant;
 
 use harness::fingerprint::{
     Fingerprint, Fingerprinter, SUITES, Suite, all_replays, faithful_audio_mismatch,
-    fingerprint_path, oracle_build_stamp, port_mismatch, replay_hash, run_fingerprint_watched, shown,
-    sorted_with_extension, sound_handle,
+    fingerprint_path, oracle_build_stamp, port_mismatch, replay_hash, run_fingerprint_watched,
+    shown, sorted_with_extension, sound_handle,
 };
 use harness::story::{Story, Watcher};
 use harness::{load_bundle, load_replay_story, load_sounds};
