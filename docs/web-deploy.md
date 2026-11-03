@@ -219,11 +219,40 @@ shows which release it unpacked.
 
 A deploy serves only its own build, so a `/play/` page loaded just before it can fail to start (an HTTP 404
 for its old `v/HASH/` files) and works on a reload, which names the new `v/HASH/`. A game already running has
-fetched everything it needs. Those 404s come with `_headers`' immutable caching too (`/play/v/*` skips the
-Worker, and `_headers` can't tell a miss from a hit), which only matters to that browser if it's rolled back
-to exactly that old build; routing `/play/v/*` through the Worker to fix it would spend ~110 Worker requests
-of the free plan's 100,000 a day on every game start. The pages' scripts under `/assets/` and the wiki's Open
-Graph images under `/wiki/og/` are kept a while instead ([Version skew](#version-skew)).
+fetched everything it needs. The pages' scripts under `/assets/` and the wiki's Open Graph images under
+`/wiki/og/` are kept a while instead ([Version skew](#version-skew)).
+
+**A miss's caching.** A miss under a path that skips the Worker (`/play/v/`, `/assets/`, `/wiki/og/`, and the
+media's sprites, pictures and indexes) is the asset store's own 404, the 404 page (`not_found_handling`
+`"404-page"`), and comes with that path's `_headers`, as a hit does: `_headers` can't tell them
+apart, so a 404 under the content-hashed paths is cached `immutable` for a year (a day under the media). So a file
+asked for before the deploy that makes it is live everywhere (a card or chunk a new page names, fetched from an
+edge still serving the old build, or a card's URL worked out from a local build), or after a rollback, stays a 404
+in whatever cached it (a browser, a social site's image fetcher) for a year, though it's there now. It happened
+in 851-3878's audit: a browser held an immutable 404 for a live card.
+
+The repo can't fix it alone. Routing those paths through the Worker would spend ~110 Worker requests of the free
+plan's 100,000 a day on every game start, and a wiki page's dozens of images on every view. And the Worker never
+sees their misses: a miss under a path a negative `run_worker_first` rule sends to the asset store stays the
+asset store's, with that path's `_headers`, both as it's set (the 404 page, as on spelunky.ai) and with
+`not_found_handling` `"none"` (an empty 404: tried on a preview in 851-3887), which only hands the Worker the
+misses of paths it would have run first for anyway. So it's the zone's: a Response Header Transform
+Rule, which sees the status, replaces a 404's caching under those paths, made in the dashboard (zone spelunky.ai
+→ **Rules → Transform Rules → Modify Response Header → Create rule**):
+
+| Field | Value |
+| --- | --- |
+| Rule name | `No caching for misses under the cached paths` |
+| When incoming requests match (expression) | `(http.response.code eq 404 and (starts_with(http.request.uri.path, "/assets/") or starts_with(http.request.uri.path, "/play/v/") or starts_with(http.request.uri.path, "/wiki/og/") or starts_with(http.request.uri.path, "/wiki/media/") or starts_with(http.request.uri.path, "/media/")))` |
+| Then | **Set static**: header `Cache-Control`, value `no-store` |
+
+(`/media/` is there for its pictures, which skip the Worker once 851-3885 is in; a miss the Worker answers is
+`no-cache` already, and `no-store` changes nothing for it.) Check it with `curl -sS -D - -o /dev/null
+https://spelunky.ai/wiki/og/nope.0000000000000000.png`: a 404 with `cache-control: no-store`, and a hit (`/wiki/og/`
+and any card's name) still `immutable`. If the 404 is still `immutable`, the rule doesn't reach the Worker's
+responses, and nothing else in the zone can tell a miss from a hit either: say so in 851-3887. The rule is the
+zone's alone, so a preview's workers.dev still caches a miss for good, and nothing in CI checks the rule is there:
+this curl is the check.
 
 ## Version skew
 
