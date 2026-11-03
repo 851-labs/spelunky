@@ -453,8 +453,20 @@ contains '<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"' '
 with "If-None-Match: $(grep -i '^etag:' "$tmp/h" | cut -d' ' -f2-)"
 check "$site/opensearch.xml" 304 "$no_cache" "$opensearch_type"
 check "$site/opensearch.xml/" 307 "location: $site/opensearch.xml" "$no_cache"
-check "$site/media/logo.png" 200 "$no_cache" "content-type: image/png"
-same public/media/logo.png
+# The landing page's media and the logo every page shows: the pictures without the Worker, cached for a day, and
+# the video through it, with byte ranges for Safari (src/server.ts), as the clips' are below.
+for picture in logo.png gameplay.png; do
+  check "$site/media/$picture" 200 "$media_cache" "content-type: image/png" "x-content-type-options: nosniff"
+  same "public/media/$picture"
+done
+video_size=$(wc -c <public/media/gameplay.mp4 | tr -d ' ')
+check "$site/media/gameplay.mp4" 200 "$media_cache" "content-type: video/mp4" "accept-ranges: bytes" \
+  "content-length: $video_size"
+same public/media/gameplay.mp4
+with "Range: bytes=0-1"
+check "$site/media/gameplay.mp4" 206 "content-range: bytes 0-1/$video_size" "content-length: 2" "$media_cache"
+head -c 2 public/media/gameplay.mp4 >"$tmp/want"
+same "$tmp/want"
 # The site's icons (scripts/site-icons), which every page's head names (above, and test-seo.mjs), as 404.html does.
 check "$site/favicon.ico" 200 "$no_cache" "content-type: image/vnd.microsoft.icon"
 same public/favicon.ico
@@ -1038,8 +1050,9 @@ got=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$site/")
 # www redirects to https://spelunky.ai, path and query kept, from plain HTTP too (as wrangler dev is) in one hop.
 check "http://localhost:$www_port/play/?a=1" 301 "location: https://spelunky.ai/play/?a=1" "$hsts"
 
-# The landing page's card (landing-card.mjs checks it's current, above), served.
-check "$site/media/card.png" 200 "$no_cache" "content-type: image/png"
+# The landing page's card (landing-card.mjs checks it's current, above), served as /media/'s pictures are: without
+# the Worker, cached for a day (it keeps its name, and social sites keep their own copy longer anyway).
+check "$site/media/card.png" 200 "$media_cache" "content-type: image/png" "x-content-type-options: nosniff"
 same public/media/card.png
 # Every page's Content-Security-Policy names exactly its inline scripts.
 node csp.mjs check dist/client || fail "csp.mjs check"

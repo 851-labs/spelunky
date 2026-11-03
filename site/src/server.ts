@@ -1,7 +1,7 @@
 // The Worker (every response with HSTS, and plain HTTP and www redirected to https://spelunky.ai). Everything but
-// the content-hashed files (/play/v/* and /assets/*) and the wiki's media (/wiki/media/* but its clips' videos and
-// old URLs: wrangler.jsonc's run_worker_first) comes through here, on spelunky.ai and on a pull request's preview
-// URL alike (docs/web-deploy.md, "Previews").
+// the content-hashed files (/play/v/*, /assets/* and /wiki/og/*), the wiki's media (/wiki/media/* but its clips'
+// videos and old URLs) and the landing page's pictures (/media/*.png: wrangler.jsonc's run_worker_first) comes
+// through here, on spelunky.ai and on a pull request's preview URL alike (docs/web-deploy.md, "Previews").
 import handler from "@tanstack/react-start/server-entry";
 import { updated } from "virtual:site/updated";
 import { names, twins } from "virtual:wiki/aliases";
@@ -18,11 +18,14 @@ const SERVER_FN_BASE = "/_serverFn/";
 // Files a route makes (src/routes/sitemap[.]xml.ts and the like). Pre-rendered, so on spelunky.ai they're
 // assets; the router makes them under `vite dev` and for the pre-render.
 const ROUTED_FILES = new Set(["/sitemap.xml", "/sitemap-video.xml", "/sitemap-image.xml", "/robots.txt", OPENSEARCH_PATH]);
-// The wiki's media (docs/web-deploy.md, "Wiki media"), and its clips' videos, the only media the asset store
-// leaves to the Worker (wrangler.jsonc), for their byte ranges.
+// The wiki's media (docs/web-deploy.md, "Wiki media"), and its clips' videos, which with the landing page's video
+// (SITE_VIDEO) are the only media the asset store leaves to the Worker (wrangler.jsonc), for their byte ranges.
 const MEDIA_BASE = "/wiki/media/";
 // After MEDIA_BASE: clips/<id>/clip.mp4 and the like.
 const CLIP_VIDEO = /^clips\/.+\.(?:mp4|webm)$/;
+// The landing page's video (public/media/), which plays as soon as the page loads, the other video the Worker
+// serves with byte ranges; the rest of public/media/ skips it (wrangler.jsonc).
+const SITE_VIDEO = /^\/media\/[^/]+\.(?:mp4|webm)$/;
 // After MEDIA_BASE: where the media were before they were committed, a release's package under the first 16
 // hex digits of its SHA-256 (HASH/clips/snake/bite/clip.mp4), and what's at the same path now. Sitemaps, JSON-LD
 // and other sites have those URLs, and no directory of the media's is called that.
@@ -85,6 +88,7 @@ async function route(request: Request, env: Env): Promise<Response> {
     }
     return CLIP_VIDEO.test(path) ? withRanges(request, env) : env.ASSETS.fetch(request);
   }
+  if (SITE_VIDEO.test(url.pathname)) return withRanges(request, env);
   if (url.pathname.startsWith(SERVER_FN_BASE)) return withDefaultCaching(await handler.fetch(request));
   // /sitemap.xml/ to /sitemap.xml, as the asset store sends /LICENSE.txt/ to /LICENSE.txt, rather than a second
   // copy rendered on every request. The pre-render asks for the slashed path first, and follows this.
