@@ -1,0 +1,19 @@
+# Keeps the workflows' actions current (851-3902). Every `uses:` is pinned to a full commit SHA with its version in a
+# comment (scripts/check fails on one that isn't), so a moved tag can't change what runs; Dependabot moves the pins
+# in a pull request, which runs pr.yml like any other (its jobs run the new actions, on the minis too) and waits
+# for a person to read and merge it.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directories: ["/", "/.github/actions/*"]
+    schedule:
+      interval: weekly
+    # Not a release in its first week: a hijacked one is usually caught and pulled by then, before its pull
+    # request runs it anywhere.
+    cooldown:
+      default-days: 7
+    groups:
+      # Minor and patch releases together; a major one in a pull request of its own, as it can change behaviour.
+      actions:
+        patterns: ["*"]
+        update-types: [minor, patch]

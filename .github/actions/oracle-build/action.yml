@@ -23,14 +23,14 @@ runs:
           echo "image=$image"
         } | tee -a "$GITHUB_OUTPUT"
     - id: built
-      uses: actions/cache/restore@v6
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/oracle-ci
         key: ${{ steps.key.outputs.key }}
         lookup-only: true
     - if: steps.built.outputs.cache-hit != 'true'
       id: volumes
-      uses: actions/cache/restore@v6
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/oracle-volumes
         key: ${{ steps.key.outputs.volumes }}
@@ -57,7 +57,7 @@ runs:
         docker run --rm -v spelunky-oracle-target:/target:ro -v ~/oracle-ci:/out "$IMAGE" \
           cp "$emulator" /out/gm8emulator
     - if: steps.built.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v6
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/oracle-ci
         key: ${{ steps.key.outputs.key }}
@@ -71,7 +71,7 @@ runs:
             tar -cf "/out/$volume.tar" -C /volume --exclude ./oracle .
         done
     - if: steps.built.outputs.cache-hit != 'true' && steps.volumes.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v6
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/oracle-volumes
         key: ${{ steps.key.outputs.volumes }}

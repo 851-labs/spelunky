@@ -180,7 +180,7 @@ jobs:
       TAG: ${{ needs.meta.outputs.tag }}
     steps:
       # With the wiki's media, unlike the jobs below: site/build.sh reads them.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       # rust-toolchain.toml's toolchain, with its wasm32 targets. Installed up front: rustup warns when the first
@@ -192,13 +192,13 @@ jobs:
           scripts/web --package "$RUNNER_TEMP/web/spelunky-web-$TAG.tar.gz"
       # What the site's build does with it, so a tarball it would reject is never published. The site is
       # built with Vite, so it needs Node: the version Workers Builds uses for it.
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: site/.node-version
       - run: |
           site/build.sh --local "$RUNNER_TEMP/web/spelunky-web-$TAG.tar.gz"
           rm -rf site/dist
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: spelunky-web-${{ needs.meta.outputs.tag }}
           path: ${{ runner.temp }}/web/
@@ -214,7 +214,7 @@ jobs:
       key: ${{ steps.oracle.outputs.key }}
     steps:
       # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           filter: blob:none
@@ -235,7 +235,7 @@ jobs:
     timeout-minutes: 60
     steps:
       # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           filter: blob:none
@@ -243,7 +243,7 @@ jobs:
           sparse-checkout: |
             /*
             !/wiki/media/
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -258,7 +258,7 @@ jobs:
       - run: rustup toolchain install --no-self-update
       - run: scripts/cargo build --quiet --release -p harness --bin fidelity
       - run: scripts/extract
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: fidelity-port
           path: |
@@ -283,7 +283,7 @@ jobs:
         shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     steps:
       # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           filter: blob:none
@@ -295,7 +295,7 @@ jobs:
         uses: ./.github/actions/oracle-load
         with:
           key: ${{ needs.oracle.outputs.key }}
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: fidelity-port
       - name: Run the shard's replays
@@ -354,7 +354,7 @@ jobs:
       VERSION: ${{ needs.meta.outputs.version }}
     steps:
       # Without the wiki's media (docs/wiki-media.md): about 200 MB that this job doesn't need.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           filter: blob:none
@@ -362,7 +362,7 @@ jobs:
           sparse-checkout: |
             /*
             !/wiki/media/
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: spelunky-${{ needs.meta.outputs.version }}-*
           merge-multiple: true
@@ -384,7 +384,7 @@ jobs:
             linux-x86_64="dist/spelunky-$VERSION-linux-x64.AppImage" \
             linux-aarch64="dist/spelunky-$VERSION-linux-arm64.AppImage" \
             --out "$RUNNER_TEMP/manifest/latest.json"
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: update-manifest
           path: ${{ runner.temp }}/manifest/latest.json
@@ -413,13 +413,13 @@ jobs:
       DRY_RUN: ${{ needs.meta.outputs.dry_run }}
       PRERELEASE: ${{ needs.meta.outputs.prerelease }}
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: spelunky-*
           merge-multiple: true
           path: dist
       - if: needs.manifest.result == 'success'
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: update-manifest
           path: dist
@@ -489,7 +489,7 @@ jobs:
       # Asking for exactly these fails here if the App's installation lacks one.
       - id: app
         if: steps.credential.outputs.kind == 'app'
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ vars.RELEASE_BOT_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
@@ -497,7 +497,7 @@ jobs:
           permission-pull-requests: write
       # Main as it is now, not the tag's commit. The checkout keeps the credential for the push (a fresh GitHub
       # machine, gone after the job).
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           token: ${{ steps.app.outputs.token || secrets.RELEASE_BOT_TOKEN || github.token }}

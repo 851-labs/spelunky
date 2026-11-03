@@ -37,7 +37,7 @@ jobs:
     steps:
       # Everything but the wiki's media (docs/wiki-media.md), which the updater doesn't need: about 200 MB a
       # fresh machine would otherwise download. A partial clone, so their files aren't fetched at all.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           filter: blob:none
