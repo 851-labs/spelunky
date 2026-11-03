@@ -1009,6 +1009,18 @@ entries=$(for page in index wiki wiki/snake wiki/monsters; do
 done | sort -u)
 [ "$(echo "$entries" | wc -l | tr -d ' ')" = 1 ] && case $entries in *index-*) true ;; *) false ;; esac ||
   fail "the pages' entry scripts aren't one /assets/index-HASH.js: $entries"
+# The licenses of the packages in the pages' scripts (src/build/third-party-licenses.ts): every runtime dependency
+# package.json names, with its license text, and the pages link it.
+check "$site/third-party-licenses.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
+for package in $(node -p 'Object.keys(require("./package.json").dependencies).join(" ")'); do
+  grep -q "^- $package [0-9]" "$tmp/body" || fail "$url: doesn't list $package"
+done
+contains 'Permission is hereby granted, free of charge' 'Copyright (c) Meta Platforms, Inc. and affiliates.'
+lacks '# Licenses of bundled dependencies'
+check "$site/" 200
+contains '<a href="/third-party-licenses.txt">third-party licenses</a>'
+check "$site/wiki/snake" 200
+contains '<a href="/third-party-licenses.txt">Third-party licenses</a>'
 # The license, in UTF-8 as it's served (build.sh), as the media's is above.
 check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
 same "$tmp/LICENSE.txt"

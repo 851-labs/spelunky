@@ -54,6 +54,10 @@ export function WikiFrame({ children, audio = false }: { children: ReactNode; au
           {NOTICE.after}
         </p>
         {audio && <p>{AUDIO_CREDIT}</p>}
+        {/* The libraries in the pages' scripts keep their notices there (src/build/third-party-licenses.ts). */}
+        <p>
+          <a href="/third-party-licenses.txt">Third-party licenses</a> of the site's code.
+        </p>
       </footer>
     </div>
   );
