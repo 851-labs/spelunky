@@ -33,7 +33,7 @@ use winit::dpi::{LogicalSize, PhysicalPosition};
 use winit::event::{ElementState, KeyEvent, MouseScrollDelta, Touch, TouchPhase, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, ControlFlow, EventLoopProxy};
 use winit::keyboard::{Key, KeyCode, PhysicalKey};
-use winit::window::{Fullscreen, Window, WindowId};
+use winit::window::{CursorIcon, Fullscreen, Window, WindowId};
 
 /// GM's room speed: every Spelunky room runs at 30 steps a second.
 pub const TICK: Duration = Duration::from_nanos(1_000_000_000 / 30);
@@ -107,10 +107,10 @@ pub trait Game {
         false
     }
 
-    /// Whether the mouse pointer shows over the window: GM's `window_set_cursor`, which hides it for
-    /// `cr_none`, as Spelunky's `scrInit` asks (`gm::World::window_cursor`).
-    fn cursor_visible(&self) -> bool {
-        true
+    /// The pointer the game asks for over the window: GM's `window_set_cursor` (`gm::World::window_cursor`),
+    /// one of its `cr_*` constants, which [`gm_cursor`] maps: `cr_none` hides it, as Spelunky's `scrInit` asks.
+    fn cursor(&self) -> i32 {
+        CR_DEFAULT
     }
 
     /// The player pressed a key or button: a user gesture, which the browser needs before it plays
@@ -181,11 +181,58 @@ pub trait Overlay {
     fn modal(&self) -> bool;
 }
 
-/// Whether the pointer shows over the window ([`App::follow_cursor`]): over a page's clip (`embedded`), which a
-/// reader points at, while the app's dialog takes the mouse (`modal`), and once the run is `over` (the page
-/// stays up on the web), whatever the game asks; otherwise as the game asks (`game`).
-fn pointer_shown(embedded: bool, modal: bool, over: bool, game: bool) -> bool {
-    embedded || modal || over || game
+/// Whether a hotkey's press or repeat at tick `ticks` acts ([`App::hotkey`]), given the tick it last acted at:
+/// a press always (no tick runs before a run starts or after it ends, and the key still works there), a repeat
+/// once a tick, natively.
+fn hotkey_acts(last: Option<u64>, ticks: u64, repeat: bool, web: bool) -> bool {
+    !repeat || (!web && last != Some(ticks))
+}
+
+/// GM's `cr_default`, the platform's arrow, and `cr_none`, no pointer.
+pub const CR_DEFAULT: i32 = 0;
+pub const CR_NONE: i32 = -1;
+
+/// The pointer over the window, `None` for none ([`App::follow_cursor`]): the arrow over a page's clip
+/// (`embedded`), which a reader points at, while the app's dialog takes the mouse (`modal`), and once the run
+/// is `over` (the page stays up on the web), whatever the game asks; otherwise the game's (`game`, a GM
+/// cursor).
+fn pointer(embedded: bool, modal: bool, over: bool, game: i32) -> Option<CursorIcon> {
+    if embedded || modal || over {
+        Some(CursorIcon::Default)
+    } else {
+        gm_cursor(game)
+    }
+}
+
+/// The pointer for a GM cursor (`window_set_cursor`), `None` for `cr_none`. GM8's constants are Delphi's
+/// `crXXX` values, which its window's VCL shows as Windows' cursors (`IDC_*`) or, for `cr_drag`,
+/// `cr_nodrop`, `cr_hsplit`, `cr_vsplit`, `cr_multidrag` and `cr_sqlwait`, the VCL's own; each is the CSS
+/// cursor winit has of the same meaning (851-3945). Checked on the GM8 runner under Wine: a probe set each
+/// in turn while an XFixes client read X's pointer over the window, and each showed its shape (the up arrow,
+/// an arrow with a page and with pages for `cr_drag` and `cr_multidrag`, an hourglass marked "SQL"); -5,
+/// Delphi's old `crSize`, showed `cr_size_all`'s, and 7, not a cursor, the arrow. `cr_uparrow`, `cr_drag`
+/// and `cr_multidrag` have no CSS cursor and show the arrow. Spelunky only sets `cr_none` and `cr_default`
+/// (`scrInit`, the level editor); the settings program sets none.
+pub fn gm_cursor(cursor: i32) -> Option<CursorIcon> {
+    Some(match cursor {
+        CR_NONE => return None,
+        -3 => CursorIcon::Crosshair,   // cr_cross, IDC_CROSS
+        -4 => CursorIcon::Text,        // cr_beam, IDC_IBEAM
+        -6 => CursorIcon::NeswResize,  // cr_size_nesw, IDC_SIZENESW
+        -7 => CursorIcon::NsResize,    // cr_size_ns, IDC_SIZENS
+        -8 => CursorIcon::NwseResize,  // cr_size_nwse, IDC_SIZENWSE
+        -9 => CursorIcon::EwResize,    // cr_size_we, IDC_SIZEWE
+        -11 | -17 => CursorIcon::Wait, // cr_hourglass (IDC_WAIT), cr_sqlwait (an hourglass with "SQL")
+        -13 => CursorIcon::NoDrop,     // cr_nodrop, the VCL's
+        -14 => CursorIcon::ColResize,  // cr_hsplit: the VCL's bar a splitter is dragged sideways by
+        -15 => CursorIcon::RowResize,  // cr_vsplit: the same, up and down
+        -18 => CursorIcon::NotAllowed, // cr_no, IDC_NO
+        -19 => CursorIcon::Progress,   // cr_appstart, IDC_APPSTARTING: the arrow with an hourglass
+        -20 => CursorIcon::Help,       // cr_help, IDC_HELP
+        -21 => CursorIcon::Pointer,    // cr_handpoint, IDC_HAND
+        -22 | -5 => CursorIcon::Move,  // cr_size_all (IDC_SIZEALL); -5, Delphi's old crSize
+        _ => CursorIcon::Default,      // cr_default, cr_arrow, cr_uparrow, cr_drag, cr_multidrag
+    })
 }
 
 /// Another program's images, its notice (shown from the switch on, for its first seconds), and the
@@ -463,9 +510,11 @@ pub struct App<G> {
     fitted: Option<(u32, u32)>,
     /// The fullscreen state the game last asked for.
     fullscreen: bool,
-    /// Whether the pointer was last set to show over the window ([`App::follow_cursor`]): a new window
-    /// shows it.
-    cursor_shown: bool,
+    /// The tick F4 and F9 last acted at, in that order ([`App::hotkey`]).
+    hotkeys: [Option<u64>; 2],
+    /// The pointer shown over the window, `None` for none ([`App::follow_cursor`]): a new window shows the
+    /// arrow.
+    pointer: Option<CursorIcon>,
     /// The app's layer over the game, if it has one.
     overlay: Option<Box<dyn Overlay>>,
     /// Keys whose press the overlay took, so the game doesn't see their release either.
@@ -619,7 +668,8 @@ impl<G: Game> App<G> {
             notice_from: 0,
             fitted: None,
             fullscreen: false,
-            cursor_shown: true,
+            pointer: Some(CursorIcon::Default),
+            hotkeys: [None; 2],
             overlay: None,
             taken: Vec::new(),
             taken_buttons: Vec::new(),
@@ -707,6 +757,25 @@ impl<G: Game> App<G> {
     pub fn with_screenshots(mut self, dir: Option<std::path::PathBuf>) -> App<G> {
         self.screenshots = dir;
         self
+    }
+
+    /// Whether F4 or F9, pressed or repeating, acts now: a press always, a repeat once a tick at most, as GM8's
+    /// hotkey routine acts once a frame, at its start, whenever `keyboard_lastkey` is the key, which its press
+    /// and each auto-repeat set (Spelunky.exe 0x53daa4; under Wine a held F9 took a screenshot a frame a repeat
+    /// reached, and a held F4 toggled fullscreen again and again: 851-3874, 851-3877). Not a repeat on the web,
+    /// where F9 is the browser's and each fullscreen change is the browser's to animate.
+    fn hotkey(&mut self, key: KeyCode, repeat: bool) -> bool {
+        let which = usize::from(key == KeyCode::F9);
+        let acts = hotkey_acts(
+            self.hotkeys[which],
+            self.ticks,
+            repeat,
+            cfg!(target_arch = "wasm32"),
+        );
+        if acts {
+            self.hotkeys[which] = Some(self.ticks);
+        }
+        acts
     }
 
     /// F9 in a session of play: the game's picture, saved ([`App::with_screenshots`], which the frontend
@@ -1363,24 +1432,29 @@ impl<G: Game> App<G> {
         self.follow_cursor();
     }
 
-    /// Shows or hides the pointer over the window as the game asks ([`Game::cursor_visible`]): GM8 hides it
-    /// for `cr_none` over its window, and shows the arrow for `cr_default` (a probe on the GM8 runner under
-    /// Wine, 851-3924: X's cursor over its window is an empty 1x1 image after `window_set_cursor(cr_none)`, the
-    /// 10x16 arrow after `cr_default`). So Spelunky hides it from its start, and the level editor shows it
-    /// while editing. Not over a page's clip, which a reader points at, nor while the app's own dialog takes
-    /// the mouse ([`Overlay::modal`]).
+    /// Shows the pointer over the window the game asks for ([`Game::cursor`]), or hides it: GM8 hides it for
+    /// `cr_none` over its window, and shows the arrow for `cr_default` (a probe on the GM8 runner under Wine,
+    /// 851-3924: X's cursor over its window is an empty 1x1 image after `window_set_cursor(cr_none)`, the 10x16
+    /// arrow after `cr_default`), and its other cursors' shapes ([`gm_cursor`]). So Spelunky hides it from its
+    /// start, and the level editor shows it while editing. Not over a page's clip, which a reader points at,
+    /// nor while the app's own dialog takes the mouse ([`Overlay::modal`]).
     /// Once the run is over or has failed, it shows again: on the web the page stays up.
     fn follow_cursor(&mut self) {
         let Some(window) = &self.window else { return };
-        let shown = pointer_shown(
+        let cursor = pointer(
             self.embed.is_some(),
             self.overlay.as_ref().is_some_and(|o| o.modal()),
             self.game.ended() || self.error.is_some(),
-            self.game.cursor_visible(),
+            self.game.cursor(),
         );
-        if self.cursor_shown != shown {
-            self.cursor_shown = shown;
-            window.set_cursor_visible(shown);
+        if self.pointer != cursor {
+            if cursor.is_some() != self.pointer.is_some() {
+                window.set_cursor_visible(cursor.is_some());
+            }
+            if let Some(icon) = cursor {
+                window.set_cursor(icon);
+            }
+            self.pointer = cursor;
         }
     }
 
@@ -1578,10 +1652,10 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 ..
             } => {
                 let down = state == ElementState::Pressed;
-                // F4 toggles fullscreen, as in the original's game settings.
+                // F4 toggles fullscreen, as in the original's game settings, and again as it repeats.
                 if down
                     && key == KeyCode::F4
-                    && !repeat
+                    && self.hotkey(key, repeat)
                     && let Some(window) = &self.window
                 {
                     let full = window.fullscreen().is_none();
@@ -1636,7 +1710,7 @@ impl<G: Game> ApplicationHandler<UserEvent> for App<G> {
                 // F9 saves a screenshot, as in the original's game settings, and goes on to the game. Not
                 // one the app's dialog took.
                 #[cfg(not(target_arch = "wasm32"))]
-                if down && key == KeyCode::F9 && !repeat {
+                if down && key == KeyCode::F9 && self.hotkey(key, repeat) {
                     self.screenshot();
                 }
                 if let Some(c) = self.collector() {
@@ -1764,13 +1838,53 @@ mod tests {
 
     #[test]
     fn the_pointer_follows_the_game_but_over_a_clip_a_dialog_or_a_run_that_is_over() {
-        // A game playing with cr_none hides it; with cr_default, shows it.
-        assert!(!pointer_shown(false, false, false, false));
-        assert!(pointer_shown(false, false, false, true));
-        // A page's clip, the app's dialog and a run over or failed show it whatever the game asks.
-        assert!(pointer_shown(true, false, false, false));
-        assert!(pointer_shown(false, true, false, false));
-        assert!(pointer_shown(false, false, true, false));
+        // A game playing with cr_none hides it; with cr_default, shows the arrow; with cr_hourglass, the
+        // hourglass.
+        assert_eq!(pointer(false, false, false, CR_NONE), None);
+        assert_eq!(
+            pointer(false, false, false, CR_DEFAULT),
+            Some(CursorIcon::Default)
+        );
+        assert_eq!(pointer(false, false, false, -11), Some(CursorIcon::Wait));
+        // A page's clip, the app's dialog and a run over or failed show the arrow whatever the game asks.
+        for (embedded, modal, over) in [
+            (true, false, false),
+            (false, true, false),
+            (false, false, true),
+        ] {
+            for game in [CR_NONE, -11] {
+                assert_eq!(
+                    pointer(embedded, modal, over, game),
+                    Some(CursorIcon::Default)
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn hotkeys_act_on_a_press_and_its_repeats_once_a_tick() {
+        assert!(hotkey_acts(None, 5, false, false));
+        // A repeat in a later tick acts again; another in the same tick doesn't.
+        assert!(hotkey_acts(Some(5), 6, true, false));
+        assert!(!hotkey_acts(Some(6), 6, true, false));
+        // A press always acts, though no tick has run since the last (before a run starts, after it ends).
+        assert!(hotkey_acts(Some(6), 6, false, false));
+        // Not a repeat on the web, but a press.
+        assert!(!hotkey_acts(Some(5), 6, true, true));
+        assert!(hotkey_acts(Some(5), 6, false, true));
+    }
+
+    #[test]
+    fn gm_cursors_map_to_their_shapes() {
+        assert_eq!(gm_cursor(-2), Some(CursorIcon::Default), "cr_arrow");
+        assert_eq!(gm_cursor(-3), Some(CursorIcon::Crosshair), "cr_cross");
+        assert_eq!(gm_cursor(-4), Some(CursorIcon::Text), "cr_beam");
+        assert_eq!(gm_cursor(-21), Some(CursorIcon::Pointer), "cr_handpoint");
+        assert_eq!(gm_cursor(-22), Some(CursorIcon::Move), "cr_size_all");
+        assert_eq!(gm_cursor(-5), Some(CursorIcon::Move), "Delphi's crSize");
+        // Not a cursor: the default.
+        assert_eq!(gm_cursor(7), Some(CursorIcon::Default));
+        assert_eq!(gm_cursor(-23), Some(CursorIcon::Default));
     }
 
     /// Savestates of a clip from frame 270, before the frames `frames`, each holding its frame.

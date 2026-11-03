@@ -127,8 +127,8 @@ impl WindowGame for Settings {
         self.current().sizes_window()
     }
 
-    fn cursor_visible(&self) -> bool {
-        self.current().cursor_visible()
+    fn cursor(&self) -> i32 {
+        self.current().cursor()
     }
 
     fn user_gesture(&mut self) {
@@ -355,11 +355,11 @@ mod tests {
         let mut out = Frame::default();
         s.begin(&ReplayHeader::default(), &mut out).unwrap();
         s.tick(&[], &mut out).unwrap();
-        assert!(s.cursor_visible());
+        assert_eq!(s.cursor(), crate::window::CR_DEFAULT);
         click(&mut s, (150, 252), &mut out);
         s.tick(&[], &mut out).unwrap();
         assert!(s.game.is_some(), "the game started");
-        assert!(!s.cursor_visible());
+        assert_eq!(s.cursor(), crate::window::CR_NONE);
     }
 
     #[test]

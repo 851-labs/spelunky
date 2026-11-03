@@ -5,6 +5,9 @@
 //! the file system, the command line) are native-only, and asset loading takes bytes from a callback.
 
 pub mod awake;
+// Linux's display wake (`awake`); tested on every Unix.
+#[cfg(all(unix, any(test, not(target_os = "macos"))))]
+mod dbus;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod fatal;
 pub mod gpu;
