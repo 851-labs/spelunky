@@ -84,8 +84,9 @@ organization's projects share GitHub's machines too):
 - **"Site test"** (`ubuntu-24.04`): `site/test.sh` (build the site with stand-ins, serve it with `wrangler dev`,
   check every path's status, headers and content, [docs/web-deploy.md](web-deploy.md)), for a pull request that
   changes `site/`, what the site reads from outside it (`wiki/`, the specs and the media, `LICENSE`,
-  `docs/quirks.md`, and the committed replays the pages cite, `fidelity/replays` and `fidelity/settings`),
-  `scripts/bump-web-release` (which writes the site's pin), or `pr.yml`. Every other pull
+  `docs/quirks.md`), `scripts/bump-web-release` (which writes the site's pin), or `pr.yml`, or that removes or renames
+  a committed replay (`fidelity/replays`, `fidelity/settings`), which the pages cite (only the first are Workers
+  Builds' watch paths: [docs/web-deploy.md](web-deploy.md)). Every other pull
   request runs the job too, and `pr-ok` needs it, but it stops after the checkout and succeeds: a step diffs the
   pull request's merge commit against its base and skips the rest when none of the paths changed (a job-level
   `if:` can't see the changed files, and a skipped job would fail `pr-ok`). Workers Builds builds each pull

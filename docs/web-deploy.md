@@ -114,14 +114,14 @@ The watch paths are the site's inputs: `site/`, and what its build reads from ou
 specs (`wiki/`), the license it serves (`LICENSE`) and the rows the quirk pages cite (`docs/quirks.md`). A `*`
 spans directories, so a change to any of them builds (and a pull request's gets a preview), and nothing else
 does: the game's code changes don't touch the site until a release is bumped in. They're the same as
-`.github/workflows/pr.yml`'s site test's `paths`, less the scripts and workflows that only test it, and less the
-committed replays (`fidelity/replays`, `fidelity/settings`), which `site/test.sh` checks against this row. The
-pages cite the replays, and the build fails on one that's gone, so the site test has them: a pull request that
-removes or renames a cited replay fails, rather than the next one that touches the site. But they're not watched:
-a change to a replay only moves its links' pins to its new commit, and the live site's still name a commit that
-has the file, so it can wait for the next deploy rather than rebuild the site on most fidelity pull requests
-(851-3938). A new input outside `site/` goes in both lists, and in the dashboard, unless, like the replays, a
-change to it never needs deploying. (Until
+`.github/workflows/pr.yml`'s site test's `PATHS` (less the scripts and workflows that only test it), which
+`site/test.sh` checks against this row; a new input outside `site/` goes in both, and in the dashboard. The pages
+also cite the committed replays (`fidelity/replays`, `fidelity/settings`), and a quirk box's `pinned_by` names one,
+which the build fails on if it's gone. They're in neither list: a changed or new replay only moves its links'
+pins, and the live site's still name a commit that has the file, so it waits for the next deploy rather than
+rebuild the site on most fidelity pull requests. But the site test has their removals and renames (its `CITED`
+paths), so a pull request that removes or renames a cited replay fails, not the next one that touches the site
+(851-3938); and `site/test.sh` fails if a `pinned_by` names a file anywhere else, which nothing would test. (Until
 851-3919, only `site/*` was watched, so a pull request that only re-rendered clips, or changed a quirks row or the
 license, never deployed: its change went live with whichever later one touched `site/`.) `wrangler deploy` attaches
 both custom domains and creates their DNS records and certificates; if spelunky.ai or www already has a DNS

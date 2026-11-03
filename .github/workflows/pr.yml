@@ -42,9 +42,10 @@ jobs:
 
   # The site's smoke test (site/test.sh), on one of GitHub's Linux machines, for a pull request that changes the
   # site, what it reads from outside site/ (wiki/'s specs and media, LICENSE, docs/quirks.md, whose rows the quirk
-  # pages name, and the committed replays the pages cite, whose removal fails the build), the script that writes
-  # its pin or this workflow. Any other passes as soon as it has checked out. Those inputs but the replays are
-  # Workers Builds' build watch paths too (docs/web-deploy.md), which site/test.sh checks.
+  # pages name), the script that writes its pin or this workflow; or that removes or renames a committed replay,
+  # as the pages cite them and the build fails on one that's gone (851-3938). Any other passes as soon as it has
+  # checked out. The inputs, but not the replays, are Workers Builds' build watch paths too (docs/web-deploy.md),
+  # which site/test.sh checks.
   site:
     name: Site test
     runs-on: ubuntu-24.04
@@ -61,12 +62,16 @@ jobs:
       - id: changes
         env:
           PATHS: >-
-            site wiki LICENSE docs/quirks.md fidelity/replays fidelity/settings scripts/bump-web-release
-            .github/workflows/pr.yml
+            site wiki LICENSE docs/quirks.md scripts/bump-web-release .github/workflows/pr.yml
+          # Only a removal or a rename here can break the build: a changed or new replay just moves a link's pin.
+          CITED: >-
+            fidelity/replays fidelity/settings
         run: |
           read -ra paths <<<"$PATHS"
-          if git rev-parse -q --verify HEAD^2 >/dev/null && git diff --quiet HEAD^1 HEAD -- "${paths[@]}"; then
-            echo "nothing under $PATHS changed: skipping"
+          read -ra cited <<<"$CITED"
+          if git rev-parse -q --verify HEAD^2 >/dev/null && git diff --quiet HEAD^1 HEAD -- "${paths[@]}" &&
+            git diff --quiet --diff-filter=DR HEAD^1 HEAD -- "${cited[@]}"; then
+            echo "nothing under $PATHS changed, and nothing under $CITED was removed or renamed: skipping"
             echo "skip=true" >>"$GITHUB_OUTPUT"
           fi
       - if: steps.changes.outputs.skip != 'true'

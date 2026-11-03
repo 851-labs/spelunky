@@ -39,19 +39,26 @@ fi
 
 # Workers Builds' build watch paths (docs/web-deploy.md, set in the dashboard) are the site's inputs, the same as
 # pr.yml's site test's paths but the scripts and workflows that only test it: a change to one that's only in one
-# list would test the site but never deploy it (851-3919), or deploy it untested. And but the committed replays
-# (fidelity/), which the test has so that removing one a page cites fails its pull request, but which needn't
-# deploy: a replay's change only moves its links' pins, and the live ones still name a commit that has it
-# (851-3938). Before the build: it needs none.
+# list would test the site but never deploy it (851-3919), or deploy it untested. Before the build: it needs none.
 watched=$(grep '^| Build watch paths |' ../docs/web-deploy.md | sed 's/, exclude.*//' | grep -o '`[^`]*`' | tr -d '`' |
   sed 's|/\*$||' | sort | tr '\n' ' ')
 # The site job's paths (its `changes` step's PATHS: >- block): from that line to the first line less indented, within
 # the job.
 tested=$(awk '/^  [a-z-]+:$/ { job = $1 } job == "site:" && /^ +PATHS: >-$/ { on = 1; indent = index($0, "P") + 1; next }
   on && substr($0, 1, indent) !~ /^ +$/ { exit } on' ../.github/workflows/pr.yml |
-  tr ' ' '\n' | grep -v -e '^$' -e '^scripts/' -e '^\.github/' -e '^fidelity/' | sort | tr '\n' ' ')
+  tr ' ' '\n' | grep -v -e '^$' -e '^scripts/' -e '^\.github/' | sort | tr '\n' ' ')
 if [ -z "$watched" ] || [ -z "$tested" ] || [ "$watched" != "$tested" ]; then
   echo "site/test.sh: docs/web-deploy.md's build watch paths ($watched) aren't pr.yml's site job's inputs ($tested)" >&2
+  exit 1
+fi
+# A quirk box's `pinned_by` (wiki/'s pages) may name any file of the repo's, and the build fails on one that's gone,
+# but pr.yml's site job only runs when a committed replay is removed (its CITED paths), not any other file: so a
+# quirk may be pinned by a replay only, or a pull request removing its file would pass and the next one touching
+# the site fail (851-3938).
+unwatched=$(grep -rhoE '^ *pinned_by: *"?[^" ]+' ../wiki | sed -E 's/^ *pinned_by: *"?//' | grep / |
+  grep -vE '^fidelity/(replays|settings)/' || true)
+if [ -n "$unwatched" ]; then
+  echo "site/test.sh: quirks pinned by a file outside fidelity/replays and fidelity/settings, which pr.yml's site job doesn't watch: $unwatched" >&2
   exit 1
 fi
 
