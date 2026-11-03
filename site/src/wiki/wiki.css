@@ -169,8 +169,8 @@ h3 { font-size: 16px; }
   /* Its top, which the script reads too, for the room it needs: as much again below it. */
   .infobox { margin-right: calc(var(--frame) - var(--infobox-column)); top: calc(16px + var(--frame)); }
   .infobox[data-fits] { position: sticky; }
-  /* Nothing wide runs into the column: a table scrolls in its box. */
-  .wiki-page article:has(.infobox) .table-wrap { overflow-x: auto; }
+  /* Nothing wide runs into the column: a table scrolls in its box (a tab stop while it does, scroll-focus.ts). */
+  .table-wrap { overflow-x: auto; }
 }
 /* Until the column beside the infobox's is 75 characters wide, its References in one column, as a narrower
    screen's. */
