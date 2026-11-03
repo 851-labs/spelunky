@@ -20,6 +20,15 @@ target_cap=${SPELUNKY_TARGET_CACHE_GB:-12}
 npm_cap=1024
 
 [ "$(uname -sm)" = "Darwin arm64" ] || { echo "mini-toolchain: for Apple Silicon Macs, not $(uname -sm)" >&2; exit 1; }
+# The job-started hook that keeps forks' pull requests off the minis (.github/runner-hooks/job-started.sh,
+# docs/ci.md): installed by an admin, in the runner's .env. Said in the log, not a failure, so a change to the hook
+# can merge before the minis have it: missing, or not the repository's copy.
+hook=${ACTIONS_RUNNER_HOOK_JOB_STARTED:-}
+if [ -z "$hook" ]; then
+  echo "::notice::This mini has no job-started hook (ACTIONS_RUNNER_HOOK_JOB_STARTED): forks' pull requests are kept off it by the repository's settings alone (docs/ci.md, \"Pull requests\")"
+elif ! cmp -s "$hook" .github/runner-hooks/job-started.sh; then
+  echo "::warning::This mini's job-started hook, $hook, isn't .github/runner-hooks/job-started.sh: install the repository's"
+fi
 # scripts/wasm-test skips itself when this is set; CI must run it (a runner's .env could set it).
 if [ -n "${SPELUNKY_SKIP_WASM_TEST:-}" ]; then
   echo "mini-toolchain: SPELUNKY_SKIP_WASM_TEST is set, which would skip scripts/check's wasm32 tests" >&2

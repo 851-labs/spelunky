@@ -14,6 +14,8 @@ features="--features audio/backend"
 if [ "${1:-}" = "--apple" ]; then
   [ "$(uname -s) $(uname -m)" = "Darwin arm64" ] || { echo "scripts/check --apple: for Apple silicon Macs" >&2; exit 1; }
   scripts/check-sh
+  # The minis' job-started hook, which keeps forks' pull requests off them (docs/ci.md), on made-up events.
+  .github/runner-hooks/test.sh >/dev/null
   scripts/workspace-hack --check
   # The workspace as macOS compiles it: the app's menus, alerts and power assertions, the updater's installer.
   $cargo clippy --workspace --all-targets $features --quiet -- -D warnings

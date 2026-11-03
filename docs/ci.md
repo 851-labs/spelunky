@@ -139,10 +139,13 @@ The locks are outside the repository's files:
 - runs from outside contributors wait for a maintainer's approval (the Actions setting "Require approval for
   all external contributors"), which is a person clicking Approve on a run whose workflow changes may not
   stand out;
-- each mini's job-started hook, `.github/runner-hooks/job-started`, fails any job for a pull request event
-  whose head repository isn't the job's repository, or can't be read, before its first step. It's a copy on
-  the machine, named in the runner's `.env` as `ACTIONS_RUNNER_HOOK_JOB_STARTED` (so a pull request can't
-  change it), installed by an admin of the minis; until it is, the first two are all there is.
+- each mini's job-started hook, `.github/runner-hooks/job-started.sh`, fails a job before its first step for a
+  pull request event whose head repository isn't the job's, or a `workflow_run` started by a fork's run, and
+  any such job it can't read (it says why). It's a copy on the machine, named in the runner's `.env` as
+  `ACTIONS_RUNNER_HOOK_JOB_STARTED` (so a pull request can't change it), installed by an admin of the minis;
+  until it is, the first two are all there is. Each mini job says in its log if the hook is missing (a notice)
+  or isn't the repository's copy (a warning: install it again), and `scripts/check --apple` tests the
+  repository's on made-up events (`.github/runner-hooks/test.sh`).
 
 `pr.yml`'s own check, skipping the mini job for a fork and failing `pr-ok`, is the fast, readable answer for a
 fork's pull request that leaves `pr.yml` alone, not a lock.

@@ -13,7 +13,7 @@
 # file: a pull request's run uses the workflow files from the pull request, so a fork's could drop the mini job's
 # `if:` below or change its runner. The locks are outside the repository's files (docs/ci.md, "Pull requests"):
 # only collaborators may open pull requests (the repository's `pull_request_creation_policy`), outside
-# contributors' runs wait for approval, and the minis' job-started hook (.github/runner-hooks/job-started,
+# contributors' runs wait for approval, and the minis' job-started hook (.github/runner-hooks/job-started.sh,
 # installed on each mini) fails a fork's job before it starts. The `if:` and `pr-ok`'s failure for a fork are only
 # the fast, readable answer for a pull request that leaves this file alone.
 name: PR
