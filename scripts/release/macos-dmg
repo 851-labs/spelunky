@@ -113,7 +113,8 @@ fi
 mkdir "$stage/dmg"
 ditto "$app" "$stage/dmg/$(basename "$app")"
 ln -s /Applications "$stage/dmg/Applications"
-cp "$app/Contents/Resources/LICENSE" "$app/Contents/Resources/NOTICE.txt" "$stage/dmg/"
+cp "$app/Contents/Resources/LICENSE" "$app/Contents/Resources/NOTICE.txt" \
+  "$app/Contents/Resources/THIRD-PARTY-LICENSES.txt" "$stage/dmg/"
 rm -f "$dmg"
 # hdiutil now and then finds the image still busy on a shared machine; it works on a second try.
 attempt=1

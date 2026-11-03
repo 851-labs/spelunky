@@ -930,8 +930,16 @@ mod tests {
 mod mac {
     use muda::accelerator::{Accelerator, Code, Modifiers};
     use muda::{
-        CheckMenuItem, IsMenuItem, Menu as Bar, MenuEvent, MenuItem, PredefinedMenuItem, Submenu,
+        AboutMetadata, CheckMenuItem, IsMenuItem, Menu as Bar, MenuEvent, MenuItem,
+        PredefinedMenuItem, Submenu,
     };
+
+    /// The About panel's credits, under the bundle's name, version and copyright (its Info.plist's): the
+    /// third-party software in the app, whose notices the bundle carries (scripts/release/THIRD-PARTY-LICENSES.txt,
+    /// docs/releasing.md).
+    const CREDITS: &str = "An unofficial, fan-made port of Spelunky Classic 1.1 by Derek Yu. It's built with \
+        open-source Rust crates and runtimes, whose licenses are in THIRD-PARTY-LICENSES.txt, in the app's \
+        Contents/Resources (and beside the app in the disk image).";
 
     const SETTINGS: &str = "settings";
     const CHECK: &str = "update-check";
@@ -975,7 +983,11 @@ mod mac {
                 )
             });
             let separator = PredefinedMenuItem::separator;
-            let (about, sep) = (PredefinedMenuItem::about(None, None), separator());
+            let metadata = AboutMetadata {
+                credits: Some(CREDITS.to_owned()),
+                ..Default::default()
+            };
+            let (about, sep) = (PredefinedMenuItem::about(None, Some(metadata)), separator());
             let mut items: Vec<&dyn IsMenuItem> = vec![&about, &sep, &settings];
             if let Some((check, automatic)) = &updates {
                 items.extend([check as &dyn IsMenuItem, automatic]);

@@ -167,7 +167,8 @@ def fingerprint(trace):
 
 def unpack_app(app):
     """The macOS app's executable, once it's checked the app has what a release ships."""
-    for extra in ("LICENSE", "NOTICE.txt", "AppIcon.icns", "assets/bundle.bin", "assets/config/bundle.bin"):
+    for extra in ("LICENSE", "NOTICE.txt", "THIRD-PARTY-LICENSES.txt", "AppIcon.icns", "assets/bundle.bin",
+                  "assets/config/bundle.bin"):
         if not (app / "Contents/Resources" / extra).is_file():
             fail(f"{app.name} has no {extra}")
     return app / "Contents/MacOS/spelunky", app
@@ -205,7 +206,7 @@ def unpack(package, into):
             apps = list(mount.glob("*.app"))
             if len(apps) != 1:
                 fail(f"{name} holds {len(apps)} apps")
-            for extra in ("LICENSE", "NOTICE.txt", "Applications"):
+            for extra in ("LICENSE", "NOTICE.txt", "THIRD-PARTY-LICENSES.txt", "Applications"):
                 if not (mount / extra).exists() and not (mount / extra).is_symlink():
                     fail(f"{name} has no {extra}")
             app = into / apps[0].name
@@ -229,7 +230,7 @@ def unpack(package, into):
     tops = [p for p in into.iterdir()]
     if len(tops) != 1 or not tops[0].is_dir():
         fail(f"{name} doesn't unpack into one folder")
-    for extra in ("LICENSE", "NOTICE.txt", "assets/bundle.bin", "assets/config/bundle.bin"):
+    for extra in ("LICENSE", "NOTICE.txt", "THIRD-PARTY-LICENSES.txt", "assets/bundle.bin", "assets/config/bundle.bin"):
         if not (tops[0] / extra).is_file():
             fail(f"{name} has no {extra}")
     return tops[0] / exe, None

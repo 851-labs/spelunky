@@ -70,7 +70,9 @@ stage() {
   # The bundle, atlases, backgrounds and sounds, and the settings program's (config/); not gml/, the
   # scripts as text, which are for reading only.
   rsync -a --exclude gml/ "$work/assets/" "$1/assets/"
-  cp LICENSE scripts/release/NOTICE.txt "$1/"
+  # With the third-party software's notices (scripts/third-party-licenses), which the crates' and runtimes'
+  # licenses ask every copy of the binary to come with.
+  cp LICENSE scripts/release/NOTICE.txt scripts/release/THIRD-PARTY-LICENSES.txt "$1/"
 }
 
 # The version as Windows' and macOS's numeric fields want it: x.y.z, from the start of the version.

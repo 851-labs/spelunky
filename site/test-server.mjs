@@ -175,6 +175,20 @@ for (const [path, type] of Object.entries(WANT)) {
     }
   }
 }
+// The web build's text files (its third-party notices) skip the Worker, in UTF-8 as _headers says, and immutable.
+{
+  const path = "/play/v/0123456789abcdef/THIRD-PARTY-LICENSES.txt";
+  try {
+    assert.equal(toWorker(path), false, `${path}: reaches the Worker`);
+    const response = await serve(new Request(`https://spelunky.ai${path}`));
+    assert.equal(response.headers.get("content-type"), UTF8_TEXT, `${path}: content-type`);
+    assert.equal(response.headers.get("cache-control"), "public, max-age=31536000, immutable", `${path}: cache-control`);
+    console.log(`ok   ${path}: ${UTF8_TEXT}`);
+  } catch (error) {
+    failures++;
+    console.error(`FAIL ${error.message}`);
+  }
+}
 // The media's files skip the Worker but the clips' videos; their URLs from before the media were committed, under
 // a release's package's hash, come through it, and it redirects them to what's at the same path now.
 const OLD = "/wiki/media/05d8cd2055735618";

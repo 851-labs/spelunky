@@ -1,0 +1,157 @@
+#!/bin/sh
+# Writes scripts/release/THIRD-PARTY-LICENSES.txt, the notices of the third-party software in the game's builds,
+# which every release package and the web build carry beside LICENSE and NOTICE.txt (docs/releasing.md,
+# "Third-party licenses"): the runtimes and the font the builds link or embed (scripts/release/licenses/runtimes.txt,
+# kept by hand), the Rust crates linked into the app for every platform it's built for (cargo-about, from
+# Cargo.lock: scripts/release/licenses/about.toml says which targets and which licenses it accepts, so a crate
+# under any other fails here), and the Rust standard library's own notices (the toolchain's COPYRIGHT-library).
+#
+#   scripts/third-party-licenses           write it (needs cargo-about, below, and the network for crates.io)
+#   scripts/third-party-licenses --check   fail unless it's current (scripts/check): every crate the app links on
+#                                          any platform is in it, every crate in it is one the app depends on,
+#                                          its introduction, runtimes and Rust's version are what this would write,
+#                                          and it was made from about.toml and about.hbs as they are. Needs only
+#                                          cargo (and crates.io for crates cargo hasn't downloaded yet).
+set -eu
+# A syntax error anywhere fails it here (scripts/check-sh).
+sh -n "$0" || exit 2
+cd "$(dirname "$0")/.."
+check=
+case "${1-}" in
+  --check) check=1 ;;
+  "") ;;
+  *) echo "usage: scripts/third-party-licenses [--check]" >&2; exit 2 ;;
+esac
+out=scripts/release/THIRD-PARTY-LICENSES.txt
+dir=scripts/release/licenses
+# cargo-about's version, as it renders the crates' part: a different one could render it differently.
+ABOUT=0.9.3
+# The targets the app is built for (scripts/release/build, scripts/web), as about.toml has them.
+targets=$(sed -n '/^targets = \[/,/^\]/p' $dir/about.toml | grep -o '"[^"]*"' | tr -d '"')
+rust=$(sed -n 's/^channel = "\(.*\)"/\1/p' rust-toolchain.toml)
+[ -n "$targets" ] && [ -n "$rust" ] || { echo "scripts/third-party-licenses: can't read the targets or Rust's version" >&2; exit 1; }
+tmp=$(mktemp -d)
+# Set where it ends, so a run that stops anywhere before fails, whatever the shell's status says: bash 3.2 exits
+# from an error (an unset variable under set -u) with this trap's status, 0 for a cleanup (851-3743).
+finished=
+cleanup() {
+  status=$?
+  rm -rf "$tmp"
+  if [ "$status" -eq 0 ] && [ -z "$finished" ]; then
+    echo "scripts/third-party-licenses: stopped before its end, so it fails" >&2
+    status=1
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
+
+# The part between a marker line and the next, or the end, without the blank lines around it.
+part() {
+  awk -v start="$1" -v stop="${2-}" '$0 == start { on = 1; next } stop != "" && $0 == stop { on = 0 } on' "$out" | trim
+}
+trim() { awk 'NF { for (; blanks > 0; blanks--) print ""; started = 1; print; next } started { blanks++ }'; }
+sha() { shasum -a 256 "$1" | cut -c1-16; }
+RUNTIMES="#### Part 1: runtimes and fonts"
+CRATES="#### Part 2: Rust crates"
+STD="#### Part 3: the Rust standard library ($rust)"
+# The introduction, up to part 1: what the file is, and what it was made from, so --check knows a change to the
+# config or the template (cargo-about $ABOUT renders part 2 with them) means writing it again.
+intro() {
+  cat <<INTRO
+Spelunky Classic (unofficial mod): third-party software
+
+The game is built with open-source software, which its downloads and the web build at spelunky.ai/play
+carry. Each part below is under its own license, whose text follows it. This file covers every platform's
+build: a given download has some of it (the parts say which). Spelunky itself is covered by LICENSE (the
+Spelunky User License v1.1b) and NOTICE.txt, beside this file.
+
+The crates under the Mozilla Public License 2.0 (symphonia's and triple_buffer, in part 2) are unmodified:
+their source code is at https://crates.io/crates/NAME/VERSION, for the name and version part 2 lists, and in
+the repository each names. The source of this game, and its Cargo.lock, which pins every crate below, is at
+https://github.com/851-labs/spelunky.
+
+This file is written by scripts/third-party-licenses; don't edit it by hand. Part 2 is cargo-about $ABOUT's,
+with about.toml $(sha $dir/about.toml) and about.hbs $(sha $dir/about.hbs) (their SHA-256s' starts).
+INTRO
+}
+
+if [ -n "$check" ]; then
+  [ -f "$out" ] || { echo "scripts/third-party-licenses: no $out: run scripts/third-party-licenses" >&2; exit 1; }
+  set --
+  for t in $targets; do set -- "$@" --target "$t"; done
+  # name version, from cargo tree's lines (not our own path crates). Uncoloured, whatever CARGO_TERM_COLOR says (CI
+  # sets it to always, which wraps cargo tree's (*) in colour codes).
+  crates() { grep -v ' (/' | sed 's/ (\*)$//; s/ (proc-macro)$//; s/ v\([^ ]*\)$/ \1/' | grep . | sort -u; }
+  # What the app links on the platforms it's built for: not build or dev dependencies, nor proc macros, which run
+  # in the compiler and ship nothing (cargo-about lists them all the same).
+  scripts/cargo tree --quiet --color never --locked -p app -e normal "$@" --prefix none -f '{p}' | grep -v '(proc-macro)' |
+    crates >"$tmp/linked"
+  # What the app depends on at all, on any target, proc macros included: a crate it lists that isn't one of these
+  # is one the app has dropped.
+  scripts/cargo tree --quiet --color never --locked -p app -e normal --target all --prefix none -f '{p}' | crates >"$tmp/depended"
+  # Each license's "used by:" list, up to the rule under it.
+  part "$CRATES" "$STD" | awk '/^used by:$/ { on = 1; next } /^=+$/ { on = 0 } on { print $1, $2 }' | sort -u >"$tmp/listed"
+  missing=$(comm -23 "$tmp/linked" "$tmp/listed")
+  stale=$(comm -23 "$tmp/listed" "$tmp/depended")
+  part "$RUNTIMES" "$CRATES" >"$tmp/runtimes"
+  awk -v stop="$RUNTIMES" '$0 == stop { exit } { print }' "$out" | trim >"$tmp/intro"
+  problems=
+  [ -z "$missing" ] || problems="$problems
+  crates the app links that it hasn't: $(echo $missing)"
+  [ -z "$stale" ] || problems="$problems
+  crates it has that the app doesn't depend on: $(echo $stale)"
+  grep -qxF "$STD" "$out" || problems="$problems
+  not the Rust standard library of rust-toolchain.toml's $rust"
+  trim <$dir/runtimes.txt | cmp -s - "$tmp/runtimes" || problems="$problems
+  its runtimes aren't $dir/runtimes.txt's"
+  intro | trim | cmp -s - "$tmp/intro" || problems="$problems
+  its introduction isn't what this writes, or about.toml or about.hbs changed since"
+  if [ -n "$problems" ]; then
+    echo "scripts/third-party-licenses: $out is out of date:$problems" >&2
+    echo "run scripts/third-party-licenses (it needs cargo-about $ABOUT: cargo install cargo-about --locked --features cli --version $ABOUT)" >&2
+    exit 1
+  fi
+  echo "scripts/third-party-licenses: $out is current ($(wc -l <"$tmp/linked" | tr -d ' ') crates linked)"
+  finished=1
+  exit 0
+fi
+
+about=$(command -v cargo-about || true)
+[ -n "$about" ] && "$about" --version | grep -qx "cargo-about $ABOUT" || {
+  echo "scripts/third-party-licenses: needs cargo-about $ABOUT: cargo install cargo-about --locked --features cli --version $ABOUT" >&2
+  exit 1
+}
+"$about" generate --locked --fail -c $dir/about.toml -m crates/app/Cargo.toml $dir/about.hbs -o "$tmp/crates"
+# The standard library's notices, as the toolchain ships them (HTML), as text.
+sysroot=$(scripts/cargo --version >/dev/null && rustup run "$rust" rustc --print sysroot)
+python3 - "$sysroot/share/doc/rust/COPYRIGHT-library.html" >"$tmp/std" <<'EOF'
+import html, re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+# <pre> blocks (the licenses' own texts) as they are; the rest's markup to lines, without the HTML's indentation.
+out, blank = [], 0
+def add(line):
+    global blank
+    blank = blank + 1 if not line.strip() else 0
+    if blank <= 1:
+        out.append(line)
+for i, chunk in enumerate(re.split(r"(?s)<pre[^>]*>(.*?)</pre>", text)):
+    if i % 2:
+        for line in html.unescape(re.sub(r"<[^>]+>", "", chunk)).rstrip().split("\n"):
+            add(line.rstrip())
+        continue
+    chunk = re.sub(r"<(br|/p|/div|/li|/h\d|/tr)[^>]*>", "\n", chunk)
+    for line in html.unescape(re.sub(r"<[^>]+>", "", chunk)).split("\n"):
+        add(line.strip())
+print("\n".join(out).strip())
+EOF
+{
+  intro
+  printf '\n%s\n\n' "$RUNTIMES"
+  cat $dir/runtimes.txt
+  printf '\n\n%s\n\n' "$CRATES"
+  cat "$tmp/crates"
+  printf '\n%s\n\n' "$STD"
+  cat "$tmp/std"
+} >"$out"
+echo "scripts/third-party-licenses: wrote $out ($(wc -c <"$out" | tr -d ' ') bytes)"
+finished=1
