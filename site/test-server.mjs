@@ -144,7 +144,6 @@ const UTF8_TEXT = "text/plain; charset=utf-8";
 const MEDIA = "/wiki/media";
 const MEDIA_CACHE = "public, max-age=86400";
 const WANT = {
-  "/LICENSE.txt": UTF8_TEXT,
   "/robots.txt": UTF8_TEXT,
   "/play/manifest.txt": UTF8_TEXT,
   "/llms.txt": UTF8_TEXT,
@@ -324,6 +323,27 @@ for (const path of ["/wiki/snake", "/wiki/snake.md", "/wiki/Monsters.md", "/wiki
     console.error(`FAIL ${error.message}`);
   }
 }
+// The license's plain text file before it was the /license page (851-4026), which the releases' notes, the wiki
+// media's notices and other sites link: a 301 there, the query kept, and a 308 for other methods.
+for (const [path, to] of [
+  ["/LICENSE.txt", "/license"],
+  ["/LICENSE.txt/", "/license"],
+  ["/LICENSE.txt?a=1", "/license?a=1"],
+]) {
+  for (const method of ["GET", "HEAD", "POST"]) {
+    try {
+      const response = await serve(new Request(`https://spelunky.ai${path}`, { method }));
+      assert.equal(response.status, method === "POST" ? 308 : 301, `${method} ${path}: status`);
+      assert.equal(response.headers.get("location"), `https://spelunky.ai${to}`, `${method} ${path}: location`);
+      assert.equal(response.headers.get("cache-control"), "no-cache", `${method} ${path}: cache-control`);
+      assertEveryResponse(response, `${method} ${path}`);
+      console.log(`ok   ${method} ${path}: ${response.status} to ${to}`);
+    } catch (error) {
+      failures++;
+      console.error(`FAIL ${error.message}`);
+    }
+  }
+}
 // Plain HTTP and www are a 301 to https://spelunky.ai, path and query kept, in one hop (a 308 for a POST, which
 // keeps its method), whether or not the Worker would have served the path; the files that skip it are the zone's
 // "Always Use HTTPS" setting's (docs/web-deploy.md, "HTTPS"), so here only the Worker's paths.
@@ -462,6 +482,7 @@ const LOW = [
   ["http://spelunky.ai/wiki/pot", 301, "https://spelunky.ai/wiki/jar"],
   ["https://www.spelunky.ai/wiki/monsters/", 301, "https://spelunky.ai/wiki/monsters"],
   ["https://www.spelunky.ai/wiki/snake.md", 301, "https://spelunky.ai/wiki/snake.md"],
+  ["https://www.spelunky.ai/LICENSE.txt", 301, "https://spelunky.ai/license"],
   [`https://spelunky.ai${OLD}/sprites/sSnakeWalkL/anim@4x.png`, 301, `https://spelunky.ai${MEDIA}/sprites/sSnakeWalkL/anim%404x.png`],
   [`https://www.spelunky.ai${OLD}/sprites/sSnakeWalkL/anim@4x.png`, 301, `https://spelunky.ai${MEDIA}/sprites/sSnakeWalkL/anim%404x.png`],
   // A miss on www isn't rendered to learn it's no redirect (below).

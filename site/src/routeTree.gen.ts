@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as R404RouteImport } from './routes/404'
 import { Route as DownloadRouteImport } from './routes/download'
+import { Route as LicenseRouteImport } from './routes/license'
 import { Route as OpensearchDotxmlRouteImport } from './routes/opensearch[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapImageDotxmlRouteImport } from './routes/sitemap-image[.]xml'
@@ -36,6 +37,11 @@ const R404Route = R404RouteImport.update({
 const DownloadRoute = DownloadRouteImport.update({
   id: '/download',
   path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LicenseRoute = LicenseRouteImport.update({
+  id: '/license',
+  path: '/license',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpensearchDotxmlRoute = OpensearchDotxmlRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/404': typeof R404Route
   '/download': typeof DownloadRoute
+  '/license': typeof LicenseRoute
   '/opensearch.xml': typeof OpensearchDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/404': typeof R404Route
   '/download': typeof DownloadRoute
+  '/license': typeof LicenseRoute
   '/opensearch.xml': typeof OpensearchDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/404': typeof R404Route
   '/download': typeof DownloadRoute
+  '/license': typeof LicenseRoute
   '/opensearch.xml': typeof OpensearchDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/'
     | '/404'
     | '/download'
+    | '/license'
     | '/opensearch.xml'
     | '/robots.txt'
     | '/sitemap-image.xml'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/404'
     | '/download'
+    | '/license'
     | '/opensearch.xml'
     | '/robots.txt'
     | '/sitemap-image.xml'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/'
     | '/404'
     | '/download'
+    | '/license'
     | '/opensearch.xml'
     | '/robots.txt'
     | '/sitemap-image.xml'
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   R404Route: typeof R404Route
   DownloadRoute: typeof DownloadRoute
+  LicenseRoute: typeof LicenseRoute
   OpensearchDotxmlRoute: typeof OpensearchDotxmlRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapImageDotxmlRoute: typeof SitemapImageDotxmlRoute
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/download'
       fullPath: '/download'
       preLoaderRoute: typeof DownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/license': {
+      id: '/license'
+      path: '/license'
+      fullPath: '/license'
+      preLoaderRoute: typeof LicenseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/opensearch.xml': {
@@ -299,6 +319,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   R404Route: R404Route,
   DownloadRoute: DownloadRoute,
+  LicenseRoute: LicenseRoute,
   OpensearchDotxmlRoute: OpensearchDotxmlRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapImageDotxmlRoute: SitemapImageDotxmlRoute,

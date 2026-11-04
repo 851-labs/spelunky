@@ -50,7 +50,7 @@ const at = (file) => `${SITE_URL}${url}/${file}`;
 const RIGHTS = {
   creditText: "Derek Yu and Mossmouth, LLC (Spelunky Classic)",
   copyrightNotice: "Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC",
-  license: `${SITE_URL}/LICENSE.txt`,
+  license: `${SITE_URL}/license`,
 };
 
 let failures = 0;
@@ -260,7 +260,7 @@ test("absoluteUrl takes escapes, not what needs one", () => {
 
 test("the wiki's pages are in /sitemap.xml", () => {
   // With the hubs that have one of them written: the monsters'.
-  assert.deepEqual(sitemapPaths(), ["/", "/play/", "/download", "/wiki", "/wiki/monsters", "/wiki/snake", "/wiki/bat"]);
+  assert.deepEqual(sitemapPaths(), ["/", "/play/", "/download", "/license", "/wiki", "/wiki/monsters", "/wiki/snake", "/wiki/bat"]);
 });
 
 test("no page for the media: empty sitemaps, and robots.txt names only /sitemap.xml", () => {

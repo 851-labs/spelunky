@@ -1,13 +1,14 @@
 import { createRootRoute, HeadContent, Outlet, Scripts, useMatches } from "@tanstack/react-router";
 import { useEffect } from "react";
 import downloadCss from "../site/download.css?url";
+import licenseCss from "../site/license.css?url";
 import notFoundCss from "../site/not-found.css?url";
 import { reloadOnSkew } from "../skew";
 import { WikiStylesheet } from "../wiki/stylesheet";
 
 // The pages with a stylesheet of their own, by route: inlined from their heads, it would be in the route tree, which
 // every page's entry chunk carries.
-const PAGE_CSS: Partial<Record<string, string>> = { "/404": notFoundCss, "/download": downloadCss };
+const PAGE_CSS: Partial<Record<string, string>> = { "/404": notFoundCss, "/download": downloadCss, "/license": licenseCss };
 
 export const Route = createRootRoute({
   head: () => ({

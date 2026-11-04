@@ -203,7 +203,7 @@ function GmlExcerpt({ cite, code, href }: { cite: string; code: string; href?: s
       </pre>
       <figcaption>
         <SourceLink href={href}>{cite}</SourceLink>, from <code>spelunky.gmk</code>, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu
-        and Mossmouth, LLC (<a href="/LICENSE.txt">Spelunky User License v1.1b</a>).
+        and Mossmouth, LLC (<a href="/license">Spelunky User License v1.1b</a>).
       </figcaption>
     </figure>
   );

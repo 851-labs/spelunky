@@ -11,8 +11,10 @@ game's `sound/` folder too) and the **Source Code** (the `.gmk` files "and all o
 sprites, and tiles" in them). A modified version is a **Covered Work**: the port is one, and so is anything
 that copies the game's assets or code, such as a sprite strip, a clip or a GML excerpt. Four conditions:
 
-1. Keep the license and the source's copyright notices intact: `/LICENSE.txt` is the repo's `LICENSE`, its text
-   unchanged but for its encoding (windows-1252 to UTF-8, `docs/web-deploy.md`).
+1. Keep the license and the source's copyright notices intact: `/license` is the repo's `LICENSE` as a page, every
+   word as the file has it, only its line breaks and rules made headings and paragraphs (`docs/web-deploy.md`);
+   the downloads and the wiki's media keep the plain file beside them (`LICENSE`, `LICENSE.txt`), and `/LICENSE.txt`,
+   where the site served it before, redirects to the page.
 2. Don't sell Covered Works.
 3. Show an appropriate copyright notice at the beginning of every Covered Work and of its documentation.
 4. Don't present a modified version as unmodified or official: make it clear it's a mod.
@@ -31,7 +33,7 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 | Rooms' settings and instances (`/wiki/source/rooms/`, the source viewer) | Yes ([below](#the-source-viewer)) | The room notice at the top of every room's page; every instance the room editor placed, none left out. The media that carry them (`wiki/media/rooms`) have `LICENSE.txt` and the notice beside them. |
 | The site's own pictures from the game (`site/public`: the logo, the landing page's gameplay video, still and card, the icons) | Yes | The notice in the files, as the wiki's media have it: a `Copyright` chunk in each PNG (the `.ico`'s too), a comment in `icon.svg`, `copyright` and `comment` in the video's metadata. `scripts/site-icons` and `site/landing-card.mjs` add it, and their `--check`s fail without it. |
 | Generated OG images with sprites | Yes | Our own layout and the text "Unofficial fan wiki · spelunky.ai"; the Spelunky logo may appear (decided below) |
-| JSON-LD | Yes | `VideoGame` names Derek Yu and Mossmouth as its author and publisher; our `WebSite` and `Organization` are ours, never Mossmouth's. Media get `creditText`, `copyrightNotice` and `license` (`https://spelunky.ai/LICENSE.txt`); a clip with sound's `creditText` names the music's authors too. |
+| JSON-LD | Yes | `VideoGame` names Derek Yu and Mossmouth as its author and publisher; our `WebSite` and `Organization` are ours, never Mossmouth's. Media get `creditText`, `copyrightNotice` and `license` (`https://spelunky.ai/license`); a clip with sound's `creditText` names the music's authors too. |
 
 ## Notice text for the templates
 
@@ -42,7 +44,7 @@ the footer's, which says the site is unofficial on every page.
 **Site-wide wiki footer** (every page):
 
 > Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the
-> [Spelunky User License v1.1b](/LICENSE.txt). spelunky.ai is an unofficial fan project, not affiliated with
+> [Spelunky User License v1.1b](/license). spelunky.ai is an unofficial fan project, not affiliated with
 > or endorsed by Mossmouth. The game and its assets may not be sold.
 
 **Clips** carry no caption of their own (decided below): the page's footer covers them.
@@ -55,7 +57,7 @@ in `copyright` after the notice.
 **GML excerpt caption**:
 
 > From `spelunky.gmk`, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC
-> ([Spelunky User License v1.1b](/LICENSE.txt)).
+> ([Spelunky User License v1.1b](/license)).
 
 A few of the source's scripts are others' work that Derek Yu credits in the original `readme.txt`: Martin
 Piecyk's platform engine, ChevyRay's view scaling scripts and tsg1zzn's Super Sound System. Name the author
@@ -64,7 +66,7 @@ when quoting one of them.
 **Source notice** (at the top of every `/wiki/source/` page of GML, above the code):
 
 > From `spelunky.gmk`, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC, shown whole
-> under the [Spelunky User License v1.1b](/LICENSE.txt). Extracted by spelunky.ai's tools, an unofficial
+> under the [Spelunky User License v1.1b](/license). Extracted by spelunky.ai's tools, an unofficial
 > fan project, one file per script or event; the `// ====` lines are the extractor's, naming each action of
 > the event. Some scripts are others' work that Derek Yu credits in the source's `readme.txt`: Martin
 > Piecyk's platform engine, ChevyRay's view scaling scripts and tsg1zzn's Super Sound System.
@@ -74,7 +76,7 @@ A Super Sound System script (`SS_*`) names tsg1zzn in its own line too.
 **Room notice** (at the top of a room's page, `/wiki/source/rooms/<name>`, in place of the source notice):
 
 > From `spelunky.gmk`, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC, under the
-> [Spelunky User License v1.1b](/LICENSE.txt). Extracted by spelunky.ai's tools, an unofficial fan project:
+> [Spelunky User License v1.1b](/license). Extracted by spelunky.ai's tools, an unofficial fan project:
 > the room's settings and every instance the room editor placed in it, listed by object, with their
 > positions in the room's pixels.
 
@@ -87,7 +89,7 @@ Mossmouth, LLC."
 
 **Per-page notice**: none beyond the footer on HTML pages. Files read without them (the
 `.md` twins, `/llms.txt`, `/llms-full.txt`) start with the footer's text, its link made absolute
-(`https://spelunky.ai/LICENSE.txt`).
+(`https://spelunky.ai/license`).
 
 ## The source viewer
 
@@ -98,8 +100,8 @@ those files", and its section 3 grants the right to redistribute it, so the whol
 not only short excerpts. The repository, which is public, already redistributes the whole of
 `spelunky.gmk` (`reference/spelunky_1_1_src.zip`) on the same terms. The conditions, as they apply:
 
-1. **The license and the source's notices intact.** Every page links `/LICENSE.txt`, the license unchanged
-   but for its encoding, and shows the file whole, the scripts' own credit and copyright comments with it;
+1. **The license and the source's notices intact.** Every page links `/license`, the license's every word
+   as the file has it, and shows the file whole, the scripts' own credit and copyright comments with it;
    the GML the pages are built from (`wiki/media/gml`, docs/wiki-media.md) has `LICENSE.txt` and `NOTICE.txt` beside it.
 2. **Not sold.** As the rest of the wiki: no ads, paywalls or sponsorships.
 3. **A notice at the beginning.** The source notice above, at the top of each page before the code, besides

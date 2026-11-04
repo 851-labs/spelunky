@@ -1,8 +1,9 @@
 // The site's keyline (docs/wiki-style.md, "The keyline"), which site/test.sh runs: every block in a column shows
 // its left edge on the column's. The site's tests have no browser to ask where a block's edge is, so this
-// reads the stylesheets instead (src/wiki/wiki.css, src/landing.css, the 404 page's src/site/not-found.css and the
-// download page's src/site/download.css, each with src/site/site.css, which they import, and the search list's
-// src/wiki/search-popup.css), for the three ways a block has come off the line:
+// reads the stylesheets instead (src/wiki/wiki.css, src/landing.css, the 404 page's src/site/not-found.css, the
+// download page's src/site/download.css and the license page's src/site/license.css, each with src/site/site.css,
+// which they import, and the search list's src/wiki/search-popup.css), for the three ways a block has come off the
+// line:
 //
 //   - a ring or frame drawn outside its box (box-shadow: 0 0 0 var(--ring) ..., or var(--stone)), with the box
 //     on the keyline and the ring past it (a drop shadow offset right by its spread reaches no further left). A block with one is inset by it, margin-inline: var(--ring) or
@@ -244,6 +245,7 @@ for (const [file, source] of [
   ["landing.css", landing],
   ["not-found.css", stylesheet("src/site/not-found.css")],
   ["download.css", stylesheet("src/site/download.css")],
+  ["license.css", stylesheet("src/site/license.css")],
   ["search-popup.css", stylesheet("src/wiki/search-popup.css", { onPage: true })],
 ]) {
   const problems = keylineProblems(source).filter((problem) => !reported.has(problem));

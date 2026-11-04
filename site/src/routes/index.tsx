@@ -99,7 +99,7 @@ function Landing() {
           official, and isn't affiliated with Mossmouth.
         </p>
         <p>
-          It's distributed under the <a href="/LICENSE.txt">Spelunky User License v1.1b</a>, and may not be
+          It's distributed under the <a href="/license">Spelunky User License v1.1b</a>, and may not be
           sold.
         </p>
         <p>

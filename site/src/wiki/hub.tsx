@@ -241,7 +241,7 @@ export function WikiHome({ data, search }: { data: HomeData; search: ReactNode }
         <h2 id="how">How this wiki is made</h2>
         <p>
           The wiki is written from Spelunky Classic 1.1's GameMaker source, by Derek Yu, used under the{" "}
-          <a href="/LICENSE.txt">Spelunky User License</a>. Its numbers (health, damage, speeds, prices) and
+          <a href="/license">Spelunky User License</a>. Its numbers (health, damage, speeds, prices) and
           relations (where things appear, what shops sell, what hurts what) are read from that code by the
           project's wiki-data tool, and each cites the lines it comes from.
         </p>

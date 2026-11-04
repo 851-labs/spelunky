@@ -11,7 +11,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/play/` | the game: a release's web build (`scripts/web --package`) | `no-cache` (the page and `manifest.txt`) |
 | `/play/v/HASH/` | the build's wasm, JS and assets, `HASH` being of their contents; its `.bin` assets and `.wav` sounds as `application/x-protobuf` (`_headers`), a type Cloudflare compresses, where the asset store's `application/octet-stream` and `audio/wav` aren't (the game reads their bytes, whatever the type) | `immutable`, a year |
 | `/third-party-licenses.txt` | the licenses of the packages in the pages' scripts ([Third-party licenses](#third-party-licenses)), written by the build | `no-cache` |
-| `/LICENSE.txt` | the Spelunky User License, the repo's `LICENSE` in UTF-8 (it's windows-1252) | `no-cache` |
+| `/license` | the Spelunky User License (`site/src/routes/license.tsx`, pre-rendered): the repo's `LICENSE` as a page in the site's frame, every word as the file has it (`site/src/build/license.ts` reads it, decoding its windows-1252, and fails the build on a file it can't read whole), with a note on what it means for the port and a link to the third-party licenses. `/LICENSE.txt`, the plain text file it replaced (851-4026), redirects (301) to it, for the links that name it: the releases' notes and the game's credits before then, and the wiki media's notices | `no-cache` |
 | `/wiki`, `/wiki/<slug>` | the wiki: its hubs (`/wiki`, `/wiki/monsters`, `/wiki/items/weapons`...) and pages (`site/src/routes/wiki/`, from `site/content/wiki/`; docs/wiki-style.md), pre-rendered | `no-cache` |
 | `/robots.txt`, `/sitemap.xml`, `/sitemap-video.xml`, `/sitemap-image.xml` | for crawlers (SEO, below): pre-rendered | `no-cache` |
 | `/opensearch.xml` | the wiki's search for browsers, as an OpenSearch description (SEO, below): pre-rendered | `no-cache` |
@@ -92,8 +92,9 @@ copy. So the build writes `/third-party-licenses.txt` (`site/src/build/third-par
 the client's build): every package whose code is in the client's bundle, as the bundle has it (not
 `package.json`, which lists the build's tools and the Worker's packages too, which aren't distributed), with the
 license file it ships, and Vite's and Rolldown's own for the runtime code they put in it. A package without a
-license file fails the build. The landing page's "Credits and license" and every wiki page's footer link it;
-`site/test.sh` checks it's served, lists every dependency `package.json` names, and that the pages link it. The
+license file fails the build. The landing page's "Credits and license", the `/license` page and every wiki page's
+footer link it. `/license` links it rather than show it: it's the notices of the site's own code (some two dozen
+packages' licenses, about 30 KB), not the game's license, which they'd bury. `site/test.sh` checks it's served, lists every dependency `package.json` names, and that the pages link it. The
 game at `/play/` has its own notices (851-3915).
 
 ## Connecting the repo (once)
@@ -113,7 +114,7 @@ In the Cloudflare dashboard, account 851: **Workers & Pages → Create → Impor
 | Environment variables | none |
 
 The watch paths are the site's inputs: `site/`, and what its build reads from outside it, the wiki's media and
-specs (`wiki/`), the license it serves (`LICENSE`) and the rows the quirk pages cite (`docs/quirks.md`). A `*`
+specs (`wiki/`), the license it shows (`LICENSE`) and the rows the quirk pages cite (`docs/quirks.md`). A `*`
 spans directories, so a change to any of them builds (and a pull request's gets a preview), and nothing else
 does: the game's code changes don't touch the site until a release is bumped in. They're the same as
 `scripts/affected`'s site area (less the scripts that only test it), which decides when pr.yml runs the site test
@@ -483,7 +484,7 @@ www.spelunky.ai' http://localhost:4173/wiki/snake` gets the redirect. `CHOKIDAR_
 dev` also starts, with the watcher polling instead, but polling every file takes most of a core while it
 runs. `npm run dev`
 (once `build.sh` has installed the packages) serves the app and `public/`, but not what `build.sh` adds
-(`/play/`, `/LICENSE.txt`, `/releases/`, `/wiki/media/`).
+(`/play/`, `/releases/`, `/wiki/media/`).
 
 `site/test.sh` is the site's smoke test. It builds the site with stand-ins for the web build and the wiki's
 media (`build.sh --local ... --wiki-media ...`, with `wiki/media`'s real `LICENSE.txt` and `NOTICE.txt`: the
@@ -496,6 +497,7 @@ stand-in GML files), and runs `test-seo.mjs` (SEO, below),
 committed wiki has neither), `test-carry.mjs` (a build carries the hashed files of the ones before it: [Version
 skew](#version-skew)), `test-download.mjs` (the `/download` page reads a release's manifest, or refuses it,
 groups its files by system and tells which system a browser's on, from real browsers' user agents),
+`test-license.mjs` (the `/license` page reads `LICENSE` whole into its sections and conditions, or refuses it),
 `test-keyline.mjs` (the stylesheet keeps every block on its column's keyline) and
 `test-links.mjs` (every link a page has is a file on the site, with no redirect, every
 wiki page is reachable from `/wiki`, only pages a ticket is writing are to come: docs/wiki-style.md, "Red
