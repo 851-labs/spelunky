@@ -1,23 +1,24 @@
 //! Makes icons from the game's own pictures: by default the icon in `spelunky.gmk`'s global game settings,
 //! which GameMaker gave the original `spelunky.exe` (the native apps'), or with `--sprite NAME` a sprite's
-//! first frame (spelunky.ai's favicon: `scripts/site-icons`).
+//! first frame cropped to its visible pixels (spelunky.ai's favicon: `scripts/site-icons`).
 //!
 //! ```sh
 //! icon --reference reference/ --icns AppIcon.icns --ico spelunky.ico
 //! icon --reference reference/ --sprite sStandLeft --ico favicon.ico --svg icon.svg \
-//!     --touch-icon f0c040 apple-touch-icon.png
+//!     --touch-icon 4a2a1a apple-touch-icon.png
 //! ```
 //!
 //! It's pixel art, so the largest image in the icon (the game's only one is 32x32), or the sprite (the
-//! Spelunker is 16x16), is scaled by nearest neighbour, never smoothed, and only to sizes that keep its
-//! pixels square: whole multiples, and for the icon 16, half.
+//! Spelunker's visible pixels are 12x16), is scaled by nearest neighbour, never smoothed, and only by
+//! factors that keep its pixels square: to each size, the largest whole factor that fits it, centred on
+//! transparency where it doesn't fill it, and for the icon's 16, half.
 //! `--icns` writes a macOS icon (PNG entries, 16 to 1024 pixels), `--ico` a Windows one (PNG entries, 16
 //! to 256; Windows scales its in-between sizes from those), both made with no platform tools, so any
 //! machine can package for any other. `--png SIZE OUT` writes one size as a PNG. `--svg OUT` writes the
-//! image as an SVG of one square per pixel, which a browser draws crisply at any size.
-//! `--touch-icon RRGGBB OUT` writes Apple's touch icon: 180 pixels and opaque, as iOS fills transparency
-//! with black, so the image on that colour, scaled by the largest whole factor that leaves it a margin
-//! (180 isn't a multiple of 16 or 32). The output is the same on every run.
+//! image, squared with transparency, as an SVG of one square per pixel, which a browser draws crisply at any
+//! size. `--touch-icon RRGGBB OUT` writes Apple's touch icon: 180 pixels and opaque, as iOS fills
+//! transparency with black, so the image on that colour, scaled by the largest whole factor that keeps it
+//! clear of iOS's rounded corners (180 isn't a multiple of 16 or 32). The output is the same on every run.
 //!
 //! Every PNG it writes (alone or in an `.icns` or `.ico`) carries the Spelunky notice in a `Copyright` text
 //! chunk, and the SVG in a comment, as the wiki's media do (`docs/wiki-license.md`): they're the game's art.
@@ -52,14 +53,15 @@ const ICNS: [(&[u8; 4], u32); 10] = [
 /// The 1024-pixel entry (512@2x), last.
 const ICNS_1024: &[u8; 4] = b"ic10";
 
-/// `.ico` sizes: Explorer's small icons to its largest, those the 32-pixel original (and a 16-pixel sprite)
-/// scales to evenly.
+/// `.ico` sizes: Explorer's small icons to its largest, those the 32-pixel original (and the 16-pixel-tall
+/// Spelunker) scales to evenly.
 const ICO: [u32; 5] = [16, 32, 64, 128, 256];
 
-/// Apple's touch icon: its size for the iPhone's home screen (iOS scales it for the others), and the
-/// least margin left around the image, so iOS's rounded corners don't clip it.
+/// Apple's touch icon: its size for the iPhone's home screen (iOS scales it for the others), and the radius
+/// of the corners iOS rounds it to, a little more than their 40 or so, as iOS's curves are continuous, not
+/// circular, so they begin further along the edges.
 const TOUCH_ICON: u32 = 180;
-const TOUCH_ICON_MARGIN: u32 = 10;
+const TOUCH_ICON_CORNER: u32 = 45;
 
 fn main() -> ExitCode {
     match run(std::env::args().skip(1)) {
@@ -130,16 +132,14 @@ fn run(args: impl IntoIterator<Item = String>) -> Result<()> {
         write(&out, &ico_file(&source)?)?;
     }
     for (size, out) in pngs {
-        write(&out, &png_of(&source.scaled(size))?)?;
+        write(&out, &png_of(&source.at(size)?)?)?;
     }
     if let Some(out) = svg {
-        write(&out, svg_of(&source).as_bytes())?;
+        let side = source.width.max(source.height);
+        write(&out, svg_of(&source.framed(side, 0)?).as_bytes())?;
     }
     if let Some((background, out)) = touch_icon {
-        write(
-            &out,
-            &png_of(&source.framed(TOUCH_ICON, TOUCH_ICON_MARGIN, background)?)?,
-        )?;
+        write(&out, &png_of(&touch_icon_of(&source, background)?)?)?;
     }
     Ok(())
 }
@@ -164,7 +164,17 @@ struct Image {
 }
 
 impl Image {
-    /// The image scaled to `size` x `size` by nearest neighbour.
+    /// The image at `size` x `size`: scaled by the largest whole factor that fits and centred on transparency
+    /// (`framed`), or, smaller than a square image, by nearest neighbour (the game's 32-pixel icon's 16).
+    fn at(&self, size: u32) -> Result<Image> {
+        if size < self.width.max(self.height) && self.width == self.height {
+            Ok(self.scaled(size))
+        } else {
+            self.framed(size, 0)
+        }
+    }
+
+    /// A square image scaled to `size` x `size` by nearest neighbour.
     fn scaled(&self, size: u32) -> Image {
         let mut rgba = Vec::with_capacity((size * size * 4) as usize);
         for y in 0..size {
@@ -182,9 +192,9 @@ impl Image {
         }
     }
 
-    /// The image on a `size` x `size` canvas of `background`, scaled by the largest whole factor that
-    /// leaves at least `margin` pixels each side, and centred.
-    fn framed(&self, size: u32, margin: u32, background: [u8; 3]) -> Result<Image> {
+    /// The image on a transparent `size` x `size` canvas, scaled by the largest whole factor that leaves at
+    /// least `margin` pixels each side, and centred.
+    fn framed(&self, size: u32, margin: u32) -> Result<Image> {
         let factor = size.saturating_sub(2 * margin) / self.width.max(self.height);
         if factor == 0 {
             return Err(format!(
@@ -197,18 +207,12 @@ impl Image {
             (size - self.width * factor) / 2,
             (size - self.height * factor) / 2,
         );
-        let mut rgba =
-            [background[0], background[1], background[2], 255].repeat((size * size) as usize);
+        let mut rgba = vec![0; (size * size * 4) as usize];
         for y in 0..self.height * factor {
             for x in 0..self.width * factor {
                 let src = (((y / factor) * self.width + x / factor) * 4) as usize;
                 let dst = (((top + y) * size + left + x) * 4) as usize;
-                let alpha = u32::from(self.rgba[src + 3]);
-                for c in 0..3 {
-                    let over = u32::from(self.rgba[src + c]) * alpha
-                        + u32::from(background[c]) * (255 - alpha);
-                    rgba[dst + c] = ((over + 127) / 255) as u8;
-                }
+                rgba[dst..dst + 4].copy_from_slice(&self.rgba[src..src + 4]);
             }
         }
         Ok(Image {
@@ -217,9 +221,83 @@ impl Image {
             rgba,
         })
     }
+
+    /// The image over `background`, opaque.
+    fn on(&self, background: [u8; 3]) -> Image {
+        let mut rgba = Vec::with_capacity(self.rgba.len());
+        for pixel in self.rgba.as_chunks::<4>().0 {
+            let alpha = u32::from(pixel[3]);
+            for c in 0..3 {
+                let over = u32::from(pixel[c]) * alpha + u32::from(background[c]) * (255 - alpha);
+                rgba.push(((over + 127) / 255) as u8);
+            }
+            rgba.push(255);
+        }
+        Image {
+            width: self.width,
+            height: self.height,
+            rgba,
+        }
+    }
+
+    /// Whether every visible pixel's centre is inside the square's corners rounded to `radius`.
+    fn clear_of_corners(&self, radius: u32) -> bool {
+        // In half pixels, so the centres are whole.
+        let (side, radius) = (i64::from(2 * self.width), i64::from(2 * radius));
+        let past = |at: i64| (radius - at).max(at - (side - radius)).max(0);
+        (0..self.height).all(|y| {
+            (0..self.width).all(|x| {
+                let visible = self.rgba[((y * self.width + x) * 4 + 3) as usize] != 0;
+                let (dx, dy) = (past(i64::from(2 * x + 1)), past(i64::from(2 * y + 1)));
+                !visible || dx * dx + dy * dy <= radius * radius
+            })
+        })
+    }
+
+    /// The image cropped to its visible pixels (those not wholly transparent), or none if it has none.
+    fn cropped(&self) -> Option<Image> {
+        let visible = |x: u32, y: u32| self.rgba[((y * self.width + x) * 4 + 3) as usize] != 0;
+        let (mut left, mut top, mut right, mut bottom) = (self.width, self.height, 0, 0);
+        for y in 0..self.height {
+            for x in 0..self.width {
+                if visible(x, y) {
+                    (left, top) = (left.min(x), top.min(y));
+                    (right, bottom) = (right.max(x + 1), bottom.max(y + 1));
+                }
+            }
+        }
+        if left >= right {
+            return None;
+        }
+        let mut rgba = Vec::with_capacity(((right - left) * (bottom - top) * 4) as usize);
+        for y in top..bottom {
+            let row = ((y * self.width + left) * 4) as usize;
+            rgba.extend_from_slice(&self.rgba[row..row + ((right - left) * 4) as usize]);
+        }
+        Some(Image {
+            width: right - left,
+            height: bottom - top,
+            rgba,
+        })
+    }
 }
 
-/// The first frame of the sprite called `name`, which must be square to make an icon.
+/// Apple's touch icon of `source`: on `background`, as large as it can be while iOS's rounded corners clip none
+/// of it (the Spelunker's 12x16 is 11 times as large, 132x176, its hat and feet narrow enough to clear them).
+fn touch_icon_of(source: &Image, background: [u8; 3]) -> Result<Image> {
+    let mut margin = 0;
+    loop {
+        // framed fails once the margin leaves no room, so this ends.
+        let framed = source.framed(TOUCH_ICON, margin)?;
+        if framed.clear_of_corners(TOUCH_ICON_CORNER) {
+            return Ok(framed.on(background));
+        }
+        margin += 1;
+    }
+}
+
+/// The first frame of the sprite called `name`, cropped to its visible pixels, so the icon draws the
+/// character and not the frame's margins (the Spelunker's 16x16 has 2 empty columns each side).
 fn sprite_image(gmk: &gmk::Gmk, name: &str) -> Result<Image> {
     let sprite = gmk
         .sprites
@@ -231,18 +309,13 @@ fn sprite_image(gmk: &gmk::Gmk, name: &str) -> Result<Image> {
         .frames
         .first()
         .ok_or_else(|| format!("{name} has no frames"))?;
-    if frame.width == 0 || frame.width != frame.height {
-        return Err(format!(
-            "{name} is {}x{}, not a square icon",
-            frame.width, frame.height
-        )
-        .into());
-    }
-    Ok(Image {
+    Image {
         width: frame.width,
         height: frame.height,
         rgba: bgra_to_rgba(&frame.bgra),
-    })
+    }
+    .cropped()
+    .ok_or_else(|| format!("{name}'s first frame has no visible pixels").into())
 }
 
 fn u16_at(b: &[u8], at: usize) -> Result<u16> {
@@ -434,7 +507,7 @@ fn icns_file(source: &Image) -> Result<Vec<u8>> {
     let mut body = Vec::new();
     let entries = ICNS.iter().copied().chain([(ICNS_1024, 1024)]);
     for (kind, size) in entries {
-        let png = png_of(&source.scaled(size))?;
+        let png = png_of(&source.at(size)?)?;
         body.extend_from_slice(kind);
         body.extend_from_slice(&(png.len() as u32 + 8).to_be_bytes());
         body.extend_from_slice(&png);
@@ -449,7 +522,7 @@ fn icns_file(source: &Image) -> Result<Vec<u8>> {
 fn ico_file(source: &Image) -> Result<Vec<u8>> {
     let pngs = ICO
         .iter()
-        .map(|&size| Ok((size, png_of(&source.scaled(size))?)))
+        .map(|&size| Ok((size, png_of(&source.at(size)?)?)))
         .collect::<Result<Vec<_>>>()?;
     let mut out = Vec::new();
     out.extend_from_slice(&0u16.to_le_bytes());
@@ -520,7 +593,7 @@ mod tests {
     #[test]
     fn framed_scales_by_whole_factors_and_centres() {
         // 9 pixels with a margin of 1 leaves 7: a factor of 3, so a 6-pixel image, at 1 from the top left.
-        let framed = image().framed(9, 1, [0, 255, 0]).unwrap();
+        let framed = image().framed(9, 1).unwrap().on([0, 255, 0]);
         let at = |x: u32, y: u32| framed.rgba[((y * 9 + x) * 4) as usize..][..4].to_vec();
         assert_eq!(at(0, 0), [0, 255, 0, 255]);
         assert_eq!(at(1, 1), [255, 0, 0, 255]);
@@ -528,7 +601,99 @@ mod tests {
         assert_eq!(at(4, 1), [0, 255, 0, 255]);
         assert_eq!(at(1, 4), [0, 127, 128, 255]);
         assert_eq!(at(7, 7), [0, 255, 0, 255]);
-        assert!(image().framed(3, 1, [0, 0, 0]).is_err());
+        assert!(image().framed(3, 1).is_err());
+    }
+
+    #[test]
+    fn framed_on_transparency_keeps_the_pixels() {
+        // A 2x1 image (red, then half-transparent blue) in 5 pixels: a factor of 2, so 4x2 at (0, 1),
+        // transparency around it, and the blue as it was, not on anything.
+        let wide = Image {
+            width: 2,
+            height: 1,
+            rgba: vec![255, 0, 0, 255, 0, 0, 255, 128],
+        };
+        let framed = wide.framed(5, 0).unwrap();
+        let at = |x: u32, y: u32| framed.rgba[((y * 5 + x) * 4) as usize..][..4].to_vec();
+        assert_eq!(at(0, 0), [0, 0, 0, 0]);
+        assert_eq!(at(0, 1), [255, 0, 0, 255]);
+        assert_eq!(at(1, 2), [255, 0, 0, 255]);
+        assert_eq!(at(2, 1), [0, 0, 255, 128]);
+        assert_eq!(at(3, 2), [0, 0, 255, 128]);
+        assert_eq!(at(4, 1), [0, 0, 0, 0]);
+        assert_eq!(at(0, 3), [0, 0, 0, 0]);
+    }
+
+    #[test]
+    fn at_fits_by_whole_factors_and_halves_squares() {
+        let wide = Image {
+            width: 2,
+            height: 1,
+            rgba: vec![255, 0, 0, 255, 0, 0, 255, 255],
+        };
+        // 2x1 at 5: framed's 4x2 in a 5x5 square.
+        let fitted = wide.at(5).unwrap();
+        assert_eq!((fitted.width, fitted.height), (5, 5));
+        assert_eq!(fitted.rgba, wide.framed(5, 0).unwrap().rgba);
+        // Smaller than a wide image can't keep its pixels square.
+        assert!(wide.at(1).is_err());
+        // A square one halves by nearest neighbour.
+        let half = image().at(1).unwrap();
+        assert_eq!((half.width, half.rgba), (1, vec![255, 0, 0, 255]));
+    }
+
+    #[test]
+    fn corners() {
+        // A 10x10 square with its corners rounded to 4: a pixel at (0, 0) is outside them (its centre 4.9
+        // from the corner's, at (4, 4)), at (1, 1) or along an edge inside.
+        let one_pixel = |x: u32, y: u32| {
+            let mut rgba = vec![0; 10 * 10 * 4];
+            rgba[((y * 10 + x) * 4 + 3) as usize] = 255;
+            Image {
+                width: 10,
+                height: 10,
+                rgba,
+            }
+        };
+        assert!(!one_pixel(0, 0).clear_of_corners(4));
+        assert!(!one_pixel(9, 9).clear_of_corners(4));
+        assert!(!one_pixel(0, 9).clear_of_corners(4));
+        assert!(one_pixel(1, 1).clear_of_corners(4));
+        assert!(one_pixel(0, 5).clear_of_corners(4));
+        assert!(one_pixel(5, 9).clear_of_corners(4));
+        // A square filling it isn't clear; framed down to 6 it is (from (2, 2) to (7, 7)).
+        let square = Image {
+            width: 2,
+            height: 2,
+            rgba: vec![255; 16],
+        };
+        assert!(!square.framed(10, 0).unwrap().clear_of_corners(4));
+        assert!(square.framed(10, 2).unwrap().clear_of_corners(4));
+    }
+
+    #[test]
+    fn cropped_to_the_visible_pixels() {
+        // 3x3, visible only at (1, 0) and (2, 1): a 2x2 crop.
+        let mut rgba = vec![0; 3 * 3 * 4];
+        rgba[4..][..4].copy_from_slice(&[1, 2, 3, 255]);
+        rgba[((3 + 2) * 4)..][..4].copy_from_slice(&[4, 5, 6, 1]);
+        let image = Image {
+            width: 3,
+            height: 3,
+            rgba,
+        };
+        let crop = image.cropped().unwrap();
+        assert_eq!((crop.width, crop.height), (2, 2));
+        assert_eq!(
+            crop.rgba,
+            [[1, 2, 3, 255], [0; 4], [0; 4], [4, 5, 6, 1]].concat()
+        );
+        let empty = Image {
+            width: 2,
+            height: 2,
+            rgba: vec![0; 16],
+        };
+        assert!(empty.cropped().is_none());
     }
 
     #[test]

@@ -560,10 +560,11 @@ can add the wiki's search as a search engine: the landing page's too, as Chrome 
 page names. The asset store serves any `.xml` as `application/xml`, so the Worker gives it
 `application/opensearchdescription+xml`. Its `<Image>` is the favicon. Every page's head names the site's
 icons too, as does `404.html`: `/favicon.ico` (16 to 256 pixels), `/icon.svg` (crisp at any size; browsers
-that take an SVG prefer it) and `/apple-touch-icon.png` (180 pixels, opaque, on the site's gold), all in
-`site/public/` and made from the game's Spelunker (`sStandLeft`, 16x16, scaled by whole factors) by
-`scripts/site-icons`, which `scripts/check` runs with `--check` so they stay what the reference `.gmk`
-gives. The site and its Organization are the fan project's; the VideoGame is Derek Yu's, published by
+that take an SVG prefer it), both transparent, and `/apple-touch-icon.png` (180 pixels, opaque, on the site's
+dark brown, `--dirt`, as iOS shows transparency as black, which the Spelunker's outline vanishes into), all in
+`site/public/` and made from the game's Spelunker (`sStandLeft`, cropped to its visible 12x16 and scaled by the
+largest whole factor each size takes, clear of iOS's rounded corners in the touch icon) by `scripts/site-icons`,
+which `scripts/check` runs with `--check` so they stay what the reference `.gmk` gives. The site and its Organization are the fan project's; the VideoGame is Derek Yu's, published by
 Mossmouth; media carry the game's copyright notice and license ([wiki license](wiki-license.md)).
 
 `/sitemap.xml` comes from `site/src/seo/sitemap.ts`'s `SITEMAP_SOURCES`, lists of pages by canonical path (a

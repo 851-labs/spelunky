@@ -1,8 +1,9 @@
 #!/bin/sh
-# Makes spelunky.ai's icons in site/public from the reference .gmk: the Spelunker (sStandLeft, 16x16) as
-# /favicon.ico, /icon.svg and /apple-touch-icon.png (on the site's gold, site/src/wiki/wiki.css's --gold, as
-# iOS shows a transparent one on black). `--check` only checks the committed ones are current, as
-# scripts/check does, and writes nothing.
+# Makes spelunky.ai's icons in site/public from the reference .gmk: the Spelunker (sStandLeft, cropped to its
+# visible 12x16 and scaled by the largest whole factor each size takes) as /favicon.ico and /icon.svg, on
+# transparency, and /apple-touch-icon.png, on the site's dark brown, site/src/site/site.css's --dirt: iOS shows a
+# transparent one on black, which the Spelunker's near-black outline vanishes into (as it would on the page's
+# --rock). `--check` only checks the committed ones are current, as scripts/check does, and writes nothing.
 set -eu
 # A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's sh, bash 3.2, exits from
 # one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
@@ -33,7 +34,7 @@ if [ -n "$check" ]; then
   trap cleanup EXIT
 fi
 scripts/cargo run --quiet --release -p tools --bin icon -- --reference reference --sprite sStandLeft \
-  --ico "$out/favicon.ico" --svg "$out/icon.svg" --touch-icon f0c040 "$out/apple-touch-icon.png"
+  --ico "$out/favicon.ico" --svg "$out/icon.svg" --touch-icon 4a2a1a "$out/apple-touch-icon.png"
 [ -n "$check" ] || { finished=1; exit 0; }
 stale=
 for icon in $icons; do
