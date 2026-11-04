@@ -1,9 +1,10 @@
-// The wiki's keyline (docs/wiki-style.md, "The keyline"), which site/test.sh runs: every block in a column shows
+// The site's keyline (docs/wiki-style.md, "The keyline"), which site/test.sh runs: every block in a column shows
 // its left edge on the column's. The site's tests have no browser to ask where a block's edge is, so this
-// reads src/wiki/wiki.css instead, for the three ways a block has come off the line:
+// reads the stylesheets instead (src/wiki/wiki.css and src/landing.css, each with src/site/site.css, which
+// they import), for the three ways a block has come off the line:
 //
 //   - a ring or frame drawn outside its box (box-shadow: 0 0 0 var(--ring) ..., or var(--stone)), with the box
-//     on the keyline and the ring past it. A block with one is inset by it, margin-inline: var(--ring) or
+//     on the keyline and the ring past it (a drop shadow offset right by its spread reaches no further left). A block with one is inset by it, margin-inline: var(--ring) or
 //     var(--frame), or sits in one that is (INSET_BY), or isn't in a column at all (OUT_OF_COLUMN).
 //   - a left margin of its own (the /wiki search box's and card grid's were 8px): only the tokens, or a list
 //     item's marker room in ch, unless it's one of SIDE_MARGINS. (A right margin alone is a gap in a row.)
@@ -52,7 +53,7 @@ function parseCss(source) {
       if (head.startsWith("@media")) parse(body, head.slice("@media".length).trim());
       // Any other block's rules (@supports, @layer, @container) would be read as one rule: say so, rather than
       // leave them unchecked.
-      else if (head.startsWith("@")) throw new Error(`wiki.css: ${head.split(/\s/)[0]}, which the keyline's check doesn't read`);
+      else if (head.startsWith("@")) throw new Error(`${head.split(/\s/)[0]}, which the keyline's check doesn't read`);
       else {
         const decls = splitTop(body, ";")
           .map((d) => d.trim())
@@ -111,15 +112,24 @@ function sideMargins(decls) {
 }
 
 // The width a box-shadow draws outside its box on the left: "ring", "frame", or null for none; or a string
-// naming a shadow the check can't read.
-function outsideEdge(value) {
-  if (value === "var(--stone)") return "frame";
-  if (value === "none" || value.startsWith("var(--bevel)")) return null;
+// naming a shadow the check can't read. ROOT is :root's tokens, whose shadows a var() of one has.
+function outsideEdge(value, root) {
+  if (value === "none") return null;
   let edge = null;
   for (const shadow of splitTop(value, ",")) {
     const w = words(shadow);
+    // A token (--stone, --bevel): its shadows, from :root.
+    const token = /^var\((--[\w-]+)\)$/.exec(shadow.trim());
+    if (token && token[1] in root) {
+      const inner = outsideEdge(root[token[1]], root);
+      if (inner !== null && inner !== "ring" && inner !== "frame") return inner;
+      if (inner === "frame" || (inner === "ring" && edge === null)) edge = inner;
+      continue;
+    }
     if (w.includes("inset")) continue;
     const [x, y, blur, spread] = w;
+    // A hard drop shadow offset right by its spread: its left edge is the box's.
+    if (blur === "0" && x === spread && x !== "0") continue;
     if (x !== "0" || y !== "0" || blur !== "0") return `an offset or blurred shadow, ${shadow.trim()}`;
     if (spread === "var(--ring)") edge = edge ?? "ring";
     else if (spread === "var(--frame)") edge = "frame";
@@ -130,7 +140,7 @@ function outsideEdge(value) {
 
 const ZERO = new Set(["0", "auto", undefined]);
 
-// The keyline's problems in SOURCE, wiki.css's text: a message each.
+// The keyline's problems in SOURCE, a stylesheet's text with site.css's before it: a message each.
 function keylineProblems(source) {
   const rules = parseCss(source);
   const problems = [];
@@ -151,13 +161,13 @@ function keylineProblems(source) {
     if (!(token in root)) problems.push(`:root doesn't define ${token}`);
     else if (want && root[token] !== want) problems.push(`:root's ${token} is ${root[token]}, not ${want}`);
   }
-  if (!value(".wiki", "padding").includes("var(--gutter)")) problems.push(".wiki's padding isn't var(--gutter): the keyline is --gutter in");
+  if (!value(".site", "padding").includes("var(--gutter)")) problems.push(".site's padding isn't var(--gutter): the keyline is --gutter in");
 
   // Rings and frames outside a box: inset by them.
   for (const rule of rules) {
     for (const [p, v] of rule.decls) {
       if (p !== "box-shadow") continue;
-      const edge = outsideEdge(v);
+      const edge = outsideEdge(v, root);
       if (edge === null) continue;
       for (const selector of rule.selectors) {
         if (edge !== "ring" && edge !== "frame") {
@@ -213,12 +223,26 @@ const fail = (message) => {
   failures++;
 };
 
-const css = readFileSync(new URL("src/wiki/wiki.css", import.meta.url), "utf8");
-const problems = keylineProblems(css);
-for (const problem of problems) fail(`wiki.css: ${problem}`);
-if (problems.length === 0) console.log("ok   wiki.css: every block's edge is on the keyline");
+// A stylesheet with site.css's rules in place of its import of them, as the build has it.
+const SITE = readFileSync(new URL("src/site/site.css", import.meta.url), "utf8");
+const IMPORT = /^@import "[./]*site\/site\.css";$/m;
+function withSite(file) {
+  const source = readFileSync(new URL(file, import.meta.url), "utf8");
+  if (!IMPORT.test(source)) fail(`${file} doesn't import site.css`);
+  return source.replace(IMPORT, () => SITE);
+}
+const css = withSite("src/wiki/wiki.css");
+const landing = withSite("src/landing.css");
+for (const [file, source] of [
+  ["wiki.css", css],
+  ["landing.css", landing],
+]) {
+  const problems = keylineProblems(source);
+  for (const problem of problems) fail(`${file}: ${problem}`);
+  if (problems.length === 0) console.log(`ok   ${file}: every block's edge is on the keyline`);
+}
 
-// And it catches each way off it: the stylesheet with one thing changed, and the problem that names it.
+// And it catches each way off it: a stylesheet with one thing changed, and the problem that names it.
 const cases = [
   ["margin: 16px 0; padding: 0; list-style: none;\n}\n.cards-wide", "margin: 16px 8px; padding: 0; list-style: none;\n}\n.cards-wide", ".cards: a left margin of 8px"],
   ["margin: 16px var(--ring) 8px; padding: 12px;", "margin: 16px 0 8px; padding: 12px;", ".hub-filters: its ring is outside its box, but .hub-filters's margin is 0, not var(--ring)"],
@@ -227,13 +251,15 @@ const cases = [
   ["box-shadow: 0 0 0 var(--ring) var(--dirt); }\n.category-link", "box-shadow: 0 0 0 4px var(--dirt); }\n.category-link", ".category: box-shadow draws a ring of 4px"],
   ["margin: 16px var(--ring); padding: 0;\n  list-style: none;", "margin: 16px 0; padding: 0;\n  list-style: none;", ".category: its ring is outside its box, but .categories's margin is 0, not var(--ring)"],
   [":where(ul) { padding-left: 2ch; }", ":where(ul) { padding-left: 40px; }", ":where(ul)'s padding-left isn't 2ch"],
+  ["max-width: 100%; margin-inline: var(--ring);", "max-width: 100%; margin-inline: 0;", ".play: its ring is outside its box, but .play's margin is 0, not var(--ring)", landing],
+  ["var(--ring) var(--frame) 0 var(--ring) #000", "0 var(--frame) 0 var(--ring) #000", ".play: box-shadow draws an offset or blurred shadow", landing],
 ];
-for (const [from, to, want] of cases) {
-  if (!css.includes(from)) {
-    fail(`self-test: wiki.css hasn't got ${JSON.stringify(from)} to change`);
+for (const [from, to, want, source = css] of cases) {
+  if (!source.includes(from)) {
+    fail(`self-test: the stylesheets haven't got ${JSON.stringify(from)} to change`);
     continue;
   }
-  const got = keylineProblems(css.replace(from, to));
+  const got = keylineProblems(source.replace(from, to));
   if (!got.some((p) => p.startsWith(want))) fail(`self-test: ${JSON.stringify(to)} isn't caught as ${JSON.stringify(want)}: ${JSON.stringify(got)}`);
 }
 if (failures === 0) console.log(`ok   self-test: ${cases.length} ways off the keyline caught`);

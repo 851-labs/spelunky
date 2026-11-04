@@ -4,15 +4,15 @@
 // beside them (src/wiki/contents.tsx). The license's notices are on every wiki page (docs/wiki-license.md,
 // "Notice text for the templates"): the footer, with the audio credit on a page whose clips have sound. The
 // header has no copyright line (its Decisions, 5).
-// The header has links to the game and the site's front page and the search box (src/wiki/search-box.tsx), and
-// links to pages have hover cards
-// (src/wiki/hover-card.tsx).
+// The header is the site's (src/site/frame.tsx), with the wiki marked and its search box (src/wiki/search-box.tsx),
+// and links to pages have hover cards (src/wiki/hover-card.tsx).
 //
 // Everything has its size before it loads (the sprite, the clips' boxes) and nothing moves once it has: no
 // layout shift.
 import { Fragment } from "react";
 import type { ReactNode } from "react";
 import type { Crumb } from "../seo/jsonld";
+import { SiteFrame } from "../site/frame";
 import type { Navbox, Reference as ReferenceData, Section } from "./build/compile";
 import { clipAnchor, HOW_WE_KNOW } from "./anchors.ts";
 import { CATEGORY_NAMES, hubPath } from "./build/categories.ts";
@@ -29,37 +29,27 @@ import { SearchBox } from "./search-box";
 
 export function WikiFrame({ children, audio = false }: { children: ReactNode; audio?: boolean }) {
   return (
-    <div className="wiki">
-      <a className="skip" href="#content">
-        Skip to content
-      </a>
-      <header className="wiki-header">
-        <a href="/wiki" className="wiki-home">
-          <img src="/media/logo.png" width="160" height="36" alt="Spelunky" />
-          <span className="wiki-badge">Wiki</span>
-        </a>
-        {/* The way back to the game: its page, and the site's front page (851-3926). */}
-        <nav className="wiki-site" aria-label="spelunky.ai">
-          <a href="/play/">Play</a>
-          <a href="/">spelunky.ai</a>
-        </nav>
-        <SearchBox />
-      </header>
-      <main id="content">{children}</main>
-      <HoverCards />
-      <footer className="wiki-footer">
-        <p>
-          {NOTICE.before}
-          <a href="/LICENSE.txt">{NOTICE.license}</a>
-          {NOTICE.after}
-        </p>
-        {audio && <p>{AUDIO_CREDIT}</p>}
-        {/* The libraries in the pages' scripts keep their notices there (src/build/third-party-licenses.ts). */}
-        <p>
-          <a href="/third-party-licenses.txt">Third-party licenses</a> of the site's code.
-        </p>
-      </footer>
-    </div>
+    <SiteFrame
+      section="wiki"
+      search={<SearchBox />}
+      after={<HoverCards />}
+      footer={
+        <>
+          <p>
+            {NOTICE.before}
+            <a href="/LICENSE.txt">{NOTICE.license}</a>
+            {NOTICE.after}
+          </p>
+          {audio && <p>{AUDIO_CREDIT}</p>}
+          {/* The libraries in the pages' scripts keep their notices there (src/build/third-party-licenses.ts). */}
+          <p>
+            <a href="/third-party-licenses.txt">Third-party licenses</a> of the site's code.
+          </p>
+        </>
+      }
+    >
+      {children}
+    </SiteFrame>
   );
 }
 

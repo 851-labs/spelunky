@@ -35,8 +35,9 @@ that copies the game's assets or code, such as a sprite strip, a clip or a GML e
 
 ## Notice text for the templates
 
-**Masthead** (every wiki page, at the top): the Spelunky logo with a "Wiki" badge. No copyright line
-there (decided below): the notice is the footer's, which says the site is unofficial on every page.
+**Masthead** (every wiki page, at the top): the Spelunky logo with "Wiki" beside it, the site's section the
+page is in, marked in gold (a badge until 851-3994). No copyright line there (decided below): the notice is
+the footer's, which says the site is unofficial on every page.
 
 **Site-wide wiki footer** (every page):
 
@@ -117,7 +118,7 @@ writing, and they're there for the pages' citations, not to rank in search.
   or paid tiers on pages built around the game's assets earn money from them, so the conservative reading
   treats them as selling. No donation buttons or affiliate links either (decided below).
 - **Don't call it the official wiki** or imply Mossmouth runs or endorses it. The Spelunky logo may head the
-  wiki (decided below), always with the "Wiki" badge beside it and the footer's notice ("an unofficial fan
+  wiki (decided below), always with the gold "Wiki" beside it and the footer's notice ("an unofficial fan
   project, not affiliated with or endorsed by Mossmouth") on the same page; Mossmouth's own marks (its studio
   logo and name as ours) stay off.
 - **No Spelunky HD, Spelunky 2 or other Mossmouth assets.** Those games aren't under this license. The same
@@ -147,14 +148,15 @@ The user settled the open questions on 2026-10-27:
    show only their title and description. The notice stays in the video files' metadata and the poster's
    `Copyright` chunk. A page whose clips have sound adds the audio credit to its footer.
 5. **No copyright line in the header.** The footer of every page carries the full notice and the license
-   link, so the header shows only the logo, the badge and search. A wiki page isn't a Covered Work itself
+   link, so the header shows only the logo, the site's sections (the wiki's marked, where the badge was:
+   851-3994) and search. A wiki page isn't a Covered Work itself
    (the game at `/play/` is, and shows its own notice at start), so the footer is enough.
 
 The user settled one more on 2026-10-29:
 
-6. **"Wiki", not "Fan wiki".** The masthead's badge says "Wiki", and the titles say "Spelunky Classic wiki"
-   (the `<title>`s, `/wiki`'s heading, `/llms.txt`'s title, the JSON-LD lists' names, the OG images' badge
-   and `/wiki`'s card). What says the site is unofficial stays: the footer's notice on every page ("an
+6. **"Wiki", not "Fan wiki".** The masthead's section (its badge until 851-3994) says "Wiki", and the
+   titles say "Spelunky Classic wiki" (the `<title>`s, `/wiki`'s heading, `/llms.txt`'s title, the JSON-LD
+   lists' names, the OG images' badge and `/wiki`'s card). What says the site is unofficial stays: the footer's notice on every page ("an
    unofficial fan project, not affiliated with or endorsed by Mossmouth"), which is what condition 4 and the
    don'ts need, as a wiki page isn't a Covered Work; the OG images' "Unofficial fan wiki · spelunky.ai", as a
    card is seen without the page's footer; and the descriptions listed under "Trademark".

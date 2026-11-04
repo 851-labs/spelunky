@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import css from "../landing.css?raw";
+import css from "../landing.css?inline";
 import { organization, videoGame, website } from "../seo/jsonld";
 import { seo } from "../seo/seo";
+import { SiteFrame, SiteSearch } from "../site/frame";
 
-// The landing page. Inlined CSS, like the hand-written page it replaced: no extra request before it paints.
+// The landing page, in the site's frame (src/site/frame.tsx). Its CSS and the site's, inlined (landing.css imports
+// site.css), like the hand-written page it replaced: no extra request before it paints.
 export const Route = createFileRoute("/")({
   head: () => ({
     ...seo({
@@ -20,49 +22,60 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   return (
-    <main>
-      <h1>
-        <img className="logo" src="media/logo.png" width="160" height="36" alt="Spelunky" />
-      </h1>
-      <p className="tagline">Spelunky Classic 1.1, ported to Rust tick for tick, bugs included.</p>
-      <p className="notice">
-        An unofficial fan port (a mod). Spelunky is Copyright &copy; 2008, 2009 Derek Yu and Mossmouth, LLC.
-      </p>
+    <SiteFrame
+      section={null}
+      search={<SiteSearch />}
+      footer={
+        <p>
+          spelunky.ai &middot; <a href="/wiki">Wiki</a> &middot; <a href="https://github.com/851-labs/spelunky">GitHub</a>
+        </p>
+      }
+    >
+      {/* Play beside the gameplay on a wide screen, above it on a narrow one. */}
+      <div className="hero">
+        <div className="hero-text">
+          <h1>Spelunky Classic 1.1, ported to Rust tick for tick, bugs included.</h1>
+          <p className="notice">
+            An unofficial fan port (a mod). Spelunky is Copyright &copy; 2008, 2009 Derek Yu and Mossmouth, LLC.
+          </p>
 
-      {/* Shown only on a device with only touch (landing.css): the game needs keys or a gamepad (851-3925). */}
-      <p className="touch-note">
-        This device seems to have no keyboard or gamepad. Spelunky Classic needs one: it has no touch controls.
-      </p>
-      <a className="play" href="/play/">
-        Play in your browser
-      </a>
-      <p className="more">
-        {/* 1.1's settings program, config.exe: the keys, the volumes and the window's size. */}
-        <a href="/play/?settings">Settings</a>
-        <a href="/wiki">Wiki</a>
-      </p>
-      {/* The keys a new player needs in the first level (the game teaches them only in the Tutorial's signs);
-          the wiki's Controls page has the rest. */}
-      <p className="hint">
-        Needs a keyboard or a gamepad: arrows move, <kbd>Z</kbd> jumps, <kbd>X</kbd> whips or uses what you
-        hold, <kbd>A</kbd> throws a bomb, <kbd>S</kbd> a rope, <kbd>C</kbd> takes a bomb or rope out to hold,{" "}
-        <kbd>Shift</kbd> runs, <kbd>P</kbd> pays in a shop and <kbd>Esc</kbd> pauses.{" "}
-        <a href="/wiki/controls">All the controls</a> are in the wiki; Settings changes them. Saves stay in your
-        browser.
-      </p>
+          {/* Shown only on a device with only touch (landing.css): the game needs keys or a gamepad (851-3925). */}
+          <p className="touch-note">
+            This device seems to have no keyboard or gamepad. Spelunky Classic needs one: it has no touch controls.
+          </p>
+          <div className="play-row">
+            <a className="play" href="/play/">
+              Play in your browser
+            </a>
+            {/* 1.1's settings program, config.exe: the keys, the volumes and the window's size. */}
+            <a className="settings" href="/play/?settings">
+              Settings
+            </a>
+          </div>
+          {/* The keys a new player needs in the first level (the game teaches them only in the Tutorial's signs);
+              the wiki's Controls page has the rest. */}
+          <p className="hint">
+            Needs a keyboard or a gamepad: arrows move, <kbd>Z</kbd> jumps, <kbd>X</kbd> whips or uses what you
+            hold, <kbd>A</kbd> throws a bomb, <kbd>S</kbd> a rope, <kbd>C</kbd> takes a bomb or rope out to hold,{" "}
+            <kbd>Shift</kbd> runs, <kbd>P</kbd> pays in a shop and <kbd>Esc</kbd> pauses.{" "}
+            <a href="/wiki/controls">All the controls</a> are in the wiki; Settings changes them. Saves stay in your
+            browser.
+          </p>
+        </div>
 
-      <div className="frame">
-        <video
-          src="media/gameplay.mp4"
-          poster="media/gameplay.png"
-          width="640"
-          height="480"
-          autoPlay
-          loop
-          muted
-          playsInline
-          aria-label="Gameplay: a run through the Mines"
-        />
+        <div className="frame">
+          <video
+            src="media/gameplay.mp4"
+            poster="media/gameplay.png"
+            width="640"
+            height="480"
+            autoPlay
+            loop
+            muted
+            playsInline
+            aria-label="Gameplay: a run through the Mines"
+          />
+        </div>
       </div>
 
       <section>
@@ -101,10 +114,6 @@ function Landing() {
           licenses: <a href="/third-party-licenses.txt">third-party licenses</a>.
         </p>
       </section>
-
-      <footer>
-        spelunky.ai &middot; <a href="/wiki">Wiki</a> &middot; <a href="https://github.com/851-labs/spelunky">GitHub</a>
-      </footer>
-    </main>
+    </SiteFrame>
   );
 }

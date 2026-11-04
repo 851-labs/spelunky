@@ -1,0 +1,91 @@
+/* What every page of the site has (src/site/frame.tsx): the cave palette, the column, the header, the search
+   box and the footer (851-3994). The landing page inlines it with its own (src/landing.css), and the wiki's
+   stylesheet imports it (src/wiki/wiki.css). */
+:root {
+  --rock: #1b1410; --dirt: #4a2a1a; --dirt-light: #7a4526; --gold: #f0c040; --gold-dark: #a8781c;
+  --text: #e8dcc8; --dim: #a89880; --panel: #0d0907; --px: 4px;
+  /* The keyline (docs/wiki-style.md, "The keyline"): every block in a column starts on the column's left edge,
+     --gutter in from the window's. What a block shows there is its edge: its text, its border, or the ring or
+     frame drawn outside its box, which a block that has one is inset by (margin-inline: var(--ring) or
+     var(--frame)), so that the ring and not the box is on the line. */
+  --gutter: 16px;
+  /* A ring outside a box (box-shadow: 0 0 0 var(--ring) ...), and the stone frame's two (--stone). */
+  --ring: var(--px); --frame: calc(2 * var(--px));
+  /* The stone frame: a light and a dark ring, and a hard drop shadow (which hangs right of the keyline's column,
+     as a shadow, not an edge). */
+  --stone:
+    0 0 0 var(--ring) var(--dirt-light),
+    0 0 0 var(--frame) var(--dirt),
+    var(--frame) var(--frame) 0 var(--frame) #0008;
+  /* The play button's bevel, for title bars. */
+  --bevel: inset calc(-1 * var(--px)) calc(-1 * var(--px)) 0 var(--gold-dark), inset var(--px) var(--px) 0 #fff3b0;
+}
+* { box-sizing: border-box; }
+html { background: var(--rock); }
+body {
+  margin: 0; color: var(--text);
+  font: 16px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  /* A dark cave wall: a faint checker of 8px "tiles". */
+  background:
+    repeating-conic-gradient(#ffffff06 0 25%, transparent 0 50%) 0 0 / 16px 16px,
+    linear-gradient(var(--rock), #120d0a);
+  min-height: 100vh;
+}
+a { color: var(--gold); }
+a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+img, video { image-rendering: pixelated; }
+/* The column every page is in, the keyline --gutter in. */
+.site { max-width: 1000px; margin: 0 auto; padding: var(--gutter); }
+@media (min-width: 1200px) { .site { max-width: 1400px; } }
+/* A list's markers on the keyline, its text after them: a bullet ("• ") is 2 characters wide in the monospace
+   font, a number ("1. ") 3 and from the tenth item 4, the numbers lined up on their right. :where(), so a
+   list a class styles keeps its own. */
+:where(ul) { padding-left: 2ch; }
+:where(ol) { padding-left: 3ch; }
+:where(ol:has(> li:nth-child(10))) { padding-left: 4ch; }
+.skip {
+  position: absolute; left: var(--gutter); top: -100px; z-index: 1; padding: 8px 16px;
+  color: #2a1a08; background: var(--gold); font-weight: 700; box-shadow: var(--bevel);
+}
+.skip:focus { top: 16px; }
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+
+/* The header: the logo, home; the sections, the page's in the gold of the play button, as the wiki's badge was;
+   and the search box on the right, or on a phone under them, the column's width. */
+.site-header { display: flex; align-items: center; gap: 8px 20px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: var(--px) solid var(--dirt); }
+.site-home { flex: none; }
+.site-home img { display: block; }
+.site-nav { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.site-nav a { padding: 2px 8px; }
+.site-nav a:hover { color: #ffd860; }
+.site-nav a[aria-current] { color: #2a1a08; background: var(--gold); box-shadow: var(--bevel); text-decoration: none; }
+.site-header .search-box { margin-left: auto; }
+
+/* The search box: a dark field and a gold button. */
+.search-box { position: relative; display: flex; }
+.search-box input {
+  width: 16em; min-width: 0; padding: 6px 10px; font: inherit; font-size: 14px; color: var(--text);
+  background: var(--panel); border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--dirt-light);
+}
+.search-box input::placeholder { color: var(--dim); }
+.search-box input:focus-visible { outline: 2px solid var(--gold); outline-offset: 0; }
+.search-box button {
+  padding: 6px 12px; font: inherit; font-size: 14px; font-weight: 700; color: #2a1a08; cursor: pointer;
+  background: var(--gold); border: 0; border-radius: 0; box-shadow: var(--bevel);
+}
+/* Focus is the links' ring, not hover's lighter yellow (barely 1.2:1 against the gold): 851-3891. */
+.search-box button:hover { background: #ffd860; }
+.search-box button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.site-footer { margin-top: 48px; padding-top: 12px; border-top: var(--px) solid var(--dirt); color: var(--dim); font-size: 13px; }
+.site-footer p { margin: 8px 0; }
+
+@media (max-width: 720px) {
+  .site-header .search-box { flex: 1 1 100%; margin-left: 0; }
+  .site-header .search-box input { flex: 1; width: auto; }
+  /* 16px, so a phone doesn't zoom in on the box when it's focused. */
+  .search-box input { font-size: 16px; }
+}

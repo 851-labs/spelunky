@@ -1,70 +1,13 @@
-/* The wiki's pages: the landing page's cave palette and stepped "stone block" borders (src/landing.css), in a
-   wider frame, with the infobox floated beside the text and, on a phone, after the lede. On a wide screen a
-   page has three columns: its contents in a rail on the left, the article, the infobox on its right; the
+/* The wiki's pages: the site's cave palette, column and header (src/site/site.css, which this imports), and
+   stepped "stone block" borders, with the infobox floated beside the text and, on a phone, after the lede. On a
+   wide screen a page has three columns: its contents in a rail on the left, the article, the infobox on its right; the
    prose and the tables keep a readable measure, and the width goes to the rail, the infobox and the
    references; a hub's card grids get more cards a row.
    Which a reader gets is the media queries' choice, made before the first paint, and every image and video
    has its size before it loads, so nothing moves. */
-:root {
-  --rock: #1b1410; --dirt: #4a2a1a; --dirt-light: #7a4526; --gold: #f0c040; --gold-dark: #a8781c;
-  --text: #e8dcc8; --dim: #a89880; --panel: #0d0907; --px: 4px;
-  /* The keyline (docs/wiki-style.md, "The keyline"): every block in a column starts on the column's left edge,
-     --gutter in from the window's. What a block shows there is its edge: its text, its border, or the ring or
-     frame drawn outside its box, which a block that has one is inset by (margin-inline: var(--ring) or
-     var(--frame)), so that the ring and not the box is on the line. */
-  --gutter: 16px;
-  /* A ring outside a box (box-shadow: 0 0 0 var(--ring) ...), and the stone frame's two (--stone). */
-  --ring: var(--px); --frame: calc(2 * var(--px));
-  /* The landing page's .frame: a light and a dark ring, and a hard drop shadow (which hangs right of the
-     keyline's column, as a shadow, not an edge). */
-  --stone:
-    0 0 0 var(--ring) var(--dirt-light),
-    0 0 0 var(--frame) var(--dirt),
-    var(--frame) var(--frame) 0 var(--frame) #0008;
-  /* The play button's bevel, for title bars. */
-  --bevel: inset calc(-1 * var(--px)) calc(-1 * var(--px)) 0 var(--gold-dark), inset var(--px) var(--px) 0 #fff3b0;
-}
-* { box-sizing: border-box; }
-html { background: var(--rock); }
-body {
-  margin: 0; color: var(--text);
-  font: 16px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-  /* A dark cave wall: a faint checker of 8px "tiles". */
-  background:
-    repeating-conic-gradient(#ffffff06 0 25%, transparent 0 50%) 0 0 / 16px 16px,
-    linear-gradient(var(--rock), #120d0a);
-  min-height: 100vh;
-}
-a { color: var(--gold); }
-a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-img, video { image-rendering: pixelated; }
+@import "../site/site.css";
+
 code { font: inherit; font-size: 0.9em; }
-.wiki { max-width: 1000px; margin: 0 auto; padding: var(--gutter); }
-@media (min-width: 1200px) { .wiki { max-width: 1400px; } }
-/* A list's markers on the keyline, its text after them: a bullet ("• ") is 2 characters wide in the monospace
-   font, a number ("1. ") 3 and from the tenth item 4, the numbers lined up on their right. :where(), so a
-   list a class styles keeps its own. */
-:where(ul) { padding-left: 2ch; }
-:where(ol) { padding-left: 3ch; }
-:where(ol:has(> li:nth-child(10))) { padding-left: 4ch; }
-.skip {
-  position: absolute; left: var(--gutter); top: -100px; z-index: 1; padding: 8px 16px;
-  color: #2a1a08; background: var(--gold); font-weight: 700; box-shadow: var(--bevel);
-}
-.skip:focus { top: 16px; }
-
-/* The masthead: the Spelunky logo, a "wiki" tag, the links back to the game and the site, and the search box. The
-   license notice is the footer's. */
-.wiki-header { display: flex; align-items: center; gap: 8px 20px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: var(--px) solid var(--dirt); }
-.wiki-home { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-.wiki-home img { display: block; }
-.wiki-badge {
-  padding: 2px 8px; font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
-  color: #2a1a08; background: var(--gold); box-shadow: var(--bevel);
-}
-.wiki-site { display: flex; gap: 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
-.wiki-footer { margin-top: 48px; padding-top: 12px; border-top: var(--px) solid var(--dirt); color: var(--dim); font-size: 13px; }
-
 .breadcrumbs ol { display: flex; flex-wrap: wrap; margin: 16px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--dim); }
 .breadcrumbs li + li::before { content: "›"; content: "›" / ""; padding: 0 8px; color: var(--dirt-light); }
 h1 { margin: 4px 0 0; font-size: 32px; line-height: 1.25; }
@@ -468,28 +411,8 @@ a.card-body:hover .card-title { text-decoration: underline; }
   .source-objects div + div dt { margin-top: 8px; }
 }
 
-/* Search (src/wiki/search-box.tsx): the header's box, its list of pages as you type, and /wiki's box and
-   results. */
-.visually-hidden {
-  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
-  clip-path: inset(50%); white-space: nowrap; border: 0;
-}
-.wiki-header .search-box { margin-left: auto; }
-.wiki-header > p { flex-basis: 100%; }
-.search-box { position: relative; display: flex; }
-.search-box input {
-  width: 16em; min-width: 0; padding: 6px 10px; font: inherit; font-size: 14px; color: var(--text);
-  background: var(--panel); border: 0; border-radius: 0; box-shadow: inset 0 0 0 2px var(--dirt-light);
-}
-.search-box input::placeholder { color: var(--dim); }
-.search-box input:focus-visible { outline: 2px solid var(--gold); outline-offset: 0; }
-.search-box button {
-  padding: 6px 12px; font: inherit; font-size: 14px; font-weight: 700; color: #2a1a08; cursor: pointer;
-  background: var(--gold); border: 0; border-radius: 0; box-shadow: var(--bevel);
-}
-/* As the clip buttons' (above). */
-.search-box button:hover { background: #ffd860; }
-.search-box button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+/* Search (src/wiki/search-box.tsx): the header box's list of pages as you type (the box is site.css's), and
+   /wiki's box and results. */
 /* Under the form, its right edge at the button's (Base UI's positioner places it). */
 .search-positioner { z-index: 2; }
 .search-popup { width: min(30rem, calc(100vw - 32px)); background: var(--panel); box-shadow: var(--stone); font-size: 14px; }
@@ -545,9 +468,5 @@ mark { color: inherit; background: none; text-decoration: underline 2px var(--go
 }
 
 @media (max-width: 720px) {
-  .wiki-header .search-box { flex: 1 1 100%; margin-left: 0; }
-  .wiki-header .search-box input { flex: 1; width: auto; }
   .search-popup { width: var(--anchor-width); }
-  /* 16px, so a phone doesn't zoom in on the box when it's focused. */
-  .search-box input { font-size: 16px; }
 }

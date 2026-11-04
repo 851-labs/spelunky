@@ -229,8 +229,10 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     is at least that wide, so a hub with Olmec has fewer, wider columns (two on a phone) than one without.
     /wiki's category tiles fit theirs in 64.
 - **The layout** (`site/src/wiki/layout.tsx`, `wiki.css`), Fandom's shape in the landing page's pixel look:
-  - **The masthead**: the Spelunky logo and a "Wiki" badge, linking `/wiki`, and the search box. The
-    license's notice, which says the site is unofficial, is the footer's (docs/wiki-license.md, decision 6).
+  - **The masthead**, the site's (`site/src/site/frame.tsx`, the landing page's too: 851-3994): the Spelunky
+    logo, linking `/`; the site's sections, Play and Wiki, the wiki's marked in gold beside the logo, as its
+    badge was; and the search box. The license's notice, which says the site is unofficial, is the footer's
+    (docs/wiki-license.md, decision 6).
   - **Breadcrumbs** above the title, from `src/wiki/crumbs.ts`, which the BreadcrumbList JSON-LD uses too,
     so the two can't differ: Wiki, the page's first category's hub (Items first for an item's), the page.
   - **The infobox**, floated beside the lede (after it, full width, on a phone): the title, the image
@@ -261,8 +263,9 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
     them (a bullet is 2 characters of the monospace font, a number 3, or 4 from a tenth item). A clip's video
     keeps its 640 pixels inside its ring. The right edge is the column's too: nothing runs past it at 390,
     1024 or 1280 pixels but the stone frames' drop shadow, a shadow and not an edge, and what scrolls in a box
-    of its own (code, a wide table on a phone). The tokens are `wiki.css`'s `:root`'s, and
-    `site/test-keyline.mjs` checks the stylesheet keeps to them: a box drawn with a ring is inset by it, no
+    of its own (code, a wide table on a phone). The landing page is in the same column, on the same keyline
+    (851-3994). The tokens are `site/src/site/site.css`'s `:root`'s (the site's, which `wiki.css` and
+    `landing.css` import), and `site/test-keyline.mjs` checks both stylesheets keep to them: a box drawn with a ring is inset by it, no
     block has a left margin of its own, and the lists' padding is their markers'.
   - **See also**, after the FAQ and the Gallery: the other relations and inverses (Damaged by, Damages,
     Found here, Related), and **What links here**, after the References ([Relations](#relations), [Links
@@ -339,7 +342,8 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   GitHub, the clips and the quirk pages), and a set of broken ones, each of which must
   fail the build with its error, searches the index of the committed pages, checks their hover cards, and
   renders a fixture page's red links and a hub's card to come to HTML, which the committed wiki has none of; and
-  `site/test-keyline.mjs`, which checks `wiki.css` keeps every block on the keyline (The keyline, above).
+  `site/test-keyline.mjs`, which checks `wiki.css` and `landing.css` keep every block on the keyline (The
+  keyline, above).
 
 ## Tone
 
