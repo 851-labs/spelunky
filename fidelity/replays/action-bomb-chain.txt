@@ -1,3 +1,4 @@
+# probe
 # Bombs in rTutorial: a chain explosion, a lit bomb carried, a bomb placed while holding one, and a bomb thrown.
 # As movement-tutorial-exit.txt to the crate (a bag of 3 bombs, ~1342), then: drops a bomb (duck + A, 1404),
 # picks the lit bomb up (duck + X, 1416), places a second bomb at its feet while holding it (duck + A, 1432:
