@@ -156,3 +156,5 @@ last frame shows, shoot the reference again:
 scripts/cargo run --release -p app -- --replay fidelity/replays/terrain-bomb-brick.txt \
   --screenshot scripts/release/smoke/terrain-bomb-brick.png
 ```
+
+<!-- 851-3998 skip probe: throwaway, never merged -->
