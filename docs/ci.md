@@ -144,8 +144,8 @@ organization's projects share GitHub's machines too):
   builds each pull request's site too, but tests nothing.
 - **"Mac mini / Web, wiki media and macOS"**, one mini: `scripts/check --apple`, what a Mac checks beside Linux
   (the sh scripts under macOS's bash 3.2; the macOS-only code, which Linux doesn't compile: clippy over the
-  workspace as macOS builds it, and the app's tests; `crates/workspace-hack`'s checks, which are Apple silicon
-  Macs'; fidelity-check's replays on the Mac app's own architecture, so a pull request still checks the
+  workspace as macOS builds it, and the app's tests; `crates/workspace-hack`'s checks as a
+  Mac resolves it; fidelity-check's replays on the Mac app's own architecture, so a pull request still checks the
   port is the same there as on Linux; and `scripts/fidelity-shots`, the renderer's pictures of chosen frames
   against the oracle's, on the mini's GPU: [formats.md](formats.md#screenshots)), then `scripts/web --check` and
   the wiki's committed media: `scripts/wiki-media --check --since HEAD^1`
@@ -271,8 +271,8 @@ one's half, the crates it builds and the paths it reads besides, beside what it 
 | `pins` | 1 | the workflows' actions pinned to SHAs | `.github/` (CI: every step runs) |
 | `gm8-arith` | 1 | the oracle's copy of `gm8.rs` | `crates/gm/src/gm8.rs`, patch 0014, the script |
 | `affected` | 1 | `scripts/affected --test` | nothing: Changes runs it on every pull request, before it decides |
-| `lints` | 1 | `cargo fmt`, clippy (both), `scripts/workspace-hack --check` | any crate, the workspace's files, `tools/gm8-probe` (built in) |
-| `tests` | 1 | `cargo test --workspace`, `scripts/workspace-hack --reused` | any crate, and what the crates' tests read (`TEST_INPUTS`: the replays, the reference, the clip specs and media, the wiki's data specs, `docs/source-inventory.md`, `tools/oracle`) |
+| `lints` | 1 | `cargo fmt`, clippy (both) of the crates a change affects, `scripts/workspace-hack --check` | any crate, the workspace's files, `tools/gm8-probe` (built in) |
+| `tests` | 1 | `cargo test` of the crates a change affects; for the whole workspace, `scripts/workspace-hack --reused` | any crate, and what the crates' tests read (`TEST_INPUTS`: the replays, the reference, the clip specs and media, the wiki's data specs, `docs/source-inventory.md`, `tools/oracle`) |
 | `transpile` | 1 | `scripts/transpile --check` | `tools`, `game`, `config` or a crate they depend on, the reference |
 | `pxfm` | 1 | `vendor/pxfm`'s tests | `vendor/pxfm`, the toolchain |
 | `angles` | 1 | the angle probes' tool | `tools/gm8-probe`, the toolchain, `clippy.toml` |
@@ -293,15 +293,22 @@ alone). A file the suite reads that no step does, a file no area has, or a chang
 | the site's code and its sh scripts (#521, 851-4013) | `sh`, on one machine |
 | a wiki page | `wiki` |
 | a fingerprint | `fidelity` |
-| a replay | `fidelity`, `clips`, `tests` (harness's tests play replays) |
+| a replay | `fidelity`, `clips`, and harness's (and audio's) `tests`, as harness's tests play replays |
 | the app, or the updater | `lints`, `tests`, `wasm` |
 | a tool (`crates/tools`) | `lints`, `tests`, `transpile`, `fidelity`, `clips`, `wiki` |
 | the engine (`crates/gm`) | `lints`, `tests`, `transpile`, `fidelity`, `clips`, `wiki`, `wasm` (and `gm8-arith` for `gm8.rs`) |
 | CI, or the toolchain | everything, or nearly |
 
-`tests` and `lints` are the whole workspace's, never a crate's: on Linux a build of some packages resolves other
-features than the workspace's (crates/workspace-hack covers Apple silicon Macs only), so it would test another
-build and rebuild the shared dependencies main's cache has, until the hack covers Linux too (851-4018).
+`tests` and `lints` check only the crates a change affects (851-4018): its crates, every crate that depends on
+one, and those whose tests read what it changed (`suite_crates`, `scripts/check --crates`: `cargo test -p …`,
+`cargo clippy -p …`), and audio with them if they use it, so they ask for its backend as the workspace's build
+does. That's the same build as the workspace's because crates/workspace-hack covers CI's x86_64 Linux as it does
+Apple silicon Macs: without it, a build of some packages resolved other features of 8 crates (syn among them), so
+it tested another build and rebuilt the proc-macros main's cache has. On Linux harness, tools and the app take the
+hack only as a dev-dependency, so the release binaries built there (the soak's, a release's `fidelity`) and the
+shipped apps resolve as before; `scripts/workspace-hack --check`, which `lints` runs, compares each member's test
+build with the workspace's on Linux too. A change to the workspace's files, or one every member reads, checks the
+whole workspace, as does every push to `main`, with `--reused` after it.
 
 ## Releases
 

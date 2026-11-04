@@ -32,3 +32,8 @@ workspace = true
 # (crates/workspace-hack).
 [target.'cfg(all(target_os = "macos", target_arch = "aarch64"))'.dependencies]
 workspace-hack = { path = "../workspace-hack" }
+# On CI's x86_64 Linux, for its builds of some packages (scripts/check's per-crate steps): the tests' and lints'
+# only, so the release binaries the soak and the releases build there (harness's fidelity, tools' extract) don't
+# link what the hack brings (kira's cpal, ALSA), as they didn't before.
+[target.'cfg(all(target_os = "linux", target_arch = "x86_64"))'.dev-dependencies]
+workspace-hack = { path = "../workspace-hack" }

@@ -71,7 +71,8 @@ BUILD_INPUTS = {
 # changes what they check, not what they are. What the suite's steps read as they run the crates' binaries
 # (fidelity-check's fingerprints, wiki-cites' pages) is the steps' own (STEPS), not their tests'.
 TEST_INPUTS = {
-    "reference/": {"gm", "gmk", "transpile", "tools", "harness"},
+    # The reference .gmk: the crates that load it, by path or through transpile::reference (--test checks both).
+    "reference/": {"gm", "gmk", "transpile", "tools", "harness", "app", "config", "game"},
     "docs/source-inventory.md": {"gmk", "harness"},
     # The replays harness's tests play (tests/common's replay(), fuzz::FROM_REPLAYS'); not the fingerprints, which
     # only fidelity-check reads.
@@ -152,7 +153,7 @@ STEPS = {
     # This script's self-test, which pr.yml's Changes runs on every pull request, before it decides: no file runs it
     # here, only a run of every step.
     "affected": (1, [], [], ["cargo"]),
-    # The crates' formatting and clippy (and crates/workspace-hack's check, which is Apple silicon Macs').
+    # The crates' formatting and clippy, and crates/workspace-hack's check.
     "lints": (1, ["*"], [], ["cargo"]),
     # Every crate's tests, and what they read (TEST_INPUTS).
     "tests": (1, ["*"], list(TEST_INPUTS), ["cargo"]),
@@ -221,7 +222,8 @@ CASES = [
           steps="fidelity")),
     # harness's tests play committed replays, and the clips are cut from them.
     ("a replay alone", ["fidelity/replays/olmec-door-rope.txt"],
-     dict(run_suite=True, run_site=False, media=True, fidelity=True, steps="clips fidelity tests")),
+     dict(run_suite=True, run_site=False, media=True, fidelity=True, steps="clips fidelity tests",
+          suite_crates="audio harness")),
     ("4edb2ee4: a coverage replay", ["fidelity/COVERAGE.md", "fidelity/fingerprints/replays/olmec-door-rope.json",
                                       "fidelity/replays/olmec-door-rope.txt"],
      dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=True, fidelity=True,
@@ -233,14 +235,16 @@ CASES = [
     ("a removed replay", ["D fidelity/replays/olmec-door-rope.txt", "D fidelity/fingerprints/replays/olmec-door-rope.json"],
      dict(run_suite=True, run_mini=True, run_site=True, media=True, steps="clips fidelity tests")),
     ("the source inventory, which gmk's and harness's tests read", ["docs/source-inventory.md"],
-     dict(run_suite=True, docs_only=False, steps="tests")),
+     dict(run_suite=True, docs_only=False, steps="tests", suite_crates="audio gmk harness")),
     ("6da0839b: the app only", ["crates/app/src/main.rs", "crates/app/src/web.rs"],
      dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=True, crates={"app"},
-          steps="lints tests wasm")),
+          steps="lints tests wasm", suite_crates="app audio")),
     ("9e2fae21: the updater", ["crates/app/src/update.rs", "crates/update/src/lib.rs", "docs/updates.md"],
-     dict(run_suite=True, run_mini=True, run_updater=True, release=True, steps="lints tests wasm")),
+     dict(run_suite=True, run_mini=True, run_updater=True, release=True, steps="lints tests wasm",
+          suite_crates="app audio update")),
     ("a tool's code (wiki-cites)", ["crates/tools/src/bin/wiki-cites.rs"],
-     dict(run_suite=True, run_updater=False, steps="clips fidelity lints tests transpile wiki")),
+     dict(run_suite=True, run_updater=False, steps="clips fidelity lints tests transpile wiki",
+          suite_crates="audio harness tools")),
     ("2035a330: the runner and the harness", ["crates/gm/src/audio.rs", "crates/harness/tests/audio_mode.rs",
                                                "docs/quirks.md"],
      dict(run_suite=True, run_mini=True, run_site=True, run_updater=False, media=True,
@@ -248,7 +252,8 @@ CASES = [
     # The engine's number rules, which the oracle's patch 0014 copies: every step that reads the engine.
     ("an engine change (gm8.rs)", ["crates/gm/src/gm8.rs"],
      dict(run_suite=True, run_mini=True, run_updater=False, media=True,
-          steps="clips fidelity gm8-arith lints tests transpile wasm wiki")),
+          steps="clips fidelity gm8-arith lints tests transpile wasm wiki",
+          suite_crates="app audio config game gm harness tools transpile")),
     ("the toolchain", ["rust-toolchain.toml"],
      dict(run_suite=True, run_updater=True, steps="angles clips fidelity licenses lints pxfm tests transpile wasm wiki")),
     # The suite never reads it, but the media (and the site) do.
@@ -259,7 +264,7 @@ CASES = [
     ("the vendored math crate", ["vendor/pxfm/src/lib.rs"],
      dict(run_suite=True, steps="angles clips fidelity lints pxfm tests transpile wasm wiki")),
     ("a script only a step runs (wiki-data)", ["scripts/wiki-data"],
-     dict(run_suite=True, steps="sh wiki")),
+     dict(run_suite=True, steps="sh wiki", suite_crates="")),
     ("539ff470: CI itself", [".github/workflows/pr.yml", "docs/ci.md", "scripts/check"],
      dict(run_suite=True, run_mini=True, run_site=True, run_updater=True, ci=True, steps="all")),
     ("a file no area has", ["somewhere-new/thing.txt"],
@@ -442,6 +447,23 @@ def suite_steps(steps):
     return "all" if steps == set(STEPS) else " ".join(sorted(steps))
 
 
+def suite_crates(result, dirs, users):
+    """The crates the suite's `lints` and `tests` steps check (`cargo clippy -p`, `cargo test -p`): those a change
+    affects (its crates, their dependents, and those whose tests read what it changed), as names, or "" for the
+    whole workspace (`--workspace`): when every step runs, or every member is affected. A build of some packages
+    resolves as the workspace's does on the machines the hack covers (crates/workspace-hack), CI's x86_64 Linux
+    among them (851-4018). One that uses audio takes it too, so it can ask for audio's backend as the
+    workspace's build does (`--features audio/backend`, which a selection without audio can't)."""
+    # The members with code of their own (workspace-hack has none a change could pick).
+    members = {c for c, d in dirs.items() if d.startswith("crates/")} - {"workspace-hack"}
+    picked = result["crates"] & members
+    if result["steps"] == set(STEPS) or not {"lints", "tests"} & result["steps"] or picked == members:
+        return ""
+    if picked & dependents({"audio"}, users):
+        picked.add("audio")
+    return "" if picked == members else " ".join(sorted(picked))
+
+
 def suite_parts(steps):
     """The halves of the suite that have a step to run, as a JSON list (suite.yml's matrix)."""
     return json.dumps(sorted({STEPS[s][0] for s in steps}))
@@ -452,13 +474,14 @@ def diff(base, head):
     return [(line.split("\t", 1)[0][0], line.split("\t", 1)[1]) for line in out.splitlines() if line]
 
 
-def outputs(result):
+def outputs(result, info):
     lines = ["%s=%s" % (a, str(v).lower()) for a, v in result["areas"].items()]
     lines.append("docs_only=%s" % str(result["docs_only"]).lower())
     lines.append("crates=%s" % " ".join(sorted(result["crates"])))
     lines += ["%s=%s" % (j, str(result["jobs"][j]).lower()) for j in JOBS]
     lines.append("suite_steps=%s" % suite_steps(result["steps"]))
     lines.append("suite_parts=%s" % suite_parts(result["steps"]))
+    lines.append("suite_crates=%s" % suite_crates(result, info[0], info[1]))
     return lines
 
 
@@ -508,7 +531,7 @@ def self_test():
         changes = [(f[0], f[2:]) if f.startswith("D ") else ("M", f) for f in files]
         r = affected(changes, info, base="HEAD")
         got = dict(r["jobs"], docs_only=r["docs_only"], unknown=bool(r["unknown"]), crates=r["crates"],
-                   steps=suite_steps(r["steps"]), **r["areas"])
+                   steps=suite_steps(r["steps"]), suite_crates=suite_crates(r, info[0], info[1]), **r["areas"])
         for key, value in want.items():
             if got[key] != value:
                 fail("%s: %s is %s, not %s" % (name, key, "nothing" if got[key] == "" else got[key],
@@ -551,6 +574,15 @@ def self_test():
                     not (path in tracked and path not in in_suite) and \
                     not (path.endswith("/") and not any(t.startswith(path) for t in in_suite)):
                 fail("%s reads %s, which BUILD_INPUTS, TEST_INPUTS and STEPS don't give it" % (crate, path))
+    # A crate that loads the reference through transpile::reference (its default_path, the zip's) reads it, though
+    # its sources name no path: the suite checks only the crates that do (suite_crates).
+    for crate, d in sorted(dirs.items()):
+        if d.startswith("crates/") and crate != "transpile" and crate not in TEST_INPUTS["reference/"]:
+            uses = subprocess.run(["git", "grep", "-qE", r"reference::(default_path|load_gmk|load_program)", "--", d])
+            if uses.returncode > 1:
+                raise RuntimeError("git grep failed")
+            if uses.returncode == 0:
+                fail("%s loads the reference (transpile::reference), which TEST_INPUTS doesn't give it" % crate)
     # Every pattern names something that exists, so a move or a rename doesn't leave one matching nothing.
     for area, patterns in list(AREAS.items()) + list(REMOVED.items()):
         for p in patterns:
@@ -655,8 +687,9 @@ def main(argv):
     if len(argv) != 2 or argv[0].startswith("-"):
         print(usage, file=sys.stderr)
         return 2
-    result = affected(diff(argv[0], argv[1]), base=argv[0])
-    lines = outputs(result)
+    info = context()
+    result = affected(diff(argv[0], argv[1]), info, base=argv[0])
+    lines = outputs(result, info)
     print("\n".join(lines))
     if result["unknown"]:
         print("no area has %s: running every job" % ", ".join(result["unknown"]), file=sys.stderr)

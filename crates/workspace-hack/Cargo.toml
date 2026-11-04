@@ -55,4 +55,16 @@ thiserror = { version = "2" }
 [target.aarch64-apple-darwin.build-dependencies]
 syn = { version = "3", default-features = false, features = ["full"] }
 
+[target.x86_64-unknown-linux-gnu.dependencies]
+bitflags = { version = "2", default-features = false, features = ["std"] }
+bytemuck = { version = "1", default-features = false, features = ["aarch64_simd"] }
+libc = { version = "0.2", features = ["extra_traits"] }
+nix = { version = "0.31", default-features = false, features = ["event", "ioctl", "signal"] }
+num-traits = { version = "0.2", default-features = false, features = ["i128", "libm", "std"] }
+once_cell = { version = "1" }
+smallvec = { version = "1", default-features = false, features = ["const_new", "union"] }
+
+[target.x86_64-unknown-linux-gnu.build-dependencies]
+memchr = { version = "2" }
+
 ### END HAKARI SECTION

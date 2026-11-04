@@ -63,5 +63,11 @@ wgpu = { version = "30", default-features = false, features = ["webgl"] }
 gmk.workspace = true
 transpile.workspace = true
 
+# The workspace's features on CI's x86_64 Linux, for its test and lint builds of some packages (crates/workspace-hack;
+# a Mac's builds of the app alone resolve as the workspace's without it). A dev-dependency: the shipped builds,
+# Linux's included, don't have it.
+[target.'cfg(all(target_os = "linux", target_arch = "x86_64"))'.dev-dependencies]
+workspace-hack = { path = "../workspace-hack" }
+
 [lints]
 workspace = true

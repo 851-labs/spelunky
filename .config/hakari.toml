@@ -5,4 +5,4 @@ dep-format-version = "4"
 resolver = "2"
 # Where the main checkout and the worktrees build: the Macs. The members depend on the package on macOS only
 # (wired by hand, not `cargo hakari manage-deps`), so no other platform's build has it.
-platforms = ["aarch64-apple-darwin"]
+platforms = ["aarch64-apple-darwin", "x86_64-unknown-linux-gnu"]

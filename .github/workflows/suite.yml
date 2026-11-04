@@ -3,9 +3,9 @@
 # a push to main runs it too, which checks main after each merge and saves the build cache every pull request's run
 # starts from (a pull request's own cache only its later runs could use).
 #
-# Everything in scripts/check runs on Linux, fidelity-check's replays too (gm::math is the same everywhere), but
-# crates/workspace-hack's checks, which are Apple silicon Macs' and skip themselves, and the macOS-only code, which
-# Linux doesn't compile: pr.yml's mini job runs those (scripts/check --apple).
+# Everything in scripts/check runs on Linux, fidelity-check's replays and crates/workspace-hack's checks too
+# (gm::math is the same everywhere, and the hack covers CI's x86_64 Linux), but the macOS-only code, which Linux
+# doesn't compile: pr.yml's mini job runs that (scripts/check --apple).
 #
 # Two machines side by side, each running half of it (scripts/check --part 1 and --part 2: together all of it), split
 # by what they build (851-3998, docs/ci.md "Pull requests"), in a checkout of only what the suite reads; pr.yml
@@ -24,6 +24,11 @@ on:
       parts:
         type: string
         default: '[1, 2]'
+      # Its suite_crates: the crates the lints and tests (part 1's) check, or nothing for the whole workspace
+      # (851-4018).
+      crates:
+        type: string
+        default: ''
   push:
     branches: [main]
 
@@ -126,9 +131,12 @@ jobs:
       - env:
           PART: ${{ matrix.part }}
           ONLY: ${{ steps.plan.outputs.only }}
+          CRATES: ${{ inputs.crates }}
         run: |
           if [ "$ONLY" = all ]; then
             sh -x scripts/check --part "$PART"
+          elif [ -n "$CRATES" ] && [ "$PART" = 1 ]; then
+            sh -x scripts/check --part "$PART" --only "$ONLY" --crates "$CRATES"
           else
             sh -x scripts/check --part "$PART" --only "$ONLY"
           fi
