@@ -62,6 +62,53 @@ laptop with the same macOS and git, nor in 200 on a mini with a made-up tree of 
 checkout of the same files, and a pack, never failed. So a script that commits many files on CI writes them
 with one `git fast-import` (a single pack, as site/test.sh's stand-in does), not `git add` and `git commit`.
 
+### Fallback: GitHub-hosted macOS
+
+If the minis are ever unavailable, `pr.yml`'s mini job runs unchanged on GitHub's `macos-15` (Apple silicon,
+free for a public repository), only slower. 851-3990 ran its commands there (image 20261028: "Apple M1
+(Virtual)", 3 cores, 7 GiB, 43 GiB free; [PR #507](https://github.com/851-labs/spelunky/pull/507)'s runs):
+
+- **The GPU.** Metal has one device, "Apple Paravirtual device", which wgpu takes (the Metal backend, an
+  integrated GPU, WebGPU-compliant).
+- **Every check passed as it is**, nothing loosened: `fidelity-shots` matched all 18 pictures exactly;
+  `scripts/wiki-media --check`, rendering every clip, found `wiki/media` byte for byte what it renders (329 clips,
+  each video kept), and with `--full`, encoding every clip again with the pinned ffmpeg, so were the videos;
+  fidelity-check matched all 336 replays; the rest of `scripts/check --apple` and `scripts/web --check` passed.
+- **The time.** The VM's three cores are much slower than a mini: about 7 times on what's the same work on both
+  (fidelity-check's run of the replays, the clips' render). One run each, and GitHub's VMs vary from run to run
+  (the warm run was slower than the cold one on some steps). The mini's column is one run that rendered the
+  media ([41639042037](https://github.com/851-labs/spelunky/actions/runs/41639042037)); one that renders nothing
+  takes about 2:05 in all:
+
+  | Step | `macos-15`, cold | `macos-15`, warm | Mac mini |
+  | --- | --- | --- | --- |
+  | Setup: checkout, toolchain, Node, cache | 0:39 | 0:58 | 0:05 |
+  | `scripts/check --apple` | 19:55 | 14:03 | 1:57 |
+  | of which fidelity-check's run | 1:47 | | 0:15 |
+  | `scripts/web --check` | 4:48 | 6:24 | 2:02, both steps |
+  | `scripts/wiki-media --check`, every clip rendered | 10:04 | 14:19 | (above) |
+  | of which the clips' render | 8:49 | | 1:20 |
+  | `scripts/wiki-media --check --full`, every clip encoded again | | 36:28 | |
+  | The job | about 36 min | about 36 min | 4:05 |
+
+  "Warm" is a second run restoring the first's Swatinem/rust-cache (643 MiB): that keeps the dependencies, not the
+  workspace's crates, which each run builds again, so it saves little. So the minis stay: on `macos-15` the job
+  would take about 20 to 27 minutes for every pull request, and about 36 for one that changes what the media are
+  made from, where a mini takes two to four.
+
+To switch, in `pr.yml`'s `web` job: replace `uses: ./.github/workflows/mini.yml` (and its `with:`) with
+`runs-on: macos-15`, `shell: bash` (as `mini.yml` has: bash with `pipefail`) and steps of its own:
+`actions/checkout` (`persist-credentials: false`, `fetch-depth: 2`), `rustup toolchain install --no-self-update`
+(the image has rustup), `actions/setup-node` with `site/.node-version`, `Swatinem/rust-cache` with a `shared-key`
+of its own, then the same three commands, with a timeout of about 60 minutes. A pull request's cache serves only
+its own later runs, so to share one, the job goes in a reusable workflow that a push to `main` runs too and that
+alone saves the cache, as `suite.yml` does (not a push trigger on `pr.yml`, which reads the pull request's
+fields). `release.yml`'s mini job, the full `scripts/check`, moves the same way, but it wasn't timed on
+`macos-15`: give it a longer timeout than the default 60 minutes. Once no job of `pr.yml` or `release.yml` runs on
+the minis, the fork `if:` and `pr-ok`'s refusal of forks, which are there for the minis, can go: a fresh VM keeps
+nothing between jobs. It's one more of GitHub's macOS machines a pull request (the updater's is the other), of
+the organization's five or so at once.
+
 ## Pull requests
 
 The repository is public, so `pr.yml` runs untrusted code, on our own machines too. It uses `pull_request` (never
