@@ -98,6 +98,16 @@ tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
 cat >"$tmp/latest.json" <<'EOF2'
 {"manifest":"{\"version\":\"9.9.9\",\"notes\":\"https://github.com/851-labs/spelunky/releases/tag/v9.9.9\",\"assets\":{\"macos\":{\"url\":\"https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-macos.zip\",\"sha256\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"size\":26388724,\"format\":\"app-zip\"},\"windows-aarch64\":{\"url\":\"https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-windows-arm64.zip\",\"sha256\":\"0000000000000000000000000000000000000000000000000000000000000002\",\"size\":16967822,\"format\":\"dir-zip\"},\"windows-x86_64\":{\"url\":\"https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-windows-x64.zip\",\"sha256\":\"0000000000000000000000000000000000000000000000000000000000000003\",\"size\":17875061,\"format\":\"dir-zip\"}}}","signature":"00"}
 EOF2
+# And its SHA256SUMS (release.yml's), the manifest's files and a disk image, with the disk image's size, as
+# web-release.txt has it (scripts/bump-web-release): the release's other format the page lists under macOS.
+z=000000000000000000000000000000000000000000000000000000000000000
+cat >"$tmp/SHA256SUMS" <<EOF2
+${z}1  spelunky-9.9.9-macos.zip
+${z}4  spelunky-9.9.9-macos.dmg
+${z}2  spelunky-9.9.9-windows-arm64.zip
+${z}3  spelunky-9.9.9-windows-x64.zip
+EOF2
+echo "size spelunky-9.9.9-macos.dmg 30151290" >"$tmp/sizes"
 # And for the wiki's media (wiki/media, which scripts/wiki-media renders), with its real LICENSE.txt and
 # NOTICE.txt: the indexes, the pages' sprites and the Snake's clip, with
 # what of docs/wiki-media.md's fields src/seo/media-package.ts reads (test-media.mjs checks what the JSON-LD
@@ -259,7 +269,8 @@ rm -rf "$media"
 git -C "$tmp/wiki-media-origin" config uploadpack.allowFilter true
 git clone -q --depth 1 "file://$tmp/wiki-media-origin" "$media"
 media_url=/wiki/media
-./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --wiki-media "$media"
+./build.sh --local "$tmp/web.tar.gz" --manifest "$tmp/latest.json" --sums "$tmp/SHA256SUMS" --sizes "$tmp/sizes" \
+  --wiki-media "$media"
 
 # running PID: PID hasn't exited (a zombie has, though kill -0 still finds it until the shell reaps it).
 running() {
@@ -1100,8 +1111,9 @@ check "$site/LICENSE.txt" 301 "$no_cache" "location: $site/license"
 check "$site/LICENSE.txt/" 301 "$no_cache" "location: $site/license"
 
 # The download page (src/routes/download.tsx), pre-rendered from the stand-in manifest: its systems' files, each
-# with its size (and no SHA-256 line: the release's SHA256SUMS has them), and no system the manifest has no file for; Download marked in the header; its own
-# stylesheet.
+# with its size (and no SHA-256 line: the release's SHA256SUMS has them), the .dmg under macOS, from the stand-in
+# SHA256SUMS, with its pinned size, and no system the manifest has no file for; Download marked in the header; its
+# own stylesheet.
 check "$site/download" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts" "$frame_csp"
 contains '<title>Download Spelunky Classic for macOS, Windows and Linux (unofficial port)</title>' \
   '<link rel="canonical" href="https://spelunky.ai/download"/>' \
@@ -1109,7 +1121,8 @@ contains '<title>Download Spelunky Classic for macOS, Windows and Linux (unoffic
   'Version <!-- -->9.9.9<!-- --> of the port' '<h2 id="system-macos">macOS</h2>' '<h2 id="system-windows">Windows</h2>' \
   '<a class="file" href="https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-macos.zip"><span class="file-label">Universal</span><span class="file-meta">zip<!-- -->, <!-- -->26.4 MB</span></a>' \
   '<a class="file" href="https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-windows-x64.zip"><span class="file-label">x64</span><span class="file-meta">zip<!-- -->, <!-- -->17.9 MB</span></a>' \
-  '<a href="https://github.com/851-labs/spelunky/releases/tag/v9.9.9">' \
+  '<a href="https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-macos.dmg">Universal<!-- --> <!-- -->dmg</a>' \
+  'Also as <!-- -->a disk image<!-- -->:' '(<!-- -->30.2 MB<!-- -->)' '<a href="https://github.com/851-labs/spelunky/releases/tag/v9.9.9">' \
   '<a href="/license">Spelunky User License v1.1b</a>' \
   'is by Derek Yu, Copyright © 2008, 2009 Derek Yu and Mossmouth, LLC.'
 # As the landing page's, its notice is its Credits and license section's alone (851-4024).

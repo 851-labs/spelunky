@@ -3,12 +3,13 @@ import { useEffect, useState } from "react";
 import { release } from "virtual:site/release";
 import { seo } from "../seo/seo";
 import { browserSystem, detect, downloads, pick, size } from "../site/download";
-import type { Download, Os, System } from "../site/download";
+import type { Arch, Download, Os, System } from "../site/download";
 import { SiteFrame, SiteLinks, SiteSearch } from "../site/frame";
 
 // The native apps' page (851-4013): the release the site puts live, each system's files from its update manifest
 // (src/build/release.ts), with their sizes, so the page changes with web-release.txt and lists what
-// the apps update to. The files stay on GitHub's releases; the page links them. Its stylesheet is the root's to link
+// the apps update to; and under them the same system's other formats, the .dmg and the tarballs, from the release's
+// SHA256SUMS (851-4016). The files stay on GitHub's releases; the page links them. Its stylesheet is the root's to link
 // (__root.tsx), as the 404 page's is: inlined, it would be in the route tree, every page's entry chunk.
 export const Route = createFileRoute("/download")({
   head: () =>
@@ -39,6 +40,9 @@ function DownloadPage() {
   const list = LIST;
   const mine = list?.systems.find((system) => system.os === yours?.os);
   const first = mine && pick(mine.downloads, yours?.arch ?? null);
+  // Whether the cards have the .dmg and the tarballs, from the release's SHA256SUMS, or GitHub's release has to.
+  const kinds = new Set(list?.systems.flatMap((system) => system.more.map((download) => download.kind)));
+  const listsBoth = kinds.has("dmg") && kinds.has("tar.gz");
   return (
     <SiteFrame section="download" search={<SiteSearch />} footer={<SiteLinks />}>
       <h1>Download Spelunky Classic</h1>
@@ -77,11 +81,19 @@ function DownloadPage() {
           )}
           <section>
             <h2>Other files and versions</h2>
-            <p>
-              The macOS app as a disk image (<code>.dmg</code>), the Linux builds as tarballs, and every earlier
-              version are on GitHub: <a href={release.notes}>{release.version}'s release notes and files</a>, and{" "}
-              <a href={RELEASES}>all releases</a>.
-            </p>
+            {listsBoth ? (
+              <p>
+                Every earlier version is on GitHub: <a href={release.notes}>{release.version}'s release notes and
+                files</a>, and <a href={RELEASES}>all releases</a>.
+              </p>
+            ) : (
+              // A release pinned without its SHA256SUMS, or one without either format: GitHub has them.
+              <p>
+                The macOS app as a disk image (<code>.dmg</code>), the Linux builds as tarballs, and every earlier
+                version are on GitHub: <a href={release.notes}>{release.version}'s release notes and files</a>, and{" "}
+                <a href={RELEASES}>all releases</a>.
+              </p>
+            )}
             <p>
               To check a download, each file's SHA-256 is in the release's <code>SHA256SUMS</code>, with its notes.
             </p>
@@ -120,6 +132,21 @@ function DownloadPage() {
   );
 }
 
+// What the other formats are: "a disk image", "tarballs", or a kind the page doesn't know by its name.
+const FORMAT_NAMES: Record<string, [string, string]> = {
+  dmg: ["a disk image", "disk images"],
+  "tar.gz": ["a tarball", "tarballs"],
+};
+function formats(list: Download[]): string {
+  const kinds = [...new Set(list.map((download) => download.kind))];
+  return names(
+    kinds.map((kind) => {
+      const [one, many] = FORMAT_NAMES[kind] ?? [kind, kind];
+      return list.filter((download) => download.kind === kind).length > 1 ? many : one;
+    }),
+  );
+}
+
 // "macOS, Windows and Linux".
 function names(list: string[]): string {
   return list.length > 1 ? `${list.slice(0, -1).join(", ")} and ${list[list.length - 1]}` : (list[0] ?? "");
@@ -130,6 +157,7 @@ function SystemCard({
   name,
   needs,
   downloads,
+  more,
   yours,
   first,
 }: {
@@ -137,6 +165,7 @@ function SystemCard({
   name: string;
   needs: string;
   downloads: Download[];
+  more: Download[];
   yours: boolean;
   first: Download | undefined;
 }) {
@@ -148,8 +177,25 @@ function SystemCard({
       </h2>
       <p className="needs">{needs}</p>
       <Files downloads={downloads} first={first} />
+      {more.length > 0 && (
+        <p className="more">
+          Also as {formats(more)}:{" "}
+          {more.map((download, i) => (
+            <span key={download.file}>
+              {i > 0 && ", "}
+              <span className="more-file">
+                <a href={download.url}>
+                  {download.label} {download.kind}
+                </a>{" "}
+                ({size(download.size)})
+              </span>
+            </span>
+          ))}
+          .
+        </p>
+      )}
       <h3>Installing</h3>
-      <Install os={os} file={(first ?? downloads[0])?.file ?? ""} />
+      <Install os={os} file={(first ?? downloads[0])?.file ?? ""} arch={(first ?? downloads[0])?.arch ?? null} more={more} />
     </section>
   );
 }
@@ -158,7 +204,7 @@ function Files({ downloads, first }: { downloads: Download[]; first?: Download }
   return (
     <ul className="files">
       {downloads.map((download) => (
-        <li key={download.platform} data-first={download === first || undefined}>
+        <li key={download.file} data-first={download === first || undefined}>
           <a className="file" href={download.url}>
             <span className="file-label">{download.label}</span>
             <span className="file-meta">
@@ -173,10 +219,23 @@ function Files({ downloads, first }: { downloads: Download[]; first?: Download }
 
 // What to do with the file once it's downloaded. The macOS app is signed and notarized, the others aren't signed
 // (docs/releasing.md).
-function Install({ os, file }: { os: Os; file: string }) {
+function Install({ os, file, arch, more }: { os: Os; file: string; arch: Arch | null; more: Download[] }) {
+  // The reader's processor's, as their AppImage above is.
+  const tarball = pick(
+    more.filter((download) => download.kind === "tar.gz"),
+    arch,
+  );
   switch (os) {
     case "macos":
-      return (
+      return more.some((download) => download.kind === "dmg") ? (
+        <ol>
+          <li>Open the zip (Safari opens it itself), or the disk image, to get Spelunky Classic.</li>
+          <li>
+            Move it to Applications (the disk image has it beside a link to drag it onto), and open it. It's signed and
+            notarized by Apple, so it opens as any app does.
+          </li>
+        </ol>
+      ) : (
         <ol>
           <li>Open the zip (Safari opens it itself) to get Spelunky Classic.</li>
           <li>Move it to Applications, and open it. It's signed and notarized by Apple, so it opens as any app does.</li>
@@ -205,6 +264,13 @@ function Install({ os, file }: { os: Os; file: string }) {
           <li>
             Run it. On a system without FUSE, run it with <code>--appimage-extract-and-run</code>.
           </li>
+          {tarball && (
+            // A tarball's install can't update in place: the app offers it the release's page (docs/updates.md).
+            <li>
+              Or extract a tarball (<code>tar -xzf {tarball.file}</code>) and run <code>spelunky</code> in its folder.
+              That copy doesn't update itself: it tells you when there's a new version, and links its release.
+            </li>
+          )}
         </ol>
       );
   }

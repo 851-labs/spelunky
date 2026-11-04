@@ -1,6 +1,7 @@
 /* The download page (src/routes/download.tsx): the site's frame; the reader's system's download, the play button's
-   gold; then a card a system, side by side where there's room, each with its files and their sizes, and
-   how to install it. Every block on the keyline (site/test-keyline.mjs): the cards' edges are their borders. */
+   gold; then a card a system, side by side where there's room, each with its files and their sizes (its other
+   formats in a line under them), and how to install it. Every block on the keyline (site/test-keyline.mjs): the
+   cards' edges are their borders. */
 @import "./site.css";
 
 /* The gap under the heading that the notice line's margin set before 851-4024 dropped it. */
@@ -53,6 +54,10 @@ code { font: inherit; font-size: 14px; background: var(--panel); padding: 0 4px;
 [data-first] > .file { color: #2a1a08; background: var(--gold); box-shadow: var(--bevel); }
 [data-first] > .file:hover { background: #ffd860; }
 .file-meta { font-weight: 400; }
+/* The system's other formats (the .dmg, the tarballs): links in a line under the buttons, as they're for fewer. */
+.more { margin: 12px 0 0; color: var(--dim); font-size: 13px; }
+/* A file and its size kept together: "(30.2" and "MB)" a line each read as two things. */
+.more-file { white-space: nowrap; }
 .system h3 { margin: 20px 0 4px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
 .system ol { margin: 0; font-size: 14px; }
 .system li + li { margin-top: 4px; }

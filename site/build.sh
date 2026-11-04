@@ -6,11 +6,12 @@
 # wiki/media (docs/wiki-media.md), at /wiki/media/. Workers Builds' build command (docs/web-deploy.md), so
 # it needs only Node, git, curl, tar and a SHA-256 tool, no Rust.
 #
-#   site/build.sh                 download the release's spelunky-web-<tag>.tar.gz and latest.json, and
-#                                 check their SHA-256s
-#   site/build.sh --local PATH [--manifest FILE]
+#   site/build.sh                 download the release's spelunky-web-<tag>.tar.gz, latest.json and
+#                                 SHA256SUMS, and check their SHA-256s
+#   site/build.sh --local PATH [--manifest FILE [--sums FILE --sizes FILE]]
 #                                 use a local tarball instead (scripts/web --package PATH), checked against
-#                                 PATH.sha256 if it's there, and FILE as latest.json
+#                                 PATH.sha256 if it's there, FILE as latest.json, and as SHA256SUMS and
+#                                 web-release.txt's size lines (the /download page's other files)
 #   site/build.sh ... --wiki-media DIR
 #                                 and other wiki media than wiki/media (site/test.sh's stand-in)
 set -eu
@@ -18,22 +19,32 @@ set -eu
 # one with the trap's status, 0 (851-3743, as site/test.sh does; scripts/check-sh).
 sh -n "$0" || exit 2
 die() { echo "site/build.sh: $*" >&2; exit 1; }
-usage() { echo "usage: site/build.sh [--local PATH [--manifest FILE]] [--wiki-media DIR]" >&2; exit 2; }
+usage() {
+  echo "usage: site/build.sh [--local PATH [--manifest FILE [--sums FILE --sizes FILE]]] [--wiki-media DIR]" >&2
+  exit 2
+}
 given=
 manifest=
+sums=
+sizes=
 wiki_media=
 while [ $# -gt 0 ]; do
   [ $# -ge 2 ] || usage
   case $1 in
     --local) given=$2 ;;
     --manifest) manifest=$2 ;;
+    --sums) sums=$2 ;;
+    --sizes) sizes=$2 ;;
     --wiki-media) wiki_media=$2 ;;
     *) usage ;;
   esac
   shift 2
 done
-# Without --local, the manifest is the release's.
+# Without --local, the manifest and SHA256SUMS are the release's; the files SHA256SUMS lists are the manifest's
+# release's, and the sizes are of its files.
 [ -z "$manifest" ] || [ -n "$given" ] || usage
+[ -z "$sums" ] || [ -n "$manifest" ] || usage
+{ [ -z "$sums" ] && [ -z "$sizes" ]; } || { [ -n "$sums" ] && [ -n "$sizes" ]; } || usage
 # Relative to where it was run, not site/.
 absolute() {
   if [ -f "$1" ]; then echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"; else echo "$1"; fi
@@ -43,6 +54,11 @@ if [ -n "$manifest" ]; then
   [ -f "$manifest" ] || die "no $manifest"
   manifest=$(absolute "$manifest")
 fi
+for file in "$sums" "$sizes"; do
+  [ -z "$file" ] || [ -f "$file" ] || die "no $file"
+done
+[ -z "$sums" ] || sums=$(absolute "$sums")
+[ -z "$sizes" ] || sizes=$(absolute "$sizes")
 if [ -n "$wiki_media" ]; then
   [ -d "$wiki_media" ] || die "no $wiki_media"
   wiki_media=$(cd "$wiki_media" && pwd)
@@ -95,6 +111,18 @@ else
     curl -fsSL --retry 3 -o "$manifest" "$url" || die "couldn't download $url"
     got_manifest=$(sha256 "$manifest")
     [ "$got_manifest" = "$want_manifest" ] || die "$url has SHA-256 $got_manifest, not $want_manifest"
+    # And its SHA256SUMS, which the /download page lists the other files from (the .dmg, the tarballs), with the
+    # sizes web-release.txt has of them (src/build/release.ts): pinned too, as the bump checked each file against it.
+    want_sums=$(awk '$1 == "sums-sha256" { print $2 }' web-release.txt)
+    if [ -n "$want_sums" ] && [ "$want_sums" != none ]; then
+      url=https://github.com/851-labs/spelunky/releases/download/$tag/SHA256SUMS
+      echo "site/build.sh: downloading $url"
+      sums=$tmp/SHA256SUMS
+      curl -fsSL --retry 3 -o "$sums" "$url" || die "couldn't download $url"
+      got_sums=$(sha256 "$sums")
+      [ "$got_sums" = "$want_sums" ] || die "$url has SHA-256 $got_sums, not $want_sums"
+      sizes=$(pwd)/web-release.txt
+    fi
   fi
 fi
 got=$(sha256 "$tarball")
@@ -226,6 +254,12 @@ export WIKI_COMMIT
 # The update manifest, which the /download page lists the native apps' files from (src/build/release.ts), as the
 # apps update to them: none without one, when the page sends readers to GitHub's releases.
 if [ -n "$manifest" ]; then export SITE_RELEASE_MANIFEST="$manifest"; else unset SITE_RELEASE_MANIFEST; fi
+# And its other files, the .dmg and the tarballs: none without SHA256SUMS, when the page links the release for them.
+if [ -n "$sums" ]; then
+  export SITE_RELEASE_SUMS="$sums" SITE_RELEASE_SIZES="$sizes"
+else
+  unset SITE_RELEASE_SUMS SITE_RELEASE_SIZES
+fi
 
 # package-lock.json pins every package: npm ci installs exactly those, or fails.
 npm ci --no-audit --no-fund

@@ -1,8 +1,13 @@
 # The release site/build.sh puts live: a GitHub Release's tag, the SHA-256 of its spelunky-web-<tag>.tar.gz
-# (the web build, at /play/), and the SHA-256 of its latest.json (the native apps' update manifest, at
-# /releases/latest.json; "none" for a release without one). Written by scripts/bump-web-release <tag>; a PR
-# changing it is a deploy. "none" until the first release has a web build: build.sh refuses to build the
-# site until then.
+# (the web build, at /play/), the SHA-256 of its latest.json (the native apps' update manifest, at
+# /releases/latest.json; "none" for a release without one), and the SHA-256 of its SHA256SUMS with the sizes of
+# the other downloads /download lists from it, the .dmg and the Linux tarballs ("none", and no sizes, without
+# latest.json or SHA256SUMS). Written by scripts/bump-web-release <tag>; a PR changing it is a deploy. "none"
+# until the first release has a web build: build.sh refuses to build the site until then.
 tag v0.1.19
 sha256 1d747b9c09ad2986ab5ced14f28ef85ecb15a739a1602769a231d356fb0905c9
 manifest-sha256 3f89b7d3fce169023dd17c6fe768ca678af064c749a6e1756704d3594ee7815c
+sums-sha256 d196456c6ddcf2b9897f8a28a0dd986c8bd1d73999ab56f3adedb00b264a20f7
+size spelunky-0.1.19-linux-arm64.tar.gz 16705489
+size spelunky-0.1.19-linux-x64.tar.gz 17551610
+size spelunky-0.1.19-macos.dmg 30151290

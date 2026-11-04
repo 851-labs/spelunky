@@ -19,7 +19,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/wiki/<alias>`, `/wiki/<alias>.md` | a page's other names (its frontmatter's `aliases`, docs/wiki-style.md): a redirect (301) to the page, or its twin, from the Worker's map of them (`virtual:wiki/aliases`, made by the build) | `no-cache` |
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`, `X-Robots-Tag: noindex`: the pages are what search engines index), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
-| `/download` | the native apps' page (`site/src/routes/download.tsx`, pre-rendered): that manifest's files, a system each, with their sizes and SHA-256s, linking GitHub's release, where they stay ([Putting a version live](#putting-a-version-live)) | `no-cache` |
+| `/download` | the native apps' page (`site/src/routes/download.tsx`, pre-rendered): that manifest's files, a system each, with their sizes, and under them the release's other formats (the macOS `.dmg`, the Linux tarballs) from its `SHA256SUMS`, linking GitHub's release, where they stay ([Putting a version live](#putting-a-version-live)) | `no-cache` |
 | `/wiki/media/` | the wiki's sprites, clips and rooms' pictures, committed in `wiki/media` (`docs/wiki-media.md`); the clips' videos with byte ranges; its `LICENSE.txt` and `NOTICE.txt` in UTF-8, the type from `_headers`. `/wiki/media/HASH/...`, where a release's package was, redirects (301) to `/wiki/media/...` | a day |
 | `/media/` | the landing page's gameplay video and still, its Open Graph card, and the logo every page shows (`site/public/media/`): the pictures skip the Worker, and the video comes through it for byte ranges ([Wiki media](#wiki-media), "Byte ranges"); `build.sh` fails on any other kind of file there. They keep their names, so a new logo reaches a returning reader within the day | a day |
 | `/wiki/og/<slug>.HASH.png` | the wiki's Open Graph images, one a page and hub, `HASH` being of the file (SEO, "Open Graph images") | `immutable`, a year |
@@ -223,7 +223,9 @@ which is a `src`) would be blocked: no build sees it to hash it. Turning one on 
    `spelunky-web-TAG.tar.gz`, made by `scripts/web --package`, and `latest.json`, the native apps' signed
    update manifest (`docs/updates.md`).
 2. `scripts/bump-web-release TAG` downloads them, checks the manifest's signature, and writes the tag and
-   both SHA-256s into `site/web-release.txt`. (The wiki's media are committed, and go live with the pull
+   both SHA-256s into `site/web-release.txt`, with the SHA-256 of the release's `SHA256SUMS` and the sizes of the
+   `.dmg` and the Linux tarballs it lists (each downloaded and checked against it first: `SHA256SUMS` has no
+   sizes). (The wiki's media are committed, and go live with the pull
    request that renders them: `docs/wiki-media.md`.)
 3. A pull request with that change; merging it to `main` builds and deploys the site (a minute or two). The
    web build at `/play/`, the native apps' update at `/releases/latest.json` and the files `/download` lists go
@@ -231,7 +233,13 @@ which is a `src`) would be blocked: no build sees it to hash it. Turning one on 
    `virtual:site/release` the page lists its files from (`site/src/build/release.ts`), so it changes with the
    pin, with no list to keep by hand. A malformed manifest fails the build; without one (`vite dev`, a release
    that has none), the page links GitHub's releases instead. The macOS `.dmg` and the Linux tarballs aren't in
-   the manifest, so the page links the release for them.
+   the manifest, which has only what the apps update to, so `build.sh` downloads the release's `SHA256SUMS`
+   too, checks it against its pin, and names it to the build (`SITE_RELEASE_SUMS`, with web-release.txt's sizes
+   in `SITE_RELEASE_SIZES`): the page lists those files under their systems, as other formats. One that
+   disagrees with the manifest (another release's) or a size for a file it hasn't fails the build; a release
+   pinned without it (`sums-sha256 none`) has the page link the release for them. (Not a new key in the
+   signed manifest: that would come only with a release from after it, and every installed app would download
+   it each day for files it never takes; `SHA256SUMS` is every release's already.)
 
 After a release, `release.yml` does steps 2 and 3 itself ([docs/ci.md](ci.md#the-sites-bump-pull-request)):
 it opens "Release: put TAG live on spelunky.ai" from the branch `bump-web-release/TAG`, as the GitHub App in
@@ -463,7 +471,8 @@ rest of its media. The Worker needs nothing outside `wrangler.jsonc`.
 site/test.sh                                        # the smoke test, below
 scripts/web --package /tmp/spelunky-web.tar.gz      # a release build, plus /tmp/spelunky-web.tar.gz.sha256
 site/build.sh --local /tmp/spelunky-web.tar.gz      # site/dist, checked against the .sha256 beside it
-# (add --manifest latest.json to serve an update manifest at /releases/latest.json too, and
+# (add --manifest latest.json to serve an update manifest at /releases/latest.json too, with
+# --sums SHA256SUMS --sizes web-release.txt for /download's other formats, and
 # --wiki-media DIR for other media than wiki/media's)
 (cd site && npx wrangler dev)                       # the built site, as Cloudflare runs it: http://localhost:8787
 (cd site && npx vite preview)                       # the same, for a build too big for wrangler dev: http://localhost:4173
@@ -495,8 +504,8 @@ stand-in GML files), and runs `test-seo.mjs` (SEO, below),
 `test-wiki.mjs` (the wiki's pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md,
 "The pipeline"; and a red link and a card to come render as they should, from a fixture page and hub, as the
 committed wiki has neither), `test-carry.mjs` (a build carries the hashed files of the ones before it: [Version
-skew](#version-skew)), `test-download.mjs` (the `/download` page reads a release's manifest, or refuses it,
-groups its files by system and tells which system a browser's on, from real browsers' user agents),
+skew](#version-skew)), `test-download.mjs` (the `/download` page reads a release's manifest, and its `SHA256SUMS` and pinned sizes, or
+refuses them, groups its files by system and tells which system a browser's on, from real browsers' user agents),
 `test-license.mjs` (the `/license` page reads `LICENSE` whole into its sections and conditions, or refuses it),
 `test-keyline.mjs` (the stylesheet keeps every block on its column's keyline) and
 `test-links.mjs` (every link a page has is a file on the site, with no redirect, every

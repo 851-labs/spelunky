@@ -327,9 +327,10 @@ merges ([docs/web-deploy.md](web-deploy.md)). `release.yml`'s last two jobs do i
 `main` as it is then, with no secret: the script builds and runs Rust (`scripts/release/manifest` checks the
 release's `latest.json`), so every dependency's build script runs there, and it passes on the one file it
 changes. **Site bump PR**, on another machine and in the `release-bot` environment, runs none of the repository's
-code: it checks that file (`main`'s comment and three lines, pinning this release and no older one than `main`
-does, whose SHA-256s are those of the web build and `latest.json` the release has published, which it downloads
-again), commits it on the `main` the first job read, pushes it to `bump-web-release/TAG` (the token reaching git through gh's
+code: it checks that file (`main`'s comment and four lines, pinning this release and no older one than `main`
+does, whose SHA-256s are those of the web build, `latest.json` and `SHA256SUMS` the release has published, which
+it downloads again, and the sizes of `SHA256SUMS`'s `.dmg` and tarballs, which must be GitHub's), commits it on
+the `main` the first job read, pushes it to `bump-web-release/TAG` (the token reaching git through gh's
 credential helper, never `.git/config` or a command line) and opens its pull request, "Release: put TAG live on
 spelunky.ai", which closes the pull requests of earlier releases that haven't merged. So no code a build runs is
 ever on a machine with the token (851-3906), and what that code could change of the one file is checked

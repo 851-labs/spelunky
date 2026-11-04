@@ -1,10 +1,11 @@
 // The /download page's logic (src/build/release.ts, src/site/download.ts), which site/test.sh runs, as does a
-// change to them locally: the update manifest it lists the files from, read or refused; the systems they're
-// grouped into, in order; and which system a browser's on, from what real browsers say.
+// change to them locally: the update manifest it lists the files from, read or refused, and the release's
+// SHA256SUMS and pinned sizes it lists the other formats from; the systems they're grouped into, in order; and
+// which system a browser's on, from what real browsers say.
 //
 //   node test-download.mjs
 import assert from "node:assert/strict";
-import { parseRelease } from "./src/build/release.ts";
+import { parseFiles, parseRelease } from "./src/build/release.ts";
 import { detect, downloads, pick, size } from "./src/site/download.ts";
 
 let failures = 0;
@@ -100,7 +101,7 @@ test("a platform added after the page is listed under its own name, and a system
     ),
   );
   assert.deepEqual(list.systems.map((s) => s.os), ["macos", "windows"]);
-  assert.deepEqual(list.other.map((d) => [d.label, d.kind]), [["freebsd-x86_64", "gz"]]);
+  assert.deepEqual(list.other.map((d) => [d.label, d.kind]), [["freebsd-x86_64", "tar.gz"]]);
 });
 
 test("a reader gets their processor's file first, or x64's", () => {
@@ -110,6 +111,108 @@ test("a reader gets their processor's file first, or x64's", () => {
   assert.equal(pick(windows, null).label, "x64");
   const mac = downloads(parseRelease(file(MANIFEST))).systems[0].downloads;
   assert.equal(pick(mac, "aarch64").label, "Universal");
+});
+
+// The release's SHA256SUMS, as release.yml writes it (sha256sum, by name), and web-release.txt's lines.
+const SUMS = [
+  `${SHA("1")}  latest.json`,
+  `${SHA("b")}  spelunky-0.1.19-linux-arm64.AppImage`,
+  `${SHA("2")}  spelunky-0.1.19-linux-arm64.tar.gz`,
+  `${SHA("c")}  spelunky-0.1.19-linux-x64.AppImage`,
+  `${SHA("3")}  spelunky-0.1.19-linux-x64.tar.gz`,
+  `${SHA("4")}  spelunky-0.1.19-macos.dmg`,
+  `${SHA("d")}  spelunky-0.1.19-macos.zip`,
+  `${SHA("e")}  spelunky-0.1.19-windows-arm64.zip`,
+  `${SHA("f")}  spelunky-0.1.19-windows-x64.zip`,
+  `${SHA("5")}  spelunky-web-v0.1.19.tar.gz`,
+  "",
+].join("\n");
+const PIN = `# The comment.
+tag v0.1.19
+sha256 ${SHA("5")}
+manifest-sha256 ${SHA("1")}
+sums-sha256 ${SHA("6")}
+size spelunky-0.1.19-linux-arm64.tar.gz 16705489
+size spelunky-0.1.19-linux-x64.tar.gz 17551610
+size spelunky-0.1.19-macos.dmg 30151290
+`;
+const withFiles = (sums = SUMS, pin = PIN, text = file(MANIFEST)) => {
+  const release = parseRelease(text);
+  release.files = parseFiles(release, sums, pin);
+  return release;
+};
+
+test("the release's other files are SHA256SUMS's that the bump sized, not the manifest's, in its order", () => {
+  assert.deepEqual(withFiles().files, [
+    {
+      url: "https://github.com/851-labs/spelunky/releases/download/v0.1.19/spelunky-0.1.19-linux-arm64.tar.gz",
+      file: "spelunky-0.1.19-linux-arm64.tar.gz",
+      size: 16705489,
+    },
+    {
+      url: "https://github.com/851-labs/spelunky/releases/download/v0.1.19/spelunky-0.1.19-linux-x64.tar.gz",
+      file: "spelunky-0.1.19-linux-x64.tar.gz",
+      size: 17551610,
+    },
+    {
+      url: "https://github.com/851-labs/spelunky/releases/download/v0.1.19/spelunky-0.1.19-macos.dmg",
+      file: "spelunky-0.1.19-macos.dmg",
+      size: 30151290,
+    },
+  ]);
+  // sha256sum's binary mode marks a name with a *.
+  assert.equal(withFiles(SUMS.replace("  spelunky-0.1.19-macos.dmg", " *spelunky-0.1.19-macos.dmg")).files.length, 3);
+  // A manifest's file with a size is still the manifest's, listed once.
+  assert.equal(withFiles(SUMS, `${PIN}size spelunky-0.1.19-macos.zip 26388724\n`).files.length, 3);
+  // And none without sizes.
+  assert.deepEqual(withFiles(SUMS, "tag v0.1.19\n").files, []);
+});
+
+test("a SHA256SUMS or sizes the page can't list fails the build, naming what's wrong", () => {
+  const refused = [
+    [SUMS.replace("  latest.json", " latest.json"), PIN, /"[0-9a-f]+ latest.json" isn't a SHA-256/],
+    [SUMS.replace(`${SHA("4")}  spelunky-0.1.19-macos.dmg`, "4  spelunky-0.1.19-macos.dmg"), PIN, /isn't a SHA-256/],
+    [`${SUMS}${SHA("4")}  spelunky-0.1.19-macos.dmg\n`, PIN, /spelunky-0.1.19-macos.dmg is there twice/],
+    // Another release's: the manifest's files aren't there, or with other SHA-256s.
+    [SUMS.replaceAll("0.1.19", "0.1.20"), PIN, /the manifest's spelunky-0.1.19-.* isn't there/],
+    [SUMS.replace(`${SHA("d")}  spelunky-0.1.19-macos.zip`, `${SHA("9")}  spelunky-0.1.19-macos.zip`), PIN, /macos.zip isn't there with the manifest's SHA-256/],
+    [SUMS, `${PIN}size spelunky-0.1.19-freebsd-x64.tar.gz 1\n`, /freebsd-x64.tar.gz has a size, but SHA256SUMS hasn't it/],
+    [SUMS, `${PIN}size spelunky-0.1.19-macos.dmg 30151290\n`, /macos.dmg has two sizes/],
+    [SUMS, PIN.replace("30151290", "30 MB"), /isn't "size NAME BYTES"/],
+    [SUMS, PIN.replace("30151290", "0"), /isn't "size NAME BYTES"/],
+    [SUMS, PIN.replace(" 30151290", ""), /isn't "size NAME BYTES"/],
+  ];
+  for (const [sums, pin, want] of refused) {
+    assert.throws(() => withFiles(sums, pin), (error) => want.test(error.message));
+  }
+});
+
+test("the other formats are under their systems, x64 before ARM64; a target the page doesn't know is by its name", () => {
+  const list = downloads(withFiles());
+  assert.deepEqual(
+    list.systems.map((s) => [s.os, s.more.map((d) => `${d.label} ${d.kind} ${d.file}`)]),
+    [
+      ["macos", ["Universal dmg spelunky-0.1.19-macos.dmg"]],
+      ["windows", []],
+      [
+        "linux",
+        ["x64 tar.gz spelunky-0.1.19-linux-x64.tar.gz", "ARM64 tar.gz spelunky-0.1.19-linux-arm64.tar.gz"],
+      ],
+    ],
+  );
+  assert.deepEqual(list.other, []);
+  const freebsd = `${SHA("7")}  spelunky-0.1.19-freebsd-x64.tar.gz\n`;
+  const other = downloads(withFiles(SUMS + freebsd, `${PIN}size spelunky-0.1.19-freebsd-x64.tar.gz 1000\n`)).other;
+  assert.deepEqual(other.map((d) => [d.label, d.kind]), [["freebsd-x64", "tar.gz"]]);
+  // And a system's other format, where the manifest has none of that system's files: by its name too, not a card
+  // without the apps' own.
+  const noLinux = edited((m) => {
+    delete m.assets["linux-aarch64"];
+    delete m.assets["linux-x86_64"];
+  });
+  const list2 = downloads(withFiles(SUMS, PIN, noLinux));
+  assert.deepEqual(list2.systems.map((s) => s.os), ["macos", "windows"]);
+  assert.deepEqual(list2.other.map((d) => [d.label, d.kind]), [["Linux x64", "tar.gz"], ["Linux ARM64", "tar.gz"]]);
 });
 
 test("sizes are decimal megabytes, as file browsers show them", () => {
