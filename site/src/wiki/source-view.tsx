@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { useScrollFocus } from "./scroll-focus";
 import type { Crumb } from "../seo/jsonld";
+import { Table } from "./components";
 import { CardLink } from "./hover-card";
 import { Breadcrumbs } from "./layout";
 import { ROOM_NOTICE, SOURCE_NOTICE, SUPER_SOUND_CREDIT } from "./notices.ts";
@@ -211,7 +212,7 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
       )}
       {room.picture && <RoomPicture room={room} picture={room.picture} highlight={highlight} />}
       <h2 id="settings">Settings</h2>
-      <table className="room-settings">
+      <Table className="room-settings">
         <tbody>
           {room.caption && (
             <tr>
@@ -263,9 +264,9 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
             <td>{room.creation_code ? <a href="#creation-code">Below</a> : "None"}</td>
           </tr>
         </tbody>
-      </table>
+      </Table>
       <h2 id="instances">Instances</h2>
-      <table className="room-instances">
+      <Table className="room-instances">
         <thead>
           <tr>
             <th scope="col">Object</th>
@@ -315,11 +316,11 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
             );
           })}
         </tbody>
-      </table>
+      </Table>
       {room.tiles.length > 0 && (
         <>
           <h2 id="tiles">Tiles</h2>
-          <table className="room-instances">
+          <Table className="room-instances">
             <thead>
               <tr>
                 <th scope="col">Background</th>
@@ -342,7 +343,7 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
                 </tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         </>
       )}
       {room.creation_code && (
