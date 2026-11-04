@@ -216,3 +216,5 @@ function Install({ os, file }: { os: Os; file: string }) {
       );
   }
 }
+
+// probe
