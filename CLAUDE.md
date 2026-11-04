@@ -33,7 +33,7 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
 ## Code
 
 - Use `scripts/cargo` in place of `cargo` (rustup's toolchain, with the wasm32 target). `scripts/check` is the full
-  suite, and CI's `pr-ok` runs it on every pull request that changes what it reads (`scripts/affected`), split
+  suite, and CI's `pr-ok` runs the steps of it that read what a pull request changes (`scripts/affected`), split
   across two Linux machines with warm caches, faster than a local run (locally, agents share the cores). So leave
   it to CI: locally, run `scripts/check --fast` (the instant pre-commit subset: formatting) and the tests the
   change touches, then open the PR and push fixes if `pr-ok` fails.

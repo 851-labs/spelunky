@@ -129,7 +129,9 @@ organization's projects share GitHub's machines too):
   the suite took about 15 minutes, nearly all of it building: the tests' build about 5.5 and the release build of
   the replays' tools about 3, each before it ran. So the halves are split by what they build, neither building
   what the other does: part 1 is the instant checks, clippy, the transpiler and every test; part 2 the release
-  builds (the assets, the replays, the wiki's and the site's checks) and wasm32. Each half has its own build cache
+  builds (the assets, the replays, the wiki's and the site's checks) and wasm32. A pull request runs only the steps
+  of it that read what it changes, and only the halves that have one (`scripts/affected`'s steps,
+  [below](#the-suites-steps)); a push to `main` runs all of it. Each half has its own build cache
   (Swatinem/rust-cache: the registry and `target/`), saved by the run on every push to `main`, which also checks
   `main` after each merge; a pull request's run restores it and saves nothing, as a pull request's cache could
   only be read by its own later runs, and would push main's out of GitHub's 10 GB.
@@ -181,7 +183,7 @@ marks only the crate. A file no area has, or a change to CI, runs every job. The
 
 | Output | The job | Runs when |
 | --- | --- | --- |
-| `run_suite` | "Linux / Test suite" | a file the suite reads changed: anything but `SUITE_RULES`' exceptions (most of `docs/` and `site/`, the media but the clips, the screenshots, `README.md`, `CLAUDE.md`) |
+| `run_suite` | "Linux / Test suite" | a file one of the suite's steps reads changed (`suite_steps`, [below](#the-suites-steps)); the suite reads anything but `SUITE_RULES`' exceptions (most of `docs/` and `site/`, the media but the clips, the screenshots, `README.md`, `CLAUDE.md`, `LICENSE`, the wiki's page templates, `fidelity/COVERAGE.md`, the release's notice and smoke test) |
 | `run_mini` | "Mac mini" | the same, or the screenshots or `wiki/media` |
 | `run_site` | "Site test" | the `site` area |
 | `run_updater` | "Updater" | the `update` crate or one it depends on |
@@ -191,19 +193,23 @@ test as well. `scripts/wiki-media --check --since` asks it (`--is media`, `--is 
 whether to encode every clip again, and `site/test.sh` holds Workers Builds' watch paths to the site area
 (`--paths site`). `release.yml` and the pushes to `main` run everything.
 
-**Keeping it honest.** The suite runs in a sparse checkout (git's) of exactly what `SUITE_RULES` keep
-(`scripts/affected --rules suite`), so a step that reads a path the rules leave out fails, as the file isn't there,
-rather than a pull request that changes it skipping the suite. What a sparse checkout can't catch is a check that
-lists a directory, which would quietly check fewer files: the directories the suite lists (`wiki/clips`,
-`wiki/media/clips`, `site/content/wiki`, the replays) stay whole in it, and `scripts/check-sh`, which lists every
-sh script in the repository with `git grep` (which searches only the checkout), is guarded: the job fails if any
-script it would check (`scripts/check-sh --tracked`) is out of the checkout. `scripts/affected --test`, which
-`scripts/check` runs, decides for past pull requests' files (docs only, site only, a fingerprint, a coverage
-replay, a removed replay, the app, the updater, CI, a file no area has) and fails if any answer changes; scans
-the crates' sources for repository paths each reads and fails on one the script doesn't give that crate; and
-fails on an area's path that matches no tracked file, as after a move. The mini job and the site test aren't
-checked out sparsely (the minis' workspaces outlive their jobs), so their rules are kept by hand: the mini's are
-the suite's and the screenshots and `wiki/media`, the site's are Workers Builds'.
+**Keeping it honest.** Each half of the suite runs in a sparse checkout (git's) of exactly what its steps read
+([below](#the-suites-steps); `scripts/affected --rules suite STEP...`: the scripts the job runs through, the
+workspace for a step that runs cargo, and each step's paths), or of everything the suite reads (`SUITE_RULES`,
+`--rules suite`) for every step. So a step that reads a path its row leaves out fails, as the file isn't there,
+rather than a pull request that changes it skipping the step. What a sparse checkout can't catch is a check that
+lists a directory, which would quietly check fewer files: the directories the suite lists (`wiki/clips`, `wiki/media/clips`, `site/content/wiki`, the
+replays) stay whole in it, and `scripts/check-sh`, which lists every sh script in the repository with `git grep`
+(which searches only the checkout), is guarded: the job fails if any script it would check
+(`scripts/check-sh --tracked`) is out of the checkout. `scripts/affected --test`, which Changes runs on every pull
+request (and `scripts/check`), decides for past and made-up pull requests' files (docs only, site only, #521's, a
+wiki page, a fingerprint, a replay, a removed replay, the app, the updater, a tool, the engine, the toolchain, CI, a
+file no area has) and fails if any answer changes; scans the crates' sources for repository paths each reads and
+fails on one the script gives neither that crate nor a step that runs it; fails on a path that matches no tracked
+file, as after a move, a step's path the suite's checkout hasn't, and a file the suite reads that no step does; and
+checks that `scripts/check`'s steps are `STEPS`'. The mini job and the site test aren't checked out sparsely (the
+minis' workspaces outlive their jobs), so their rules are kept by hand: the mini's are the suite's and the
+screenshots and `wiki/media`, the site's are Workers Builds'.
 
 The site test fails on any error, not only on a check that fails. On a Mac (where it ran on CI until 851-3953, and
 where it runs for anyone working on the site), `sh` is macOS's bash 3.2, which exits
@@ -253,6 +259,49 @@ A pull request's code can still change what the minis keep between jobs (the too
 anything else its user can write: a `.cargo/config.toml` above a checkout, a login item, a tool on `PATH`), so
 nothing a release publishes is built or signed on them: the web build and the native builds and their signing
 run on fresh GitHub-hosted machines ([docs/releasing.md](releasing.md#on-ci), 851-3899).
+
+### The suite's steps
+
+`scripts/check` is made of named steps (`step PART NAME`, 851-4017), and `scripts/affected`'s `STEPS` gives each
+one's half, the crates it builds and the paths it reads besides, beside what it checks:
+
+| Step | Half | What | Runs for a change to |
+| --- | --- | --- | --- |
+| `sh` | 1 | `scripts/check-sh` | an sh script it checks (`scripts/check-sh --tracked`) |
+| `pins` | 1 | the workflows' actions pinned to SHAs | `.github/` (CI: every step runs) |
+| `gm8-arith` | 1 | the oracle's copy of `gm8.rs` | `crates/gm/src/gm8.rs`, patch 0014, the script |
+| `affected` | 1 | `scripts/affected --test` | nothing: Changes runs it on every pull request, before it decides |
+| `lints` | 1 | `cargo fmt`, clippy (both), `scripts/workspace-hack --check` | any crate, the workspace's files, `tools/gm8-probe` (built in) |
+| `tests` | 1 | `cargo test --workspace`, `scripts/workspace-hack --reused` | any crate, and what the crates' tests read (`TEST_INPUTS`: the replays, the reference, the clip specs and media, the wiki's data specs, `docs/source-inventory.md`, `tools/oracle`) |
+| `transpile` | 1 | `scripts/transpile --check` | `tools`, `game`, `config` or a crate they depend on, the reference |
+| `pxfm` | 1 | `vendor/pxfm`'s tests | `vendor/pxfm`, the toolchain |
+| `angles` | 1 | the angle probes' tool | `tools/gm8-probe`, the toolchain, `clippy.toml` |
+| `fidelity` | 2 | `fidelity-check`, on the assets | `harness` or a crate it depends on, the replays, the fingerprints, the oracle's inputs, the reference |
+| `clips` | 2 | `wiki-clips --check` | `harness` or a crate it depends on, `wiki/clips`, `wiki/media/clips`, the replays, the reference |
+| `wiki` | 2 | `scripts/wiki-data --check`, `scripts/site-icons --check`, `scripts/wiki-cites` | `tools` or a crate it depends on, `site/content/wiki` and `wiki-data`, the icons, `wiki/data`, the reference |
+| `licenses` | 2 | `scripts/third-party-licenses --check` | a crate's manifest, the lockfile, the toolchain, the notices |
+| `wasm` | 2 | the wasm32 builds and `scripts/wasm-test` | `gm`, `trace`, `game`, `app`, `gmk`, `assets`, `audio` or a crate they depend on, Node's version |
+
+Changes passes the steps a pull request's files are read by to `suite.yml` (`suite_steps`, `all` for every step),
+with the halves that have one (`suite_parts`), and each half runs `scripts/check --part N --only "STEP ..."` and
+installs only what those need (`scripts/affected --plan`: no toolchain, no cache and no Linux libraries for `sh`
+alone). A file the suite reads that no step does, a file no area has, or a change to CI runs every step. So:
+
+| A pull request that changes | Runs |
+| --- | --- |
+| docs, or the site's own code (`site/src`, its `.mjs` tests) | no suite at all |
+| the site's code and its sh scripts (#521, 851-4013) | `sh`, on one machine |
+| a wiki page | `wiki` |
+| a fingerprint | `fidelity` |
+| a replay | `fidelity`, `clips`, `tests` (harness's tests play replays) |
+| the app, or the updater | `lints`, `tests`, `wasm` |
+| a tool (`crates/tools`) | `lints`, `tests`, `transpile`, `fidelity`, `clips`, `wiki` |
+| the engine (`crates/gm`) | `lints`, `tests`, `transpile`, `fidelity`, `clips`, `wiki`, `wasm` (and `gm8-arith` for `gm8.rs`) |
+| CI, or the toolchain | everything, or nearly |
+
+`tests` and `lints` are the whole workspace's, never a crate's: on Linux a build of some packages resolves other
+features than the workspace's (crates/workspace-hack covers Apple silicon Macs only), so it would test another
+build and rebuild the shared dependencies main's cache has, until the hack covers Linux too (851-4018).
 
 ## Releases
 

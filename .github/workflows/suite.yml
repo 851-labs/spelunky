@@ -9,11 +9,21 @@
 #
 # Two machines side by side, each running half of it (scripts/check --part 1 and --part 2: together all of it), split
 # by what they build (851-3998, docs/ci.md "Pull requests"), in a checkout of only what the suite reads; pr.yml
-# runs it for a pull request that changes some of that (scripts/affected, 851-4008).
+# runs it for a pull request that changes some of that (scripts/affected, 851-4008), and only the steps of
+# scripts/check that read what it changes, on the halves that have them (851-4017). A push to main runs every step.
 name: Test suite
 
 on:
   workflow_call:
+    inputs:
+      # scripts/affected's suite_steps: `all`, or the names of the steps to run (scripts/affected's STEPS).
+      steps:
+        type: string
+        default: all
+      # Its suite_parts: the halves with a step to run, as a JSON list.
+      parts:
+        type: string
+        default: '[1, 2]'
   push:
     branches: [main]
 
@@ -39,7 +49,8 @@ jobs:
       # Each half's failures are its own: one failing doesn't hide the other's.
       fail-fast: false
       matrix:
-        part: [1, 2]
+        # A push has no inputs: both halves, every step.
+        part: ${{ fromJSON(inputs.parts || '[1, 2]') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     defaults:
@@ -51,40 +62,73 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      # Only what scripts/check reads (scripts/affected's SUITE_RULES, which also decide when pr.yml runs it): the
-      # rest is taken out of the checkout, so a step that reads a path the rules leave out fails here, as the file
-      # isn't there, rather than a pull request changing it skipping the suite (docs/ci.md, "What a pull request
-      # runs").
-      - name: Only what the suite reads
+      # The half's steps, and what they need installed (scripts/affected --plan).
+      - id: plan
+        env:
+          STEPS: ${{ inputs.steps || 'all' }}
+          PART: ${{ matrix.part }}
         run: |
-          python3 -I scripts/affected --rules suite | git sparse-checkout set --no-cone --stdin
+          python3 -I scripts/affected --plan "$PART" "$STEPS" | tee -a "$GITHUB_OUTPUT"
+      # Only what the half's steps read (scripts/affected's STEPS, or all of SUITE_RULES for every step, which also
+      # decide when pr.yml runs it): the rest is taken out of the checkout, so a step that reads a path its row
+      # leaves out fails here, as the file isn't there, rather than a pull request changing it skipping the step
+      # (docs/ci.md, "What a pull request runs").
+      - name: Only what the steps read
+        env:
+          ONLY: ${{ steps.plan.outputs.only }}
+          CHECK_SH: ${{ steps.plan.outputs.sh }}
+        run: |
+          # The index's view of the files first: git leaves a file it can't tell is unchanged (one its stat data,
+          # racily, doesn't vouch for) where it is, rather than take it out.
+          git update-index -q --really-refresh
+          python3 -I scripts/affected --rules suite "$ONLY" | git sparse-checkout set --no-cone --stdin
+          # And nothing it left behind: each tracked file in the checkout is one the rules keep.
+          present=$(git -c core.quotePath=false ls-files -t | sed -n 's/^H //p')
+          outside=$(comm -23 <(sort <<<"$present") <(git sparse-checkout check-rules <<<"$present" | sort))
+          if [ -n "$outside" ]; then
+            echo "::error::the sparse checkout left these, which the steps don't read: $(head -5 <<<"$outside")"
+            exit 1
+          fi
           # scripts/check-sh finds the sh scripts it checks with git grep, which skips what's out of the checkout:
           # every one must be in it (--tracked: the ones it would check, from the index).
-          scripts=$(scripts/check-sh --tracked)
-          outside=$(comm -23 <(sort <<<"$scripts") <(git sparse-checkout check-rules <<<"$scripts" | sort))
-          if [ -n "$outside" ]; then
-            echo "::error::scripts/check-sh checks these, which the suite's sparse checkout leaves out: $outside"
-            exit 1
+          if [ "$CHECK_SH" = true ]; then
+            scripts=$(scripts/check-sh --tracked)
+            outside=$(comm -23 <(sort <<<"$scripts") <(git sparse-checkout check-rules <<<"$scripts" | sort))
+            if [ -n "$outside" ]; then
+              echo "::error::scripts/check-sh checks these, which the suite's sparse checkout leaves out: $outside"
+              exit 1
+            fi
           fi
       # What the app links on Linux: cpal's ALSA, gilrs' udev, and winit's Wayland and xkbcommon (pkg-config).
       - name: Linux libraries
+        if: steps.plan.outputs.cargo == 'true'
         run: |
           sudo apt-get update -q
           sudo apt-get install -qy --no-install-recommends pkg-config libasound2-dev libudev-dev libwayland-dev \
             libxkbcommon-dev
       # rust-toolchain.toml's toolchain, with its wasm32 targets.
-      - run: rustup toolchain install --no-self-update
+      - if: steps.plan.outputs.cargo == 'true'
+        run: rustup toolchain install --no-self-update
       # scripts/wasm-test runs gm's wasm32 tests under Node, in part 2.
-      - if: matrix.part == 2
+      - if: steps.plan.outputs.node == 'true'
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: site/.node-version
       # The registry and target/ between runs, in GitHub's cache (10 GB a repository), one for each half, as they
       # build different things. Saved only by main's run, which every pull request's can read (a pull request's own
       # could only be read by its later runs, and would push main's out).
-      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - if: steps.plan.outputs.cargo == 'true'
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           shared-key: check-${{ matrix.part }}
           save-if: ${{ github.event_name == 'push' }}
       # -x: the log shows every step it runs, each line with the runner's timestamp.
-      - run: sh -x scripts/check --part "${{ matrix.part }}"
+      - env:
+          PART: ${{ matrix.part }}
+          ONLY: ${{ steps.plan.outputs.only }}
+        run: |
+          if [ "$ONLY" = all ]; then
+            sh -x scripts/check --part "$PART"
+          else
+            sh -x scripts/check --part "$PART" --only "$ONLY"
+          fi
