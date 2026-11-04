@@ -257,7 +257,7 @@ function Infobox({ page }: { page: PageModule }) {
   const image = meta.image;
   const scale = image && image.width * 2 <= INFOBOX_IMAGE_MAX && image.height * 2 <= INFOBOX_IMAGE_MAX ? 2 : 1;
   return (
-    <aside className="infobox" aria-labelledby="infobox-title">
+    <aside className="infobox" aria-labelledby="infobox-title" ref={fitsOnScreen}>
       <p className="infobox-title" id="infobox-title">
         {meta.quirk ? "Quirk" : meta.title}
       </p>
@@ -331,6 +331,27 @@ function Infobox({ page }: { page: PageModule }) {
       </table>
     </aside>
   );
+}
+
+// Marks the infobox data-fits while it fits on the screen, which on a wide screen keeps it there as the page scrolls
+// (wiki.css); a taller one scrolls with the page, or its bottom would be out of reach. Its room is its sticky top
+// (wiki.css's, which it has whether it sticks or not) above it and as much below it, for its frame and a gap.
+// Checked again whenever the box or the window changes size. A ref callback, so it follows the box as it mounts
+// and unmounts. The attribute is only the script's, so hydrating never changes what the server rendered, and it
+// moves nothing: the infobox's column is there either way.
+function fitsOnScreen(box: HTMLElement | null) {
+  if (!box) return;
+  const check = () => {
+    const top = parseFloat(getComputedStyle(box).top) || 0;
+    box.toggleAttribute("data-fits", box.offsetHeight + 2 * top <= window.innerHeight);
+  };
+  const observer = new ResizeObserver(check);
+  observer.observe(box);
+  window.addEventListener("resize", check);
+  return () => {
+    observer.disconnect();
+    window.removeEventListener("resize", check);
+  };
 }
 
 // A quirk box's fields (docs/wiki-style.md, "Infobox fields"): how it's known, in a reader's words (its

@@ -25,7 +25,8 @@ const INSET_BY = {
 };
 // Selector → why its left margin isn't a token.
 const SIDE_MARGINS = {
-  ".infobox": "floated right: its left margin is the text's room beside it, and its right one the frame's",
+  ".infobox":
+    "floated right: its left margin is the text's room beside it, and its right one the frame's, or on a wide screen the frame's less the column of the article's padding it floats into (calc(var(--frame) - var(--infobox-column)))",
   ".visually-hidden": "out of the flow, a pixel square",
   ".wiki-page > .toc-rail": "the rail's text is on the page's keyline, its entries' highlights in the gutter (--rail-inset)",
 };
@@ -175,6 +176,8 @@ function keylineProblems(source) {
           // .infobox's left is SIDE_MARGINS's: its right holds its frame.
           const side = holder in SIDE_MARGINS ? margins.map((m) => m.right).filter((m) => m !== undefined) : [left];
           for (const m of side) {
+            // Held in from its column's edge by the frame, within a padding its container keeps for it.
+            if (holder === ".infobox" && m === `calc(${token} - var(--infobox-column))`) continue;
             if (m !== token) problems.push(`${selector}: its ${edge} is outside its box, but ${holder}'s margin is ${m}, not ${token}`);
           }
         }
