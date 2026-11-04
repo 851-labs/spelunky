@@ -5,8 +5,8 @@ they're made of.
 
 | Workflow | When | What | Where |
 | --- | --- | --- | --- |
-| `pr.yml` | every pull request | `scripts/check` (`suite.yml`), `site/test.sh` for changes to the site, then on one Mac mini `scripts/check --apple`, `scripts/web --check` and `scripts/wiki-media --check` for changes to what the wiki's media are made from; the updater's tests; then `pr-ok` | `ubuntu-24.04` for the suite and the site, one Mac mini, GitHub's machines for the updater |
-| `suite.yml` | from `pr.yml`, and every push to `main` | `scripts/check`, with the build cache main's run saves for every pull request's ([below](#pull-requests)) | `ubuntu-24.04` |
+| `pr.yml` | every pull request | `scripts/check` (`suite.yml`) for changes to what it reads, `site/test.sh` for changes to the site, then on one Mac mini `scripts/check --apple`, `scripts/web --check` and `scripts/wiki-media --check` for changes to what the wiki's media are made from; the updater's tests; then `pr-ok` | `ubuntu-24.04` for the suite and the site, one Mac mini, GitHub's machines for the updater |
+| `suite.yml` | from `pr.yml`, and every push to `main` | `scripts/check`, in two halves side by side, with the build caches main's run saves for every pull request's ([below](#pull-requests)) | `ubuntu-24.04` |
 | `release.yml` | a `v*` tag, or by hand | the suite, the oracle fidelity run, the web and native builds, the updater's tests, then the GitHub Release and the pull request that puts it live ([below](#releases)) | the Mac minis and `ubuntu-24.04` |
 | `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | GitHub's `macos-15` for the build and the signing, then each OS, all on GitHub's machines |
 | `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
@@ -71,16 +71,33 @@ checkout (`persist-credentials: false`). A new push to a pull request cancels it
 **Where each job runs** (851-3953). The two Mac minis are shared with other projects, and a pull request's three
 mini jobs used to queue behind theirs: a run that took two or three minutes of work waited 6 to 60 minutes for
 the minis. So a pull request now takes one mini, for what needs Apple silicon, and runs the rest on GitHub's
-machines (free for a public repository): two more of them a pull request, beside the updater's (the
+machines (free for a public repository): three more of them a pull request, beside the updater's (the
 organization's projects share GitHub's machines too):
 
-- **"Linux / Test suite"** (`suite.yml`, `ubuntu-24.04`): the whole of `scripts/check`. Linux builds and tests the
-  workspace as the minis did, fidelity-check's replays included (the port is the same on every platform:
-  `gm::math`); it installs the libraries the app links on Linux (ALSA, udev, Wayland, xkbcommon), the pinned
-  toolchain and Node. Its build cache (Swatinem/rust-cache: the registry and `target/`) is saved by the run on
-  every push to `main`, which also checks `main` after each merge; a pull request's run restores it and saves
-  nothing, as a pull request's cache could only be read by its own later runs, and would push main's out of
-  GitHub's 10 GB.
+- **"Linux / Test suite (1)" and "(2)"** (`suite.yml`, two `ubuntu-24.04` machines): the whole of `scripts/check`,
+  half on each (`--part 1` and `--part 2`, 851-3998). Linux builds and tests the workspace as the minis did,
+  fidelity-check's replays included (the port is the same on every platform: `gm::math`); each installs the
+  libraries the app links on Linux (ALSA, udev, Wayland, xkbcommon), the pinned toolchain and Node. On one machine
+  the suite took about 15 minutes, nearly all of it building: the tests' build about 5.5 and the release build of
+  the replays' tools about 3, each before it ran. So the halves are split by what they build, neither building
+  what the other does: part 1 is the instant checks, the transpiler and every test; part 2 the release builds (the
+  assets, the replays, the wiki's and the site's checks), clippy and wasm32. Each half has its own build cache
+  (Swatinem/rust-cache: the registry and `target/`), saved by the run on every push to `main`, which also checks
+  `main` after each merge; a pull request's run restores it and saves nothing, as a pull request's cache could
+  only be read by its own later runs, and would push main's out of GitHub's 10 GB.
+
+  **What it reads.** The suite runs in a sparse checkout (git's), without what `scripts/check` never reads, which
+  `suite.yml` lists (`UNREAD`): `docs/` but `docs/source-inventory.md` (which `gmk`'s tests check the `.gmk`
+  against), `site/` but its sh scripts, `.node-version` and the content and icons the suite checks
+  (`site/content/wiki/`, `site/content/wiki-data/`, `site/public/`), `wiki/media/` but the clips,
+  `fidelity/screenshots/` (only a Mac's `fidelity-shots` reads them), `README.md` and `CLAUDE.md`. So the list
+  can't fall behind the suite unnoticed: a step that reads a path the list leaves out fails, as the file isn't
+  there. The one way to miss it, a check that finds its files by listing a directory, is `scripts/check-sh`'s
+  (every tracked sh script, with `git grep`, which searches only the checkout), so the job first fails if any
+  script it would check is out of the checkout. A pull request that changes nothing left in the checkout (its
+  merge commit's diff from its base, both sides of a rename, through `git sparse-checkout check-rules`) doesn't
+  run the suite: both halves succeed once they've checked out, as the site test does. A docs-only or a site-only
+  pull request then waits only for the site test, the updater and the mini.
 - **"Site test"** (`ubuntu-24.04`): `site/test.sh` (build the site with stand-ins, serve it with `wrangler dev`,
   check every path's status, headers and content, [docs/web-deploy.md](web-deploy.md)), for a pull request that
   changes `site/`, what the site reads from outside it (`wiki/`, the specs and the media, `LICENSE`,
