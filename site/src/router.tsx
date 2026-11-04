@@ -4,8 +4,8 @@ import { routeTree } from "./routeTree.gen";
 export function getRouter() {
   return createRouter({
     routeTree,
-    // Only for a link the router follows itself: a request for a path it hasn't got gets public/404.html
-    // (src/server.ts).
+    // Only for a link the router follows itself: a request for a path it hasn't got gets 404.html, the
+    // 404 route pre-rendered (src/routes/404.tsx, src/server.ts).
     defaultNotFoundComponent: () => <p>Nothing down here.</p>,
     // A path is a page only as it's written: /WIKI/snake is no page, rather than a copy of /wiki/snake the Worker
     // would render on every request (the pages are pre-rendered at their own paths, and the asset store's are

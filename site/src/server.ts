@@ -35,8 +35,8 @@ const MARKDOWN_TWIN = /^\/wiki\/([a-z0-9-]+)\.md$/;
 // A name under /wiki/, as a page, a page with a slash, or a Markdown twin: /wiki/pot, /wiki/pot/ and /wiki/pot.md,
 // and the same written as Fandom writes its URLs, /wiki/Yeti_King or /wiki/Olmec%27s_Lair.
 const WIKI_NAME = /^\/wiki\/([^/]+?)(\/|\.md)?$/i;
-// The 404 page, public/404.html, which the asset store serves at /404 (and redirects /404.html to): a 404 there
-// too, so no crawler indexes it as a page.
+// The 404 page, 404.html (src/routes/404.tsx, pre-rendered), which the asset store serves at /404 (and redirects
+// /404.html to): a 404 there too, so no crawler indexes it as a page.
 const NOT_FOUND_PAGE = "/404";
 const NOT_FOUND_PATHS = new Set([NOT_FOUND_PAGE, `${NOT_FOUND_PAGE}/`, `${NOT_FOUND_PAGE}.html`]);
 // The wiki for LLMs (src/wiki/build/markdown.ts): every page's text again, so kept out of search engines' indexes,
@@ -121,6 +121,11 @@ async function route(request: Request, env: Env, { probe = false } = {}): Promis
   if (url.pathname.startsWith(SERVER_FN_BASE)) return noCache(await env.ASSETS.fetch(request));
   if (NOT_FOUND_PATHS.has(url.pathname) && getOrHead) {
     const page = await env.ASSETS.fetch(new Request(new URL(NOT_FOUND_PAGE, url), { method: request.method }));
+    // Before it's a file (pre-rendering it, which asks for /404/ first, and under `vite dev`), the router renders it.
+    if (page.status === 404 && !url.pathname.endsWith(".html")) {
+      await page.body?.cancel();
+      return withDefaultCaching(await handler.fetch(request));
+    }
     // Only its type: its ETag isn't the 404's to revalidate by.
     const type = page.headers.get("content-type");
     return noCache(new Response(page.body, { status: 404, headers: type === null ? {} : { "content-type": type } }));

@@ -1,4 +1,4 @@
-import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Outlet, Scripts, useMatches } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { reloadOnSkew } from "../skew";
 import { WikiStylesheet } from "../wiki/stylesheet";
@@ -12,6 +12,9 @@ export const Route = createRootRoute({
 
 function RootDocument() {
   useEffect(reloadOnSkew, []);
+  // The 404 page has no scripts: it's served at whatever path wasn't found, where a router would hydrate another
+  // page (src/routes/404.tsx).
+  const scripts = useMatches({ select: (matches) => !matches.some((match) => match.routeId === "/404") });
   return (
     <html lang="en">
       <head>
@@ -20,7 +23,7 @@ function RootDocument() {
       </head>
       <body>
         <Outlet />
-        <Scripts />
+        {scripts && <Scripts />}
       </body>
     </html>
   );

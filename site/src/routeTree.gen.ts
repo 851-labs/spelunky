@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as R404RouteImport } from './routes/404'
 import { Route as OpensearchDotxmlRouteImport } from './routes/opensearch[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapImageDotxmlRouteImport } from './routes/sitemap-image[.]xml'
@@ -24,6 +25,11 @@ import { Route as WikiSourceSplatRouteImport } from './routes/wiki/source/$'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R404Route = R404RouteImport.update({
+  id: '/404',
+  path: '/404',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpensearchDotxmlRoute = OpensearchDotxmlRouteImport.update({
@@ -79,6 +85,7 @@ const WikiSourceSplatRoute = WikiSourceSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/opensearch.xml': typeof OpensearchDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/opensearch.xml': typeof OpensearchDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
@@ -106,6 +114,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/opensearch.xml': typeof OpensearchDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/404'
     | '/opensearch.xml'
     | '/robots.txt'
     | '/sitemap-image.xml'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/404'
     | '/opensearch.xml'
     | '/robots.txt'
     | '/sitemap-image.xml'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/404'
     | '/opensearch.xml'
     | '/robots.txt'
     | '/sitemap-image.xml'
@@ -161,6 +173,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  R404Route: typeof R404Route
   OpensearchDotxmlRoute: typeof OpensearchDotxmlRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapImageDotxmlRoute: typeof SitemapImageDotxmlRoute
@@ -180,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/404': {
+      id: '/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof R404RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/opensearch.xml': {
@@ -257,6 +277,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  R404Route: R404Route,
   OpensearchDotxmlRoute: OpensearchDotxmlRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapImageDotxmlRoute: SitemapImageDotxmlRoute,

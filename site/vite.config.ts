@@ -96,6 +96,8 @@ export default defineConfig({
       // option: TanStack's own sitemap stays off, as src/seo/sitemap.ts makes ours.)
       pages: [
         { path: "/" },
+        // The 404 page, as 404.html, which the Worker serves for any path that isn't a page (src/server.ts).
+        { path: "/404" },
         { path: "/sitemap.xml" },
         { path: "/wiki" },
         ...HUBS.map((hub) => ({ path: hub.path })),

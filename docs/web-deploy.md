@@ -28,8 +28,9 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 `/assets/` and `/wiki/og/` and the media under `/wiki/media/` and `/media/` skip the Worker, all but the videos,
 but only a page on www would ask for them there), as does plain HTTP ([HTTPS](#https)), a GET or HEAD in one hop to where the apex would send
 it on (an alias's page, a name written another way, the slash the asset store adds or drops, an old media URL).
-A path that's none of these is a 404 with `site/public/404.html`, as are the 404 page's own paths, `/404` and
-`/404.html`, so no crawler indexes it. The asset store's redirects for a page's slash and `.html`
+A path that's none of these is a 404 with the 404 page (`site/src/routes/404.tsx`, pre-rendered to `404.html`
+with the site's header and frame, and without scripts: `site/not-found-page.mjs`), as are the 404 page's own
+paths, `/404` and `/404.html`, so no crawler indexes it. The asset store's redirects for a page's slash and `.html`
 (`html_handling`: `/wiki/` to `/wiki`, `/play` to `/play/`, `/index.html` to `/`) are 307s, which the Worker makes
 301s (308s for other methods than GET and HEAD), as they're for good. Everything is in `site/`:
 
@@ -46,7 +47,7 @@ A path that's none of these is a 404 with `site/public/404.html`, as are the 404
 - `content/`: the wiki's pages (`content/wiki/<slug>.mdx`), the pages it plans but hasn't written
   (`content/wiki-planned.yaml`, docs/wiki-style.md, "Red links"), and the snapshots of its stats and
   relations (`content/wiki-data/`, docs/wiki-data.md).
-- `public/`: copied as is: the landing page's media, the site's icons (`scripts/site-icons`), `404.html`, and
+- `public/`: copied as is: the landing page's media, the site's icons (`scripts/site-icons`), and
   `_headers` (the [security headers](#security-headers), the immutable caching, the wiki media's day, and their
   `.txt` files' charset).
 - `wrangler.jsonc`: the Worker and its domains. `vite.config.ts` builds the app with the Cloudflare Vite

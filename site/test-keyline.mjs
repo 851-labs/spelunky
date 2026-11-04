@@ -1,7 +1,7 @@
 // The site's keyline (docs/wiki-style.md, "The keyline"), which site/test.sh runs: every block in a column shows
 // its left edge on the column's. The site's tests have no browser to ask where a block's edge is, so this
-// reads the stylesheets instead (src/wiki/wiki.css and src/landing.css, each with src/site/site.css, which
-// they import), for the three ways a block has come off the line:
+// reads the stylesheets instead (src/wiki/wiki.css, src/landing.css and the 404 page's src/site/not-found.css, each
+// with src/site/site.css, which they import), for the three ways a block has come off the line:
 //
 //   - a ring or frame drawn outside its box (box-shadow: 0 0 0 var(--ring) ..., or var(--stone)), with the box
 //     on the keyline and the ring past it (a drop shadow offset right by its spread reaches no further left). A block with one is inset by it, margin-inline: var(--ring) or
@@ -225,7 +225,7 @@ const fail = (message) => {
 
 // A stylesheet with site.css's rules in place of its import of them, as the build has it.
 const SITE = readFileSync(new URL("src/site/site.css", import.meta.url), "utf8");
-const IMPORT = /^@import "[./]*site\/site\.css";$/m;
+const IMPORT = /^@import "(?:[./]*site\/|\.\/)site\.css";$/m;
 function withSite(file) {
   const source = readFileSync(new URL(file, import.meta.url), "utf8");
   if (!IMPORT.test(source)) fail(`${file} doesn't import site.css`);
@@ -236,6 +236,7 @@ const landing = withSite("src/landing.css");
 for (const [file, source] of [
   ["wiki.css", css],
   ["landing.css", landing],
+  ["not-found.css", withSite("src/site/not-found.css")],
 ]) {
   const problems = keylineProblems(source);
   for (const problem of problems) fail(`${file}: ${problem}`);

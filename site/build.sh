@@ -258,6 +258,9 @@ if [ -d "$media/rooms" ]; then
   mkdir $assets/wiki/media/rooms
   find "$media/rooms" -maxdepth 1 -name '*.png' -exec cp {} $assets/wiki/media/rooms/ \;
 fi
+# The 404 page without the scripts and preloads the pre-render gives it (not-found-page.mjs): it's served at any
+# path that isn't a page, where they'd hydrate the wrong one.
+node not-found-page.mjs $assets/404.html
 # Every page's Content-Security-Policy, naming its own inline scripts by their hashes (csp.mjs), now that the
 # pages are all here: the app's, 404.html and the game's. The game's is the release's page with its head and its
 # policy then, so play/manifest.txt, which lists every file at /play/ to check the site against, names it as it's
