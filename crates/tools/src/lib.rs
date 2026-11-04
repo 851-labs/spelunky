@@ -14,10 +14,10 @@ use trace::{Filter, TraceReader};
 /// The copyright notice the license asks the wiki's media to carry (`docs/wiki-license.md`): in
 /// `wiki-sprites`' and `wiki-clips`' metadata, PNGs and videos, and in `icon`'s (the site's icons and the apps').
 pub const WIKI_NOTICE: &str = "Spelunky is \u{a9} 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under \
-the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or \
+the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or \
 endorsed by Mossmouth.";
-/// The license the wiki's media are under, as the site serves it.
-pub const WIKI_LICENSE_URL: &str = "https://spelunky.ai/LICENSE.txt";
+/// The license the wiki's media are under, the site's page of it (/LICENSE.txt redirects there).
+pub const WIKI_LICENSE_URL: &str = "https://spelunky.ai/license";
 /// The credit the license asks for wherever the wiki plays the game's music or sound effects
 /// (`docs/wiki-license.md`, "Audio credit"): in `wiki-clips`' metadata and videos with sound.
 pub const WIKI_AUDIO_CREDIT: &str = "Music by George Buzinkai and Jonathan Perry; sound effects made in \

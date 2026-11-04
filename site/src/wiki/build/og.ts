@@ -56,7 +56,7 @@ const PANEL = hex("#0d0907");
 // The media's PNGs' notice (docs/wiki-media.md), as the sprites on the card carry it.
 export const NOTICE =
   "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b " +
-  "(https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.";
+  "(https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.";
 const FOOTER = "Unofficial fan wiki · spelunky.ai";
 
 // The fonts' range: font_add_sprite(sFont, ord(' '), ...), one frame a character, ' ' to 'Z'.
