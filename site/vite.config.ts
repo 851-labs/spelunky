@@ -12,6 +12,7 @@ import { roomNames, sourcePaths, wikiSource } from "./src/wiki/build/source.ts";
 import { roomUrl, sourceUrl } from "./src/wiki/source-url.ts";
 import { wikiMediaPlugin } from "./src/seo/media-package.ts";
 import { thirdPartyLicenses } from "./src/build/third-party-licenses.ts";
+import { siteRelease } from "./src/build/release.ts";
 
 // What build.sh adds to dist/client after this build: the release's web build, the license, the update
 // manifest and the wiki's media; and the wiki's Open Graph images, which the wiki plugin writes. The router
@@ -98,6 +99,7 @@ export default defineConfig({
         { path: "/" },
         // The 404 page, as 404.html, which the Worker serves for any path that isn't a page (src/server.ts).
         { path: "/404" },
+        { path: "/download" },
         { path: "/sitemap.xml" },
         { path: "/wiki" },
         ...HUBS.map((hub) => ({ path: hub.path })),
@@ -126,6 +128,8 @@ export default defineConfig({
     // "virtual:wiki-media": the media's indexes, for the pages' JSON-LD and the sitemaps.
     wikiMediaPlugin(),
     siteUpdated(),
+    // "virtual:site/release": the native apps' downloads, from build.sh's update manifest (SITE_RELEASE_MANIFEST).
+    siteRelease(),
     // /third-party-licenses.txt: the licenses of the packages in the pages' scripts.
     thirdPartyLicenses(),
   ],

@@ -77,7 +77,8 @@ function Landing() {
       <section>
         <h2>Desktop</h2>
         <p>
-          Native builds are on <a href="https://github.com/851-labs/spelunky/releases/latest">GitHub Releases</a>.
+          The desktop apps for macOS, Windows and Linux, which update themselves:{" "}
+          <a href="/download">download</a>.
         </p>
       </section>
 

@@ -223,6 +223,10 @@ export WIKI_MEDIA_DIR="$media" WIKI_MEDIA_URL=/wiki/media WIKI_MEDIA_DATE="$medi
 WIKI_COMMIT=$(git rev-parse --verify HEAD 2>/dev/null) || die "site/ isn't in a git checkout, whose commit the wiki's links to GitHub pin"
 export WIKI_COMMIT
 
+# The update manifest, which the /download page lists the native apps' files from (src/build/release.ts), as the
+# apps update to them: none without one, when the page sends readers to GitHub's releases.
+if [ -n "$manifest" ]; then export SITE_RELEASE_MANIFEST="$manifest"; else unset SITE_RELEASE_MANIFEST; fi
+
 # package-lock.json pins every package: npm ci installs exactly those, or fails.
 npm ci --no-audit --no-fund
 rm -rf dist

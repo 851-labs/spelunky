@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as R404RouteImport } from './routes/404'
+import { Route as DownloadRouteImport } from './routes/download'
 import { Route as OpensearchDotxmlRouteImport } from './routes/opensearch[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapImageDotxmlRouteImport } from './routes/sitemap-image[.]xml'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const R404Route = R404RouteImport.update({
   id: '/404',
   path: '/404',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OpensearchDotxmlRoute = OpensearchDotxmlRouteImport.update({
@@ -86,6 +92,7 @@ const WikiSourceSplatRoute = WikiSourceSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/404': typeof R404Route
+  '/download': typeof DownloadRoute
   '/opensearch.xml': typeof OpensearchDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/404': typeof R404Route
+  '/download': typeof DownloadRoute
   '/opensearch.xml': typeof OpensearchDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/404': typeof R404Route
+  '/download': typeof DownloadRoute
   '/opensearch.xml': typeof OpensearchDotxmlRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap-image.xml': typeof SitemapImageDotxmlRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/404'
+    | '/download'
     | '/opensearch.xml'
     | '/robots.txt'
     | '/sitemap-image.xml'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/404'
+    | '/download'
     | '/opensearch.xml'
     | '/robots.txt'
     | '/sitemap-image.xml'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/404'
+    | '/download'
     | '/opensearch.xml'
     | '/robots.txt'
     | '/sitemap-image.xml'
@@ -174,6 +186,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   R404Route: typeof R404Route
+  DownloadRoute: typeof DownloadRoute
   OpensearchDotxmlRoute: typeof OpensearchDotxmlRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapImageDotxmlRoute: typeof SitemapImageDotxmlRoute
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       path: '/404'
       fullPath: '/404'
       preLoaderRoute: typeof R404RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/opensearch.xml': {
@@ -278,6 +298,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   R404Route: R404Route,
+  DownloadRoute: DownloadRoute,
   OpensearchDotxmlRoute: OpensearchDotxmlRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapImageDotxmlRoute: SitemapImageDotxmlRoute,
