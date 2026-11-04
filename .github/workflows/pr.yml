@@ -53,6 +53,7 @@ jobs:
       suite_steps: ${{ steps.affected.outputs.suite_steps }}
       suite_parts: ${{ steps.affected.outputs.suite_parts }}
       suite_crates: ${{ steps.affected.outputs.suite_crates }}
+      mini_steps: ${{ steps.affected.outputs.mini_steps }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -78,7 +79,7 @@ jobs:
           else
             echo "not a pull request's merge commit: running every job"
             printf '%s\n' run_suite=true run_mini=true run_site=true run_updater=true suite_steps=all \
-              'suite_parts=[1, 2]' suite_crates= >>"$GITHUB_OUTPUT"
+              'suite_parts=[1, 2]' suite_crates= mini_steps=all >>"$GITHUB_OUTPUT"
           fi
 
   # The test suite on two of GitHub's Linux machines (suite.yml), not the minis: the steps of it that read what the
@@ -123,7 +124,8 @@ jobs:
   # On the minis, only what needs Apple silicon: the web build (scripts/web --check) and the wiki's media
   # (docs/wiki-media.md, "Checking": if the pull request changes what they're made from, wiki/media must be what
   # it renders, byte for byte; the merge commit's first parent is the base), and scripts/check --apple. One job, so
-  # a pull request holds one mini, and none when it changes nothing the job reads.
+  # a pull request holds one mini, and none when it changes nothing the job reads; and of it, only the steps that
+  # read what the pull request changes (Changes' mini_steps: scripts/affected's MINI_STEPS, 851-4019).
   web:
     name: Mac mini
     needs: changes
@@ -134,10 +136,19 @@ jobs:
     with:
       name: Web, wiki media and macOS
       fetch-depth: 2
+      # MINI_STEPS: step names, or `all`.
       run: |
-        scripts/check --apple
-        scripts/web --check
-        scripts/wiki-media --check --since HEAD^1
+        steps='${{ needs.changes.outputs.mini_steps }}'
+        if [ "$steps" = all ]; then
+          scripts/check --apple
+          scripts/web --check
+          scripts/wiki-media --check --since HEAD^1
+        else
+          apple=$(for s in $steps; do case $s in web | media) ;; *) printf '%s ' "$s" ;; esac; done)
+          if [ -n "$apple" ]; then scripts/check --apple --only "$apple"; fi
+          case " $steps " in *" web "*) scripts/web --check ;; esac
+          case " $steps " in *" media "*) scripts/wiki-media --check --since HEAD^1 ;; esac
+        fi
       # --apple's builds, the web build and a render of every clip, from a cold target dir (a toolchain bump).
       timeout-minutes: 75
 

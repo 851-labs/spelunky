@@ -25,16 +25,22 @@ features="--features audio/backend"
 # Each half's steps, as scripts/affected's STEPS has them (its --test checks these lists and the `step`s below).
 steps1="sh pins gm8-arith affected lints tests transpile pxfm angles"
 steps2="fidelity clips wiki licenses wasm"
+# And --apple's (scripts/affected's MINI_STEPS, 851-4019).
+steps_apple="sh hooks lints tests fidelity shots"
 one=1
 two=1
 only=
 crates=
-usage() { echo "usage: scripts/check [--fast | --apple | --part 1|2 [--only 'STEP ...' [--crates 'CRATE ...']]]" >&2; exit 2; }
+usage() {
+  echo "usage: scripts/check [--fast | --apple [--only 'STEP ...'] | --part 1|2 [--only 'STEP ...' [--crates 'CRATE ...']]]" >&2
+  exit 2
+}
 # One option at most (or --part and --only), so a mistyped or combined one (`--part=1`, `--part 1 --fast`) fails
 # rather than runs it all.
 case $#:${1:-}:${2:-}:${3:-} in
   0:::) ;;
   1:--fast:: | 1:--apple::) ;;
+  3:--apple:--only:*) only=$3 ;;
   2:--part:1:) two= ;;
   2:--part:2:) one= ;;
   4:--part:1:--only) two= only=$4 ;;
@@ -52,11 +58,17 @@ if [ -n "$crates" ]; then
   case " $crates " in *" audio "*) ;; *) backend= ;; esac
 fi
 # An empty --only is a mistake, not the whole half.
-[ $# -lt 4 ] || [ -n "$(echo $only)" ] || usage
+[ $# -lt 3 ] || [ -n "$(echo $only)" ] || usage
 if [ -n "$only" ]; then
-  [ -n "$one" ] && part="$steps1" || part="$steps2"
+  if [ "$1" = --apple ]; then
+    part="$steps_apple" which=--apple
+  elif [ -n "$one" ]; then
+    part="$steps1" which="part 1"
+  else
+    part="$steps2" which="part 2"
+  fi
   for name in $only; do
-    case " $part " in *" $name "*) ;; *) echo "scripts/check: no step $name in part ${2:-}" >&2; usage ;; esac
+    case " $part " in *" $name "*) ;; *) echo "scripts/check: no step $name in $which" >&2; usage ;; esac
   done
 fi
 # Whether to run step NAME of PART: that half is running, and the step is one --only names, if it names any.
@@ -71,24 +83,41 @@ assets() {
   [ -n "$extracted" ] || scripts/extract >/dev/null
   extracted=1
 }
+# Whether --apple runs step NAME: the one --only names, if it names any.
+apple() {
+  [ -z "$only" ] || case " $only " in *" $1 "*) ;; *) return 1 ;; esac
+}
 if [ "${1:-}" = "--apple" ]; then
   [ "$(uname -s) $(uname -m)" = "Darwin arm64" ] || { echo "scripts/check --apple: for Apple silicon Macs" >&2; exit 1; }
-  scripts/check-sh
+  if apple sh; then
+    scripts/check-sh
+  fi
   # The minis' job-started hook, which keeps forks' pull requests off them (docs/ci.md), on made-up events.
-  .github/runner-hooks/test.sh >/dev/null
-  scripts/workspace-hack --check
-  # The workspace as macOS compiles it: the app's menus, alerts and power assertions, the updater's installer.
-  $cargo clippy --workspace --all-targets $features --quiet -- -D warnings
-  $cargo clippy -p app --no-default-features --all-targets --quiet -- -D warnings
-  # The app's own tests on macOS (the updater's run on GitHub's macOS machines: updater.yml), and every member's
-  # test build, which --reused compares a member's own with.
-  $cargo test --workspace $features --quiet --no-run
-  $cargo test -p app $features --quiet
-  scripts/workspace-hack --reused
-  scripts/extract >/dev/null
-  $cargo run --quiet --release -p harness --bin fidelity-check
+  if apple hooks; then
+    .github/runner-hooks/test.sh >/dev/null
+  fi
+  if apple lints; then
+    scripts/workspace-hack --check
+    # The workspace as macOS compiles it: the app's menus, alerts and power assertions, the updater's installer.
+    $cargo clippy --workspace --all-targets $features --quiet -- -D warnings
+    $cargo clippy -p app --no-default-features --all-targets --quiet -- -D warnings
+  fi
+  if apple tests; then
+    # The app's own tests on macOS (the updater's run on GitHub's macOS machines: updater.yml), and every member's
+    # test build, which --reused compares a member's own with.
+    $cargo test --workspace $features --quiet --no-run
+    $cargo test -p app $features --quiet
+    scripts/workspace-hack --reused
+  fi
+  if apple fidelity; then
+    assets
+    $cargo run --quiet --release -p harness --bin fidelity-check
+  fi
   # The renderer against the oracle's pictures of chosen frames (fidelity/screenshots/): it needs the GPU.
-  scripts/fidelity-shots
+  if apple shots; then
+    assets
+    scripts/fidelity-shots
+  fi
   exit 0
 fi
 if step 1 lints; then
