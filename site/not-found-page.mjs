@@ -13,12 +13,14 @@ if (!page) {
   process.exit(2);
 }
 const html = readFileSync(page, "utf8");
-const preloads = /<link rel="modulepreload"[^>]*\/>/g;
-const scripts = /<script\b[^>]*>[\s\S]*?<\/script>/g;
-const removed = (html.match(preloads) ?? []).length + (html.match(scripts) ?? []).length;
-const stripped = html.replace(preloads, "").replace(scripts, "");
-if (/<script\b|modulepreload/i.test(stripped)) {
-  console.error(`not-found-page.mjs: ${page} still has a script or a preload`);
+// A link that fetches a script: a module preload, or a preload of a script, its attributes in any order.
+const fetchesScript = (tag) => /\brel=["']?modulepreload\b/i.test(tag) || (/\brel=["']?preload\b/i.test(tag) && /\bas=["']?script\b/i.test(tag));
+let removed = 0;
+const stripped = html
+  .replace(/<link\b[^>]*>/gi, (tag) => (fetchesScript(tag) ? (removed++, "") : tag))
+  .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, () => (removed++, ""));
+if (/<script\b/i.test(stripped) || [...stripped.matchAll(/<link\b[^>]*>/gi)].some(([tag]) => fetchesScript(tag))) {
+  console.error(`not-found-page.mjs: ${page} still has a script or a script's preload`);
   process.exit(1);
 }
 if (!stripped.includes('<header class="site-header">')) {

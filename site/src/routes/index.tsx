@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import css from "../landing.css?inline";
 import { organization, videoGame, website } from "../seo/jsonld";
 import { seo } from "../seo/seo";
-import { SiteFrame, SiteSearch } from "../site/frame";
+import { SiteFrame, SiteLinks, SiteSearch } from "../site/frame";
 
 // The landing page, in the site's frame (src/site/frame.tsx). Its CSS and the site's, inlined (landing.css imports
 // site.css), like the hand-written page it replaced: no extra request before it paints.
@@ -25,11 +25,7 @@ function Landing() {
     <SiteFrame
       section={null}
       search={<SiteSearch />}
-      footer={
-        <p>
-          spelunky.ai &middot; <a href="/wiki">Wiki</a> &middot; <a href="https://github.com/851-labs/spelunky">GitHub</a>
-        </p>
-      }
+      footer={<SiteLinks />}
     >
       {/* Play beside the gameplay on a wide screen, above it on a narrow one. */}
       <div className="hero">

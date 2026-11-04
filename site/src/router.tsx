@@ -1,12 +1,14 @@
 import { createRouter } from "@tanstack/react-router";
+import { NotFound } from "./site/not-found";
 import { routeTree } from "./routeTree.gen";
 
 export function getRouter() {
   return createRouter({
     routeTree,
-    // Only for a link the router follows itself: a request for a path it hasn't got gets 404.html, the
-    // 404 route pre-rendered (src/routes/404.tsx, src/server.ts).
-    defaultNotFoundComponent: () => <p>Nothing down here.</p>,
+    // A request for a path it hasn't got gets 404.html, the 404 route pre-rendered (src/routes/404.tsx,
+    // src/server.ts); this is the same page, for `vite dev`, where there's no 404.html, and a link the router
+    // follows itself.
+    defaultNotFoundComponent: NotFound,
     // A path is a page only as it's written: /WIKI/snake is no page, rather than a copy of /wiki/snake the Worker
     // would render on every request (the pages are pre-rendered at their own paths, and the asset store's are
     // case-sensitive).

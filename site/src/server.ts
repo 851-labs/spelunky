@@ -190,6 +190,11 @@ async function route(request: Request, env: Env, { probe = false } = {}): Promis
   // spelunky.ai only one that opts out of pre-rendering.
   const rendered = await handler.fetch(request);
   if (rendered.status === 404) {
+    // Under `vite dev` there's no 404.html for the asset store's miss: the router's is the same page (src/router.tsx).
+    if (import.meta.env?.DEV) {
+      await asset.body?.cancel();
+      return noCache(new Response(rendered.body, { status: 404, headers: rendered.headers }));
+    }
     await rendered.body?.cancel();
     return noCache(asset);
   }

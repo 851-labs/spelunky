@@ -66,7 +66,17 @@ function SiteHeader({ section, search }: { section: Section | null; search: Reac
   );
 }
 
-// The header's search box where the wiki's code isn't: a plain form, as the wiki's is before its script runs.
+// The footer's links on a page outside the wiki (the landing page, the 404 page), whose notices are its own.
+export function SiteLinks() {
+  return (
+    <p>
+      spelunky.ai &middot; <a href="/wiki">Wiki</a> &middot; <a href="https://github.com/851-labs/spelunky">GitHub</a>
+    </p>
+  );
+}
+
+// The header's search box where the wiki's code isn't: a plain form, as the wiki's is before its script runs. (On
+// the 404 page, which has no scripts, an empty box goes to /wiki, the search's page, rather than nowhere.)
 export function SiteSearch() {
   return (
     <form
