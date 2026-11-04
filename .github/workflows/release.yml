@@ -148,7 +148,7 @@ jobs:
             echo "Each file has signed build provenance: check a download with \`gh attestation verify FILE --repo $GH_REPO\`."
             echo
           } >>"$RUNNER_TEMP/notes.md"
-          title="Spelunky Classic port $TAG (unofficial)"
+          title=$TAG
           if draft=$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null); then
             [ "$draft" = true ] || { echo "::error::Release $TAG is already published"; exit 1; }
             echo "Reusing the draft release $TAG"
