@@ -308,3 +308,5 @@ if [ "$files" -gt 9900 ] && [ "$(uname)" = Darwin ]; then
   echo "site/build.sh: too many for wrangler dev on macOS (spawn EBADF): serve it with npx vite preview"
 fi
 finished=1
+
+# probe
