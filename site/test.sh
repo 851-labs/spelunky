@@ -92,7 +92,12 @@ mkdir -p "$tmp/web/v/0123456789abcdef/assets/sounds"
 echo 'stand-in sound' >"$tmp/web/v/0123456789abcdef/assets/sounds/jump.wav"
 (cd "$tmp/web" && shasum -a 256 index.html v/0123456789abcdef/app.js >manifest.txt)
 tar -czf "$tmp/web.tar.gz" -C "$tmp/web" .
-echo '{"version":"stand-in"}' >"$tmp/latest.json"
+# And for the release's update manifest (docs/updates.md), as its signing tool writes it, the manifest a string in
+# the file, but not signed: what the /download page lists (src/build/release.ts), a macOS app and a Windows build
+# for two processors, and no Linux.
+cat >"$tmp/latest.json" <<'EOF2'
+{"manifest":"{\"version\":\"9.9.9\",\"notes\":\"https://github.com/851-labs/spelunky/releases/tag/v9.9.9\",\"assets\":{\"macos\":{\"url\":\"https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-macos.zip\",\"sha256\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"size\":26388724,\"format\":\"app-zip\"},\"windows-aarch64\":{\"url\":\"https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-windows-arm64.zip\",\"sha256\":\"0000000000000000000000000000000000000000000000000000000000000002\",\"size\":16967822,\"format\":\"dir-zip\"},\"windows-x86_64\":{\"url\":\"https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-windows-x64.zip\",\"sha256\":\"0000000000000000000000000000000000000000000000000000000000000003\",\"size\":17875061,\"format\":\"dir-zip\"}}}","signature":"00"}
+EOF2
 # And for the wiki's media (wiki/media, which scripts/wiki-media renders), with its real LICENSE.txt and
 # NOTICE.txt: the indexes, the pages' sprites and the Snake's clip, with
 # what of docs/wiki-media.md's fields src/seo/media-package.ts reads (test-media.mjs checks what the JSON-LD
@@ -400,7 +405,7 @@ contains '<html lang="en">' \
   '<meta property="og:image" content="https://spelunky.ai/media/card.png"/>' \
   '<meta property="og:image:width" content="1200"/>' '<meta property="og:image:height" content="630"/>' \
   '<header class="site-header"><a href="/" class="site-home" aria-current="page"><img src="/media/logo.png" width="160" height="36" alt="Spelunky"/></a>' \
-  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki">Wiki</a></nav>' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki">Wiki</a><a href="/download">Download</a></nav>' \
   '<form role="search" class="search-box" action="/wiki" method="get">' '<main id="content">' '<footer class="site-footer">' \
   '<h1>Spelunky Classic 1.1, ported to Rust tick for tick, bugs included.</h1>' \
   '<a class="play" href="/play/">Play in your browser</a><a class="settings" href="/play/?settings">Settings</a>' \
@@ -628,7 +633,7 @@ check "$site/wiki/media" 404 "$no_cache"
 # in the page), the sections' anchors and the navbox, its title linking the hub.
 check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Snake – Spelunky Classic wiki</title>' \
-  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki" aria-current="true">Wiki</a></nav>' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki" aria-current="true">Wiki</a><a href="/download">Download</a></nav>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
   '<meta name="description" content="The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact."/>' \
   '<meta property="og:type" content="article"/>' '<meta property="og:image" content="https://spelunky.ai/wiki/og/snake.' \
@@ -1069,13 +1074,38 @@ check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf
 same "$tmp/LICENSE.txt"
 contains 'Spelunky® User License v1.1b'
 
+# The download page (src/routes/download.tsx), pre-rendered from the stand-in manifest: its systems' files, each
+# with its size and SHA-256, and no system the manifest has no file for; Download marked in the header; its own
+# stylesheet.
+check "$site/download" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts" "$frame_csp"
+contains '<title>Download Spelunky Classic for macOS, Windows and Linux (unofficial port)</title>' \
+  '<link rel="canonical" href="https://spelunky.ai/download"/>' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki">Wiki</a><a href="/download" aria-current="page">Download</a></nav>' \
+  'Version <!-- -->9.9.9<!-- --> of the port' '<h2 id="system-macos">macOS</h2>' '<h2 id="system-windows">Windows</h2>' \
+  '<a class="file" href="https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-macos.zip"><span class="file-label">Universal</span><span class="file-meta">zip<!-- -->, <!-- -->26.4 MB</span></a>' \
+  '<a class="file" href="https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-windows-x64.zip"><span class="file-label">x64</span><span class="file-meta">zip<!-- -->, <!-- -->17.9 MB</span></a>' \
+  '<span>SHA-256</span> <code>0000000000000000000000000000000000000000000000000000000000000003</code>' \
+  '<a href="https://github.com/851-labs/spelunky/releases/tag/v9.9.9">' \
+  '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>'
+if grep -q 'system-linux' "$tmp/body"; then fail "$url: a Linux card, where the manifest has no Linux file"; fi
+download_css=$(sed -n 's|.*<link rel="stylesheet" href="/\(assets/download-[^"]*\.css\)".*|\1|p' dist/client/download.html)
+if [ -z "$download_css" ]; then
+  fail "the download page links no stylesheet of its own"
+else
+  check "$site/$download_css" 200 "$immutable" "content-type: text/css; charset=utf-8"
+  contains '.site-header{' '.system[data-yours]{'
+fi
+# And the landing page sends readers there.
+check "$site/" 200
+contains '<a href="/download">download</a>'
+
 check "$site/nowhere" 404 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts" "$frame_csp"
 same dist/client/404.html
 # The 404 route pre-rendered (src/routes/404.tsx): the site's header and frame, its own stylesheet, and no scripts
 # or preloads (not-found-page.mjs), as it's served at any path.
 contains '<title>Not found - spelunky.ai</title>' '<meta name="robots" content="noindex"/>' \
   '<header class="site-header"><a href="/" class="site-home"><img src="/media/logo.png"' \
-  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki">Wiki</a></nav>' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki">Wiki</a><a href="/download">Download</a></nav>' \
   '<form role="search" class="search-box" action="/wiki" method="get">' \
   '<h1>Nothing down here.</h1>' '<a href="/">Back to the surface</a>' '<footer class="site-footer">' \
   '<link rel="icon" href="/favicon.ico" sizes="32x32"/>'
@@ -1127,6 +1157,8 @@ node test-carry.mjs || fail "test-carry.mjs"
 # Every pre-rendered page's links on the site, the wiki's pages reachable from /wiki, none to come that no
 # ticket is writing, and every alias a redirect to its page.
 node test-links.mjs dist/client "$site" || fail "test-links.mjs"
+# The download page's manifest, its systems and which one a browser's on.
+node test-download.mjs || fail "test-download.mjs"
 # Every block's left edge on its column's keyline, from the stylesheet.
 node test-keyline.mjs || fail "test-keyline.mjs"
 # The content types the Worker sets itself, against an asset store like Cloudflare's rather than wrangler dev's,

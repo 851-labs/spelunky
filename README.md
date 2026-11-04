@@ -12,7 +12,8 @@ The goal is an exact replica: the same behavior tick for tick, bugs included, ve
 game. It runs natively (Metal on macOS) and in the browser (WebGPU).
 
 Play: https://spelunky.ai/play/, the release `site/web-release.txt` pins (see
-[docs/web-deploy.md](docs/web-deploy.md)), with the wiki at https://spelunky.ai/wiki.
+[docs/web-deploy.md](docs/web-deploy.md)), with the wiki at https://spelunky.ai/wiki. The desktop apps for macOS,
+Windows and Linux, the same release's: https://spelunky.ai/download.
 
 ## Setup
 

@@ -19,6 +19,7 @@ with static assets (account "851", `630f294bcb2c1e9b751d9fe0655a453a`; zone spel
 | `/wiki/<alias>`, `/wiki/<alias>.md` | a page's other names (its frontmatter's `aliases`, docs/wiki-style.md): a redirect (301) to the page, or its twin, from the Worker's map of them (`virtual:wiki/aliases`, made by the build) | `no-cache` |
 | `/wiki/<slug>.md`, `/llms.txt`, `/llms-full.txt` | the wiki for answer engines and LLMs: each page's Markdown twin (`text/markdown`, its `Link` header naming the page as canonical), their index and all of them (`text/plain`, `X-Robots-Tag: noindex`: the pages are what search engines index), written by the build (docs/wiki-style.md, "Markdown and llms.txt") | `no-cache` |
 | `/releases/latest.json` | the native apps' signed update manifest (`docs/updates.md`), the release's own | `no-cache` |
+| `/download` | the native apps' page (`site/src/routes/download.tsx`, pre-rendered): that manifest's files, a system each, with their sizes and SHA-256s, linking GitHub's release, where they stay ([Putting a version live](#putting-a-version-live)) | `no-cache` |
 | `/wiki/media/` | the wiki's sprites, clips and rooms' pictures, committed in `wiki/media` (`docs/wiki-media.md`); the clips' videos with byte ranges; its `LICENSE.txt` and `NOTICE.txt` in UTF-8, the type from `_headers`. `/wiki/media/HASH/...`, where a release's package was, redirects (301) to `/wiki/media/...` | a day |
 | `/media/` | the landing page's gameplay video and still, its Open Graph card, and the logo every page shows (`site/public/media/`): the pictures skip the Worker, and the video comes through it for byte ranges ([Wiki media](#wiki-media), "Byte ranges"); `build.sh` fails on any other kind of file there. They keep their names, so a new logo reaches a returning reader within the day | a day |
 | `/wiki/og/<slug>.HASH.png` | the wiki's Open Graph images, one a page and hub, `HASH` being of the file (SEO, "Open Graph images") | `immutable`, a year |
@@ -224,7 +225,12 @@ which is a `src`) would be blocked: no build sees it to hash it. Turning one on 
    both SHA-256s into `site/web-release.txt`. (The wiki's media are committed, and go live with the pull
    request that renders them: `docs/wiki-media.md`.)
 3. A pull request with that change; merging it to `main` builds and deploys the site (a minute or two). The
-   web build at `/play/` and the native apps' update at `/releases/latest.json` go live together.
+   web build at `/play/`, the native apps' update at `/releases/latest.json` and the files `/download` lists go
+   live together: `build.sh` names the manifest to the build (`SITE_RELEASE_MANIFEST`), whose
+   `virtual:site/release` the page lists its files from (`site/src/build/release.ts`), so it changes with the
+   pin, with no list to keep by hand. A malformed manifest fails the build; without one (`vite dev`, a release
+   that has none), the page links GitHub's releases instead. The macOS `.dmg` and the Linux tarballs aren't in
+   the manifest, so the page links the release for them.
 
 After a release, `release.yml` does steps 2 and 3 itself ([docs/ci.md](ci.md#the-sites-bump-pull-request)):
 it opens "Release: put TAG live on spelunky.ai" from the branch `bump-web-release/TAG`, as the GitHub App in
@@ -488,7 +494,9 @@ stand-in GML files), and runs `test-seo.mjs` (SEO, below),
 `test-wiki.mjs` (the wiki's pages compile, and a page that breaks a rule fails the build: docs/wiki-style.md,
 "The pipeline"; and a red link and a card to come render as they should, from a fixture page and hub, as the
 committed wiki has neither), `test-carry.mjs` (a build carries the hashed files of the ones before it: [Version
-skew](#version-skew)), `test-keyline.mjs` (the stylesheet keeps every block on its column's keyline) and
+skew](#version-skew)), `test-download.mjs` (the `/download` page reads a release's manifest, or refuses it,
+groups its files by system and tells which system a browser's on, from real browsers' user agents),
+`test-keyline.mjs` (the stylesheet keeps every block on its column's keyline) and
 `test-links.mjs` (every link a page has is a file on the site, with no redirect, every
 wiki page is reachable from `/wiki`, only pages a ticket is writing are to come: docs/wiki-style.md, "Red
 links", and every alias is a redirect, in one hop, to its page, which nothing names by an alias). `wrangler dev`'s asset store isn't quite Cloudflare's: it serves `.txt` as `text/plain;

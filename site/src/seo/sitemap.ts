@@ -18,8 +18,8 @@ export interface SitemapEntry {
   lastmod?: string;
 }
 
-// The pages outside the wiki: the landing page and the game (build.sh's /play/, not a route).
-const SITE_PAGES: SitemapEntry[] = [{ path: "/" }, { path: "/play/" }];
+// The pages outside the wiki: the landing page, the game (build.sh's /play/, not a route) and the native apps'.
+const SITE_PAGES: SitemapEntry[] = [{ path: "/" }, { path: "/play/" }, { path: "/download" }];
 
 export const SITEMAP_SOURCES: Array<() => SitemapEntry[]> = [() => SITE_PAGES, wikiSitemap];
 

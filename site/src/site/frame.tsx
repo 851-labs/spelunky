@@ -17,6 +17,8 @@ import { loadOnce, never } from "../wiki/load-once";
 const SECTIONS = [
   { id: "play", href: "/play/", name: "Play", newTab: true },
   { id: "wiki", href: "/wiki", name: "Wiki", newTab: false },
+  // The native apps (src/routes/download.tsx), in this tab: it's a page of the site's, not the game.
+  { id: "download", href: "/download", name: "Download", newTab: false },
 ] as const;
 
 export type Section = (typeof SECTIONS)[number]["id"];
