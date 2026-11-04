@@ -1075,7 +1075,7 @@ same "$tmp/LICENSE.txt"
 contains 'Spelunky® User License v1.1b'
 
 # The download page (src/routes/download.tsx), pre-rendered from the stand-in manifest: its systems' files, each
-# with its size and SHA-256, and no system the manifest has no file for; Download marked in the header; its own
+# with its size (and no SHA-256 line: the release's SHA256SUMS has them), and no system the manifest has no file for; Download marked in the header; its own
 # stylesheet.
 check "$site/download" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts" "$frame_csp"
 contains '<title>Download Spelunky Classic for macOS, Windows and Linux (unofficial port)</title>' \
@@ -1084,10 +1084,10 @@ contains '<title>Download Spelunky Classic for macOS, Windows and Linux (unoffic
   'Version <!-- -->9.9.9<!-- --> of the port' '<h2 id="system-macos">macOS</h2>' '<h2 id="system-windows">Windows</h2>' \
   '<a class="file" href="https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-macos.zip"><span class="file-label">Universal</span><span class="file-meta">zip<!-- -->, <!-- -->26.4 MB</span></a>' \
   '<a class="file" href="https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-windows-x64.zip"><span class="file-label">x64</span><span class="file-meta">zip<!-- -->, <!-- -->17.9 MB</span></a>' \
-  '<span>SHA-256</span> <code>0000000000000000000000000000000000000000000000000000000000000003</code>' \
   '<a href="https://github.com/851-labs/spelunky/releases/tag/v9.9.9">' \
   '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>'
 if grep -q 'system-linux' "$tmp/body"; then fail "$url: a Linux card, where the manifest has no Linux file"; fi
+if grep -q '<span>SHA-256</span>' "$tmp/body"; then fail "$url: a file's SHA-256 line, which the page no longer shows"; fi
 download_css=$(sed -n 's|.*<link rel="stylesheet" href="/\(assets/download-[^"]*\.css\)".*|\1|p' dist/client/download.html)
 if [ -z "$download_css" ]; then
   fail "the download page links no stylesheet of its own"
