@@ -33,7 +33,7 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
 ## Code
 
 - Use `scripts/cargo` in place of `cargo` (rustup's toolchain, with the wasm32 target). `scripts/check` is the full
-  suite, and CI's `pr-ok` runs it on every pull request that changes what it reads (`scripts/affected`), split
+  suite, and CI's `pr-ok` runs the steps of it that read what a pull request changes (`scripts/affected`), split
   across two Linux machines with warm caches, faster than a local run (locally, agents share the cores). So leave
   it to CI: locally, run `scripts/check --fast` (the instant pre-commit subset: formatting) and the tests the
   change touches, then open the PR and push fixes if `pr-ok` fails.
@@ -56,8 +56,9 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
 - `scripts/warm-main`, run in the main checkout after a pull, builds what new worktrees reuse: what
   `scripts/check` compiles, and the release binaries. A build of one package (`scripts/cargo test -p game`,
   `scripts/extract`) reuses them too, as `crates/workspace-hack` gives it the workspace's features (on Apple
-  silicon Macs; the shipped builds don't have it). After a change to the dependencies or their features,
-  `scripts/workspace-hack` regenerates it; `scripts/check` fails until it's current.
+  silicon Macs and CI's x86_64 Linux, for its per-crate checks; the shipped builds don't have it). After a
+  change to the dependencies or their features, `scripts/workspace-hack` regenerates it; `scripts/check` fails
+  until it's current.
 - `scripts/check` also runs `gm`'s unit tests on wasm32 under Node (`scripts/wasm-test`). wasm can't unwind, so a
   panic aborts the whole run: mark `#[should_panic]` tests `#[cfg_attr(target_family = "wasm", ignore)]`.
 - Every committed replay (`fidelity/replays/`, `fidelity/settings/`) has a fingerprint of the oracle's run in

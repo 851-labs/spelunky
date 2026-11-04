@@ -13,22 +13,64 @@
 # stands alone). The halves are split by what they build, so neither builds the bulk of what the other does (both
 # build the build scripts and proc-macros): 1 is the instant checks, the lints and the dev and test builds (the
 # transpiler and every test); 2 is the release builds (the assets, the replays, the wiki's and site's checks) and
-# wasm32.
+# wasm32. With --only, a half runs only the steps named (steps1 and steps2, below: `step PART NAME`), which is what
+# CI runs for a pull request that changes only what some of them read (scripts/affected's STEPS, 851-4017), and
+# with --crates, the lints and tests are only those crates' (`-p`, not --workspace: scripts/affected's
+# suite_crates, 851-4018).
 set -eu
 cd "$(dirname "$0")/.."
 cargo=scripts/cargo
 # Optional features that are off by default but must keep building: audio's device backend.
 features="--features audio/backend"
+# Each half's steps, as scripts/affected's STEPS has them (its --test checks these lists and the `step`s below).
+steps1="sh pins gm8-arith affected lints tests transpile pxfm angles"
+steps2="fidelity clips wiki licenses wasm"
 one=1
 two=1
-# One option at most, so a mistyped or combined one (`--part=1`, `--part 1 --fast`) fails rather than runs it all.
-case $#:${1:-}:${2:-} in
-  0::) ;;
-  1:--fast: | 1:--apple:) ;;
-  2:--part:1) two= ;;
-  2:--part:2) one= ;;
-  *) echo "usage: scripts/check [--fast | --apple | --part 1|2]" >&2; exit 2 ;;
+only=
+crates=
+usage() { echo "usage: scripts/check [--fast | --apple | --part 1|2 [--only 'STEP ...' [--crates 'CRATE ...']]]" >&2; exit 2; }
+# One option at most (or --part and --only), so a mistyped or combined one (`--part=1`, `--part 1 --fast`) fails
+# rather than runs it all.
+case $#:${1:-}:${2:-}:${3:-} in
+  0:::) ;;
+  1:--fast:: | 1:--apple::) ;;
+  2:--part:1:) two= ;;
+  2:--part:2:) one= ;;
+  4:--part:1:--only) two= only=$4 ;;
+  4:--part:2:--only) one= only=$4 ;;
+  6:--part:1:--only) [ "$5" = --crates ] || usage; two= only=$4 crates=$6 ;;
+  *) usage ;;
 esac
+[ $# -lt 6 ] || [ -n "$(echo $crates)" ] || usage
+# The packages the lints and tests check: the workspace, or --crates'. audio's backend is asked for as the
+# workspace's build asks, which only a selection with audio can (scripts/affected adds it to one that uses it).
+packages=--workspace
+backend=$features
+if [ -n "$crates" ]; then
+  packages=$(for c in $crates; do printf -- '-p %s ' "$c"; done)
+  case " $crates " in *" audio "*) ;; *) backend= ;; esac
+fi
+# An empty --only is a mistake, not the whole half.
+[ $# -lt 4 ] || [ -n "$(echo $only)" ] || usage
+if [ -n "$only" ]; then
+  [ -n "$one" ] && part="$steps1" || part="$steps2"
+  for name in $only; do
+    case " $part " in *" $name "*) ;; *) echo "scripts/check: no step $name in part ${2:-}" >&2; usage ;; esac
+  done
+fi
+# Whether to run step NAME of PART: that half is running, and the step is one --only names, if it names any.
+step() {
+  if [ "$1" = 1 ]; then [ -n "$one" ]; else [ -n "$two" ]; fi || return 1
+  [ -z "$only" ] || case " $only " in *" $2 "*) ;; *) return 1 ;; esac
+}
+# The assets (scripts/extract), once, for the steps that read them: quick when they're current, so a step never
+# runs on stale ones.
+extracted=
+assets() {
+  [ -n "$extracted" ] || scripts/extract >/dev/null
+  extracted=1
+}
 if [ "${1:-}" = "--apple" ]; then
   [ "$(uname -s) $(uname -m)" = "Darwin arm64" ] || { echo "scripts/check --apple: for Apple silicon Macs" >&2; exit 1; }
   scripts/check-sh
@@ -49,63 +91,97 @@ if [ "${1:-}" = "--apple" ]; then
   scripts/fidelity-shots
   exit 0
 fi
-if [ -n "$one" ]; then
+if step 1 lints; then
   $cargo fmt --all --check
+fi
+if step 1 angles; then
   $cargo fmt --manifest-path tools/gm8-probe/angles/Cargo.toml --check
-  # The oracle's patch 0014 carries a copy of crates/gm/src/gm8.rs, which must be current.
+fi
+# The oracle's patch 0014 carries a copy of crates/gm/src/gm8.rs, which must be current.
+if step 1 gm8-arith; then
   python3 -I tools/oracle/sync-gm8-arith --check
-  # Every sh script parses: macOS's sh passes one that stops at a syntax error after an EXIT trap (851-3741).
+fi
+# Every sh script parses: macOS's sh passes one that stops at a syntax error after an EXIT trap (851-3741).
+if step 1 sh; then
   scripts/check-sh
-  # Every action the workflows use is pinned to a full commit SHA, its version in a comment, as a tag can be moved to
-  # other code (851-3902; .github/dependabot.yml moves the pins).
+fi
+# Every action the workflows use is pinned to a full commit SHA, its version in a comment, as a tag can be moved to
+# other code (851-3902; .github/dependabot.yml moves the pins).
+if step 1 pins; then
   unpinned=$(grep -rnE 'uses: [^.][^@ ]*@' .github | grep -vE 'uses: [^@ ]+@[0-9a-f]{40} # v[0-9]' || true)
   [ -z "$unpinned" ] || { printf 'scripts/check: actions not pinned to a commit SHA with its version:\n%s\n' "$unpinned" >&2; exit 1; }
-  [ "${1:-}" = "--fast" ] && exit 0
-  # What decides which of CI's jobs a pull request runs, on past pull requests, and against what the crates read
-  # (851-4008, docs/ci.md "What a pull request runs").
+fi
+[ "${1:-}" = "--fast" ] && exit 0
+# What decides which of CI's jobs a pull request runs, on past pull requests, and against what the crates read
+# (851-4008, docs/ci.md "What a pull request runs"). pr.yml's Changes runs it on every pull request too.
+if step 1 affected; then
   python3 -I scripts/affected --test
+fi
+if step 1 lints; then
   # A build of one package must resolve the workspace's features, so a worktree reuses the main checkout's
   # builds (crates/workspace-hack, 851-3738).
   scripts/workspace-hack --check
-  $cargo clippy --workspace --all-targets $features --quiet -- -D warnings
+  # shellcheck disable=SC2086 # $packages: options
+  $cargo clippy $packages --all-targets $backend --quiet -- -D warnings
   # Default features that may be turned off must keep building without them: the app's gamepad support.
-  $cargo clippy -p app --no-default-features --all-targets --quiet -- -D warnings
-  # The committed game code must be what the transpiler generates from the reference .gmk.
+  case " ${crates:-app} " in
+    *" app "*) $cargo clippy -p app --no-default-features --all-targets --quiet -- -D warnings ;;
+  esac
+fi
+# The committed game code must be what the transpiler generates from the reference .gmk.
+if step 1 transpile; then
   scripts/transpile --check
-  $cargo test --workspace $features --quiet
-  # Which a member's own test build reuses whole (crates/workspace-hack): as a worktree's would, off the main checkout's.
-  scripts/workspace-hack --reused
-  # The vendored math crate is its own workspace; its tests include our hypot's (851-3174).
+fi
+if step 1 tests; then
+  # shellcheck disable=SC2086 # $packages: options
+  $cargo test $packages $backend --quiet
+  # Which a member's own test build reuses whole (crates/workspace-hack): as a worktree's would, off the main
+  # checkout's. After the workspace's build only: it builds each member alone.
+  [ -n "$crates" ] || scripts/workspace-hack --reused
+fi
+# The vendored math crate is its own workspace; its tests include our hypot's (851-3174).
+if step 1 pxfm; then
   $cargo test --manifest-path vendor/pxfm/Cargo.toml --quiet
-  # So is the angle probes' tool: its bounding-box model must still match the results measured on GM8 (851-3287).
+fi
+# So is the angle probes' tool: its bounding-box model must still match the results measured on GM8 (851-3287).
+if step 1 angles; then
   angles="--manifest-path tools/gm8-probe/angles/Cargo.toml --target-dir target/gm8-angle-probes"
   $cargo clippy $angles --all-targets --quiet -- -D warnings
   $cargo test $angles --quiet
 fi
-if [ -n "$two" ]; then
-  # Every committed replay, on the port, against its fingerprint of the oracle's run (no Docker needed).
-  # The assets are rebuilt first (it's quick when they're current), so the check never runs on stale ones.
-  scripts/extract >/dev/null
+# Every committed replay, on the port, against its fingerprint of the oracle's run (no Docker needed).
+if step 2 fidelity; then
+  assets
   $cargo run --quiet --release -p harness --bin fidelity-check
   # The renderer against the oracle's pictures (fidelity/screenshots/), where the Mac's GPU renders it, as --apple does.
   if [ "$(uname -s) $(uname -m)" = "Darwin arm64" ]; then
     scripts/fidelity-shots
   fi
-  # The wiki's clip specs (wiki/clips/): each still plays and shows what its story facts say, and has its
-  # committed media (wiki/media/clips), with what the spec says, and no clip there is without one. It renders
-  # nothing, so it needs neither a GPU nor ffmpeg; the web job checks the renders (docs/wiki-media.md).
+fi
+# The wiki's clip specs (wiki/clips/): each still plays and shows what its story facts say, and has its
+# committed media (wiki/media/clips), with what the spec says, and no clip there is without one. It renders
+# nothing, so it needs neither a GPU nor ffmpeg; the web job checks the renders (docs/wiki-media.md).
+if step 2 clips; then
+  assets
   $cargo run --quiet --release -p harness --bin wiki-clips -- --check --media wiki/media/clips
+fi
+if step 2 wiki; then
+  assets
   # The site's committed snapshots of the wiki's stats and relations (site/content/wiki-data/) must be what the
   # GML and the specs give, since the site's build can't run wiki-data itself (docs/wiki-data.md).
   scripts/wiki-data --check >/dev/null
   # So must the site's icons (site/public/favicon.ico and the rest), made from the game's sprite.
   scripts/site-icons --check
-  # The third-party notices every release and the web build ship must cover every crate the app links, on every
-  # platform (docs/releasing.md, "Third-party licenses").
-  scripts/third-party-licenses --check >/dev/null
   # The wiki's pages against the GML they cite: each path and line range exists and each ```gml excerpt is
   # its lines, which the site's build can't check without the GML (docs/wiki-style.md, "Citing the code").
   scripts/wiki-cites >/dev/null
+fi
+# The third-party notices every release and the web build ship must cover every crate the app links, on every
+# platform (docs/releasing.md, "Third-party licenses").
+if step 2 licenses; then
+  scripts/third-party-licenses --check >/dev/null
+fi
+if step 2 wasm; then
   $cargo check --quiet --target wasm32-unknown-unknown -p gm -p trace -p game -p app -p gmk -p assets -p audio
   $cargo check --quiet --target wasm32-unknown-unknown -p audio $features
   scripts/wasm-test

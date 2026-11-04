@@ -15,14 +15,21 @@ sh -n "$0" || exit 2
 #
 # The check needs no hakari: it compares `cargo tree`'s features, package by package. A member's own features
 # may differ (`-p audio` alone hasn't the backend the app gives it: a package can't ask for its own), which only
-# rebuilds that member. The hack is Apple silicon Macs' only (.config/hakari.toml), so the check is too.
+# rebuilds that member. The hack is Apple silicon Macs' and CI's x86_64 Linux's (.config/hakari.toml), so the check
+# is too.
 set -eu
 cd "$(dirname "$0")/.."
 HAKARI=0.9.39
 
+# Where the hack is (.config/hakari.toml's platforms): Apple silicon Macs, and CI's x86_64 Linux, where harness and
+# tools have it for their tests only (their Cargo.toml), so their release builds aren't checked there.
+platform=$(uname -s)-$(uname -m)
+supported=
+case $platform in Darwin-arm64 | Linux-x86_64) supported=1 ;; esac
+skipped() { echo "scripts/workspace-hack: skipped (the hack is Apple silicon Macs' and x86_64 Linux's)" >&2; exit 0; }
+
 if [ "${1:-}" = --reused ]; then
-  [ "$(uname -s) $(uname -m)" = "Darwin arm64" ] ||
-    { echo "scripts/workspace-hack: skipped (the hack is Apple silicon Macs')" >&2; exit 0; }
+  [ -n "$supported" ] || skipped
   bad=
   members() { scripts/cargo tree --quiet --locked "$@" --depth 0 -e normal,build,dev --prefix none -f '{p} [{f}]' |
     sed -E 's/ \([^)]*\)//' | sort -u; }
@@ -64,8 +71,7 @@ if [ "${1:-}" != --check ]; then
   scripts/cargo metadata --quiet --format-version 1 >/dev/null
 fi
 
-[ "$(uname -s) $(uname -m)" = "Darwin arm64" ] ||
-  { echo "scripts/workspace-hack: skipped (the hack is Apple silicon Macs')" >&2; exit 0; }
+[ -n "$supported" ] || skipped
 # --locked: a check, which mustn't update Cargo.lock.
 tree() { scripts/cargo tree --quiet --locked "$@" --prefix none -f '{p} [{f}]'; }
 tmp=$(mktemp -d)
@@ -91,7 +97,9 @@ for member in $(tree --workspace --depth 0 | sed 's/ .*//' | sort -u); do
 done
 # The release builds of one package, which haven't the dev-dependencies: scripts/extract's, scripts/fidelity's
 # and scripts/clip's (whose app has no hack: its own builds resolve as the workspace's, which this keeps so).
-for member in tools harness app; do tree -p "$member" -e normal,build >"$tmp/build -p $member" & done
+if [ "$platform" = Darwin-arm64 ]; then
+  for member in tools harness app; do tree -p "$member" -e normal,build >"$tmp/build -p $member" & done
+fi
 wait
 # A `cargo tree` that failed in the background left its file empty, which would compare as nothing differing.
 for file in "$tmp"/*; do
@@ -126,7 +134,7 @@ perl -e '
   }
   if ($bad) {
     print STDERR "scripts/workspace-hack: so a worktree rebuilds them. Run scripts/workspace-hack to regenerate crates/workspace-hack;\n";
-    print STDERR "  a member (audio) it leaves out: ask for its features in the package'"'"'s Apple silicon section, as game does\n";
+    print STDERR "  a member (audio) it leaves out: ask for its features in the package'"'"'s hack sections, as game does\n";
     exit 1;
   }
 ' "$tmp"
