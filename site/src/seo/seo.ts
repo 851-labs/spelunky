@@ -24,6 +24,14 @@ export const FAVICON_PATH = "/favicon.ico";
 export const ICON_SVG_PATH = "/icon.svg";
 // Apple's touch icon, for an iPhone's home screen and Safari's favourites: 180 pixels, opaque.
 export const TOUCH_ICON_PATH = "/apple-touch-icon.png";
+// Every page's links to them (the 404 page's too, src/routes/404.tsx): site-relative, as the icons are the site's
+// own wherever it's served (a preview's too). The ICO's sizes keep Chrome from taking it over the SVG, as it would
+// one without.
+export const ICON_LINKS = [
+  { rel: "icon", href: FAVICON_PATH, sizes: "32x32" },
+  { rel: "icon", type: "image/svg+xml", href: ICON_SVG_PATH },
+  { rel: "apple-touch-icon", href: TOUCH_ICON_PATH },
+];
 
 // The landing page's card, for a page without an image of its own (the wiki's have one, made at build time from
 // the wiki's media: src/wiki/build/og.ts): 1200x630 as theirs are, the gameplay still and the logo scaled by whole
@@ -111,11 +119,7 @@ export function seo({
       // The wiki's search, for browsers: on the landing page too, as Chrome only adds a search engine a site's
       // root page names.
       { rel: "search", type: OPENSEARCH_TYPE, title: SEARCH_NAME, href: absoluteUrl(OPENSEARCH_PATH) },
-      // Site-relative, as the icons are the site's own wherever it's served (a preview's too). The ICO's
-      // sizes keep Chrome from taking it over the SVG, as it would one without.
-      { rel: "icon", href: FAVICON_PATH, sizes: "32x32" },
-      { rel: "icon", type: "image/svg+xml", href: ICON_SVG_PATH },
-      { rel: "apple-touch-icon", href: TOUCH_ICON_PATH },
+      ...ICON_LINKS,
     ],
   };
 }

@@ -1,0 +1,4 @@
+/* The 404 page (src/routes/404.tsx): the site's frame, and its message on the keyline. */
+@import "./site.css";
+
+h1 { margin: 32px 0 8px; font-size: 28px; line-height: 1.3; }

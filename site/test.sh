@@ -1057,6 +1057,22 @@ contains 'Spelunky® User License v1.1b'
 
 check "$site/nowhere" 404 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts" "$frame_csp"
 same dist/client/404.html
+# The 404 route pre-rendered (src/routes/404.tsx): the site's header and frame, its own stylesheet, and no scripts
+# or preloads (not-found-page.mjs), as it's served at any path.
+contains '<title>Not found - spelunky.ai</title>' '<meta name="robots" content="noindex"/>' \
+  '<header class="site-header"><a href="/" class="site-home"><img src="/media/logo.png"' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/">Play</a><a href="/wiki">Wiki</a></nav>' \
+  '<form role="search" class="search-box" action="/wiki" method="get">' \
+  '<h1>Nothing down here.</h1>' '<a href="/">Back to the surface</a>' '<footer class="site-footer">' \
+  '<link rel="icon" href="/favicon.ico" sizes="32x32"/>'
+if grep -qi -e '<script' -e 'modulepreload' "$tmp/body"; then fail "$url: the 404 page has a script or a preload"; fi
+not_found_css=$(sed -n 's|.*<link rel="stylesheet" href="/\(assets/not-found-[^"]*\.css\)".*|\1|p' dist/client/404.html)
+if [ -z "$not_found_css" ]; then
+  fail "the 404 page links no stylesheet of its own"
+else
+  check "$site/$not_found_css" 200 "$immutable" "content-type: text/css; charset=utf-8"
+  contains '.site-header{'
+fi
 # Not a page, so the Worker doesn't ask the router.
 check "$site/wp-login.php" 404 "$no_cache"
 same dist/client/404.html

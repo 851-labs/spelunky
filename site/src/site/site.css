@@ -34,6 +34,7 @@ body {
 a { color: var(--gold); }
 a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 img, video { image-rendering: pixelated; }
+p { margin: 8px 0; }
 /* The column every page is in, the keyline --gutter in. */
 .site { max-width: 1000px; margin: 0 auto; padding: var(--gutter); }
 @media (min-width: 1200px) { .site { max-width: 1400px; } }

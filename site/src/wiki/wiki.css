@@ -13,7 +13,6 @@ code { font: inherit; font-size: 0.9em; }
 h1 { margin: 4px 0 0; font-size: 32px; line-height: 1.25; }
 /* A page's title has room under it before the infobox's frame, which reaches 8px above the box. */
 .wiki-page h1 { margin-bottom: 16px; }
-p { margin: 8px 0; }
 .lede p { font-size: 17px; }
 .hatnote, .spoiler-note { color: var(--dim); font-style: italic; }
 

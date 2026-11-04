@@ -483,6 +483,22 @@ for (const [url, status, location] of LOW) {
     console.error(`FAIL ${error.message}`);
   }
 }
+// Before the 404 page is a file (pre-rendering it, and under `vite dev`), /404 and the slashed path pre-rendering
+// asks for first are the router's to render (src/routes/404.tsx); /404.html isn't a page's path.
+{
+  const empty = { fetch: async () => new Response("no such file", { status: 404 }) };
+  for (const [path, rendered] of [["/404", true], ["/404/", true], ["/404.html", false]]) {
+    try {
+      const renders = globalThis.routerRenders ?? 0;
+      await worker.fetch(new Request(`https://spelunky.ai${path}`), { ASSETS: empty });
+      assert.equal((globalThis.routerRenders ?? 0) > renders, rendered, `${path}: rendered ${!rendered}`);
+      console.log(`ok   ${path} before the 404 page is built: ${rendered ? "the router's" : "the asset store's"}`);
+    } catch (error) {
+      failures++;
+      console.error(`FAIL ${error.message}`);
+    }
+  }
+}
 // The Worker sends /_serverFn/ to the 404 page, as the site has no server functions: one would need that gone.
 const serverFns = readdirSync("src", { recursive: true })
   .filter((file) => /\.tsx?$/.test(file) && readFileSync(`src/${file}`, "utf8").includes("createServerFn"));
