@@ -1208,3 +1208,5 @@ fi
 echo "site/test.sh: all passed"
 # Its last line, which cleanup checks: an `exit 0` anywhere else fails the run, unless it sets this first.
 finished=1
+
+# probe
