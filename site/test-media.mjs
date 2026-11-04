@@ -260,7 +260,7 @@ test("absoluteUrl takes escapes, not what needs one", () => {
 
 test("the wiki's pages are in /sitemap.xml", () => {
   // With the hubs that have one of them written: the monsters'.
-  assert.deepEqual(sitemapPaths(), ["/", "/play/", "/wiki", "/wiki/monsters", "/wiki/snake", "/wiki/bat"]);
+  assert.deepEqual(sitemapPaths(), ["/", "/play/", "/download", "/wiki", "/wiki/monsters", "/wiki/snake", "/wiki/bat"]);
 });
 
 test("no page for the media: empty sitemaps, and robots.txt names only /sitemap.xml", () => {
