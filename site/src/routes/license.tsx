@@ -25,8 +25,8 @@ function LicensePage() {
   return (
     <SiteFrame section={null} search={<SiteSearch />} footer={<SiteLinks />}>
       <h1>{license.title}</h1>
-      {license.header.map((line) => (
-        <p key={line} className="license-meta">
+      {license.header.map((line, i) => (
+        <p key={i} className="license-meta">
           {line}
         </p>
       ))}

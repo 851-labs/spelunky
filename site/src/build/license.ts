@@ -40,9 +40,9 @@ export function siteLicense(file = FILE): Plugin {
   let license: License | null = null;
   return {
     name: "site-license",
+    // Once, as the build starts, so a file it can't read fails it before anything is rendered. `vite dev` reads it
+    // again on a restart, not as it changes: the file hasn't since 2009.
     buildStart() {
-      // `vite dev` reloads the page when the file changes.
-      this.addWatchFile(file);
       license = parseLicense(new TextDecoder("windows-1252").decode(readFileSync(file)), file);
     },
     resolveId: (id) => (id === ID ? `\0${ID}` : undefined),
