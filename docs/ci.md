@@ -152,8 +152,17 @@ organization's projects share GitHub's machines too):
   ([docs/wiki-media.md](wiki-media.md#committing)) renders them from the pull request and fails if `wiki/media`
   differs at all. A pull request that changes nothing the media are made from (`scripts/affected`'s media area)
   skips that at once; otherwise it builds the app, captures every clip's frames on the mini's GPU and encodes again
-  the clips whose videos it changed, a few minutes more. A pull request that changes nothing the job reads (the
-  suite's inputs, the screenshots and `wiki/media`) doesn't take a mini at all.
+  the clips whose videos it changed, a few minutes more. Of all that, a pull request runs only the steps that read
+  what it changes (`scripts/affected`'s `MINI_STEPS`, Changes' `mini_steps`, 851-4019): `scripts/check --apple
+  --only "STEP ..."` (`sh`, `hooks`, `lints`, `tests`, `fidelity`, `shots`), then `web` and `media`. So a change to
+  the site's sh scripts runs only `check-sh` under bash 3.2, one to the screenshots only `fidelity-shots`, one to a
+  fingerprint only fidelity-check; a change to CI, a file no area has, or a file the job reads that no step does
+  runs all of it. The steps that are a Linux step on macOS (`sh`, `lints`, `tests`, `fidelity`) are that step's row,
+  whose paths the Linux suite's sparse checkouts keep honest; `hooks`, `shots`, `web` and `media` (the media
+  area's) are the mini's own, kept by hand and by `--test` (their paths are tracked and in `MINI_RULES`, their
+  `-p`s their crates', and every file `MINI_RULES` keep some step's). A pull request that changes nothing the job
+  reads (the suite's inputs but what only Linux's steps read, the screenshots, `wiki/media` and `LICENSE`)
+  doesn't take a mini at all.
 
 The updater's tests (`updater.yml`, `cargo test -p update`) run for a pull request that changes the updater
 crate or a crate it depends on (`scripts/affected`, from `cargo metadata`), or CI, on GitHub's machines alongside
@@ -184,7 +193,7 @@ marks only the crate. A file no area has, or a change to CI, runs every job. The
 | Output | The job | Runs when |
 | --- | --- | --- |
 | `run_suite` | "Linux / Test suite" | a file one of the suite's steps reads changed (`suite_steps`, [below](#the-suites-steps)); the suite reads anything but `SUITE_RULES`' exceptions (most of `docs/` and `site/`, the media but the clips, the screenshots, `README.md`, `CLAUDE.md`, `LICENSE`, the wiki's page templates, `fidelity/COVERAGE.md`, the release's notice and smoke test) |
-| `run_mini` | "Mac mini" | the same, or the screenshots or `wiki/media` |
+| `run_mini` | "Mac mini" | a file one of the mini's steps reads changed (`mini_steps`): what the suite reads but the wiki's and the notices', or the screenshots, `wiki/media` or `LICENSE` |
 | `run_site` | "Site test" | the `site` area |
 | `run_updater` | "Updater" | the `update` crate or one it depends on |
 
@@ -208,8 +217,9 @@ file no area has) and fails if any answer changes; scans the crates' sources for
 fails on one the script gives neither that crate nor a step that runs it; fails on a path that matches no tracked
 file, as after a move, a step's path the suite's checkout hasn't, and a file the suite reads that no step does; and
 checks that `scripts/check`'s steps are `STEPS`'. The mini job and the site test aren't checked out sparsely (the
-minis' workspaces outlive their jobs), so their rules are kept by hand: the mini's are the suite's and the
-screenshots and `wiki/media`, the site's are Workers Builds'.
+minis' workspaces outlive their jobs), so their rules are kept by hand: the mini's are the suite's but the wiki's
+and the notices', and the screenshots, `wiki/media` and `LICENSE` (`--test` checks the media area's are all
+there), the site's are Workers Builds'.
 
 The site test fails on any error, not only on a check that fails. On a Mac (where it ran on CI until 851-3953, and
 where it runs for anyone working on the site), `sh` is macOS's bash 3.2, which exits
