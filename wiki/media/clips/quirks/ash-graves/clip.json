@@ -23,14 +23,14 @@
   "frames_hash": "c8a556dfef9e00c6",
   "has_audio": true,
   "audio_hash": "03a10d7ad50feaf0",
-  "encoding": "9a6025b559cb5f6e",
+  "encoding": "9d7e49dfe6f1d35d",
   "files": {
     "mp4": "quirks/ash-graves/clip.mp4",
     "webm": "quirks/ash-graves/clip.webm",
     "poster": "quirks/ash-graves/poster.png",
     "replay": "quirks/ash-graves/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

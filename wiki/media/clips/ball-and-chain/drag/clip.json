@@ -23,14 +23,14 @@
   "frames_hash": "7aa33cd0af8ad98d",
   "has_audio": true,
   "audio_hash": "76011500f97ad6d6",
-  "encoding": "c7a1d0c95a693ad8",
+  "encoding": "4b1b27b56fdab0e9",
   "files": {
     "mp4": "ball-and-chain/drag/clip.mp4",
     "webm": "ball-and-chain/drag/clip.webm",
     "poster": "ball-and-chain/drag/poster.png",
     "replay": "ball-and-chain/drag/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

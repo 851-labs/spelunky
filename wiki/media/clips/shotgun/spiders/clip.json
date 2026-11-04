@@ -23,14 +23,14 @@
   "frames_hash": "4ae6748cdee7e83e",
   "has_audio": true,
   "audio_hash": "70bed9fcea6c60b6",
-  "encoding": "cc3e4f6a14e06d53",
+  "encoding": "df7bbf9512451c00",
   "files": {
     "mp4": "shotgun/spiders/clip.mp4",
     "webm": "shotgun/spiders/clip.webm",
     "poster": "shotgun/spiders/poster.png",
     "replay": "shotgun/spiders/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

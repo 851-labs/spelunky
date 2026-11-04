@@ -23,14 +23,14 @@
   "frames_hash": "7382a24ee4129fcf",
   "has_audio": true,
   "audio_hash": "094e2e568cac9a52",
-  "encoding": "c975b038dd8bcb34",
+  "encoding": "72e816a885e5972b",
   "files": {
     "mp4": "quirks/two-damsels-one-heart/clip.mp4",
     "webm": "quirks/two-damsels-one-heart/clip.webm",
     "poster": "quirks/two-damsels-one-heart/poster.png",
     "replay": "quirks/two-damsels-one-heart/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

@@ -23,14 +23,14 @@
   "frames_hash": "3b0af8b71ee7399b",
   "has_audio": true,
   "audio_hash": "cea589be38260642",
-  "encoding": "89c3c4e02e97338d",
+  "encoding": "db4415dccc9a4837",
   "files": {
     "mp4": "quirks/rock-freezes-off-view/clip.mp4",
     "webm": "quirks/rock-freezes-off-view/clip.webm",
     "poster": "quirks/rock-freezes-off-view/poster.png",
     "replay": "quirks/rock-freezes-off-view/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

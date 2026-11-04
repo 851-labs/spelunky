@@ -23,14 +23,14 @@
   "frames_hash": "052f8a4aa5c07118",
   "has_audio": true,
   "audio_hash": "ccdda349c41e4b5a",
-  "encoding": "072225f78f63da82",
+  "encoding": "8765188d93d9e476",
   "files": {
     "mp4": "quirks/jetpack-vanishes-player-invisible/clip.mp4",
     "webm": "quirks/jetpack-vanishes-player-invisible/clip.webm",
     "poster": "quirks/jetpack-vanishes-player-invisible/poster.png",
     "replay": "quirks/jetpack-vanishes-player-invisible/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

@@ -23,14 +23,14 @@
   "frames_hash": "f0a6d8ccec7fb08e",
   "has_audio": true,
   "audio_hash": "c0ee0440bcb1fcfe",
-  "encoding": "bc0245ca070c5419",
+  "encoding": "1cb412d4494c3764",
   "files": {
     "mp4": "quirks/red-lamp-no-light/clip.mp4",
     "webm": "quirks/red-lamp-no-light/clip.webm",
     "poster": "quirks/red-lamp-no-light/poster.png",
     "replay": "quirks/red-lamp-no-light/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

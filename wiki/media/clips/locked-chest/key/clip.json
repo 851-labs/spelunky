@@ -23,14 +23,14 @@
   "frames_hash": "978d6333feead62b",
   "has_audio": true,
   "audio_hash": "1e18d7d10b4d5d67",
-  "encoding": "70de57ca19cfb822",
+  "encoding": "c27d75b5558417c4",
   "files": {
     "mp4": "locked-chest/key/clip.mp4",
     "webm": "locked-chest/key/clip.webm",
     "poster": "locked-chest/key/poster.png",
     "replay": "locked-chest/key/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

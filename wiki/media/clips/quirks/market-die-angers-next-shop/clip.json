@@ -23,14 +23,14 @@
   "frames_hash": "82969938c5392be5",
   "has_audio": true,
   "audio_hash": "44137a6c1f3eab55",
-  "encoding": "e8ad6e43aa49c2bc",
+  "encoding": "c192aca17a6f6a7f",
   "files": {
     "mp4": "quirks/market-die-angers-next-shop/clip.mp4",
     "webm": "quirks/market-die-angers-next-shop/clip.webm",
     "poster": "quirks/market-die-angers-next-shop/poster.png",
     "replay": "quirks/market-die-angers-next-shop/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

@@ -23,14 +23,14 @@
   "frames_hash": "6c0313cc36d049dc",
   "has_audio": true,
   "audio_hash": "7e108f81d3d26d6a",
-  "encoding": "c42fad7b7a49f923",
+  "encoding": "c453421740243f23",
   "files": {
     "mp4": "crystal-skull/ghost/clip.mp4",
     "webm": "crystal-skull/ghost/clip.webm",
     "poster": "crystal-skull/ghost/poster.png",
     "replay": "crystal-skull/ghost/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

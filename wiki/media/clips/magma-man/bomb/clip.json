@@ -23,14 +23,14 @@
   "frames_hash": "a390991eb06baf17",
   "has_audio": true,
   "audio_hash": "63318c0c5915945d",
-  "encoding": "bab43cef979598d8",
+  "encoding": "64aaacf72dffe0af",
   "files": {
     "mp4": "magma-man/bomb/clip.mp4",
     "webm": "magma-man/bomb/clip.webm",
     "poster": "magma-man/bomb/poster.png",
     "replay": "magma-man/bomb/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

@@ -23,14 +23,14 @@
   "frames_hash": "3ae633fecdbbd922",
   "has_audio": true,
   "audio_hash": "823f4a9a4bd2081f",
-  "encoding": "7d9cf28e955055ef",
+  "encoding": "c42b79cd52292568",
   "files": {
     "mp4": "tree/climb/clip.mp4",
     "webm": "tree/climb/clip.webm",
     "poster": "tree/climb/poster.png",
     "replay": "tree/climb/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

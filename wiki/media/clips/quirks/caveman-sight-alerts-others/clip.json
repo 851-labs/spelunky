@@ -23,14 +23,14 @@
   "frames_hash": "091af2fe65756e1b",
   "has_audio": true,
   "audio_hash": "b6eec33005b7f428",
-  "encoding": "3bf641c55564ed02",
+  "encoding": "6baf6d35c865a35d",
   "files": {
     "mp4": "quirks/caveman-sight-alerts-others/clip.mp4",
     "webm": "quirks/caveman-sight-alerts-others/clip.webm",
     "poster": "quirks/caveman-sight-alerts-others/poster.png",
     "replay": "quirks/caveman-sight-alerts-others/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

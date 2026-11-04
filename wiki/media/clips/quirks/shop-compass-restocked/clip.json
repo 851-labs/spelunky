@@ -23,14 +23,14 @@
   "frames_hash": "a30e919e7aa26f31",
   "has_audio": true,
   "audio_hash": "24e5c9030861fc93",
-  "encoding": "ea254e47ca3706c7",
+  "encoding": "1da2bd6789fffbbc",
   "files": {
     "mp4": "quirks/shop-compass-restocked/clip.mp4",
     "webm": "quirks/shop-compass-restocked/clip.webm",
     "poster": "quirks/shop-compass-restocked/poster.png",
     "replay": "quirks/shop-compass-restocked/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

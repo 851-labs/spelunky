@@ -23,14 +23,14 @@
   "frames_hash": "850da865de99ea4f",
   "has_audio": true,
   "audio_hash": "496d4c5b454a02cb",
-  "encoding": "8c30c0e945f21648",
+  "encoding": "f9d51d6e82ae4769",
   "files": {
     "mp4": "quirks/yeti-king-whip-wind-up/clip.mp4",
     "webm": "quirks/yeti-king-whip-wind-up/clip.webm",
     "poster": "quirks/yeti-king-whip-wind-up/poster.png",
     "replay": "quirks/yeti-king-whip-wind-up/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

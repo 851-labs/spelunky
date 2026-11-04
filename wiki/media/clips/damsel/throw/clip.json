@@ -23,14 +23,14 @@
   "frames_hash": "1c80296864f0f490",
   "has_audio": true,
   "audio_hash": "3e5b0941e6a8cee6",
-  "encoding": "17a50bb5ac25124d",
+  "encoding": "f3a0c546abed63c0",
   "files": {
     "mp4": "damsel/throw/clip.mp4",
     "webm": "damsel/throw/clip.webm",
     "poster": "damsel/throw/poster.png",
     "replay": "damsel/throw/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

@@ -23,14 +23,14 @@
   "frames_hash": "d91c02654a470022",
   "has_audio": true,
   "audio_hash": "c5ef92ff6fccf4e9",
-  "encoding": "759f84fb9ffa527e",
+  "encoding": "82d991b365745de6",
   "files": {
     "mp4": "kali/spiders/clip.mp4",
     "webm": "kali/spiders/clip.webm",
     "poster": "kali/spiders/poster.png",
     "replay": "kali/spiders/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

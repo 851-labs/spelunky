@@ -23,14 +23,14 @@
   "frames_hash": "6af40615f7b0a160",
   "has_audio": true,
   "audio_hash": "67470a0b2f6f8b05",
-  "encoding": "8026ef7b2b6215b4",
+  "encoding": "e70b93c25c83de7d",
   "files": {
     "mp4": "quirks/yeti-king-touch-custom-level/clip.mp4",
     "webm": "quirks/yeti-king-touch-custom-level/clip.webm",
     "poster": "quirks/yeti-king-touch-custom-level/poster.png",
     "replay": "quirks/yeti-king-touch-custom-level/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

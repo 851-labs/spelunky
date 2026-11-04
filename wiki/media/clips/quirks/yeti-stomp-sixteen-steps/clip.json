@@ -23,14 +23,14 @@
   "frames_hash": "355def76321144d5",
   "has_audio": true,
   "audio_hash": "8cbf9ebda3dc6a57",
-  "encoding": "9850a24a9f392c47",
+  "encoding": "92ce79ad61b05b5c",
   "files": {
     "mp4": "quirks/yeti-stomp-sixteen-steps/clip.mp4",
     "webm": "quirks/yeti-stomp-sixteen-steps/clip.webm",
     "poster": "quirks/yeti-stomp-sixteen-steps/poster.png",
     "replay": "quirks/yeti-stomp-sixteen-steps/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

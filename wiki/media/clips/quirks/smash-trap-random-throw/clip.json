@@ -23,14 +23,14 @@
   "frames_hash": "b68cc788367b26ff",
   "has_audio": true,
   "audio_hash": "f49104ace52865d9",
-  "encoding": "950ed7f84549c41e",
+  "encoding": "ee34b53cf342855f",
   "files": {
     "mp4": "quirks/smash-trap-random-throw/clip.mp4",
     "webm": "quirks/smash-trap-random-throw/clip.webm",
     "poster": "quirks/smash-trap-random-throw/poster.png",
     "replay": "quirks/smash-trap-random-throw/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

@@ -23,14 +23,14 @@
   "frames_hash": "0905574beaa02977",
   "has_audio": true,
   "audio_hash": "c41af6477b15aa3e",
-  "encoding": "bec0ccabcd12f176",
+  "encoding": "8034624fd0d3ff2a",
   "files": {
     "mp4": "general-store/waiting-shopkeeper/clip.mp4",
     "webm": "general-store/waiting-shopkeeper/clip.webm",
     "poster": "general-store/waiting-shopkeeper/poster.png",
     "replay": "general-store/waiting-shopkeeper/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

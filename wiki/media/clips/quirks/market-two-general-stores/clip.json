@@ -23,14 +23,14 @@
   "frames_hash": "c5789943a123e30a",
   "has_audio": true,
   "audio_hash": "040d0734be80e9d9",
-  "encoding": "08704d7fcf43491b",
+  "encoding": "23d27fa9e85aa1a3",
   "files": {
     "mp4": "quirks/market-two-general-stores/clip.mp4",
     "webm": "quirks/market-two-general-stores/clip.webm",
     "poster": "quirks/market-two-general-stores/poster.png",
     "replay": "quirks/market-two-general-stores/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

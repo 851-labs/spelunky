@@ -23,14 +23,14 @@
   "frames_hash": "8a14eed8d9a248d1",
   "has_audio": true,
   "audio_hash": "361866cfc80dc6d6",
-  "encoding": "4c992190d686da2c",
+  "encoding": "d7dd219fde19f10b",
   "files": {
     "mp4": "credits/ride-off/clip.mp4",
     "webm": "credits/ride-off/clip.webm",
     "poster": "credits/ride-off/poster.png",
     "replay": "credits/ride-off/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

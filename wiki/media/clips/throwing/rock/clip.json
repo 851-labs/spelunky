@@ -23,14 +23,14 @@
   "frames_hash": "025bd5c4079a81ff",
   "has_audio": true,
   "audio_hash": "c8d3eb948fabd373",
-  "encoding": "0d4b2244e28bdabd",
+  "encoding": "1ec03b43f73791a1",
   "files": {
     "mp4": "throwing/rock/clip.mp4",
     "webm": "throwing/rock/clip.webm",
     "poster": "throwing/rock/poster.png",
     "replay": "throwing/rock/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

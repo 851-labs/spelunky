@@ -23,14 +23,14 @@
   "frames_hash": "79284da630d8612e",
   "has_audio": true,
   "audio_hash": "20aac5b3b1d7e667",
-  "encoding": "152f65e297ce8e3c",
+  "encoding": "3e170d7c2573bae3",
   "files": {
     "mp4": "pitchers-mitt/throw/clip.mp4",
     "webm": "pitchers-mitt/throw/clip.webm",
     "poster": "pitchers-mitt/throw/poster.png",
     "replay": "pitchers-mitt/throw/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }
