@@ -13,8 +13,8 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
   2. Work in a worktree, on a branch off `origin/main` named with the ticket's Linear branch name
      (`alexandru/851-xxxx-...`).
   3. Before opening the PR, rebase onto `origin/main` and run the code-review skill on the change, fixing what it
-     finds. The PR's required `pr-ok` check (CI on the Mac minis, `docs/ci.md`) runs the full suite and must
-     pass before it merges.
+     finds. The PR's required `pr-ok` check (CI, `docs/ci.md`) runs the full suite and must pass before it
+     merges.
   4. Open one PR per ticket, titled `851-xxxx: <ticket title>`. The body has a `## Why` (a few sentences) and a
      `## What` (what changed and the key decisions), and ends with the Claude Code footer.
   5. Move the ticket to In Review.
@@ -33,10 +33,10 @@ behind an off-by-default option, and record each preserved quirk in `docs/quirks
 ## Code
 
 - Use `scripts/cargo` in place of `cargo` (rustup's toolchain, with the wasm32 target). `scripts/check` is
-  the full suite, and CI's `pr-ok` runs it on every pull request in a few minutes, faster than a local run (the
-  minis' caches are warm; locally, agents share the cores). So leave it to CI: locally, run `scripts/check --fast`
-  (the instant pre-commit subset: formatting) and the tests the change touches, then open the PR and push fixes
-  if `pr-ok` fails.
+  the full suite, and CI's `pr-ok` runs it on every pull request, split across two Linux machines with warm
+  caches, faster than a local run (locally, agents share the cores). So leave it to CI: locally, run
+  `scripts/check --fast` (the instant pre-commit subset: formatting) and the tests the change touches, then open
+  the PR and push fixes if `pr-ok` fails.
 - The same goes for the site's suite, `site/test.sh`: it builds and pre-renders the whole site to check it, and
   CI's site test runs it on every pull request in under a minute. Locally, run the checks that need no build
   (in `site/`: `npm run typecheck`, `node test-wiki.mjs`, and `test-keyline.mjs` or `test-server.mjs` if the

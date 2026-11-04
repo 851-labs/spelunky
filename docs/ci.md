@@ -6,7 +6,7 @@ they're made of.
 | Workflow | When | What | Where |
 | --- | --- | --- | --- |
 | `pr.yml` | every pull request | `scripts/check` (`suite.yml`), `site/test.sh` for changes to the site, then on one Mac mini `scripts/check --apple`, `scripts/web --check` and `scripts/wiki-media --check` for changes to what the wiki's media are made from; the updater's tests; then `pr-ok` | `ubuntu-24.04` for the suite and the site, one Mac mini, GitHub's machines for the updater |
-| `suite.yml` | from `pr.yml`, and every push to `main` | `scripts/check`, with the build cache main's run saves for every pull request's ([below](#pull-requests)) | `ubuntu-24.04` |
+| `suite.yml` | from `pr.yml`, and every push to `main` | `scripts/check`, in two halves side by side, with the build caches main's run saves for every pull request's ([below](#pull-requests)) | `ubuntu-24.04` |
 | `release.yml` | a `v*` tag, or by hand | the suite, the oracle fidelity run, the web and native builds, the updater's tests, then the GitHub Release and the pull request that puts it live ([below](#releases)) | the Mac minis and `ubuntu-24.04` |
 | `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | GitHub's `macos-15` for the build and the signing, then each OS, all on GitHub's machines |
 | `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
@@ -16,7 +16,7 @@ they're made of.
 `pr-ok` is the only check the "Protect main" ruleset requires. It fails unless every other job of the run
 succeeded, so jobs can be added or renamed without touching the ruleset; `pr-ok` itself keeps its name.
 
-Every job has a short name for people, which the run's graph shows: "Linux / Test suite" (a
+Every job has a short name for people, which the run's graph shows: "Linux / Test suite (1)" (a
 `mini.yml` job is named by its caller's `name` input), "Updater / Tests (Windows x64)", "Native / Build
 apps", "Replays vs oracle (3)". A job's own name stays under about 20 characters, which is what the graph's
 boxes show of it. A matrix job's name leaves the matrix out, and the matrix holds only what tells its jobs
@@ -118,16 +118,20 @@ checkout (`persist-credentials: false`). A new push to a pull request cancels it
 **Where each job runs** (851-3953). The two Mac minis are shared with other projects, and a pull request's three
 mini jobs used to queue behind theirs: a run that took two or three minutes of work waited 6 to 60 minutes for
 the minis. So a pull request now takes one mini, for what needs Apple silicon, and runs the rest on GitHub's
-machines (free for a public repository): two more of them a pull request, beside the updater's (the
+machines (free for a public repository): three more of them a pull request, beside the updater's (the
 organization's projects share GitHub's machines too):
 
-- **"Linux / Test suite"** (`suite.yml`, `ubuntu-24.04`): the whole of `scripts/check`. Linux builds and tests the
-  workspace as the minis did, fidelity-check's replays included (the port is the same on every platform:
-  `gm::math`); it installs the libraries the app links on Linux (ALSA, udev, Wayland, xkbcommon), the pinned
-  toolchain and Node. Its build cache (Swatinem/rust-cache: the registry and `target/`) is saved by the run on
-  every push to `main`, which also checks `main` after each merge; a pull request's run restores it and saves
-  nothing, as a pull request's cache could only be read by its own later runs, and would push main's out of
-  GitHub's 10 GB.
+- **"Linux / Test suite (1)" and "(2)"** (`suite.yml`, two `ubuntu-24.04` machines): the whole of `scripts/check`,
+  half on each (`--part 1` and `--part 2`, 851-3998). Linux builds and tests the workspace as the minis did,
+  fidelity-check's replays included (the port is the same on every platform: `gm::math`); each installs the
+  libraries the app links on Linux (ALSA, udev, Wayland, xkbcommon), the pinned toolchain and Node. On one machine
+  the suite took about 15 minutes, nearly all of it building: the tests' build about 5.5 and the release build of
+  the replays' tools about 3, each before it ran. So the halves are split by what they build, neither building
+  what the other does: part 1 is the instant checks, clippy, the transpiler and every test; part 2 the release
+  builds (the assets, the replays, the wiki's and the site's checks) and wasm32. Each half has its own build cache
+  (Swatinem/rust-cache: the registry and `target/`), saved by the run on every push to `main`, which also checks
+  `main` after each merge; a pull request's run restores it and saves nothing, as a pull request's cache could
+  only be read by its own later runs, and would push main's out of GitHub's 10 GB.
 - **"Site test"** (`ubuntu-24.04`): `site/test.sh` (build the site with stand-ins, serve it with `wrangler dev`,
   check every path's status, headers and content, [docs/web-deploy.md](web-deploy.md)), for a pull request that
   changes `site/`, what the site reads from outside it (`wiki/`, the specs and the media, `LICENSE`,
@@ -162,7 +166,7 @@ from a syntax error, or an unset variable under `set -u`, with the status of the
 for test.sh's cleanup. So a test.sh that stopped halfway passed, skipping every check after the error
 (851-3741). Now it checks that it parses before anything else (`sh -n "$0"`), and its cleanup fails a run
 that didn't reach its last line. `scripts/check-sh`, which `scripts/check --fast` runs, checks that every sh and
-bash script in the repo parses (`sh -n`, `bash -n`), so a syntax error at a script's top level fails "Test suite"
+bash script in the repo parses (`sh -n`, `bash -n`), so a syntax error at a script's top level fails "Test suite (1)"
 too; one inside a `$(...)` is only parsed as it runs, and fails the script then.
 
 Every other script with an EXIT trap does the same (851-3743): `site/build.sh` (Workers Builds' build, whose
