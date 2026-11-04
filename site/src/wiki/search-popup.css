@@ -1,0 +1,19 @@
+/* The header search box's list of pages as you type (search-popup.tsx), which imports this: loaded with its chunk,
+   the first time a box is used, so a page's stylesheet doesn't carry it, nor the landing page's inline CSS, which
+   is in its scripts (851-4004). The palette is site.css's, which every page has. */
+@import "./search-hits.css";
+
+/* Under the form, its right edge at the button's (Base UI's positioner places it). */
+.search-positioner { z-index: 2; }
+.search-popup { width: min(30rem, calc(100vw - 32px)); background: var(--panel); box-shadow: var(--stone); font-size: 14px; }
+.search-popup a { display: block; padding: 6px 12px; color: var(--text); text-decoration: none; }
+.search-popup a + a { border-top: 2px solid var(--dirt); }
+.search-popup a[data-highlighted], .search-popup a:hover { background: var(--dirt); }
+.search-popup a[data-highlighted] { box-shadow: inset var(--px) 0 0 var(--gold); }
+.search-lede { display: block; overflow: hidden; color: var(--dim); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.search-all { color: var(--gold); }
+.search-note { margin: 0; padding: 8px 12px; color: var(--dim); }
+
+@media (max-width: 720px) {
+  .search-popup { width: var(--anchor-width); }
+}

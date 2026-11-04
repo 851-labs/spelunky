@@ -6,6 +6,7 @@
    Which a reader gets is the media queries' choice, made before the first paint, and every image and video
    has its size before it loads, so nothing moves. */
 @import "../site/site.css";
+@import "./search-hits.css";
 
 code { font: inherit; font-size: 0.9em; }
 .breadcrumbs ol { display: flex; flex-wrap: wrap; margin: 16px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--dim); }
@@ -410,21 +411,9 @@ a.card-body:hover .card-title { text-decoration: underline; }
   .source-objects div + div dt { margin-top: 8px; }
 }
 
-/* Search (src/wiki/search-box.tsx): the header box's list of pages as you type (the box is site.css's), and
-   /wiki's box and results. */
-/* Under the form, its right edge at the button's (Base UI's positioner places it). */
-.search-positioner { z-index: 2; }
-.search-popup { width: min(30rem, calc(100vw - 32px)); background: var(--panel); box-shadow: var(--stone); font-size: 14px; }
-.search-popup a { display: block; padding: 6px 12px; color: var(--text); text-decoration: none; }
-.search-popup a + a { border-top: 2px solid var(--dirt); }
-.search-popup a[data-highlighted], .search-popup a:hover { background: var(--dirt); }
-.search-popup a[data-highlighted] { box-shadow: inset var(--px) 0 0 var(--gold); }
-.search-title { color: var(--gold); font-weight: 700; }
-.search-category { color: var(--dim); font-size: 13px; }
-.search-lede { display: block; overflow: hidden; color: var(--dim); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
-.search-all { color: var(--gold); }
-.search-note { margin: 0; padding: 8px 12px; color: var(--dim); }
-mark { color: inherit; background: none; text-decoration: underline 2px var(--gold); text-underline-offset: 3px; }
+/* Search (src/wiki/search-box.tsx): /wiki's box and results. The header's box is site.css's, and its list of pages
+   as you type is search-popup.css's, which its chunk loads, on the landing page too (851-4004); a hit's title,
+   category and matched words are search-hits.css's, imported above. */
 .wiki-search { margin: 16px 0; }
 .wiki-search label { display: block; margin-bottom: 6px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); font-size: 14px; }
 .search-box-hub { flex-wrap: wrap; }
@@ -466,6 +455,3 @@ mark { color: inherit; background: none; text-decoration: underline 2px var(--go
   a[data-slug] { -webkit-touch-callout: none; }
 }
 
-@media (max-width: 720px) {
-  .search-popup { width: var(--anchor-width); }
-}

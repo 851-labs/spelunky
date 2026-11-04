@@ -1,10 +1,12 @@
 // The header's search box's list (src/wiki/search-box.tsx): Base UI's autocomplete popup, of the best pages
 // and then all the results on /wiki. Its own chunk, loaded with the search index the first time the box is
-// used, so the pages' bundle carries only the box. Each page is a link, which Enter follows as a click does.
+// used, so the pages' bundle carries only the box; its styles (search-popup.css) come with it. Each page is a
+// link, which Enter follows as a click does.
 import { Autocomplete } from "@base-ui/react/autocomplete";
 import type { RefObject } from "react";
 import type { SearchHit } from "./search";
 import { Highlight, plural } from "./search-box";
+import "./search-popup.css";
 
 // A page in the list, or (with no hit) all the results.
 export interface Option {

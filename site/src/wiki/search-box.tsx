@@ -7,7 +7,7 @@ import { Autocomplete } from "@base-ui/react/autocomplete";
 import { Field } from "@base-ui/react/field";
 import { Input } from "@base-ui/react/input";
 import { useHydrated } from "@tanstack/react-router";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { loadOnce, never } from "./load-once";
 import { matchingSections, queryWords, searchWiki, wordMatches, words } from "./search";
 import type { SearchDoc, SearchIndex } from "./search";
@@ -40,8 +40,22 @@ export const plural = (n: number) => (n === 1 ? "1 page" : `${n} pages`);
 
 // The header's box: Base UI's autocomplete, whose list (search-popup.tsx) is the best pages and then all the
 // results on /wiki. Without a page chosen, Enter submits the form, which works without scripts too.
-export function SearchBox() {
-  const [query, setQuery] = useState("");
+//
+// `from`: the plain form's box this one takes the place of where it's loaded later (src/site/frame.tsx's
+// SiteSearch, 851-4004, and search-swap.tsx), as it was as the swap began: what's typed, the selection, and which
+// of its box and button had the focus, which this takes before the next paint, so the swap doesn't show.
+export interface BoxState {
+  value: string;
+  focus: "input" | "button" | null;
+  start: number | null;
+  end: number | null;
+  direction: "forward" | "backward" | "none" | null;
+}
+
+export function SearchBox({ from }: { from?: BoxState }) {
+  const [query, setQuery] = useState(from?.value ?? "");
+  const input = useRef<HTMLInputElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const form = useRef<HTMLFormElement>(null);
   const { index, failed, load: loadIndex } = useSearchIndex();
@@ -55,6 +69,13 @@ export function SearchBox() {
   const options: Option[] = hits.length === 0 ? [] : [...hits.slice(0, SUGGESTIONS).map((hit) => ({ href: `/wiki/${hit.doc.slug}`, hit })), { href: searchPath(trimmed), hit: null }];
   const status = !trimmed ? "" : failed ? "Search couldn't load." : !index ? "Searching…" : hits.length === 0 ? `No pages match “${trimmed}”.` : `${plural(hits.length)} found.`;
   const shown = open && trimmed !== "" && Popup !== null;
+  // Focusing it opens its list as a reader's focus does (onFocus, below). Only as it mounts: `from` is the swap's.
+  useLayoutEffect(() => {
+    if (from?.focus === "button") button.current?.focus();
+    if (from?.focus !== "input" || !input.current) return;
+    input.current.focus();
+    if (from.start !== null && from.end !== null) input.current.setSelectionRange(from.start, from.end, from.direction ?? undefined);
+  }, []);
 
   return (
     <Autocomplete.Root
@@ -87,6 +108,7 @@ export function SearchBox() {
       >
         <Field.Label className="visually-hidden">Search the wiki</Field.Label>
         <Autocomplete.Input
+          ref={input}
           type="search"
           name="q"
           placeholder="Search the wiki"
@@ -99,7 +121,9 @@ export function SearchBox() {
           }}
           onPointerEnter={load}
         />
-        <button type="submit">Search</button>
+        <button ref={button} type="submit">
+          Search
+        </button>
         {/* Out loud, how many pages match: always there, as a live region must be to be heard. */}
         <Autocomplete.Status className="visually-hidden">{shown ? status : ""}</Autocomplete.Status>
       </Field.Root>
