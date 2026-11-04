@@ -59,6 +59,9 @@ if [ -n "$one" ]; then
   unpinned=$(grep -rnE 'uses: [^.][^@ ]*@' .github | grep -vE 'uses: [^@ ]+@[0-9a-f]{40} # v[0-9]' || true)
   [ -z "$unpinned" ] || { printf 'scripts/check: actions not pinned to a commit SHA with its version:\n%s\n' "$unpinned" >&2; exit 1; }
   [ "${1:-}" = "--fast" ] && exit 0
+  # What decides which of CI's jobs a pull request runs, on past pull requests, and against what the crates read
+  # (851-4008, docs/ci.md "What a pull request runs").
+  python3 -I scripts/affected --test
   # A build of one package must resolve the workspace's features, so a worktree reuses the main checkout's
   # builds (crates/workspace-hack, 851-3738).
   scripts/workspace-hack --check

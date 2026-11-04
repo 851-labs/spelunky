@@ -8,7 +8,8 @@
 # Linux doesn't compile: pr.yml's mini job runs those (scripts/check --apple).
 #
 # Two machines side by side, each running half of it (scripts/check --part 1 and --part 2: together all of it), split
-# by what they build (851-3998, docs/ci.md "Pull requests").
+# by what they build (851-3998, docs/ci.md "Pull requests"), in a checkout of only what the suite reads; pr.yml
+# runs it for a pull request that changes some of that (scripts/affected, 851-4008).
 name: Test suite
 
 on:
@@ -50,6 +51,21 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      # Only what scripts/check reads (scripts/affected's SUITE_RULES, which also decide when pr.yml runs it): the
+      # rest is taken out of the checkout, so a step that reads a path the rules leave out fails here, as the file
+      # isn't there, rather than a pull request changing it skipping the suite (docs/ci.md, "What a pull request
+      # runs").
+      - name: Only what the suite reads
+        run: |
+          python3 -I scripts/affected --rules suite | git sparse-checkout set --no-cone --stdin
+          # scripts/check-sh finds the sh scripts it checks with git grep, which skips what's out of the checkout:
+          # every one must be in it (--tracked: the ones it would check, from the index).
+          scripts=$(scripts/check-sh --tracked)
+          outside=$(comm -23 <(sort <<<"$scripts") <(git sparse-checkout check-rules <<<"$scripts" | sort))
+          if [ -n "$outside" ]; then
+            echo "::error::scripts/check-sh checks these, which the suite's sparse checkout leaves out: $outside"
+            exit 1
+          fi
       # What the app links on Linux: cpal's ALSA, gilrs' udev, and winit's Wayland and xkbcommon (pkg-config).
       - name: Linux libraries
         run: |

@@ -9,13 +9,28 @@
 # (`sh -n "$0" || exit 2`, or bash's) before the trap, and have the trap, `trap cleanup EXIT`, fail a run that
 # didn't set `finished=1` where it ends and before each `exit 0`. This checks each such script does all of it,
 # line by line (below). scripts/check --fast runs this, so CI does too.
+#   scripts/check-sh [--tracked]
+# --tracked only lists the files it would check, as the index has them: git grep searches only what's checked
+# out, so CI's Linux suite, in a sparse checkout, checks none of them is left out (suite.yml, 851-4008).
 set -eu
 cd "$(dirname "$0")/.."
+case ${1-} in
+  '') cached= ;;
+  --tracked) cached=--cached ;;
+  *) echo "usage: scripts/check-sh [--tracked]" >&2; exit 2 ;;
+esac
 failed=0
 # The tracked files with a shell's shebang somewhere (one git grep, not a process a file; not the media), then by
-# their first line.
+# their first line. Their names unquoted (core.quotePath), as they are.
 list=$(mktemp)
-git grep -lI -e '^#!/bin/sh' -e '^#!/bin/bash' -e '^#!/usr/bin/env bash' -- ':!wiki/media' >"$list"
+# shellcheck disable=SC2086 # $cached: nothing or one option
+git -c core.quotePath=false grep $cached -lI -e '^#!/bin/sh' -e '^#!/bin/bash' -e '^#!/usr/bin/env bash' \
+  -- ':!wiki/media' >"$list"
+if [ -n "$cached" ]; then
+  cat "$list"
+  rm -f "$list"
+  exit 0
+fi
 while IFS= read -r file; do
   case $(head -1 "$file" | tr -d '\r') in
     '#!/bin/sh' | '#!/bin/sh '*) shell=sh ;;
