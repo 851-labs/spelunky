@@ -67,3 +67,5 @@ pub use trace::replay::Event as InputEvent;
 pub use value::{Cond, Op, Value, ValueError};
 pub use var::{Builtin, FIRST_USER_VAR, GVar, Local, Slot, Var, VarLayout};
 pub use world::{Assets, LinesRun, SceneChange, World};
+
+// probe
