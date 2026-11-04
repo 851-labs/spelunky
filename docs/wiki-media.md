@@ -698,9 +698,10 @@ Two checks hold it to that:
   `clip.json` but the three hashes) and its files, its `replay.txt` is the clip's (and the settings program's have none), no clip there is
   without a spec, and `index.json` lists them all. It needs neither the GPU nor ffmpeg.
 - `pr.yml`'s web job on a Mac mini runs `scripts/wiki-media --check --since HEAD^1`, when the pull request
-  changes what the media are made from (the script's `made_from`: `wiki/clips`, `wiki/media`, `fidelity/replays`,
-  `fidelity/settings`, `crates/`, `vendor/`,
-  `reference/`, the toolchain, the pinned ffmpeg, `LICENSE` and the scripts): it renders everything into a
+  changes what the media are made from (`scripts/affected`'s media area: `wiki/clips`, `wiki/media`,
+  `fidelity/replays`, `fidelity/settings`, `reference/`, the pinned ffmpeg, `LICENSE` and the scripts, and the
+  crates that render and export them, `app`, `harness` and `tools`, or any they depend on, with the toolchain and
+  the lockfile; docs/ci.md, "What a pull request runs"): it renders everything into a
   scratch directory and fails on any difference from `wiki/media`, as `fidelity-check` does for the
   fingerprints. It keeps the committed videos of the clips whose hashes match, except those the pull request
   changed, which it encodes again, and encodes every clip again if the pull request changed how they're encoded

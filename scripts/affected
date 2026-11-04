@@ -1,0 +1,368 @@
+#!/usr/bin/env python3
+"""What a change affects, so each of CI's jobs knows whether to run (docs/ci.md, "What a pull request runs").
+
+  python3 -I scripts/affected BASE HEAD          the areas and jobs the diff BASE..HEAD affects, as name=value
+                                                 lines, and into $GITHUB_OUTPUT if it's set (pr.yml's Changes job)
+  python3 -I scripts/affected --is AREA BASE HEAD  exit 0 if the diff affects AREA, 1 if not (scripts/wiki-media)
+  python3 -I scripts/affected --rules JOB        the sparse-checkout rules of what JOB reads (suite.yml's checkout)
+  python3 -I scripts/affected --paths AREA       an area's paths, one a line (site/test.sh's watch-path check)
+  python3 -I scripts/affected --test             the self-test: past pull requests' files and what they affect
+
+Each changed file is matched against the areas' paths below, and a file in a crate (cargo metadata: each
+package's directory) marks that crate and every crate that depends on it, so a change to the updater runs its tests
+and one to the game doesn't. A file no area has, or a change to CI itself, runs every job: when unsure, run it.
+
+What keeps it honest: the Linux suite runs in a sparse checkout of exactly SUITE_RULES, so a step that reads a
+path they leave out fails there, as the file isn't checked out (suite.yml); site/test.sh holds Workers Builds'
+watch paths to the site area's; and --test (scripts/check runs it) checks the decisions for past pull requests.
+"""
+import fnmatch
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+# The areas: what each is, by path. A path ending in / is everything under it; otherwise a file or a glob.
+AREAS = {
+    # Prose for people, which nothing builds or tests (but docs/source-inventory.md, which gmk's tests read, and
+    # docs/quirks.md, which the site renders: those are in the areas that read them too).
+    "docs": ["docs/", "README.md", "CLAUDE.md"],
+    # The site and what its build reads from outside site/ (Workers Builds' watch paths, docs/web-deploy.md), and
+    # the script that writes its pin. A removed or renamed replay too, which the pages cite (REMOVED, below).
+    "site": ["site/", "wiki/", "LICENSE", "docs/quirks.md", "scripts/bump-web-release"],
+    # The wiki's content, which the suite checks against the GML and the specs (wiki-cites, wiki-data, wiki-clips).
+    "wiki": ["site/content/wiki/", "site/content/wiki-data/", "wiki/clips/", "wiki/data/"],
+    # What the wiki's media are made from (docs/wiki-media.md): the specs and the committed media, the replays clips
+    # are cut from, the original's source, the license, the scripts and the pinned ffmpeg; and the game, the
+    # renderer and the exporters, which are crates (MEDIA_CRATES).
+    "media": ["wiki/clips/", "wiki/media/", "fidelity/replays/", "fidelity/settings/", "reference/", "LICENSE",
+              "scripts/cargo", "scripts/extract", "scripts/wiki-media", "scripts/release/tools"],
+    # How the clips are encoded: a change re-encodes every clip (scripts/wiki-media --check --since).
+    "encoding": ["crates/harness/src/bin/wiki-clips.rs", "scripts/release/tools"],
+    # The replays, their fingerprints and screenshots, and the oracle's inputs (its patches and the math it vendors).
+    "fidelity": ["fidelity/", "tools/oracle/", "vendor/pxfm/"],
+    # What builds, signs and updates the releases (and the updater crate, below).
+    "release": ["scripts/release/", ".github/workflows/release.yml", ".github/workflows/build-native.yml",
+                ".github/workflows/updater.yml"],
+    # CI itself: the workflows and actions, and the scripts every job runs through. A change here runs every job.
+    "ci": [".github/", "scripts/affected", "scripts/check", "scripts/check-sh", "scripts/cargo",
+           "scripts/workspace-hack", "scripts/seed-target", ".gitignore", ".gitattributes", "lefthook.yml"],
+    # The Rust workspace: its manifests and toolchain, which mark every crate, and the crates (a file in one marks
+    # it and its dependents) and what they read from outside them (NON_CODE).
+    "rust": ["crates/", "vendor/"],
+}
+# The workspace's manifests, lockfile, toolchain and lint and dependency-hack config: a change marks every crate.
+WORKSPACE_FILES = ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml", "clippy.toml", ".config/"]
+# What the crates read from outside their own directories, and which crates. Built in (include_str!): a change is
+# a change to those crates, so it marks them and their dependents. --test scans the crates' sources for repository
+# paths and fails on one that's in neither table for its crate.
+BUILD_INPUTS = {
+    "tools/gm8-probe/": {"app", "draw", "gm", "gml"},
+}
+# Read as they run (their tests, and the tools and checks they are): a change marks those crates alone, as it
+# changes what they check, not what they are.
+TEST_INPUTS = {
+    "reference/": {"gm", "gmk", "transpile", "tools", "harness"},
+    "docs/source-inventory.md": {"gmk", "harness"},
+    "fidelity/": {"harness"},
+    "tools/oracle/": {"harness"},
+    "wiki/clips/": {"harness"},
+    "wiki/media/": {"harness"},
+    "wiki/data/": {"tools"},
+    "site/": {"tools"},
+}
+# The scripts that build or run the crates, which are the Rust area's too, marking every crate.
+WORKSPACE_SCRIPTS = ["scripts/transpile", "scripts/wasm-test", "scripts/third-party-licenses", "scripts/wiki-data",
+                     "scripts/wiki-cites", "scripts/wiki-clips", "scripts/wiki-sprites", "scripts/site-icons",
+                     "scripts/extract", "scripts/fidelity", "scripts/fidelity-shots", "scripts/fidelity-all",
+                     "scripts/web", "scripts/clip", "scripts/warm-main"]
+AREAS["rust"] += WORKSPACE_FILES + list(BUILD_INPUTS) + list(TEST_INPUTS) + WORKSPACE_SCRIPTS
+# Only a removal or a rename of these touches the site, whose pages cite them (a change just moves a link's pin).
+REMOVED = {"site": ["fidelity/replays/", "fidelity/settings/"]}
+# The crates the wiki's media are rendered and exported with: the app captures, wiki-clips and the sprite and GML
+# exporters drive it. A change to any of them, or to a crate they depend on, can change the media.
+MEDIA_CRATES = {"app", "harness", "tools"}
+
+# What the Linux suite (scripts/check) never reads: git's sparse-checkout rules (gitignore's patterns: the first
+# line keeps everything, a `!` line drops a path, a later line brings one back). suite.yml checks out only what
+# they keep, so a step that reads a path they drop fails: keep a path out only if the suite passes without it.
+# A check that lists a directory would only see fewer files, so the directories the suite lists (wiki/clips,
+# wiki/media/clips, site/content/wiki, the replays) stay whole; check-sh's list of every sh script is guarded in
+# suite.yml.
+SUITE_RULES = """/*
+!/docs/
+/docs/source-inventory.md
+!/site/
+/site/*.sh
+/site/.node-version
+/site/content/wiki/
+/site/content/wiki-data/
+/site/public/favicon.ico
+/site/public/icon.svg
+/site/public/apple-touch-icon.png
+!/wiki/media/
+/wiki/media/clips/
+!/fidelity/screenshots/
+!/README.md
+!/CLAUDE.md
+"""
+# The Mac mini's job reads what the suite does (scripts/check --apple is part of it), and the screenshots
+# (fidelity-shots) and all of wiki/media (scripts/wiki-media --check), and builds the web version from the crates:
+# the suite's rules, with those brought back (a later line wins).
+MINI_RULES = SUITE_RULES + """/wiki/media/
+/fidelity/screenshots/
+"""
+
+# The past pull requests --test checks (squash merges on main): their files ("D" for a removal) and what they must
+# run. A change to the crates' dependencies can change an answer, and the case with it.
+CASES = [
+    ("ecde14f9: docs only", ["docs/wiki-license.md", "docs/wiki-style.md"],
+     dict(docs_only=True, run_suite=False, run_mini=False, run_site=False, run_updater=False)),
+    ("243ef6e0: CLAUDE.md only", ["CLAUDE.md"],
+     dict(docs_only=True, run_suite=False, run_mini=False, run_site=False, run_updater=False)),
+    ("bbca1819: docs and the quirks the site renders", ["docs/design/draw-comparison.md", "docs/quirks.md"],
+     dict(docs_only=False, run_suite=False, run_mini=False, run_site=True, run_updater=False)),
+    ("56606b21: site only", ["site/src/wiki/wiki.css", "site/src/wiki/table.tsx", "site/test-wiki.mjs"],
+     dict(run_suite=False, run_mini=False, run_site=True, run_updater=False, media=False)),
+    ("1a65f242: the site's release pin", ["site/web-release.txt"],
+     dict(run_suite=False, run_mini=False, run_site=True, run_updater=False)),
+    ("750233c7: site, its test script and docs", ["docs/wiki-style.md", "site/src/routes/index.tsx", "site/test.sh"],
+     dict(run_suite=True, run_mini=True, run_site=True, run_updater=False, media=False)),
+    ("a164611a: a fingerprint only", ["fidelity/fingerprints/replays/item-cape-jetpack-swaps.json"],
+     dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=False, fidelity=True)),
+    ("4edb2ee4: a coverage replay", ["fidelity/COVERAGE.md", "fidelity/fingerprints/replays/olmec-door-rope.json",
+                                      "fidelity/replays/olmec-door-rope.txt"],
+     dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=True, fidelity=True)),
+    ("ed3ceec4's screenshots alone", ["fidelity/screenshots/settings-window/12.png"],
+     dict(run_suite=False, run_mini=True, run_site=False, run_updater=False, media=False)),
+    ("a sprite's committed media alone", ["wiki/media/sprites/sStandLeft/0.png"],
+     dict(run_suite=False, run_mini=True, run_site=True, media=True)),
+    ("a removed replay", ["D fidelity/replays/olmec-door-rope.txt", "D fidelity/fingerprints/replays/olmec-door-rope.json"],
+     dict(run_suite=True, run_mini=True, run_site=True, media=True)),
+    ("6da0839b: the app only", ["crates/app/src/main.rs", "crates/app/src/web.rs"],
+     dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=True, crates={"app"})),
+    ("9e2fae21: the updater", ["crates/app/src/update.rs", "crates/update/src/lib.rs", "docs/updates.md"],
+     dict(run_suite=True, run_mini=True, run_updater=True, release=True)),
+    ("2035a330: the runner and the harness", ["crates/gm/src/audio.rs", "crates/harness/tests/audio_mode.rs",
+                                               "docs/quirks.md"],
+     dict(run_suite=True, run_mini=True, run_site=True, run_updater=False, media=True)),
+    ("539ff470: CI itself", [".github/workflows/pr.yml", "docs/ci.md", "scripts/check"],
+     dict(run_suite=True, run_mini=True, run_site=True, run_updater=True, ci=True)),
+    ("a file no area has", ["somewhere-new/thing.txt"],
+     dict(run_suite=True, run_mini=True, run_site=True, run_updater=True, unknown=True)),
+]
+
+JOBS = ["run_suite", "run_mini", "run_site", "run_updater"]
+
+
+def matches(path, patterns):
+    for p in patterns:
+        if p.endswith("/"):
+            if path.startswith(p):
+                return True
+        elif path == p or fnmatch.fnmatchcase(path, p):
+            return True
+    return False
+
+
+def git(*args, stdin=None):
+    return subprocess.run(["git", "-c", "core.quotePath=false", *args], input=stdin, capture_output=True,
+                          text=True, check=True).stdout
+
+
+def kept(paths, rules):
+    """The paths sparse-checkout `rules` keep: git's own matching, as the checkout does it."""
+    if not paths:
+        return set()
+    with tempfile.NamedTemporaryFile("w", suffix=".rules", delete=False) as f:
+        f.write(rules)
+    try:
+        out = git("sparse-checkout", "check-rules", "--no-cone", "--rules-file", f.name, stdin="\n".join(paths) + "\n")
+    finally:
+        os.unlink(f.name)
+    return set(out.splitlines())
+
+
+def packages():
+    """Each crate (the workspace's members and the path crates they use): its directory and its dependents."""
+    meta = json.loads(subprocess.run(["scripts/cargo", "metadata", "--no-deps", "--format-version", "1", "--offline",
+                                      "--quiet"], capture_output=True, text=True, check=True).stdout)
+    root = meta["workspace_root"].rstrip("/") + "/"
+    dirs, users = {}, {}
+    for p in meta["packages"]:
+        dirs[p["name"]] = os.path.dirname(p["manifest_path"])[len(root):] + "/"
+        for d in p["dependencies"]:
+            if d.get("path"):
+                users.setdefault(d["name"], set()).add(p["name"])
+                dirs.setdefault(d["name"], d["path"][len(root):].rstrip("/") + "/")
+    return dirs, users
+
+
+def affected(changes, crates_info=None):
+    """`changes`: (status, path) pairs. The areas, the crates and the jobs they affect."""
+    dirs, users = crates_info or packages()
+    paths = [p for _, p in changes]
+    areas = {a: False for a in AREAS}
+    unknown = []
+    # The crates whose code changed (and below, their dependents), and those that only read a changed input.
+    crates = set()
+    tested = set()
+    every_crate = False
+    for status, path in changes:
+        hit = False
+        for area, patterns in AREAS.items():
+            if matches(path, patterns):
+                areas[area] = hit = True
+        for area, patterns in REMOVED.items():
+            if status == "D" and matches(path, patterns):
+                areas[area] = hit = True
+        # The deepest crate directory the file is in (a crate inside another's directory is its own).
+        owner = max((c for c, d in dirs.items() if path.startswith(d)), key=lambda c: len(dirs[c]), default=None)
+        if owner:
+            crates.add(owner)
+        for prefix, readers in BUILD_INPUTS.items():
+            if matches(path, [prefix]):
+                crates |= readers
+        for prefix, readers in TEST_INPUTS.items():
+            if matches(path, [prefix]):
+                tested |= readers
+        if matches(path, WORKSPACE_FILES + WORKSPACE_SCRIPTS) or (path.startswith(("crates/", "vendor/")) and not owner):
+            every_crate = True
+        if not hit:
+            unknown.append(path)
+    # A file no area has could be anything: every crate. CI's own files run every job (below) but change no crate.
+    if every_crate or unknown:
+        crates = set(dirs)
+    # Each changed crate's dependents, and theirs.
+    todo = list(crates)
+    while todo:
+        for user in users.get(todo.pop(), ()):
+            if user not in crates:
+                crates.add(user)
+                todo.append(user)
+    if crates & MEDIA_CRATES:
+        areas["media"] = True
+    crates |= tested
+    if "update" in crates:
+        areas["release"] = True
+    docs_only = bool(paths) and all(matches(p, AREAS["docs"]) for p in paths) and not (
+        areas["site"] or areas["rust"])
+    everything = bool(unknown) or areas["ci"]
+    jobs = {
+        "run_suite": everything or bool(kept(paths, SUITE_RULES)),
+        "run_mini": everything or bool(kept(paths, MINI_RULES)),
+        "run_site": everything or areas["site"],
+        # `cargo test -p update`: the updater crate or one it depends on (cargo metadata), or its workflow (ci).
+        "run_updater": everything or "update" in crates,
+    }
+    return dict(areas=areas, crates=crates, unknown=unknown, docs_only=docs_only, jobs=jobs)
+
+
+def diff(base, head):
+    out = git("diff", "--name-status", "--no-renames", base, head)
+    return [(line.split("\t", 1)[0][0], line.split("\t", 1)[1]) for line in out.splitlines() if line]
+
+
+def outputs(result):
+    lines = ["%s=%s" % (a, str(v).lower()) for a, v in result["areas"].items()]
+    lines.append("docs_only=%s" % str(result["docs_only"]).lower())
+    lines.append("crates=%s" % " ".join(sorted(result["crates"])))
+    lines += ["%s=%s" % (j, str(result["jobs"][j]).lower()) for j in JOBS]
+    return lines
+
+
+def self_test():
+    info = packages()
+    failed = 0
+    for name, files, want in CASES:
+        changes = [(f[0], f[2:]) if f.startswith("D ") else ("M", f) for f in files]
+        r = affected(changes, info)
+        got = dict(r["jobs"], docs_only=r["docs_only"],
+                   unknown=bool(r["unknown"]), crates=r["crates"], **r["areas"])
+        for key, value in want.items():
+            if key == "crates":
+                ok = got["crates"] == value
+            else:
+                ok = got[key] == value
+            if not ok:
+                print("scripts/affected --test: %s: %s is %s, not %s" % (name, key, got[key], value), file=sys.stderr)
+                failed = 1
+    # Every repository path a crate's sources name (a string starting with a top-level directory, or "../" up to
+    # one), but its own and other crates', is an input for that crate in BUILD_INPUTS or TEST_INPUTS.
+    dirs, _ = info
+    tracked = set(git("ls-files").splitlines())
+    tracked_dirs = {t.rsplit("/", i)[0] + "/" for t in tracked for i in range(1, t.count("/") + 1)}
+    tops = sorted({t.split("/", 1)[0] for t in tracked if "/" in t} - {"crates", ".github"})
+    top_files = sorted(t for t in tracked if "/" not in t)
+    pattern = r'"(\.\./)*((%s)/[A-Za-z0-9_.-]+|(%s)")' % ("|".join(map(re.escape, tops)),
+                                                         "|".join(map(re.escape, top_files)))
+    inputs = dict(BUILD_INPUTS, **TEST_INPUTS)
+    for crate, d in sorted(dirs.items()):
+        if not d.startswith("crates/"):
+            continue
+        grep = subprocess.run(["git", "grep", "-hoE", pattern, "--", d], capture_output=True, text=True)
+        # 1 is no match; anything else, a failure, which mustn't pass for a clean scan.
+        if grep.returncode > 1:
+            raise RuntimeError("git grep failed: %s" % grep.stderr.strip())
+        for literal in sorted(set(grep.stdout.splitlines())):
+            path = literal.strip('"')
+            while path.startswith("../"):
+                path = path[3:]
+            # Only a path that's there: GML's script names (`scripts/scrInit`) look like one.
+            if path not in tracked:
+                if path.rstrip("/") + "/" not in tracked_dirs:
+                    continue
+                path = path.rstrip("/") + "/"
+            # A directory is covered by an entry for it or one around it.
+            if not any((matches(path, [prefix]) or path == prefix) and crate in readers
+                       for prefix, readers in inputs.items()) and \
+                    not matches(path, AREAS["ci"] + WORKSPACE_FILES + WORKSPACE_SCRIPTS + ["vendor/"]):
+                print("scripts/affected --test: %s reads %s, which BUILD_INPUTS and TEST_INPUTS don't give it"
+                      % (crate, path), file=sys.stderr)
+                failed = 1
+    # Every pattern names something that exists, so a move or a rename doesn't leave one matching nothing.
+    for area, patterns in list(AREAS.items()) + list(REMOVED.items()):
+        for p in patterns:
+            if not (p in tracked or p in tracked_dirs or any(fnmatch.fnmatchcase(t, p) for t in tracked)):
+                print("scripts/affected --test: %s's %s matches no tracked file" % (area, p), file=sys.stderr)
+                failed = 1
+    return failed
+
+
+def main(argv):
+    os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+    usage = "usage: scripts/affected BASE HEAD | --is AREA BASE HEAD | --rules suite|mini | --paths AREA | --test"
+    if argv == ["--test"]:
+        return self_test()
+    if len(argv) == 2 and argv[0] == "--rules" and argv[1] in ("suite", "mini"):
+        sys.stdout.write(SUITE_RULES if argv[1] == "suite" else MINI_RULES)
+        return 0
+    if len(argv) == 2 and argv[0] == "--paths" and argv[1] in AREAS:
+        print("\n".join(AREAS[argv[1]]))
+        return 0
+    if len(argv) == 4 and argv[0] == "--is" and argv[1] in AREAS:
+        return 0 if affected(diff(argv[2], argv[3]))["areas"][argv[1]] else 1
+    if len(argv) != 2 or argv[0].startswith("-"):
+        print(usage, file=sys.stderr)
+        return 2
+    result = affected(diff(argv[0], argv[1]))
+    lines = outputs(result)
+    print("\n".join(lines))
+    if result["unknown"]:
+        print("no area has %s: running every job" % ", ".join(result["unknown"]), file=sys.stderr)
+    if os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            f.write("\n".join(lines) + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    # Any error is 2, never 1, which --is means "not affected": a failure mustn't pass for a skip.
+    try:
+        sys.exit(main(sys.argv[1:]))
+    except Exception as e:  # noqa: BLE001 (every error: see above)
+        detail = getattr(e, "stderr", None) or ""
+        print("scripts/affected: %s%s" % (e, ("\n" + detail.strip()) if detail else ""), file=sys.stderr)
+        sys.exit(2)

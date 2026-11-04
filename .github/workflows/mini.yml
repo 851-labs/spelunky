@@ -1,7 +1,6 @@
 # One job on the self-hosted Mac minis: check out, set up Rust and Node (.github/actions/mini-toolchain), run a
 # command, clean up. pr.yml and release.yml call it, so the runner group, the setup and the cleanup are in one
-# place. With `paths`, a pull request that changes none of them skips the setup and the command, and the job
-# succeeds: pr-ok needs every job to, and a job skipped with `if:` wouldn't.
+# place. Whether a pull request needs it is pr.yml's Changes job's to say (scripts/affected).
 name: Mac mini job
 
 on:
@@ -19,15 +18,9 @@ on:
         type: number
         default: 60
       fetch-depth:
-        description: How many commits to check out (with `paths`, at least 2)
+        description: How many commits to check out
         type: number
         default: 1
-      paths:
-        description: >
-          Only for a pull request that changes one of these (git pathspecs, space-separated); without it, or
-          outside a pull request, always
-        type: string
-        default: ''
 
 permissions:
   contents: read
@@ -55,24 +48,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          # For `paths`, the merge commit's parents too.
-          fetch-depth: ${{ inputs.paths && 2 || inputs.fetch-depth }}
-      # A pull request's run checks out the pull request merged into its base, so what it changes is that merge
-      # commit's diff from its first parent. Anything else (no merge commit) runs.
-      - id: changes
-        if: inputs.paths
-        env:
-          PATHS: ${{ inputs.paths }}
-        run: |
-          read -ra paths <<<"$PATHS"
-          if git rev-parse -q --verify HEAD^2 >/dev/null && git diff --quiet HEAD^1 HEAD -- "${paths[@]}"; then
-            echo "nothing under $PATHS changed: skipping"
-            echo "skip=true" >>"$GITHUB_OUTPUT"
-          fi
-      - if: steps.changes.outputs.skip != 'true'
-        uses: ./.github/actions/mini-toolchain
-      - if: steps.changes.outputs.skip != 'true'
-        env:
+          fetch-depth: ${{ inputs.fetch-depth }}
+      - uses: ./.github/actions/mini-toolchain
+      - env:
           RUN: ${{ inputs.run }}
         run: eval "$RUN"
       - if: always()
