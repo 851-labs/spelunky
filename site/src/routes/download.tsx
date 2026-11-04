@@ -7,7 +7,7 @@ import type { Download, Os, System } from "../site/download";
 import { SiteFrame, SiteLinks, SiteSearch } from "../site/frame";
 
 // The native apps' page (851-4013): the release the site puts live, each system's files from its update manifest
-// (src/build/release.ts), with their sizes and SHA-256s, so the page changes with web-release.txt and lists what
+// (src/build/release.ts), with their sizes, so the page changes with web-release.txt and lists what
 // the apps update to. The files stay on GitHub's releases; the page links them. Its stylesheet is the root's to link
 // (__root.tsx), as the 404 page's is: inlined, it would be in the route tree, every page's entry chunk.
 export const Route = createFileRoute("/download")({
@@ -86,8 +86,7 @@ function DownloadPage() {
               <a href={RELEASES}>all releases</a>.
             </p>
             <p>
-              To check a download against its SHA-256: <code>shasum -a 256 FILE</code> on macOS,{" "}
-              <code>sha256sum FILE</code> on Linux, <code>Get-FileHash FILE</code> in PowerShell.
+              To check a download, each file's SHA-256 is in the release's <code>SHA256SUMS</code>, with its notes.
             </p>
           </section>
         </>
@@ -169,9 +168,6 @@ function Files({ downloads, first }: { downloads: Download[]; first?: Download }
               {download.kind}, {size(download.size)}
             </span>
           </a>
-          <p className="sum">
-            <span>SHA-256</span> <code>{download.sha256}</code>
-          </p>
         </li>
       ))}
     </ul>
