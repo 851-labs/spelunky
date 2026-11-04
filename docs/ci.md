@@ -5,16 +5,17 @@ they're made of.
 
 | Workflow | When | What | Where |
 | --- | --- | --- | --- |
-| `pr.yml` | every pull request | `scripts/check` (`suite.yml`), `site/test.sh` for changes to the site, then on one Mac mini `scripts/check --apple`, `scripts/web --check` and `scripts/wiki-media --check` for changes to what the wiki's media are made from; the updater's tests; then `pr-ok` | `ubuntu-24.04` for the suite and the site, one Mac mini, GitHub's machines for the updater |
+| `pr.yml` | every pull request | what it affects (`scripts/affected`), then the jobs that need to run for it: `scripts/check` (`suite.yml`), `site/test.sh`, on one Mac mini `scripts/check --apple`, `scripts/web --check` and `scripts/wiki-media --check`, the updater's tests; then `pr-ok` | `ubuntu-24.04` for the suite and the site, one Mac mini, GitHub's machines for the updater |
 | `suite.yml` | from `pr.yml`, and every push to `main` | `scripts/check`, in two halves side by side, with the build caches main's run saves for every pull request's ([below](#pull-requests)) | `ubuntu-24.04` |
 | `release.yml` | a `v*` tag, or by hand | the suite, the oracle fidelity run, the web and native builds, the updater's tests, then the GitHub Release and the pull request that puts it live ([below](#releases)) | the Mac minis and `ubuntu-24.04` |
 | `build-native.yml` | from `release.yml`, or by hand | the native apps: built, signed for a release, smoke-tested ([docs/releasing.md](releasing.md)) | GitHub's `macos-15` for the build and the signing, then each OS, all on GitHub's machines |
 | `updater.yml` | from `pr.yml` and `release.yml`, or by hand | the updater's tests, `cargo test -p update` ([docs/updates.md](updates.md)) | GitHub-hosted macOS, Windows and Linux |
-| `mini.yml` | from `pr.yml` and `release.yml` | one command on a Mac mini, optionally only for a pull request that changes some paths | the Mac minis |
+| `mini.yml` | from `pr.yml` and `release.yml` | one command on a Mac mini | the Mac minis |
 | `soak.yml` | nightly, or by hand | the chaos soak: new fuzz runs against the oracle, filed as issues ([below](#the-chaos-soak)) | `ubuntu-24.04` |
 
 `pr-ok` is the only check the "Protect main" ruleset requires. It fails unless every other job of the run
-succeeded, so jobs can be added or renamed without touching the ruleset; `pr-ok` itself keeps its name.
+succeeded, or was skipped as the pull request didn't need it ([below](#what-a-pull-request-runs)), so jobs can
+be added or renamed without touching the ruleset; `pr-ok` itself keeps its name.
 
 Every job has a short name for people, which the run's graph shows: "Linux / Test suite (1)" (a
 `mini.yml` job is named by its caller's `name` input), "Updater / Tests (Windows x64)", "Native / Build
@@ -137,11 +138,8 @@ organization's projects share GitHub's machines too):
   changes `site/`, what the site reads from outside it (`wiki/`, the specs and the media, `LICENSE`,
   `docs/quirks.md`), `scripts/bump-web-release` (which writes the site's pin), or `pr.yml`, or that removes or renames
   a committed replay (`fidelity/replays`, `fidelity/settings`), which the pages cite (only the first are Workers
-  Builds' watch paths: [docs/web-deploy.md](web-deploy.md)). Every other pull
-  request runs the job too, and `pr-ok` needs it, but it stops after the checkout and succeeds: a step diffs the
-  pull request's merge commit against its base and skips the rest when none of the paths changed (a job-level
-  `if:` can't see the changed files, and a skipped job would fail `pr-ok`). Workers Builds builds each pull
-  request's site too, but tests nothing.
+  Builds' watch paths: [docs/web-deploy.md](web-deploy.md)): `scripts/affected`'s site area. Workers Builds
+  builds each pull request's site too, but tests nothing.
 - **"Mac mini / Web, wiki media and macOS"**, one mini: `scripts/check --apple`, what a Mac checks beside Linux
   (the sh scripts under macOS's bash 3.2; the macOS-only code, which Linux doesn't compile: clippy over the
   workspace as macOS builds it, and the app's tests; `crates/workspace-hack`'s checks, which are Apple silicon
@@ -150,15 +148,62 @@ organization's projects share GitHub's machines too):
   against the oracle's, on the mini's GPU: [formats.md](formats.md#screenshots)), then `scripts/web --check` and
   the wiki's committed media: `scripts/wiki-media --check --since HEAD^1`
   ([docs/wiki-media.md](wiki-media.md#committing)) renders them from the pull request and fails if `wiki/media`
-  differs at all. A pull request that changes nothing the media are made from skips that at once; otherwise it
-  builds the app, captures every clip's frames on the mini's GPU and encodes again the clips whose videos it
-  changed, a few minutes more.
+  differs at all. A pull request that changes nothing the media are made from (`scripts/affected`'s media area)
+  skips that at once; otherwise it builds the app, captures every clip's frames on the mini's GPU and encodes again
+  the clips whose videos it changed, a few minutes more. A pull request that changes nothing the job reads (the
+  suite's inputs, the screenshots and `wiki/media`) doesn't take a mini at all.
 
-The updater's tests (`updater.yml`) run on every pull request, whatever it changes (the app reaches the
-updater from outside `crates/update` too), on GitHub's machines alongside the others, and `pr-ok` needs
-them. They take two or three minutes, less than the test suite, so they usually add no time to the run,
+The updater's tests (`updater.yml`, `cargo test -p update`) run for a pull request that changes the updater
+crate or a crate it depends on (`scripts/affected`, from `cargo metadata`), or CI, on GitHub's machines alongside
+the others, and `pr-ok` needs them then. (The app reaches the updater from outside `crates/update` too, in its
+`update.rs`, but the tests are the crate's.) They take two or three minutes, less than the test suite, so they usually add no time to the run,
 unless GitHub's macOS arm64 machines are queueing (the notice under [Warnings](#warnings)). They don't re-run on
 `main` after a merge (only `suite.yml` does); a release runs them again before it publishes.
+
+### What a pull request runs
+
+Each job used to decide alone whether a pull request concerned it (the site test's paths, `scripts/wiki-media
+--since`'s), and nothing held the lists to what the jobs read. Now one script does, for all of them (851-4008):
+`scripts/affected BASE HEAD`. pr.yml's first job, **Changes**, runs it on the merge commit's diff from its base,
+and every other job runs only if it says so: a job it rules out is skipped (no machine at all, a mini included),
+and `pr-ok` passes a skipped job only if Changes succeeded and ruled it out.
+
+It sorts each changed file into areas, by path, declared in the script beside what reads them: `docs` (prose
+nothing builds), `site` (the site and what its build reads: `wiki/`, `LICENSE`, `docs/quirks.md`, and a removed or
+renamed replay), `wiki` (the content the suite checks against the GML), `media` (what the wiki's media are made
+from), `encoding` (how the clips are encoded), `fidelity` (the replays, fingerprints, screenshots and the oracle's
+inputs), `release` (what builds, signs and updates the releases), `ci` (the workflows and the scripts every job
+runs through) and `rust`. A file in a crate marks that crate and, from `cargo metadata`, every crate that depends
+on it, so a change to the game doesn't run the updater's tests and one to the updater does. What the crates read
+from outside their directories is declared too: built in (`include_str!` of `tools/gm8-probe`'s results), which
+marks the crate and its dependents, or read as they run (the replays, the reference `.gmk`, the specs), which
+marks only the crate. A file no area has, or a change to CI, runs every job. The outputs:
+
+| Output | The job | Runs when |
+| --- | --- | --- |
+| `run_suite` | "Linux / Test suite" | a file the suite reads changed: anything but `SUITE_RULES`' exceptions (most of `docs/` and `site/`, the media but the clips, the screenshots, `README.md`, `CLAUDE.md`) |
+| `run_mini` | "Mac mini" | the same, or the screenshots or `wiki/media` |
+| `run_site` | "Site test" | the `site` area |
+| `run_updater` | "Updater" | the `update` crate or one it depends on |
+
+So a docs-only pull request runs only Changes and `pr-ok`, and one that changes only the site's own code the site
+test as well. `scripts/wiki-media --check --since` asks it (`--is media`, `--is encoding`) whether to render and
+whether to encode every clip again, and `site/test.sh` holds Workers Builds' watch paths to the site area
+(`--paths site`). `release.yml` and the pushes to `main` run everything.
+
+**Keeping it honest.** The suite runs in a sparse checkout (git's) of exactly what `SUITE_RULES` keep
+(`scripts/affected --rules suite`), so a step that reads a path the rules leave out fails, as the file isn't there,
+rather than a pull request that changes it skipping the suite. What a sparse checkout can't catch is a check that
+lists a directory, which would quietly check fewer files: the directories the suite lists (`wiki/clips`,
+`wiki/media/clips`, `site/content/wiki`, the replays) stay whole in it, and `scripts/check-sh`, which lists every
+sh script in the repository with `git grep` (which searches only the checkout), is guarded: the job fails if any
+script it would check (`scripts/check-sh --tracked`) is out of the checkout. `scripts/affected --test`, which
+`scripts/check` runs, decides for past pull requests' files (docs only, site only, a fingerprint, a coverage
+replay, a removed replay, the app, the updater, CI, a file no area has) and fails if any answer changes; scans
+the crates' sources for repository paths each reads and fails on one the script doesn't give that crate; and
+fails on an area's path that matches no tracked file, as after a move. The mini job and the site test aren't
+checked out sparsely (the minis' workspaces outlive their jobs), so their rules are kept by hand: the mini's are
+the suite's and the screenshots and `wiki/media`, the site's are Workers Builds'.
 
 The site test fails on any error, not only on a check that fails. On a Mac (where it ran on CI until 851-3953, and
 where it runs for anyone working on the site), `sh` is macOS's bash 3.2, which exits

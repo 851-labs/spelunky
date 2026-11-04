@@ -1,9 +1,10 @@
-# Every pull request: the full local suite (scripts/check) and, if it changes the site, the site's smoke test
-# (site/test.sh), on GitHub's Linux machines; on the self-hosted Mac minis, only what needs Apple silicon: the web
-# build, the wiki's committed media (if it changes what they're made from) and scripts/check --apple (the macOS-only
-# code's lints and tests, crates/workspace-hack's checks); and the updater's tests on GitHub's macOS, Windows and
-# Linux machines (updater.yml). `pr-ok` is the one check the "Protect main" ruleset requires, so jobs can be added
-# or renamed here without touching the ruleset (docs/ci.md, "Pull requests").
+# Every pull request, as far as it needs them (Changes, below: scripts/affected decides for every job): the full
+# local suite (scripts/check) and the site's smoke test (site/test.sh), on GitHub's Linux machines; on the
+# self-hosted Mac minis, only what needs Apple silicon: the web build, the wiki's committed media (if it changes what
+# they're made from) and scripts/check --apple (the macOS-only code's lints and tests, crates/workspace-hack's
+# checks); and the updater's tests on GitHub's macOS, Windows and Linux machines (updater.yml). `pr-ok` is the one
+# check the "Protect main" ruleset requires, so jobs can be added or renamed here without touching the ruleset
+# (docs/ci.md, "Pull requests").
 #
 # The repository is public: this runs untrusted code from pull requests, on our own machines too. So it's
 # `pull_request` (never `pull_request_target`), with a read-only token, no secrets and no environment, and
@@ -35,19 +36,60 @@ env:
   GIT_CONFIG_VALUE_0: main
 
 jobs:
-  # The test suite on one of GitHub's Linux machines (suite.yml), not the minis.
+  # What the pull request affects (scripts/affected, docs/ci.md "What a pull request runs"): its merge commit's diff
+  # from its base, by area, and from that which of the jobs below run. One place decides it for all of them.
+  changes:
+    name: Changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      run_suite: ${{ steps.affected.outputs.run_suite }}
+      run_mini: ${{ steps.affected.outputs.run_mini }}
+      run_site: ${{ steps.affected.outputs.run_site }}
+      run_updater: ${{ steps.affected.outputs.run_updater }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The merge commit's parents too, for what it changes; the rest, but the media, for cargo metadata.
+          fetch-depth: 2
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/wiki/media/
+      - id: affected
+        env:
+          # For cargo metadata (which crate depends on which), the image's cargo does: the pinned toolchain isn't
+          # worth a download here. One too old for the manifests fails the job, and with it pr-ok.
+          RUSTUP_TOOLCHAIN: stable
+        run: |
+          if git rev-parse -q --verify HEAD^2 >/dev/null; then
+            python3 -I scripts/affected HEAD^1 HEAD
+          else
+            echo "not a pull request's merge commit: running every job"
+            printf '%s\n' run_suite=true run_mini=true run_site=true run_updater=true >>"$GITHUB_OUTPUT"
+          fi
+
+  # The test suite on two of GitHub's Linux machines (suite.yml), not the minis.
   check:
     name: Linux
+    needs: changes
+    if: needs.changes.outputs.run_suite == 'true'
     uses: ./.github/workflows/suite.yml
 
   # The site's smoke test (site/test.sh), on one of GitHub's Linux machines, for a pull request that changes the
-  # site, what it reads from outside site/ (wiki/'s specs and media, LICENSE, docs/quirks.md, whose rows the quirk
-  # pages name), the script that writes its pin or this workflow; or that removes or renames a committed replay,
-  # as the pages cite them and the build fails on one that's gone (851-3938). Any other passes as soon as it has
-  # checked out. The inputs, but not the replays, are Workers Builds' build watch paths too (docs/web-deploy.md),
-  # which site/test.sh checks.
+  # site or what its build reads from outside site/ (wiki/'s specs and media, LICENSE, docs/quirks.md, whose rows
+  # the quirk pages name), or removes or renames a committed replay, as the pages cite them and the build fails on
+  # one that's gone (851-3938): scripts/affected's site area. The inputs, but not the replays, are Workers Builds'
+  # build watch paths too (docs/web-deploy.md), which site/test.sh checks against the area.
   site:
     name: Site test
+    needs: changes
+    if: needs.changes.outputs.run_site == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     defaults:
@@ -57,40 +99,25 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-          # The merge commit's parents too, for what it changes.
+          # The merge commit's parents too: test-wiki.mjs checks the pages' pins against what it changes.
           fetch-depth: 2
-      - id: changes
-        env:
-          PATHS: >-
-            site wiki LICENSE docs/quirks.md scripts/bump-web-release .github/workflows/pr.yml
-          # Only a removal or a rename here can break the build: a changed or new replay just moves a link's pin.
-          CITED: >-
-            fidelity/replays fidelity/settings
-        run: |
-          read -ra paths <<<"$PATHS"
-          read -ra cited <<<"$CITED"
-          if git rev-parse -q --verify HEAD^2 >/dev/null && git diff --quiet HEAD^1 HEAD -- "${paths[@]}" &&
-            git diff --quiet --diff-filter=DR HEAD^1 HEAD -- "${cited[@]}"; then
-            echo "nothing under $PATHS changed, and nothing under $CITED was removed or renamed: skipping"
-            echo "skip=true" >>"$GITHUB_OUTPUT"
-          fi
-      - if: steps.changes.outputs.skip != 'true'
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: site/.node-version
           cache: npm
           cache-dependency-path: site/package-lock.json
-      - if: steps.changes.outputs.skip != 'true'
-        run: site/test.sh
+      - run: site/test.sh
 
   # On the minis, only what needs Apple silicon: the web build (scripts/web --check) and the wiki's media
   # (docs/wiki-media.md, "Checking": if the pull request changes what they're made from, wiki/media must be what
   # it renders, byte for byte; the merge commit's first parent is the base), and scripts/check --apple. One job, so
-  # a pull request holds one mini.
+  # a pull request holds one mini, and none when it changes nothing the job reads.
   web:
     name: Mac mini
+    needs: changes
     # Not a fork's (the header says why this is the readable answer, not the lock).
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository && needs.changes.outputs.run_mini == 'true'
     uses: ./.github/workflows/mini.yml
     with:
       name: Web, wiki media and macOS
@@ -102,31 +129,45 @@ jobs:
       # --apple's builds, the web build and a render of every clip, from a cold target dir (a toolchain bump).
       timeout-minutes: 75
 
-  # On GitHub's machines, alongside the others, and on every pull request: the updater is reached from
-  # outside crates/update too (the app's update.rs). No secrets, so it runs for a fork's too.
+  # On GitHub's machines, alongside the others: the updater's tests, `cargo test -p update`, for a pull request
+  # that changes the updater crate or one it depends on (scripts/affected, from cargo metadata), or CI. No secrets,
+  # so it runs for a fork's too.
   updater:
     name: Updater
+    needs: changes
+    if: needs.changes.outputs.run_updater == 'true'
     uses: ./.github/workflows/updater.yml
 
   # The "Protect main" ruleset requires this check by its name: keep it `pr-ok`.
   pr-ok:
     name: pr-ok
-    needs: [check, web, site, updater]
+    needs: [changes, check, web, site, updater]
     # Always runs, so a failed or cancelled job above fails this check rather than skipping it (a skipped
     # required check would count as passing).
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
+      # Every job it needs succeeded, or was skipped as Changes said it needn't run (DECIDED: each job's output of
+      # Changes'; a job with none must succeed), and Changes itself succeeded, so a job it never decided on can't
+      # pass as skipped.
       - env:
-          RESULTS: ${{ join(needs.*.result, ' ') }}
           HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          NEEDS: ${{ toJSON(needs) }}
+          DECIDED: '{"check": "run_suite", "web": "run_mini", "site": "run_site", "updater": "run_updater"}'
         run: |
           if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ]; then
             echo "::error::pull requests from forks ($HEAD_REPO) don't run on the Mac minis; push a branch here"
             exit 1
           fi
-          echo "results: $RESULTS"
-          for result in $RESULTS; do
-            [ "$result" = success ] || { echo "::error::a required job didn't succeed ($result)"; exit 1; }
-          done
+          failed=0
+          while read -r job result needed; do
+            echo "$job: $result (had to run: $needed)"
+            case $result/$needed in
+              success/* | skipped/false) ;;
+              *) echo "::error::$job didn't succeed ($result; had to run: $needed)"; failed=1 ;;
+            esac
+          done < <(jq -r --argjson decided "$DECIDED" '.changes.outputs as $out | to_entries[] |
+            "\(.key) \(.value.result) \(if $decided[.key] then ($out[$decided[.key]] // "unknown") else "always" end)"' \
+            <<<"$NEEDS")
+          exit "$failed"
