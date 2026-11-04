@@ -50,14 +50,20 @@ test("a release's manifest gives each platform's file, size and SHA-256", () => 
   assert.equal(release.notes, MANIFEST.notes);
   const mac = release.assets.find((a) => a.platform === "macos");
   assert.deepEqual(mac, { platform: "macos", ...MANIFEST.assets.macos, file: "spelunky-0.1.19-macos.zip" });
+  // A prerelease's version, as the apps take it.
+  assert.equal(parseRelease(edited((m) => (m.version = "0.2.0-rc.1"))).version, "0.2.0-rc.1");
 });
 
 test("a manifest the page can't list fails the build, naming what's wrong", () => {
   const refused = [
     ["{}", /its manifest isn't a string/],
+    [JSON.stringify({ manifest: "{" }), /its manifest isn't JSON/],
+    ["{", /the file isn't JSON/],
     [JSON.stringify({ manifest: "[]" }), /its manifest isn't an object/],
     [edited((m) => (m.version = "v0.1.19")), /isn't x\.y\.z/],
-    [edited((m) => (m.assets.macos.url = "http://example.com/a.zip")), /isn't HTTPS/],
+    [edited((m) => (m.assets.macos.url = "http://example.com/a.zip")), /isn't an HTTPS URL/],
+    [edited((m) => (m.assets.macos.url = "https://")), /isn't an HTTPS URL/],
+    [edited((m) => (m.notes = "releases/tag/v0.1.19")), /the notes .* isn't an HTTPS URL/],
     [edited((m) => (m.assets.macos.url = "https://example.com/")), /names no file/],
     [edited((m) => (m.assets.macos.sha256 = "ABC")), /64 hex digits/],
     [edited((m) => (m.assets.macos.size = "26 MB")), /size isn't a size/],
@@ -110,6 +116,7 @@ test("sizes are decimal megabytes, as file browsers show them", () => {
   assert.equal(size(26388724), "26.4 MB");
   assert.equal(size(17000000), "17.0 MB");
   assert.equal(size(1517), "2 KB");
+  assert.equal(size(999700), "1.0 MB");
 });
 
 // What real browsers say: their user agent, navigator.platform, and Chromium's userAgentData.
@@ -134,6 +141,8 @@ test("the reader's system, from what their browser says", () => {
     [browser(FIREFOX_WIN, "Win32"), { os: "windows", arch: "x86_64" }],
     [browser(FIREFOX_LINUX, "Linux x86_64"), { os: "linux", arch: "x86_64" }],
     [browser(CHROME_LINUX_ARM, "Linux aarch64", { uaPlatform: "Linux" }), { os: "linux", arch: "aarch64" }],
+    // A 32-bit Raspberry Pi, which no build is for: no processor of its own, so it's offered x64's first.
+    [browser(CHROME_LINUX_ARM, "Linux armv7l", { uaPlatform: "Linux", architecture: "arm", bitness: "32" }), { os: "linux", arch: null }],
     // Phones, tablets and Chromebooks, which no download is for.
     [browser(IPHONE, "iPhone", { touchPoints: 5 }), null],
     // iPadOS's Safari, which asks for the desktop site as a Mac.

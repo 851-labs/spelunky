@@ -31,6 +31,8 @@ const PLATFORMS: Record<string, { os: Os; arch: Arch | null; label: string }> = 
 const FORMATS: Record<string, string> = { "app-zip": "zip", "dir-zip": "zip", appimage: "AppImage" };
 
 export interface Download extends ReleaseAsset {
+  // Null for a platform the page doesn't know.
+  os: Os | null;
   arch: Arch | null;
   // "x64", "Universal", or an unknown platform's own name.
   label: string;
@@ -46,7 +48,7 @@ export interface Downloads {
 const ARCH_ORDER: (Arch | null)[] = [null, "x86_64", "aarch64"];
 
 export function downloads(release: Release): Downloads {
-  const all = release.assets.map((asset) => {
+  const all = release.assets.map((asset): Download => {
     const known = PLATFORMS[asset.platform];
     return {
       ...asset,
@@ -56,16 +58,14 @@ export function downloads(release: Release): Downloads {
       kind: FORMATS[asset.format] ?? asset.file.replace(/^.*?\.(?=[^.]+$)/, ""),
     };
   });
-  const strip = ({ os: _, ...download }: Download & { os: Os | null }): Download => download;
   return {
     systems: SYSTEMS.map((system) => ({
       ...system,
       downloads: all
         .filter((download) => download.os === system.os)
-        .sort((a, b) => ARCH_ORDER.indexOf(a.arch) - ARCH_ORDER.indexOf(b.arch))
-        .map(strip),
+        .sort((a, b) => ARCH_ORDER.indexOf(a.arch) - ARCH_ORDER.indexOf(b.arch)),
     })).filter((system) => system.downloads.length > 0),
-    other: all.filter((download) => download.os === null).map(strip),
+    other: all.filter((download) => download.os === null),
   };
 }
 
@@ -77,7 +77,8 @@ export function pick(list: Download[], arch: Arch | null): Download | undefined 
 
 // Decimal megabytes, as the systems' own file browsers show them: 26388724 is "26.4 MB".
 export function size(bytes: number): string {
-  if (bytes < 1e6) return `${Math.max(1, Math.round(bytes / 1e3))} KB`;
+  // (Rounded first: 999,700 bytes is "1.0 MB", not "1000 KB".)
+  if (Math.round(bytes / 1e3) < 1000) return `${Math.max(1, Math.round(bytes / 1e3))} KB`;
   return `${(bytes / 1e6).toFixed(1)} MB`;
 }
 
@@ -94,6 +95,8 @@ export interface BrowserSystem {
   platform: string;
   uaPlatform?: string;
   architecture?: string;
+  // userAgentData's "32" or "64", with `architecture`.
+  bitness?: string;
   // navigator.maxTouchPoints: an iPad's Safari says it's a Mac.
   touchPoints: number;
 }
@@ -116,7 +119,9 @@ export function detect(browser: BrowserSystem): System | null {
   return { os, arch: arch(browser) };
 }
 
-function arch({ architecture, userAgent: ua, platform }: BrowserSystem): Arch | null {
+function arch({ architecture, bitness, userAgent: ua, platform }: BrowserSystem): Arch | null {
+  // A 32-bit system, which no build is for.
+  if (bitness === "32") return null;
   if (architecture === "arm") return "aarch64";
   if (architecture === "x86") return "x86_64";
   const text = `${ua} ${platform}`;
@@ -129,12 +134,12 @@ function arch({ architecture, userAgent: ua, platform }: BrowserSystem): Arch | 
 export async function browserSystem(nav: Navigator): Promise<BrowserSystem> {
   const data = (
     nav as Navigator & {
-      userAgentData?: { platform?: string; getHighEntropyValues?(hints: string[]): Promise<{ architecture?: string }> };
+      userAgentData?: { platform?: string; getHighEntropyValues?(hints: string[]): Promise<{ architecture?: string; bitness?: string }> };
     }
   ).userAgentData;
-  let architecture: string | undefined;
+  let values: { architecture?: string; bitness?: string } | undefined;
   try {
-    architecture = (await data?.getHighEntropyValues?.(["architecture"]))?.architecture;
+    values = await data?.getHighEntropyValues?.(["architecture", "bitness"]);
   } catch {
     // Refused (a privacy setting): the user agent's, then.
   }
@@ -142,7 +147,8 @@ export async function browserSystem(nav: Navigator): Promise<BrowserSystem> {
     userAgent: nav.userAgent,
     platform: nav.platform ?? "",
     uaPlatform: data?.platform,
-    architecture,
+    architecture: values?.architecture,
+    bitness: values?.bitness,
     touchPoints: nav.maxTouchPoints ?? 0,
   };
 }

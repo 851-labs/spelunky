@@ -23,6 +23,8 @@ export const Route = createFileRoute("/download")({
 });
 
 const RELEASES = "https://github.com/851-labs/spelunky/releases";
+// The build's: its manifest's files, by system.
+const LIST = release ? downloads(release) : null;
 
 function DownloadPage() {
   // The reader's system, once the page is in their browser: the pre-rendered page has none, and highlights none.
@@ -34,7 +36,7 @@ function DownloadPage() {
       live = false;
     };
   }, []);
-  const list = release ? downloads(release) : null;
+  const list = LIST;
   const mine = list?.systems.find((system) => system.os === yours?.os);
   const first = mine && pick(mine.downloads, yours?.arch ?? null);
   return (
@@ -46,7 +48,7 @@ function DownloadPage() {
       {release && list ? (
         <>
           <p className="lede">
-            Version {release.version} of the port, as a desktop app for macOS, Windows and Linux. It's free, and it
+            Version {release.version} of the port, as a desktop app for {names(list.systems.map((s) => s.name))}. It's free, and it
             updates itself: it checks once a day, between runs, and asks first. Or{" "}
             <a href="/play/">play in your browser</a>.
           </p>
@@ -120,6 +122,11 @@ function DownloadPage() {
       </section>
     </SiteFrame>
   );
+}
+
+// "macOS, Windows and Linux".
+function names(list: string[]): string {
+  return list.length > 1 ? `${list.slice(0, -1).join(", ")} and ${list[list.length - 1]}` : (list[0] ?? "");
 }
 
 function SystemCard({

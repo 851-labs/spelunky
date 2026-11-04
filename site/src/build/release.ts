@@ -57,17 +57,36 @@ export function parseRelease(text: string, name = "latest.json"): Release {
       : fail(`${what} isn't an object`);
   const string = (value: unknown, what: string): string =>
     typeof value === "string" && value !== "" ? value : fail(`${what} isn't a string`);
-  const outer = object(JSON.parse(text), "the file");
-  const manifest = object(JSON.parse(string(outer.manifest, "its manifest")), "its manifest");
+  const json = (source: string, what: string): unknown => {
+    try {
+      return JSON.parse(source);
+    } catch (error) {
+      return fail(`${what} isn't JSON: ${(error as Error).message}`);
+    }
+  };
+  // The apps take only HTTPS (docs/updates.md), and the page links nothing else.
+  const https = (value: unknown, what: string): URL => {
+    const text = string(value, what);
+    let url: URL | null = null;
+    try {
+      url = new URL(text);
+    } catch {
+      // Not a URL: refused below.
+    }
+    return url?.protocol === "https:" ? url : fail(`${what} ${text} isn't an HTTPS URL`);
+  };
+  const outer = object(json(text, "the file"), "the file");
+  const manifest = object(json(string(outer.manifest, "its manifest"), "its manifest"), "its manifest");
   const version = string(manifest.version, "the version");
-  if (!/^\d+\.\d+\.\d+$/.test(version)) fail(`the version ${version} isn't x.y.z`);
-  const notes = string(manifest.notes, "the notes");
+  // x.y.z, or a prerelease's x.y.z-pre, as the apps' versions are (crates/update).
+  if (!/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(version)) fail(`the version ${version} isn't x.y.z`);
+  const notes = https(manifest.notes, "the notes").href;
   const assets = Object.entries(object(manifest.assets, "the assets")).map(([platform, value]): ReleaseAsset => {
     const asset = object(value, platform);
-    const url = string(asset.url, `${platform}'s url`);
-    // The apps take only HTTPS (docs/updates.md), and the page links nothing else.
-    if (!url.startsWith("https://")) fail(`${platform}'s url ${url} isn't HTTPS`);
-    const file = decodeURIComponent(new URL(url).pathname.split("/").pop() ?? "");
+    const parsed = https(asset.url, `${platform}'s url`);
+    const url = parsed.href;
+    // Release files are named with letters, digits and ._-+ only (docs/updates.md), which a URL's path has as is.
+    const file = parsed.pathname.split("/").pop() ?? "";
     if (!/^[A-Za-z0-9._+-]+$/.test(file)) fail(`${platform}'s url ${url} names no file`);
     const sha256 = string(asset.sha256, `${platform}'s sha256`);
     if (!/^[0-9a-f]{64}$/.test(sha256)) fail(`${platform}'s sha256 ${sha256} isn't 64 hex digits`);
