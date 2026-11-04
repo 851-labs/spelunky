@@ -147,19 +147,16 @@ test("the release's other files are SHA256SUMS's that the bump sized, not the ma
     {
       url: "https://github.com/851-labs/spelunky/releases/download/v0.1.19/spelunky-0.1.19-linux-arm64.tar.gz",
       file: "spelunky-0.1.19-linux-arm64.tar.gz",
-      sha256: SHA("2"),
       size: 16705489,
     },
     {
       url: "https://github.com/851-labs/spelunky/releases/download/v0.1.19/spelunky-0.1.19-linux-x64.tar.gz",
       file: "spelunky-0.1.19-linux-x64.tar.gz",
-      sha256: SHA("3"),
       size: 17551610,
     },
     {
       url: "https://github.com/851-labs/spelunky/releases/download/v0.1.19/spelunky-0.1.19-macos.dmg",
       file: "spelunky-0.1.19-macos.dmg",
-      sha256: SHA("4"),
       size: 30151290,
     },
   ]);
@@ -215,7 +212,7 @@ test("the other formats are under their systems, x64 before ARM64; a target the 
   });
   const list2 = downloads(withFiles(SUMS, PIN, noLinux));
   assert.deepEqual(list2.systems.map((s) => s.os), ["macos", "windows"]);
-  assert.deepEqual(list2.other.map((d) => [d.label, d.kind]), [["x64", "tar.gz"], ["ARM64", "tar.gz"]]);
+  assert.deepEqual(list2.other.map((d) => [d.label, d.kind]), [["Linux x64", "tar.gz"], ["Linux ARM64", "tar.gz"]]);
 });
 
 test("sizes are decimal megabytes, as file browsers show them", () => {

@@ -621,7 +621,8 @@ jobs:
           if [ "$manifest" != none ] && gh release download "$TAG" --dir "$RUNNER_TEMP/release" --pattern SHA256SUMS; then
             sums=$(sha256sum <"$RUNNER_TEMP/release/SHA256SUMS" | cut -d' ' -f1)
             gh release view "$TAG" --json assets --jq '.assets[] | "size \(.name) \(.size)"' >"$RUNNER_TEMP/assets"
-            for file in $(awk '{ print $2 }' "$RUNNER_TEMP/release/SHA256SUMS"); do
+            # (A name is letters, digits and ._-+: docs/updates.md. A binary-mode * before it isn't the name's.)
+            for file in $(awk '{ sub(/^\*/, "", $2); print $2 }' "$RUNNER_TEMP/release/SHA256SUMS"); do
               case $file in
                 "spelunky-${TAG#v}-"*.dmg | "spelunky-${TAG#v}-"*.tar.gz)
                   awk -v file="$file" '$2 == file' "$RUNNER_TEMP/assets" >>"$RUNNER_TEMP/sizes" ;;

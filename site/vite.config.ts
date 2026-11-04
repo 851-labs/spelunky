@@ -130,7 +130,8 @@ export default defineConfig({
     // "virtual:wiki-media": the media's indexes, for the pages' JSON-LD and the sitemaps.
     wikiMediaPlugin(),
     siteUpdated(),
-    // "virtual:site/release": the native apps' downloads, from build.sh's update manifest (SITE_RELEASE_MANIFEST).
+    // "virtual:site/release": the native apps' downloads, from build.sh's update manifest (SITE_RELEASE_MANIFEST), and
+    // their other formats from the release's SHA256SUMS and pinned sizes (SITE_RELEASE_SUMS, SITE_RELEASE_SIZES).
     siteRelease(),
     // "virtual:site/license": the Spelunky User License, for the /license page, from the repo's LICENSE.
     siteLicense(),

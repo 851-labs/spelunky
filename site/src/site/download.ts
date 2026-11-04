@@ -76,8 +76,9 @@ export function downloads(release: Release): Downloads {
   const more = release.files
     .map((file) => {
       const name = file.file;
-      const target = name.startsWith(prefix) ? name.slice(prefix.length).replace(/\.(tar\.gz|[^.]+)$/, "") : name;
-      return entry(TARGETS[target] ?? target, file.url, name, file.size, extension(name));
+      const kind = extension(name);
+      const target = name.startsWith(prefix) ? name.slice(prefix.length, kind ? -(kind.length + 1) : undefined) : name;
+      return entry(TARGETS[target] ?? target, file.url, name, file.size, kind);
     })
     .sort(byArch);
   const systems = SYSTEMS.map((system) => ({
@@ -85,14 +86,21 @@ export function downloads(release: Release): Downloads {
     downloads: all.filter((download) => download.os === system.os).sort(byArch),
     more: more.filter((download) => download.os === system.os),
   })).filter((system) => system.downloads.length > 0);
-  // A file of a system without the apps' own (none is), or a platform the page doesn't know: by its name.
+  // A file of a system without the apps' own (none is), named with its system ("Linux x64"), or of a platform the page
+  // doesn't know, by its name.
   const listed = new Set(systems.map((system) => system.os));
-  return { systems, other: [...all, ...more].filter((download) => download.os === null || !listed.has(download.os)) };
+  const other = [...all, ...more]
+    .filter((download) => download.os === null || !listed.has(download.os))
+    .map((download) => {
+      const system = SYSTEMS.find((s) => s.os === download.os);
+      return system ? { ...download, label: `${system.name} ${download.label}` } : download;
+    });
+  return { systems, other };
 }
 
-// "tar.gz", "dmg": a file's extension, both of a tarball's.
+// "tar.gz", "dmg": a file's extension, both of a tarball's; "" for a name without one.
 function extension(file: string): string {
-  return /\.(tar\.gz|[^.]+)$/.exec(file)?.[1] ?? file;
+  return /\.(tar\.gz|[^.]+)$/.exec(file)?.[1] ?? "";
 }
 
 // The download a system's reader gets first: the one for their processor, or (unknown) the first, x64, which

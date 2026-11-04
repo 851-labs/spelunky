@@ -29,10 +29,10 @@ export interface ReleaseAsset {
 }
 
 // One of the release's other downloads, from its SHA256SUMS: spelunky-0.1.19-macos.dmg.
+// (Its SHA-256 is checked against the manifest's here, not passed on: the page shows none.)
 export interface ReleaseFile {
   url: string;
   file: string;
-  sha256: string;
   size: number;
 }
 
@@ -165,5 +165,5 @@ export function parseFiles(
   const manifest = new Set(release.assets.map((asset) => asset.file));
   return [...listed]
     .filter(([file]) => sized.has(file) && !manifest.has(file))
-    .map(([file, sha256]) => ({ url: base + file, file, sha256, size: sized.get(file) as number }));
+    .map(([file]) => ({ url: base + file, file, size: sized.get(file) as number }));
 }

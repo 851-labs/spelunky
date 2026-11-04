@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { release } from "virtual:site/release";
 import { seo } from "../seo/seo";
 import { browserSystem, detect, downloads, pick, size } from "../site/download";
-import type { Download, Os, System } from "../site/download";
+import type { Arch, Download, Os, System } from "../site/download";
 import { SiteFrame, SiteLinks, SiteSearch } from "../site/frame";
 
 // The native apps' page (851-4013): the release the site puts live, each system's files from its update manifest
@@ -40,6 +40,9 @@ function DownloadPage() {
   const list = LIST;
   const mine = list?.systems.find((system) => system.os === yours?.os);
   const first = mine && pick(mine.downloads, yours?.arch ?? null);
+  // Whether the cards have the .dmg and the tarballs, from the release's SHA256SUMS, or GitHub's release has to.
+  const kinds = new Set(list?.systems.flatMap((system) => system.more.map((download) => download.kind)));
+  const listsBoth = kinds.has("dmg") && kinds.has("tar.gz");
   return (
     <SiteFrame section="download" search={<SiteSearch />} footer={<SiteLinks />}>
       <h1>Download Spelunky Classic</h1>
@@ -78,13 +81,13 @@ function DownloadPage() {
           )}
           <section>
             <h2>Other files and versions</h2>
-            {release.files.length > 0 ? (
+            {listsBoth ? (
               <p>
                 Every earlier version is on GitHub: <a href={release.notes}>{release.version}'s release notes and
                 files</a>, and <a href={RELEASES}>all releases</a>.
               </p>
             ) : (
-              // A release pinned without its SHA256SUMS: GitHub has the other formats.
+              // A release pinned without its SHA256SUMS, or one without either format: GitHub has them.
               <p>
                 The macOS app as a disk image (<code>.dmg</code>), the Linux builds as tarballs, and every earlier
                 version are on GitHub: <a href={release.notes}>{release.version}'s release notes and files</a>, and{" "}
@@ -192,7 +195,7 @@ function SystemCard({
         </p>
       )}
       <h3>Installing</h3>
-      <Install os={os} file={(first ?? downloads[0])?.file ?? ""} more={more} />
+      <Install os={os} file={(first ?? downloads[0])?.file ?? ""} arch={(first ?? downloads[0])?.arch ?? null} more={more} />
     </section>
   );
 }
@@ -201,7 +204,7 @@ function Files({ downloads, first }: { downloads: Download[]; first?: Download }
   return (
     <ul className="files">
       {downloads.map((download) => (
-        <li key={download.platform} data-first={download === first || undefined}>
+        <li key={download.file} data-first={download === first || undefined}>
           <a className="file" href={download.url}>
             <span className="file-label">{download.label}</span>
             <span className="file-meta">
@@ -216,8 +219,12 @@ function Files({ downloads, first }: { downloads: Download[]; first?: Download }
 
 // What to do with the file once it's downloaded. The macOS app is signed and notarized, the others aren't signed
 // (docs/releasing.md).
-function Install({ os, file, more }: { os: Os; file: string; more: Download[] }) {
-  const tarball = more.find((download) => download.kind === "tar.gz");
+function Install({ os, file, arch, more }: { os: Os; file: string; arch: Arch | null; more: Download[] }) {
+  // The reader's processor's, as their AppImage above is.
+  const tarball = pick(
+    more.filter((download) => download.kind === "tar.gz"),
+    arch,
+  );
   switch (os) {
     case "macos":
       return more.some((download) => download.kind === "dmg") ? (
