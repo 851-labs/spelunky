@@ -400,7 +400,7 @@ contains '<html lang="en">' \
   '<meta property="og:image" content="https://spelunky.ai/media/card.png"/>' \
   '<meta property="og:image:width" content="1200"/>' '<meta property="og:image:height" content="630"/>' \
   '<header class="site-header"><a href="/" class="site-home" aria-current="page"><img src="/media/logo.png" width="160" height="36" alt="Spelunky"/></a>' \
-  '<nav class="site-nav" aria-label="Site"><a href="/play/">Play</a><a href="/wiki">Wiki</a></nav>' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki">Wiki</a></nav>' \
   '<form role="search" class="search-box" action="/wiki" method="get">' '<main id="content">' '<footer class="site-footer">' \
   '<h1>Spelunky Classic 1.1, ported to Rust tick for tick, bugs included.</h1>' \
   '<a class="play" href="/play/">Play in your browser</a><a class="settings" href="/play/?settings">Settings</a>' \
@@ -628,7 +628,7 @@ check "$site/wiki/media" 404 "$no_cache"
 # in the page), the sections' anchors and the navbox, its title linking the hub.
 check "$site/wiki/snake" 200 "$no_cache" "content-type: text/html; charset=utf-8"
 contains '<title>Snake – Spelunky Classic wiki</title>' \
-  '<nav class="site-nav" aria-label="Site"><a href="/play/">Play</a><a href="/wiki" aria-current="true">Wiki</a></nav>' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki" aria-current="true">Wiki</a></nav>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/snake"/>' \
   '<meta name="description" content="The Snake is a monster in Spelunky Classic, found mostly in the Mines, that slithers back and forth along the ground and bites for 1 heart on contact."/>' \
   '<meta property="og:type" content="article"/>' '<meta property="og:image" content="https://spelunky.ai/wiki/og/snake.' \
@@ -1075,7 +1075,7 @@ same dist/client/404.html
 # or preloads (not-found-page.mjs), as it's served at any path.
 contains '<title>Not found - spelunky.ai</title>' '<meta name="robots" content="noindex"/>' \
   '<header class="site-header"><a href="/" class="site-home"><img src="/media/logo.png"' \
-  '<nav class="site-nav" aria-label="Site"><a href="/play/">Play</a><a href="/wiki">Wiki</a></nav>' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki">Wiki</a></nav>' \
   '<form role="search" class="search-box" action="/wiki" method="get">' \
   '<h1>Nothing down here.</h1>' '<a href="/">Back to the surface</a>' '<footer class="site-footer">' \
   '<link rel="icon" href="/favicon.ico" sizes="32x32"/>'

@@ -12,10 +12,11 @@ import { useEffect, useRef, useState } from "react";
 import type { CompositionEvent, ReactNode } from "react";
 import { loadOnce, never } from "../wiki/load-once";
 
-// The site's sections, in the header's order.
+// The site's sections, in the header's order. Play opens the game in a tab of its own, so the page a player came
+// from (the wiki, the landing page) stays open beside it.
 const SECTIONS = [
-  { id: "play", href: "/play/", name: "Play" },
-  { id: "wiki", href: "/wiki", name: "Wiki" },
+  { id: "play", href: "/play/", name: "Play", newTab: true },
+  { id: "wiki", href: "/wiki", name: "Wiki", newTab: false },
 ] as const;
 
 export type Section = (typeof SECTIONS)[number]["id"];
@@ -57,9 +58,15 @@ function SiteHeader({ section, search }: { section: Section | null; search: Reac
         <img src="/media/logo.png" width="160" height="36" alt="Spelunky" />
       </a>
       <nav className="site-nav" aria-label="Site">
-        {SECTIONS.map(({ id, href, name }) => (
-          <a key={id} href={href} aria-current={id === section ? (path === href ? "page" : "true") : undefined}>
+        {SECTIONS.map(({ id, href, name, newTab }) => (
+          <a
+            key={id}
+            href={href}
+            aria-current={id === section ? (path === href ? "page" : "true") : undefined}
+            {...(newTab ? { target: "_blank", rel: "noopener" } : {})}
+          >
             {name}
+            {newTab && <span className="visually-hidden"> (opens in a new tab)</span>}
           </a>
         ))}
       </nav>
