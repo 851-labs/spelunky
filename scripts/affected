@@ -4,17 +4,23 @@
   python3 -I scripts/affected BASE HEAD          the areas and jobs the diff BASE..HEAD affects, as name=value
                                                  lines, and into $GITHUB_OUTPUT if it's set (pr.yml's Changes job)
   python3 -I scripts/affected --is AREA BASE HEAD  exit 0 if the diff affects AREA, 1 if not (scripts/wiki-media)
-  python3 -I scripts/affected --rules JOB        the sparse-checkout rules of what JOB reads (suite.yml's checkout)
+  python3 -I scripts/affected --rules JOB        the sparse-checkout rules of what JOB reads (the mini's)
+  python3 -I scripts/affected --rules suite [STEP...]  what the Linux suite's STEPs read (all of it without any)
+  python3 -I scripts/affected --plan PART STEP...  which of STEPs (or `all`) half PART of the suite runs, and
+                                                 what it needs installed, as name=value lines (suite.yml)
   python3 -I scripts/affected --paths AREA       an area's paths, one a line (site/test.sh's watch-path check)
   python3 -I scripts/affected --test             the self-test: past pull requests' files and what they affect
 
 Each changed file is matched against the areas' paths below, and a file in a crate (cargo metadata: each
 package's directory) marks that crate and every crate that depends on it, so a change to the updater runs its tests
 and one to the game doesn't. A file no area has, or a change to CI itself, runs every job: when unsure, run it.
+The Linux suite runs only the steps of scripts/check a changed file is read by (STEPS), and all of them for a
+file the suite reads that no step claims.
 
-What keeps it honest: the Linux suite runs in a sparse checkout of exactly SUITE_RULES, so a step that reads a
-path they leave out fails there, as the file isn't checked out (suite.yml); site/test.sh holds Workers Builds'
-watch paths to the site area's; and --test (scripts/check runs it) checks the decisions for past pull requests.
+What keeps it honest: the Linux suite runs in a sparse checkout of exactly what the steps it runs read (all of
+SUITE_RULES when it runs every step), so a step that reads a path its row leaves out fails there, as the file isn't
+checked out (suite.yml); site/test.sh holds Workers Builds' watch paths to the site area's; and --test (pr.yml's
+Changes runs it, and scripts/check) checks the decisions for past pull requests.
 """
 import fnmatch
 import json
@@ -62,16 +68,20 @@ BUILD_INPUTS = {
     "tools/gm8-probe/": {"app", "draw", "gm", "gml"},
 }
 # Read as they run (their tests, and the tools and checks they are): a change marks those crates alone, as it
-# changes what they check, not what they are.
+# changes what they check, not what they are. What the suite's steps read as they run the crates' binaries
+# (fidelity-check's fingerprints, wiki-cites' pages) is the steps' own (STEPS), not their tests'.
 TEST_INPUTS = {
     "reference/": {"gm", "gmk", "transpile", "tools", "harness"},
     "docs/source-inventory.md": {"gmk", "harness"},
-    "fidelity/": {"harness"},
+    # The replays harness's tests play (tests/common's replay(), fuzz::FROM_REPLAYS'); not the fingerprints, which
+    # only fidelity-check reads.
+    "fidelity/replays/": {"harness"},
+    "fidelity/settings/": {"harness"},
     "tools/oracle/": {"harness"},
     "wiki/clips/": {"harness"},
-    "wiki/media/": {"harness"},
+    # Only the clips' media: the suite's checkout has none of the rest (SUITE_RULES).
+    "wiki/media/clips/": {"harness"},
     "wiki/data/": {"tools"},
-    "site/": {"tools"},
 }
 # The scripts that build or run the crates, which are the Rust area's too, marking every crate.
 WORKSPACE_SCRIPTS = ["scripts/transpile", "scripts/wasm-test", "scripts/third-party-licenses", "scripts/wiki-data",
@@ -105,53 +115,155 @@ SUITE_RULES = """/*
 !/wiki/media/
 /wiki/media/clips/
 !/fidelity/screenshots/
+!/fidelity/COVERAGE.md
+!/wiki/templates/
+!/scripts/release/NOTICE.txt
+!/scripts/release/smoke.py
+!/scripts/release/smoke/
+!/LICENSE
 !/README.md
 !/CLAUDE.md
 """
 # The Mac mini's job reads what the suite does (scripts/check --apple is part of it), and the screenshots
-# (fidelity-shots) and all of wiki/media (scripts/wiki-media --check), and builds the web version from the crates:
-# the suite's rules, with those brought back (a later line wins).
+# (fidelity-shots) and all of wiki/media (scripts/wiki-media --check, which reads LICENSE too), and builds the web
+# version from the crates: the suite's rules, with those brought back (a later line wins).
 MINI_RULES = SUITE_RULES + """/wiki/media/
 /fidelity/screenshots/
+/LICENSE
 """
+
+# The Linux suite's steps (scripts/check's `step PART NAME`, 851-4017): the half that runs each, the crates it builds
+# ("*": all of them), the paths it reads besides, and what it needs installed beside python3 and sh. A pull request
+# runs a step if it changes one of those crates or a crate one depends on, or one of those paths; a file the suite
+# reads (SUITE_RULES) that no step does runs every step. Each half runs in a checkout of only what its steps read
+# (BASE, CARGO_BASE for a step that runs cargo, and the rows'), so a step that reads a path its row leaves out fails
+# there, as the file isn't checked out, rather than a pull request that changes it skipping the step; a row's paths
+# must all be in SUITE_RULES too (--test). So a new check in scripts/check takes a row here, and a check that
+# starts reading a path takes it in its row.
+SH = "the sh scripts"  # sh's reads: every script scripts/check-sh checks (scripts/check-sh --tracked)
+STEPS = {
+    # Every sh script parses, under Linux's sh (dash) and bash.
+    "sh": (1, [], SH, []),
+    # The workflows' actions are pinned to commit SHAs. (.github/ is CI's, so a change to it runs every step anyway.)
+    "pins": (1, [], [".github/"], []),
+    # The oracle's patch 0014 carries a copy of the port's gm8.rs.
+    "gm8-arith": (1, [], ["tools/oracle/sync-gm8-arith", "tools/oracle/patches/opengmk/0014-gm8-arithmetic.patch",
+                          "crates/gm/src/gm8.rs"], []),
+    # This script's self-test, which pr.yml's Changes runs on every pull request, before it decides: no file runs it
+    # here, only a run of every step.
+    "affected": (1, [], [], ["cargo"]),
+    # The crates' formatting and clippy (and crates/workspace-hack's check, which is Apple silicon Macs').
+    "lints": (1, ["*"], [], ["cargo"]),
+    # Every crate's tests, and what they read (TEST_INPUTS).
+    "tests": (1, ["*"], list(TEST_INPUTS), ["cargo"]),
+    # The committed game code is what the transpiler (tools) makes of the reference .gmk.
+    "transpile": (1, ["tools", "game", "config"], ["reference/", "scripts/transpile"], ["cargo"]),
+    # The vendored math crate's own tests.
+    "pxfm": (1, ["pxfm"], [], ["cargo"]),
+    # The angle probes' tool (its own workspace, outside cargo metadata's: --test checks its path dependencies are
+    # here): formatting, clippy and its tests against GM8's results.
+    "angles": (1, [], ["tools/gm8-probe/", "vendor/pxfm/", "rust-toolchain.toml", "clippy.toml"], ["cargo"]),
+    # Every committed replay against its fingerprint of the oracle's build (whose stamp hashes tools/oracle and
+    # vendor/pxfm), on the assets scripts/extract makes from the reference.
+    "fidelity": (2, ["harness"], ["fidelity/replays/", "fidelity/settings/", "fidelity/fingerprints/", "tools/oracle/",
+                                  "vendor/pxfm/", "reference/", "scripts/extract"], ["cargo"]),
+    # The wiki's clip specs: each still plays as its story says, and has its committed media.
+    "clips": (2, ["harness"], ["wiki/clips/", "wiki/media/clips/", "fidelity/replays/", "fidelity/settings/",
+                               "reference/", "scripts/extract"], ["cargo"]),
+    # The site's snapshots of the wiki's data, its icons and the wiki's citations of the GML (tools' binaries).
+    "wiki": (2, ["tools"], ["wiki/data/", "site/content/wiki-data/", "site/content/wiki/", "site/public/favicon.ico",
+                            "site/public/icon.svg", "site/public/apple-touch-icon.png", "reference/",
+                            "scripts/extract", "scripts/wiki-data", "scripts/site-icons", "scripts/wiki-cites"],
+             ["cargo"]),
+    # The third-party notices cover what the app links: the crates' manifests, not their code.
+    "licenses": (2, [], ["Cargo.toml", "Cargo.lock", "rust-toolchain.toml", "crates/*/Cargo.toml",
+                         "vendor/pxfm/Cargo.toml", "scripts/third-party-licenses", "scripts/release/licenses/",
+                         "scripts/release/THIRD-PARTY-LICENSES.txt"], ["cargo"]),
+    # The crates that build for wasm32, and gm's tests there, under Node.
+    "wasm": (2, ["gm", "trace", "game", "app", "gmk", "assets", "audio"], ["scripts/wasm-test", "site/.node-version"],
+             ["cargo", "node"]),
+}
+# What every half's checkout has: the scripts the job runs through (CI's own, which run every step when they change).
+BASE = ["scripts/check", "scripts/affected", "scripts/check-sh"]
+# And for a step that runs cargo: the whole workspace, which cargo loads to build any of it, what the crates build in
+# (a change to which is a change to them, and so runs the steps that build them), and the toolchain. Being whole,
+# it can't show a step's crates are too few: --test checks each step builds only its crates and what they use.
+CARGO_BASE = (["crates/", "vendor/", "scripts/cargo", "scripts/seed-target", "scripts/workspace-hack"] +
+              list(BUILD_INPUTS) + WORKSPACE_FILES)
 
 # The past pull requests --test checks (squash merges on main): their files ("D" for a removal) and what they must
 # run. A change to the crates' dependencies can change an answer, and the case with it.
 CASES = [
     ("ecde14f9: docs only", ["docs/wiki-license.md", "docs/wiki-style.md"],
-     dict(docs_only=True, run_suite=False, run_mini=False, run_site=False, run_updater=False)),
+     dict(docs_only=True, run_suite=False, run_mini=False, run_site=False, run_updater=False, steps="")),
     ("243ef6e0: CLAUDE.md only", ["CLAUDE.md"],
-     dict(docs_only=True, run_suite=False, run_mini=False, run_site=False, run_updater=False)),
+     dict(docs_only=True, run_suite=False, run_mini=False, run_site=False, run_updater=False, steps="")),
     ("bbca1819: docs and the quirks the site renders", ["docs/design/draw-comparison.md", "docs/quirks.md"],
-     dict(docs_only=False, run_suite=False, run_mini=False, run_site=True, run_updater=False)),
+     dict(docs_only=False, run_suite=False, run_mini=False, run_site=True, run_updater=False, steps="")),
     ("56606b21: site only", ["site/src/wiki/wiki.css", "site/src/wiki/table.tsx", "site/test-wiki.mjs"],
-     dict(run_suite=False, run_mini=False, run_site=True, run_updater=False, media=False)),
+     dict(run_suite=False, run_mini=False, run_site=True, run_updater=False, media=False, steps="")),
     ("1a65f242: the site's release pin", ["site/web-release.txt"],
-     dict(run_suite=False, run_mini=False, run_site=True, run_updater=False)),
+     dict(run_suite=False, run_mini=False, run_site=True, run_updater=False, steps="")),
     ("750233c7: site, its test script and docs", ["docs/wiki-style.md", "site/src/routes/index.tsx", "site/test.sh"],
-     dict(run_suite=True, run_mini=True, run_site=True, run_updater=False, media=False)),
+     dict(run_suite=True, run_mini=True, run_site=True, run_updater=False, media=False, steps="sh")),
+    # #521: the site's code, its build and test scripts (which check-sh parses) and docs: check-sh alone.
+    ("851-4013: a site page, its scripts and docs",
+     ["README.md", "docs/updates.md", "docs/web-deploy.md", "site/build.sh", "site/src/build/release.ts",
+      "site/src/routeTree.gen.ts", "site/src/routes/__root.tsx", "site/src/routes/download.tsx",
+      "site/src/routes/index.tsx", "site/src/seo/sitemap.ts", "site/src/site/download.css",
+      "site/src/site/download.ts", "site/src/site/frame.tsx", "site/src/virtual.d.ts", "site/test-download.mjs",
+      "site/test-keyline.mjs", "site/test-media.mjs", "site/test.sh", "site/vite.config.ts"],
+     dict(run_suite=True, run_mini=True, run_site=True, run_updater=False, media=False, steps="sh")),
+    ("a wiki page alone", ["site/content/wiki/snake.mdx"],
+     dict(run_suite=True, run_site=True, wiki=True, steps="wiki")),
     ("a164611a: a fingerprint only", ["fidelity/fingerprints/replays/item-cape-jetpack-swaps.json"],
-     dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=False, fidelity=True)),
+     dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=False, fidelity=True,
+          steps="fidelity")),
+    # harness's tests play committed replays, and the clips are cut from them.
+    ("a replay alone", ["fidelity/replays/olmec-door-rope.txt"],
+     dict(run_suite=True, run_site=False, media=True, fidelity=True, steps="clips fidelity tests")),
     ("4edb2ee4: a coverage replay", ["fidelity/COVERAGE.md", "fidelity/fingerprints/replays/olmec-door-rope.json",
                                       "fidelity/replays/olmec-door-rope.txt"],
-     dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=True, fidelity=True)),
+     dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=True, fidelity=True,
+          steps="clips fidelity tests")),
     ("ed3ceec4's screenshots alone", ["fidelity/screenshots/settings-window/12.png"],
-     dict(run_suite=False, run_mini=True, run_site=False, run_updater=False, media=False)),
+     dict(run_suite=False, run_mini=True, run_site=False, run_updater=False, media=False, steps="")),
     ("a sprite's committed media alone", ["wiki/media/sprites/sStandLeft/0.png"],
-     dict(run_suite=False, run_mini=True, run_site=True, media=True)),
+     dict(run_suite=False, run_mini=True, run_site=True, media=True, steps="")),
     ("a removed replay", ["D fidelity/replays/olmec-door-rope.txt", "D fidelity/fingerprints/replays/olmec-door-rope.json"],
-     dict(run_suite=True, run_mini=True, run_site=True, media=True)),
+     dict(run_suite=True, run_mini=True, run_site=True, media=True, steps="clips fidelity tests")),
+    ("the source inventory, which gmk's and harness's tests read", ["docs/source-inventory.md"],
+     dict(run_suite=True, docs_only=False, steps="tests")),
     ("6da0839b: the app only", ["crates/app/src/main.rs", "crates/app/src/web.rs"],
-     dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=True, crates={"app"})),
+     dict(run_suite=True, run_mini=True, run_site=False, run_updater=False, media=True, crates={"app"},
+          steps="lints tests wasm")),
     ("9e2fae21: the updater", ["crates/app/src/update.rs", "crates/update/src/lib.rs", "docs/updates.md"],
-     dict(run_suite=True, run_mini=True, run_updater=True, release=True)),
+     dict(run_suite=True, run_mini=True, run_updater=True, release=True, steps="lints tests wasm")),
+    ("a tool's code (wiki-cites)", ["crates/tools/src/bin/wiki-cites.rs"],
+     dict(run_suite=True, run_updater=False, steps="clips fidelity lints tests transpile wiki")),
     ("2035a330: the runner and the harness", ["crates/gm/src/audio.rs", "crates/harness/tests/audio_mode.rs",
                                                "docs/quirks.md"],
-     dict(run_suite=True, run_mini=True, run_site=True, run_updater=False, media=True)),
+     dict(run_suite=True, run_mini=True, run_site=True, run_updater=False, media=True,
+          steps="clips fidelity lints tests transpile wasm wiki")),
+    # The engine's number rules, which the oracle's patch 0014 copies: every step that reads the engine.
+    ("an engine change (gm8.rs)", ["crates/gm/src/gm8.rs"],
+     dict(run_suite=True, run_mini=True, run_updater=False, media=True,
+          steps="clips fidelity gm8-arith lints tests transpile wasm wiki")),
+    ("the toolchain", ["rust-toolchain.toml"],
+     dict(run_suite=True, run_updater=True, steps="angles clips fidelity licenses lints pxfm tests transpile wasm wiki")),
+    # The suite never reads it, but the media (and the site) do.
+    ("the license", ["LICENSE"],
+     dict(run_suite=False, run_mini=True, run_site=True, media=True, steps="")),
+    ("a removed sh script", ["D fidelity/gen-area.sh"],
+     dict(run_suite=True, steps="sh")),
+    ("the vendored math crate", ["vendor/pxfm/src/lib.rs"],
+     dict(run_suite=True, steps="angles clips fidelity lints pxfm tests transpile wasm wiki")),
+    ("a script only a step runs (wiki-data)", ["scripts/wiki-data"],
+     dict(run_suite=True, steps="sh wiki")),
     ("539ff470: CI itself", [".github/workflows/pr.yml", "docs/ci.md", "scripts/check"],
-     dict(run_suite=True, run_mini=True, run_site=True, run_updater=True, ci=True)),
+     dict(run_suite=True, run_mini=True, run_site=True, run_updater=True, ci=True, steps="all")),
     ("a file no area has", ["somewhere-new/thing.txt"],
-     dict(run_suite=True, run_mini=True, run_site=True, run_updater=True, unknown=True)),
+     dict(run_suite=True, run_mini=True, run_site=True, run_updater=True, unknown=True, steps="all")),
 ]
 
 JOBS = ["run_suite", "run_mini", "run_site", "run_updater"]
@@ -200,9 +312,51 @@ def packages():
     return dirs, users
 
 
-def affected(changes, crates_info=None):
-    """`changes`: (status, path) pairs. The areas, the crates and the jobs they affect."""
-    dirs, users = crates_info or packages()
+def sh_scripts():
+    """The sh scripts scripts/check-sh checks, as the index has them."""
+    out = subprocess.run(["scripts/check-sh", "--tracked"], capture_output=True, text=True, check=True).stdout
+    return set(out.splitlines())
+
+
+def context():
+    """What the decisions read besides the diff: the crates (packages()) and the sh scripts."""
+    dirs, users = packages()
+    return dirs, users, sh_scripts()
+
+
+def dependents(crates, users):
+    """`crates`, and every crate that depends on one of them, and on those."""
+    crates = set(crates)
+    todo = list(crates)
+    while todo:
+        for user in users.get(todo.pop(), ()):
+            if user not in crates:
+                crates.add(user)
+                todo.append(user)
+    return crates
+
+
+def step_reads(name, sh):
+    """The paths step `name` reads besides its crates (STEPS), the sh scripts' listed."""
+    reads = STEPS[name][2]
+    return sorted(sh) if reads is SH else reads
+
+
+def was_sh(base, path):
+    """Whether `path` was an sh script at `base` (scripts/check-sh's shebangs), for one a change removes."""
+    got = subprocess.run(["git", "cat-file", "blob", "%s:%s" % (base, path)], capture_output=True)
+    # Not there (a made-up case's file): not one, so if nothing else claims it, every step runs.
+    if got.returncode != 0:
+        return False
+    out = got.stdout
+    first = out.split(b"\n", 1)[0].rstrip(b"\r")
+    return any(first == s or first.startswith(s + b" ") for s in (b"#!/bin/sh", b"#!/bin/bash", b"#!/usr/bin/env bash"))
+
+
+def affected(changes, info=None, base=None):
+    """`changes`: (status, path) pairs, from `base`. The areas, the crates, the suite's steps and the jobs they
+    affect."""
+    dirs, users, sh = info or context()
     paths = [p for _, p in changes]
     areas = {a: False for a in AREAS}
     unknown = []
@@ -210,6 +364,8 @@ def affected(changes, crates_info=None):
     crates = set()
     tested = set()
     every_crate = False
+    # Each file's own crates, for the suite's steps (below).
+    own = {}
     for status, path in changes:
         hit = False
         for area, patterns in AREAS.items():
@@ -220,44 +376,75 @@ def affected(changes, crates_info=None):
                 areas[area] = hit = True
         # The deepest crate directory the file is in (a crate inside another's directory is its own).
         owner = max((c for c, d in dirs.items() if path.startswith(d)), key=lambda c: len(dirs[c]), default=None)
-        if owner:
-            crates.add(owner)
+        mine = {owner} if owner else set()
         for prefix, readers in BUILD_INPUTS.items():
             if matches(path, [prefix]):
-                crates |= readers
+                mine |= readers
         for prefix, readers in TEST_INPUTS.items():
             if matches(path, [prefix]):
                 tested |= readers
-        if matches(path, WORKSPACE_FILES + WORKSPACE_SCRIPTS) or (path.startswith(("crates/", "vendor/")) and not owner):
+        # The scripts that build or run the crates mark every crate (for the jobs) but none of the suite's steps,
+        # which each name the scripts they run (STEPS): no crate's code reads them.
+        whole = matches(path, WORKSPACE_FILES) or (path.startswith(("crates/", "vendor/")) and not owner)
+        if whole:
+            mine = set(dirs)
+        if whole or matches(path, WORKSPACE_SCRIPTS):
             every_crate = True
         if not hit:
             unknown.append(path)
+        crates |= mine
+        own[path] = mine
     # A file no area has could be anything: every crate. CI's own files run every job (below) but change no crate.
     if every_crate or unknown:
         crates = set(dirs)
     # Each changed crate's dependents, and theirs.
-    todo = list(crates)
-    while todo:
-        for user in users.get(todo.pop(), ()):
-            if user not in crates:
-                crates.add(user)
-                todo.append(user)
+    crates = dependents(crates, users)
     if crates & MEDIA_CRATES:
         areas["media"] = True
+    code = set(crates)
     crates |= tested
     if "update" in crates:
         areas["release"] = True
     docs_only = bool(paths) and all(matches(p, AREAS["docs"]) for p in paths) and not (
         areas["site"] or areas["rust"])
     everything = bool(unknown) or areas["ci"]
+    # The suite's steps: each file the suite reads runs the steps that read it, or every step if none does (when
+    # unsure, run it). A file the suite's checkout hasn't (SUITE_RULES) can't change what a step does.
+    read = kept(paths, SUITE_RULES)
+    steps, unclaimed = set(), []
+    for status, path in changes:
+        if path not in read:
+            continue
+        mine = dependents(own[path], users)
+        hits = {name for name, (_, step_crates, _, _) in STEPS.items()
+                if (mine and (step_crates == ["*"] or mine & set(step_crates))) or matches(path, step_reads(name, sh))}
+        # A removed sh script is gone from check-sh's list (the index's), so it's the base's that says it was one.
+        if status == "D" and base and was_sh(base, path):
+            hits.add("sh")
+        if not hits:
+            unclaimed.append(path)
+        steps |= hits
+    if everything or unclaimed:
+        steps = set(STEPS)
     jobs = {
-        "run_suite": everything or bool(kept(paths, SUITE_RULES)),
+        "run_suite": bool(steps),
         "run_mini": everything or bool(kept(paths, MINI_RULES)),
         "run_site": everything or areas["site"],
         # `cargo test -p update`: the updater crate or one it depends on (cargo metadata), or its workflow (ci).
         "run_updater": everything or "update" in crates,
     }
-    return dict(areas=areas, crates=crates, unknown=unknown, docs_only=docs_only, jobs=jobs)
+    return dict(areas=areas, crates=crates, code=code, unknown=unknown, unclaimed=unclaimed, docs_only=docs_only,
+                steps=steps, jobs=jobs)
+
+
+def suite_steps(steps):
+    """The suite's steps as pr.yml passes them on: `all`, or their names."""
+    return "all" if steps == set(STEPS) else " ".join(sorted(steps))
+
+
+def suite_parts(steps):
+    """The halves of the suite that have a step to run, as a JSON list (suite.yml's matrix)."""
+    return json.dumps(sorted({STEPS[s][0] for s in steps}))
 
 
 def diff(base, head):
@@ -270,35 +457,75 @@ def outputs(result):
     lines.append("docs_only=%s" % str(result["docs_only"]).lower())
     lines.append("crates=%s" % " ".join(sorted(result["crates"])))
     lines += ["%s=%s" % (j, str(result["jobs"][j]).lower()) for j in JOBS]
+    lines.append("suite_steps=%s" % suite_steps(result["steps"]))
+    lines.append("suite_parts=%s" % suite_parts(result["steps"]))
     return lines
 
 
+def literal(path):
+    """A file's path as a sparse-checkout rule (gitignore's) that matches it alone."""
+    return re.sub(r"([*?\[\\])", r"\\\1", path)
+
+
+def suite_rules(steps, sh):
+    """The sparse-checkout rules of what the suite's `steps` read (STEPS): SUITE_RULES for all of them."""
+    if not steps or set(steps) == set(STEPS):
+        return SUITE_RULES
+    paths = list(BASE)
+    if any("cargo" in STEPS[s][3] for s in steps):
+        paths += CARGO_BASE
+    for s in sorted(steps):
+        paths += [literal(p) for p in sorted(sh)] if STEPS[s][2] is SH else STEPS[s][2]
+    return "".join("/%s\n" % p for p in dict.fromkeys(paths))
+
+
+def plan(part, names):
+    """What half `part` of the suite runs of `names` (`all`, or the steps pr.yml passes on), as name=value lines:
+    `only` (its steps, for scripts/check --only, or `all`), and whether it needs `cargo`, `node`, and the `sh`
+    scripts' guard (suite.yml)."""
+    every = names == ["all"]
+    bad = [n for n in names if n not in STEPS] if not every else []
+    if bad:
+        raise ValueError("no step %s" % ", ".join(bad))
+    mine = sorted(s for s in STEPS if STEPS[s][0] == part and (every or s in names))
+    if not mine:
+        raise ValueError("no step of part %d in %s" % (part, " ".join(names)))
+    needs = {n for s in mine for n in STEPS[s][3]}
+    return ["only=%s" % ("all" if every else " ".join(mine)), "cargo=%s" % str("cargo" in needs).lower(),
+            "node=%s" % str("node" in needs).lower(), "sh=%s" % str("sh" in mine).lower()]
+
+
 def self_test():
-    info = packages()
+    info = context()
     failed = 0
+
+    def fail(message):
+        nonlocal failed
+        print("scripts/affected --test: %s" % message, file=sys.stderr)
+        failed = 1
+
     for name, files, want in CASES:
         changes = [(f[0], f[2:]) if f.startswith("D ") else ("M", f) for f in files]
-        r = affected(changes, info)
-        got = dict(r["jobs"], docs_only=r["docs_only"],
-                   unknown=bool(r["unknown"]), crates=r["crates"], **r["areas"])
+        r = affected(changes, info, base="HEAD")
+        got = dict(r["jobs"], docs_only=r["docs_only"], unknown=bool(r["unknown"]), crates=r["crates"],
+                   steps=suite_steps(r["steps"]), **r["areas"])
         for key, value in want.items():
-            if key == "crates":
-                ok = got["crates"] == value
-            else:
-                ok = got[key] == value
-            if not ok:
-                print("scripts/affected --test: %s: %s is %s, not %s" % (name, key, got[key], value), file=sys.stderr)
-                failed = 1
-    # Every repository path a crate's sources name (a string starting with a top-level directory, or "../" up to
-    # one), but its own and other crates', is an input for that crate in BUILD_INPUTS or TEST_INPUTS.
-    dirs, _ = info
+            if got[key] != value:
+                fail("%s: %s is %s, not %s" % (name, key, "nothing" if got[key] == "" else got[key],
+                                                "nothing" if value == "" else value))
+    dirs, users, sh = info
     tracked = set(git("ls-files").splitlines())
     tracked_dirs = {t.rsplit("/", i)[0] + "/" for t in tracked for i in range(1, t.count("/") + 1)}
+    in_suite = kept(sorted(tracked), SUITE_RULES)
+    # Every repository path a crate's sources name (a string starting with a top-level directory, or "../" up to
+    # one), but its own and other crates', is an input for that crate in BUILD_INPUTS or TEST_INPUTS, or read by a
+    # suite step that runs the crate's binaries (STEPS), or outside what the suite reads (the mini's: SUITE_RULES).
     tops = sorted({t.split("/", 1)[0] for t in tracked if "/" in t} - {"crates", ".github"})
     top_files = sorted(t for t in tracked if "/" not in t)
     pattern = r'"(\.\./)*((%s)/[A-Za-z0-9_.-]+|(%s)")' % ("|".join(map(re.escape, tops)),
                                                          "|".join(map(re.escape, top_files)))
-    inputs = dict(BUILD_INPUTS, **TEST_INPUTS)
+    inputs = list(BUILD_INPUTS.items()) + list(TEST_INPUTS.items()) + [
+        (p, set(c)) for _, c, reads, _ in STEPS.values() if reads is not SH and c != ["*"] for p in reads]
     for crate, d in sorted(dirs.items()):
         if not d.startswith("crates/"):
             continue
@@ -306,8 +533,8 @@ def self_test():
         # 1 is no match; anything else, a failure, which mustn't pass for a clean scan.
         if grep.returncode > 1:
             raise RuntimeError("git grep failed: %s" % grep.stderr.strip())
-        for literal in sorted(set(grep.stdout.splitlines())):
-            path = literal.strip('"')
+        for found in sorted(set(grep.stdout.splitlines())):
+            path = found.strip('"')
             while path.startswith("../"):
                 path = path[3:]
             # Only a path that's there: GML's script names (`scripts/scrInit`) look like one.
@@ -315,39 +542,120 @@ def self_test():
                 if path.rstrip("/") + "/" not in tracked_dirs:
                     continue
                 path = path.rstrip("/") + "/"
-            # A directory is covered by an entry for it or one around it.
-            if not any((matches(path, [prefix]) or path == prefix) and crate in readers
-                       for prefix, readers in inputs.items()) and \
-                    not matches(path, AREAS["ci"] + WORKSPACE_FILES + WORKSPACE_SCRIPTS + ["vendor/"]):
-                print("scripts/affected --test: %s reads %s, which BUILD_INPUTS and TEST_INPUTS don't give it"
-                      % (crate, path), file=sys.stderr)
-                failed = 1
+            # A directory is covered by an entry for it, one around it, or one in it (the scan sees a path's first two
+            # names: "wiki/media/clips" is wiki/media/).
+            if not any((matches(path, [prefix]) or path == prefix or (path.endswith("/") and prefix.startswith(path)))
+                       and crate in readers
+                       for prefix, readers in inputs) and \
+                    not matches(path, AREAS["ci"] + WORKSPACE_FILES + WORKSPACE_SCRIPTS + ["vendor/"]) and \
+                    not (path in tracked and path not in in_suite) and \
+                    not (path.endswith("/") and not any(t.startswith(path) for t in in_suite)):
+                fail("%s reads %s, which BUILD_INPUTS, TEST_INPUTS and STEPS don't give it" % (crate, path))
     # Every pattern names something that exists, so a move or a rename doesn't leave one matching nothing.
     for area, patterns in list(AREAS.items()) + list(REMOVED.items()):
         for p in patterns:
             if not (p in tracked or p in tracked_dirs or any(fnmatch.fnmatchcase(t, p) for t in tracked)):
-                print("scripts/affected --test: %s's %s matches no tracked file" % (area, p), file=sys.stderr)
-                failed = 1
+                fail("%s's %s matches no tracked file" % (area, p))
+    # The steps' paths: each matches something, and only what the suite's checkout has (SUITE_RULES), which a run
+    # of every step has (so a path a step reads that SUITE_RULES drop would fail only there).
+    def in_checkout(owner, patterns):
+        for p in patterns:
+            files = {t for t in tracked if matches(t, [p])}
+            if not files:
+                fail("%s's %s matches no tracked file" % (owner, p))
+            elif files - in_suite:
+                fail("%s's %s takes %s, which SUITE_RULES leave out" % (owner, p, sorted(files - in_suite)[0]))
+
+    in_checkout("BASE", BASE)
+    in_checkout("CARGO_BASE", CARGO_BASE)
+    check = open("scripts/check").read()
+    for name, (_, step_crates, reads, _) in sorted(STEPS.items()):
+        for c in step_crates:
+            if c != "*" and c not in dirs:
+                fail("%s's crate %s isn't one" % (name, c))
+        if reads is not SH:
+            in_checkout(name, reads)
+        # Each package the step builds by name (`-p NAME`, in its block of scripts/check and the scripts it runs
+        # there: not `cargo tree`'s, which reads the manifests) is one of its crates or one they use, so a change to
+        # it runs the step: the checkout, which has the whole workspace, can't show it.
+        block = "\n".join(re.findall(r"^if step [12] %s; then\n(.*?)^fi$" % re.escape(name), check, re.M | re.S))
+        texts = [block] + [open(p).read() for p in (reads if reads is not SH else []) if p.startswith("scripts/")
+                           and p in tracked and re.search(r"\b%s\b" % re.escape(p), block)]
+        for text in texts:
+            for line in text.splitlines():
+                if "cargo tree" in line or line.lstrip().startswith("#"):
+                    continue
+                for built in re.findall(r"(?:^|\s)-p ([A-Za-z0-9_-]+)", line):
+                    if built in dirs and step_crates != ["*"] and not dependents({built}, users) & set(step_crates):
+                        fail("step %s builds %s, which isn't one of its crates nor one they use" % (name, built))
+    # The angle probes' tool is a workspace of its own, which cargo metadata doesn't see: its path dependencies
+    # are in its row.
+    for dep in re.findall(r'path = "([^"]+)"', open("tools/gm8-probe/angles/Cargo.toml").read()):
+        target = os.path.normpath(os.path.join("tools/gm8-probe/angles", dep)) + "/"
+        if not matches(target, STEPS["angles"][2]):
+            fail("the angle probes' tool uses %s, which its row hasn't" % target)
+    # What the media are made from is the mini's to check (scripts/wiki-media), so it's all in MINI_RULES.
+    in_mini = kept(sorted(tracked), MINI_RULES)
+    for p in AREAS["media"]:
+        outside = sorted(t for t in tracked if matches(t, [p]) and t not in in_mini)
+        if outside:
+            fail("the media area's %s takes %s, which MINI_RULES leave out" % (p, outside[0]))
+    if not sh or sh - in_suite:
+        fail("the sh scripts aren't all in SUITE_RULES: %s" % sorted(sh - in_suite)[:3])
+    # Every file the suite reads is some step's, so a change to it runs that step rather than all of them (which
+    # it would: affected's `unclaimed`).
+    # (Not CI's own files, nor one no area has, which run every step anyway.)
+    r = affected([("M", t) for t in sorted(in_suite) if not matches(t, AREAS["ci"]) and
+                  any(matches(t, patterns) for patterns in AREAS.values())], info)
+    for path in r["unclaimed"]:
+        fail("no step reads %s, which the suite's checkout has (SUITE_RULES): give it a step's row, or leave it "
+             "out of SUITE_RULES" % path)
+    # scripts/check's steps are these: its lists of each half's (steps1, steps2), and its `step PART NAME`s.
+    for part in (1, 2):
+        listed = re.search(r'^steps%d="([^"]*)"$' % part, check, re.M)
+        want = sorted(s for s in STEPS if STEPS[s][0] == part)
+        if not listed or sorted(listed.group(1).split()) != want:
+            fail("scripts/check's steps%d isn't %s" % (part, " ".join(want)))
+    used = set(re.findall(r"\bstep ([12]) ([a-z0-9-]+)\b", check))
+    for part, name in sorted(used):
+        if STEPS.get(name, (None,))[0] != int(part):
+            fail("scripts/check runs step %s %s, which STEPS hasn't in part %s" % (part, name, part))
+    for name in sorted(set(STEPS) - {n for _, n in used}):
+        fail("scripts/check never runs step %s" % name)
     return failed
 
 
 def main(argv):
     os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-    usage = "usage: scripts/affected BASE HEAD | --is AREA BASE HEAD | --rules suite|mini | --paths AREA | --test"
+    usage = ("usage: scripts/affected BASE HEAD | --is AREA BASE HEAD | --rules suite [STEP...|all] | --rules mini |"
+             " --plan 1|2 STEP...|all | --paths AREA | --test")
     if argv == ["--test"]:
         return self_test()
-    if len(argv) == 2 and argv[0] == "--rules" and argv[1] in ("suite", "mini"):
-        sys.stdout.write(SUITE_RULES if argv[1] == "suite" else MINI_RULES)
+    if argv == ["--rules", "mini"]:
+        sys.stdout.write(MINI_RULES)
+        return 0
+    # The steps as one argument or several ("$ONLY" or $ONLY).
+    names = " ".join(argv[2:]).split()
+    if argv[:2] == ["--rules", "suite"]:
+        if names == ["all"]:
+            names = []
+        if any(n not in STEPS for n in names):
+            print(usage, file=sys.stderr)
+            return 2
+        sys.stdout.write(suite_rules(names, sh_scripts() if "sh" in names else set()))
+        return 0
+    if len(argv) >= 3 and argv[0] == "--plan" and argv[1] in ("1", "2"):
+        print("\n".join(plan(int(argv[1]), names)))
         return 0
     if len(argv) == 2 and argv[0] == "--paths" and argv[1] in AREAS:
         print("\n".join(AREAS[argv[1]]))
         return 0
     if len(argv) == 4 and argv[0] == "--is" and argv[1] in AREAS:
-        return 0 if affected(diff(argv[2], argv[3]))["areas"][argv[1]] else 1
+        return 0 if affected(diff(argv[2], argv[3]), base=argv[2])["areas"][argv[1]] else 1
     if len(argv) != 2 or argv[0].startswith("-"):
         print(usage, file=sys.stderr)
         return 2
-    result = affected(diff(argv[0], argv[1]))
+    result = affected(diff(argv[0], argv[1]), base=argv[0])
     lines = outputs(result)
     print("\n".join(lines))
     if result["unknown"]:
@@ -364,5 +672,7 @@ if __name__ == "__main__":
         sys.exit(main(sys.argv[1:]))
     except Exception as e:  # noqa: BLE001 (every error: see above)
         detail = getattr(e, "stderr", None) or ""
+        if isinstance(detail, bytes):
+            detail = detail.decode("utf-8", "replace")
         print("scripts/affected: %s%s" % (e, ("\n" + detail.strip()) if detail else ""), file=sys.stderr)
         sys.exit(2)

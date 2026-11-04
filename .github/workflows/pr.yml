@@ -50,6 +50,8 @@ jobs:
       run_mini: ${{ steps.affected.outputs.run_mini }}
       run_site: ${{ steps.affected.outputs.run_site }}
       run_updater: ${{ steps.affected.outputs.run_updater }}
+      suite_steps: ${{ steps.affected.outputs.suite_steps }}
+      suite_parts: ${{ steps.affected.outputs.suite_parts }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -67,19 +69,27 @@ jobs:
           # worth a download here. One too old for the manifests fails the job, and with it pr-ok.
           RUSTUP_TOOLCHAIN: stable
         run: |
+          # The script's self-test first (the suite's `affected` step, which then needn't run there): what decides
+          # must itself pass before anything trusts it.
+          python3 -I scripts/affected --test
           if git rev-parse -q --verify HEAD^2 >/dev/null; then
             python3 -I scripts/affected HEAD^1 HEAD
           else
             echo "not a pull request's merge commit: running every job"
-            printf '%s\n' run_suite=true run_mini=true run_site=true run_updater=true >>"$GITHUB_OUTPUT"
+            printf '%s\n' run_suite=true run_mini=true run_site=true run_updater=true suite_steps=all \
+              'suite_parts=[1, 2]' >>"$GITHUB_OUTPUT"
           fi
 
-  # The test suite on two of GitHub's Linux machines (suite.yml), not the minis.
+  # The test suite on two of GitHub's Linux machines (suite.yml), not the minis: the steps of it that read what the
+  # pull request changes, on the halves that have them (scripts/affected's STEPS).
   check:
     name: Linux
     needs: changes
     if: needs.changes.outputs.run_suite == 'true'
     uses: ./.github/workflows/suite.yml
+    with:
+      steps: ${{ needs.changes.outputs.suite_steps }}
+      parts: ${{ needs.changes.outputs.suite_parts }}
 
   # The site's smoke test (site/test.sh), on one of GitHub's Linux machines, for a pull request that changes the
   # site or what its build reads from outside site/ (wiki/'s specs and media, LICENSE, docs/quirks.md, whose rows
