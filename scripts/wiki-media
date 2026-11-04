@@ -135,8 +135,8 @@ cp -R assets/gml "$out/gml"
 cp -R assets/rooms "$out/rooms"
 "$bin/wiki-rooms" --assets assets --out "$out/rooms" >/dev/null
 # The license and the notice the Spelunky User License asks Covered Works to come with (docs/wiki-license.md).
-# LICENSE is the original's COPYING.txt, so windows-1252 (its ® is the byte AE), and the site serves a .txt as
-# UTF-8 (site/public/_headers).
+# LICENSE is the original's COPYING.txt, so windows-1252 (its ® is the byte AE), and the site serves the media's
+# .txt files as UTF-8 (site/public/_headers).
 iconv -f WINDOWS-1252 -t UTF-8 LICENSE >"$out/LICENSE.txt"
 cat >"$out/NOTICE.txt" <<EOF
 spelunky.ai wiki media

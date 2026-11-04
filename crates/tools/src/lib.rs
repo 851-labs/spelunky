@@ -11,13 +11,22 @@ use std::io::{self, BufRead, BufReader, Read, Write};
 use trace::diff::{DiffOptions, Matching};
 use trace::{Filter, TraceReader};
 
+/// One literal for both, as `concat!` takes only literals: the notice names the URL the media's `license` does.
+macro_rules! wiki_license_url {
+    () => {
+        "https://spelunky.ai/license"
+    };
+}
 /// The copyright notice the license asks the wiki's media to carry (`docs/wiki-license.md`): in
 /// `wiki-sprites`' and `wiki-clips`' metadata, PNGs and videos, and in `icon`'s (the site's icons and the apps').
-pub const WIKI_NOTICE: &str = "Spelunky is \u{a9} 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under \
-the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or \
-endorsed by Mossmouth.";
+pub const WIKI_NOTICE: &str = concat!(
+    "Spelunky is \u{a9} 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User \
+     License v1.1b (",
+    wiki_license_url!(),
+    "). Unofficial; not affiliated with or endorsed by Mossmouth."
+);
 /// The license the wiki's media are under, the site's page of it (/LICENSE.txt redirects there).
-pub const WIKI_LICENSE_URL: &str = "https://spelunky.ai/license";
+pub const WIKI_LICENSE_URL: &str = wiki_license_url!();
 /// The credit the license asks for wherever the wiki plays the game's music or sound effects
 /// (`docs/wiki-license.md`, "Audio credit"): in `wiki-clips`' metadata and videos with sound.
 pub const WIKI_AUDIO_CREDIT: &str = "Music by George Buzinkai and Jonathan Perry; sound effects made in \

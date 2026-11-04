@@ -43,8 +43,8 @@ const NOT_FOUND_PATHS = new Set([NOT_FOUND_PAGE, `${NOT_FOUND_PAGE}/`, `${NOT_FO
 // which have the pages.
 const FOR_LLMS = new Set(["/llms.txt", "/llms-full.txt"]);
 // The license was a plain text file, /LICENSE.txt, before it was a page (src/routes/license.tsx, 851-4026). The
-// releases' notes and the game's credits before then, the wiki media's notices (their files' metadata and
-// NOTICE.txt) and other sites link it, so it, and its slashed form the asset store redirected, are redirects there.
+// releases' notes, the game's credits and the wiki media's notices from before then (851-4028), and other sites,
+// link it, so it, and its slashed form the asset store redirected, are redirects there.
 const OLD_LICENSE = new Set(["/LICENSE.txt", "/LICENSE.txt/"]);
 const LICENSE_PAGE = "/license";
 
