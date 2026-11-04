@@ -42,9 +42,6 @@ function DownloadPage() {
   return (
     <SiteFrame section="download" search={<SiteSearch />} footer={<SiteLinks />}>
       <h1>Download Spelunky Classic</h1>
-      <p className="notice">
-        An unofficial fan port (a mod). Spelunky is Copyright &copy; 2008, 2009 Derek Yu and Mossmouth, LLC.
-      </p>
       {release && list ? (
         <>
           <p className="lede">

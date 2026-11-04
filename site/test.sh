@@ -413,6 +413,9 @@ contains '<html lang="en">' \
   'autoPlay="" loop="" muted="" playsInline=""' \
   '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
   '.play:focus-visible{outline:2px solid var(--gold);' '.site-header{'
+# The license's copyright notice is the Credits and license section's, not a line under the heading (851-4024).
+contains 'is by Derek Yu, Copyright © 2008, 2009 Derek Yu and Mossmouth, LLC.'
+lacks 'An unofficial fan port (a mod).' 'class="notice"'
 # Dated when the site was built, which a revalidation with the date gets a 304 for (src/server.ts: Cloudflare drops a
 # page's ETag), and one with another date the page.
 updated=$(grep -i '^last-modified:' "$tmp/h" | cut -d' ' -f2-)
@@ -1086,7 +1089,10 @@ contains '<title>Download Spelunky Classic for macOS, Windows and Linux (unoffic
   '<a class="file" href="https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-windows-x64.zip"><span class="file-label">x64</span><span class="file-meta">zip<!-- -->, <!-- -->17.9 MB</span></a>' \
   '<span>SHA-256</span> <code>0000000000000000000000000000000000000000000000000000000000000003</code>' \
   '<a href="https://github.com/851-labs/spelunky/releases/tag/v9.9.9">' \
-  '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>'
+  '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
+  'is by Derek Yu, Copyright © 2008, 2009 Derek Yu and Mossmouth, LLC.'
+# As the landing page's, its notice is its Credits and license section's alone (851-4024).
+lacks 'An unofficial fan port (a mod).' 'class="notice"'
 if grep -q 'system-linux' "$tmp/body"; then fail "$url: a Linux card, where the manifest has no Linux file"; fi
 download_css=$(sed -n 's|.*<link rel="stylesheet" href="/\(assets/download-[^"]*\.css\)".*|\1|p' dist/client/download.html)
 if [ -z "$download_css" ]; then
