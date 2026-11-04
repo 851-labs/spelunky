@@ -119,7 +119,8 @@ manifest they'd refuse. Nothing else needs the secret, and it must never reach a
 
 The manifest goes live with the web build: `scripts/bump-web-release TAG` downloads the release's
 `latest.json` as well, verifies it, and pins its SHA-256 in `site/web-release.txt`; `site/build.sh` then
-puts it at `/releases/latest.json` (`docs/web-deploy.md`), and the site lists its files at `/download`. So
+puts it at `/releases/latest.json` (`docs/web-deploy.md`), and the site lists its files at `/download`
+(with the release's other formats, from its `SHA256SUMS`, pinned beside it). So
 merging the bump is what offers the update to every app, and the files to every reader, and reverting it (or
 bumping an older tag) stops offering it. Apps that already updated stay updated: nothing downgrades.
 

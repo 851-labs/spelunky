@@ -578,8 +578,9 @@ jobs:
             /*
             !/wiki/media/
       # The bump job's file, not taken on trust: that job ran every dependency's build script, which could write
-      # its outputs. It must be main's comment and three lines, pinning this release, no older than main does, with
-      # the SHA-256s of the web build and the latest.json this release has published (downloaded again here).
+      # its outputs. It must be main's comment and four lines, pinning this release, no older than main does, with
+      # the SHA-256s of the web build, the latest.json and the SHA256SUMS this release has published (downloaded
+      # again here), and a size line for each of SHA256SUMS's .dmg and tarballs, GitHub's size of it.
       - env:
           WEB_RELEASE: ${{ needs.bump.outputs.web-release }}
           GH_TOKEN: ${{ github.token }}
@@ -590,9 +591,10 @@ jobs:
           [ "$(grep '^#' site/web-release.txt)" = "$(grep '^#' "$new")" ] ||
             { echo "::error::the bump changed site/web-release.txt's comment"; exit 1; }
           grep -v '^#' "$new" >"$RUNNER_TEMP/lines"
-          if [ "$(wc -l <"$RUNNER_TEMP/lines")" -ne 3 ] ||
-            grep -vxE 'tag v[0-9A-Za-z.+-]+|sha256 [0-9a-f]{64}|manifest-sha256 ([0-9a-f]{64}|none)' "$RUNNER_TEMP/lines"; then
-            echo "::error::site/web-release.txt from the bump isn't a tag, a sha256 and a manifest-sha256"
+          if [ "$(grep -v '^size ' "$RUNNER_TEMP/lines" | cut -d' ' -f1 | sort -u | wc -l)" -ne 4 ] ||
+            [ "$(grep -cv '^size ' "$RUNNER_TEMP/lines")" -ne 4 ] ||
+            grep -vxE 'tag v[0-9A-Za-z.+-]+|sha256 [0-9a-f]{64}|(manifest|sums)-sha256 ([0-9a-f]{64}|none)|size spelunky-[0-9A-Za-z.+-]+\.(dmg|tar\.gz) [1-9][0-9]*' "$RUNNER_TEMP/lines"; then
+            echo "::error::site/web-release.txt from the bump isn't a tag, a sha256, a manifest-sha256, a sums-sha256 and sizes"
             exit 1
           fi
           value() { sed -n "s/^$1 //p" "$2"; }
@@ -612,6 +614,24 @@ jobs:
           fi
           [ "$(value manifest-sha256 "$new")" = "$manifest" ] ||
             { echo "::error::the bump's manifest-sha256 isn't $TAG's latest.json's"; exit 1; }
+          # SHA256SUMS, with the manifest (scripts/bump-web-release), and the sizes of the files /download lists
+          # from it: by the same names, the sizes GitHub has.
+          sums=none
+          : >"$RUNNER_TEMP/sizes"
+          if [ "$manifest" != none ] && gh release download "$TAG" --dir "$RUNNER_TEMP/release" --pattern SHA256SUMS; then
+            sums=$(sha256sum <"$RUNNER_TEMP/release/SHA256SUMS" | cut -d' ' -f1)
+            gh release view "$TAG" --json assets --jq '.assets[] | "size \(.name) \(.size)"' >"$RUNNER_TEMP/assets"
+            for file in $(awk '{ print $2 }' "$RUNNER_TEMP/release/SHA256SUMS"); do
+              case $file in
+                "spelunky-${TAG#v}-"*.dmg | "spelunky-${TAG#v}-"*.tar.gz)
+                  awk -v file="$file" '$2 == file' "$RUNNER_TEMP/assets" >>"$RUNNER_TEMP/sizes" ;;
+              esac
+            done
+          fi
+          [ "$(value sums-sha256 "$new")" = "$sums" ] ||
+            { echo "::error::the bump's sums-sha256 isn't $TAG's SHA256SUMS's"; exit 1; }
+          [ "$(grep '^size ' "$new" | sort)" = "$(sort "$RUNNER_TEMP/sizes")" ] ||
+            { echo "::error::the bump's sizes aren't those of $TAG's .dmg and tarballs"; exit 1; }
           cp "$new" site/web-release.txt
           git diff
       - if: steps.credential.outputs.kind == 'none'
@@ -666,7 +686,8 @@ jobs:
 
           ## What
 
-          - \`scripts/bump-web-release $TAG\`: pins its web build and its \`latest.json\`, checked against the release key.
+          - \`scripts/bump-web-release $TAG\`: pins its web build, its \`latest.json\`, checked against the release key,
+            and its \`SHA256SUMS\`, with the sizes of the \`.dmg\` and the tarballs \`/download\` lists from it.
             Only \`site/web-release.txt\` changes.
           - Merging deploys it (docs/web-deploy.md).
 

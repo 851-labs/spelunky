@@ -1,7 +1,7 @@
 // What the /download page (src/routes/download.tsx) makes of the release's downloads (src/build/release.ts): each
 // manifest platform's system and processor, the systems in the page's order, and which one the reader's browser is
 // on. Plain functions, so test-download.mjs runs them under Node.
-import type { Release, ReleaseAsset } from "../build/release.ts";
+import type { Release, ReleaseFile } from "../build/release.ts";
 
 export type Os = "macos" | "windows" | "linux";
 export type Arch = "x86_64" | "aarch64";
@@ -30,7 +30,22 @@ const PLATFORMS: Record<string, { os: Os; arch: Arch | null; label: string }> = 
 // What a file is, by the manifest's format, as the page says it.
 const FORMATS: Record<string, string> = { "app-zip": "zip", "dir-zip": "zip", appimage: "AppImage" };
 
-export interface Download extends ReleaseAsset {
+// The release's other files (SHA256SUMS's, src/build/release.ts) by their names, spelunky-VERSION-TARGET.EXT, as
+// build-native.yml names them (docs/releasing.md): TARGET's platform, as the manifest would name it.
+const TARGETS: Record<string, string> = {
+  macos: "macos",
+  "windows-x64": "windows-x86_64",
+  "windows-arm64": "windows-aarch64",
+  "linux-x64": "linux-x86_64",
+  "linux-arm64": "linux-aarch64",
+};
+
+export interface Download {
+  // The manifest's platform; for another file, its target's (an unknown target's own name).
+  platform: string;
+  url: string;
+  file: string;
+  size: number;
   // Null for a platform the page doesn't know.
   os: Os | null;
   arch: Arch | null;
@@ -40,7 +55,8 @@ export interface Download extends ReleaseAsset {
 }
 
 export interface Downloads {
-  systems: { os: Os; name: string; needs: string; downloads: Download[] }[];
+  // `more`: the system's files in other formats than the apps update from, the .dmg and the tarballs.
+  systems: { os: Os; name: string; needs: string; downloads: Download[]; more: Download[] }[];
   other: Download[];
 }
 
@@ -48,25 +64,35 @@ export interface Downloads {
 const ARCH_ORDER: (Arch | null)[] = [null, "x86_64", "aarch64"];
 
 export function downloads(release: Release): Downloads {
-  const all = release.assets.map((asset): Download => {
-    const known = PLATFORMS[asset.platform];
-    return {
-      ...asset,
-      os: known?.os ?? null,
-      arch: known?.arch ?? null,
-      label: known?.label ?? asset.platform,
-      kind: FORMATS[asset.format] ?? asset.file.replace(/^.*?\.(?=[^.]+$)/, ""),
-    };
-  });
-  return {
-    systems: SYSTEMS.map((system) => ({
-      ...system,
-      downloads: all
-        .filter((download) => download.os === system.os)
-        .sort((a, b) => ARCH_ORDER.indexOf(a.arch) - ARCH_ORDER.indexOf(b.arch)),
-    })).filter((system) => system.downloads.length > 0),
-    other: all.filter((download) => download.os === null),
+  const entry = (platform: string, url: string, file: string, size: number, kind: string): Download => {
+    const known = PLATFORMS[platform];
+    return { platform, url, file, size, os: known?.os ?? null, arch: known?.arch ?? null, label: known?.label ?? platform, kind };
   };
+  const all = release.assets.map((asset) =>
+    entry(asset.platform, asset.url, asset.file, asset.size, FORMATS[asset.format] ?? extension(asset.file)),
+  );
+  const byArch = (a: Download, b: Download) => ARCH_ORDER.indexOf(a.arch) - ARCH_ORDER.indexOf(b.arch);
+  const prefix = `spelunky-${release.version}-`;
+  const more = release.files
+    .map((file) => {
+      const name = file.file;
+      const target = name.startsWith(prefix) ? name.slice(prefix.length).replace(/\.(tar\.gz|[^.]+)$/, "") : name;
+      return entry(TARGETS[target] ?? target, file.url, name, file.size, extension(name));
+    })
+    .sort(byArch);
+  const systems = SYSTEMS.map((system) => ({
+    ...system,
+    downloads: all.filter((download) => download.os === system.os).sort(byArch),
+    more: more.filter((download) => download.os === system.os),
+  })).filter((system) => system.downloads.length > 0);
+  // A file of a system without the apps' own (none is), or a platform the page doesn't know: by its name.
+  const listed = new Set(systems.map((system) => system.os));
+  return { systems, other: [...all, ...more].filter((download) => download.os === null || !listed.has(download.os)) };
+}
+
+// "tar.gz", "dmg": a file's extension, both of a tarball's.
+function extension(file: string): string {
+  return /\.(tar\.gz|[^.]+)$/.exec(file)?.[1] ?? file;
 }
 
 // The download a system's reader gets first: the one for their processor, or (unknown) the first, x64, which

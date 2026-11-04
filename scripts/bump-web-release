@@ -1,8 +1,9 @@
 #!/bin/sh
 # Points the site at a release: scripts/bump-web-release TAG writes TAG, the SHA-256 of its
-# spelunky-web-TAG.tar.gz and the SHA-256 of its latest.json (the native apps' update manifest, checked
-# against the release key first; docs/updates.md), all downloaded from the public GitHub Release, into
-# site/web-release.txt. Merging that change is the deploy (docs/web-deploy.md): the web build and the native
+# spelunky-web-TAG.tar.gz, the SHA-256 of its latest.json (the native apps' update manifest, checked
+# against the release key first; docs/updates.md), and the SHA-256 of its SHA256SUMS with the sizes of the
+# downloads /download lists from it (the .dmg and the Linux tarballs, each checked against it first), all
+# downloaded from the public GitHub Release, into site/web-release.txt. Merging that change is the deploy (docs/web-deploy.md): the web build and the native
 # apps' update go live together. (The wiki's media are committed, in wiki/media: docs/wiki-media.md.)
 set -eu
 # A syntax error anywhere fails it here, before the EXIT trap below can pass it: macOS's sh, bash 3.2, exits from
@@ -27,6 +28,7 @@ cleanup() {
   exit "$status"
 }
 trap cleanup EXIT
+die() { echo "scripts/bump-web-release: $*" >&2; exit 1; }
 sha256() {
   if command -v sha256sum >/dev/null; then sum=$(sha256sum "$1"); else sum=$(shasum -a 256 "$1"); fi
   echo "${sum%% *}"
@@ -45,12 +47,42 @@ if curl -fsSL --retry 3 -o "$tmp/latest.json" "$base/latest.json"; then
 else
   echo "scripts/bump-web-release: $tag has no latest.json, so the native apps won't be offered it" >&2
 fi
+# The release's SHA256SUMS, with the manifest: /download lists the files it has of the apps' other formats beside
+# the manifest's (site/src/build/release.ts), spelunky-VERSION-*.dmg and -*.tar.gz, each with its size, which
+# SHA256SUMS hasn't. So each is downloaded and checked against it here, and the page lists only files that were.
+sums_sha=none
+: >"$tmp/sizes"
+if [ "$manifest_sha" = none ]; then
+  : # Then the page lists nothing of the release's (docs/web-deploy.md).
+elif ! curl -fsSL --retry 3 -o "$tmp/SHA256SUMS" "$base/SHA256SUMS"; then
+  echo "scripts/bump-web-release: $tag has no SHA256SUMS, so /download links its release for the .dmg and the tarballs" >&2
+else
+  # "HEX  NAME", as sha256sum writes it (release.yml).
+  want() { awk -v file="$1" '$2 == file { print $1 }' "$tmp/SHA256SUMS"; }
+  [ "$(want "spelunky-web-$tag.tar.gz")" = "$sha" ] || die "$base/SHA256SUMS hasn't the web build's SHA-256"
+  [ "$(want latest.json)" = "$manifest_sha" ] || die "$base/SHA256SUMS hasn't latest.json's SHA-256"
+  version=${tag#v}
+  for file in $(awk '{ print $2 }' "$tmp/SHA256SUMS"); do
+    case $file in
+      "spelunky-$version-"*.dmg | "spelunky-$version-"*.tar.gz) ;;
+      *) continue ;;
+    esac
+    curl -fsSL --retry 3 -o "$tmp/file" "$base/$file" || die "couldn't download $base/$file"
+    [ "$(sha256 "$tmp/file")" = "$(want "$file")" ] || die "$base/$file isn't the file SHA256SUMS names"
+    echo "size $file $(wc -c <"$tmp/file" | tr -d ' ')" >>"$tmp/sizes"
+    rm "$tmp/file"
+  done
+  sums_sha=$(sha256 "$tmp/SHA256SUMS")
+fi
 # Keeps the comment at the top; replaces the other lines.
-awk -v tag="$tag" -v sha="$sha" -v manifest="$manifest_sha" '
-  $1 == "tag" || $1 == "sha256" || $1 == "manifest-sha256" { next }
+awk -v tag="$tag" -v sha="$sha" -v manifest="$manifest_sha" -v sums="$sums_sha" -v sizes="$tmp/sizes" '
+  $1 == "tag" || $1 == "sha256" || $1 == "manifest-sha256" || $1 == "sums-sha256" || $1 == "size" { next }
   { print }
-  END { print "tag " tag; print "sha256 " sha; print "manifest-sha256 " manifest }
+  END {
+    print "tag " tag; print "sha256 " sha; print "manifest-sha256 " manifest; print "sums-sha256 " sums
+    while ((getline line < sizes) > 0) print line
+  }
 ' site/web-release.txt >"$tmp/web-release.txt"
 mv "$tmp/web-release.txt" site/web-release.txt
-echo "site/web-release.txt: $tag ($sha; latest.json $manifest_sha)"
+echo "site/web-release.txt: $tag ($sha; latest.json $manifest_sha; SHA256SUMS $sums_sha, $(wc -l <"$tmp/sizes" | tr -d ' ') sized)"
 finished=1

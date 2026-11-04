@@ -7,6 +7,13 @@
 //
 // Its signature isn't checked here: scripts/bump-web-release checked it before pinning the file's SHA-256, which
 // build.sh checks (and site/test.sh's stand-in isn't signed).
+//
+// The manifest has only what the apps update to. The release's other downloads, the macOS .dmg and the Linux
+// tarballs (851-4016), come from its SHA256SUMS, which web-release.txt pins too (sums-sha256, checked by build.sh,
+// in SITE_RELEASE_SUMS), with the sizes the bump measured as it checked each file against it (web-release.txt's
+// size lines, in SITE_RELEASE_SIZES): SHA256SUMS has none. The page lists the files the bump sized that aren't the
+// manifest's. Not the manifest's own new key, which only a release from after it would have, and every installed
+// app would download each day for files it never takes: SHA256SUMS is every release's, and its files' names.
 import { readFileSync } from "node:fs";
 import type { Plugin } from "vite";
 
@@ -21,23 +28,43 @@ export interface ReleaseAsset {
   format: string;
 }
 
+// One of the release's other downloads, from its SHA256SUMS: spelunky-0.1.19-macos.dmg.
+export interface ReleaseFile {
+  url: string;
+  file: string;
+  sha256: string;
+  size: number;
+}
+
 export interface Release {
   // The tag without its v: 0.1.19.
   version: string;
   // The release's page on GitHub, its notes.
   notes: string;
   assets: ReleaseAsset[];
+  // The others, in SHA256SUMS's order (by name); none without one.
+  files: ReleaseFile[];
 }
 
 const ID = "virtual:site/release";
 
-export function siteRelease(file = process.env.SITE_RELEASE_MANIFEST || null): Plugin {
+export function siteRelease(
+  file = process.env.SITE_RELEASE_MANIFEST || null,
+  sums = process.env.SITE_RELEASE_SUMS || null,
+  sizes = process.env.SITE_RELEASE_SIZES || null,
+): Plugin {
   // Read once, when the build starts, so a bad manifest fails it before anything is rendered.
   let release: Release | null = null;
   return {
     name: "site-release",
     buildStart() {
+      if ((sums === null) !== (sizes === null)) {
+        throw new Error("SITE_RELEASE_SUMS and SITE_RELEASE_SIZES go together (src/build/release.ts)");
+      }
       release = file ? parseRelease(readFileSync(file, "utf8"), file) : null;
+      if (release && sums && sizes) {
+        release.files = parseFiles(release, readFileSync(sums, "utf8"), readFileSync(sizes, "utf8"), sums, sizes);
+      }
     },
     resolveId: (id) => (id === ID ? `\0${ID}` : undefined),
     load: (id) => (id === `\0${ID}` ? `export const release = ${JSON.stringify(release)};` : undefined),
@@ -95,5 +122,48 @@ export function parseRelease(text: string, name = "latest.json"): Release {
     return { platform, url, file, sha256, size: size as number, format: string(asset.format, `${platform}'s format`) };
   });
   if (assets.length === 0) fail("it has no assets");
-  return { version, notes, assets };
+  return { version, notes, assets, files: [] };
+}
+
+// SHA256SUMS: a "HEX  NAME" line a file, as sha256sum writes it (" *NAME" in its binary mode), and the sizes'
+// "size NAME BYTES" lines (web-release.txt's; its other lines aren't read). A size for a file SHA256SUMS hasn't, or
+// a manifest file whose SHA-256 isn't SHA256SUMS's (pins of two releases), fails the build, as a bad manifest does.
+export function parseFiles(
+  release: Release,
+  sums: string,
+  sizes: string,
+  sumsName = "SHA256SUMS",
+  sizesName = "web-release.txt",
+): ReleaseFile[] {
+  const listed = new Map<string, string>();
+  for (const line of sums.split("\n")) {
+    if (line === "") continue;
+    const match = /^([0-9a-f]{64}) [ *]([A-Za-z0-9._+-]+)$/.exec(line);
+    if (!match) throw new Error(`${sumsName}: "${line}" isn't a SHA-256 and a release file's name`);
+    if (listed.has(match[2])) throw new Error(`${sumsName}: ${match[2]} is there twice`);
+    listed.set(match[2], match[1]);
+  }
+  for (const asset of release.assets) {
+    if (listed.get(asset.file) !== asset.sha256) {
+      throw new Error(`${sumsName}: the manifest's ${asset.file} isn't there with the manifest's SHA-256: another release's?`);
+    }
+  }
+  const sized = new Map<string, number>();
+  for (const line of sizes.split("\n")) {
+    const words = line.trim().split(/\s+/);
+    if (words[0] !== "size") continue;
+    const [, file, bytes] = words;
+    if (words.length !== 3 || !/^[1-9][0-9]*$/.test(bytes) || !Number.isSafeInteger(Number(bytes))) {
+      throw new Error(`${sizesName}: "${line}" isn't "size NAME BYTES"`);
+    }
+    if (!listed.has(file)) throw new Error(`${sizesName}: ${file} has a size, but ${sumsName} hasn't it`);
+    if (sized.has(file)) throw new Error(`${sizesName}: ${file} has two sizes`);
+    sized.set(file, Number(bytes));
+  }
+  // In the manifest's release: its files' directory on GitHub (docs/updates.md, "each FILE ... under its own name").
+  const base = release.assets[0].url.replace(/[^/]+$/, "");
+  const manifest = new Set(release.assets.map((asset) => asset.file));
+  return [...listed]
+    .filter(([file]) => sized.has(file) && !manifest.has(file))
+    .map(([file, sha256]) => ({ url: base + file, file, sha256, size: sized.get(file) as number }));
 }
