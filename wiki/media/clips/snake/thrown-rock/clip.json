@@ -23,14 +23,14 @@
   "frames_hash": "6752fceaa4d93be9",
   "has_audio": true,
   "audio_hash": "8cf45fc0ff510909",
-  "encoding": "d296d1efa96f9a08",
+  "encoding": "865e89d30a2b9855",
   "files": {
     "mp4": "snake/thrown-rock/clip.mp4",
     "webm": "snake/thrown-rock/clip.webm",
     "poster": "snake/thrown-rock/poster.png",
     "replay": "snake/thrown-rock/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

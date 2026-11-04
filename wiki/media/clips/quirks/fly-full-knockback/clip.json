@@ -23,14 +23,14 @@
   "frames_hash": "58c2cd4dc2c76e97",
   "has_audio": true,
   "audio_hash": "7e939916ff74d6c1",
-  "encoding": "49aafe7b5b09d4de",
+  "encoding": "024ec987e911b09c",
   "files": {
     "mp4": "quirks/fly-full-knockback/clip.mp4",
     "webm": "quirks/fly-full-knockback/clip.webm",
     "poster": "quirks/fly-full-knockback/poster.png",
     "replay": "quirks/fly-full-knockback/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

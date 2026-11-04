@@ -23,14 +23,14 @@
   "frames_hash": "872517a93a180cd9",
   "has_audio": true,
   "audio_hash": "cc49b364ee9bfaba",
-  "encoding": "4a61003d129498bc",
+  "encoding": "8a7ff194b314d37b",
   "files": {
     "mp4": "quirks/olmec-double-speed/clip.mp4",
     "webm": "quirks/olmec-double-speed/clip.webm",
     "poster": "quirks/olmec-double-speed/poster.png",
     "replay": "quirks/olmec-double-speed/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

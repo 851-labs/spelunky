@@ -23,14 +23,14 @@
   "frames_hash": "85d58154ce53093b",
   "has_audio": true,
   "audio_hash": "5a1362638c4e7343",
-  "encoding": "49ab0794b197ead5",
+  "encoding": "2875ac1aa3de2a71",
   "files": {
     "mp4": "quirks/giant-spider-whip-wind-up/clip.mp4",
     "webm": "quirks/giant-spider-whip-wind-up/clip.webm",
     "poster": "quirks/giant-spider-whip-wind-up/poster.png",
     "replay": "quirks/giant-spider-whip-wind-up/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

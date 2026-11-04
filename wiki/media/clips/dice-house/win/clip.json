@@ -23,14 +23,14 @@
   "frames_hash": "a4128ae5f60b17f4",
   "has_audio": true,
   "audio_hash": "26ec9a90e2b3a292",
-  "encoding": "1450cb5cea7035da",
+  "encoding": "a776584a604d7090",
   "files": {
     "mp4": "dice-house/win/clip.mp4",
     "webm": "dice-house/win/clip.webm",
     "poster": "dice-house/win/poster.png",
     "replay": "dice-house/win/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

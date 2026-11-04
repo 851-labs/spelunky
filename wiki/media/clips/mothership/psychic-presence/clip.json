@@ -23,14 +23,14 @@
   "frames_hash": "940c36edd6585f73",
   "has_audio": true,
   "audio_hash": "39b4ddbc8952bb15",
-  "encoding": "51c096057c05862d",
+  "encoding": "6bdb5820bab2aa4c",
   "files": {
     "mp4": "mothership/psychic-presence/clip.mp4",
     "webm": "mothership/psychic-presence/clip.webm",
     "poster": "mothership/psychic-presence/poster.png",
     "replay": "mothership/psychic-presence/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

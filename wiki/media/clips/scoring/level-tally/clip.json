@@ -23,14 +23,14 @@
   "frames_hash": "f6b138c1f2664a95",
   "has_audio": true,
   "audio_hash": "edea424ddeda2642",
-  "encoding": "b29a9521acce289e",
+  "encoding": "68c94c8a739324c0",
   "files": {
     "mp4": "scoring/level-tally/clip.mp4",
     "webm": "scoring/level-tally/clip.webm",
     "poster": "scoring/level-tally/poster.png",
     "replay": "scoring/level-tally/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

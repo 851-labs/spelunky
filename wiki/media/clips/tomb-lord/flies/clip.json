@@ -23,14 +23,14 @@
   "frames_hash": "d39f63318b550149",
   "has_audio": true,
   "audio_hash": "336ee75647b3b7d3",
-  "encoding": "444ebf87eab9ce6e",
+  "encoding": "9882bb54d552003c",
   "files": {
     "mp4": "tomb-lord/flies/clip.mp4",
     "webm": "tomb-lord/flies/clip.webm",
     "poster": "tomb-lord/flies/poster.png",
     "replay": "tomb-lord/flies/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

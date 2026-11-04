@@ -23,14 +23,14 @@
   "frames_hash": "61536b2de1343b28",
   "has_audio": true,
   "audio_hash": "9488193d031394d1",
-  "encoding": "3a64ce3dbc8fcc08",
+  "encoding": "89134e0486111bbe",
   "files": {
     "mp4": "quirks/test-bombs-unclamped/clip.mp4",
     "webm": "quirks/test-bombs-unclamped/clip.webm",
     "poster": "quirks/test-bombs-unclamped/poster.png",
     "replay": "quirks/test-bombs-unclamped/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

@@ -23,14 +23,14 @@
   "frames_hash": "e243a61d43dfe010",
   "has_audio": true,
   "audio_hash": "c4503cc937caec13",
-  "encoding": "2829cd24be9508b9",
+  "encoding": "e13b042ee0fd36d2",
   "files": {
     "mp4": "quirks/sign-message-lost/clip.mp4",
     "webm": "quirks/sign-message-lost/clip.webm",
     "poster": "quirks/sign-message-lost/poster.png",
     "replay": "quirks/sign-message-lost/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

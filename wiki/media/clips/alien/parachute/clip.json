@@ -23,14 +23,14 @@
   "frames_hash": "9af188b7b6de6321",
   "has_audio": true,
   "audio_hash": "9cd768babcb58a83",
-  "encoding": "63461433c6565407",
+  "encoding": "f5768ad113e0767c",
   "files": {
     "mp4": "alien/parachute/clip.mp4",
     "webm": "alien/parachute/clip.webm",
     "poster": "alien/parachute/poster.png",
     "replay": "alien/parachute/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

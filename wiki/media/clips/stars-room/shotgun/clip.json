@@ -23,14 +23,14 @@
   "frames_hash": "6e3086a522f5e9ce",
   "has_audio": true,
   "audio_hash": "11b9faaa87986b5e",
-  "encoding": "8edd23e19962117e",
+  "encoding": "dfde6c438a0a7d9a",
   "files": {
     "mp4": "stars-room/shotgun/clip.mp4",
     "webm": "stars-room/shotgun/clip.webm",
     "poster": "stars-room/shotgun/poster.png",
     "replay": "stars-room/shotgun/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

@@ -23,14 +23,14 @@
   "frames_hash": "66e564c92c986122",
   "has_audio": true,
   "audio_hash": "e1b947e17501b6c0",
-  "encoding": "5c090aa990a2ce5a",
+  "encoding": "80c9fa0d529bac4a",
   "files": {
     "mp4": "damage/invincible/clip.mp4",
     "webm": "damage/invincible/clip.webm",
     "poster": "damage/invincible/poster.png",
     "replay": "damage/invincible/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

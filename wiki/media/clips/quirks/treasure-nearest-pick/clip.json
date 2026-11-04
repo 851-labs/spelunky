@@ -23,14 +23,14 @@
   "frames_hash": "e2e7b4875b075e90",
   "has_audio": true,
   "audio_hash": "ae3188dfaadc6c72",
-  "encoding": "13812ffebb22a603",
+  "encoding": "f38be7b770119f8b",
   "files": {
     "mp4": "quirks/treasure-nearest-pick/clip.mp4",
     "webm": "quirks/treasure-nearest-pick/clip.webm",
     "poster": "quirks/treasure-nearest-pick/poster.png",
     "replay": "quirks/treasure-nearest-pick/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

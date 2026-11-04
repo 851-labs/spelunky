@@ -23,14 +23,14 @@
   "frames_hash": "f6c0bb3b31859fa6",
   "has_audio": true,
   "audio_hash": "eb07a0ea4e4f4cb3",
-  "encoding": "4c1cee8b7cb967b5",
+  "encoding": "5b739d51119ca505",
   "files": {
     "mp4": "ufo/laser/clip.mp4",
     "webm": "ufo/laser/clip.webm",
     "poster": "ufo/laser/poster.png",
     "replay": "ufo/laser/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

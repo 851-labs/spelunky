@@ -23,14 +23,14 @@
   "frames_hash": "a63c4845fe0d968a",
   "has_audio": true,
   "audio_hash": "22eb2b5b7e7ae602",
-  "encoding": "337b00f13dc4b7f6",
+  "encoding": "af65bc4301379cb7",
   "files": {
     "mp4": "quirks/tutorial-negative-depth/clip.mp4",
     "webm": "quirks/tutorial-negative-depth/clip.webm",
     "poster": "quirks/tutorial-negative-depth/poster.png",
     "replay": "quirks/tutorial-negative-depth/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

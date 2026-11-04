@@ -23,14 +23,14 @@
   "frames_hash": "ad45a4f913ca29f6",
   "has_audio": true,
   "audio_hash": "d6140c7d6b65d3b2",
-  "encoding": "0e82320facea9980",
+  "encoding": "4fc9f24d02cec512",
   "files": {
     "mp4": "quirks/crystal-skull-sold-as-idol/clip.mp4",
     "webm": "quirks/crystal-skull-sold-as-idol/clip.webm",
     "poster": "quirks/crystal-skull-sold-as-idol/poster.png",
     "replay": "quirks/crystal-skull-sold-as-idol/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

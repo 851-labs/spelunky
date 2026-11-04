@@ -23,14 +23,14 @@
   "frames_hash": "5a99e8bb9971e17a",
   "has_audio": true,
   "audio_hash": "27765ffc12efbb69",
-  "encoding": "dddaac99ec00a7ab",
+  "encoding": "176a8c8133dea37c",
   "files": {
     "mp4": "black-market/walk/clip.mp4",
     "webm": "black-market/walk/clip.webm",
     "poster": "black-market/walk/poster.png",
     "replay": "black-market/walk/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

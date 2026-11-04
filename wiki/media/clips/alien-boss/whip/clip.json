@@ -23,14 +23,14 @@
   "frames_hash": "1bbab0742ba414ba",
   "has_audio": true,
   "audio_hash": "7de836d33c9e6192",
-  "encoding": "4e8c0ae6a3c9e829",
+  "encoding": "68d116a7dc738837",
   "files": {
     "mp4": "alien-boss/whip/clip.mp4",
     "webm": "alien-boss/whip/clip.webm",
     "poster": "alien-boss/whip/poster.png",
     "replay": "alien-boss/whip/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

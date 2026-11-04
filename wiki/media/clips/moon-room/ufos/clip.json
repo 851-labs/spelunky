@@ -23,14 +23,14 @@
   "frames_hash": "abf4b58b278d0c8b",
   "has_audio": true,
   "audio_hash": "dcb7b9ef531d0630",
-  "encoding": "ad4241c1483288aa",
+  "encoding": "309a013067c7d019",
   "files": {
     "mp4": "moon-room/ufos/clip.mp4",
     "webm": "moon-room/ufos/clip.webm",
     "poster": "moon-room/ufos/poster.png",
     "replay": "moon-room/ufos/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

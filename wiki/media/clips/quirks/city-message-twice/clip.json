@@ -23,14 +23,14 @@
   "frames_hash": "0969c786551671e4",
   "has_audio": true,
   "audio_hash": "cb8c07772bf45827",
-  "encoding": "54f46eb6a1addb8a",
+  "encoding": "2cd6530f8c1561b8",
   "files": {
     "mp4": "quirks/city-message-twice/clip.mp4",
     "webm": "quirks/city-message-twice/clip.webm",
     "poster": "quirks/city-message-twice/poster.png",
     "replay": "quirks/city-message-twice/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

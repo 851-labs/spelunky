@@ -23,14 +23,14 @@
   "frames_hash": "a6560692e4968dcb",
   "has_audio": true,
   "audio_hash": "1ac79d1e9cb73620",
-  "encoding": "f8d88ffa6f35ad19",
+  "encoding": "116d9add5cf5de54",
   "files": {
     "mp4": "quirks/jar-whip-rolls-twice/clip.mp4",
     "webm": "quirks/jar-whip-rolls-twice/clip.webm",
     "poster": "quirks/jar-whip-rolls-twice/poster.png",
     "replay": "quirks/jar-whip-rolls-twice/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

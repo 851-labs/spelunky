@@ -23,14 +23,14 @@
   "frames_hash": "9263d986e3eba3c6",
   "has_audio": true,
   "audio_hash": "09dbeaa6cc9af5db",
-  "encoding": "a2e80bbeb7a00525",
+  "encoding": "15f067282c51487b",
   "files": {
     "mp4": "quirks/dark-graveyard-lake-you-hear/clip.mp4",
     "webm": "quirks/dark-graveyard-lake-you-hear/clip.webm",
     "poster": "quirks/dark-graveyard-lake-you-hear/poster.png",
     "replay": "quirks/dark-graveyard-lake-you-hear/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }

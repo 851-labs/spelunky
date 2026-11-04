@@ -23,14 +23,14 @@
   "frames_hash": "290b4eee83b41d8e",
   "has_audio": true,
   "audio_hash": "1b43ed1ad57b15b7",
-  "encoding": "e2d5534668277276",
+  "encoding": "586fe360c6541d4e",
   "files": {
     "mp4": "quirks/skeleton-faces-right/clip.mp4",
     "webm": "quirks/skeleton-faces-right/clip.webm",
     "poster": "quirks/skeleton-faces-right/poster.png",
     "replay": "quirks/skeleton-faces-right/replay.txt"
   },
-  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/LICENSE.txt). Unofficial; not affiliated with or endorsed by Mossmouth.",
-  "license": "https://spelunky.ai/LICENSE.txt",
+  "notice": "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the Spelunky User License v1.1b (https://spelunky.ai/license). Unofficial; not affiliated with or endorsed by Mossmouth.",
+  "license": "https://spelunky.ai/license",
   "caption": "Recorded from the spelunky.ai port, an unofficial port (a mod) of Spelunky Classic 1.1. Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC."
 }
