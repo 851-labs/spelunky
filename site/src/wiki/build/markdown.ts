@@ -34,7 +34,7 @@ export interface PageMarkdown {
   answers: MdNode[];
 }
 
-const LICENSE_URL = `${SITE_URL}/LICENSE.txt`;
+const LICENSE_URL = `${SITE_URL}/license`;
 const SITE_TITLE = "spelunky.ai: the Spelunky Classic wiki";
 const SITE_SUMMARY =
   "An unofficial fan wiki for Spelunky Classic, Derek Yu's 2008 roguelike platformer (the original Spelunky), " +

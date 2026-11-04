@@ -235,10 +235,8 @@ node_modules/.bin/vite build
 node_modules/.bin/tsc -p .
 assets=dist/client
 [ -f $assets/index.html ] || die "vite build pre-rendered no $assets/index.html"
-# The landing page links the license, which a Covered Work has to come with. LICENSE is the original's
-# COPYING.txt, so windows-1252 (its ® is the byte AE), and the Worker serves a .txt as UTF-8 (src/server.ts).
-node -e 'fs.writeFileSync(process.argv[2], new TextDecoder("windows-1252").decode(fs.readFileSync(process.argv[1])))' \
-  ../LICENSE $assets/LICENSE.txt
+# The license is the /license page (src/routes/license.tsx), which the build made from ../LICENSE; the Worker
+# redirects the plain /LICENSE.txt that was here to it (src/server.ts).
 mv "$tmp/play" $assets/play
 # The game's page gets the head every page has (src/seo/play.ts) after its title, the release's copyright notice:
 # its description, canonical URL, Open Graph's and Twitter's tags, the viewport and the icons (and its policy,

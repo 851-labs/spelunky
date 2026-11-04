@@ -213,7 +213,7 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
 {
   const before = failures;
   const notice =
-    "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the [Spelunky User License v1.1b](https://spelunky.ai/LICENSE.txt). spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth. The game and its assets may not be sold.\n\n";
+    "Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the [Spelunky User License v1.1b](https://spelunky.ai/license). spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth. The game and its assets may not be sold.\n\n";
   const audio = "Music by George Buzinkai and Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and Mossmouth, LLC.";
   const files = markdownFiles(committed.pages);
   const want = [...committed.pages.map((page) => `wiki/${page.meta.slug}.md`), "llms.txt", "llms-full.txt"].sort().join();
@@ -239,7 +239,7 @@ if (committed.pages.some((p) => p.code.includes("/wiki/source/"))) fail("content
     "walks off one[^5]. Where",
     "**Clip: Snake bite.** A snake slithers up to the player and bites him, taking a heart.",
     "  ```gml objects/oSnake/step.gml:73-76\n  else if (status == ATTACK)\n",
-    "  `objects/oSnake/step.gml:73-76`, from `spelunky.gmk`, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC ([Spelunky User License v1.1b](https://spelunky.ai/LICENSE.txt)).",
+    "  `objects/oSnake/step.gml:73-76`, from `spelunky.gmk`, Spelunky Classic 1.1's source, © 2008, 2009 Derek Yu and Mossmouth, LLC ([Spelunky User License v1.1b](https://spelunky.ai/license)).",
     "\n## FAQ\n\n### How much damage does a Snake do in Spelunky Classic?\n\n1 heart per bite. Touching a Snake",
     "\n## References\n\n[^1]: `objects/oSnake/create.gml:10`\n",
     "\n### Source code\n\n- `objects/oSnake/create.gml`\n",

@@ -69,7 +69,7 @@ function licensesText(packages: Package[]): string {
     "Third-party software in spelunky.ai's pages",
     "",
     "The scripts the site's pages load include the following packages, each under its own license, as follows.",
-    "The game at /play/ and Spelunky itself are covered by https://spelunky.ai/LICENSE.txt and the game's own notices.",
+    "The game at /play/ and Spelunky itself are covered by https://spelunky.ai/license and the game's own notices.",
     "",
     ...sorted.map((p) => `- ${p.name} ${p.version} (${p.license})`),
   ];

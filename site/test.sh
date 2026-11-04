@@ -382,7 +382,7 @@ lacks() {
   done
 }
 # The notice that starts the files read without a page's footer (docs/wiki-license.md, "Per-page notice").
-notice='Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the [Spelunky User License v1.1b](https://spelunky.ai/LICENSE.txt). spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth. The game and its assets may not be sold.'
+notice='Spelunky is © 2008, 2009 Derek Yu and Mossmouth, LLC, and is used under the [Spelunky User License v1.1b](https://spelunky.ai/license). spelunky.ai is an unofficial fan project, not affiliated with or endorsed by Mossmouth. The game and its assets may not be sold.'
 audio_credit='Music by George Buzinkai and Jonathan Perry; sound effects made in SFXR. From Spelunky Classic 1.1, © 2008, 2009 Derek Yu and Mossmouth, LLC.'
 
 site=http://localhost:$port
@@ -411,7 +411,7 @@ contains '<html lang="en">' \
   '<a class="play" href="/play/">Play in your browser</a><a class="settings" href="/play/?settings">Settings</a>' \
   '<a href="/wiki/controls">All the controls</a>' \
   'autoPlay="" loop="" muted="" playsInline=""' \
-  '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
+  '<a href="/license">Spelunky User License v1.1b</a>' \
   '.play:focus-visible{outline:2px solid var(--gold);' '.site-header{'
 # The license's copyright notice is the Credits and license section's, not a line under the heading (851-4024).
 contains 'is by Derek Yu, Copyright © 2008, 2009 Derek Yu and Mossmouth, LLC.'
@@ -971,7 +971,7 @@ contains '<title>objects/oSnake/step.gml – GML source – Spelunky Classic wik
   '<meta name="robots" content="noindex"/>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/source/objects/oSnake/step"/>' \
   '<a href="/wiki/source">Source code</a>' '<h1><code>objects/oSnake/step.gml</code></h1>' \
-  '<p class="source-notice">From spelunky.gmk, Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC, shown whole under the <a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
+  '<p class="source-notice">From spelunky.gmk, Spelunky Classic 1.1&#x27;s source, © 2008, 2009 Derek Yu and Mossmouth, LLC, shown whole under the <a href="/license">Spelunky User License v1.1b</a>' \
   'oSnake&#x27;s step event, 6 lines of GML.' \
   '<a href="/wiki/source/objects/oSnake/create">create.gml</a>' '<strong aria-current="page">step.gml</strong>' \
   '<span class="line" id="L1"><a class="ln" href="#L1" data-n="1" aria-label="Line 1"></a><span><span class="m">// ==== action 1: lib 1 id 603: code ====</span></span></span>' \
@@ -995,7 +995,7 @@ check "$site/wiki/source/rooms/rTutorial" 200 "$no_cache" "content-type: text/ht
 contains '<title>rTutorial – Room source – Spelunky Classic wiki</title>' '<meta name="robots" content="noindex"/>' \
   '<link rel="canonical" href="https://spelunky.ai/wiki/source/rooms/rTutorial"/>' \
   '<a href="/wiki/source">Source code</a>' '<h1><code>rTutorial</code></h1>' \
-  'Derek Yu and Mossmouth, LLC, under the <a href="/LICENSE.txt">Spelunky User License v1.1b</a>. Extracted by spelunky.ai&#x27;s tools' \
+  'Derek Yu and Mossmouth, LLC, under the <a href="/license">Spelunky User License v1.1b</a>. Extracted by spelunky.ai&#x27;s tools' \
   'The room rTutorial as the room editor placed it: 5 instances of 4 objects and 1 tile.' \
   '<p class="source-about">The wiki&#x27;s page on this room: <a id="' '" href="/wiki/tutorial" data-slug="tutorial">Tutorial</a>.</p>' \
   '<th scope="row">Size</th><td>672 × 304 pixels</td>' '<td><div>bgCave, tiled across and down</div></td>' \
@@ -1072,10 +1072,32 @@ check "$site/" 200
 contains '<a href="/third-party-licenses.txt">third-party licenses</a>'
 check "$site/wiki/snake" 200
 contains '<a href="/third-party-licenses.txt">Third-party licenses</a>'
-# The license, in UTF-8 as it's served (build.sh), as the media's is above.
-check "$site/LICENSE.txt" 200 "$no_cache" "content-type: text/plain; charset=utf-8"
-same "$tmp/LICENSE.txt"
-contains 'Spelunky® User License v1.1b'
+# The license (src/routes/license.tsx): the repo's LICENSE as a page in the site's frame, read whole (its title and
+# header, every section, the conditions as the file numbers them), the footer's link to it, and its own stylesheet.
+# The plain /LICENSE.txt it replaced is a redirect to it (851-4026), as the media's LICENSE.txt, above, stays.
+check "$site/license" 200 "$no_cache" "content-type: text/html; charset=utf-8" "$hsts" "$frame_csp"
+contains '<title>Spelunky User License v1.1b - spelunky.ai</title>' \
+  '<link rel="canonical" href="https://spelunky.ai/license"/>' \
+  '<nav class="site-nav" aria-label="Site"><a href="/play/" target="_blank" rel="noopener">Play<span class="visually-hidden"> (opens in a new tab)</span></a><a href="/wiki">Wiki</a><a href="/download">Download</a></nav>' \
+  '<h1>Spelunky® User License v1.1b</h1>' \
+  '<p class="license-meta">Copyright (c) 2008, 2009 Derek Yu and Mossmouth, LLC</p>' \
+  '<p class="license-meta">Last Updated on December 25th, 2009</p>' \
+  '<h2 id="preamble">1. Preamble</h2>' '<h2 id="definitions">2. Definitions</h2>' \
+  '<h2 id="rights-granted">3. Rights Granted</h2>' '<h2 id="disclaimer-of-warranty">4. Disclaimer of Warranty</h2>' \
+  '<h2 id="limitation-of-liability">5. Limitation of Liability</h2>' \
+  '<li><span class="marker">(2)</span><span>You may not sell Covered Works.</span></li>' \
+  'rendered inaccurate.</p>' \
+  '<a href="/third-party-licenses.txt">third-party licenses</a>' \
+  '<a href="/license">License</a>'
+license_css=$(sed -n 's|.*<link rel="stylesheet" href="/\(assets/license-[^"]*\.css\)".*|\1|p' dist/client/license.html)
+if [ -z "$license_css" ]; then
+  fail "the license page links no stylesheet of its own"
+else
+  check "$site/$license_css" 200 "$immutable" "content-type: text/css; charset=utf-8"
+  contains '.site-header{' '.conditions li{'
+fi
+check "$site/LICENSE.txt" 301 "$no_cache" "location: $site/license"
+check "$site/LICENSE.txt/" 301 "$no_cache" "location: $site/license"
 
 # The download page (src/routes/download.tsx), pre-rendered from the stand-in manifest: its systems' files, each
 # with its size (and no SHA-256 line: the release's SHA256SUMS has them), and no system the manifest has no file for; Download marked in the header; its own
@@ -1088,7 +1110,7 @@ contains '<title>Download Spelunky Classic for macOS, Windows and Linux (unoffic
   '<a class="file" href="https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-macos.zip"><span class="file-label">Universal</span><span class="file-meta">zip<!-- -->, <!-- -->26.4 MB</span></a>' \
   '<a class="file" href="https://github.com/851-labs/spelunky/releases/download/v9.9.9/spelunky-9.9.9-windows-x64.zip"><span class="file-label">x64</span><span class="file-meta">zip<!-- -->, <!-- -->17.9 MB</span></a>' \
   '<a href="https://github.com/851-labs/spelunky/releases/tag/v9.9.9">' \
-  '<a href="/LICENSE.txt">Spelunky User License v1.1b</a>' \
+  '<a href="/license">Spelunky User License v1.1b</a>' \
   'is by Derek Yu, Copyright © 2008, 2009 Derek Yu and Mossmouth, LLC.'
 # As the landing page's, its notice is its Credits and license section's alone (851-4024).
 lacks 'An unofficial fan port (a mod).' 'class="notice"'
@@ -1165,6 +1187,8 @@ node test-carry.mjs || fail "test-carry.mjs"
 node test-links.mjs dist/client "$site" || fail "test-links.mjs"
 # The download page's manifest, its systems and which one a browser's on.
 node test-download.mjs || fail "test-download.mjs"
+# The license page's reading of LICENSE, and the files it refuses.
+node test-license.mjs || fail "test-license.mjs"
 # Every block's left edge on its column's keyline, from the stylesheet.
 node test-keyline.mjs || fail "test-keyline.mjs"
 # The content types the Worker sets itself, against an asset store like Cloudflare's rather than wrangler dev's,

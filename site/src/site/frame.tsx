@@ -77,11 +77,13 @@ function SiteHeader({ section, search }: { section: Section | null; search: Reac
   );
 }
 
-// The footer's links on a page outside the wiki (the landing page, the 404 page), whose notices are its own.
+// The footer's links on a page outside the wiki (the landing page, /download, /license, the 404 page), whose notices
+// are its own: the license on every one of them, as the wiki's footer has it.
 export function SiteLinks() {
   return (
     <p>
-      spelunky.ai &middot; <a href="/wiki">Wiki</a> &middot; <a href="https://github.com/851-labs/spelunky">GitHub</a>
+      spelunky.ai &middot; <a href="/wiki">Wiki</a> &middot; <a href="/license">License</a> &middot;{" "}
+      <a href="https://github.com/851-labs/spelunky">GitHub</a>
     </p>
   );
 }

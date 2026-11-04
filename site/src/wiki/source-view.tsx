@@ -50,7 +50,7 @@ function Notice({ path }: { path: string }) {
   return (
     <p className="source-notice">
       {SOURCE_NOTICE.before}
-      <a href="/LICENSE.txt">{SOURCE_NOTICE.license}</a>
+      <a href="/license">{SOURCE_NOTICE.license}</a>
       {SOURCE_NOTICE.after}
       <code>{SOURCE_NOTICE.actionLines}</code>
       {SOURCE_NOTICE.end}
@@ -194,7 +194,7 @@ export function RoomPage({ data: { name, room, linked, pages, place } }: { data:
       </h1>
       <p className="source-notice">
         {ROOM_NOTICE.before}
-        <a href="/LICENSE.txt">{ROOM_NOTICE.license}</a>
+        <a href="/license">{ROOM_NOTICE.license}</a>
         {ROOM_NOTICE.after}
       </p>
       <p className="source-about">

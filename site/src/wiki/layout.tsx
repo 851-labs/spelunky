@@ -37,7 +37,7 @@ export function WikiFrame({ children, audio = false }: { children: ReactNode; au
         <>
           <p>
             {NOTICE.before}
-            <a href="/LICENSE.txt">{NOTICE.license}</a>
+            <a href="/license">{NOTICE.license}</a>
             {NOTICE.after}
           </p>
           {audio && <p>{AUDIO_CREDIT}</p>}

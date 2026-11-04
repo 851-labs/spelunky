@@ -111,7 +111,7 @@ function DownloadPage() {
           official, and isn't affiliated with Mossmouth.
         </p>
         <p>
-          It's distributed under the <a href="/LICENSE.txt">Spelunky User License v1.1b</a>, and may not be sold.
+          It's distributed under the <a href="/license">Spelunky User License v1.1b</a>, and may not be sold.
           Each download has the license, a notice and its third-party licenses beside the game. Source:{" "}
           <a href="https://github.com/851-labs/spelunky">github.com/851-labs/spelunky</a>.
         </p>

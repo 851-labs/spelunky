@@ -13,11 +13,12 @@ import { roomUrl, sourceUrl } from "./src/wiki/source-url.ts";
 import { wikiMediaPlugin } from "./src/seo/media-package.ts";
 import { thirdPartyLicenses } from "./src/build/third-party-licenses.ts";
 import { siteRelease } from "./src/build/release.ts";
+import { siteLicense } from "./src/build/license.ts";
 
-// What build.sh adds to dist/client after this build: the release's web build, the license, the update
-// manifest and the wiki's media; and the wiki's Open Graph images, which the wiki plugin writes. The router
+// What build.sh adds to dist/client after this build: the release's web build, the update manifest and the
+// wiki's media; and the wiki's Open Graph images, which the wiki plugin writes. The router
 // serves none of them, so pre-rendering doesn't follow the pages' links there.
-const NOT_ROUTES = ["/play/", "/LICENSE.txt", "/releases/", "/wiki/media/", "/wiki/og/"];
+const NOT_ROUTES = ["/play/", "/releases/", "/wiki/media/", "/wiki/og/"];
 
 // The wiki's pages (docs/wiki-style.md, "The pipeline"), the stats they cite and the relations they're
 // checked against, the pages planned but not written, and the clip and relations specs, docs/quirks.md and the
@@ -100,6 +101,7 @@ export default defineConfig({
         // The 404 page, as 404.html, which the Worker serves for any path that isn't a page (src/server.ts).
         { path: "/404" },
         { path: "/download" },
+        { path: "/license" },
         { path: "/sitemap.xml" },
         { path: "/wiki" },
         ...HUBS.map((hub) => ({ path: hub.path })),
@@ -130,6 +132,8 @@ export default defineConfig({
     siteUpdated(),
     // "virtual:site/release": the native apps' downloads, from build.sh's update manifest (SITE_RELEASE_MANIFEST).
     siteRelease(),
+    // "virtual:site/license": the Spelunky User License, for the /license page, from the repo's LICENSE.
+    siteLicense(),
     // /third-party-licenses.txt: the licenses of the packages in the pages' scripts.
     thirdPartyLicenses(),
   ],

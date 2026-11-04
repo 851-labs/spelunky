@@ -42,6 +42,11 @@ const NOT_FOUND_PATHS = new Set([NOT_FOUND_PAGE, `${NOT_FOUND_PAGE}/`, `${NOT_FO
 // The wiki for LLMs (src/wiki/build/markdown.ts): every page's text again, so kept out of search engines' indexes,
 // which have the pages.
 const FOR_LLMS = new Set(["/llms.txt", "/llms-full.txt"]);
+// The license was a plain text file, /LICENSE.txt, before it was a page (src/routes/license.tsx, 851-4026). The
+// releases' notes and the game's credits before then, the wiki media's notices (their files' metadata and
+// NOTICE.txt) and other sites link it, so it, and its slashed form the asset store redirected, are redirects there.
+const OLD_LICENSE = new Set(["/LICENSE.txt", "/LICENSE.txt/"]);
+const LICENSE_PAGE = "/license";
 
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
@@ -130,7 +135,13 @@ async function route(request: Request, env: Env, { probe = false } = {}): Promis
     const type = page.headers.get("content-type");
     return noCache(new Response(page.body, { status: 404, headers: type === null ? {} : { "content-type": type } }));
   }
-  // /sitemap.xml/ to /sitemap.xml, as the asset store sends /LICENSE.txt/ to /LICENSE.txt, rather than a second
+  // For good, a 301 (308 for other methods, as the asset store's 405 for them would be at the page), no-cache as the
+  // aliases' are.
+  if (OLD_LICENSE.has(url.pathname)) {
+    url.pathname = LICENSE_PAGE;
+    return noCache(Response.redirect(url.toString(), getOrHead ? 301 : 308));
+  }
+  // /sitemap.xml/ to /sitemap.xml, as the asset store sends /llms.txt/ to /llms.txt, rather than a second
   // copy rendered on every request: for good, a 301. The pre-render asks for the slashed path first, and follows
   // this.
   if (url.pathname.endsWith("/") && ROUTED_FILES.has(url.pathname.slice(0, -1))) {
@@ -340,10 +351,10 @@ function revalidated(request: Request, asset: Response): Response {
 // media), so browsers revalidate them every time: a deploy shows up at once, and an unchanged file is a 304 (a page
 // by its date: revalidated(), above).
 //
-// And a text file gets the charset a browser needs for its non-ASCII text (/LICENSE.txt's ®, /llms.txt's ©):
+// And a text file gets the charset a browser needs for its non-ASCII text (/llms.txt's ©):
 // Cloudflare's asset store serves .txt, and its 304s, as text/plain without one, which a browser decodes by
 // guessing, often as windows-1252. (wrangler dev's adds it, so test-server.mjs checks the Worker against an asset
-// store like Cloudflare's.) Every .txt the Worker serves is UTF-8, the license too (build.sh).
+// store like Cloudflare's.) Every .txt the Worker serves is UTF-8.
 function noCache(response: Response): Response {
   const copy = new Response(response.body, response);
   copy.headers.set("cache-control", "no-cache");

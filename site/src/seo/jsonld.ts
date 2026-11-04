@@ -17,7 +17,7 @@ export const WEBSITE_ID = `${SITE_URL}/#website`;
 export const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 export const GAME_ID = `${SITE_URL}/#game`;
 
-const LICENSE_URL = `${SITE_URL}/LICENSE.txt`;
+const LICENSE_URL = `${SITE_URL}/license`;
 const COPYRIGHT = "Spelunky © 2008, 2009 Derek Yu and Mossmouth, LLC";
 const SITE_DESCRIPTION =
   "An unofficial fan project: a tick-for-tick Rust port of Spelunky Classic 1.1, playable in the browser. " +
