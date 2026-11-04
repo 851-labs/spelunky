@@ -816,6 +816,22 @@ for popup in hover-card-positioner search-positioner; do
     echo "ok   $popup: $chunk, loaded when it's first used"
   fi
 done
+# The search list's styles (src/wiki/search-popup.css): a stylesheet of their own, which the list's chunk loads with
+# it, on the landing page too (851-4004), so no page links it up front, and neither the wiki's CSS nor the landing
+# page's (in its scripts, test-bundle.mjs) carries them.
+popup_css=$(cd dist/client && grep -l '\.search-popup{' assets/*.css || true)
+if [ $(($(echo "$popup_css" | wc -w))) != 1 ]; then
+  fail "dist/client/assets: the search list's styles aren't in one stylesheet: $popup_css"
+else
+  check "$site/$popup_css" 200 "$immutable" "content-type: text/css; charset=utf-8"
+  contains '.search-positioner{' '.search-title{'
+  for page in index wiki wiki/snake; do
+    if grep -qF "${popup_css#assets/}" "dist/client/$page.html"; then fail "/$page links $popup_css up front"; fi
+  done
+  # (.search-positioner is the list's own: search-hits.css names .search-popup too, scoping its rules.)
+  if grep -qF '.search-positioner' dist/client/index.html; then fail "/ has the search list's styles inline"; fi
+  if [ -n "$css" ] && grep -qF '.search-positioner' "dist/client/$css"; then fail "$css has the search list's styles"; fi
+fi
 # The media index (virtual:wiki-media, src/seo/media-package.ts) is the Worker's alone, for the media
 # sitemaps: a page's JSON-LD has its own media, made at build time (compile.ts's mediaJsonLd), so no script
 # the browser gets has the index. Its entries name their files relative to the media, which nothing else

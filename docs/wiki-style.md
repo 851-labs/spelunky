@@ -279,12 +279,15 @@ The site (`site/`, docs/web-deploy.md) builds the pages; nothing else does.
   `virtual:wiki/search-index`, which the browser loads the first time a search box is used and searches
   itself: no server. Every wiki page's header has a box that lists the best pages as you type (Base UI's
   autocomplete: the arrow keys, Enter and Escape work in it; its list's code, `search-popup.tsx`, is a chunk
-  of its own, loaded with the index) and otherwise goes to `/wiki?q=<query>`, where `/wiki`'s own
-  box lists every page that matches, with the sections whose headings do. That URL is the WebSite JSON-LD's
-  SearchAction. A page's words score by where they are (title, then aliases, headings, lede, categories, then
-  its text by how often), and every word of a query must match a word, the start of one, or one a letter or
-  two shorter ("snakes" finds "snake"). It's a page of code rather than a library: Orama would add 22 KB
-  gzipped to the page's code and MiniSearch 6 KB, where this is 1.2 KB; and Pagefind
+  of its own, loaded with the index, with its styles, `search-popup.css`) and otherwise goes to
+  `/wiki?q=<query>`, where `/wiki`'s own box lists every page that matches, with the sections whose headings
+  do. That URL is the WebSite JSON-LD's SearchAction. The landing page's header has the same box, as a plain
+  form until it's first focused or pressed, when it loads the autocomplete in a chunk of its own and gives
+  it what's typed and the focus (`site/src/site/frame.tsx`'s `SiteSearch` and `search-swap.tsx`, 851-4004), so
+  the landing page's scripts don't carry it. A page's words score by where they are (title, then aliases, headings, lede,
+  categories, then its text by how often), and every word of a query must match a word, the start of one, or
+  one a letter or two shorter ("snakes" finds "snake"). It's a page of code rather than a library: Orama would
+  add 22 KB gzipped to the page's code and MiniSearch 6 KB, where this is 1.2 KB; and Pagefind
   would mean a binary in Workers Builds, a pass over the built HTML that `vite dev` doesn't make, and
   hundreds of files toward the assets' limit (docs/web-deploy.md, "Limits") where this is one. The index has
   the pages that are written, not the planned ones (the Snake's alone is 1.5 KB gzipped).

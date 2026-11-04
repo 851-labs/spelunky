@@ -3,12 +3,14 @@
 // keyline (docs/wiki-style.md, "The keyline"), styled by site.css. The header is the logo (the way home), the
 // site's sections, the one a page is in marked, and the wiki's search box (851-3994).
 //
-// The landing page's scripts mustn't have the wiki's code (test-bundle.mjs), so this imports none of it: a page
-// gives the header its search box. The wiki's is Base UI's autocomplete (src/wiki/search-box.tsx); the landing
-// page's is SiteSearch, the same form without the list, which goes to /wiki?q= as the autocomplete's does
-// without a page chosen.
+// The landing page's scripts mustn't have the wiki's code up front (test-bundle.mjs), so this imports none of it
+// but load-once (a few lines): a page gives the header its search box. The wiki's is Base UI's autocomplete
+// (src/wiki/search-box.tsx); the landing page's is SiteSearch, the same form, which loads the autocomplete when
+// it's first used.
 import { useLocation } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { CompositionEvent, ReactNode } from "react";
+import { loadOnce, never } from "../wiki/load-once";
 
 // The site's sections, in the header's order.
 const SECTIONS = [
@@ -75,25 +77,59 @@ export function SiteLinks() {
   );
 }
 
-// The header's search box where the wiki's code isn't: a plain form, as the wiki's is before its script runs. (On
-// the 404 page, which has no scripts, an empty box goes to /wiki, the search's page, rather than nowhere.)
+// The header's search box where the wiki's code isn't up front (the landing page, the 404 page): a plain form, as
+// the wiki's is before its script runs, which goes to /wiki?q=. The first time it's focused or pressed, it loads
+// the wiki's box (Base UI's autocomplete, src/wiki/search-box.tsx) in a chunk of its own, which takes its place
+// with what's typed, the selection and the focus (search-swap.tsx), so it lists pages as you type there too
+// (851-4004) without the landing page's scripts carrying it (test-bundle.mjs). All but loading it is the chunk's.
+// Without scripts (the 404 page has none), it stays the form, where an empty box goes to /wiki, the search's page,
+// rather than nowhere.
+const loadSwap = loadOnce(() => (import.meta.env.SSR ? never() : import("./search-swap")).then((module) => module.swap));
+
 export function SiteSearch() {
+  const [box, setBox] = useState<ReactNode>(null);
+  const form = useRef<HTMLFormElement>(null);
+  // Once (again only if the chunk didn't load); its cancel, if the form goes first.
+  const started = useRef(false);
+  const cancel = useRef<() => void>(undefined);
+  const upgrade = () => {
+    if (started.current) return;
+    started.current = true;
+    loadSwap().then(
+      (swap) => (cancel.current = swap(form.current, setBox)),
+      () => (started.current = false),
+    );
+  };
+  // Focused before the page was hydrated, when no handler saw it.
+  useEffect(() => {
+    if (form.current?.contains(document.activeElement)) upgrade();
+    return () => cancel.current?.();
+  }, []);
+  // An input method's composition under way, which the swap waits out: it may start before the chunk is here.
+  const composing = (on: boolean) => (e: CompositionEvent<HTMLFormElement>) => e.currentTarget.toggleAttribute("data-composing", on);
   return (
-    <form
-      role="search"
-      className="search-box"
-      action="/wiki"
-      method="get"
-      // As the wiki's: an empty box goes nowhere.
-      onSubmit={(e) => {
-        if (!new FormData(e.currentTarget).get("q")?.toString().trim()) e.preventDefault();
-      }}
-    >
-      <label className="visually-hidden" htmlFor="site-search">
-        Search the wiki
-      </label>
-      <input id="site-search" type="search" name="q" placeholder="Search the wiki" autoComplete="off" spellCheck={false} />
-      <button type="submit">Search</button>
-    </form>
+    box ?? (
+      <form
+        ref={form}
+        role="search"
+        className="search-box"
+        action="/wiki"
+        method="get"
+        // As the wiki's: an empty box goes nowhere.
+        onSubmit={(e) => {
+          if (!new FormData(e.currentTarget).get("q")?.toString().trim()) e.preventDefault();
+        }}
+        onFocus={upgrade}
+        onPointerDown={upgrade}
+        onCompositionStart={composing(true)}
+        onCompositionEnd={composing(false)}
+      >
+        <label className="visually-hidden" htmlFor="site-search">
+          Search the wiki
+        </label>
+        <input id="site-search" type="search" name="q" placeholder="Search the wiki" autoComplete="off" spellCheck={false} />
+        <button type="submit">Search</button>
+      </form>
+    )
   );
 }

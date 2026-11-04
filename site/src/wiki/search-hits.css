@@ -1,0 +1,7 @@
+/* A search hit's title, category and the words the query matched: in the header box's list (search-popup.css)
+   and /wiki's results (wiki.css), which import this. A wiki page whose header box is used has them twice, which
+   costs a few lines, so that /wiki's results needn't load the list's stylesheet nor the landing page carry these. */
+.search-title { color: var(--gold); font-weight: 700; }
+.search-category { color: var(--dim); font-size: 13px; }
+/* Only theirs: the list's stylesheet comes to the landing page too. */
+:is(.search-popup, .search-results) mark { color: inherit; background: none; text-decoration: underline 2px var(--gold); text-underline-offset: 3px; }

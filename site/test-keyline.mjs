@@ -1,7 +1,8 @@
 // The site's keyline (docs/wiki-style.md, "The keyline"), which site/test.sh runs: every block in a column shows
 // its left edge on the column's. The site's tests have no browser to ask where a block's edge is, so this
 // reads the stylesheets instead (src/wiki/wiki.css, src/landing.css and the 404 page's src/site/not-found.css, each
-// with src/site/site.css, which they import), for the three ways a block has come off the line:
+// with src/site/site.css, which they import, and the search list's src/wiki/search-popup.css), for the three ways a
+// block has come off the line:
 //
 //   - a ring or frame drawn outside its box (box-shadow: 0 0 0 var(--ring) ..., or var(--stone)), with the box
 //     on the keyline and the ring past it (a drop shadow offset right by its spread reaches no further left). A block with one is inset by it, margin-inline: var(--ring) or
@@ -223,22 +224,29 @@ const fail = (message) => {
   failures++;
 };
 
-// A stylesheet with site.css's rules in place of its import of them, as the build has it.
+// A stylesheet with what it imports in place of its @imports, as the build has it. A page's imports site.css,
+// whose tokens it uses; a chunk's (search-popup.css) has them from the page it's loaded on.
 const SITE = readFileSync(new URL("src/site/site.css", import.meta.url), "utf8");
-const IMPORT = /^@import "(?:[./]*site\/|\.\/)site\.css";$/m;
-function withSite(file) {
-  const source = readFileSync(new URL(file, import.meta.url), "utf8");
-  if (!IMPORT.test(source)) fail(`${file} doesn't import site.css`);
-  return source.replace(IMPORT, () => SITE);
+const inlined = (url) =>
+  readFileSync(url, "utf8").replace(/^@import "([^"]+)";$/gm, (_, path) => inlined(new URL(path, url)));
+function stylesheet(file, { onPage = false } = {}) {
+  const source = inlined(new URL(file, import.meta.url));
+  if (onPage) return SITE + source;
+  if (!source.includes(SITE)) fail(`${file} doesn't import site.css`);
+  return source;
 }
-const css = withSite("src/wiki/wiki.css");
-const landing = withSite("src/landing.css");
+const css = stylesheet("src/wiki/wiki.css");
+const landing = stylesheet("src/landing.css");
+// A problem once, with the first stylesheet that has it (site.css's and search-hits.css's are in more than one).
+const reported = new Set();
 for (const [file, source] of [
   ["wiki.css", css],
   ["landing.css", landing],
-  ["not-found.css", withSite("src/site/not-found.css")],
+  ["not-found.css", stylesheet("src/site/not-found.css")],
+  ["search-popup.css", stylesheet("src/wiki/search-popup.css", { onPage: true })],
 ]) {
-  const problems = keylineProblems(source);
+  const problems = keylineProblems(source).filter((problem) => !reported.has(problem));
+  for (const problem of problems) reported.add(problem);
   for (const problem of problems) fail(`${file}: ${problem}`);
   if (problems.length === 0) console.log(`ok   ${file}: every block's edge is on the keyline`);
 }
